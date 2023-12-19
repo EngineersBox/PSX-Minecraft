@@ -29,53 +29,7 @@
 #include <stdint.h>
 #include <psxgpu.h>
 
-// Length of the ordering table, i.e. the range Z coordinates can have, 0-15 in
-// this case. Larger values will allow for more granularity with depth (useful
-// when drawing a complex 3D scene) at the expense of RAM usage and performance.
-#define OT_LENGTH 16
-
-// Size of the buffer GPU commands and primitives are written to. If the program
-// crashes due to too many primitives being drawn, increase this value.
-#define BUFFER_LENGTH 8192
-
-/* Framebuffer/display list class */
-
-typedef struct {
-	DISPENV disp_env;
-	DRAWENV draw_env;
-
-	uint32_t ot[OT_LENGTH];
-	uint8_t  buffer[BUFFER_LENGTH];
-} RenderBuffer;
-
-typedef struct {
-	RenderBuffer buffers[2];
-	uint8_t      *next_packet;
-	int          active_buffer;
-} RenderContext;
-
-void setup_context(RenderContext *ctx, int w, int h, int r, int g, int b) {
-	// Place the two framebuffers vertically in VRAM.
-	SetDefDrawEnv(&(ctx->buffers[0].draw_env), 0, 0, w, h);
-	SetDefDispEnv(&(ctx->buffers[0].disp_env), 0, 0, w, h);
-	SetDefDrawEnv(&(ctx->buffers[1].draw_env), 0, h, w, h);
-	SetDefDispEnv(&(ctx->buffers[1].disp_env), 0, h, w, h);
-
-	// Set the default background color and enable auto-clearing.
-	setRGB0(&(ctx->buffers[0].draw_env), r, g, b);
-	setRGB0(&(ctx->buffers[1].draw_env), r, g, b);
-	ctx->buffers[0].draw_env.isbg = 1;
-	ctx->buffers[1].draw_env.isbg = 1;
-
-	// Initialize the first buffer and clear its OT so that it can be used for
-	// drawing.
-	ctx->active_buffer = 0;
-	ctx->next_packet   = ctx->buffers[0].buffer;
-	ClearOTagR(ctx->buffers[0].ot, OT_LENGTH);
-
-	// Turn on the video output.
-	SetDispMask(1);
-}
+#include "render/buffer.h"
 
 void flip_buffers(RenderContext *ctx) {
 	// Wait for the GPU to finish drawing, then wait for vblank in order to
@@ -88,14 +42,14 @@ void flip_buffers(RenderContext *ctx) {
 
 	// Display the framebuffer the GPU has just finished drawing and start
 	// rendering the display list that was filled up in the main loop.
-	PutDispEnv(&(disp_buffer->disp_env));
-	DrawOTagEnv(&(draw_buffer->ot[OT_LENGTH - 1]), &(draw_buffer->draw_env));
+	PutDispEnv(&(disp_buffer->display_env));
+	DrawOTagEnv(&(draw_buffer->ordering_table[OT_LENGTH - 1]), &(draw_buffer->draw_env));
 
 	// Switch over to the next buffer, clear it and reset the packet allocation
 	// pointer.
 	ctx->active_buffer ^= 1;
-	ctx->next_packet    = disp_buffer->buffer;
-	ClearOTagR(disp_buffer->ot, OT_LENGTH);
+	ctx->next_packet = disp_buffer->packet_buffer;
+	ClearOTagR(disp_buffer->ordering_table, OT_LENGTH);
 }
 
 void *new_primitive(RenderContext *ctx, int z, size_t size) {
@@ -103,13 +57,13 @@ void *new_primitive(RenderContext *ctx, int z, size_t size) {
 	// insert it into the OT and bump the allocation pointer.
 	// TODO: This bump allocator sucks. Make it not suck.
 	RenderBuffer *buffer = &(ctx->buffers[ctx->active_buffer]);
-	uint8_t      *prim   = ctx->next_packet;
+	uint8_t *prim = ctx->next_packet;
 
-	addPrim(&(buffer->ot[z]), prim);
+	addPrim(&(buffer->ordering_table[z]), prim);
 	ctx->next_packet += size;
 
 	// Make sure we haven't yet run out of space for future primitives.
-	assert(ctx->next_packet <= &(buffer->buffer[BUFFER_LENGTH]));
+	assert(ctx->next_packet <= &(buffer->packet_buffer[BUFFER_LENGTH]));
 
 	return (void *) prim;
 }
@@ -120,10 +74,9 @@ void *new_primitive(RenderContext *ctx, int z, size_t size) {
 void draw_text(RenderContext *ctx, int x, int y, int z, const char *text) {
 	RenderBuffer *buffer = &(ctx->buffers[ctx->active_buffer]);
 
-	ctx->next_packet = (uint8_t *)
-		FntSort(&(buffer->ot[z]), ctx->next_packet, x, y, text);
+	ctx->next_packet = (uint8_t *) FntSort(&(buffer->ordering_table[z]), ctx->next_packet, x, y, text);
 
-	assert(ctx->next_packet <= &(buffer->buffer[BUFFER_LENGTH]));
+	assert(ctx->next_packet <= &(buffer->packet_buffer[BUFFER_LENGTH]));
 }
 
 /* Main */
