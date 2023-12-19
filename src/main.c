@@ -1,30 +1,11 @@
+
+
 #include <assert.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <psxgpu.h>
 
 #include "render/buffer.h"
-
-void flip_buffers(RenderContext *ctx) {
-	// Wait for the GPU to finish drawing, then wait for vblank in order to
-	// prevent screen tearing.
-	DrawSync(0);
-	VSync(0);
-
-	RenderBuffer* draw_buffer = &(ctx->buffers[ctx->active_buffer]);
-	RenderBuffer* disp_buffer = &(ctx->buffers[ctx->active_buffer ^ 1]);
-
-	// Display the framebuffer the GPU has just finished drawing and start
-	// rendering the display list that was filled up in the main loop.
-	PutDispEnv(&(disp_buffer->display_env));
-	DrawOTagEnv(&(draw_buffer->ordering_table[OT_LENGTH - 1]), &(draw_buffer->draw_env));
-
-	// Switch over to the next buffer, clear it and reset the packet allocation
-	// pointer.
-	ctx->active_buffer ^= 1;
-	ctx->next_packet = disp_buffer->packet_buffer;
-	ClearOTagR(disp_buffer->ordering_table, OT_LENGTH);
-}
 
 void* new_primitive(RenderContext* ctx, int z, size_t size) {
 	// Place the primitive after all previously allocated primitives, then

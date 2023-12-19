@@ -32,5 +32,6 @@ typedef struct {
 } RenderContext;
 
 void setup_context(RenderContext* ctx, int w, int h, int r, int g, int b);
+void flip_buffers(RenderContext* ctx);
 
 #endif // _PSXMC_RENDER_BUFFER
