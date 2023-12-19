@@ -1,6 +1,6 @@
 #include "buffer.h"
 
-void setup_context(RenderContext *ctx, int w, int h, int r, int g, int b) {
+void setup_context(RenderContext* ctx, int w, int h, int r, int g, int b) {
 	// Place the two framebuffers vertically in VRAM.
 	SetDefDrawEnv(&(ctx->buffers[0].draw_env), 0, 0, w, h);
 	SetDefDispEnv(&(ctx->buffers[0].display_env), 0, 0, w, h);

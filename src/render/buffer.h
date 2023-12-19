@@ -27,10 +27,10 @@ typedef struct {
 
 typedef struct {
 	RenderBuffer buffers[2];
-	uint8_t      *next_packet;
-	int          active_buffer;
+	uint8_t* next_packet;
+	int active_buffer;
 } RenderContext;
 
-void setup_context(RenderContext *ctx, int w, int h, int r, int g, int b);
+void setup_context(RenderContext* ctx, int w, int h, int r, int g, int b);
 
 #endif // _PSXMC_RENDER_BUFFER
