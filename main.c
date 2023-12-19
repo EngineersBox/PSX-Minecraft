@@ -101,6 +101,7 @@ void flip_buffers(RenderContext *ctx) {
 void *new_primitive(RenderContext *ctx, int z, size_t size) {
 	// Place the primitive after all previously allocated primitives, then
 	// insert it into the OT and bump the allocation pointer.
+	// TODO: This bump allocator sucks. Make it not suck.
 	RenderBuffer *buffer = &(ctx->buffers[ctx->active_buffer]);
 	uint8_t      *prim   = ctx->next_packet;
 

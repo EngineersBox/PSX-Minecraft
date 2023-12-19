@@ -11,11 +11,11 @@ project(
 	HOMEPAGE_URL "https://github.com/EngineersBox/PSX-Minecraft"
 )
 
-psn00bsdk_add_executable(PSX_Minecraft GPREL main.c)
+psn00bsdk_add_executable(PSXMC GPREL main.c)
 
 psn00bsdk_add_cd_image(
 	iso      # Target name
-	PSX_Minecraft # Output file name (= template.bin + template.cue)
+	PSXMC # Output file name (= template.bin + template.cue)
 	iso.xml  # Path to config file
-	DEPENDS PSX_Minecraft system.cnf
+	DEPENDS PSXMC system.cnf
 )
