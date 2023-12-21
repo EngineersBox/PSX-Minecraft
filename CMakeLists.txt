@@ -56,4 +56,5 @@ if (NOT (asset_count EQUAL 0))
 	)
 endif()
 
+psn00bsdk_target_incbin(PSXMC PRIVATE tim_texture "assets/texture.tim")
 install(FILES ${PROJECT_BINARY_DIR}/PSXMC.exe TYPE BIN)
