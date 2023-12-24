@@ -16,8 +16,8 @@
 #define SCREEN_YRES	480
 
 // Screen center position
-#define CENTRE_X	SCREEN_XRES >> 1
-#define CENTRE_Y	SCREEN_YRES >> 1
+#define CENTRE_X SCREEN_XRES >> 1
+#define CENTRE_Y SCREEN_YRES >> 1
 
 // Double buffer structure
 typedef struct {
@@ -27,9 +27,13 @@ typedef struct {
     char packet_buffer[PACKET_BUFFER_LENGTH];
 } DB;
 
-// Double buffer variables
-DB db[2];
-int db_active = 0;
-char *db_nextpri;
+typedef struct {
+    int active;
+    char* primitive;
+    DB db[2];
+} DisplayContext;
+
+void initDisplay(DisplayContext* ctx);
+void display(DisplayContext* ctx);
 
 #endif //PSX_MINECRAFT_DISPLAY_H
