@@ -17,7 +17,7 @@
 
 // Screen center position
 #define CENTRE_X (SCREEN_XRES >> 1)
-#define CENTRE_Y (SCREEN_YRES >> 1) 
+#define CENTRE_Y (SCREEN_YRES >> 1)
 
 // Double buffer structure
 typedef struct {

@@ -8,6 +8,7 @@
 #include "core/display.h"
 #include "primitive/primitive.h"
 #include "assets.h"
+#include "core/camera.h"
 #include "blocks/cube.h"
 
 DisplayContext dctx = {
@@ -64,21 +65,23 @@ void init() {
 /* Main function */
 int main() {
     SVECTOR rot = {0}; /* Rotation vector for Rotmatrix */
-    VECTOR pos = {0, 0, 400}; /* Translation vector for TransMatrix */
+    VECTOR pos = {0, 0, 200}; /* Translation vector for TransMatrix */
     MATRIX mtx, lmtx; /* Rotation matrices for geometry and lighting */
     POLY_FT4* pol4; /* Flat shaded textured quad primitive pointer */
     /* Init graphics and GTE */
     init();
     Cube cube = {
+        .psoition = {0, 0, 200},
+        .rotation = {0, 0, 0},
         .vertices = {
-            {-100, -100, -100, 0},
-            {100, -100, -100, 0},
-            {-100, 100, -100, 0},
-            {100, 100, -100, 0},
-            {100, -100, 100, 0},
-            {-100, -100, 100, 0},
-            {100, 100, 100, 0},
-            {-100, 100, 100, 0}
+            {-20, -20, -20, 0},
+            {20, -20, -20, 0},
+            {-20, 20, -20, 0},
+            {20, 20, -20, 0},
+            {20, -20, 20, 0},
+            {-20, -20, 20, 0},
+            {20, 20, 20, 0},
+            {-20, 20, 20, 0}
         },
         .texture_tpage = texture_tpage,
         .texture_clut = texture_clut

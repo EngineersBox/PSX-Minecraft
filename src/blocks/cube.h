@@ -9,6 +9,8 @@
 #include "../primitive/primitive.h"
 
 typedef struct Cube {
+    VECTOR psoition;
+    VECTOR rotation;
     uint16_t texture_tpage;
     uint16_t texture_clut;
     SVECTOR vertices[8];
