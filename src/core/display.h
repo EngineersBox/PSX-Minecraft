@@ -12,12 +12,12 @@
 #define PACKET_BUFFER_LENGTH 1024
 
 // Screen resolution
-#define SCREEN_XRES	640
-#define SCREEN_YRES	480
+#define SCREEN_XRES	320
+#define SCREEN_YRES	240
 
 // Screen center position
-#define CENTRE_X SCREEN_XRES >> 1
-#define CENTRE_Y SCREEN_YRES >> 1
+#define CENTRE_X (SCREEN_XRES >> 1)
+#define CENTRE_Y (SCREEN_YRES >> 1) 
 
 // Double buffer structure
 typedef struct {
