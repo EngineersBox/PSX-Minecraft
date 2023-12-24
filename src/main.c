@@ -4,6 +4,8 @@
 #include <psxgte.h>
 #include <inline_c.h>
 
+#include "assets.h"
+
 /* OT and Packet Buffer sizes */
 #define OT_LEN 256
 #define PACKET_LEN 1024

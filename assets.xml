@@ -1,0 +1,8 @@
+<lzp_project>
+  <create packname="textures.qlp" format="qlp">
+    <file alias="texture">${ASSETS_DIR}/texture.tim</file>
+  </create>
+  <create packname="assets.lzp" format="lzp">
+    <file alias="textures">textures.qlp</file>
+  </create>
+</lzp_project>

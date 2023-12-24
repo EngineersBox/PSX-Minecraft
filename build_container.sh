@@ -8,4 +8,4 @@ docker run -it \
   -v "$(pwd):/tmp/PSX-Minecraft" \
   -w "/tmp/PSX-Minecraft" \
   clion/ubuntu/cpp-env:1.0 \
-  cmake --build ./build
+  /bin/bash -c 'python3 asset_bundler.py && cmake --build ./build'

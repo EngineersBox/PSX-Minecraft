@@ -8,13 +8,13 @@ project(
 	HOMEPAGE_URL "https://github.com/EngineersBox/PSX-Minecraft"
 )
 
-set(ASSETS_DIR ${PROJECT_SOURCE_DIR}/data)
+set(ASSETS_DIR ${PROJECT_SOURCE_DIR}/assets)
 configure_file(assets.xml _assets.xml)
 
 # Add a build step to pack assets into a single .LZP file. Note that, since we
 # are specifying dependencies, CMake can detect when source assets are edited
 # and rebuild the archive automatically.
-file(GLOB _assets ${DATA_DIR}/*.tim ${DATA_DIR}/*.smd)
+file(GLOB _assets ${ASSETS_DIR}/*.tim ${ASSETS_DIR}/*.smd)
 list(LENGTH _assets asset_count)
 if (NOT (asset_count EQUAL 0))
 	add_custom_command(
