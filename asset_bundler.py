@@ -1,7 +1,6 @@
 import xml.etree.ElementTree as ET
 import os, pathlib
 
-
 def create_element(parent, name, packname):
     return ET.SubElement(
         parent,
@@ -11,7 +10,6 @@ def create_element(parent, name, packname):
             "format": "qlp"
         }
     )
-
 
 def bind_element(lzp_project, assets, element_name, file, path):
     elements = lzp_project.find("create[@packname='" + element_name + ".qlp']")
@@ -48,7 +46,6 @@ ASSET_TYPES = {
     ".smd": "models"
 }
 
-
 def bundle(lzp_project):
     assets = ET.SubElement(
         lzp_project,
@@ -74,8 +71,6 @@ def bundle(lzp_project):
                 "${ASSETS_DIR}" + root.removeprefix("assets") + "/" + file
             )
 
-    pass
-
 def sort_elements(lzp_project):
     assets = lzp_project.find("create[@packname='assets.lzp']")
     lzp_project.remove(assets)
@@ -91,7 +86,5 @@ def main():
     ET.indent(lzp_project)
     lzp_project.write("assets.xml")
 
-
 if __name__ == "__main__":
     main()
-    # pass
