@@ -6,6 +6,8 @@
 
 #include "../util/math_utils.h"
 
+#define isPressed(pad_button) (!(input->pad->btn & (pad_button)))
+
 void printDebugCamera(const Camera *camera, const Input *input) {
     // Print out some info
     FntPrint(-1, "BUTTONS=%04x\n", input->pad->btn);
@@ -29,36 +31,35 @@ void handleDigitalPadAndDualAnalogShock(Camera* camera, const Input* input, cons
     if (input->pad->type != 0x4
         && input->pad->type != 0x5
         && input->pad->type != 0x7) {
-        printf("Pad type 0x%x not in[0x4,0x5,0x7]\n", input->pad->type);
         return;
     }
     // The button status bits are inverted,
     // so 0 means pressed in this case
 
     // Look controls
-    if (!(input->pad->btn & PAD_UP)) {
+    if (isPressed(PAD_UP)) {
         // Look up
         camera->rotation.vx -= ONE * 8;
-    } else if (!(input->pad->btn & PAD_DOWN)) {
+    } else if (isPressed(PAD_DOWN)) {
         // Look down
         camera->rotation.vx += ONE * 8;
     }
-    if (!(input->pad->btn & PAD_LEFT)) {
+    if (isPressed(PAD_LEFT)) {
         // Look left
         camera->rotation.vy += ONE * 8;
-    } else if (!(input->pad->btn & PAD_RIGHT)) {
+    } else if (isPressed(PAD_RIGHT)) {
         // Look right
         camera->rotation.vy -= ONE * 8;
     }
     // Movement controls
-    if (!(input->pad->btn & PAD_TRIANGLE)) {
+    if (isPressed(PAD_TRIANGLE)) {
         // Move forward
         camera->position.vx -= ((isin(transforms->translation_rotation.vy)
                                  * icos(transforms->translation_rotation.vx)) >> CAMERA_MOVE_AMOUNT) << 2;
         camera->position.vy += isin(transforms->translation_rotation.vx) << 2;
         camera->position.vz += ((icos(transforms->translation_rotation.vy)
                                  * icos(transforms->translation_rotation.vx)) >> CAMERA_MOVE_AMOUNT) << 2;
-    } else if (!(input->pad->btn & PAD_CROSS)) {
+    } else if (isPressed(PAD_CROSS)) {
         // Move backward
         camera->position.vx += ((isin(transforms->translation_rotation.vy)
                                  * icos(transforms->translation_rotation.vx)) >> CAMERA_MOVE_AMOUNT) << 2;
@@ -66,24 +67,23 @@ void handleDigitalPadAndDualAnalogShock(Camera* camera, const Input* input, cons
         camera->position.vz -= ((icos(transforms->translation_rotation.vy)
                                  * icos(transforms->translation_rotation.vx)) >> CAMERA_MOVE_AMOUNT) << 2;
     }
-    if (!(input->pad->btn & PAD_SQUARE)) {
+    if (isPressed(PAD_SQUARE)) {
         // Slide left
         camera->position.vx -= icos(transforms->translation_rotation.vy) << 2;
         camera->position.vz -= isin(transforms->translation_rotation.vy) << 2;
-    } else if (!(input->pad->btn & PAD_CIRCLE)) {
+    } else if (isPressed(PAD_CIRCLE)) {
         // Slide right
         camera->position.vx += icos(transforms->translation_rotation.vy) << 2;
         camera->position.vz += isin(transforms->translation_rotation.vy) << 2;
     }
-    if (!(input->pad->btn & PAD_R1)) {
+    if (isPressed(PAD_R1)) {
         // Slide up
         camera->position.vx -= ((isin(transforms->translation_rotation.vy)
                                  * isin(transforms->translation_rotation.vx)) >> CAMERA_MOVE_AMOUNT) << 2;
         camera->position.vy -= icos(transforms->translation_rotation.vx) << 2;
         camera->position.vz += ((icos(transforms->translation_rotation.vy)
                                  * isin(transforms->translation_rotation.vx)) >> CAMERA_MOVE_AMOUNT) << 2;
-    }
-    if (!(input->pad->btn & PAD_R2)) {
+    } else if (isPressed(PAD_R2)) {
         // Slide down
         camera->position.vx += ((isin(transforms->translation_rotation.vy)
                                  * isin(transforms->translation_rotation.vx)) >> CAMERA_MOVE_AMOUNT) << 2;
@@ -92,10 +92,13 @@ void handleDigitalPadAndDualAnalogShock(Camera* camera, const Input* input, cons
                                  * isin(transforms->translation_rotation.vx)) >> CAMERA_MOVE_AMOUNT) << 2;
     }
     // DEBUG: Look at cube
-    if (!(input->pad->btn & PAD_L1)) {
+    if (isPressed(PAD_L1)) {
         camera->mode = 1;
     }
-    if (!(input->pad->btn & PAD_SELECT)) {
+    if (isPressed(PAD_START)) {
+        camera->reset_handler(camera);
+    }
+    if (isPressed(PAD_SELECT)) {
         _boot();
     }
 }
@@ -103,7 +106,6 @@ void handleDigitalPadAndDualAnalogShock(Camera* camera, const Input* input, cons
 void handleDualAnalogShock(Camera *camera, const Input *input, const Transforms *transforms) {
     // For dual-analog and dual-shock (analog input)
     if ((input->pad->type != 0x5) && (input->pad->type != 0x7)) {
-        printf("Pad type 0x%x not in [0x5,0x7]\n", input->pad->type);
         return;
     }
     // Moving forwards and backwards

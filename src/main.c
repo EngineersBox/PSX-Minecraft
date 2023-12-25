@@ -121,6 +121,11 @@ void floorRender(const SVECTOR floor_verts[17][17]) {
     dctx.primitive = (char *) pol4;
 }
 
+void cameraReset(Camera *camera) {
+    camera->position = (VECTOR) {0, ONE * -200, 0};
+    camera->rotation = (VECTOR) {0, 0, 0};
+    camera->mode = 0;
+}
 
 int main() {
     Camera camera = {
@@ -183,7 +188,6 @@ int main() {
     /* Main loop */
     while (1) {
         // Set pad pointer to buffer data
-        input.pad = (PADTYPE *) &input.pad_buffer[0][0];
         camera.mode = 0;
         cameraUpdate(&camera, &input, &transforms, &cube.position);
         // Set rotation and translation matrix

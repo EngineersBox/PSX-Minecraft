@@ -10,10 +10,15 @@
 
 #define CAMERA_MOVE_AMOUNT 12
 
-typedef struct {
+struct Camera;
+
+typedef void(*CameraReset)(struct Camera*);
+
+typedef struct Camera {
     VECTOR position;
     VECTOR rotation;
     int mode;
+    CameraReset reset_handler;
 } Camera;
 
 void cameraUpdate(Camera* camera, const Input* input, Transforms* transforms, const VECTOR* look_pos);
