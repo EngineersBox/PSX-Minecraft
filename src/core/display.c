@@ -48,6 +48,8 @@ void initDisplay(DisplayContext* ctx) {
     ClearOTagR(ctx->db[1].ordering_table, ORDERING_TABLE_LENGTH);
     // Set primitive pointer address
     ctx->primitive = ctx->db[0].packet_buffer;
+    // Set clip region
+    setRECT(&ctx->screen_clip, 0, 0, SCREEN_XRES, SCREEN_YRES);
     // Initialise the GTE
     InitGeom();
     // Set screen depth (basically FOV control, W/2 works best

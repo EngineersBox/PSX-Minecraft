@@ -30,6 +30,7 @@ typedef struct {
 typedef struct {
     int active;
     char* primitive;
+    RECT screen_clip;
     DB db[2];
 } DisplayContext;
 

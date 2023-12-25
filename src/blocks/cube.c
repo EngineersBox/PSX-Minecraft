@@ -5,6 +5,7 @@
 #include <inline_c.h>
 
 #include "../core/display.h"
+#include "../primitive/clip.h"
 
 const SVECTOR CUBE_NORMS[6] = {
     {0, 0, -ONE, 0},
@@ -24,7 +25,7 @@ const INDEX CUBE_INDICES[6] = {
     {3, 1, 6, 4}
 };
 
-void cubeRender(DisplayContext *ctx, Cube *cube) {
+void cubeRender(DisplayContext* ctx, Transforms* transforms, Cube* cube) {
     int p;
     POLY_FT4* pol4 = (POLY_FT4*) ctx->primitive;;
     for (int i = 0; i < CUBE_FACES; i++) {
