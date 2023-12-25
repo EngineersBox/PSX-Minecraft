@@ -165,7 +165,7 @@ void cameraUpdate(Camera *camera, const Input *input, Transforms *transforms, co
     } else {
         // DEBUG: Tracking mode
         // Vector that defines the 'up' direction of the camera
-        SVECTOR up = {0, -ONE, 0};
+        const SVECTOR up = {0, -ONE, 0};
         // Divide out fractions of camera coordinates
         transforms->translation_position.vx = camera->position.vx >> CAMERA_MOVE_AMOUNT;
         transforms->translation_position.vy = camera->position.vy >> CAMERA_MOVE_AMOUNT;
@@ -180,21 +180,19 @@ void cameraUpdate(Camera *camera, const Input *input, Transforms *transforms, co
     }
 }
 
-void lookAt(const VECTOR *eye, const VECTOR *at, SVECTOR *up, MATRIX *mtx) {
+void lookAt(const VECTOR *eye, const VECTOR *at, const SVECTOR *up, MATRIX *mtx) {
     VECTOR taxis;
     SVECTOR zaxis;
     SVECTOR xaxis;
     SVECTOR yaxis;
     VECTOR pos;
     VECTOR vec;
-
     setVector(&taxis, at->vx-eye->vx, at->vy-eye->vy, at->vz-eye->vz);
     VectorNormalS(&taxis, &zaxis);
     crossProduct(&zaxis, up, &taxis);
     VectorNormalS(&taxis, &xaxis);
     crossProduct(&zaxis, &xaxis, &taxis);
     VectorNormalS(&taxis, &yaxis);
-
     mtx->m[0][0] = xaxis.vx;
     mtx->m[1][0] = yaxis.vx;
     mtx->m[2][0] = zaxis.vx;
@@ -204,11 +202,9 @@ void lookAt(const VECTOR *eye, const VECTOR *at, SVECTOR *up, MATRIX *mtx) {
     mtx->m[0][2] = xaxis.vz;
     mtx->m[1][2] = yaxis.vz;
     mtx->m[2][2] = zaxis.vz;
-
-    pos.vx = -eye->vx;;
-    pos.vy = -eye->vy;;
-    pos.vz = -eye->vz;;
-
+    pos.vx = -eye->vx;
+    pos.vy = -eye->vy;
+    pos.vz = -eye->vz;
     ApplyMatrixLV(mtx, &pos, &vec);
     TransMatrix(mtx, &vec);
 }

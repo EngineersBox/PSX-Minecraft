@@ -26,9 +26,9 @@ Input input = {};
 // source color when using gte_nccs(). 4096 is 1.0 in this matrix
 // A column of zeroes effectively disables the light source.
 MATRIX color_mtx = {
-    ONE, 0, 0,	// Red
-    0, 0, 0,	// Green
-    ONE, 0, 0	// Blue
+    ONE, 0, 0, // Red
+    0, 0, 0, // Green
+    ONE, 0, 0 // Blue
 };
 
 // Light matrix
@@ -36,9 +36,9 @@ MATRIX color_mtx = {
 // An entire row of zeroes effectively disables the light source.
 MATRIX light_mtx = {
     /* X,  Y,  Z */
-    -2048 , -2048 , -2048,
-    0	  , 0	  , 0,
-    0	  , 0	  , 0
+    -2048, -2048, -2048,
+    0, 0, 0,
+    0, 0, 0
 };
 
 // Reference texture data
@@ -55,6 +55,9 @@ void init() {
     /* Set light ambient color and light color matrix */
     gte_SetBackColor(63, 63, 63);
     gte_SetColorMatrix(&color_mtx);
+    // Load font and open a text stream
+    FntLoad(960, 0);
+    FntOpen(0, 8, 320, 216, 0, 100);
     /* Load .TIM file */
     GetTimInfo(tim_texture, &tim);
     if (tim.mode & 0x8) {
@@ -68,10 +71,10 @@ void init() {
 void floorRender(SVECTOR floor_verts[17][17]) {
     int p;
     // Draw the floor
-    POLY_F4* pol4 = (POLY_F4*) dctx.primitive;
+    POLY_F4 *pol4 = (POLY_F4 *) dctx.primitive;
 
-    for(int py = 0; py < 16; py++) {
-        for(int px = 0; px < 16; px++) {
+    for (int py = 0; py < 16; py++) {
+        for (int px = 0; px < 16; px++) {
             // Load first three vertices to GTE
             gte_ldv3(
                 &floor_verts[py][px],
@@ -97,15 +100,15 @@ void floorRender(SVECTOR floor_verts[17][17]) {
             // saves packet buffer space and speeds up rendering.
             if (quad_clip(
                 &dctx.screen_clip,
-                (DVECTOR*)&pol4->x0,
-                (DVECTOR*)&pol4->x1,
-                (DVECTOR*)&pol4->x2,
-                (DVECTOR*)&pol4->x3)) {
+                (DVECTOR *) &pol4->x0,
+                (DVECTOR *) &pol4->x1,
+                (DVECTOR *) &pol4->x2,
+                (DVECTOR *) &pol4->x3)) {
                 continue;
             }
             gte_avsz4();
             gte_stotz(&p);
-            if ((px+py)&0x1) {
+            if ((px + py) & 0x1) {
                 setRGB0(pol4, 128, 128, 128);
             } else {
                 setRGB0(pol4, 255, 255, 255);
@@ -115,7 +118,7 @@ void floorRender(SVECTOR floor_verts[17][17]) {
         }
     }
     // Update nextpri variable (very important)
-    dctx.primitive = (char*)pol4;
+    dctx.primitive = (char *) pol4;
 }
 
 
@@ -129,27 +132,54 @@ int main() {
         .translation_rotation = {0},
         .translation_position = {0, 0, 200},
         .geometry_mtx = {},
-        .lighting_mtx = {}
+        .lighting_mtx = light_mtx
     };
     SVECTOR floor_verts[17][17]; // Floor vertices
-    POLY_FT4* pol4;
+    POLY_FT4 *pol4;
     init();
     Cube cube = {
         .position = {0, 0, 200},
         .rotation = {0, 0, 0},
         .vertices = {
-            {-20, -20, -20, 0},
-            {20, -20, -20, 0},
-            {-20, 20, -20, 0},
-            {20, 20, -20, 0},
-            {20, -20, 20, 0},
-            {-20, -20, 20, 0},
-            {20, 20, 20, 0},
-            {-20, 20, 20, 0}
+            {-100, -100, -100, 0},
+            {100, -100, -100, 0},
+            {-100, 100, -100, 0},
+            {100, 100, -100, 0},
+            {100, -100, 100, 0},
+            {-100, -100, 100, 0},
+            {100, 100, 100, 0},
+            {-100, 100, 100, 0}
         },
         .texture_tpage = texture_tpage,
         .texture_clut = texture_clut
     };
+    Cube cube1 = {
+        .position = {10, 0, 250},
+        .rotation = {0, 0, 0},
+        .vertices = {
+            {-100, -100, -100, 0},
+            {100, -100, -100, 0},
+            {-100, 100, -100, 0},
+            {100, 100, -100, 0},
+            {100, -100, 100, 0},
+            {-100, -100, 100, 0},
+            {100, 100, 100, 0},
+            {-100, 100, 100, 0}
+        },
+        .texture_tpage = texture_tpage,
+        .texture_clut = texture_clut
+    };
+    // Set coordinates to the vertex array for the floor
+    for (int py = 0; py < 17; py++) {
+        for (int px = 0; px < 17; px++) {
+            setVector(
+                &floor_verts[py][px],
+                (100 * (px - 8)) - 50,
+                0,
+                (100 * (py - 8)) - 50
+            );
+        }
+    }
     /* Main loop */
     while (1) {
         camera.mode = 0;
@@ -158,9 +188,30 @@ int main() {
         gte_SetRotMatrix(&transforms.geometry_mtx);
         gte_SetTransMatrix(&transforms.geometry_mtx);
         // Render floor
-        floorRender(floor_verts);
+        // floorRender(floor_verts);
+        // Position the cube going around the floor bouncily
+        setVector(
+            &cube.position,
+            isin(cube.rotation.vy) >> 4,
+            -300 + (isin(cube.rotation.vy << 2) >> 5),
+            icos(cube.rotation.vy) >> 3
+        );
         // Draw the cube
         cubeRender(&dctx, &transforms, &cube);
+        // Make cube SPEEN
+        cube.rotation.vx += 8;
+        cube.rotation.vy += 8;
+        setVector(
+            &cube1.position,
+            isin(cube1.rotation.vy) >> 4,
+            -300 + (isin(cube1.rotation.vy << 2) >> 5),
+            icos(cube1.rotation.vy) >> 3
+        );
+        cubeRender(&dctx, &transforms, &cube1);
+        cube.rotation.vx += 5;
+        cube.rotation.vy += 5;
+        // Flush font to screen
+        FntFlush(-1);
         // Swap buffers and draw the primitives
         display(&dctx);
     }

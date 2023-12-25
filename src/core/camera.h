@@ -17,6 +17,6 @@ typedef struct {
 } Camera;
 
 void cameraUpdate(Camera* camera, const Input* input, Transforms* transforms, const VECTOR* look_pos);
-void lookAt(const VECTOR* eye, const VECTOR* at, SVECTOR* up, MATRIX* mtx);
+void lookAt(const VECTOR* eye, const VECTOR* at, const SVECTOR* up, MATRIX* mtx);
 
 #endif //CAMERA_H

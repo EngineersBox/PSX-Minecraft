@@ -11,7 +11,7 @@
 
 typedef struct Cube {
     VECTOR position;
-    VECTOR rotation;
+    SVECTOR rotation;
     uint16_t texture_tpage;
     uint16_t texture_clut;
     SVECTOR vertices[8];
