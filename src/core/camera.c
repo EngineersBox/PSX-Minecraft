@@ -2,6 +2,7 @@
 
 #include <psxapi.h>
 #include <psxgpu.h>
+#include <stdio.h>
 
 #include "../util/math_utils.h"
 
@@ -28,6 +29,7 @@ void handleDigitalPadAndDualAnalogShock(Camera* camera, const Input* input, cons
     if (input->pad->type != 0x4
         && input->pad->type != 0x5
         && input->pad->type != 0x7) {
+        printf("Pad type 0x%x not in[0x4,0x5,0x7]\n", input->pad->type);
         return;
     }
     // The button status bits are inverted,
@@ -101,6 +103,7 @@ void handleDigitalPadAndDualAnalogShock(Camera* camera, const Input* input, cons
 void handleDualAnalogShock(Camera *camera, const Input *input, const Transforms *transforms) {
     // For dual-analog and dual-shock (analog input)
     if ((input->pad->type != 0x5) && (input->pad->type != 0x7)) {
+        printf("Pad type 0x%x not in [0x5,0x7]\n", input->pad->type);
         return;
     }
     // Moving forwards and backwards
@@ -136,6 +139,7 @@ void cameraUpdate(Camera *camera, const Input *input, Transforms *transforms, co
     transforms->translation_rotation.vy = camera->rotation.vy >> CAMERA_MOVE_AMOUNT;
     transforms->translation_rotation.vz = camera->rotation.vz >> CAMERA_MOVE_AMOUNT;
     if (input->pad->stat == 0) {
+        printf("Pad stat %d\n", input->pad->stat);
         handleDigitalPadAndDualAnalogShock(camera, input, transforms);
         handleDualAnalogShock(camera, input, transforms);
     }

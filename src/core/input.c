@@ -15,6 +15,4 @@ void initInput(Input* input) {
     StartPAD();
     // Don't make pad driver acknowledge V-Blank IRQ (recommended)
     ChangeClearPAD(0);
-    // Set pad pointer to buffer data
-    input->pad = (PADTYPE*) input->pad_buffer[0][0];
 }

@@ -68,7 +68,7 @@ void init() {
     texture_clut = getClut(tim.crect->x, tim.crect->y);
 }
 
-void floorRender(SVECTOR floor_verts[17][17]) {
+void floorRender(const SVECTOR floor_verts[17][17]) {
     int p;
     // Draw the floor
     POLY_F4 *pol4 = (POLY_F4 *) dctx.primitive;
@@ -182,6 +182,8 @@ int main() {
     }
     /* Main loop */
     while (1) {
+        // Set pad pointer to buffer data
+        input.pad = (PADTYPE *) &input.pad_buffer[0][0];
         camera.mode = 0;
         cameraUpdate(&camera, &input, &transforms, &cube.position);
         // Set rotation and translation matrix
