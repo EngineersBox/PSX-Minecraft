@@ -208,8 +208,8 @@ int main() {
             icos(cube1.rotation.vy) >> 3
         );
         cubeRender(&dctx, &transforms, &cube1);
-        cube.rotation.vx += 5;
-        cube.rotation.vy += 5;
+        cube1.rotation.vx += 5;
+        cube1.rotation.vy += 5;
         // Flush font to screen
         FntFlush(-1);
         // Swap buffers and draw the primitives
