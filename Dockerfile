@@ -48,8 +48,11 @@ RUN apt update \
         rsync \
         tar \
         python3 \
+        python3-pip \
         python3-dev \
-  && apt-get clean \
+  && apt-get clean
+
+RUN python3 -m pip install coloredlogs
 
 ENV PSN00BSDK_LIBS="/opt/psn00bsdk/lib/libpsn00b"
 ENV PATH="$PATH:/opt/psn00bsdk/bin"

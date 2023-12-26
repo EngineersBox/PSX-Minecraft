@@ -141,7 +141,6 @@ void cameraUpdate(Camera *camera, const Input *input, Transforms *transforms, co
     transforms->translation_rotation.vy = camera->rotation.vy >> CAMERA_MOVE_AMOUNT;
     transforms->translation_rotation.vz = camera->rotation.vz >> CAMERA_MOVE_AMOUNT;
     if (input->pad->stat == 0) {
-        printf("Pad stat %d\n", input->pad->stat);
         handleDigitalPadAndDualAnalogShock(camera, input, transforms);
         handleDualAnalogShock(camera, input, transforms);
     }

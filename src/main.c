@@ -5,9 +5,9 @@
 #include <psxgte.h>
 #include <inline_c.h>
 
+#include "resources/assets.h"
 #include "core/display.h"
 #include "primitive/primitive.h"
-#include "assets.h"
 #include "primitive/clip.h"
 #include "core/input.h"
 #include "core/camera.h"
@@ -58,6 +58,8 @@ void init() {
     // Load font and open a text stream
     FntLoad(960, 0);
     FntOpen(0, 8, 320, 216, 0, 100);
+    // Unpack LZP archive and load assets
+    assetsLoad();
     /* Load .TIM file */
     GetTimInfo(tim_texture, &tim);
     if (tim.mode & 0x8) {

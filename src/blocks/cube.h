@@ -21,7 +21,6 @@ extern const SVECTOR CUBE_NORMS[];
 extern const INDEX CUBE_INDICES[];
 
 #define CUBE_FACES 6
-
 void cubeRender(DisplayContext* ctx, Transforms* transforms, Cube* cube);
 
 #endif //PSX_MINECRAFT_CUBE_H

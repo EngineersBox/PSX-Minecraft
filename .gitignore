@@ -3,3 +3,4 @@ build
 .idea
 assets.lzp
 textures.qlp
+__pycache__
