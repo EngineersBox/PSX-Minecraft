@@ -8,6 +8,7 @@ project(
 	HOMEPAGE_URL "https://github.com/EngineersBox/PSX-Minecraft"
 )
 
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
 set(ASSETS_DIR ${PROJECT_SOURCE_DIR}/assets)
 configure_file(assets.xml _assets.xml)
 
@@ -56,5 +57,5 @@ if (NOT (asset_count EQUAL 0))
 	)
 endif()
 
-psn00bsdk_target_incbin(PSXMC PRIVATE tim_texture "assets/texture.tim")
+psn00bsdk_target_incbin(PSXMC PRIVATE tim_texture "assets/texture.tim_old")
 install(FILES ${PROJECT_BINARY_DIR}/PSXMC.exe TYPE BIN)

@@ -5,7 +5,7 @@
 #include <inline_c.h>
 
 #include "../core/display.h"
-#include "../primitive/clip.h"
+#include "clip.h"
 
 const SVECTOR CUBE_NORMS[6] = {
     {0, 0, -ONE, 0},
@@ -25,9 +25,9 @@ const INDEX CUBE_INDICES[6] = {
     {3, 1, 6, 4}
 };
 
-void cubeRender(DisplayContext* ctx, Transforms* transforms, Cube* cube) {
+void cubeRender(Cube* cube, DisplayContext* ctx, Transforms* transforms) {
     int p;
-	POLY_F4* pol4;
+	POLY_FT4* pol4;
 	// Object and light matrix for object
 	MATRIX omtx,olmtx;
 	// Set object rotation and position
@@ -47,7 +47,7 @@ void cubeRender(DisplayContext* ctx, Transforms* transforms, Cube* cube) {
 	gte_SetRotMatrix(&omtx);
 	gte_SetTransMatrix(&omtx);
 	// Sort the cube
-	pol4 = (POLY_F4*) ctx->primitive;
+	pol4 = (POLY_FT4*) ctx->primitive;
 	for (int i = 0; i < CUBE_FACES; i++) {
 		gte_ldv3(
 			&cube->vertices[CUBE_INDICES[i].v0],
@@ -92,8 +92,18 @@ void cubeRender(DisplayContext* ctx, Transforms* transforms, Cube* cube) {
 		gte_ncs();
 		// Store result to the primitive
 		gte_strgb(&pol4->r0);
-		gte_avsz4();
-		gte_stotz(&p);
+		// Set texture coords and dimensions
+		uint8_t* uvwh = cube->texture_uvwh[i];
+		setUVWH(
+			pol4,
+			uvwh[0],
+			uvwh[1],
+			uvwh[2],
+			uvwh[3]
+		);
+		// Bind texture page and colour look-up-table
+		pol4->tpage = cube->texture->tpage;
+		pol4->clut = cube->texture->clut;
 		// Sort primitive to the ordering table
 		addPrim(ctx->db[ctx->active].ordering_table + (p >> 2), pol4);
 		// Advance to make another primitive

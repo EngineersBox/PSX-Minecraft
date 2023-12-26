@@ -3,24 +3,28 @@
 #ifndef PSX_MINECRAFT_CUBE_H
 #define PSX_MINECRAFT_CUBE_H
 
+#include <sys/types.h>
+#include <stdint.h>
 #include <psxgte.h>
 
+#include "../resources/assets.h"
 #include "../core/display.h"
 #include "../render/transforms.h"
 #include "../primitive/primitive.h"
 
-typedef struct Cube {
+#define CUBE_FACES 6
+
+typedef struct {
     VECTOR position;
     SVECTOR rotation;
-    uint16_t texture_tpage;
-    uint16_t texture_clut;
-    SVECTOR vertices[8];
+    Texture* texture;
+    uint8_t texture_uvwh[CUBE_FACES][4];
+    const SVECTOR* vertices;
 } Cube;
 
 extern const SVECTOR CUBE_NORMS[];
 extern const INDEX CUBE_INDICES[];
 
-#define CUBE_FACES 6
-void cubeRender(DisplayContext* ctx, Transforms* transforms, Cube* cube);
+void cubeRender(Cube* cube, DisplayContext* ctx, Transforms* transforms);
 
 #endif //PSX_MINECRAFT_CUBE_H

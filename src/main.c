@@ -11,7 +11,8 @@
 #include "primitive/clip.h"
 #include "core/input.h"
 #include "core/camera.h"
-#include "blocks/cube.h"
+#include "primitive/cube.h"
+#include "blocks/block.h"
 
 DisplayContext dctx = {
     .active = 0,
@@ -26,9 +27,9 @@ Input input = {};
 // source color when using gte_nccs(). 4096 is 1.0 in this matrix
 // A column of zeroes effectively disables the light source.
 MATRIX color_mtx = {
-    ONE, 0, 0, // Red
-    0, 0, 0, // Green
-    ONE, 0, 0 // Blue
+    ONE * 3/4, 0, 0,	/* Red   */
+    ONE * 3/4, 0, 0,	/* Green */
+    ONE * 3/4, 0, 0	/* Blue  */
 };
 
 // Light matrix
@@ -41,15 +42,22 @@ MATRIX light_mtx = {
     0, 0, 0
 };
 
+const SVECTOR CUBE_VERTICES[8] = {
+    {-25, -25, -25, 0},
+    {25, -25, -25, 0},
+    {-25, 25, -25, 0},
+    {25, 25, -25, 0},
+    {25, -25, 25, 0},
+    {-25, -25, 25, 0},
+    {25, 25, 25, 0},
+    {-25, 25, 25, 0}
+};
+
 // Reference texture data
 extern const uint32_t tim_texture[];
 
-uint16_t texture_tpage; // Scrolling + blending pattern
-uint16_t texture_clut;
-
 
 void init() {
-    TIM_IMAGE tim;
     initDisplay(&dctx);
     initInput(&input);
     /* Set light ambient color and light color matrix */
@@ -60,72 +68,64 @@ void init() {
     FntOpen(0, 8, 320, 216, 0, 100);
     // Unpack LZP archive and load assets
     assetsLoad();
-    /* Load .TIM file */
-    GetTimInfo(tim_texture, &tim);
-    if (tim.mode & 0x8) {
-        LoadImage(tim.crect, tim.caddr); /* Upload CLUT if present */
-    }
-    LoadImage(tim.prect, tim.paddr); /* Upload texture to VRAM */
-    texture_tpage = getTPage(tim.mode, 1, tim.prect->x, tim.prect->y);
-    texture_clut = getClut(tim.crect->x, tim.crect->y);
 }
 
-void floorRender(const SVECTOR floor_verts[17][17]) {
-    int p;
-    // Draw the floor
-    POLY_F4 *pol4 = (POLY_F4 *) dctx.primitive;
-
-    for (int py = 0; py < 16; py++) {
-        for (int px = 0; px < 16; px++) {
-            // Load first three vertices to GTE
-            gte_ldv3(
-                &floor_verts[py][px],
-                &floor_verts[py][px+1],
-                &floor_verts[py+1][px]
-            );
-            gte_rtpt();
-            gte_avsz3();
-            gte_stotz(&p);
-            if (((p >> 2) >= ORDERING_TABLE_LENGTH) || ((p >> 2) <= 0)) continue;
-            setPolyF4(pol4);
-            // Set the projected vertices to the primitive
-            gte_stsxy0(&pol4->x0);
-            gte_stsxy1(&pol4->x1);
-            gte_stsxy2(&pol4->x2);
-            // Compute the last vertex and set the result
-            gte_ldv0(&floor_verts[py+1][px+1]);
-            gte_rtps();
-            gte_stsxy(&pol4->x3);
-            // Test if quad is off-screen, discard if so
-            // Clipping is important as it not only prevents primitive
-            // overflows (tends to happen on textured polys) but also
-            // saves packet buffer space and speeds up rendering.
-            if (quad_clip(
-                &dctx.screen_clip,
-                (DVECTOR *) &pol4->x0,
-                (DVECTOR *) &pol4->x1,
-                (DVECTOR *) &pol4->x2,
-                (DVECTOR *) &pol4->x3)) {
-                continue;
-            }
-            gte_avsz4();
-            gte_stotz(&p);
-            if ((px + py) & 0x1) {
-                setRGB0(pol4, 128, 128, 128);
-            } else {
-                setRGB0(pol4, 255, 255, 255);
-            }
-            addPrim(dctx.db[dctx.active].ordering_table + (p >> 2), pol4);
-            pol4++;
-        }
-    }
-    // Update nextpri variable (very important)
-    dctx.primitive = (char *) pol4;
-}
+// void floorRender(const SVECTOR floor_verts[17][17]) {
+//     int p;
+//     // Draw the floor
+//     POLY_F4 *pol4 = (POLY_F4 *) dctx.primitive;
+//
+//     for (int py = 0; py < 16; py++) {
+//         for (int px = 0; px < 16; px++) {
+//             // Load first three vertices to GTE
+//             gte_ldv3(
+//                 &floor_verts[py][px],
+//                 &floor_verts[py][px+1],
+//                 &floor_verts[py+1][px]
+//             );
+//             gte_rtpt();
+//             gte_avsz3();
+//             gte_stotz(&p);
+//             if (((p >> 2) >= ORDERING_TABLE_LENGTH) || ((p >> 2) <= 0)) continue;
+//             setPolyF4(pol4);
+//             // Set the projected vertices to the primitive
+//             gte_stsxy0(&pol4->x0);
+//             gte_stsxy1(&pol4->x1);
+//             gte_stsxy2(&pol4->x2);
+//             // Compute the last vertex and set the result
+//             gte_ldv0(&floor_verts[py+1][px+1]);
+//             gte_rtps();
+//             gte_stsxy(&pol4->x3);
+//             // Test if quad is off-screen, discard if so
+//             // Clipping is important as it not only prevents primitive
+//             // overflows (tends to happen on textured polys) but also
+//             // saves packet buffer space and speeds up rendering.
+//             if (quad_clip(
+//                 &dctx.screen_clip,
+//                 (DVECTOR *) &pol4->x0,
+//                 (DVECTOR *) &pol4->x1,
+//                 (DVECTOR *) &pol4->x2,
+//                 (DVECTOR *) &pol4->x3)) {
+//                 continue;
+//             }
+//             gte_avsz4();
+//             gte_stotz(&p);
+//             if ((px + py) & 0x1) {
+//                 setRGB0(pol4, 128, 128, 128);
+//             } else {
+//                 setRGB0(pol4, 255, 255, 255);
+//             }
+//             addPrim(dctx.db[dctx.active].ordering_table + (p >> 2), pol4);
+//             pol4++;
+//         }
+//     }
+//     // Update nextpri variable (very important)
+//     dctx.primitive = (char *) pol4;
+// }
 
 void cameraReset(Camera *camera) {
-    camera->position = (VECTOR) {0, ONE * -200, 0};
-    camera->rotation = (VECTOR) {0, 0, 0};
+    camera->position = (VECTOR){0, ONE * 0, 0};
+    camera->rotation = (VECTOR){0, 0, 0};
     camera->mode = 0;
 }
 
@@ -141,52 +141,35 @@ int main() {
         .geometry_mtx = {},
         .lighting_mtx = light_mtx
     };
-    SVECTOR floor_verts[17][17]; // Floor vertices
-    POLY_FT4 *pol4;
     init();
     Cube cube = {
-        .position = {0, 0, 200},
+        .position = {0, 0, 55},
         .rotation = {0, 0, 0},
-        .vertices = {
-            {-100, -100, -100, 0},
-            {100, -100, -100, 0},
-            {-100, 100, -100, 0},
-            {100, 100, -100, 0},
-            {100, -100, 100, 0},
-            {-100, -100, 100, 0},
-            {100, 100, 100, 0},
-            {-100, 100, 100, 0}
+        .texture = &textures[0],
+        .texture_uvwh = {
+            {2, 0, 16, 16},
+            {2, 0, 16, 16},
+            {2, 0, 16, 16},
+            {2, 0, 16, 16},
+            {2, 0, 16, 16},
+            {2, 0, 16, 16}
         },
-        .texture_tpage = texture_tpage,
-        .texture_clut = texture_clut
+        .vertices = CUBE_VERTICES
     };
     Cube cube1 = {
-        .position = {10, 0, 250},
+        .position = {55, 0, 55},
         .rotation = {0, 0, 0},
-        .vertices = {
-            {-100, -100, -100, 0},
-            {100, -100, -100, 0},
-            {-100, 100, -100, 0},
-            {100, 100, -100, 0},
-            {100, -100, 100, 0},
-            {-100, -100, 100, 0},
-            {100, 100, 100, 0},
-            {-100, 100, 100, 0}
+        .texture = &textures[0],
+        .texture_uvwh = {
+            {2, 0, 16, 16},
+            {2, 0, 16, 16},
+            {2, 0, 16, 16},
+            {2, 0, 16, 16},
+            {2, 0, 16, 16},
+            {2, 0, 16, 16}
         },
-        .texture_tpage = texture_tpage,
-        .texture_clut = texture_clut
+        .vertices = CUBE_VERTICES
     };
-    // Set coordinates to the vertex array for the floor
-    for (int py = 0; py < 17; py++) {
-        for (int px = 0; px < 17; px++) {
-            setVector(
-                &floor_verts[py][px],
-                (100 * (px - 8)) - 50,
-                0,
-                (100 * (py - 8)) - 50
-            );
-        }
-    }
     /* Main loop */
     while (1) {
         // Set pad pointer to buffer data
@@ -195,33 +178,14 @@ int main() {
         // Set rotation and translation matrix
         gte_SetRotMatrix(&transforms.geometry_mtx);
         gte_SetTransMatrix(&transforms.geometry_mtx);
-        // Render floor
-        // floorRender(floor_verts);
-        // Position the cube going around the floor bouncily
-        setVector(
-            &cube.position,
-            isin(cube.rotation.vy) >> 4,
-            -300 + (isin(cube.rotation.vy << 2) >> 5),
-            icos(cube.rotation.vy) >> 3
-        );
-        // Draw the cube
-        cubeRender(&dctx, &transforms, &cube);
-        // Make cube SPEEN
-        cube.rotation.vx += 8;
-        cube.rotation.vy += 8;
-        setVector(
-            &cube1.position,
-            isin(cube1.rotation.vy) >> 4,
-            -300 + (isin(cube1.rotation.vy << 2) >> 5),
-            icos(cube1.rotation.vy) >> 3
-        );
-        cubeRender(&dctx, &transforms, &cube1);
-        cube1.rotation.vx += 5;
-        cube1.rotation.vy += 5;
+        // Draw the cubes
+        cubeRender(&cube, &dctx, &transforms);
+        cubeRender(&cube1, &dctx, &transforms);
         // Flush font to screen
         FntFlush(-1);
         // Swap buffers and draw the primitives
         display(&dctx);
     }
+    assetsFree();
     return 0;
 }
