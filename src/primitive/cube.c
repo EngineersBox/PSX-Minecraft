@@ -16,15 +16,6 @@ const SVECTOR CUBE_NORMS[6] = {
     {ONE, 0, 0, 0}
 };
 
-const INDEX CUBE_INDICES_2[6] = {
-    {0, 1, 2, 3},
-    {4, 5, 6, 7},
-    {5, 4, 0, 1},
-    {6, 7, 3, 2},
-    {0, 2, 5, 7},
-    {3, 1, 6, 4}
-};
-
 const INDEX CUBE_INDICES[6] = {
     {0, 1, 2, 3},
     {4, 5, 6, 7},

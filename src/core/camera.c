@@ -96,6 +96,7 @@ void handleDigitalPadAndDualAnalogShock(Camera* camera, const Input* input, cons
         camera->mode = 1;
     }
     if (isPressed(PAD_START)) {
+        // BUG: This causes an crash with an invalid address for some reaosn
         camera->reset_handler(camera);
     }
     if (isPressed(PAD_SELECT)) {
