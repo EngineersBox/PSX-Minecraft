@@ -59,12 +59,13 @@ void cubeRender(Cube* cube, DisplayContext* ctx, Transforms* transforms) {
 		gte_nclip();
 		gte_stopz(&p);
 		if (p < 0) continue;
-		gte_avsz3();
+		// Average screen Z result for four primtives
+		gte_avsz4();
 		gte_stotz(&p);
 		// (the shift right operator is to scale the depth precision)
 		if (((p >> 2) <= 0) || ((p >> 2) >= ORDERING_TABLE_LENGTH)) continue;
-		// Initialize a quad primitive
-		setPolyF4(pol4);
+		// Initialize a textured quad primitive
+		setPolyFT4(pol4);
 		// Set the projected vertices to the primitive
 		gte_stsxy0(&pol4->x0);
 		gte_stsxy1(&pol4->x1);

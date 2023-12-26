@@ -180,7 +180,7 @@ int main() {
         gte_SetTransMatrix(&transforms.geometry_mtx);
         // Draw the cubes
         cubeRender(&cube, &dctx, &transforms);
-        cubeRender(&cube1, &dctx, &transforms);
+        // cubeRender(&cube1, &dctx, &transforms);
         // Flush font to screen
         FntFlush(-1);
         // Swap buffers and draw the primitives
