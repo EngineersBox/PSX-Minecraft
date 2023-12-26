@@ -43,14 +43,14 @@ MATRIX light_mtx = {
 };
 
 const SVECTOR CUBE_VERTICES[8] = {
-    {-25, -25, -25, 0},
-    {25, -25, -25, 0},
-    {-25, 25, -25, 0},
-    {25, 25, -25, 0},
-    {25, -25, 25, 0},
-    {-25, -25, 25, 0},
-    {25, 25, 25, 0},
-    {-25, 25, 25, 0}
+    {-25, -25, -25, 0}, // 0
+    {25, -25, -25, 0}, // 1
+    {-25, 25, -25, 0}, // 2
+    {25, 25, -25, 0}, // 3
+    {25, -25, 25, 0}, // 4
+    {-25, -25, 25, 0}, // 5
+    {25, 25, 25, 0}, // 6
+    {-25, 25, 25, 0} // 7
 };
 
 // Reference texture data
@@ -147,12 +147,12 @@ int main() {
         .rotation = {0, 0, 0},
         .texture = &textures[0],
         .texture_uvwh = {
-            {2, 0, 16, 16},
-            {2, 0, 16, 16},
-            {2, 0, 16, 16},
-            {2, 0, 16, 16},
-            {2, 0, 16, 16},
-            {2, 0, 16, 16}
+            {0, 0, 16, 16},
+            {0, 0, 16, 16},
+            {0, 0, 16, 16},
+            {0, 0, 16, 16},
+            {0, 0, 16, 16},
+            {0, 0, 16, 16}
         },
         .vertices = CUBE_VERTICES
     };
@@ -161,12 +161,12 @@ int main() {
         .rotation = {0, 0, 0},
         .texture = &textures[0],
         .texture_uvwh = {
-            {2, 0, 16, 16},
-            {2, 0, 16, 16},
-            {2, 0, 16, 16},
-            {2, 0, 16, 16},
-            {2, 0, 16, 16},
-            {2, 0, 16, 16}
+            {2 * 16, 0, 16, 16}, // -Z FRONT
+            {2 * 16, 0, 16, 16}, // +Z BACK
+            {0 * 16, 0, 16, 16}, // -Y TOP
+            {1 * 16, 0, 16, 16}, // +Y BOTTOM
+            {2 * 16, 0, 16, 16}, // -X LEFT
+            {2 * 16, 0, 16, 16}  // +X RIGHT
         },
         .vertices = CUBE_VERTICES
     };
@@ -180,7 +180,7 @@ int main() {
         gte_SetTransMatrix(&transforms.geometry_mtx);
         // Draw the cubes
         cubeRender(&cube, &dctx, &transforms);
-        // cubeRender(&cube1, &dctx, &transforms);
+        cubeRender(&cube1, &dctx, &transforms);
         // Flush font to screen
         FntFlush(-1);
         // Swap buffers and draw the primitives
