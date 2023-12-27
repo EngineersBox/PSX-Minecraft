@@ -49,11 +49,7 @@ void cubeRender(Cube *cube, DisplayContext *ctx, Transforms *transforms) {
     gte_SetRotMatrix(&omtx);
     gte_SetTransMatrix(&omtx);
     // Sort the cube
-#ifdef RENDER_SIDES_COLOURED
-    POLY_F4* pol4 = (POLY_F4*) ctx->primitive;
-#else
-	POLY_FT4* pol4 = (POLY_FT4*) ctx->primitive;
-#endif
+    POLY_FT4* pol4 = (POLY_FT4*) ctx->primitive;
     for (int i = 0; i < CUBE_FACES; i++) {
         gte_ldv3(
             &cube->vertices[CUBE_INDICES[i].v0],
@@ -66,21 +62,12 @@ void cubeRender(Cube *cube, DisplayContext *ctx, Transforms *transforms) {
         gte_stopz(&p);
         if (p < 0) continue;
         // Average screen Z result for four primtives
-#ifdef RENDER_SIDES_COLOURED
-        gte_avsz3();
-#else
-		gte_avsz4();
-#endif
+        gte_avsz4();
         gte_stotz(&p);
         // (the shift right operator is to scale the depth precision)
         if (((p >> 2) <= 0) || ((p >> 2) >= ORDERING_TABLE_LENGTH)) continue;
         // Initialize a textured quad primitive
-
-#ifdef RENDER_SIDES_COLOURED
-        setPolyF4(pol4);
-#else
-		setPolyFT4(pol4);
-#endif
+        setPolyFT4(pol4);
         // Set the projected vertices to the primitive
         gte_stsxy0(&pol4->x0);
         gte_stsxy1(&pol4->x1);
@@ -101,51 +88,40 @@ void cubeRender(Cube *cube, DisplayContext *ctx, Transforms *transforms) {
         // Load primitive color even though gte_ncs() doesn't use it.
         // This is so the GTE will output a color result with the
         // correct primitive code.
-        gte_ldrgb(&pol4->r0);
-        // Load the face normal
-        gte_ldv0(&CUBE_NORMS[i]);
-        // Normal Color Single
-        gte_ncs();
-        // Store result to the primitive
-        gte_strgb(&pol4->r0);
-#ifdef RENDER_SIDES_COLOURED
-        // Render sides indexed by colour
-        switch (i) {
-            case 0: setRGB0(pol4, 255, 0, 0); // RED (-Z) FRONT
-                break;
-            case 1: setRGB0(pol4, 255, 255, 0); // YELLOW (+Z) BACK
-                break;
-            case 2: setRGB0(pol4, 0, 255, 0); // GREEN (-Y) TOP
-                break;
-            case 3: setRGB0(pol4, 0, 255, 255); // CYAN (+Y) BOTTOM
-                break;
-            case 4: setRGB0(pol4, 0, 0, 255); // BLUE (-X) LEFT
-                break;
-            case 5: setRGB0(pol4, 255, 0, 255); // MAGENTA (+X) RIGHT
-                break;
-        }
-#else
-		// Set texture coords and dimensions
-		TextureAttributes attributes = cube->texture_face_attrib[i];
-		setUVWH(
-			pol4,
-			attributes.u,
-			attributes.v,
-			attributes.w,
-			attributes.h
-		);
+        const TextureAttributes attributes = cube->texture_face_attrib[i];
         if (attributes.tint.use) {
-            // BUG: This overrides lighting shading, need to apply before lighting
-            gte_ldrgb3(
+            setRGB0(
+                pol4,
                 attributes.tint.r,
                 attributes.tint.g,
                 attributes.tint.b
             );
         }
-		// Bind texture page and colour look-up-table
-		pol4->tpage = cube->texture->tpage;
-		pol4->clut = cube->texture->clut;
-#endif
+        gte_ldrgb(&pol4->r0);
+        // Load the face normal
+        gte_ldv0(&CUBE_NORMS[i]);
+        // Apply RGB tinting to lighting calculation result on the basis
+        // that it is enabled. This corresponds to the column based calc
+        if (attributes.tint.use) {
+            // Normal Color Column Single
+            gte_nccs();
+        } else {
+            // Normal Color Single
+            gte_ncs();
+        }
+        // Store result to the primitive
+        gte_strgb(&pol4->r0);
+        // Set texture coords and dimensions
+        setUVWH(
+            pol4,
+            attributes.u,
+            attributes.v,
+            attributes.w,
+            attributes.h
+        );
+        // Bind texture page and colour look-up-table
+        pol4->tpage = cube->texture->tpage;
+        pol4->clut = cube->texture->clut;
         // Sort primitive to the ordering table
         addPrim(ctx->db[ctx->active].ordering_table + (p >> 2), pol4);
         // Advance to make another primitive
