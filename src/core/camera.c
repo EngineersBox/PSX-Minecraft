@@ -191,8 +191,6 @@ void lookAt(const VECTOR *eye, const VECTOR *at, const SVECTOR *up, MATRIX *mtx)
     SVECTOR zaxis;
     SVECTOR xaxis;
     SVECTOR yaxis;
-    VECTOR pos;
-    VECTOR vec;
     setVector(&taxis, at->vx-eye->vx, at->vy-eye->vy, at->vz-eye->vz);
     VectorNormalS(&taxis, &zaxis);
     crossProduct(&zaxis, up, &taxis);
@@ -208,9 +206,12 @@ void lookAt(const VECTOR *eye, const VECTOR *at, const SVECTOR *up, MATRIX *mtx)
     mtx->m[0][2] = xaxis.vz;
     mtx->m[1][2] = yaxis.vz;
     mtx->m[2][2] = zaxis.vz;
-    pos.vx = -eye->vx;
-    pos.vy = -eye->vy;
-    pos.vz = -eye->vz;
+    VECTOR pos = {
+        .vx = -eye->vx,
+        .vy = -eye->vy,
+        .vz = -eye->vz
+    };
+    VECTOR vec;
     ApplyMatrixLV(mtx, &pos, &vec);
     TransMatrix(mtx, &vec);
 }

@@ -1,6 +1,6 @@
 <lzp_project>
   <create packname="textures.qlp" format="qlp">
-    <file alias="blocks">${ASSETS_DIR}/blocks.tim</file>
+    <file alias="terrain">${ASSETS_DIR}/terrain.tim</file>
   </create>
   <create packname="assets.lzp" format="lzp">
     <file alias="textures">textures.qlp</file>

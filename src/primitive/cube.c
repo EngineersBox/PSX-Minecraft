@@ -3,6 +3,7 @@
 #include <psxgpu.h>
 #include <psxgte.h>
 #include <inline_c.h>
+#include <stdlib.h>
 
 #include "../core/display.h"
 #include "clip.h"
@@ -125,14 +126,23 @@ void cubeRender(Cube *cube, DisplayContext *ctx, Transforms *transforms) {
         }
 #else
 		// Set texture coords and dimensions
-		uint8_t* uvwh = cube->texture_uvwh[i];
+		TextureAttributes attributes = cube->texture_face_attrib[i];
 		setUVWH(
 			pol4,
-			uvwh[0],
-			uvwh[1],
-			uvwh[2],
-			uvwh[3]
+			attributes.u,
+			attributes.v,
+			attributes.w,
+			attributes.h
 		);
+        if (attributes.tint.use) {
+            // BUG: This overrides lighting shading, need to apply before lighting
+            setRGB0(
+                pol4,
+                attributes.tint.r,
+                attributes.tint.g,
+                attributes.tint.b
+            );
+        }
 		// Bind texture page and colour look-up-table
 		pol4->tpage = cube->texture->tpage;
 		pol4->clut = cube->texture->clut;

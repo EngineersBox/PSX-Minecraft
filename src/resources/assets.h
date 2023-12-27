@@ -5,14 +5,12 @@
 
 #include <psxgpu.h>
 #include <smd/smd.h>
+#include <sys/types.h>
+
+#include "texture.h"
 
 extern unsigned char _lz_resources[];
 #define lz_resources ((const LZP_HEAD*) _lz_resources)
-
-typedef struct {
-    uint16_t tpage;
-    uint16_t clut;
-} Texture;
 
 extern Texture* textures;
 
