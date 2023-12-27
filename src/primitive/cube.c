@@ -136,8 +136,7 @@ void cubeRender(Cube *cube, DisplayContext *ctx, Transforms *transforms) {
 		);
         if (attributes.tint.use) {
             // BUG: This overrides lighting shading, need to apply before lighting
-            setRGB0(
-                pol4,
+            gte_ldrgb3(
                 attributes.tint.r,
                 attributes.tint.g,
                 attributes.tint.b
