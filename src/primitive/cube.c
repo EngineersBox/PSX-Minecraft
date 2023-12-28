@@ -120,8 +120,8 @@ void cubeRender(Cube *cube, DisplayContext *ctx, Transforms *transforms) {
             attributes.h
         );
         // Bind texture page and colour look-up-table
-        pol4->tpage = cube->texture->tpage;
-        pol4->clut = cube->texture->clut;
+        pol4->tpage = textures[cube->texture].tpage;
+        pol4->clut = textures[cube->texture].clut;
         // Sort primitive to the ordering table
         addPrim(ctx->db[ctx->active].ordering_table + (p >> 2), pol4);
         // Advance to make another primitive

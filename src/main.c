@@ -12,7 +12,7 @@
 #include "core/input.h"
 #include "core/camera.h"
 #include "primitive/cube.h"
-#include "blocks/block.h"
+#include "world/world.h"
 
 DisplayContext dctx = {
     .active = 0,
@@ -70,59 +70,6 @@ void init() {
     assetsLoad();
 }
 
-// void floorRender(const SVECTOR floor_verts[17][17]) {
-//     int p;
-//     // Draw the floor
-//     POLY_F4 *pol4 = (POLY_F4 *) dctx.primitive;
-//
-//     for (int py = 0; py < 16; py++) {
-//         for (int px = 0; px < 16; px++) {
-//             // Load first three vertices to GTE
-//             gte_ldv3(
-//                 &floor_verts[py][px],
-//                 &floor_verts[py][px+1],
-//                 &floor_verts[py+1][px]
-//             );
-//             gte_rtpt();
-//             gte_avsz3();
-//             gte_stotz(&p);
-//             if (((p >> 2) >= ORDERING_TABLE_LENGTH) || ((p >> 2) <= 0)) continue;
-//             setPolyF4(pol4);
-//             // Set the projected vertices to the primitive
-//             gte_stsxy0(&pol4->x0);
-//             gte_stsxy1(&pol4->x1);
-//             gte_stsxy2(&pol4->x2);
-//             // Compute the last vertex and set the result
-//             gte_ldv0(&floor_verts[py+1][px+1]);
-//             gte_rtps();
-//             gte_stsxy(&pol4->x3);
-//             // Test if quad is off-screen, discard if so
-//             // Clipping is important as it not only prevents primitive
-//             // overflows (tends to happen on textured polys) but also
-//             // saves packet buffer space and speeds up rendering.
-//             if (quad_clip(
-//                 &dctx.screen_clip,
-//                 (DVECTOR *) &pol4->x0,
-//                 (DVECTOR *) &pol4->x1,
-//                 (DVECTOR *) &pol4->x2,
-//                 (DVECTOR *) &pol4->x3)) {
-//                 continue;
-//             }
-//             gte_avsz4();
-//             gte_stotz(&p);
-//             if ((px + py) & 0x1) {
-//                 setRGB0(pol4, 128, 128, 128);
-//             } else {
-//                 setRGB0(pol4, 255, 255, 255);
-//             }
-//             addPrim(dctx.db[dctx.active].ordering_table + (p >> 2), pol4);
-//             pol4++;
-//         }
-//     }
-//     // Update nextpri variable (very important)
-//     dctx.primitive = (char *) pol4;
-// }
-
 void cameraReset(Camera *camera) {
     camera->position = (VECTOR){0, ONE * 0, 0};
     camera->rotation = (VECTOR){0, 0, 0};
@@ -145,7 +92,7 @@ int main() {
     Cube cube = {
         .position = {0, 0, 55},
         .rotation = {0, 0, 0},
-        .texture = &textures[0],
+        .texture = 0,
         .texture_face_attrib = {
             {1, 0, 16, 16, {0, 155, 0, 1}},
             {1, 0, 16, 16, {0, 155, 0, 1}},
@@ -159,7 +106,7 @@ int main() {
     Cube cube1 = {
         .position = {55, 0, 55},
         .rotation = {0, 0, 0},
-        .texture = &textures[0],
+        .texture = 0,
         .texture_face_attrib = {
             {3 * 16, 0, 16, 16, {0}}, // -Z FRONT
             {3 * 16, 0, 16, 16, {0}}, // +Z BACK

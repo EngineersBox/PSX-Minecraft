@@ -19,7 +19,7 @@ typedef struct {
     VECTOR position;
     SVECTOR rotation;
     TextureAttributes texture_face_attrib[CUBE_FACES];
-    Texture* texture;
+    size_t texture;
     const SVECTOR* vertices;
 } Cube;
 
