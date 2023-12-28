@@ -18,13 +18,16 @@
 typedef struct {
     VECTOR position;
     ChunkMesh mesh;
-    uint32_t vertexCount;
     BlockID data[CHUNK_DATA_SIZE];
 } Chunk;
+
+void chunkInit(Chunk* chunk);
+void chunkDestroy(const Chunk* chunk);
 
 void chunkGenerate2DHeightMap(Chunk* chunk, const VECTOR* position);
 void chunkGenerate3DHeightMap(Chunk* chunk, const VECTOR* position);
 void chunkGenerateMesh(Chunk* chunk);
+void chunkClearMesh(Chunk* chunk);
 
 void chunkRender(Chunk* chunk, DisplayContext* ctx, Transforms* transforms);
 

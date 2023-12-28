@@ -1,6 +1,33 @@
 #include "chunk.h"
 
+#include <clip.h>
+#include <inline_c.h>
 #include <stdbool.h>
+#include <smd/smd.h>
+
+void chunkInit(Chunk* chunk) {
+    chunkMeshInit(&chunk->mesh);
+    // chunkGenerate3DHeightMap(chunk, {});
+    chunkGenerateMesh(chunk);
+}
+
+void chunkDestroy(const Chunk* chunk) {
+    chunkMeshDestroy(&chunk->mesh);
+}
+
+void chunkClearMesh(Chunk* chunk) {
+    ChunkMesh* mesh = &chunk->mesh;
+    chunkMeshClear(mesh);
+    SMD* smd = &mesh->smd;
+    smd->id[0] = 'S';
+    smd->id[1] = 'M';
+    smd->id[2] = 'D';
+    smd->version = 0x01;
+    smd->flags = 0x0;
+    smd->p_verts = cvector_begin(mesh->vertices);
+    smd->p_norms = cvector_begin(mesh->normals);
+    smd->p_prims = cvector_begin(mesh->primitives);
+}
 
 #define CHUNK_DIRECTIONS 3
 
@@ -29,68 +56,101 @@ void createQuad(Chunk* chunk,
         axisMask.vy * mask->normal,
         axisMask.vz * mask->normal
     };
-    const BlockFace face = (BlockFace){
-        mask->block,
-        mask->normal
-    };
     ChunkMesh* mesh = &chunk->mesh;
+    SMD* smd = &mesh->smd;
+    // Construct a new POLY_FT4 (textured quad) primtive for this face
+    smd->n_prims += 1;
+    SMD_PRIM primtive = {0};
+    primtive.prim_id = (SMD_PRI_TYPE) {
+        .type = PRIM_TYPE_QUAD,
+        .l_type = PRIM_LIGHTING_FLAT,
+        .c_type = PRIM_COLOURING_GOURAUD,
+        .texture = 1,
+        .blend = 0, // TODO: Check this
+        .zoff = 0, // TODO: Check this
+        .nocull = 0,
+        .mask = 0,
+        .texwin = 0,
+        .texoff = 0,
+        .reserved = 0,
+        .len = 4 + 8 + 4 + 8 + 4 // Some wizardry based on PSn00bSDK/tools/smxlink/main.cpp lines 518-644
+    };
+
+    // Construct vertices relative to chunk mesh top left origin
     cvector_push_back(mesh->vertices, vec3Mul(SVECTOR, v1, BLOCK_SIZE));
+    primtive.v0 = smd->n_verts;
     cvector_push_back(mesh->vertices, vec3Mul(SVECTOR, v2, BLOCK_SIZE));
+    primtive.v1 = smd->n_verts + 1;
     cvector_push_back(mesh->vertices, vec3Mul(SVECTOR, v3, BLOCK_SIZE));
+    primtive.v2 = smd->n_verts + 2;
     cvector_push_back(mesh->vertices, vec3Mul(SVECTOR, v4, BLOCK_SIZE));
+    primtive.v3 = smd->n_verts + 3;
 
-    const int vertCount = chunk->vertexCount;
-    cvector_push_back(mesh->triangles, vertCount);
-    cvector_push_back(mesh->triangles, vertCount + 2 + mask->normal);
-    cvector_push_back(mesh->triangles, vertCount + 2 - mask->normal);
-    cvector_push_back(mesh->triangles, vertCount + 3);
-    cvector_push_back(mesh->triangles, vertCount + 1 - mask->normal);
-    cvector_push_back(mesh->triangles, vertCount + 1 + mask->normal);
+    // Create normals for each vertex
+    // FIXME: Surely we can just have one normal for a face and then reference it 4 times,
+    //        instead of needing 4 distinct normal instances to reference
+    cvector_push_back(mesh->normals, normal);
+    primtive.n0 = smd->n_norms;
+    cvector_push_back(mesh->normals, normal);
+    primtive.n1 = smd->n_norms + 1;
+    cvector_push_back(mesh->normals, normal);
+    primtive.n2 = smd->n_norms + 2;
+    cvector_push_back(mesh->normals, normal);
+    primtive.n3 = smd->n_norms + 3;
 
-    cvector_push_back(mesh->normals, normal);
-    cvector_push_back(mesh->normals, normal);
-    cvector_push_back(mesh->normals, normal);
-    cvector_push_back(mesh->normals, normal);
+    Texture* texture = &textures[BLOCKS[mask->block].cube->texture];
+    primtive.tpage = texture->tpage;
+    primtive.clut = texture->clut;
 
-    cvector_push_back(mesh->blockFaces, face);
-    cvector_push_back(mesh->blockFaces, face);
-    cvector_push_back(mesh->blockFaces, face);
-    cvector_push_back(mesh->blockFaces, face);
-
+    // TODO: Need to figure out how to get texture wrapping to work
+    //       across a quad for a single 16x16 smapler of the given tpage + clut
     if (normal.vx == 1 || normal.vx == -1) {
-        UV uv0 = {width, height};
-        cvector_push_back(mesh->uv, uv0);
-        UV uv1 = {0, height};
-        cvector_push_back(mesh->uv, uv1);
-        UV uv2 = {width, 0};
-        cvector_push_back(mesh->uv, uv2);
-        UV uv3 = {0, 0};
-        cvector_push_back(mesh->uv, uv3);
+        primtive.tu0 = width;
+        primtive.tv0 = height;
+
+        primtive.tu1 = 0;
+        primtive.tv1 = height;
+
+        primtive.tu2 = width;
+        primtive.tv2 = 0;
+
+        primtive.tu3 = 0;
+        primtive.tu3 = 0;
     } else {
-        UV uv0 = {height, width};
-        cvector_push_back(mesh->uv, uv0);
-        UV uv1 = {height, 0};
-        cvector_push_back(mesh->uv, uv1);
-        UV uv2 = {0, width};
-        cvector_push_back(mesh->uv, uv2);
-        UV uv3 = {0, 0};
-        cvector_push_back(mesh->uv, uv3);
+        primtive.tu0 = height;
+        primtive.tv0 = width;
+
+        primtive.tu1 = height;
+        primtive.tv1 = 0;
+
+        primtive.tu2 = 0;
+        primtive.tv2 = width;
+
+        primtive.tu3 = 0;
+        primtive.tv3 = 0;
     }
-    chunk->vertexCount += 4;
+    // These need to be at the end since we use them as base reference for indices
+    smd->n_verts += 4;
+    smd->n_norms += 4; // FIXME: This will need to be adjusted to +=1 if we can use just one normal instance per face
 }
 
 void chunkGenerateMesh(Chunk *chunk) {
-    for (int d = 0; d < CHUNK_DIRECTIONS; d++) {
+    // TODO: Clear mesh field before generating new one
+    for (int axis = 0; axis < CHUNK_DIRECTIONS; axis++) {
         int k, width, height;
-        const int axis1 = (d + 1) % CHUNK_DIRECTIONS;
-        const int axis2 = (d + 2) % CHUNK_DIRECTIONS;
+        const int axis1 = (axis + 1) % CHUNK_DIRECTIONS;
+        const int axis2 = (axis + 2) % CHUNK_DIRECTIONS;
+        // FIXME: These can be VECTOR instances instead of arrays, but will come at the cost of an extra padding field
+        //        is that worth it or should thee just be left as is?
         int deltaAxis1[CHUNK_DIRECTIONS] = {0};
         int deltaAxis2[CHUNK_DIRECTIONS] = {0};
         int chunkIter[CHUNK_DIRECTIONS] = {0};
-        // TODO: Make this a uint8_t[CHUNK_SIZE] array where each bit is a bool
+        // TODO: Make this a uint8_t[CHUNK_SIZE] array where each bit is a bool, int type will need to change
+        //       if CHUNK_SIZE is increased from 8 to 16 (uint8_t -> uint16_t)
         Mask mask[CHUNK_SIZE * CHUNK_SIZE];
-        for (chunkIter[d] = -1; chunkIter[d] < CHUNK_SIZE;) {
+        for (chunkIter[axis] = -1; chunkIter[axis] < CHUNK_SIZE;) {
             int axisMask[CHUNK_DIRECTIONS] = {0};
+            axisMask[axis] = 1;
             // Compute mask
             uint8_t n = 0;
             for (chunkIter[axis2] = 0; chunkIter[axis1] < CHUNK_SIZE; chunkIter[axis2]++) {
@@ -118,7 +178,7 @@ void chunkGenerateMesh(Chunk *chunk) {
                     }
                 }
             }
-            chunkIter[d]++;
+            chunkIter[axis]++;
             n = 0;
             // Generate a mesh from mask using lexicographic ordering
             // looping over each block in this slice of the chunk
@@ -153,12 +213,15 @@ void chunkGenerateMesh(Chunk *chunk) {
                     }
                     deltaAxis1[axis1] = width;
                     deltaAxis2[axis2] = height;
+                    // FIXME: Avoid creating structs just to pass parameters to createQuad(...)
                     createQuad(
                         chunk,
                         &currentMask,
                         (VECTOR) {axisMask[0], axisMask[1], axisMask[2]},
                         width,
                         height,
+                        // NOTE: These verticies need to be adjusted to fit block size
+                        //       they are currently just indices into the chunk from top left.
                         (VECTOR) {chunkIter[0], chunkIter[1], chunkIter[2]},
                         (VECTOR){
                             chunkIter[0] + deltaAxis1[0],
@@ -192,7 +255,108 @@ void chunkGenerateMesh(Chunk *chunk) {
 }
 
 void chunkRender(Chunk* chunk, DisplayContext* ctx, Transforms* transforms) {
-    
+    int p;
+    // Object and light matrix for object
+    MATRIX omtx, olmtx;
+    // Set object rotation and position
+    RotMatrix(&cube->rotation, &omtx);
+    TransMatrix(&omtx, &cube->position);
+    // Multiply light matrix to object matrix
+    MulMatrix0(&transforms->lighting_mtx, &omtx, &olmtx);
+    // Set result to GTE light matrix
+    gte_SetLightMatrix(&olmtx);
+    // Composite coordinate matrix transform, so object will be rotated and
+    // positioned relative to camera matrix (mtx), so it'll appear as
+    // world-space relative.
+    CompMatrixLV(&transforms->geometry_mtx, &omtx, &omtx);
+    // Save matrix
+    PushMatrix();
+    // Set matrices
+    gte_SetRotMatrix(&omtx);
+    gte_SetTransMatrix(&omtx);
+    // Sort the cube
+    POLY_FT4* pol4 = (POLY_FT4*) ctx->primitive;
+    for (int i = 0; i < CUBE_FACES; i++) {
+        gte_ldv3(
+            &cube->vertices[CUBE_INDICES[i].v0],
+            &cube->vertices[CUBE_INDICES[i].v1],
+            &cube->vertices[CUBE_INDICES[i].v2]
+        );
+        // Rotation, Translation and Perspective Triple
+        gte_rtpt();
+        gte_nclip();
+        gte_stopz(&p);
+        if (p < 0) continue;
+        // Average screen Z result for four primtives
+        gte_avsz4();
+        gte_stotz(&p);
+        // (the shift right operator is to scale the depth precision)
+        if (((p >> 2) <= 0) || ((p >> 2) >= ORDERING_TABLE_LENGTH)) continue;
+        // Initialize a textured quad primitive
+        setPolyFT4(pol4);
+        // Set the projected vertices to the primitive
+        gte_stsxy0(&pol4->x0);
+        gte_stsxy1(&pol4->x1);
+        gte_stsxy2(&pol4->x2);
+        // Compute the last vertex and set the result
+        gte_ldv0(&cube->vertices[CUBE_INDICES[i].v3]);
+        gte_rtps();
+        gte_stsxy(&pol4->x3);
+        // Test if quad is off-screen, discard if so
+        if (quad_clip(
+            &ctx->screen_clip,
+            (DVECTOR *) &pol4->x0,
+            (DVECTOR *) &pol4->x1,
+            (DVECTOR *) &pol4->x2,
+            (DVECTOR *) &pol4->x3)) {
+            continue;
+        }
+        // Load primitive color even though gte_ncs() doesn't use it.
+        // This is so the GTE will output a color result with the
+        // correct primitive code.
+        const TextureAttributes attributes = cube->texture_face_attrib[i];
+        if (attributes.tint.use) {
+            setRGB0(
+                pol4,
+                attributes.tint.r,
+                attributes.tint.g,
+                attributes.tint.b
+            );
+        }
+        gte_ldrgb(&pol4->r0);
+        // Load the face normal
+        gte_ldv0(&CUBE_NORMS[i]);
+        // Apply RGB tinting to lighting calculation result on the basis
+        // that it is enabled. This corresponds to the column based calc
+        if (attributes.tint.use) {
+            // Normal Color Column Single
+            gte_nccs();
+        } else {
+            // Normal Color Single
+            gte_ncs();
+        }
+        // Store result to the primitive
+        gte_strgb(&pol4->r0);
+        // Set texture coords and dimensions
+        setUVWH(
+            pol4,
+            attributes.u,
+            attributes.v,
+            attributes.w,
+            attributes.h
+        );
+        // Bind texture page and colour look-up-table
+        pol4->tpage = textures[cube->texture].tpage;
+        pol4->clut = textures[cube->texture].clut;
+        // Sort primitive to the ordering table
+        addPrim(ctx->db[ctx->active].ordering_table + (p >> 2), pol4);
+        // Advance to make another primitive
+        pol4++;
+    }
+    // Update nextpri
+    ctx->primitive = (char *) pol4;
+    // Restore matrix
+    PopMatrix();
 }
 
 #define checkIndexOOB(x, y, z) ((x) >= CHUNK_SIZE || (x) < 0 \
