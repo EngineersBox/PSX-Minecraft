@@ -163,13 +163,6 @@ void createQuad(Chunk *chunk,
     addVertex(v1);
     addVertex(v2);
     addVertex(v3);
-    // primitive.v0 = smd->n_verts;
-    // cvector_push_back(mesh->vertices, vec3Mul(SVECTOR, v2, BLOCK_SIZE));
-    // primitive.v1 = smd->n_verts + 1;
-    // cvector_push_back(mesh->vertices, vec3Mul(SVECTOR, v3, BLOCK_SIZE));
-    // primitive.v2 = smd->n_verts + 2;
-    // cvector_push_back(mesh->vertices, vec3Mul(SVECTOR, v4, BLOCK_SIZE));
-    // primitive.v3 = smd->n_verts + 3;
 
     printf("Pushing normal\n");
     // Create normals for each vertex
@@ -209,14 +202,14 @@ void chunkGenerateMesh(Chunk *chunk) {
         const int axis2 = (axis + 2) % CHUNK_DIRECTIONS;
         // FIXME: These can be VECTOR instances instead of arrays, but will come at the cost of an extra padding field
         //        is that worth it or should thee just be left as is?
-        int deltaAxis1[CHUNK_DIRECTIONS] = {0,0,0};
-        int deltaAxis2[CHUNK_DIRECTIONS] = {0,0,0};
-        int chunkIter[CHUNK_DIRECTIONS] = {0,0,0};
+        int deltaAxis1[CHUNK_DIRECTIONS] = {0};
+        int deltaAxis2[CHUNK_DIRECTIONS] = {0};
+        int chunkIter[CHUNK_DIRECTIONS] = {0};
         // TODO: Make this a uint8_t[CHUNK_SIZE] array where each bit is a bool, int type will need to change
         //       if CHUNK_SIZE is increased from 8 to 16 (uint8_t -> uint16_t)
         Mask mask[CHUNK_SIZE * CHUNK_SIZE] = {0};
         for (chunkIter[axis] = -1; chunkIter[axis] < CHUNK_SIZE;) {
-            int axisMask[CHUNK_DIRECTIONS] = {0,0,0};
+            int axisMask[CHUNK_DIRECTIONS] = {0};
             axisMask[axis] = 1;
             // Compute mask
             uint8_t n = 0;
@@ -352,7 +345,6 @@ void chunkRender(Chunk *chunk, DisplayContext *ctx, Transforms *transforms) {
     gte_SetRotMatrix(&omtx);
     gte_SetTransMatrix(&omtx);
     // Sort mesh
-    printf("Invoked mesh render\n");
     chunkMeshRender(&chunk->mesh, ctx, transforms);
     // Sort model
     // sc_ordering_table.ot = ctx->db[ctx->active].ordering_table;

@@ -4,15 +4,15 @@
 #include <inline_c.h>
 #include <stdlib.h>
 
-void __primtiveDestructor(void* elem) {
+void __primtiveDestructor(void *elem) {
     memset(elem, 0, sizeof(SMD_PRIM));
 }
 
-void __svectorDestructor(void* elem) {
+void __svectorDestructor(void *elem) {
     memset(elem, 0, sizeof(SVECTOR));
 }
 
-void chunkMeshInit(ChunkMesh* mesh) {
+void chunkMeshInit(ChunkMesh *mesh) {
     // !IMPORTANT: This null init is important for cvector to ensure allocation is done initially
     mesh->primitives = NULL;
     mesh->vertices = NULL;
@@ -22,39 +22,56 @@ void chunkMeshInit(ChunkMesh* mesh) {
     cvector_init(mesh->normals, 1, __svectorDestructor);
 }
 
-void chunkMeshDestroy(const ChunkMesh* mesh) {
+void chunkMeshDestroy(const ChunkMesh *mesh) {
     cvector_free(mesh->primitives);
     cvector_free(mesh->vertices);
     cvector_free(mesh->normals);
 }
 
-void chunkMeshClear(ChunkMesh* mesh) {
+void chunkMeshClear(ChunkMesh *mesh) {
     cvector_clear(mesh->primitives);
     cvector_clear(mesh->vertices);
     cvector_clear(mesh->normals);
-    mesh->smd = (SMD) {};
+    mesh->smd = (SMD){};
     memset(&mesh->smd, 0, sizeof(SMD));
 }
 
-void renderLine(SMD_PRIM* primitive, DisplayContext* ctx, Transforms* transforms) {
+void renderLine(SMD_PRIM *primitive, DisplayContext *ctx, Transforms *transforms) {
     // TODO
 }
 
-void renderTriangle(SMD_PRIM* primitive, DisplayContext* ctx, Transforms* transforms) {
+void renderTriangle(SMD_PRIM *primitive, DisplayContext *ctx, Transforms *transforms) {
     // TODO
 }
 
-void renderQuad(const ChunkMesh* mesh, SMD_PRIM* primitive, DisplayContext* ctx, Transforms* transforms) {
+void renderQuad(const ChunkMesh *mesh, SMD_PRIM *primitive, DisplayContext *ctx, Transforms *transforms) {
     // TODO: Generalise for textured and non-textured
     int p;
     cvector_iterator(SVECTOR) verticesIter = cvector_begin(mesh->vertices);
     cvector_iterator(SVECTOR) normalsIter = cvector_begin(mesh->normals);
-    POLY_FT4* pol4 = (POLY_FT4*) ctx->primitive;
-    printf("Setting vertices\n");
+    POLY_FT4 *pol4 = (POLY_FT4 *) ctx->primitive;
     gte_ldv3(
         &verticesIter[primitive->v0],
         &verticesIter[primitive->v1],
         &verticesIter[primitive->v2]
+    );
+    printf(
+        "Setting vertices 1: {%d,%d,%d}\n",
+        verticesIter[primitive->v0].vx,
+        verticesIter[primitive->v0].vy,
+        verticesIter[primitive->v0].vz
+    );
+    printf(
+        "Setting vertices 1: {%d,%d,%d}\n",
+        verticesIter[primitive->v1].vx,
+        verticesIter[primitive->v1].vy,
+        verticesIter[primitive->v1].vz
+    );
+    printf(
+        "Setting vertices 2: {%d,%d,%d}\n",
+        verticesIter[primitive->v2].vx,
+        verticesIter[primitive->v2].vy,
+        verticesIter[primitive->v2].vz
     );
     // Rotation, Translation and Perspective Triple
     gte_rtpt();
@@ -146,9 +163,10 @@ void renderQuad(const ChunkMesh* mesh, SMD_PRIM* primitive, DisplayContext* ctx,
     ctx->primitive++;
 }
 
-void chunkMeshRender(const ChunkMesh* mesh, DisplayContext* ctx, Transforms* transforms) {
+void chunkMeshRender(const ChunkMesh *mesh, DisplayContext *ctx, Transforms *transforms) {
     printf("Primitives: %d\n", cvector_size(mesh->primitives));
-    for (cvector_iterator(SMD_PRIM) primitive = cvector_begin(mesh->primitives); primitive != cvector_end(mesh->primitives); primitive++) {
+    for (cvector_iterator(SMD_PRIM) primitive = cvector_begin(mesh->primitives);
+         primitive != cvector_end(mesh->primitives); primitive++) {
         printf("Primitive type: %d @ %p\n", primitive->prim_id.type, primitive);
         switch (primitive->prim_id.type) {
             case PRIM_TYPE_LINE:
