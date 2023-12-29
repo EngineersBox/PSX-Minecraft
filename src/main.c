@@ -90,38 +90,8 @@ int main() {
     };
     init();
     Chunk chunk;
-    chunk.position = (VECTOR) {0, 0, 0};
+    chunk.position = (VECTOR) {0, 2, 0};
     chunkInit(&chunk);
-    smdSetBaseTPage( 0x200 );
-    // Cube cube = {
-    //     .position = {0, 0, 55},
-    //     .rotation = {0, 0, 0},
-    //     .texture = 0,
-    //     .texture_face_attrib = {
-    //         {1, 0, 16, 16, {0, 155, 0, 1}},
-    //         {1, 0, 16, 16, {0, 155, 0, 1}},
-    //         {1, 0, 16, 16, {0, 155, 0, 1}},
-    //         {1, 0, 16, 16, {0, 155, 0, 1}},
-    //         {1, 0, 16, 16, {0, 155, 0, 1}},
-    //         {1, 0, 16, 16, {0, 155, 0, 1}}
-    //     },
-    //     .vertices = CUBE_VERTICES
-    // };
-    // Cube cube1 = {
-    //     .position = {55, 0, 55},
-    //     .rotation = {0, 0, 0},
-    //     .texture = 0,
-    //     .texture_face_attrib = {
-    //         {3 * 16, 0, 16, 16, {0}}, // -Z FRONT
-    //         {3 * 16, 0, 16, 16, {0}}, // +Z BACK
-    //         {0 * 16, 0, 16, 16, {0, 155, 0, 1}}, // -Y TOP
-    //         {2 * 16, 0, 16, 16, {0}}, // +Y BOTTOM
-    //         {3 * 16, 0, 16, 16, {0}}, // -X LEFT
-    //         {3 * 16, 0, 16, 16, {0}}  // +X RIGHT
-    //     },
-    //     .vertices = CUBE_VERTICES
-    // };
-    /* Main loop */
     while (1) {
         // Set pad pointer to buffer data
         camera.mode = 0;
@@ -131,6 +101,7 @@ int main() {
         gte_SetTransMatrix(&transforms.geometry_mtx);
         // Draw the chunk
         chunkRender(&chunk, &dctx, &transforms);
+        // Draw cubes
         // cubeRender(&cube, &dctx, &transforms);
         // cubeRender(&cube1, &dctx, &transforms);
         // Flush font to screen
