@@ -9,6 +9,7 @@
 #include "../../render/transforms.h"
 #include "../../blocks/block.h"
 #include "../position.h"
+#include "../../util/fast_noise_lite.h"
 
 #define CHUNK_SIZE 8
 #define CHUNK_DATA_SIZE (CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE)
@@ -18,16 +19,20 @@
 typedef struct {
     VECTOR position;
     ChunkMesh mesh;
-    BlockID data[CHUNK_DATA_SIZE];
+    // fnl_state noise;
+    BlockID blocks[CHUNK_DATA_SIZE];
 } Chunk;
 
-void chunkInit(Chunk* chunk);
+void chunkInit(Chunk* chunk/*, int seed*/);
 void chunkDestroy(const Chunk* chunk);
 
 void chunkGenerate2DHeightMap(Chunk* chunk, const VECTOR* position);
 void chunkGenerate3DHeightMap(Chunk* chunk, const VECTOR* position);
+
 void chunkGenerateMesh(Chunk* chunk);
 void chunkClearMesh(Chunk* chunk);
+
+void chunkModifyVoxel(Chunk* chunk, const VECTOR* position, EBlockID block);
 
 void chunkRender(Chunk* chunk, DisplayContext* ctx, Transforms* transforms);
 

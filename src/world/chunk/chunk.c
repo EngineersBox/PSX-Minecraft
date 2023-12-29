@@ -5,20 +5,72 @@
 #include <stdbool.h>
 #include <smd/smd.h>
 
-void chunkInit(Chunk* chunk) {
+#include "../noise.h"
+#include "../../util/math_utils.h"
+
+#define inlineVec(vec) (vec).vx, (vec).vy, (vec).vz
+
+void chunkInit(Chunk *chunk/*, const int seed*/) {
+    printf("[CHUNK: %d,%d,%d] Initialising mesh\n", inlineVec(chunk->position));
     chunkMeshInit(&chunk->mesh);
-    // chunkGenerate3DHeightMap(chunk, {});
+    printf("[CHUNK: %d,%d,%d] Generating 2D height map\n", inlineVec(chunk->position));
+    chunkGenerate2DHeightMap(chunk, &chunk->position);
+    printf("[CHUNK: %d,%d,%d] Generating mesh\n", inlineVec(chunk->position));
     chunkGenerateMesh(chunk);
+    printf("[CHUNK: %d,%d,%d] Initialising SMD mesh data\n", inlineVec(chunk->position));
+    smdInitData(&chunk->mesh.smd);
+    // chunk->noise = fnlCreateState();
+    // chunk->noise.seed = seed;
 }
 
-void chunkDestroy(const Chunk* chunk) {
+void chunkDestroy(const Chunk *chunk) {
     chunkMeshDestroy(&chunk->mesh);
 }
 
-void chunkClearMesh(Chunk* chunk) {
-    ChunkMesh* mesh = &chunk->mesh;
+void chunkGenerate2DHeightMap(Chunk *chunk, const VECTOR *position) {
+    for (int32_t x = 0; x < CHUNK_SIZE; x++) {
+        for (int32_t y = 0; y < CHUNK_SIZE; y++) {
+            const int32_t xPos = x + position->vx;
+            const int32_t yPos = y + position->vy;
+            const int height = clamp(
+                noise2d(xPos, yPos),
+                0,
+                CHUNK_SIZE
+            );
+            for (int32_t z = 0; z < CHUNK_SIZE; z++) {
+                if (z < height - 3) {
+                    chunk->blocks[chunkBlockIndex(x, y, z)] = (BlockID) STONE;
+                } else if (z < height - 1) {
+                    chunk->blocks[chunkBlockIndex(x, y, z)] = (BlockID) DIRT;
+                } else if (z == height - 1) {
+                    chunk->blocks[chunkBlockIndex(x, y, z)] = (BlockID) GRASS;
+                } else {
+                    chunk->blocks[chunkBlockIndex(x, y, z)] = (BlockID) AIR;
+                }
+            }
+        }
+    }
+}
+
+void chunkGenerate3DHeightMap(Chunk *chunk, const VECTOR *position) {
+    for (int32_t x = 0; x < CHUNK_SIZE; x++) {
+        for (int32_t y = 0; y < CHUNK_SIZE; y++) {
+            for (int32_t z = 0; z < CHUNK_SIZE; z++) {
+                const int height = noise3d(
+                    x + position->vx,
+                    y + position->vy,
+                    z + position->vz
+                );
+                chunk->blocks[chunkBlockIndex(x, y, z)] = (BlockID) (height >= 0 ? AIR : STONE);
+            }
+        }
+    }
+}
+
+void chunkClearMesh(Chunk *chunk) {
+    ChunkMesh *mesh = &chunk->mesh;
     chunkMeshClear(mesh);
-    SMD* smd = &mesh->smd;
+    SMD *smd = &mesh->smd;
     smd->id[0] = 'S';
     smd->id[1] = 'M';
     smd->id[2] = 'D';
@@ -42,8 +94,8 @@ typedef struct {
 
 #define vec3Mul(type, vec, scalar) ((type) { (vec).vx * (scalar), (vec).vy * (scalar), (vec).vz * (scalar) })
 
-void createQuad(Chunk* chunk,
-                const Mask* mask,
+void createQuad(Chunk *chunk,
+                const Mask *mask,
                 const VECTOR axisMask,
                 const int width,
                 const int height,
@@ -51,17 +103,19 @@ void createQuad(Chunk* chunk,
                 const VECTOR v2,
                 const VECTOR v3,
                 const VECTOR v4) {
+    printf("Quad\n");
     const SVECTOR normal = (SVECTOR){
         axisMask.vx * mask->normal,
         axisMask.vy * mask->normal,
         axisMask.vz * mask->normal
     };
-    ChunkMesh* mesh = &chunk->mesh;
-    SMD* smd = &mesh->smd;
+    ChunkMesh *mesh = &chunk->mesh;
+    SMD *smd = &mesh->smd;
     // Construct a new POLY_FT4 (textured quad) primtive for this face
     smd->n_prims += 1;
     SMD_PRIM primtive = {0};
-    primtive.prim_id = (SMD_PRI_TYPE) {
+    cvector_push_back(mesh->primitives, primtive);
+    primtive.prim_id = (SMD_PRI_TYPE){
         .type = PRIM_TYPE_QUAD,
         .l_type = PRIM_LIGHTING_FLAT,
         .c_type = PRIM_COLOURING_GOURAUD,
@@ -98,33 +152,33 @@ void createQuad(Chunk* chunk,
     cvector_push_back(mesh->normals, normal);
     primtive.n3 = smd->n_norms + 3;
 
-    Texture* texture = &textures[BLOCKS[mask->block].cube->texture];
+    Texture *texture = &textures[BLOCK_TEXTURES];
     primtive.tpage = texture->tpage;
     primtive.clut = texture->clut;
 
     // TODO: Need to figure out how to get texture wrapping to work
     //       across a quad for a single 16x16 smapler of the given tpage + clut
     if (normal.vx == 1 || normal.vx == -1) {
-        primtive.tu0 = width;
-        primtive.tv0 = height;
+        primtive.tu0 = 16;
+        primtive.tv0 = 16;
 
         primtive.tu1 = 0;
-        primtive.tv1 = height;
+        primtive.tv1 = 16;
 
-        primtive.tu2 = width;
+        primtive.tu2 = 16;
         primtive.tv2 = 0;
 
         primtive.tu3 = 0;
         primtive.tu3 = 0;
     } else {
-        primtive.tu0 = height;
-        primtive.tv0 = width;
+        primtive.tu0 = 16;
+        primtive.tv0 = 16;
 
-        primtive.tu1 = height;
+        primtive.tu1 = 16;
         primtive.tv1 = 0;
 
         primtive.tu2 = 0;
-        primtive.tv2 = width;
+        primtive.tv2 = 16;
 
         primtive.tu3 = 0;
         primtive.tv3 = 0;
@@ -135,7 +189,6 @@ void createQuad(Chunk* chunk,
 }
 
 void chunkGenerateMesh(Chunk *chunk) {
-    // TODO: Clear mesh field before generating new one
     for (int axis = 0; axis < CHUNK_DIRECTIONS; axis++) {
         int k, width, height;
         const int axis1 = (axis + 1) % CHUNK_DIRECTIONS;
@@ -194,7 +247,8 @@ void chunkGenerateMesh(Chunk *chunk) {
                     chunkIter[axis2] = j;
                     // Compute the width of this quad and store it in w
                     // This is done by searching along the current axis until mask[n + w] is false
-                    for (width = 1; i + width < CHUNK_SIZE && compareMask(mask[n + width], currentMask); width++) {}
+                    for (width = 1; i + width < CHUNK_SIZE && compareMask(mask[n + width], currentMask); width++) {
+                    }
 
                     // Compute the height of this quad and store it in h
                     // This is done by checking if every block next to this row (range 0 to w) is also part of the mask.
@@ -217,12 +271,12 @@ void chunkGenerateMesh(Chunk *chunk) {
                     createQuad(
                         chunk,
                         &currentMask,
-                        (VECTOR) {axisMask[0], axisMask[1], axisMask[2]},
+                        (VECTOR){axisMask[0], axisMask[1], axisMask[2]},
                         width,
                         height,
                         // NOTE: These verticies need to be adjusted to fit block size
                         //       they are currently just indices into the chunk from top left.
-                        (VECTOR) {chunkIter[0], chunkIter[1], chunkIter[2]},
+                        (VECTOR){chunkIter[0], chunkIter[1], chunkIter[2]},
                         (VECTOR){
                             chunkIter[0] + deltaAxis1[0],
                             chunkIter[1] + deltaAxis1[1],
@@ -247,20 +301,21 @@ void chunkGenerateMesh(Chunk *chunk) {
                         }
                     }
                     i += width,
-                    n += width;
+                        n += width;
                 }
             }
         }
     }
 }
 
-void chunkRender(Chunk* chunk, DisplayContext* ctx, Transforms* transforms) {
-    int p;
+void chunkRender(Chunk *chunk, DisplayContext* ctx, Transforms* transforms) {
+    SC_OT sc_ordering_table;
+    SVECTOR rotation = {0, 0, 0};
     // Object and light matrix for object
     MATRIX omtx, olmtx;
     // Set object rotation and position
-    RotMatrix(&cube->rotation, &omtx);
-    TransMatrix(&omtx, &cube->position);
+    RotMatrix(&rotation, &omtx);
+    TransMatrix(&omtx, &chunk->position);
     // Multiply light matrix to object matrix
     MulMatrix0(&transforms->lighting_mtx, &omtx, &olmtx);
     // Set result to GTE light matrix
@@ -274,87 +329,14 @@ void chunkRender(Chunk* chunk, DisplayContext* ctx, Transforms* transforms) {
     // Set matrices
     gte_SetRotMatrix(&omtx);
     gte_SetTransMatrix(&omtx);
-    // Sort the cube
-    POLY_FT4* pol4 = (POLY_FT4*) ctx->primitive;
-    for (int i = 0; i < CUBE_FACES; i++) {
-        gte_ldv3(
-            &cube->vertices[CUBE_INDICES[i].v0],
-            &cube->vertices[CUBE_INDICES[i].v1],
-            &cube->vertices[CUBE_INDICES[i].v2]
-        );
-        // Rotation, Translation and Perspective Triple
-        gte_rtpt();
-        gte_nclip();
-        gte_stopz(&p);
-        if (p < 0) continue;
-        // Average screen Z result for four primtives
-        gte_avsz4();
-        gte_stotz(&p);
-        // (the shift right operator is to scale the depth precision)
-        if (((p >> 2) <= 0) || ((p >> 2) >= ORDERING_TABLE_LENGTH)) continue;
-        // Initialize a textured quad primitive
-        setPolyFT4(pol4);
-        // Set the projected vertices to the primitive
-        gte_stsxy0(&pol4->x0);
-        gte_stsxy1(&pol4->x1);
-        gte_stsxy2(&pol4->x2);
-        // Compute the last vertex and set the result
-        gte_ldv0(&cube->vertices[CUBE_INDICES[i].v3]);
-        gte_rtps();
-        gte_stsxy(&pol4->x3);
-        // Test if quad is off-screen, discard if so
-        if (quad_clip(
-            &ctx->screen_clip,
-            (DVECTOR *) &pol4->x0,
-            (DVECTOR *) &pol4->x1,
-            (DVECTOR *) &pol4->x2,
-            (DVECTOR *) &pol4->x3)) {
-            continue;
-        }
-        // Load primitive color even though gte_ncs() doesn't use it.
-        // This is so the GTE will output a color result with the
-        // correct primitive code.
-        const TextureAttributes attributes = cube->texture_face_attrib[i];
-        if (attributes.tint.use) {
-            setRGB0(
-                pol4,
-                attributes.tint.r,
-                attributes.tint.g,
-                attributes.tint.b
-            );
-        }
-        gte_ldrgb(&pol4->r0);
-        // Load the face normal
-        gte_ldv0(&CUBE_NORMS[i]);
-        // Apply RGB tinting to lighting calculation result on the basis
-        // that it is enabled. This corresponds to the column based calc
-        if (attributes.tint.use) {
-            // Normal Color Column Single
-            gte_nccs();
-        } else {
-            // Normal Color Single
-            gte_ncs();
-        }
-        // Store result to the primitive
-        gte_strgb(&pol4->r0);
-        // Set texture coords and dimensions
-        setUVWH(
-            pol4,
-            attributes.u,
-            attributes.v,
-            attributes.w,
-            attributes.h
-        );
-        // Bind texture page and colour look-up-table
-        pol4->tpage = textures[cube->texture].tpage;
-        pol4->clut = textures[cube->texture].clut;
-        // Sort primitive to the ordering table
-        addPrim(ctx->db[ctx->active].ordering_table + (p >> 2), pol4);
-        // Advance to make another primitive
-        pol4++;
-    }
-    // Update nextpri
-    ctx->primitive = (char *) pol4;
+    // Sort model
+    sc_ordering_table.ot = ctx->db[ctx->active].ordering_table;
+    sc_ordering_table.otlen = ORDERING_TABLE_LENGTH;
+    sc_ordering_table.zdiv = 1;
+    sc_ordering_table.zoff = 0;
+    // Render mesh
+    printf("[CHUNK: %d,%d,%d] Rendering SMD mesh\n", inlineVec(chunk->position));
+    ctx->primitive = (char*) smdSortModel(&sc_ordering_table, (uint8_t*) ctx->primitive, &chunk->mesh.smd);
     // Restore matrix
     PopMatrix();
 }
@@ -365,10 +347,21 @@ void chunkRender(Chunk* chunk, DisplayContext* ctx, Transforms* transforms) {
 
 BlockID chunkGetBlock(const Chunk *chunk, const int x, const int y, const int z) {
     if (checkIndexOOB(x, y, z)) return 0;
-    return chunk->data[chunkBlockIndex(x, y, z)];
+    return chunk->blocks[chunkBlockIndex(x, y, z)];
 }
 
 BlockID chunkGetBlockVec(const Chunk *chunk, const VECTOR *position) {
     if (checkIndexOOB(position->vx, position->vy, position->vz)) return 0;
-    return chunk->data[chunkBlockIndex(position->vx, position->vy, position->vz)];
+    return chunk->blocks[chunkBlockIndex(position->vx, position->vy, position->vz)];
+}
+
+void chunkModifyVoxel(Chunk *chunk, const VECTOR *position, const EBlockID block) {
+    const int32_t x = position->vx;
+    const int32_t y = position->vy;
+    const int32_t z = position->vz;
+    if (checkIndexOOB(x, y, z)) return;
+    chunk->blocks[chunkBlockIndex(x, y, z)] = (BlockID) block;
+    chunkClearMesh(chunk);
+    chunkGenerateMesh(chunk);
+    smdInitData(&chunk->mesh.smd);
 }

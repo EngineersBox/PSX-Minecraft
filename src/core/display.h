@@ -3,8 +3,6 @@
 #ifndef PSX_MINECRAFT_DISPLAY_H
 #define PSX_MINECRAFT_DISPLAY_H
 
-#include <sys/types.h>
-#include <psxgte.h>
 #include <psxgpu.h>
 
 // DB struct array sizes

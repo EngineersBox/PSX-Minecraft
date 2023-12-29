@@ -11,6 +11,10 @@ void __svectorDestructor(void* elem) {
 }
 
 void chunkMeshInit(ChunkMesh* mesh) {
+    // !IMPORTANT: This null init is important for cvector to ensure allocation is done initially
+    mesh->primitives = NULL;
+    mesh->vertices = NULL;
+    mesh->normals = NULL;
     cvector_init(mesh->primitives, 0, __primtiveDestructor);
     cvector_init(mesh->vertices, 0, __svectorDestructor);
     cvector_init(mesh->normals, 0, __svectorDestructor);
@@ -26,5 +30,5 @@ void chunkMeshClear(ChunkMesh* mesh) {
     cvector_clear(mesh->primitives);
     cvector_clear(mesh->vertices);
     cvector_clear(mesh->normals);
-    mesh->smd = {0};
+    mesh->smd = (SMD) {0};
 }

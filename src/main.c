@@ -78,7 +78,7 @@ void cameraReset(Camera *camera) {
 
 int main() {
     Camera camera = {
-        .position = {0, ONE * -200, 0},
+        .position = {0, 0, ONE * -200},
         .rotation = {0, 0, 0},
         .mode = 0
     };
@@ -89,50 +89,56 @@ int main() {
         .lighting_mtx = light_mtx
     };
     init();
-    Cube cube = {
-        .position = {0, 0, 55},
-        .rotation = {0, 0, 0},
-        .texture = 0,
-        .texture_face_attrib = {
-            {1, 0, 16, 16, {0, 155, 0, 1}},
-            {1, 0, 16, 16, {0, 155, 0, 1}},
-            {1, 0, 16, 16, {0, 155, 0, 1}},
-            {1, 0, 16, 16, {0, 155, 0, 1}},
-            {1, 0, 16, 16, {0, 155, 0, 1}},
-            {1, 0, 16, 16, {0, 155, 0, 1}}
-        },
-        .vertices = CUBE_VERTICES
-    };
-    Cube cube1 = {
-        .position = {55, 0, 55},
-        .rotation = {0, 0, 0},
-        .texture = 0,
-        .texture_face_attrib = {
-            {3 * 16, 0, 16, 16, {0}}, // -Z FRONT
-            {3 * 16, 0, 16, 16, {0}}, // +Z BACK
-            {0 * 16, 0, 16, 16, {0, 155, 0, 1}}, // -Y TOP
-            {2 * 16, 0, 16, 16, {0}}, // +Y BOTTOM
-            {3 * 16, 0, 16, 16, {0}}, // -X LEFT
-            {3 * 16, 0, 16, 16, {0}}  // +X RIGHT
-        },
-        .vertices = CUBE_VERTICES
-    };
+    Chunk chunk;
+    chunk.position = (VECTOR) {0, 0, 0};
+    chunkInit(&chunk);
+    smdSetBaseTPage( 0x200 );
+    // Cube cube = {
+    //     .position = {0, 0, 55},
+    //     .rotation = {0, 0, 0},
+    //     .texture = 0,
+    //     .texture_face_attrib = {
+    //         {1, 0, 16, 16, {0, 155, 0, 1}},
+    //         {1, 0, 16, 16, {0, 155, 0, 1}},
+    //         {1, 0, 16, 16, {0, 155, 0, 1}},
+    //         {1, 0, 16, 16, {0, 155, 0, 1}},
+    //         {1, 0, 16, 16, {0, 155, 0, 1}},
+    //         {1, 0, 16, 16, {0, 155, 0, 1}}
+    //     },
+    //     .vertices = CUBE_VERTICES
+    // };
+    // Cube cube1 = {
+    //     .position = {55, 0, 55},
+    //     .rotation = {0, 0, 0},
+    //     .texture = 0,
+    //     .texture_face_attrib = {
+    //         {3 * 16, 0, 16, 16, {0}}, // -Z FRONT
+    //         {3 * 16, 0, 16, 16, {0}}, // +Z BACK
+    //         {0 * 16, 0, 16, 16, {0, 155, 0, 1}}, // -Y TOP
+    //         {2 * 16, 0, 16, 16, {0}}, // +Y BOTTOM
+    //         {3 * 16, 0, 16, 16, {0}}, // -X LEFT
+    //         {3 * 16, 0, 16, 16, {0}}  // +X RIGHT
+    //     },
+    //     .vertices = CUBE_VERTICES
+    // };
     /* Main loop */
     while (1) {
         // Set pad pointer to buffer data
         camera.mode = 0;
-        cameraUpdate(&camera, &input, &transforms, &cube.position);
+        cameraUpdate(&camera, &input, &transforms, &chunk.position);
         // Set rotation and translation matrix
         gte_SetRotMatrix(&transforms.geometry_mtx);
         gte_SetTransMatrix(&transforms.geometry_mtx);
-        // Draw the cubes
-        cubeRender(&cube, &dctx, &transforms);
-        cubeRender(&cube1, &dctx, &transforms);
+        // Draw the chunk
+        chunkRender(&chunk, &dctx, &transforms);
+        // cubeRender(&cube, &dctx, &transforms);
+        // cubeRender(&cube1, &dctx, &transforms);
         // Flush font to screen
         FntFlush(-1);
         // Swap buffers and draw the primitives
         display(&dctx);
     }
+    chunkDestroy(&chunk);
     assetsFree();
     return 0;
 }
