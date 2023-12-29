@@ -62,7 +62,7 @@ void renderQuad(const ChunkMesh *mesh, SMD_PRIM *primitive, DisplayContext *ctx,
         verticesIter[primitive->v0].vz
     );
     printf(
-        "Setting vertices 1: {%d,%d,%d}\n",
+        "Setting vertices 2: {%d,%d,%d}\n",
         verticesIter[primitive->v1].vx,
         verticesIter[primitive->v1].vy,
         verticesIter[primitive->v1].vz
@@ -98,6 +98,12 @@ void renderQuad(const ChunkMesh *mesh, SMD_PRIM *primitive, DisplayContext *ctx,
     printf("Set projected vertices\n");
     // Compute the last vertex and set the result
     gte_ldv0(&verticesIter[primitive->v3]);
+    printf(
+        "Setting vertices 3: {%d,%d,%d}\n",
+        verticesIter[primitive->v3].vx,
+        verticesIter[primitive->v3].vy,
+        verticesIter[primitive->v3].vz
+    );
     gte_rtps();
     gte_stsxy(&pol4->x3);
     printf("Set last vert\n");
@@ -126,6 +132,12 @@ void renderQuad(const ChunkMesh *mesh, SMD_PRIM *primitive, DisplayContext *ctx,
     gte_ldrgb(&pol4->r0);
     // Load the face normal
     gte_ldv0(&normalsIter[primitive->n0]);
+    printf(
+        "Loaded normal: {%d,%d,%d}\n",
+        normalsIter[primitive->n0].vx,
+        normalsIter[primitive->n0].vy,
+        normalsIter[primitive->n0].vz
+    );
     // Apply RGB tinting to lighting calculation result on the basis
     // that it is enabled. This corresponds to the column based calc
     if (primitive->code) {

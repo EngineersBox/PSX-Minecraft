@@ -170,9 +170,9 @@ void createQuad(Chunk *chunk,
     cvector_push_back(mesh->normals, (SVECTOR) {});
     primitive->n0 = smd->n_norms;
     norm = &normalsIter[smd->n_norms++];
-    norm->vx = normal.vx;
-    norm->vy = normal.vy;
-    norm->vz = normal.vz;
+    norm->vx = normal.vx * ONE;
+    norm->vy = normal.vy * ONE;
+    norm->vz = normal.vz * ONE;
     norm->pad = normal.pad;
 
     const Texture* texture = &textures[BLOCK_TEXTURES];
