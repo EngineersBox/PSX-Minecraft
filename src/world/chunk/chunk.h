@@ -14,7 +14,7 @@
 #define CHUNK_SIZE 8
 #define CHUNK_DATA_SIZE (CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE)
 
-#define chunkBlockIndex(x, y, z) ((x) + (((y) + ((z) * CHUNK_SIZE)) * CHUNK_SIZE))
+#define chunkBlockIndex(x, y, z) ((x) + ((y) * CHUNK_SIZE) + ((z) * CHUNK_SIZE * CHUNK_SIZE))
 
 typedef struct {
     VECTOR position;

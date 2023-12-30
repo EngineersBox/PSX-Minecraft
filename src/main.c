@@ -70,6 +70,36 @@ void init() {
     assetsLoad();
 }
 
+static int random[128] = {
+    1,0,0,0,1,1,0,0,1,0,1,0,1,1,1,1,1,1,0,0,0,1,1,0,1,0,1,0,0,1,1,0,1,1,0,0,1,1,1,1,1,1,0,0,1,1,1,1,0,0,1,0,1,0,0,1,0,0,0,1,0,0,0,0,
+    0,1,0,1,1,1,0,1,1,0,0,0,1,0,1,1,1,1,1,1,0,1,0,0,0,0,0,1,0,1,0,1,0,0,1,1,0,1,1,0,0,0,0,0,0,0,0,1,1,0,0,1,1,0,1,1,1,0,0,1,0,0,1,1
+};
+
+void initTestBlocks(Chunk* chunk) {
+    for (int x = 0; x < CHUNK_SIZE; x++) {
+        for (int z = 0; z < CHUNK_SIZE; z++) {
+            for (int y = 0; y < CHUNK_SIZE; y++) {
+                chunk->blocks[chunkBlockIndex(x, y, z)] = (BlockID) STONE;
+            }
+        }
+    }
+    // for (int x = 0; x < CHUNK_SIZE; x++) {
+    //     for (int z = 0; z < CHUNK_SIZE; z++) {
+    //         for (int y = 0; y < 3; y++) {
+    //             if (y == 0) {
+    //                 chunk->blocks[chunkBlockIndex(x, y, z)] = (BlockID) STONE;
+    //             } else if (y == 1) {
+    //                 chunk->blocks[chunkBlockIndex(x, y, z)] = random[x + (z * CHUNK_SIZE)] == 1
+    //                     ? (BlockID) DIRT : (BlockID) AIR;
+    //             } else if (y == 2) {
+    //                 chunk->blocks[chunkBlockIndex(x, y, z)] = random[64 + x + (z * CHUNK_SIZE)] == 1
+    //                     ? (BlockID) GRASS : (BlockID) AIR;
+    //             }
+    //         }
+    //     }
+    // }
+}
+
 void cameraReset(Camera *camera) {
     camera->position = (VECTOR){0, ONE * 0, 0};
     camera->rotation = (VECTOR){0, 0, 0};
@@ -78,7 +108,7 @@ void cameraReset(Camera *camera) {
 
 int main() {
     Camera camera = {
-        .position = {0, 0, ONE * -200},
+        .position = {0, ONE * -300, ONE * -300},
         .rotation = {0, 0, 0},
         .mode = 0
     };
@@ -91,7 +121,11 @@ int main() {
     init();
     Chunk chunk;
     chunk.position = (VECTOR) {0, 2, 0};
-    chunkInit(&chunk);
+    // chunkInit(&chunk);
+    Chunk chunk1;
+    chunk1.position = (VECTOR) {0, 0, 0};
+    initTestBlocks(&chunk1);
+    chunkInit(&chunk1);
     while (1) {
         // Set pad pointer to buffer data
         camera.mode = 0;
@@ -100,7 +134,7 @@ int main() {
         gte_SetRotMatrix(&transforms.geometry_mtx);
         gte_SetTransMatrix(&transforms.geometry_mtx);
         // Draw the chunk
-        chunkRender(&chunk, &dctx, &transforms);
+        chunkRender(&chunk1, &dctx, &transforms);
         // Draw cubes
         // cubeRender(&cube, &dctx, &transforms);
         // cubeRender(&cube1, &dctx, &transforms);
