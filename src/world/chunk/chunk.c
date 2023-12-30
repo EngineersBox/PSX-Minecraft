@@ -206,6 +206,7 @@ void chunkGenerateMesh(Chunk *chunk) {
         // TODO: Make this a uint8_t[CHUNK_SIZE] array where each bit is a bool, int type will need to change
         //       if CHUNK_SIZE is increased from 8 to 16 (uint8_t -> uint16_t)
         Mask mask[CHUNK_SIZE * CHUNK_SIZE] = {0};
+        printf("Initial mask: {block: %d, normal:%d}\n", mask[4].block, mask[4].normal);
         for (chunkIter[axis] = -1; chunkIter[axis] < CHUNK_SIZE;) {
             // Compute mask
             uint16_t n = 0;
@@ -231,7 +232,7 @@ void chunkGenerateMesh(Chunk *chunk) {
                             currentOpaque ? "true" : "false",
                             compareOpaque ? "true" : "false"
                         );
-                        mask[n++] = (Mask){0, 0};
+                        mask[n++] = (Mask){(uint16_t) NONE, 0};
                     } else if (currentOpaque) {
                         printf("currentOpaque true %d\n", currentBlock);
                         mask[n++] = (Mask){(int16_t) currentBlock, 1};
@@ -313,7 +314,7 @@ void chunkGenerateMesh(Chunk *chunk) {
                     deltaAxis2[0] = 0; deltaAxis2[0] = 0; deltaAxis2[0] = 0;
                     for (int l = 0; l < height; l++) {
                         for (int k = 0; k < width; k++) {
-                            mask[n + k + l * CHUNK_SIZE] = (Mask){0, 0};
+                            mask[n + k + l * CHUNK_SIZE] = (Mask){(uint16_t) NONE, 0};
                         }
                     }
                     i += width,

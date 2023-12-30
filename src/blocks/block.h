@@ -34,7 +34,8 @@ void blockRender(Block* block, DisplayContext* ctx, Transforms* transforms);
 #define BLOCK_COUNT 256
 
 typedef enum _BlockID {
-    AIR = 0,
+    NONE = 0,
+    AIR,
     STONE,
     DIRT,
     GRASS
