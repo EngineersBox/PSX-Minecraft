@@ -40,9 +40,7 @@ void chunkGenerate2DHeightMap(Chunk *chunk, const VECTOR *position) {
             //     0,
             //     Size
             // );
-            int noise = noise2d(xPos * ONE, zPos * ONE);
-            printf("Noise: %d\n", noise);
-            const int height = noise;
+            const int height = noise2d(xPos * ONE, zPos * ONE);
             // clamp(
             //     noise,
             //     0,
@@ -50,16 +48,17 @@ void chunkGenerate2DHeightMap(Chunk *chunk, const VECTOR *position) {
             // );
             printf("height: %d\n", height);
             for (int32_t y = 0; y < CHUNK_SIZE; y++) {
+                int32_t worldY = (position->vy * CHUNK_SIZE) + y;
                 // TODO: Change these chunkBlockIndex to be global lookups through world
                 //       to ensure that blocks in next chunk boundary are visible to this chunk
                 //       so the mesh is seamless
-                if ((position->vy * CHUNK_SIZE) + y < height - 3) {
+                if (worldY < height - 3) {
                     chunk->blocks[chunkBlockIndex(x, y, z)] = (BlockID) STONE;
                     printf("STONE @ %d,%d,%d\n", x, y, z);
-                } else if ((position->vy * CHUNK_SIZE) + y < height - 1) {
+                } else if (worldY < height - 1) {
                     chunk->blocks[chunkBlockIndex(x, y, z)] = (BlockID) DIRT;
                     printf("DIRT @ %d,%d,%d\n", x, y, z);
-                } else if ((position->vy * CHUNK_SIZE) + y == height - 1) {
+                } else if (worldY == height - 1) {
                     chunk->blocks[chunkBlockIndex(x, y, z)] = (BlockID) GRASS;
                     printf("GRASS @ %d,%d,%d\n", x, y, z);
                 } else {
@@ -114,11 +113,10 @@ typedef struct {
 
 #define vec3Mul(type, vec, scalar) ((type) { (vec).vx * (scalar), (vec).vy * (scalar), (vec).vz * (scalar) })
 
+// TODO: Break this into separate methods for each section
 void createQuad(Chunk *chunk,
                 const Mask *mask,
                 const VECTOR axisMask,
-                const int width,
-                const int height,
                 const VECTOR v0,
                 const VECTOR v1,
                 const VECTOR v2,
@@ -165,16 +163,19 @@ void createQuad(Chunk *chunk,
     addVertex(v1);
     addVertex(v2);
     addVertex(v3);
-
     // Create normals for each vertex
     SVECTOR* norm = NULL;
+    printf("Addr before: %p\n", mesh->normals);
     cvector_push_back(mesh->normals, (SVECTOR) {});
+    printf("Addr after: %p\n", mesh->normals);
     primitive->n0 = smd->n_norms;
     norm = &normalsIter[smd->n_norms++];
-    norm->vx = normal.vx * ONE;
+    printf("Norm write begin\n");
+    norm->vx = normal.vx * ONE; // !BUG: These produce out of bounds indexing on the 'norm' instance?
     norm->vy = normal.vy * ONE;
     norm->vz = normal.vz * ONE;
     norm->pad = normal.pad;
+    printf("Created normal {%d,%d,%d} @ %p\n", norm->vx, norm->vy, norm->vz, norm);
 
     const Texture* texture = &textures[BLOCK_TEXTURES];
     primitive->tpage = texture->tpage;
@@ -182,8 +183,13 @@ void createQuad(Chunk *chunk,
 
     // TODO: Need to figure out how to get texture wrapping to work
     //       across a quad for a single 16x16 smapler of the given tpage + clut
-    printf("Block: %d\n", mask->block);
-    const TextureAttributes* attributes = &BLOCKS[mask->block].faceAttributes[0];
+    // Calculate face index
+    const int8_t shiftedNormal = (mask->normal + 2) / 2;
+    const int index = (axisMask.vz * (1 + shiftedNormal))
+        + (axisMask.vy * (2 + shiftedNormal))
+        + (axisMask.vx * (4 + shiftedNormal));
+    printf("Face index: %d\n", index);
+    const TextureAttributes* attributes = &BLOCKS[mask->block].faceAttributes[index];
     primitive->tu0 = attributes->u;
     primitive->tv0 = attributes->v;
     primitive->tu1 = attributes->w;
@@ -192,7 +198,7 @@ void createQuad(Chunk *chunk,
     primitive->g0 = attributes->tint.g;
     primitive->b0 = attributes->tint.b;
     primitive->code = attributes->tint.use;
-    printf("Primtiives: %d\n", smd->n_prims);
+    printf("Primtives: %d\n", smd->n_prims);
 }
 
 void chunkGenerateMesh(Chunk *chunk) {
@@ -287,8 +293,6 @@ void chunkGenerateMesh(Chunk *chunk) {
                         chunk,
                         &currentMask,
                         (VECTOR){axisMask[0], axisMask[1], axisMask[2]},
-                        width,
-                        height,
                         // NOTE: These verticies need to be adjusted to fit block size
                         //       they are currently just indices into the chunk from top left.
                         (VECTOR){chunkIter[0], chunkIter[1], chunkIter[2]},

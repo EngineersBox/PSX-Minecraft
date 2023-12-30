@@ -6,8 +6,8 @@
 #include <psxgpu.h>
 
 // DB struct array sizes
-#define ORDERING_TABLE_LENGTH 256
-#define PACKET_BUFFER_LENGTH 1024
+#define ORDERING_TABLE_LENGTH 1024
+#define PACKET_BUFFER_LENGTH 8096
 
 // Screen resolution
 #define SCREEN_XRES	320

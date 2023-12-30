@@ -17,9 +17,10 @@ void chunkMeshInit(ChunkMesh *mesh) {
     mesh->primitives = NULL;
     mesh->vertices = NULL;
     mesh->normals = NULL;
-    cvector_init(mesh->primitives, 50, __primtiveDestructor);
-    cvector_init(mesh->vertices, 150, __svectorDestructor);
-    cvector_init(mesh->normals, 50, __svectorDestructor);
+    // !BUG: These pre-allocated sizes cause issues for some reaosn (out of bounds read/write)
+    cvector_init(mesh->primitives, MESH_PRIMITIVE_VEC_INITIAL_CAPCITY, __primtiveDestructor);
+    cvector_init(mesh->vertices, MESH_VERTEX_VEC_INITIAL_CAPCITY, __svectorDestructor);
+    cvector_init(mesh->normals, MESH_NORMAL_VEC_INITIAL_CAPCITY, __svectorDestructor);
 }
 
 void chunkMeshDestroy(const ChunkMesh *mesh) {
@@ -36,6 +37,7 @@ void chunkMeshClear(ChunkMesh *mesh) {
     memset(&mesh->smd, 0, sizeof(SMD));
 }
 
+// TODO: Move these to SMD renderer file as general methods
 void renderLine(SMD_PRIM *primitive, DisplayContext *ctx, Transforms *transforms) {
     // TODO
 }
@@ -133,9 +135,10 @@ void renderQuad(const ChunkMesh *mesh, SMD_PRIM *primitive, DisplayContext *ctx,
 
 void chunkMeshRender(const ChunkMesh *mesh, DisplayContext *ctx, Transforms *transforms) {
     printf("Primitives: %d\n", cvector_size(mesh->primitives));
+    int i = 0;
     for (cvector_iterator(SMD_PRIM) primitive = cvector_begin(mesh->primitives);
          primitive != cvector_end(mesh->primitives); primitive++) {
-        printf("Primitive type: %d @ %p\n", primitive->prim_id.type, primitive);
+        printf("[%d] Primitive type: %d @ %p\n", i++, primitive->prim_id.type, primitive);
         switch (primitive->prim_id.type) {
             case PRIM_TYPE_LINE:
                 renderLine(primitive, ctx, transforms);

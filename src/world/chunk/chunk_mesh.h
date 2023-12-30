@@ -10,6 +10,19 @@
 #include "../../core/display.h"
 #include "../../render/transforms.h"
 
+#ifndef MESH_PRIMITIVE_VEC_INITIAL_CAPCITY
+#define MESH_PRIMITIVE_VEC_INITIAL_CAPCITY 150
+#endif
+
+#ifndef MESH_VERTEX_VEC_INITIAL_CAPCITY
+#define MESH_VERTEX_VEC_INITIAL_CAPCITY 150
+#endif
+
+#ifndef MESH_NORMAL_VEC_INITIAL_CAPCITY
+#define MESH_NORMAL_VEC_INITIAL_CAPCITY 150
+#endif
+
+// TODO: Move these to SMD renderer file as general properties
 #define PRIM_TYPE_LINE 0
 #define PRIM_TYPE_TRI 1
 #define PRIM_TYPE_QUAD 2
