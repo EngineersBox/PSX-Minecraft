@@ -1,5 +1,5 @@
 # TODO
 
-* Implement texture loading via LZP compressed archive traversal
-* Complete display/render context implementation
-* Create standalone cube struct and load + render methods
+* Fix chunk mesh traversal to be Y up instead of Z up
+* Implement texture windowing for wrap-around in multiples of texture width/height
+* 
