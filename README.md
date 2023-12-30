@@ -24,3 +24,9 @@ cmake --build ./build
 This will create several files in the `build` directory. Using the
 PCSX Redux emulator, you can load the `build/PSXMC.bin` CD image
 and run it.
+
+## Snapshot
+
+Work so far, currently WIP chunk rendering with greedy meshing
+
+![PSXMC](./docs/PSXMC.png)
