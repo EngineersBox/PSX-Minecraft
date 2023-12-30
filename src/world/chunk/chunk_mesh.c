@@ -55,24 +55,6 @@ void renderQuad(const ChunkMesh *mesh, SMD_PRIM *primitive, DisplayContext *ctx,
         &verticesIter[primitive->v1],
         &verticesIter[primitive->v2]
     );
-    printf(
-        "Setting vertex 0: {%d,%d,%d}\n",
-        verticesIter[primitive->v0].vx,
-        verticesIter[primitive->v0].vy,
-        verticesIter[primitive->v0].vz
-    );
-    printf(
-        "Setting vertex 1: {%d,%d,%d}\n",
-        verticesIter[primitive->v1].vx,
-        verticesIter[primitive->v1].vy,
-        verticesIter[primitive->v1].vz
-    );
-    printf(
-        "Setting vertex 2: {%d,%d,%d}\n",
-        verticesIter[primitive->v2].vx,
-        verticesIter[primitive->v2].vy,
-        verticesIter[primitive->v2].vz
-    );
     // Rotation, Translation and Perspective Triple
     gte_rtpt();
     gte_nclip();
@@ -95,12 +77,6 @@ void renderQuad(const ChunkMesh *mesh, SMD_PRIM *primitive, DisplayContext *ctx,
     gte_stsxy2(&pol4->x2);
     // Compute the last vertex and set the result
     gte_ldv0(&verticesIter[primitive->v3]);
-    printf(
-        "Setting vertex 3: {%d,%d,%d}\n",
-        verticesIter[primitive->v3].vx,
-        verticesIter[primitive->v3].vy,
-        verticesIter[primitive->v3].vz
-    );
     gte_rtps();
     gte_stsxy(&pol4->x3);
     // Test if quad is off-screen, discard if so
@@ -126,12 +102,6 @@ void renderQuad(const ChunkMesh *mesh, SMD_PRIM *primitive, DisplayContext *ctx,
     gte_ldrgb(&pol4->r0);
     // Load the face normal
     gte_ldv0(&normalsIter[primitive->n0]);
-    printf(
-        "Loaded normal: {%d,%d,%d}\n",
-        normalsIter[primitive->n0].vx,
-        normalsIter[primitive->n0].vy,
-        normalsIter[primitive->n0].vz
-    );
     // Apply RGB tinting to lighting calculation result on the basis
     // that it is enabled. This corresponds to the column based calc
     if (primitive->code) {
@@ -151,19 +121,11 @@ void renderQuad(const ChunkMesh *mesh, SMD_PRIM *primitive, DisplayContext *ctx,
         primitive->tu1,
         primitive->tv1
     );
-    printf(
-        "Set UVWH %d,%d,%d,%d\n",
-        primitive->tu0,
-        primitive->tv0,
-        primitive->tu1,
-        primitive->tv1
-    );
     // Bind texture page and colour look-up-table
     pol4->tpage = primitive->tpage;
     pol4->clut = primitive->clut;
     // Sort primitive to the ordering table
     addPrim(ctx->db[ctx->active].ordering_table + (p >> 2), pol4);
-    printf("Added primitive\n");
     // Advance to make another primitive
     pol4++;
     ctx->primitive = (char*) pol4;

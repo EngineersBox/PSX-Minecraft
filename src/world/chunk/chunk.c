@@ -14,8 +14,8 @@ void chunkInit(Chunk *chunk/*, const int seed*/) {
     printf("[CHUNK: %d,%d,%d] Initialising mesh\n", inlineVec(chunk->position));
     chunkMeshInit(&chunk->mesh);
     chunkClearMesh(chunk);
-    // printf("[CHUNK: %d,%d,%d] Generating 2D height map\n", inlineVec(chunk->position));
-    // chunkGenerate2DHeightMap(chunk, &chunk->position);
+    printf("[CHUNK: %d,%d,%d] Generating 2D height map\n", inlineVec(chunk->position));
+    chunkGenerate2DHeightMap(chunk, &chunk->position);
     printf("[CHUNK: %d,%d,%d] Generating mesh\n", inlineVec(chunk->position));
     chunkGenerateMesh(chunk);
     // printf("[CHUNK: %d,%d,%d] Initialising SMD mesh data\n", inlineVec(chunk->position));
@@ -30,9 +30,9 @@ void chunkDestroy(const Chunk *chunk) {
 
 void chunkGenerate2DHeightMap(Chunk *chunk, const VECTOR *position) {
     for (int32_t x = 0; x < CHUNK_SIZE; x++) {
-        for (int32_t y = 0; y < CHUNK_SIZE; y++) {
+        for (int32_t z = 0; z < CHUNK_SIZE; z++) {
             const int32_t xPos = x + position->vx;
-            const int32_t yPos = y + position->vy;
+            const int32_t zPos = z + position->vz;
             // FMath::Clamp(
             //     FMath::RoundToInt(
             //         (Noise->GetNoise(Xpos, Ypos) + 1) * Size / 2
@@ -40,24 +40,26 @@ void chunkGenerate2DHeightMap(Chunk *chunk, const VECTOR *position) {
             //     0,
             //     Size
             // );
-            int noise = (noise2d(xPos * ONE, yPos * ONE) + 1) * (CHUNK_SIZE / 2);
+            int noise = noise2d(xPos * ONE, zPos * ONE);
             printf("Noise: %d\n", noise);
-            const int height = clamp(
-                noise,
-                0,
-                CHUNK_SIZE
-            );
-            for (int32_t z = 0; z < CHUNK_SIZE; z++) {
+            const int height = noise;
+            // clamp(
+            //     noise,
+            //     0,
+            //     CHUNK_SIZE
+            // );
+            printf("height: %d\n", height);
+            for (int32_t y = 0; y < CHUNK_SIZE; y++) {
                 // TODO: Change these chunkBlockIndex to be global lookups through world
                 //       to ensure that blocks in next chunk boundary are visible to this chunk
                 //       so the mesh is seamless
-                if (z < height - 3) {
+                if ((position->vy * CHUNK_SIZE) + y < height - 3) {
                     chunk->blocks[chunkBlockIndex(x, y, z)] = (BlockID) STONE;
                     printf("STONE @ %d,%d,%d\n", x, y, z);
-                } else if (z < height - 1) {
+                } else if ((position->vy * CHUNK_SIZE) + y < height - 1) {
                     chunk->blocks[chunkBlockIndex(x, y, z)] = (BlockID) DIRT;
                     printf("DIRT @ %d,%d,%d\n", x, y, z);
-                } else if (z == height - 1) {
+                } else if ((position->vy * CHUNK_SIZE) + y == height - 1) {
                     chunk->blocks[chunkBlockIndex(x, y, z)] = (BlockID) GRASS;
                     printf("GRASS @ %d,%d,%d\n", x, y, z);
                 } else {
@@ -78,6 +80,7 @@ void chunkGenerate3DHeightMap(Chunk *chunk, const VECTOR *position) {
                     y + position->vy,
                     z + position->vz
                 );
+                printf("Height: %d\n", height);
                 chunk->blocks[chunkBlockIndex(x, y, z)] = (BlockID) (height >= 0 ? AIR : STONE);
             }
         }
@@ -157,7 +160,6 @@ void createQuad(Chunk *chunk,
     vertex->vx = (vn).vx * BLOCK_SIZE; \
     vertex->vy = (vn).vy * BLOCK_SIZE; \
     vertex->vz = (vn).vz * BLOCK_SIZE; \
-    printf("Vert %d,%d,%d\n", vertex->vx, vertex->vy, vertex->vz)
 
     addVertex(v0);
     addVertex(v1);
@@ -190,12 +192,14 @@ void createQuad(Chunk *chunk,
     primitive->g0 = attributes->tint.g;
     primitive->b0 = attributes->tint.b;
     primitive->code = attributes->tint.use;
+    printf("Primtiives: %d\n", smd->n_prims);
 }
 
 void chunkGenerateMesh(Chunk *chunk) {
     for (int axis = 0; axis < CHUNK_DIRECTIONS; axis++) {
         const int axis1 = (axis + 1) % CHUNK_DIRECTIONS;
         const int axis2 = (axis + 2) % CHUNK_DIRECTIONS;
+        printf("Axis: [%d,%d,%d]\n", axis, axis1, axis2);
         // FIXME: These can be VECTOR instances instead of arrays, but will come at the cost of an extra padding field
         //        is that worth it or should thee just be left as is?
         int deltaAxis1[CHUNK_DIRECTIONS] = {0};
@@ -206,12 +210,13 @@ void chunkGenerateMesh(Chunk *chunk) {
         // TODO: Make this a uint8_t[CHUNK_SIZE] array where each bit is a bool, int type will need to change
         //       if CHUNK_SIZE is increased from 8 to 16 (uint8_t -> uint16_t)
         Mask mask[CHUNK_SIZE * CHUNK_SIZE] = {0};
-        printf("Initial mask: {block: %d, normal:%d}\n", mask[4].block, mask[4].normal);
         for (chunkIter[axis] = -1; chunkIter[axis] < CHUNK_SIZE;) {
             // Compute mask
             uint16_t n = 0;
-            for (chunkIter[axis2] = 0; chunkIter[axis1] < CHUNK_SIZE; chunkIter[axis2]++) {
-                for (chunkIter[axis1] = 0; chunkIter[axis1] < CHUNK_SIZE; chunkIter[axis1]++) {
+            for (int ca2 = 0; ca2 < CHUNK_SIZE; ca2++) {
+                chunkIter[axis2] = ca2;
+                for (int ca1 = 0; ca1 < CHUNK_SIZE; ca1++) {
+                    chunkIter[axis1] = ca1;
                     const BlockID currentBlock = chunkGetBlock(
                         chunk,
                         chunkIter[0],// + chunk->position.vx,
@@ -227,17 +232,10 @@ void chunkGenerateMesh(Chunk *chunk) {
                     );
                     const bool compareOpaque = BLOCKS[compareBlock].type != EMPTY;
                     if (currentOpaque == compareOpaque) {
-                        printf(
-                            "currentOpaque == compareOpaque: %s == %s\n",
-                            currentOpaque ? "true" : "false",
-                            compareOpaque ? "true" : "false"
-                        );
                         mask[n++] = (Mask){(uint16_t) NONE, 0};
                     } else if (currentOpaque) {
-                        printf("currentOpaque true %d\n", currentBlock);
                         mask[n++] = (Mask){(int16_t) currentBlock, 1};
                     } else {
-                        printf("None eq or true %d\n", compareBlock);
                         mask[n++] = (Mask){(int16_t) compareBlock, -1};
                     }
                 }
@@ -259,8 +257,7 @@ void chunkGenerateMesh(Chunk *chunk) {
                     // Compute the width of this quad and store it in w
                     // This is done by searching along the current axis until mask[n + w] is false
                     int width;
-                    for (width = 1; i + width < CHUNK_SIZE && compareMask(mask[n + width], currentMask); width++) {
-                    }
+                    for (width = 1; i + width < CHUNK_SIZE && compareMask(mask[n + width], currentMask); width++) {}
 
                     // Compute the height of this quad and store it in h
                     // This is done by checking if every block next to this row (range 0 to w) is also part of the mask.
@@ -272,16 +269,17 @@ void chunkGenerateMesh(Chunk *chunk) {
                         // Check each block next to this quad
                         for (int k = 0; k < width; ++k) {
                             // If there's a hole in the mask, exit
-                            if (compareMask(mask[n + k + (height * CHUNK_SIZE)], currentMask)) {
-                                continue;
+                            if (!compareMask(mask[n + k + (height * CHUNK_SIZE)], currentMask)) {
+                                done = true;
+                                break;
                             }
-                            done = true;
-                            break;
                         }
                         if (done) {
                             break;
                         }
                     }
+                    deltaAxis1[0] = 0; deltaAxis1[0] = 0; deltaAxis1[0] = 0;
+                    deltaAxis2[0] = 0; deltaAxis2[0] = 0; deltaAxis2[0] = 0;
                     deltaAxis1[axis1] = width;
                     deltaAxis2[axis2] = height;
                     // FIXME: Avoid creating structs just to pass parameters to createQuad(...)
@@ -310,8 +308,6 @@ void chunkGenerateMesh(Chunk *chunk) {
                             chunkIter[2] + deltaAxis1[2] + deltaAxis2[2]
                         }
                     );
-                    deltaAxis1[0] = 0; deltaAxis1[0] = 0; deltaAxis1[0] = 0;
-                    deltaAxis2[0] = 0; deltaAxis2[0] = 0; deltaAxis2[0] = 0;
                     for (int l = 0; l < height; l++) {
                         for (int k = 0; k < width; k++) {
                             mask[n + k + l * CHUNK_SIZE] = (Mask){(uint16_t) NONE, 0};
@@ -363,12 +359,12 @@ void chunkRender(Chunk *chunk, DisplayContext *ctx, Transforms *transforms) {
 	|| (z) >= CHUNK_SIZE || (z) < 0)
 
 BlockID chunkGetBlock(const Chunk *chunk, const int x, const int y, const int z) {
-    if (checkIndexOOB(x, y, z)) return 0;
+    if (checkIndexOOB(x, y, z)) return AIR;
     return chunk->blocks[chunkBlockIndex(x, y, z)];
 }
 
 BlockID chunkGetBlockVec(const Chunk *chunk, const VECTOR *position) {
-    if (checkIndexOOB(position->vx, position->vy, position->vz)) return 0;
+    if (checkIndexOOB(position->vx, position->vy, position->vz)) return AIR;
     return chunk->blocks[chunkBlockIndex(position->vx, position->vy, position->vz)];
 }
 
