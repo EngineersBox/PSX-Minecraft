@@ -47,23 +47,23 @@ void chunkGenerate2DHeightMap(Chunk *chunk, const VECTOR *position) {
             //     CHUNK_SIZE
             // );
             printf("height: %d\n", height);
-            for (int32_t y = 0; y < CHUNK_SIZE; y++) {
-                int32_t worldY = (position->vy * CHUNK_SIZE) + y;
+            for (int32_t y = CHUNK_SIZE; y > 0; y--) {
+                const int32_t worldY = (position->vy * CHUNK_SIZE) + (CHUNK_SIZE - y);
                 // TODO: Change these chunkBlockIndex to be global lookups through world
                 //       to ensure that blocks in next chunk boundary are visible to this chunk
                 //       so the mesh is seamless
                 if (worldY < height - 3) {
-                    chunk->blocks[chunkBlockIndex(x, y, z)] = (BlockID) STONE;
-                    printf("STONE @ %d,%d,%d\n", x, y, z);
+                    chunk->blocks[chunkBlockIndex(x, y - 1, z)] = (BlockID) STONE;
+                    printf("STONE @ %d,%d,%d\n", x, y - 1, z);
                 } else if (worldY < height - 1) {
-                    chunk->blocks[chunkBlockIndex(x, y, z)] = (BlockID) DIRT;
-                    printf("DIRT @ %d,%d,%d\n", x, y, z);
+                    chunk->blocks[chunkBlockIndex(x, y - 1, z)] = (BlockID) DIRT;
+                    printf("DIRT @ %d,%d,%d\n", x, y - 1, z);
                 } else if (worldY == height - 1) {
-                    chunk->blocks[chunkBlockIndex(x, y, z)] = (BlockID) GRASS;
-                    printf("GRASS @ %d,%d,%d\n", x, y, z);
+                    chunk->blocks[chunkBlockIndex(x, y - 1, z)] = (BlockID) GRASS;
+                    printf("GRASS @ %d,%d,%d\n", x, y - 1, z);
                 } else {
-                    chunk->blocks[chunkBlockIndex(x, y, z)] = (BlockID) AIR;
-                    printf("AIR @ %d,%d,%d\n", x, y, z);
+                    chunk->blocks[chunkBlockIndex(x, y - 1, z)] = (BlockID) AIR;
+                    printf("AIR @ %d,%d,%d\n", x, y - 1, z);
                 }
             }
         }
@@ -111,6 +111,8 @@ typedef struct {
 // TODO: Break this into separate methods for each section
 void createQuad(Chunk* chunk,
                 const Mask* mask,
+                const int16_t width,
+                const int16_t height,
                 const int16_t axisMask[CHUNK_DIRECTIONS],
                 const int16_t origin[CHUNK_DIRECTIONS],
                 const int16_t deltaAxis1[CHUNK_DIRECTIONS],
@@ -190,7 +192,7 @@ void createQuad(Chunk* chunk,
     // TODO: Need to figure out how to get texture wrapping to work
     //       across a quad for a single 16x16 smapler of the given tpage + clut
     // Calculate face index
-    const int8_t shiftedNormal = (mask->normal + 2) / 2; // {-1,1} => {0,1}
+    const int8_t shiftedNormal = (mask->normal + 2) / 2; // {-1,1} => {0, 1}
     const int index = (axisMask[2] * (1 + shiftedNormal))  // 0: -Z, 1: +Z
                     + (axisMask[1] * (2 + shiftedNormal))  // 2: -Y, 3: +Y
                     + (axisMask[0] * (4 + shiftedNormal)); // 4: -X, 5: +X
@@ -198,8 +200,8 @@ void createQuad(Chunk* chunk,
     const TextureAttributes* attributes = &BLOCKS[mask->block].faceAttributes[index];
     primitive->tu0 = attributes->u;
     primitive->tv0 = attributes->v;
-    primitive->tu1 = attributes->w;
-    primitive->tv1 = attributes->h;
+    primitive->tu1 = 16 * width;
+    primitive->tv1 = 16 * height;
     primitive->r0 = attributes->tint.r;
     primitive->g0 = attributes->tint.g;
     primitive->b0 = attributes->tint.b;
@@ -294,6 +296,8 @@ void chunkGenerateMesh(Chunk *chunk) {
                     createQuad(
                         chunk,
                         &currentMask,
+                        width,
+                        height,
                         axisMask,
                         chunkIter,
                         deltaAxis1,

@@ -51,6 +51,12 @@ void renderQuad(const ChunkMesh *mesh, SMD_PRIM *primitive, DisplayContext *ctx,
     int p;
     cvector_iterator(SVECTOR) verticesIter = cvector_begin(mesh->vertices);
     cvector_iterator(SVECTOR) normalsIter = cvector_begin(mesh->normals);
+    RECT texWindow = (RECT){
+        primitive->tu0 >> 3,
+        primitive->tv0 >> 3,
+        BLOCK_TEXTURE_SIZE >> 3,
+        BLOCK_TEXTURE_SIZE >> 3
+    };
     POLY_FT4 *pol4 = (POLY_FT4*) ctx->primitive;
     gte_ldv3(
         &verticesIter[primitive->v0],
@@ -131,6 +137,12 @@ void renderQuad(const ChunkMesh *mesh, SMD_PRIM *primitive, DisplayContext *ctx,
     // Advance to make another primitive
     pol4++;
     ctx->primitive = (char*) pol4;
+    // Bind a texture window to ensure wrapping across merged block face primitives
+    DR_TWIN* ptwin = (DR_TWIN*) ctx->primitive;
+    setTexWindow(ptwin, &texWindow);
+    addPrim(ctx->db[ctx->active].ordering_table + (p >> 2), ptwin);
+    ptwin++;
+    ctx->primitive = (char*) ptwin;
 }
 
 void chunkMeshRender(const ChunkMesh *mesh, DisplayContext *ctx, Transforms *transforms) {

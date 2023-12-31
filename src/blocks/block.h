@@ -8,9 +8,10 @@
 #include "../resources/assets.h"
 #include "../primitive/primitive.h"
 
-#define BLOCK_SIZE 25
+#define BLOCK_SIZE 50
 #define BLOCK_FACES 6
 #define BLOCK_TEXTURES 0
+#define BLOCK_TEXTURE_SIZE 16
 
 typedef uint8_t BlockID;
 
@@ -53,12 +54,12 @@ static const Block BLOCKS[BLOCK_COUNT] = {
         .id = (BlockID) STONE,
         .type = SOLID,
         .faceAttributes = {
-            {1 * 16, 0, 16, 16, {0}}, // -Z FRONT
-            {1 * 16, 0, 16, 16, {0}}, // +Z BACK
-            {1 * 16, 0, 16, 16, {0}}, // -Y TOP
-            {1 * 16, 0, 16, 16, {0}}, // +Y BOTTOM
-            {1 * 16, 0, 16, 16, {0}}, // -X LEFT
-            {1 * 16, 0, 16, 16, {0}}  // +X RIGHT
+            {1 * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, {0}}, // -Z FRONT
+            {1 * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, {0}}, // +Z BACK
+            {1 * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, {0}}, // -Y TOP
+            {1 * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, {0}}, // +Y BOTTOM
+            {1 * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, {0}}, // -X LEFT
+            {1 * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, {0}}  // +X RIGHT
         },
         .name = "stone"
     },
