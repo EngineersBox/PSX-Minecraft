@@ -137,42 +137,56 @@ void createQuad(Chunk* chunk,
     primitive->prim_id.texoff = 0;
     primitive->prim_id.reserved = 0;
     primitive->prim_id.len = 4 + 8 + 4 + 8 + 4; // Some wizardry based on PSn00bSDK/tools/smxlink/main.cpp lines 518-644
-
     // Construct vertices relative to chunk mesh top left origin
     SVECTOR* vertex = NULL;
     #define nextRenderAttribute(attribute_field, index_field, count_field, instance, iter) \
         cvector_push_back(mesh->attribute_field, (SVECTOR){}); \
         primitive->index_field = smd->count_field; \
         instance = &iter[smd->count_field++]
-
-    nextRenderAttribute(vertices, v0, n_verts, vertex, verticesIter);
-    vertex->vx = origin[0] * BLOCK_SIZE;
-    vertex->vy = origin[1] * BLOCK_SIZE;
-    vertex->vz = origin[2] * BLOCK_SIZE;
-    nextRenderAttribute(vertices, v1, n_verts, vertex, verticesIter);
-    vertex->vx = (origin[0] + deltaAxis1[0]) * BLOCK_SIZE;
-    vertex->vy = (origin[1] + deltaAxis1[1]) * BLOCK_SIZE;
-    vertex->vz = (origin[2] + deltaAxis1[2]) * BLOCK_SIZE;
-    nextRenderAttribute(vertices, v2, n_verts, vertex, verticesIter);
-    vertex->vx = (origin[0] + deltaAxis2[0]) * BLOCK_SIZE;
-    vertex->vy = (origin[1] + deltaAxis2[1]) * BLOCK_SIZE;
-    vertex->vz = (origin[2] + deltaAxis2[2]) * BLOCK_SIZE;
-    nextRenderAttribute(vertices, v3, n_verts, vertex, verticesIter);
-    vertex->vx = (origin[0] + deltaAxis1[0] + deltaAxis2[0]) * BLOCK_SIZE;
-    vertex->vy = (origin[1] + deltaAxis1[1] + deltaAxis2[1]) * BLOCK_SIZE;
-    vertex->vz = (origin[2] + deltaAxis1[2] + deltaAxis2[2]) * BLOCK_SIZE;
-
-    // Create normals for each vertex
+    if (mask->normal == -1) {
+        nextRenderAttribute(vertices, v0, n_verts, vertex, verticesIter);
+        vertex->vx = origin[0] * BLOCK_SIZE;
+        vertex->vy = origin[1] * BLOCK_SIZE;
+        vertex->vz = origin[2] * BLOCK_SIZE;
+        nextRenderAttribute(vertices, v1, n_verts, vertex, verticesIter);
+        vertex->vx = (origin[0] + deltaAxis1[0]) * BLOCK_SIZE;
+        vertex->vy = (origin[1] + deltaAxis1[1]) * BLOCK_SIZE;
+        vertex->vz = (origin[2] + deltaAxis1[2]) * BLOCK_SIZE;
+        nextRenderAttribute(vertices, v2, n_verts, vertex, verticesIter);
+        vertex->vx = (origin[0] + deltaAxis2[0]) * BLOCK_SIZE;
+        vertex->vy = (origin[1] + deltaAxis2[1]) * BLOCK_SIZE;
+        vertex->vz = (origin[2] + deltaAxis2[2]) * BLOCK_SIZE;
+        nextRenderAttribute(vertices, v3, n_verts, vertex, verticesIter);
+        vertex->vx = (origin[0] + deltaAxis1[0] + deltaAxis2[0]) * BLOCK_SIZE;
+        vertex->vy = (origin[1] + deltaAxis1[1] + deltaAxis2[1]) * BLOCK_SIZE;
+        vertex->vz = (origin[2] + deltaAxis1[2] + deltaAxis2[2]) * BLOCK_SIZE;
+    } else {
+        nextRenderAttribute(vertices, v0, n_verts, vertex, verticesIter);
+        vertex->vx = (origin[0] + deltaAxis1[0]) * BLOCK_SIZE;
+        vertex->vy = (origin[1] + deltaAxis1[1]) * BLOCK_SIZE;
+        vertex->vz = (origin[2] + deltaAxis1[2]) * BLOCK_SIZE;
+        nextRenderAttribute(vertices, v1, n_verts, vertex, verticesIter);
+        vertex->vx = origin[0] * BLOCK_SIZE;
+        vertex->vy = origin[1] * BLOCK_SIZE;
+        vertex->vz = origin[2] * BLOCK_SIZE;
+        nextRenderAttribute(vertices, v2, n_verts, vertex, verticesIter);
+        vertex->vx = (origin[0] + deltaAxis1[0] + deltaAxis2[0]) * BLOCK_SIZE;
+        vertex->vy = (origin[1] + deltaAxis1[1] + deltaAxis2[1]) * BLOCK_SIZE;
+        vertex->vz = (origin[2] + deltaAxis1[2] + deltaAxis2[2]) * BLOCK_SIZE;
+        nextRenderAttribute(vertices, v3, n_verts, vertex, verticesIter);
+        vertex->vx = (origin[0] + deltaAxis2[0]) * BLOCK_SIZE;
+        vertex->vy = (origin[1] + deltaAxis2[1]) * BLOCK_SIZE;
+        vertex->vz = (origin[2] + deltaAxis2[2]) * BLOCK_SIZE;
+    }
+    // Create normal for this quad
     SVECTOR* norm = NULL;
     nextRenderAttribute(normals, n0, n_norms, norm, normalsIter);
     norm->vx = (axisMask[0] * mask->normal) * ONE; // !BUG: These produce out of bounds indexing on the 'norm' instance?
     norm->vy = (axisMask[1] * mask->normal) * ONE;
     norm->vz = (axisMask[2] * mask->normal) * ONE;
-
     const Texture* texture = &textures[BLOCK_TEXTURES];
     primitive->tpage = texture->tpage;
     primitive->clut = texture->clut;
-
     // TODO: Need to figure out how to get texture wrapping to work
     //       across a quad for a single 16x16 smapler of the given tpage + clut
     // Calculate face index
@@ -198,8 +212,6 @@ void chunkGenerateMesh(Chunk *chunk) {
         const int axis1 = (axis + 1) % CHUNK_DIRECTIONS;
         const int axis2 = (axis + 2) % CHUNK_DIRECTIONS;
         printf("Axis: [%d,%d,%d]\n", axis, axis1, axis2);
-        // FIXME: These can be VECTOR instances instead of arrays, but will come at the cost of an extra padding field
-        //        is that worth it or should thee just be left as is?
         int16_t deltaAxis1[CHUNK_DIRECTIONS] = {0};
         int16_t deltaAxis2[CHUNK_DIRECTIONS] = {0};
         int16_t chunkIter[CHUNK_DIRECTIONS] = {0};
@@ -256,7 +268,6 @@ void chunkGenerateMesh(Chunk *chunk) {
                     // This is done by searching along the current axis until mask[n + w] is false
                     int width;
                     for (width = 1; i + width < CHUNK_SIZE && compareMask(mask[n + width], currentMask); width++) {}
-
                     // Compute the height of this quad and store it in h
                     // This is done by checking if every block next to this row (range 0 to w) is also part of the mask.
                     // For example, if w is 5 we currently have a quad of dimensions 1 x 5. To reduce triangle count,
@@ -280,30 +291,6 @@ void chunkGenerateMesh(Chunk *chunk) {
                     deltaAxis2[0] = 0; deltaAxis2[1] = 0; deltaAxis2[2] = 0;
                     deltaAxis1[axis1] = width;
                     deltaAxis2[axis2] = height;
-                    // FIXME: Avoid creating structs just to pass parameters to createQuad(...)
-                    // createQuad(
-                    //     chunk,
-                    //     &currentMask,
-                    //     (VECTOR){axisMask[0], axisMask[1], axisMask[2]},
-                    //     // NOTE: These verticies need to be adjusted to fit block size
-                    //     //       they are currently just indices into the chunk from top left.
-                    //     (VECTOR){chunkIter[0], chunkIter[1], chunkIter[2]},
-                    //     (VECTOR){
-                    //         chunkIter[0] + deltaAxis1[0],
-                    //         chunkIter[1] + deltaAxis1[1],
-                    //         chunkIter[2] + deltaAxis1[2]
-                    //     },
-                    //     (VECTOR){
-                    //         chunkIter[0] + deltaAxis2[0],
-                    //         chunkIter[1] + deltaAxis2[1],
-                    //         chunkIter[2] + deltaAxis2[2]
-                    //     },
-                    //     (VECTOR){
-                    //         chunkIter[0] + deltaAxis1[0] + deltaAxis2[0],
-                    //         chunkIter[1] + deltaAxis1[1] + deltaAxis2[1],
-                    //         chunkIter[2] + deltaAxis1[2] + deltaAxis2[2]
-                    //     }
-                    // );
                     createQuad(
                         chunk,
                         &currentMask,
