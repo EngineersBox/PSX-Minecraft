@@ -30,28 +30,127 @@ typedef struct _BVECTOR {
     uint8_t pad;
 } BVECTOR;
 
-// TODO: Create docstrings for all these macros
-
 // Field operations
 #define _vec_op_single(field, v0, v1, op) .field = (v0).field op (v1).field
+#define _vec_ptr_op_single(field, v0, v1, op) .field = (v0)->field op (v1)->field
 #define _ivec_op_single(field, v0, v1, op) (v0).field op= (v1).field
+#define _ivec_ptr_op_single(field, v0, v1, op) (v0)->field op= (v1)->field
 
 // VECTOR - New instance
 
-#define _vop(v0, v1, op) ((VECTOR) { \
+/**
+ * @brief vop - Apply a given op piece-wise between two VECTOR instances, returning
+ * the results in a new VECTOR instance
+ * @param v0 - First VECTOR instance
+ * @param v1  - Second VECTOR instance
+ * @param op - Operation to perform piece-wise
+ * @return A new vetor with the results of piece-wise operation
+ */
+#define vop(v0, v1, op) ((VECTOR) { \
     _vec_op_single(vx, v0, v1, op), \
     _vec_op_single(vy, v0, v1, op), \
     _vec_op_single(vz, v0, v1, op) \
 })
 
-#define vadd(v0, v1) _vop(v0, v1, +)
-#define vsub(v0, v1) _vop(v0, v1, -)
-#define vmul(v0, v1) _vop(v0, v1, *)
-#define vdiv(v0, v1) _vop(v0, v1, /)
+/**
+ * @brief vpop - Apply a given op piece-wise between two VECTOR* pointers, returning
+ * the results in a new VECTOR instance
+ * @param v0 - First VECTOR* instance
+ * @param v1  - Second VECTOR* instance
+ * @param op - Operation to perform piece-wise
+ * @return A new vetor with the results of piece-wise operation
+ */
+#define vpop(v0, v1, op) ((VECTOR) { \
+    _vec_ptr_op_single(vx, v0, v1, op), \
+    _vec_ptr_op_single(vy, v0, v1, op), \
+    _vec_ptr_op_single(vz, v0, v1, op) \
+})
+
+/**
+ * @brief vadd - Add VECTORs v0 and v1 together piece-wise to form
+ * a new vector instance and return it. This does
+ * not modify the original vectors
+ * @param v0 - First VECTOR instance
+ * @param v1 - Second VECTOR instance
+ * @return A new vector with the results of piece-wise addition
+ */
+#define vadd(v0, v1) vop(v0, v1, +)
+
+/**
+ * @brief vpadd - Add VECTOR pointers v0 and v1 together piece-wise to form
+ * a new vector instance and return it. This does
+ * not modify the original vectors
+ * @param v0 - First VECTOR* instance
+ * @param v1 - Second VECTOR* instance
+ * @return A new vector with the results of piece-wise addition
+ */
+#define vpadd(v0, v1) vpop(v0, v1, +)
+
+/**
+ * @brief vsub - Subtract VECTORs v0 and v1 together piece-wise to form
+ * a new vector instance and return it. This does
+ * not modify the original vectors
+ * @param v0 - First VECTOR instance
+ * @param v1 - Second VECTOR instance
+ * @return A new vector with the results of piece-wise subtraction
+ */
+#define vsub(v0, v1) vop(v0, v1, -)
+
+/**
+ * @brief vpsub - Subtract VECTOR pointers v0 and v1 together piece-wise to form
+ * a new vector instance and return it. This does
+ * not modify the original vectors
+ * @param v0 - First VECTOR* instance
+ * @param v1 - Second VECTOR* instance
+ * @return A new vector with the results of piece-wise subtraction
+ */
+#define vpsub(v0, v1) vpop(v0, v1, -)
+
+/**
+ * @brief vmul - Multiply VECTORs v0 and v1 together piece-wise to form
+ * a new vector instance and return it. This does
+ * not modify the original vectors
+ * @param v0 - First VECTOR instance 
+ * @param v1 - Second VECTOR instance
+ * @return A new vector with the results of piece-wise multiplication
+ */
+#define vmul(v0, v1) vop(v0, v1, *)
+
+/**
+ * @brief vpmul - Multiply VECTOR pointers v0 and v1 together piece-wise to form
+ * a new vector instance and return it. This does
+ * not modify the original vectors
+ * @param v0 - First VECTOR* instance 
+ * @param v1 - Second VECTOR* instance
+ * @return A new vector with the results of piece-wise multiplication
+ */
+#define vpmul(v0, v1) vpop(v0, v1, *)
+
+/**
+ * @brief vdiv - Divide VECTORs v0 and v1 together piece-wise to form
+ * a new vector instance and return it. This does
+ * not modify the original vectors
+ * @param v0 - First VECTOR instance
+ * @param v1 - Second VECTOR instance 
+ * @return A new vector with the results of piece-wise division
+ */
+#define vdiv(v0, v1) vop(v0, v1, /)
+
+/**
+ * @brief vpdiv - Divide VECTOR pointers v0 and v1 together piece-wise to form
+ * a new vector instance and return it. This does
+ * not modify the original vectors
+ * @param v0 - First VECTOR* instance
+ * @param v1 - Second VECTOR* instance 
+ * @return A new vector with the results of piece-wise division
+ */
+#define vdiv(v0, v1) vop(v0, v1, /)
 
 // VECTOR - Inline
 
-#define _viop(v0, v1, op) ({ \
+// TODO: Finish macro docstrings
+
+#define viop(v0, v1, op) ({ \
     do { \
         _ivec_op_single(vx, v0, v1, op); \
         _ivec_op_single(vy, v0, v1, op); \
@@ -59,28 +158,28 @@ typedef struct _BVECTOR {
     } while (0); \
 })
 
-#define viadd(v0, v1) _vop(v0, v1, +)
-#define visub(v0, v1) _vop(v0, v1, -)
-#define vimul(v0, v1) _vop(v0, v1, *)
-#define vidiv(v0, v1) _vop(v0, v1, /)
+#define viadd(v0, v1) viop(v0, v1, +)
+#define visub(v0, v1) viop(v0, v1, -)
+#define vimul(v0, v1) viop(v0, v1, *)
+#define vidiv(v0, v1) viop(v0, v1, /)
 
 // SVECTOR - New instance
 
-#define _svop(v0, v1, op) ((SVECTOR) { \
+#define svop(v0, v1, op) ((SVECTOR) { \
     _vec_op_single(vx, v0, v1, op), \
     _vec_op_single(vy, v0, v1, op), \
     _vec_op_single(vz, v0, v1, op), \
     _vec_op_single(pad, v0, v1, op) \
 })
 
-#define svadd(v0, v1) _svop(v0, v1, +)
-#define svsub(v0, v1) _svop(v0, v1, -)
-#define svmul(v0, v1) _svop(v0, v1, *)
-#define svdiv(v0, v1) _svop(v0, v1, /)
+#define svadd(v0, v1) svop(v0, v1, +)
+#define svsub(v0, v1) svop(v0, v1, -)
+#define svmul(v0, v1) svop(v0, v1, *)
+#define svdiv(v0, v1) svop(v0, v1, /)
 
 // SVECTOR - Inline
 
-#define _sviop(v0, v1, op) ({ \
+#define sviop(v0, v1, op) ({ \
     do { \
         _ivec_op_single(vx, v0, v1, op); \
         _ivec_op_single(vy, v0, v1, op); \
@@ -89,28 +188,28 @@ typedef struct _BVECTOR {
     } while (0); \
 })
 
-#define sviadd(v0, v1) _sviop(v0, v1, +)
-#define svisub(v0, v1) _sviop(v0, v1, -)
-#define svimul(v0, v1) _sviop(v0, v1, *)
-#define svidiv(v0, v1) _sviop(v0, v1, /)
+#define sviadd(v0, v1) sviop(v0, v1, +)
+#define svisub(v0, v1) sviop(v0, v1, -)
+#define svimul(v0, v1) sviop(v0, v1, *)
+#define svidiv(v0, v1) sviop(v0, v1, /)
 
 // CVECTOR - New instance
 
-#define _cvop(v0, v1, op) ((CVECTOR) { \
+#define cvop(v0, v1, op) ((CVECTOR) { \
     _vec_op_single(r, v0, v1, op), \
     _vec_op_single(g, v0, v1, op), \
     _vec_op_single(g, v0, v1, op), \
     _vec_op_single(cd, v0, v1, op) \
 })
 
-#define cvadd(v0, v1) _cvop(v0, v1, +)
-#define cvsub(v0, v1) _cvop(v0, v1, -)
-#define cvmul(v0, v1) _cvop(v0, v1, *)
-#define cvdiv(v0, v1) _cvop(v0, v1, /)
+#define cvadd(v0, v1) cvop(v0, v1, +)
+#define cvsub(v0, v1) cvop(v0, v1, -)
+#define cvmul(v0, v1) cvop(v0, v1, *)
+#define cvdiv(v0, v1) cvop(v0, v1, /)
 
 // CVECTOR - Inline
 
-#define _cviop(v0, v1, op) ({ \
+#define cviop(v0, v1, op) ({ \
     do { \
         _ivec_op_single(r, v0, v1, op); \
         _ivec_op_single(g, v0, v1, op); \
@@ -119,9 +218,9 @@ typedef struct _BVECTOR {
     } while (0); \
 })
 
-#define sviadd(v0, v1) _cviop(v0, v1, +)
-#define svisub(v0, v1) _cviop(v0, v1, -)
-#define svimul(v0, v1) _cviop(v0, v1, *)
-#define svidiv(v0, v1) _cviop(v0, v1, /)
+#define cviadd(v0, v1) cviop(v0, v1, +)
+#define cvisub(v0, v1) cviop(v0, v1, -)
+#define cvimul(v0, v1) cviop(v0, v1, *)
+#define cvidiv(v0, v1) cviop(v0, v1, /)
 
 #endif //MATH_UTILS_H

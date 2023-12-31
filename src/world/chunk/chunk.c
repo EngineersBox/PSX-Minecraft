@@ -100,32 +100,21 @@ void chunkClearMesh(Chunk* chunk) {
     smd->p_prims = cvector_begin(mesh->primitives);
 }
 
-#define CHUNK_DIRECTIONS 3
-
-BlockID worldGetBlock(int x, int y, int z);
-
 typedef struct {
     int16_t block;
     int8_t normal;
 } Mask;
 
+#define CHUNK_DIRECTIONS 3
 #define compareMask(m1, m2) ((m1).block == (m2).block && (m1).normal == (m2).normal)
 
-#define vec3Mul(type, vec, scalar) ((type) { (vec).vx * (scalar), (vec).vy * (scalar), (vec).vz * (scalar) })
-
 // TODO: Break this into separate methods for each section
-void createQuad(Chunk *chunk,
-                const Mask *mask,
-                const VECTOR axisMask,
-                const VECTOR v0,
-                const VECTOR v1,
-                const VECTOR v2,
-                const VECTOR v3) {
-    const SVECTOR normal = (SVECTOR){
-        axisMask.vx * mask->normal,
-        axisMask.vy * mask->normal,
-        axisMask.vz * mask->normal
-    };
+void createQuad(Chunk* chunk,
+                const Mask* mask,
+                const int16_t axisMask[CHUNK_DIRECTIONS],
+                const int16_t origin[CHUNK_DIRECTIONS],
+                const int16_t deltaAxis1[CHUNK_DIRECTIONS],
+                const int16_t deltaAxis2[CHUNK_DIRECTIONS]) {
     ChunkMesh *mesh = &chunk->mesh;
     cvector_iterator(SMD_PRIM) primitiveIter = cvector_begin(mesh->primitives);
     cvector_iterator(SVECTOR) verticesIter = cvector_begin(mesh->vertices);
@@ -151,31 +140,34 @@ void createQuad(Chunk *chunk,
 
     // Construct vertices relative to chunk mesh top left origin
     SVECTOR* vertex = NULL;
-#define addVertex(vn) \
-    cvector_push_back(mesh->vertices, (SVECTOR) {}); \
-    primitive->vn = smd->n_verts; \
-    vertex = &verticesIter[smd->n_verts++]; \
-    vertex->vx = (vn).vx * BLOCK_SIZE; \
-    vertex->vy = (vn).vy * BLOCK_SIZE; \
-    vertex->vz = (vn).vz * BLOCK_SIZE; \
+    #define nextRenderAttribute(attribute_field, index_field, count_field, instance, iter) \
+        cvector_push_back(mesh->attribute_field, (SVECTOR){}); \
+        primitive->index_field = smd->count_field; \
+        instance = &iter[smd->count_field++]
 
-    addVertex(v0);
-    addVertex(v1);
-    addVertex(v2);
-    addVertex(v3);
+    nextRenderAttribute(vertices, v0, n_verts, vertex, verticesIter);
+    vertex->vx = origin[0] * BLOCK_SIZE;
+    vertex->vy = origin[1] * BLOCK_SIZE;
+    vertex->vz = origin[2] * BLOCK_SIZE;
+    nextRenderAttribute(vertices, v1, n_verts, vertex, verticesIter);
+    vertex->vx = (origin[0] + deltaAxis1[0]) * BLOCK_SIZE;
+    vertex->vy = (origin[1] + deltaAxis1[1]) * BLOCK_SIZE;
+    vertex->vz = (origin[2] + deltaAxis1[2]) * BLOCK_SIZE;
+    nextRenderAttribute(vertices, v2, n_verts, vertex, verticesIter);
+    vertex->vx = (origin[0] + deltaAxis2[0]) * BLOCK_SIZE;
+    vertex->vy = (origin[1] + deltaAxis2[1]) * BLOCK_SIZE;
+    vertex->vz = (origin[2] + deltaAxis2[2]) * BLOCK_SIZE;
+    nextRenderAttribute(vertices, v3, n_verts, vertex, verticesIter);
+    vertex->vx = (origin[0] + deltaAxis1[0] + deltaAxis2[0]) * BLOCK_SIZE;
+    vertex->vy = (origin[1] + deltaAxis1[1] + deltaAxis2[1]) * BLOCK_SIZE;
+    vertex->vz = (origin[2] + deltaAxis1[2] + deltaAxis2[2]) * BLOCK_SIZE;
+
     // Create normals for each vertex
     SVECTOR* norm = NULL;
-    printf("Addr before: %p\n", mesh->normals);
-    cvector_push_back(mesh->normals, (SVECTOR) {});
-    printf("Addr after: %p\n", mesh->normals);
-    primitive->n0 = smd->n_norms;
-    norm = &normalsIter[smd->n_norms++];
-    printf("Norm write begin\n");
-    norm->vx = normal.vx * ONE; // !BUG: These produce out of bounds indexing on the 'norm' instance?
-    norm->vy = normal.vy * ONE;
-    norm->vz = normal.vz * ONE;
-    norm->pad = normal.pad;
-    printf("Created normal {%d,%d,%d} @ %p\n", norm->vx, norm->vy, norm->vz, norm);
+    nextRenderAttribute(normals, n0, n_norms, norm, normalsIter);
+    norm->vx = (axisMask[0] * mask->normal) * ONE; // !BUG: These produce out of bounds indexing on the 'norm' instance?
+    norm->vy = (axisMask[1] * mask->normal) * ONE;
+    norm->vz = (axisMask[2] * mask->normal) * ONE;
 
     const Texture* texture = &textures[BLOCK_TEXTURES];
     primitive->tpage = texture->tpage;
@@ -184,10 +176,10 @@ void createQuad(Chunk *chunk,
     // TODO: Need to figure out how to get texture wrapping to work
     //       across a quad for a single 16x16 smapler of the given tpage + clut
     // Calculate face index
-    const int8_t shiftedNormal = (mask->normal + 2) / 2;
-    const int index = (axisMask.vz * (1 + shiftedNormal))
-        + (axisMask.vy * (2 + shiftedNormal))
-        + (axisMask.vx * (4 + shiftedNormal));
+    const int8_t shiftedNormal = (mask->normal + 2) / 2; // {-1,1} => {0,1}
+    const int index = (axisMask[2] * (1 + shiftedNormal))  // 0: -Z, 1: +Z
+                    + (axisMask[1] * (2 + shiftedNormal))  // 2: -Y, 3: +Y
+                    + (axisMask[0] * (4 + shiftedNormal)); // 4: -X, 5: +X
     printf("Face index: %d\n", index);
     const TextureAttributes* attributes = &BLOCKS[mask->block].faceAttributes[index];
     primitive->tu0 = attributes->u;
@@ -208,10 +200,10 @@ void chunkGenerateMesh(Chunk *chunk) {
         printf("Axis: [%d,%d,%d]\n", axis, axis1, axis2);
         // FIXME: These can be VECTOR instances instead of arrays, but will come at the cost of an extra padding field
         //        is that worth it or should thee just be left as is?
-        int deltaAxis1[CHUNK_DIRECTIONS] = {0};
-        int deltaAxis2[CHUNK_DIRECTIONS] = {0};
-        int chunkIter[CHUNK_DIRECTIONS] = {0};
-        int axisMask[CHUNK_DIRECTIONS] = {0};
+        int16_t deltaAxis1[CHUNK_DIRECTIONS] = {0};
+        int16_t deltaAxis2[CHUNK_DIRECTIONS] = {0};
+        int16_t chunkIter[CHUNK_DIRECTIONS] = {0};
+        int16_t axisMask[CHUNK_DIRECTIONS] = {0};
         axisMask[axis] = 1;
         // TODO: Make this a uint8_t[CHUNK_SIZE] array where each bit is a bool, int type will need to change
         //       if CHUNK_SIZE is increased from 8 to 16 (uint8_t -> uint16_t)
@@ -284,33 +276,41 @@ void chunkGenerateMesh(Chunk *chunk) {
                             break;
                         }
                     }
-                    deltaAxis1[0] = 0; deltaAxis1[0] = 0; deltaAxis1[0] = 0;
-                    deltaAxis2[0] = 0; deltaAxis2[0] = 0; deltaAxis2[0] = 0;
+                    deltaAxis1[0] = 0; deltaAxis1[1] = 0; deltaAxis1[2] = 0;
+                    deltaAxis2[0] = 0; deltaAxis2[1] = 0; deltaAxis2[2] = 0;
                     deltaAxis1[axis1] = width;
                     deltaAxis2[axis2] = height;
                     // FIXME: Avoid creating structs just to pass parameters to createQuad(...)
+                    // createQuad(
+                    //     chunk,
+                    //     &currentMask,
+                    //     (VECTOR){axisMask[0], axisMask[1], axisMask[2]},
+                    //     // NOTE: These verticies need to be adjusted to fit block size
+                    //     //       they are currently just indices into the chunk from top left.
+                    //     (VECTOR){chunkIter[0], chunkIter[1], chunkIter[2]},
+                    //     (VECTOR){
+                    //         chunkIter[0] + deltaAxis1[0],
+                    //         chunkIter[1] + deltaAxis1[1],
+                    //         chunkIter[2] + deltaAxis1[2]
+                    //     },
+                    //     (VECTOR){
+                    //         chunkIter[0] + deltaAxis2[0],
+                    //         chunkIter[1] + deltaAxis2[1],
+                    //         chunkIter[2] + deltaAxis2[2]
+                    //     },
+                    //     (VECTOR){
+                    //         chunkIter[0] + deltaAxis1[0] + deltaAxis2[0],
+                    //         chunkIter[1] + deltaAxis1[1] + deltaAxis2[1],
+                    //         chunkIter[2] + deltaAxis1[2] + deltaAxis2[2]
+                    //     }
+                    // );
                     createQuad(
                         chunk,
                         &currentMask,
-                        (VECTOR){axisMask[0], axisMask[1], axisMask[2]},
-                        // NOTE: These verticies need to be adjusted to fit block size
-                        //       they are currently just indices into the chunk from top left.
-                        (VECTOR){chunkIter[0], chunkIter[1], chunkIter[2]},
-                        (VECTOR){
-                            chunkIter[0] + deltaAxis1[0],
-                            chunkIter[1] + deltaAxis1[1],
-                            chunkIter[2] + deltaAxis1[2]
-                        },
-                        (VECTOR){
-                            chunkIter[0] + deltaAxis2[0],
-                            chunkIter[1] + deltaAxis2[1],
-                            chunkIter[2] + deltaAxis2[2]
-                        },
-                        (VECTOR){
-                            chunkIter[0] + deltaAxis1[0] + deltaAxis2[0],
-                            chunkIter[1] + deltaAxis1[1] + deltaAxis2[1],
-                            chunkIter[2] + deltaAxis1[2] + deltaAxis2[2]
-                        }
+                        axisMask,
+                        chunkIter,
+                        deltaAxis1,
+                        deltaAxis2
                     );
                     for (int l = 0; l < height; l++) {
                         for (int k = 0; k < width; k++) {
@@ -326,7 +326,6 @@ void chunkGenerateMesh(Chunk *chunk) {
 }
 
 void chunkRender(Chunk *chunk, DisplayContext *ctx, Transforms *transforms) {
-    SC_OT sc_ordering_table;
     SVECTOR rotation = {0, 0, 0};
     // Object and light matrix for object
     MATRIX omtx, olmtx;
@@ -346,14 +345,8 @@ void chunkRender(Chunk *chunk, DisplayContext *ctx, Transforms *transforms) {
     // Set matrices
     gte_SetRotMatrix(&omtx);
     gte_SetTransMatrix(&omtx);
-    // Sort mesh
+    // Sort + render mesh
     chunkMeshRender(&chunk->mesh, ctx, transforms);
-    // Sort model
-    // sc_ordering_table.ot = ctx->db[ctx->active].ordering_table;
-    // sc_ordering_table.otlen = ORDERING_TABLE_LENGTH;
-    // sc_ordering_table.zdiv = 1;
-    // sc_ordering_table.zoff = 0;
-    // ctx->primitive = (char*) smdSortModel(&sc_ordering_table, (uint8_t*) ctx->primitive, &chunk->mesh.smd);
     // Restore matrix
     PopMatrix();
 }
