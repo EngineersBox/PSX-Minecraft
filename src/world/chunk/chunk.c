@@ -141,44 +141,47 @@ void createQuad(Chunk* chunk,
     primitive->prim_id.len = 4 + 8 + 4 + 8 + 4; // Some wizardry based on PSn00bSDK/tools/smxlink/main.cpp lines 518-644
     // Construct vertices relative to chunk mesh top left origin
     SVECTOR* vertex = NULL;
+    const int16_t chunk_origin_x = chunk->position.vx * CHUNK_SIZE;
+    const int16_t chunk_origin_y = chunk->position.vy * CHUNK_SIZE;
+    const int16_t chunk_origin_z = chunk->position.vz * CHUNK_SIZE;
     #define nextRenderAttribute(attribute_field, index_field, count_field, instance, iter) \
         cvector_push_back(mesh->attribute_field, (SVECTOR){}); \
         primitive->index_field = smd->count_field; \
         instance = &iter[smd->count_field++]
     if (mask->normal == -1) {
         nextRenderAttribute(vertices, v0, n_verts, vertex, verticesIter);
-        vertex->vx = origin[0] * BLOCK_SIZE;
-        vertex->vy = origin[1] * BLOCK_SIZE;
-        vertex->vz = origin[2] * BLOCK_SIZE;
+        vertex->vx = (chunk_origin_x + origin[0]) * BLOCK_SIZE;
+        vertex->vy = (chunk_origin_y + origin[1]) * BLOCK_SIZE;
+        vertex->vz = (chunk_origin_z + origin[2]) * BLOCK_SIZE;
         nextRenderAttribute(vertices, v1, n_verts, vertex, verticesIter);
-        vertex->vx = (origin[0] + deltaAxis1[0]) * BLOCK_SIZE;
-        vertex->vy = (origin[1] + deltaAxis1[1]) * BLOCK_SIZE;
-        vertex->vz = (origin[2] + deltaAxis1[2]) * BLOCK_SIZE;
+        vertex->vx = (chunk_origin_x + origin[0] + deltaAxis1[0]) * BLOCK_SIZE;
+        vertex->vy = (chunk_origin_y + origin[1] + deltaAxis1[1]) * BLOCK_SIZE;
+        vertex->vz = (chunk_origin_z + origin[2] + deltaAxis1[2]) * BLOCK_SIZE;
         nextRenderAttribute(vertices, v2, n_verts, vertex, verticesIter);
-        vertex->vx = (origin[0] + deltaAxis2[0]) * BLOCK_SIZE;
-        vertex->vy = (origin[1] + deltaAxis2[1]) * BLOCK_SIZE;
-        vertex->vz = (origin[2] + deltaAxis2[2]) * BLOCK_SIZE;
+        vertex->vx = (chunk_origin_x + origin[0] + deltaAxis2[0]) * BLOCK_SIZE;
+        vertex->vy = (chunk_origin_y + origin[1] + deltaAxis2[1]) * BLOCK_SIZE;
+        vertex->vz = (chunk_origin_z + origin[2] + deltaAxis2[2]) * BLOCK_SIZE;
         nextRenderAttribute(vertices, v3, n_verts, vertex, verticesIter);
-        vertex->vx = (origin[0] + deltaAxis1[0] + deltaAxis2[0]) * BLOCK_SIZE;
-        vertex->vy = (origin[1] + deltaAxis1[1] + deltaAxis2[1]) * BLOCK_SIZE;
-        vertex->vz = (origin[2] + deltaAxis1[2] + deltaAxis2[2]) * BLOCK_SIZE;
+        vertex->vx = (chunk_origin_x + origin[0] + deltaAxis1[0] + deltaAxis2[0]) * BLOCK_SIZE;
+        vertex->vy = (chunk_origin_y + origin[1] + deltaAxis1[1] + deltaAxis2[1]) * BLOCK_SIZE;
+        vertex->vz = (chunk_origin_z + origin[2] + deltaAxis1[2] + deltaAxis2[2]) * BLOCK_SIZE;
     } else {
         nextRenderAttribute(vertices, v0, n_verts, vertex, verticesIter);
-        vertex->vx = (origin[0] + deltaAxis1[0]) * BLOCK_SIZE;
-        vertex->vy = (origin[1] + deltaAxis1[1]) * BLOCK_SIZE;
-        vertex->vz = (origin[2] + deltaAxis1[2]) * BLOCK_SIZE;
+        vertex->vx = (chunk_origin_x + origin[0] + deltaAxis1[0]) * BLOCK_SIZE;
+        vertex->vy = (chunk_origin_y + origin[1] + deltaAxis1[1]) * BLOCK_SIZE;
+        vertex->vz = (chunk_origin_z + origin[2] + deltaAxis1[2]) * BLOCK_SIZE;
         nextRenderAttribute(vertices, v1, n_verts, vertex, verticesIter);
-        vertex->vx = origin[0] * BLOCK_SIZE;
-        vertex->vy = origin[1] * BLOCK_SIZE;
-        vertex->vz = origin[2] * BLOCK_SIZE;
+        vertex->vx = (chunk_origin_x + origin[0]) * BLOCK_SIZE;
+        vertex->vy = (chunk_origin_y + origin[1]) * BLOCK_SIZE;
+        vertex->vz = (chunk_origin_z + origin[2]) * BLOCK_SIZE;
         nextRenderAttribute(vertices, v2, n_verts, vertex, verticesIter);
-        vertex->vx = (origin[0] + deltaAxis1[0] + deltaAxis2[0]) * BLOCK_SIZE;
-        vertex->vy = (origin[1] + deltaAxis1[1] + deltaAxis2[1]) * BLOCK_SIZE;
-        vertex->vz = (origin[2] + deltaAxis1[2] + deltaAxis2[2]) * BLOCK_SIZE;
+        vertex->vx = (chunk_origin_x + origin[0] + deltaAxis1[0] + deltaAxis2[0]) * BLOCK_SIZE;
+        vertex->vy = (chunk_origin_y + origin[1] + deltaAxis1[1] + deltaAxis2[1]) * BLOCK_SIZE;
+        vertex->vz = (chunk_origin_z + origin[2] + deltaAxis1[2] + deltaAxis2[2]) * BLOCK_SIZE;
         nextRenderAttribute(vertices, v3, n_verts, vertex, verticesIter);
-        vertex->vx = (origin[0] + deltaAxis2[0]) * BLOCK_SIZE;
-        vertex->vy = (origin[1] + deltaAxis2[1]) * BLOCK_SIZE;
-        vertex->vz = (origin[2] + deltaAxis2[2]) * BLOCK_SIZE;
+        vertex->vx = (chunk_origin_x + origin[0] + deltaAxis2[0]) * BLOCK_SIZE;
+        vertex->vy = (chunk_origin_y + origin[1] + deltaAxis2[1]) * BLOCK_SIZE;
+        vertex->vz = (chunk_origin_z + origin[2] + deltaAxis2[2]) * BLOCK_SIZE;
     }
     // Create normal for this quad
     SVECTOR* norm = NULL;
