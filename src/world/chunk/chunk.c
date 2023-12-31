@@ -31,8 +31,8 @@ void chunkDestroy(const Chunk *chunk) {
 void chunkGenerate2DHeightMap(Chunk *chunk, const VECTOR *position) {
     for (int32_t x = 0; x < CHUNK_SIZE; x++) {
         for (int32_t z = 0; z < CHUNK_SIZE; z++) {
-            const int32_t xPos = x + position->vx;
-            const int32_t zPos = z + position->vz;
+            const int32_t xPos = x + (position->vx * CHUNK_SIZE);
+            const int32_t zPos = z + (position->vz * CHUNK_SIZE);
             // FMath::Clamp(
             //     FMath::RoundToInt(
             //         (Noise->GetNoise(Xpos, Ypos) + 1) * Size / 2
@@ -48,7 +48,8 @@ void chunkGenerate2DHeightMap(Chunk *chunk, const VECTOR *position) {
             // );
             printf("height: %d\n", height);
             for (int32_t y = CHUNK_SIZE; y > 0; y--) {
-                const int32_t worldY = (position->vy * CHUNK_SIZE) + (CHUNK_SIZE - y);
+                const int32_t worldY = (position->vy * CHUNK_SIZE) + (CHUNK_SIZE - y)
+                    + (CHUNK_SIZE * 16); // !IMPORTANT: TESTING OFFSET
                 // TODO: Change these chunkBlockIndex to be global lookups through world
                 //       to ensure that blocks in next chunk boundary are visible to this chunk
                 //       so the mesh is seamless
@@ -142,7 +143,7 @@ void createQuad(Chunk* chunk,
     // Construct vertices relative to chunk mesh top left origin
     SVECTOR* vertex = NULL;
     const int16_t chunk_origin_x = chunk->position.vx * CHUNK_SIZE;
-    const int16_t chunk_origin_y = chunk->position.vy * CHUNK_SIZE;
+    const int16_t chunk_origin_y = -chunk->position.vy * CHUNK_SIZE;
     const int16_t chunk_origin_z = chunk->position.vz * CHUNK_SIZE;
     #define nextRenderAttribute(attribute_field, index_field, count_field, instance, iter) \
         cvector_push_back(mesh->attribute_field, (SVECTOR){}); \

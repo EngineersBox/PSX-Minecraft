@@ -1,5 +1,4 @@
 # TODO
 
-* Fix chunk mesh traversal to be Y up instead of Z up
-* Implement texture windowing for wrap-around in multiples of texture width/height
-* 
+* Fix last texture window causing font render to be weird
+* Fix last vertex in chunk not correct

@@ -107,6 +107,7 @@ void cameraReset(Camera *camera) {
 }
 
 int main() {
+    VECTOR look_pos = {0};
     Camera camera = {
         .position = {0, ONE * -300, ONE * -300},
         .rotation = {0, 0, 0},
@@ -119,8 +120,23 @@ int main() {
         .lighting_mtx = light_mtx
     };
     init();
+    // World world;
+    // worldInit(&world);
+    // cvector_iterator(Chunk) chunkIter = cvector_begin(world.chunks);
+    // int index = 0;
+    // for (int x = 0; x < 2; x++) {
+    //     for (int z = 0; z < 2; z++) {
+    //         cvector_push_back(
+    //             world.chunks,
+    //             (Chunk) {}
+    //         );
+    //         Chunk* chunk = &chunkIter[index++];
+    //         chunk->position = (VECTOR){x, 1, z};
+    //         chunkInit(chunk);
+    //     }
+    // }
     Chunk chunk;
-    chunk.position = (VECTOR) {0, 17, 0};
+    chunk.position = (VECTOR) {0, 1, 0};
     chunkInit(&chunk);
     // Chunk chunk1;
     // chunk1.position = (VECTOR) {0, 0, 0};
@@ -129,10 +145,12 @@ int main() {
     while (1) {
         // Set pad pointer to buffer data
         camera.mode = 0;
-        cameraUpdate(&camera, &input, &transforms, &chunk.position);
+        cameraUpdate(&camera, &input, &transforms, &look_pos);
         // Set rotation and translation matrix
         gte_SetRotMatrix(&transforms.geometry_mtx);
         gte_SetTransMatrix(&transforms.geometry_mtx);
+        // Draw the world
+        // worldRender(&world, &dctx, &transforms);
         // Draw the chunk
         chunkRender(&chunk, &dctx, &transforms);
         // Draw cubes
@@ -143,7 +161,7 @@ int main() {
         // Swap buffers and draw the primitives
         display(&dctx);
     }
-    chunkDestroy(&chunk);
+    // chunkDestroy(&chunk);
     assetsFree();
     return 0;
 }
