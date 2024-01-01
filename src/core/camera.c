@@ -2,7 +2,6 @@
 
 #include <psxapi.h>
 #include <psxgpu.h>
-#include <stdio.h>
 
 #include "../util/math_utils.h"
 
@@ -14,15 +13,15 @@ void printDebugCamera(const Camera *camera, const Input *input) {
     FntPrint(
         -1,
         "X=%d Y=%d Z=%d\n",
-        camera->position.vx >> CAMERA_MOVE_AMOUNT,
-        camera->position.vy >> CAMERA_MOVE_AMOUNT,
-        camera->position.vz >> CAMERA_MOVE_AMOUNT
+        camera->position.vx >> FIXED_POINT_SHIFT,
+        camera->position.vy >> FIXED_POINT_SHIFT,
+        camera->position.vz >> FIXED_POINT_SHIFT
     );
     FntPrint(
         -1,
         "RX=%d RY=%d\n",
-        camera->rotation.vx >> CAMERA_MOVE_AMOUNT,
-        camera->rotation.vy >> CAMERA_MOVE_AMOUNT
+        camera->rotation.vx >> FIXED_POINT_SHIFT,
+        camera->rotation.vy >> FIXED_POINT_SHIFT
     );
 }
 
@@ -55,17 +54,17 @@ void handleDigitalPadAndDualAnalogShock(Camera* camera, const Input* input, cons
     if (isPressed(PAD_TRIANGLE)) {
         // Move forward
         camera->position.vx -= ((isin(transforms->translation_rotation.vy)
-                                 * icos(transforms->translation_rotation.vx)) >> CAMERA_MOVE_AMOUNT) << 2;
+                                 * icos(transforms->translation_rotation.vx)) >> FIXED_POINT_SHIFT) << 2;
         camera->position.vy += isin(transforms->translation_rotation.vx) << 2;
         camera->position.vz += ((icos(transforms->translation_rotation.vy)
-                                 * icos(transforms->translation_rotation.vx)) >> CAMERA_MOVE_AMOUNT) << 2;
+                                 * icos(transforms->translation_rotation.vx)) >> FIXED_POINT_SHIFT) << 2;
     } else if (isPressed(PAD_CROSS)) {
         // Move backward
         camera->position.vx += ((isin(transforms->translation_rotation.vy)
-                                 * icos(transforms->translation_rotation.vx)) >> CAMERA_MOVE_AMOUNT) << 2;
+                                 * icos(transforms->translation_rotation.vx)) >> FIXED_POINT_SHIFT) << 2;
         camera->position.vy -= isin(transforms->translation_rotation.vx) << 2;
         camera->position.vz -= ((icos(transforms->translation_rotation.vy)
-                                 * icos(transforms->translation_rotation.vx)) >> CAMERA_MOVE_AMOUNT) << 2;
+                                 * icos(transforms->translation_rotation.vx)) >> FIXED_POINT_SHIFT) << 2;
     }
     if (isPressed(PAD_SQUARE)) {
         // Slide left
@@ -79,17 +78,17 @@ void handleDigitalPadAndDualAnalogShock(Camera* camera, const Input* input, cons
     if (isPressed(PAD_R1)) {
         // Slide up
         camera->position.vx -= ((isin(transforms->translation_rotation.vy)
-                                 * isin(transforms->translation_rotation.vx)) >> CAMERA_MOVE_AMOUNT) << 2;
+                                 * isin(transforms->translation_rotation.vx)) >> FIXED_POINT_SHIFT) << 2;
         camera->position.vy -= icos(transforms->translation_rotation.vx) << 2;
         camera->position.vz += ((icos(transforms->translation_rotation.vy)
-                                 * isin(transforms->translation_rotation.vx)) >> CAMERA_MOVE_AMOUNT) << 2;
+                                 * isin(transforms->translation_rotation.vx)) >> FIXED_POINT_SHIFT) << 2;
     } else if (isPressed(PAD_R2)) {
         // Slide down
         camera->position.vx += ((isin(transforms->translation_rotation.vy)
-                                 * isin(transforms->translation_rotation.vx)) >> CAMERA_MOVE_AMOUNT) << 2;
+                                 * isin(transforms->translation_rotation.vx)) >> FIXED_POINT_SHIFT) << 2;
         camera->position.vy += icos(transforms->translation_rotation.vx) << 2;
         camera->position.vz -= ((icos(transforms->translation_rotation.vy)
-                                 * isin(transforms->translation_rotation.vx)) >> CAMERA_MOVE_AMOUNT) << 2;
+                                 * isin(transforms->translation_rotation.vx)) >> FIXED_POINT_SHIFT) << 2;
     }
     // DEBUG: Look at cube
     if (isPressed(PAD_L1)) {
@@ -112,11 +111,11 @@ void handleDualAnalogShock(Camera *camera, const Input *input, const Transforms 
     // Moving forwards and backwards
     if (((input->pad->ls_y - 128) < -16) || ((input->pad->ls_y - 128) > 16)) {
         camera->position.vx += (((isin(transforms->translation_rotation.vy)
-                                  * icos(transforms->translation_rotation.vx)) >> CAMERA_MOVE_AMOUNT)
+                                  * icos(transforms->translation_rotation.vx)) >> FIXED_POINT_SHIFT)
                                 * (input->pad->ls_y - 128)) >> 5;
         camera->position.vy -= (isin(transforms->translation_rotation.vx) * (input->pad->ls_y - 128)) >> 5;
         camera->position.vz -= (((icos(transforms->translation_rotation.vy)
-                                  * icos(transforms->translation_rotation.vx)) >> CAMERA_MOVE_AMOUNT)
+                                  * icos(transforms->translation_rotation.vx)) >> FIXED_POINT_SHIFT)
                                 * (input->pad->ls_y - 128)) >> 5;
     }
     // Strafing left and right
@@ -138,9 +137,9 @@ void cameraUpdate(Camera *camera, const Input *input, Transforms *transforms, co
     // Parse controller input
     camera->mode = 0;
     // Divide out fractions of camera rotation
-    transforms->translation_rotation.vx = camera->rotation.vx >> CAMERA_MOVE_AMOUNT;
-    transforms->translation_rotation.vy = camera->rotation.vy >> CAMERA_MOVE_AMOUNT;
-    transforms->translation_rotation.vz = camera->rotation.vz >> CAMERA_MOVE_AMOUNT;
+    transforms->translation_rotation.vx = camera->rotation.vx >> FIXED_POINT_SHIFT;
+    transforms->translation_rotation.vy = camera->rotation.vy >> FIXED_POINT_SHIFT;
+    transforms->translation_rotation.vz = camera->rotation.vz >> FIXED_POINT_SHIFT;
     if (input->pad->stat == 0) {
         handleDigitalPadAndDualAnalogShock(camera, input, transforms);
         handleDualAnalogShock(camera, input, transforms);
@@ -153,9 +152,9 @@ void cameraUpdate(Camera *camera, const Input *input, Transforms *transforms, co
         // Divide out the fractions of camera coordinates and invert
         // the sign, so camera coordinates will line up to world
         // (or geometry) coordinates
-        transforms->translation_position.vx = -camera->position.vx >> CAMERA_MOVE_AMOUNT;
-        transforms->translation_position.vy = -camera->position.vy >> CAMERA_MOVE_AMOUNT;
-        transforms->translation_position.vz = -camera->position.vz >> CAMERA_MOVE_AMOUNT;
+        transforms->translation_position.vx = -camera->position.vx >> FIXED_POINT_SHIFT;
+        transforms->translation_position.vy = -camera->position.vy >> FIXED_POINT_SHIFT;
+        transforms->translation_position.vz = -camera->position.vz >> FIXED_POINT_SHIFT;
         // Apply rotation of matrix to translation value to achieve a
         // first person perspective
         ApplyMatrixLV(
@@ -173,9 +172,9 @@ void cameraUpdate(Camera *camera, const Input *input, Transforms *transforms, co
         // Vector that defines the 'up' direction of the camera
         const SVECTOR up = {0, -ONE, 0};
         // Divide out fractions of camera coordinates
-        transforms->translation_position.vx = camera->position.vx >> CAMERA_MOVE_AMOUNT;
-        transforms->translation_position.vy = camera->position.vy >> CAMERA_MOVE_AMOUNT;
-        transforms->translation_position.vz = camera->position.vz >> CAMERA_MOVE_AMOUNT;
+        transforms->translation_position.vx = camera->position.vx >> FIXED_POINT_SHIFT;
+        transforms->translation_position.vy = camera->position.vy >> FIXED_POINT_SHIFT;
+        transforms->translation_position.vz = camera->position.vz >> FIXED_POINT_SHIFT;
         // Look at the cube
         lookAt(
             &transforms->translation_position,

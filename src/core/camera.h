@@ -8,8 +8,6 @@
 #include "input.h"
 #include "../render/transforms.h"
 
-#define CAMERA_MOVE_AMOUNT 12
-
 struct Camera;
 
 typedef void(*CameraReset)(struct Camera*);

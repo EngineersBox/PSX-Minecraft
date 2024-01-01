@@ -5,6 +5,8 @@
 
 #include <stdint.h>
 
+#define FIXED_POINT_SHIFT 12
+
 #define max(a,b) ({ \
     __typeof__(a) _a = (a); \
     __typeof__(b) _b = (b); \

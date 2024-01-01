@@ -111,12 +111,8 @@ typedef struct {
 #define compareMask(m1, m2) ((m1).block == (m2).block && (m1).normal == (m2).normal)
 
 const INDEX INDICES[6] = {
-    // {1, 3, 0, 2},
-    // {0, 2, 1, 3},
-
     {0, 2, 1 , 3},
     {2, 0, 3, 1},
-
     {1, 0, 3, 2},
     {0, 1, 2, 3},
     {1, 0, 3, 2},
@@ -186,33 +182,52 @@ void createQuad(Chunk *chunk,
     const int index = (axisMask[0] * (1 - shiftedNormal)) // 0: -X, 1: +X
                     + (axisMask[1] * (3 - shiftedNormal)) // 2: -Y, 3: +Y
                     + (axisMask[2] * (5 - shiftedNormal)); // 4: -Z, 5: +Z
-    const INDEX attrIndex = INDICES[index];
-#define nextRenderAttribute(attribute_field, index_field, count_field, instance, iter) \
+    const INDEX indices = INDICES[index];
+    #define nextRenderAttribute(attribute_field, index_field, count_field, instance, iter) \
         cvector_push_back(mesh->attribute_field, (SVECTOR){}); \
         primitive->index_field = smd->count_field; \
         instance = &iter[smd->count_field++]
-
+    printf("Primitive %d\n", smd->n_prims - 1);
+    const SVECTOR* v0;
+    const SVECTOR* v1;
+    const SVECTOR* v2;
+    const SVECTOR* v3;
     nextRenderAttribute(vertices, v0, n_verts, vertex, verticesIter);
-    const SVECTOR* currentVert = &vertices[attrIndex.v0];
+    const SVECTOR* currentVert = v0 = &vertices[indices.v0];
     vertex->vx = currentVert->vx;
     vertex->vy = currentVert->vy;
     vertex->vz = currentVert->vz;
+    printf("V0: {%d,%d,%d}\n", vertex->vx, vertex->vy, vertex->vz);
     nextRenderAttribute(vertices, v1, n_verts, vertex, verticesIter);
-    currentVert = &vertices[attrIndex.v1];
+    currentVert = v1 =&vertices[indices.v1];
     vertex->vx = currentVert->vx;
     vertex->vy = currentVert->vy;
     vertex->vz = currentVert->vz;
+    printf("V1: {%d,%d,%d}\n", vertex->vx, vertex->vy, vertex->vz);
     nextRenderAttribute(vertices, v2, n_verts, vertex, verticesIter);
-    currentVert = &vertices[attrIndex.v2];
+    currentVert = v2 = &vertices[indices.v2];
     vertex->vx = currentVert->vx;
     vertex->vy = currentVert->vy;
     vertex->vz = currentVert->vz;
+    printf("V2: {%d,%d,%d}\n", vertex->vx, vertex->vy, vertex->vz);
     nextRenderAttribute(vertices, v3, n_verts, vertex, verticesIter);
-    currentVert = &vertices[attrIndex.v3];
+    currentVert = v3 = &vertices[indices.v3];
     vertex->vx = currentVert->vx;
     vertex->vy = currentVert->vy;
     vertex->vz = currentVert->vz;
-
+    printf("V3: {%d,%d,%d}\n", vertex->vx, vertex->vy, vertex->vz);
+    const SVECTOR* verts[4] = {v0,v1,v2,v3};
+#define cmpVert(a, b) (a->vx == b->vx && a->vy == b->vy && a->vz == b->vz)
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            if (i == j) {
+                continue;
+            }
+            if (cmpVert(verts[i], verts[j])) {
+                printf("V%d == V%d\n", i, j);
+            }
+        }
+    }
     // Create normal for this quad
     SVECTOR *norm = NULL;
     nextRenderAttribute(normals, n0, n_norms, norm, normalsIter);
@@ -222,8 +237,6 @@ void createQuad(Chunk *chunk,
     const Texture *texture = &textures[BLOCK_TEXTURES];
     primitive->tpage = texture->tpage;
     primitive->clut = texture->clut;
-    // TODO: Need to figure out how to get texture wrapping to work
-    //       across a quad for a single 16x16 smapler of the given tpage + clut
     const TextureAttributes *attributes = &BLOCKS[mask->block].faceAttributes[index];
     primitive->tu0 = attributes->u;
     primitive->tv0 = attributes->v;
@@ -245,8 +258,6 @@ void chunkGenerateMesh(Chunk *chunk) {
         int16_t chunkIter[CHUNK_DIRECTIONS] = {0};
         int16_t axisMask[CHUNK_DIRECTIONS] = {0};
         axisMask[axis] = 1;
-        // TODO: Make this a uint8_t[CHUNK_SIZE] array where each bit is a bool, int type will need to change
-        //       if CHUNK_SIZE is increased from 8 to 16 (uint8_t -> uint16_t)
         Mask mask[CHUNK_SIZE * CHUNK_SIZE] = {0};
         for (chunkIter[axis] = -1; chunkIter[axis] < CHUNK_SIZE;) {
             // Compute mask
@@ -305,9 +316,9 @@ void chunkGenerateMesh(Chunk *chunk) {
                     int height;
                     for (height = 1; j + height < CHUNK_SIZE; height++) {
                         // Check each block next to this quad
-                        for (int k = 0; k < width; ++k) {
+                        for (int w = 0; w < width; w++) {
                             // If there's a hole in the mask, exit
-                            if (!compareMask(mask[n + k + (height * CHUNK_SIZE)], currentMask)) {
+                            if (!compareMask(mask[n + w + (height * CHUNK_SIZE)], currentMask)) {
                                 done = true;
                                 break;
                             }
@@ -334,13 +345,13 @@ void chunkGenerateMesh(Chunk *chunk) {
                         deltaAxis1,
                         deltaAxis2
                     );
-                    for (int l = 0; l < height; l++) {
-                        for (int k = 0; k < width; k++) {
-                            mask[n + k + l * CHUNK_SIZE] = (Mask){(uint16_t) NONE, 0};
+                    for (int h = 0; h < height; h++) {
+                        for (int w = 0; w < width; w++) {
+                            mask[n + w + h * CHUNK_SIZE] = (Mask){(uint16_t) NONE, 0};
                         }
                     }
-                    i += width,
-                        n += width;
+                    i += width;
+                    n += width;
                 }
             }
         }
