@@ -30,6 +30,24 @@ typedef struct _BVECTOR {
     uint8_t pad;
 } BVECTOR;
 
+// Fixed point
+
+/**
+ * @brief Divides two fixed point int16_t numbers as x / y
+ * @param x - int16_t dividend (number being divided)
+ * @param y - int16_t divisor (number performing division)
+ * @return Result of division x / y
+ */
+#define fixedDiv(x, y) (int16_t)(((int32_t)x << 12) / y)
+
+/**
+ * @brief Multiplies two fixed point int16_t numbers as x * y
+ * @param x - int16_t left side of multiplication
+ * @param y - in16_t right side of multiplication
+ * @return Result of multiplication x * y
+ */
+#define fixedMul(x, y) (int16_t)(((int32_t)x * (int32_t)y) / ONE)
+
 // Field operations
 #define _vec_op_single(field, v0, v1, op) .field = (v0).field op (v1).field
 #define _vec_ptr_op_single(field, v0, v1, op) .field = (v0)->field op (v1)->field

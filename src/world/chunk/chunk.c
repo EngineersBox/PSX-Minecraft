@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include <smd/smd.h>
 
+#include "../../primitive/primitive.h"
 #include "../noise.h"
 #include "../../util/math_utils.h"
 
@@ -49,22 +50,22 @@ void chunkGenerate2DHeightMap(Chunk *chunk, const VECTOR *position) {
             printf("height: %d\n", height);
             for (int32_t y = CHUNK_SIZE; y > 0; y--) {
                 const int32_t worldY = (position->vy * CHUNK_SIZE) + (CHUNK_SIZE - y)
-                    + (CHUNK_SIZE * 16); // !IMPORTANT: TESTING OFFSET
+                                       + (CHUNK_SIZE * 16); // !IMPORTANT: TESTING OFFSET
                 // TODO: Change these chunkBlockIndex to be global lookups through world
                 //       to ensure that blocks in next chunk boundary are visible to this chunk
                 //       so the mesh is seamless
                 if (worldY < height - 3) {
                     chunk->blocks[chunkBlockIndex(x, y - 1, z)] = (BlockID) STONE;
-                    printf("STONE @ %d,%d,%d\n", x, y - 1, z);
+                    // printf("STONE @ %d,%d,%d\n", x, y - 1, z);
                 } else if (worldY < height - 1) {
                     chunk->blocks[chunkBlockIndex(x, y - 1, z)] = (BlockID) DIRT;
-                    printf("DIRT @ %d,%d,%d\n", x, y - 1, z);
+                    // printf("DIRT @ %d,%d,%d\n", x, y - 1, z);
                 } else if (worldY == height - 1) {
                     chunk->blocks[chunkBlockIndex(x, y - 1, z)] = (BlockID) GRASS;
-                    printf("GRASS @ %d,%d,%d\n", x, y - 1, z);
+                    // printf("GRASS @ %d,%d,%d\n", x, y - 1, z);
                 } else {
                     chunk->blocks[chunkBlockIndex(x, y - 1, z)] = (BlockID) AIR;
-                    printf("AIR @ %d,%d,%d\n", x, y - 1, z);
+                    // printf("AIR @ %d,%d,%d\n", x, y - 1, z);
                 }
             }
         }
@@ -87,10 +88,10 @@ void chunkGenerate3DHeightMap(Chunk *chunk, const VECTOR *position) {
     }
 }
 
-void chunkClearMesh(Chunk* chunk) {
-    ChunkMesh* mesh = &chunk->mesh;
+void chunkClearMesh(Chunk *chunk) {
+    ChunkMesh *mesh = &chunk->mesh;
     chunkMeshClear(mesh);
-    SMD* smd = &mesh->smd;
+    SMD *smd = &mesh->smd;
     smd->id[0] = 'S';
     smd->id[1] = 'M';
     smd->id[2] = 'D';
@@ -109,23 +110,36 @@ typedef struct {
 #define CHUNK_DIRECTIONS 3
 #define compareMask(m1, m2) ((m1).block == (m2).block && (m1).normal == (m2).normal)
 
+const INDEX INDICES[6] = {
+    // {1, 3, 0, 2},
+    // {0, 2, 1, 3},
+
+    {0, 2, 1 , 3},
+    {2, 0, 3, 1},
+
+    {1, 0, 3, 2},
+    {0, 1, 2, 3},
+    {1, 0, 3, 2},
+    {0, 1, 2, 3},
+};
+
 // TODO: Break this into separate methods for each section
-void createQuad(Chunk* chunk,
-                const Mask* mask,
+void createQuad(Chunk *chunk,
+                const Mask *mask,
                 const int16_t width,
                 const int16_t height,
                 const int16_t axisMask[CHUNK_DIRECTIONS],
                 const int16_t origin[CHUNK_DIRECTIONS],
-                const int16_t deltaAxis1[CHUNK_DIRECTIONS],
-                const int16_t deltaAxis2[CHUNK_DIRECTIONS]) {
+                const int16_t delta_axis_1[CHUNK_DIRECTIONS],
+                const int16_t delta_axis_2[CHUNK_DIRECTIONS]) {
     ChunkMesh *mesh = &chunk->mesh;
     cvector_iterator(SMD_PRIM) primitiveIter = cvector_begin(mesh->primitives);
     cvector_iterator(SVECTOR) verticesIter = cvector_begin(mesh->vertices);
     cvector_iterator(SVECTOR) normalsIter = cvector_begin(mesh->normals);
-    SMD* smd = &mesh->smd;
+    SMD *smd = &mesh->smd;
     // Construct a new POLY_FT4 (textured quad) primtive for this face
     cvector_push_back(mesh->primitives, (SMD_PRIM) {});
-    SMD_PRIM* primitive = &primitiveIter[smd->n_prims];
+    SMD_PRIM *primitive = &primitiveIter[smd->n_prims];
     smd->n_prims++;
     primitive->prim_id = (SMD_PRI_TYPE){};
     primitive->prim_id.type = PRIM_TYPE_QUAD;
@@ -141,76 +155,84 @@ void createQuad(Chunk* chunk,
     primitive->prim_id.reserved = 0;
     primitive->prim_id.len = 4 + 8 + 4 + 8 + 4; // Some wizardry based on PSn00bSDK/tools/smxlink/main.cpp lines 518-644
     // Construct vertices relative to chunk mesh top left origin
-    SVECTOR* vertex = NULL;
+    SVECTOR *vertex = NULL;
     const int16_t chunk_origin_x = chunk->position.vx * CHUNK_SIZE;
     const int16_t chunk_origin_y = -chunk->position.vy * CHUNK_SIZE;
     const int16_t chunk_origin_z = chunk->position.vz * CHUNK_SIZE;
-    #define nextRenderAttribute(attribute_field, index_field, count_field, instance, iter) \
+    const SVECTOR vertices[4] = {
+        {
+            (chunk_origin_x + origin[0]) * BLOCK_SIZE,
+            (chunk_origin_y + origin[1]) * BLOCK_SIZE,
+            (chunk_origin_z + origin[2]) * BLOCK_SIZE
+        },
+        {
+            (chunk_origin_x + origin[0] + delta_axis_1[0]) * BLOCK_SIZE,
+            (chunk_origin_y + origin[1] + delta_axis_1[1]) * BLOCK_SIZE,
+            (chunk_origin_z + origin[2] + delta_axis_1[2]) * BLOCK_SIZE
+        },
+        {
+            (chunk_origin_x + origin[0] + delta_axis_2[0]) * BLOCK_SIZE,
+            (chunk_origin_y + origin[1] + delta_axis_2[1]) * BLOCK_SIZE,
+            (chunk_origin_z + origin[2] + delta_axis_2[2]) * BLOCK_SIZE
+        },
+        {
+            (chunk_origin_x + origin[0] + delta_axis_1[0] + delta_axis_2[0]) * BLOCK_SIZE,
+            (chunk_origin_y + origin[1] + delta_axis_1[1] + delta_axis_2[1]) * BLOCK_SIZE,
+            (chunk_origin_z + origin[2] + delta_axis_1[2] + delta_axis_2[2]) * BLOCK_SIZE
+        }
+    };
+    // Calculate face index
+    const int8_t shiftedNormal = (mask->normal + 2) / 2; // {-1,1} => {0, 1}
+    const int index = (axisMask[0] * (1 - shiftedNormal)) // 0: -X, 1: +X
+                    + (axisMask[1] * (3 - shiftedNormal)) // 2: -Y, 3: +Y
+                    + (axisMask[2] * (5 - shiftedNormal)); // 4: -Z, 5: +Z
+    const INDEX attrIndex = INDICES[index];
+#define nextRenderAttribute(attribute_field, index_field, count_field, instance, iter) \
         cvector_push_back(mesh->attribute_field, (SVECTOR){}); \
         primitive->index_field = smd->count_field; \
         instance = &iter[smd->count_field++]
-    if (mask->normal == -1) {
-        nextRenderAttribute(vertices, v0, n_verts, vertex, verticesIter);
-        vertex->vx = (chunk_origin_x + origin[0]) * BLOCK_SIZE;
-        vertex->vy = (chunk_origin_y + origin[1]) * BLOCK_SIZE;
-        vertex->vz = (chunk_origin_z + origin[2]) * BLOCK_SIZE;
-        nextRenderAttribute(vertices, v1, n_verts, vertex, verticesIter);
-        vertex->vx = (chunk_origin_x + origin[0] + deltaAxis1[0]) * BLOCK_SIZE;
-        vertex->vy = (chunk_origin_y + origin[1] + deltaAxis1[1]) * BLOCK_SIZE;
-        vertex->vz = (chunk_origin_z + origin[2] + deltaAxis1[2]) * BLOCK_SIZE;
-        nextRenderAttribute(vertices, v2, n_verts, vertex, verticesIter);
-        vertex->vx = (chunk_origin_x + origin[0] + deltaAxis2[0]) * BLOCK_SIZE;
-        vertex->vy = (chunk_origin_y + origin[1] + deltaAxis2[1]) * BLOCK_SIZE;
-        vertex->vz = (chunk_origin_z + origin[2] + deltaAxis2[2]) * BLOCK_SIZE;
-        nextRenderAttribute(vertices, v3, n_verts, vertex, verticesIter);
-        vertex->vx = (chunk_origin_x + origin[0] + deltaAxis1[0] + deltaAxis2[0]) * BLOCK_SIZE;
-        vertex->vy = (chunk_origin_y + origin[1] + deltaAxis1[1] + deltaAxis2[1]) * BLOCK_SIZE;
-        vertex->vz = (chunk_origin_z + origin[2] + deltaAxis1[2] + deltaAxis2[2]) * BLOCK_SIZE;
-    } else {
-        nextRenderAttribute(vertices, v0, n_verts, vertex, verticesIter);
-        vertex->vx = (chunk_origin_x + origin[0] + deltaAxis1[0]) * BLOCK_SIZE;
-        vertex->vy = (chunk_origin_y + origin[1] + deltaAxis1[1]) * BLOCK_SIZE;
-        vertex->vz = (chunk_origin_z + origin[2] + deltaAxis1[2]) * BLOCK_SIZE;
-        nextRenderAttribute(vertices, v1, n_verts, vertex, verticesIter);
-        vertex->vx = (chunk_origin_x + origin[0]) * BLOCK_SIZE;
-        vertex->vy = (chunk_origin_y + origin[1]) * BLOCK_SIZE;
-        vertex->vz = (chunk_origin_z + origin[2]) * BLOCK_SIZE;
-        nextRenderAttribute(vertices, v2, n_verts, vertex, verticesIter);
-        vertex->vx = (chunk_origin_x + origin[0] + deltaAxis1[0] + deltaAxis2[0]) * BLOCK_SIZE;
-        vertex->vy = (chunk_origin_y + origin[1] + deltaAxis1[1] + deltaAxis2[1]) * BLOCK_SIZE;
-        vertex->vz = (chunk_origin_z + origin[2] + deltaAxis1[2] + deltaAxis2[2]) * BLOCK_SIZE;
-        nextRenderAttribute(vertices, v3, n_verts, vertex, verticesIter);
-        vertex->vx = (chunk_origin_x + origin[0] + deltaAxis2[0]) * BLOCK_SIZE;
-        vertex->vy = (chunk_origin_y + origin[1] + deltaAxis2[1]) * BLOCK_SIZE;
-        vertex->vz = (chunk_origin_z + origin[2] + deltaAxis2[2]) * BLOCK_SIZE;
-    }
+
+    nextRenderAttribute(vertices, v0, n_verts, vertex, verticesIter);
+    const SVECTOR* currentVert = &vertices[attrIndex.v0];
+    vertex->vx = currentVert->vx;
+    vertex->vy = currentVert->vy;
+    vertex->vz = currentVert->vz;
+    nextRenderAttribute(vertices, v1, n_verts, vertex, verticesIter);
+    currentVert = &vertices[attrIndex.v1];
+    vertex->vx = currentVert->vx;
+    vertex->vy = currentVert->vy;
+    vertex->vz = currentVert->vz;
+    nextRenderAttribute(vertices, v2, n_verts, vertex, verticesIter);
+    currentVert = &vertices[attrIndex.v2];
+    vertex->vx = currentVert->vx;
+    vertex->vy = currentVert->vy;
+    vertex->vz = currentVert->vz;
+    nextRenderAttribute(vertices, v3, n_verts, vertex, verticesIter);
+    currentVert = &vertices[attrIndex.v3];
+    vertex->vx = currentVert->vx;
+    vertex->vy = currentVert->vy;
+    vertex->vz = currentVert->vz;
+
     // Create normal for this quad
-    SVECTOR* norm = NULL;
+    SVECTOR *norm = NULL;
     nextRenderAttribute(normals, n0, n_norms, norm, normalsIter);
     norm->vx = (axisMask[0] * mask->normal) * ONE; // !BUG: These produce out of bounds indexing on the 'norm' instance?
     norm->vy = (axisMask[1] * mask->normal) * ONE;
     norm->vz = (axisMask[2] * mask->normal) * ONE;
-    const Texture* texture = &textures[BLOCK_TEXTURES];
+    const Texture *texture = &textures[BLOCK_TEXTURES];
     primitive->tpage = texture->tpage;
     primitive->clut = texture->clut;
     // TODO: Need to figure out how to get texture wrapping to work
     //       across a quad for a single 16x16 smapler of the given tpage + clut
-    // Calculate face index
-    const int8_t shiftedNormal = (mask->normal + 2) / 2; // {-1,1} => {0, 1}
-    const int index = (axisMask[2] * (1 + shiftedNormal))  // 0: -Z, 1: +Z
-                    + (axisMask[1] * (2 + shiftedNormal))  // 2: -Y, 3: +Y
-                    + (axisMask[0] * (4 + shiftedNormal)); // 4: -X, 5: +X
-    printf("Face index: %d\n", index);
-    const TextureAttributes* attributes = &BLOCKS[mask->block].faceAttributes[index];
+    const TextureAttributes *attributes = &BLOCKS[mask->block].faceAttributes[index];
     primitive->tu0 = attributes->u;
     primitive->tv0 = attributes->v;
-    primitive->tu1 = 16 * width;
-    primitive->tv1 = 16 * height;
+    primitive->tu1 = BLOCK_TEXTURE_SIZE * (axisMask[0] != 0 ? height : width);
+    primitive->tv1 = BLOCK_TEXTURE_SIZE * (axisMask[0] != 0 ? width : height);
     primitive->r0 = attributes->tint.r;
     primitive->g0 = attributes->tint.g;
     primitive->b0 = attributes->tint.b;
     primitive->code = attributes->tint.use;
-    printf("Primtives: %d\n", smd->n_prims);
 }
 
 void chunkGenerateMesh(Chunk *chunk) {
@@ -235,15 +257,15 @@ void chunkGenerateMesh(Chunk *chunk) {
                     chunkIter[axis1] = ca1;
                     const BlockID currentBlock = chunkGetBlock(
                         chunk,
-                        chunkIter[0],// + chunk->position.vx,
-                        chunkIter[1],// + chunk->position.vy,
-                        chunkIter[2]// + chunk->position.vz
+                        chunkIter[0], // + chunk->position.vx,
+                        chunkIter[1], // + chunk->position.vy,
+                        chunkIter[2] // + chunk->position.vz
                     );
                     const bool currentOpaque = BLOCKS[currentBlock].type != EMPTY;
                     const BlockID compareBlock = chunkGetBlock(
                         chunk,
-                        chunkIter[0] + axisMask[0],// + chunk->position.vx,
-                        chunkIter[1] + axisMask[1],// + chunk->position.vy,
+                        chunkIter[0] + axisMask[0], // + chunk->position.vx,
+                        chunkIter[1] + axisMask[1], // + chunk->position.vy,
                         chunkIter[2] + axisMask[2] // + chunk->position.vz
                     );
                     const bool compareOpaque = BLOCKS[compareBlock].type != EMPTY;
@@ -273,7 +295,8 @@ void chunkGenerateMesh(Chunk *chunk) {
                     // Compute the width of this quad and store it in w
                     // This is done by searching along the current axis until mask[n + w] is false
                     int width;
-                    for (width = 1; i + width < CHUNK_SIZE && compareMask(mask[n + width], currentMask); width++) {}
+                    for (width = 1; i + width < CHUNK_SIZE && compareMask(mask[n + width], currentMask); width++) {
+                    }
                     // Compute the height of this quad and store it in h
                     // This is done by checking if every block next to this row (range 0 to w) is also part of the mask.
                     // For example, if w is 5 we currently have a quad of dimensions 1 x 5. To reduce triangle count,
@@ -293,8 +316,12 @@ void chunkGenerateMesh(Chunk *chunk) {
                             break;
                         }
                     }
-                    deltaAxis1[0] = 0; deltaAxis1[1] = 0; deltaAxis1[2] = 0;
-                    deltaAxis2[0] = 0; deltaAxis2[1] = 0; deltaAxis2[2] = 0;
+                    deltaAxis1[0] = 0;
+                    deltaAxis1[1] = 0;
+                    deltaAxis1[2] = 0;
+                    deltaAxis2[0] = 0;
+                    deltaAxis2[1] = 0;
+                    deltaAxis2[2] = 0;
                     deltaAxis1[axis1] = width;
                     deltaAxis2[axis2] = height;
                     createQuad(
@@ -313,7 +340,7 @@ void chunkGenerateMesh(Chunk *chunk) {
                         }
                     }
                     i += width,
-                    n += width;
+                        n += width;
                 }
             }
         }

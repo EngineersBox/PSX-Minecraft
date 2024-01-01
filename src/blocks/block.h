@@ -67,12 +67,12 @@ static const Block BLOCKS[BLOCK_COUNT] = {
         .id = (BlockID) DIRT,
         .type = SOLID,
         .faceAttributes = {
-            {2 * 16, 0, 16, 16, {0}}, // -Z FRONT
-            {2 * 16, 0, 16, 16, {0}}, // +Z BACK
-            {2 * 16, 0, 16, 16, {0}}, // -Y TOP
-            {2 * 16, 0, 16, 16, {0}}, // +Y BOTTOM
-            {2 * 16, 0, 16, 16, {0}}, // -X LEFT
-            {2 * 16, 0, 16, 16, {0}}  // +X RIGHT
+            {2 * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, {0}}, // -Z FRONT
+            {2 * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, {0}}, // +Z BACK
+            {2 * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, {0}}, // -Y TOP
+            {2 * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, {0}}, // +Y BOTTOM
+            {2 * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, {0}}, // -X LEFT
+            {2 * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, {0}}  // +X RIGHT
         },
         .name = "dirt"
     },
@@ -80,12 +80,12 @@ static const Block BLOCKS[BLOCK_COUNT] = {
         .id = (BlockID) GRASS,
         .type = SOLID,
         .faceAttributes = {
-            {3 * 16, 0, 16, 16, {0}}, // -Z FRONT
-            {3 * 16, 0, 16, 16, {0}}, // +Z BACK
-            {0 * 16, 0, 16, 16, {0, 155, 0, 1}}, // -Y TOP
-            {2 * 16, 0, 16, 16, {0}}, // +Y BOTTOM
-            {3 * 16, 0, 16, 16, {0}}, // -X LEFT
-            {3 * 16, 0, 16, 16, {0}}  // +X RIGHT
+            {3 * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, {0}}, // -Z FRONT
+            {3 * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, {0}}, // +Z BACK
+            {2 * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, {0}}, // -Y BOTTOM
+            {0 * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, {0, 155, 0, 1}}, // +Y TOP
+            {3 * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, {0}}, // -X LEFT
+            {3 * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, {0}}  // +X RIGHT
         },
         .name = "grass"
     }
