@@ -147,7 +147,6 @@ void renderQuad(const ChunkMesh *mesh, SMD_PRIM *primitive, DisplayContext *ctx,
 
 void chunkMeshRender(const ChunkMesh *mesh, DisplayContext *ctx, Transforms *transforms) {
     // printf("Primitives: %d\n", cvector_size(mesh->primitives));
-    int i = 0;
     for (cvector_iterator(SMD_PRIM) primitive = cvector_begin(mesh->primitives);
          primitive != cvector_end(mesh->primitives); primitive++) {
         // printf("[%d] Primitive type: %d @ %p\n", i++, primitive->prim_id.type, primitive);
@@ -162,7 +161,7 @@ void chunkMeshRender(const ChunkMesh *mesh, DisplayContext *ctx, Transforms *tra
                 renderQuad(mesh, primitive, ctx, transforms);
                 break;
             default:
-                printf("Unknown primitive type: %d\n", primitive->prim_id.type);
+                printf("[ERROR] ChunkMesh - Unknown primitive type: %d\n", primitive->prim_id.type);
                 return;
         }
     }

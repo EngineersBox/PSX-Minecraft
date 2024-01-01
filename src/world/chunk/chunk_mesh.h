@@ -5,21 +5,20 @@
 
 #include <smd/smd.h>
 
-#include "../../blocks/block.h"
 #include "../../util/cvector.h"
 #include "../../core/display.h"
 #include "../../render/transforms.h"
 
 #ifndef MESH_PRIMITIVE_VEC_INITIAL_CAPCITY
-#define MESH_PRIMITIVE_VEC_INITIAL_CAPCITY 150
+#define MESH_PRIMITIVE_VEC_INITIAL_CAPCITY 1
 #endif
 
 #ifndef MESH_VERTEX_VEC_INITIAL_CAPCITY
-#define MESH_VERTEX_VEC_INITIAL_CAPCITY 150
+#define MESH_VERTEX_VEC_INITIAL_CAPCITY 1
 #endif
 
 #ifndef MESH_NORMAL_VEC_INITIAL_CAPCITY
-#define MESH_NORMAL_VEC_INITIAL_CAPCITY 150
+#define MESH_NORMAL_VEC_INITIAL_CAPCITY 1
 #endif
 
 // TODO: Move these to SMD renderer file as general properties

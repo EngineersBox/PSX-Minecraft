@@ -100,6 +100,9 @@ void chunkClearMesh(Chunk *chunk) {
     smd->p_verts = cvector_begin(mesh->vertices);
     smd->p_norms = cvector_begin(mesh->normals);
     smd->p_prims = cvector_begin(mesh->primitives);
+    smd->n_verts = 0;
+    smd->n_norms = 0;
+    smd->n_prims = 0;
 }
 
 typedef struct {
@@ -111,7 +114,7 @@ typedef struct {
 #define compareMask(m1, m2) ((m1).block == (m2).block && (m1).normal == (m2).normal)
 
 const INDEX INDICES[6] = {
-    {0, 2, 1 , 3},
+    {0, 2, 1, 3},
     {2, 0, 3, 1},
     {1, 0, 3, 2},
     {0, 1, 2, 3},
@@ -180,26 +183,26 @@ void createQuad(Chunk *chunk,
     // Calculate face index
     const int8_t shiftedNormal = (mask->normal + 2) / 2; // {-1,1} => {0, 1}
     const int index = (axisMask[0] * (1 - shiftedNormal)) // 0: -X, 1: +X
-                    + (axisMask[1] * (3 - shiftedNormal)) // 2: -Y, 3: +Y
-                    + (axisMask[2] * (5 - shiftedNormal)); // 4: -Z, 5: +Z
+                      + (axisMask[1] * (3 - shiftedNormal)) // 2: -Y, 3: +Y
+                      + (axisMask[2] * (5 - shiftedNormal)); // 4: -Z, 5: +Z
     const INDEX indices = INDICES[index];
-    #define nextRenderAttribute(attribute_field, index_field, count_field, instance, iter) \
+#define nextRenderAttribute(attribute_field, index_field, count_field, instance, iter) \
         cvector_push_back(mesh->attribute_field, (SVECTOR){}); \
         primitive->index_field = smd->count_field; \
         instance = &iter[smd->count_field++]
     printf("Primitive %d\n", smd->n_prims - 1);
-    const SVECTOR* v0;
-    const SVECTOR* v1;
-    const SVECTOR* v2;
-    const SVECTOR* v3;
+    const SVECTOR *v0;
+    const SVECTOR *v1;
+    const SVECTOR *v2;
+    const SVECTOR *v3;
     nextRenderAttribute(vertices, v0, n_verts, vertex, verticesIter);
-    const SVECTOR* currentVert = v0 = &vertices[indices.v0];
+    const SVECTOR *currentVert = v0 = &vertices[indices.v0];
     vertex->vx = currentVert->vx;
     vertex->vy = currentVert->vy;
     vertex->vz = currentVert->vz;
     printf("V0: {%d,%d,%d}\n", vertex->vx, vertex->vy, vertex->vz);
     nextRenderAttribute(vertices, v1, n_verts, vertex, verticesIter);
-    currentVert = v1 =&vertices[indices.v1];
+    currentVert = v1 = &vertices[indices.v1];
     vertex->vx = currentVert->vx;
     vertex->vy = currentVert->vy;
     vertex->vz = currentVert->vz;
@@ -216,7 +219,8 @@ void createQuad(Chunk *chunk,
     vertex->vy = currentVert->vy;
     vertex->vz = currentVert->vz;
     printf("V3: {%d,%d,%d}\n", vertex->vx, vertex->vy, vertex->vz);
-    const SVECTOR* verts[4] = {v0,v1,v2,v3};
+    // !BUG: Somehow there is a quad that is created with 2 vertices in the complete wrong place.
+    const SVECTOR *verts[4] = {v0, v1, v2, v3};
 #define cmpVert(a, b) (a->vx == b->vx && a->vy == b->vy && a->vz == b->vz)
     for (int i = 0; i < 4; i++) {
         for (int j = 0; j < 4; j++) {
@@ -252,7 +256,6 @@ void chunkGenerateMesh(Chunk *chunk) {
     for (int axis = 0; axis < CHUNK_DIRECTIONS; axis++) {
         const int axis1 = (axis + 1) % CHUNK_DIRECTIONS;
         const int axis2 = (axis + 2) % CHUNK_DIRECTIONS;
-        printf("Axis: [%d,%d,%d]\n", axis, axis1, axis2);
         int16_t deltaAxis1[CHUNK_DIRECTIONS] = {0};
         int16_t deltaAxis2[CHUNK_DIRECTIONS] = {0};
         int16_t chunkIter[CHUNK_DIRECTIONS] = {0};
