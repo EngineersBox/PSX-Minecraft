@@ -120,26 +120,28 @@ int main() {
         .lighting_mtx = light_mtx
     };
     init();
-    // World world;
-    // worldInit(&world);
+    World world;
+    worldInit(&world);
     // cvector_iterator(Chunk) chunkIter = cvector_begin(world.chunks);
     // int index = 0;
-    // for (int x = 0; x < 2; x++) {
-    //     for (int z = 0; z < 2; z++) {
-    //         cvector_push_back(
-    //             world.chunks,
-    //             (Chunk) {}
-    //         );
-    //         Chunk* chunk = &chunkIter[index++];
-    //         chunk->position = (VECTOR){x, 1, z};
-    //         chunkInit(chunk);
+    // for (int32_t x = 0; x < 2; x++) {
+    //     for (int32_t y = 0; y < 2; y++) {
+    //         for (int32_t z = -1; z < 1; z++) {
+    //             cvector_push_back(
+    //                 world.chunks,
+    //                 (Chunk) {}
+    //             );
+    //             Chunk* chunk = &chunkIter[index++];
+    //             chunk->position = (VECTOR){x, y, z};
+    //             chunkInit(chunk);
+    //         }
     //     }
     // }
     Chunk chunk;
     chunk.position = (VECTOR) {0, 1, 0};
     chunkInit(&chunk);
     // Chunk chunk1;
-    // chunk1.position = (VECTOR) {0, 0, 0};
+    // chunk1.position = (VECTOR) {1, 1, 0};
     // initTestBlocks(&chunk1);
     // chunkInit(&chunk1);
     while (1) {
@@ -150,9 +152,10 @@ int main() {
         gte_SetRotMatrix(&transforms.geometry_mtx);
         gte_SetTransMatrix(&transforms.geometry_mtx);
         // Draw the world
-        // worldRender(&world, &dctx, &transforms);
+        worldRender(&world, &dctx, &transforms);
         // Draw the chunk
         chunkRender(&chunk, &dctx, &transforms);
+        // chunkRender(&chunk1, &dctx, &transforms);
         // Draw cubes
         // cubeRender(&cube, &dctx, &transforms);
         // cubeRender(&cube1, &dctx, &transforms);

@@ -4,6 +4,8 @@
 #include <inline_c.h>
 #include <stdlib.h>
 
+#include "../../blocks/block.h"
+
 void __primtiveDestructor(void *elem) {
     memset(elem, 0, sizeof(SMD_PRIM));
 }
@@ -17,7 +19,7 @@ void chunkMeshInit(ChunkMesh *mesh) {
     mesh->primitives = NULL;
     mesh->vertices = NULL;
     mesh->normals = NULL;
-    // !BUG: These pre-allocated sizes cause issues for some reaosn (out of bounds read/write)
+    // !BUG: These small pre-allocated sizes cause issues with realloc (out of bounds read/write)
     cvector_init(mesh->primitives, MESH_PRIMITIVE_VEC_INITIAL_CAPCITY, __primtiveDestructor);
     cvector_init(mesh->vertices, MESH_VERTEX_VEC_INITIAL_CAPCITY, __svectorDestructor);
     cvector_init(mesh->normals, MESH_NORMAL_VEC_INITIAL_CAPCITY, __svectorDestructor);
@@ -51,7 +53,7 @@ void renderQuad(const ChunkMesh *mesh, SMD_PRIM *primitive, DisplayContext *ctx,
     int p;
     cvector_iterator(SVECTOR) verticesIter = cvector_begin(mesh->vertices);
     cvector_iterator(SVECTOR) normalsIter = cvector_begin(mesh->normals);
-    RECT texWindow = (RECT){
+    const RECT texWindow = (RECT){
         primitive->tu0 >> 3,
         primitive->tv0 >> 3,
         BLOCK_TEXTURE_SIZE >> 3,

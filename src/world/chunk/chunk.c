@@ -154,7 +154,6 @@ void createQuad(Chunk *chunk,
     primitive->prim_id.reserved = 0;
     primitive->prim_id.len = 4 + 8 + 4 + 8 + 4; // Some wizardry based on PSn00bSDK/tools/smxlink/main.cpp lines 518-644
     // Construct vertices relative to chunk mesh top left origin
-    SVECTOR *vertex = NULL;
     const int16_t chunk_origin_x = chunk->position.vx * CHUNK_SIZE;
     const int16_t chunk_origin_y = -chunk->position.vy * CHUNK_SIZE;
     const int16_t chunk_origin_z = chunk->position.vz * CHUNK_SIZE;
@@ -190,7 +189,8 @@ void createQuad(Chunk *chunk,
         cvector_push_back(mesh->attribute_field, (SVECTOR){}); \
         primitive->index_field = smd->count_field; \
         instance = &iter[smd->count_field++]
-    printf("Primitive %d\n", smd->n_prims - 1);
+    // printf("Primitive %d\n", smd->n_prims - 1);
+    SVECTOR *vertex = NULL;
     const SVECTOR *v0;
     const SVECTOR *v1;
     const SVECTOR *v2;
@@ -200,41 +200,41 @@ void createQuad(Chunk *chunk,
     vertex->vx = currentVert->vx;
     vertex->vy = currentVert->vy;
     vertex->vz = currentVert->vz;
-    printf("V0: {%d,%d,%d}\n", vertex->vx, vertex->vy, vertex->vz);
+    // printf("V0: {%d,%d,%d}\n", vertex->vx, vertex->vy, vertex->vz);
     nextRenderAttribute(vertices, v1, n_verts, vertex, verticesIter);
     currentVert = v1 = &vertices[indices.v1];
     vertex->vx = currentVert->vx;
     vertex->vy = currentVert->vy;
     vertex->vz = currentVert->vz;
-    printf("V1: {%d,%d,%d}\n", vertex->vx, vertex->vy, vertex->vz);
+    // printf("V1: {%d,%d,%d}\n", vertex->vx, vertex->vy, vertex->vz);
     nextRenderAttribute(vertices, v2, n_verts, vertex, verticesIter);
     currentVert = v2 = &vertices[indices.v2];
     vertex->vx = currentVert->vx;
     vertex->vy = currentVert->vy;
     vertex->vz = currentVert->vz;
-    printf("V2: {%d,%d,%d}\n", vertex->vx, vertex->vy, vertex->vz);
+    // printf("V2: {%d,%d,%d}\n", vertex->vx, vertex->vy, vertex->vz);
     nextRenderAttribute(vertices, v3, n_verts, vertex, verticesIter);
     currentVert = v3 = &vertices[indices.v3];
     vertex->vx = currentVert->vx;
     vertex->vy = currentVert->vy;
     vertex->vz = currentVert->vz;
-    printf("V3: {%d,%d,%d}\n", vertex->vx, vertex->vy, vertex->vz);
+    // printf("V3: {%d,%d,%d}\n", vertex->vx, vertex->vy, vertex->vz);
     // !BUG: Somehow there is a quad that is created with 2 vertices in the complete wrong place.
     const SVECTOR *verts[4] = {v0, v1, v2, v3};
-#define cmpVert(a, b) (a->vx == b->vx && a->vy == b->vy && a->vz == b->vz)
-    for (int i = 0; i < 4; i++) {
-        for (int j = 0; j < 4; j++) {
-            if (i == j) {
-                continue;
-            }
-            if (cmpVert(verts[i], verts[j])) {
-                printf("V%d == V%d\n", i, j);
-            }
-        }
-    }
+// #define cmpVert(a, b) (a->vx == b->vx && a->vy == b->vy && a->vz == b->vz)
+//     for (int i = 0; i < 4; i++) {
+//         for (int j = 0; j < 4; j++) {
+//             if (i == j) {
+//                 continue;
+//             }
+//             if (cmpVert(verts[i], verts[j])) {
+//                 printf("V%d == V%d\n", i, j);
+//             }
+//         }
+//     }
     // Create normal for this quad
     SVECTOR *norm = NULL;
-    nextRenderAttribute(normals, n0, n_norms, norm, normalsIter);
+    nextRenderAttribute(normals, n0, n_norms, norm, normalsIter); // !BUG: Something weird here during realloc in cvector_push_back
     norm->vx = (axisMask[0] * mask->normal) * ONE; // !BUG: These produce out of bounds indexing on the 'norm' instance?
     norm->vy = (axisMask[1] * mask->normal) * ONE;
     norm->vz = (axisMask[2] * mask->normal) * ONE;
@@ -350,7 +350,10 @@ void chunkGenerateMesh(Chunk *chunk) {
                     );
                     for (int h = 0; h < height; h++) {
                         for (int w = 0; w < width; w++) {
-                            mask[n + w + h * CHUNK_SIZE] = (Mask){(uint16_t) NONE, 0};
+                            mask[n + w + h * CHUNK_SIZE] = (Mask){
+                                (uint16_t) NONE,
+                                0
+                            };
                         }
                     }
                     i += width;
