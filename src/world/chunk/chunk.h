@@ -14,6 +14,8 @@
 // !BUG: Why does 16 not render anything but 8 does?
 #define CHUNK_SIZE 8
 #define CHUNK_DATA_SIZE (CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE)
+#define CHUNK_DIRECTIONS 3
+#define CHUNK_AXIS_NEIGHBOURS (CHUNK_DIRECTIONS * 2)
 
 #define chunkBlockIndex(x, y, z) ((x) + ((y) * CHUNK_SIZE) + ((z) * CHUNK_SIZE * CHUNK_SIZE))
 
@@ -30,7 +32,7 @@ void chunkDestroy(const Chunk* chunk);
 void chunkGenerate2DHeightMap(Chunk* chunk, const VECTOR* position);
 void chunkGenerate3DHeightMap(Chunk* chunk, const VECTOR* position);
 
-void chunkGenerateMesh(Chunk* chunk);
+void chunkGenerateMesh(Chunk* chunk, Chunk* axis_neighbours[CHUNK_AXIS_NEIGHBOURS]);
 void chunkClearMesh(Chunk* chunk);
 
 void chunkModifyVoxel(Chunk* chunk, const VECTOR* position, EBlockID block);

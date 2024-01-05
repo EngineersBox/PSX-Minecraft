@@ -19,6 +19,8 @@
 })
 #define clamp(x, lower, upper) (min((upper), max((x), (lower))))
 
+#define sign(x) (((x) > 0) - ((x) < 0))
+
 static void crossProduct(const SVECTOR* v0, const SVECTOR* v1, VECTOR* out) {
     out->vx = ((v0->vy * v1->vz) - (v0->vz * v1->vy)) >> 12;
     out->vy = ((v0->vz * v1->vx) - (v0->vx * v1->vz)) >> 12;
@@ -49,6 +51,8 @@ typedef struct _BVECTOR {
  * @return Result of multiplication x * y
  */
 #define fixedMul(x, y) (int16_t)(((int32_t)x * (int32_t)y) / ONE)
+
+// TODO: Add vec+const variations
 
 // Field operations
 #define _vec_op_single(field, v0, v1, op) .field = (v0).field op (v1).field

@@ -20,8 +20,11 @@ void chunkMeshInit(ChunkMesh *mesh) {
     mesh->vertices = NULL;
     mesh->normals = NULL;
     // !BUG: These small pre-allocated sizes cause issues with realloc (out of bounds read/write)
+    printf("Init primitives\n");
     cvector_init(mesh->primitives, MESH_PRIMITIVE_VEC_INITIAL_CAPCITY, __primtiveDestructor);
+    printf("Init vertices\n");
     cvector_init(mesh->vertices, MESH_VERTEX_VEC_INITIAL_CAPCITY, __svectorDestructor);
+    printf("Init normals\n");
     cvector_init(mesh->normals, MESH_NORMAL_VEC_INITIAL_CAPCITY, __svectorDestructor);
 }
 

@@ -27,9 +27,9 @@ Input input = {};
 // source color when using gte_nccs(). 4096 is 1.0 in this matrix
 // A column of zeroes effectively disables the light source.
 MATRIX color_mtx = {
-    ONE * 3/4, 0, 0,	/* Red   */
-    ONE * 3/4, 0, 0,	/* Green */
-    ONE * 3/4, 0, 0	/* Blue  */
+    ONE * 3 / 4, 0, 0, /* Red   */
+    ONE * 3 / 4, 0, 0, /* Green */
+    ONE * 3 / 4, 0, 0 /* Blue  */
 };
 
 // Light matrix
@@ -71,11 +71,13 @@ void init() {
 }
 
 static int random[128] = {
-    1,0,0,0,1,1,0,0,1,0,1,0,1,1,1,1,1,1,0,0,0,1,1,0,1,0,1,0,0,1,1,0,1,1,0,0,1,1,1,1,1,1,0,0,1,1,1,1,0,0,1,0,1,0,0,1,0,0,0,1,0,0,0,0,
-    0,1,0,1,1,1,0,1,1,0,0,0,1,0,1,1,1,1,1,1,0,1,0,0,0,0,0,1,0,1,0,1,0,0,1,1,0,1,1,0,0,0,0,0,0,0,0,1,1,0,0,1,1,0,1,1,1,0,0,1,0,0,1,1
+    1, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1,
+    1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0,
+    0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1, 0, 1, 1,
+    0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1, 0, 0, 1, 0, 0, 1, 1
 };
 
-void initTestBlocks(Chunk* chunk) {
+void initTestBlocks(Chunk *chunk) {
     // for (int x = 0; x < CHUNK_SIZE; x++) {
     //     for (int z = 0; z < CHUNK_SIZE; z++) {
     //         for (int y = 0; y < CHUNK_SIZE; y++) {
@@ -90,10 +92,12 @@ void initTestBlocks(Chunk* chunk) {
                     chunk->blocks[chunkBlockIndex(x, y, z)] = (BlockID) STONE;
                 } else if (y == 1) {
                     chunk->blocks[chunkBlockIndex(x, y, z)] = random[x + (z * CHUNK_SIZE)] == 1
-                        ? (BlockID) DIRT : (BlockID) AIR;
+                                                                  ? (BlockID) DIRT
+                                                                  : (BlockID) AIR;
                 } else if (y == 2) {
                     chunk->blocks[chunkBlockIndex(x, y, z)] = random[64 + x + (z * CHUNK_SIZE)] == 1
-                        ? (BlockID) GRASS : (BlockID) AIR;
+                                                                  ? (BlockID) GRASS
+                                                                  : (BlockID) AIR;
                 }
             }
         }
@@ -122,24 +126,24 @@ int main() {
     init();
     World world;
     worldInit(&world);
-    // cvector_iterator(Chunk) chunkIter = cvector_begin(world.chunks);
-    // int index = 0;
-    // for (int32_t x = 0; x < 2; x++) {
-    //     for (int32_t y = 0; y < 2; y++) {
-    //         for (int32_t z = -1; z < 1; z++) {
-    //             cvector_push_back(
-    //                 world.chunks,
-    //                 (Chunk) {}
-    //             );
-    //             Chunk* chunk = &chunkIter[index++];
-    //             chunk->position = (VECTOR){x, y, z};
-    //             chunkInit(chunk);
-    //         }
-    //     }
-    // }
-    Chunk chunk;
-    chunk.position = (VECTOR) {0, 1, 0};
-    chunkInit(&chunk);
+    cvector_iterator(Chunk) chunkIter = cvector_begin(world.chunks);
+    int index = 0;
+    for (int32_t x = 0; x < 1; x++) {
+        for (int32_t y = 0; y < 2; y++) {
+            for (int32_t z = -1; z < 0; z++) {
+                cvector_push_back(
+                    world.chunks,
+                    (Chunk) {}
+                );
+                Chunk* chunk = &chunkIter[index++];
+                chunk->position = (VECTOR){x, y, z};
+                chunkInit(chunk);
+            }
+        }
+    }
+    // Chunk chunk;
+    // chunk.position = (VECTOR) {0, 0, 0};
+    // chunkInit(&chunk);
     // Chunk chunk1;
     // chunk1.position = (VECTOR) {1, 1, 0};
     // initTestBlocks(&chunk1);
@@ -154,7 +158,7 @@ int main() {
         // Draw the world
         worldRender(&world, &dctx, &transforms);
         // Draw the chunk
-        chunkRender(&chunk, &dctx, &transforms);
+        // chunkRender(&chunk, &dctx, &transforms);
         // chunkRender(&chunk1, &dctx, &transforms);
         // Draw cubes
         // cubeRender(&cube, &dctx, &transforms);
@@ -166,5 +170,75 @@ int main() {
     }
     // chunkDestroy(&chunk);
     assetsFree();
+    return 0;
+}
+
+typedef struct {
+    SMD smd;
+    cvector(SVECTOR) vec1;
+    cvector(SVECTOR) vec2;
+} TestMinRep;
+
+void __destruct(void *elem) {
+}
+
+void initRep(TestMinRep *rep) {
+    rep->vec1 = NULL;
+    rep->vec2 = NULL;
+    cvector_init(rep->vec1, 1, __destruct);
+    cvector_init(rep->vec2, 1, __destruct);
+}
+
+int _main() {
+    init();
+    TestMinRep obj;
+    initRep(&obj);
+    uint32_t i1 = 0;
+    uint32_t i2 = 0;
+    int should_break = 0;
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 4; j++) {
+            SVECTOR *curr;
+            printf("VERTEX %d: %p\n", j, obj.vec1);
+            cvector_metadata_t *meta = cvector_vec_to_base(obj.vec1);
+            printf("  [BEFORE] Size: %d, Cap: %d, Dest: %p\n", meta->size, meta->capacity, meta->elem_destructor);
+            cvector_metadata_t *meta2 = cvector_vec_to_base(obj.vec2);
+            printf("  [Normal: %p] [BEFORE] Size: %d, Cap: %d, Dest: %p\n", obj.vec2, meta2->size, meta2->capacity,
+                   meta2->elem_destructor);
+            cvector_push_back(obj.vec1, (SVECTOR){});
+            meta = cvector_vec_to_base(obj.vec1);
+            printf("  [AFTER] Size: %d, Cap: %d, Dest: %p\n", meta->size, meta->capacity, meta->elem_destructor);
+            meta2 = cvector_vec_to_base(obj.vec2);
+            printf("  [Normal: %p] [AFTER] Size: %d, Cap: %d, Dest: %p\n", obj.vec2, meta2->size, meta2->capacity,
+                   meta2->elem_destructor);
+            curr = &obj.vec1[i1];
+            curr->vx = i;
+            curr->vy = j;
+            curr->vz = i1;
+            i1++;
+            if (i == 2 && j == 1) {
+                should_break = 1;
+                break;
+            }
+        }
+        if (should_break) {
+            break;
+        }
+        SVECTOR *curr1;
+        printf("NORMAL: %p\n", obj.vec2);
+        cvector_metadata_t *meta2 = cvector_vec_to_base(obj.vec2);
+        printf("  [BEFORE] Size: %d, Cap: %d, Dest: %p\n", meta2->size, meta2->capacity, meta2->elem_destructor);
+        cvector_push_back(obj.vec2, (SVECTOR){});
+        meta2 = cvector_vec_to_base(obj.vec2);
+        printf("  [AFTER] Size: %d, Cap: %d, Dest: %p\n", meta2->size, meta2->capacity, meta2->elem_destructor);
+        curr1 = &obj.vec2[i2];
+        curr1->vx = i;
+        curr1->vx = i2;
+        curr1->vz = rand();
+        i2++;
+    }
+    while (1) {
+        display(&dctx);
+    }
     return 0;
 }

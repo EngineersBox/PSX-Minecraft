@@ -5,9 +5,16 @@
 
 #include <psxgte.h>
 
-// TODO: IMPLEMENT THESE
-static VECTOR worldToBlockPosition(const VECTOR* position);
-static VECTOR worldToLocalBlockPosition(const VECTOR* position, const int size);
-static VECTOR worldToChunkPosition(const VECTOR* position, const int size);
+VECTOR worldToBlockPosition(const VECTOR* position);
+VECTOR worldToLocalBlockPosition(const VECTOR* position, int chunk_size);
+VECTOR worldToChunkPosition(const VECTOR* position, int chunk_size);
+
+typedef struct {
+    VECTOR chunk;
+    VECTOR block;
+} ChunkBlockPosition;
+
+ChunkBlockPosition worldToChunkBlockPosition(const VECTOR* position, int chunk_size);
+VECTOR chunkBlockToWorldPosition(const ChunkBlockPosition* position, int chunk_size);
 
 #endif // PSX_MINECRAFT_POSITION_H

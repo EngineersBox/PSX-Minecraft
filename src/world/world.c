@@ -12,8 +12,20 @@ void worldInit(World *world) {
 }
 
 void worldRender(const World *world, DisplayContext *ctx, Transforms *transforms) {
-    Chunk* chunk;
+    Chunk *chunk;
     cvector_for_each_in(chunk, world->chunks) {
         chunkRender(chunk, ctx, transforms);
     }
+}
+
+void worldLoadChunks(World* world, const VECTOR* player_pos) {
+    
+}
+
+BlockID worldGetChunkBlock(const ChunkBlockPosition *position) {
+
+}
+
+BlockID worldGetBlock(const VECTOR *position) {
+
 }

@@ -19,9 +19,6 @@ void chunkInit(Chunk *chunk/*, const int seed*/) {
     chunkGenerate2DHeightMap(chunk, &chunk->position);
     printf("[CHUNK: %d,%d,%d] Generating mesh\n", inlineVec(chunk->position));
     chunkGenerateMesh(chunk);
-    // printf("[CHUNK: %d,%d,%d] Initialising SMD mesh data\n", inlineVec(chunk->position));
-    // smdInitData(&chunk->mesh.smd);
-    // chunk->noise = fnlCreateState();
     // chunk->noise.seed = seed;
 }
 
@@ -110,7 +107,6 @@ typedef struct {
     int8_t normal;
 } Mask;
 
-#define CHUNK_DIRECTIONS 3
 #define compareMask(m1, m2) ((m1).block == (m2).block && (m1).normal == (m2).normal)
 
 const INDEX INDICES[6] = {
@@ -137,6 +133,7 @@ void createQuad(Chunk *chunk,
     cvector_iterator(SVECTOR) normalsIter = cvector_begin(mesh->normals);
     SMD *smd = &mesh->smd;
     // Construct a new POLY_FT4 (textured quad) primtive for this face
+    printf("Primitive\n");
     cvector_push_back(mesh->primitives, (SMD_PRIM) {});
     SMD_PRIM *primitive = &primitiveIter[smd->n_prims];
     smd->n_prims++;
@@ -195,24 +192,28 @@ void createQuad(Chunk *chunk,
     const SVECTOR *v1;
     const SVECTOR *v2;
     const SVECTOR *v3;
+    printf("Vertex\n");
     nextRenderAttribute(vertices, v0, n_verts, vertex, verticesIter);
     const SVECTOR *currentVert = v0 = &vertices[indices.v0];
     vertex->vx = currentVert->vx;
     vertex->vy = currentVert->vy;
     vertex->vz = currentVert->vz;
     // printf("V0: {%d,%d,%d}\n", vertex->vx, vertex->vy, vertex->vz);
+    printf("Vertex\n");
     nextRenderAttribute(vertices, v1, n_verts, vertex, verticesIter);
     currentVert = v1 = &vertices[indices.v1];
     vertex->vx = currentVert->vx;
     vertex->vy = currentVert->vy;
     vertex->vz = currentVert->vz;
     // printf("V1: {%d,%d,%d}\n", vertex->vx, vertex->vy, vertex->vz);
+    printf("Vertex\n");
     nextRenderAttribute(vertices, v2, n_verts, vertex, verticesIter);
     currentVert = v2 = &vertices[indices.v2];
     vertex->vx = currentVert->vx;
     vertex->vy = currentVert->vy;
     vertex->vz = currentVert->vz;
     // printf("V2: {%d,%d,%d}\n", vertex->vx, vertex->vy, vertex->vz);
+    printf("Vertex\n");
     nextRenderAttribute(vertices, v3, n_verts, vertex, verticesIter);
     currentVert = v3 = &vertices[indices.v3];
     vertex->vx = currentVert->vx;
@@ -220,21 +221,24 @@ void createQuad(Chunk *chunk,
     vertex->vz = currentVert->vz;
     // printf("V3: {%d,%d,%d}\n", vertex->vx, vertex->vy, vertex->vz);
     // !BUG: Somehow there is a quad that is created with 2 vertices in the complete wrong place.
-    const SVECTOR *verts[4] = {v0, v1, v2, v3};
-// #define cmpVert(a, b) (a->vx == b->vx && a->vy == b->vy && a->vz == b->vz)
-//     for (int i = 0; i < 4; i++) {
-//         for (int j = 0; j < 4; j++) {
-//             if (i == j) {
-//                 continue;
-//             }
-//             if (cmpVert(verts[i], verts[j])) {
-//                 printf("V%d == V%d\n", i, j);
-//             }
-//         }
-//     }
+    // const SVECTOR *verts[4] = {v0, v1, v2, v3};
+    // #define cmpVert(a, b) (a->vx == b->vx && a->vy == b->vy && a->vz == b->vz)
+    //     for (int i = 0; i < 4; i++) {
+    //         for (int j = 0; j < 4; j++) {
+    //             if (i == j) {
+    //                 continue;
+    //             }
+    //             if (cmpVert(verts[i], verts[j])) {
+    //                 printf("V%d == V%d\n", i, j);
+    //             }
+    //         }
+    //     }
     // Create normal for this quad
     SVECTOR *norm = NULL;
-    nextRenderAttribute(normals, n0, n_norms, norm, normalsIter); // !BUG: Something weird here during realloc in cvector_push_back
+    printf("BEFORE norm\n");
+    nextRenderAttribute(normals, n0, n_norms, norm, normalsIter);
+    // !BUG: Something weird here during realloc in cvector_push_back
+    printf("AFTER: %p\n", norm);
     norm->vx = (axisMask[0] * mask->normal) * ONE; // !BUG: These produce out of bounds indexing on the 'norm' instance?
     norm->vy = (axisMask[1] * mask->normal) * ONE;
     norm->vz = (axisMask[2] * mask->normal) * ONE;
@@ -252,7 +256,12 @@ void createQuad(Chunk *chunk,
     primitive->code = attributes->tint.use;
 }
 
-void chunkGenerateMesh(Chunk *chunk) {
+BlockID chunkAxisGetBlock(Chunk* chunk, Chunk* axis_neighbours[CHUNK_AXIS_NEIGHBOURS]) {
+
+}
+
+void chunkGenerateMesh(Chunk *chunk, Chunk* axis_neighbours[CHUNK_AXIS_NEIGHBOURS]) {
+    // 0: X, 1: Y, 2: Z
     for (int axis = 0; axis < CHUNK_DIRECTIONS; axis++) {
         const int axis1 = (axis + 1) % CHUNK_DIRECTIONS;
         const int axis2 = (axis + 2) % CHUNK_DIRECTIONS;
@@ -265,10 +274,8 @@ void chunkGenerateMesh(Chunk *chunk) {
         for (chunkIter[axis] = -1; chunkIter[axis] < CHUNK_SIZE;) {
             // Compute mask
             uint16_t n = 0;
-            for (int ca2 = 0; ca2 < CHUNK_SIZE; ca2++) {
-                chunkIter[axis2] = ca2;
-                for (int ca1 = 0; ca1 < CHUNK_SIZE; ca1++) {
-                    chunkIter[axis1] = ca1;
+            for (chunkIter[axis2] = 0; chunkIter[axis2] < CHUNK_SIZE; chunkIter[axis2]++) {
+                for (chunkIter[axis1] = 0; chunkIter[axis1] < CHUNK_SIZE; chunkIter[axis1]++) {
                     const BlockID currentBlock = chunkGetBlock(
                         chunk,
                         chunkIter[0], // + chunk->position.vx,
@@ -350,7 +357,7 @@ void chunkGenerateMesh(Chunk *chunk) {
                     );
                     for (int h = 0; h < height; h++) {
                         for (int w = 0; w < width; w++) {
-                            mask[n + w + h * CHUNK_SIZE] = (Mask){
+                            mask[n + w + (h * CHUNK_SIZE)] = (Mask){
                                 (uint16_t) NONE,
                                 0
                             };
