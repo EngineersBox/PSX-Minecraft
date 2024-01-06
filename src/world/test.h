@@ -190,17 +190,17 @@ void worldLoadChunks(World* world, const VECTOR* player_pos) {
     if (x_direction != 0) {
         worldLoadChunksX(world, x_direction, z_direction);
     }
-    printf("----\n");
     if (z_direction != 0) {
         worldLoadChunksZ(world, x_direction, z_direction);
     }
     if (x_direction != 0 && z_direction != 0) {
         worldLoadChunksXZ(world, x_direction, z_direction);
     }
+    // Shift chunks into centre of arrays
+
     // Move centre towards player position by 1 increment
     world->centre.x += x_direction;
     world->centre.z += z_direction;
-    // Shift chunks into centre of arrays
 }
 
 int main() {
