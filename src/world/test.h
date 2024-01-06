@@ -1,10 +1,8 @@
-#pragma once
-
-#ifndef PSX_MINECRAFT_TEST_H
-#define PSX_MINECRAFT_TEST_H
-
 #include <stdio.h>
 #include <inttypes.h>
+
+#define sign(v) (((v) > 0) - ((v) < 0))
+#define absv(v) (v * sign(v))
 
 #define RADIUS 2
 #define CENTRE 1
@@ -26,7 +24,7 @@ typedef struct {
     uint32_t chunks[AXIS_SIZE][AXIS_SIZE];
 } World;
 
-void printWorld(World* world) {
+void worldPrint(World* world) {
     for (int x = 0; x < AXIS_SIZE; x++) {
         for (int z = 0; z < AXIS_SIZE; z++) {
             printf(" %d ", world->chunks[x][z]);
@@ -35,9 +33,179 @@ void printWorld(World* world) {
     }
 }
 
+uint32_t worldLoadChunk(const VECTOR chunk_position) {
+    // TODO
+    return 1;
+}
+
+uint32_t worldUnloadChunk(const VECTOR chunk_position) {
+    // TODO
+    return 0;
+}
+
+__attribute__((always_inline))
+inline int worldWithinLoadRadius(const World* world, const VECTOR* player_pos) {
+    return absv(world->centre.x - player_pos->x) < RADIUS - 1
+        && absv(world->centre.z - player_pos->z) < RADIUS - 1;
+}
+
+void worldLoadChunksX(World* world, int8_t x_direction, int8_t z_direction) {
+    // Load x_direction chunks
+    int32_t x_shift_zone = world->centre.x + ((RADIUS + SHIFT_ZONE) * x_direction);
+    printf("X shift: %d\n", x_shift_zone);
+    int32_t z_start;
+    int32_t z_end;
+    if (z_direction == -1) {
+        z_start = world->centre.z - RADIUS;
+        z_end = world->centre.z + RADIUS - SHIFT_ZONE;
+    } else if (z_direction == 1) {
+        z_start = world->centre.z - RADIUS + SHIFT_ZONE;
+        z_end = world->centre.z + RADIUS;
+    }
+    printf("Z: [%d..%d]\n", z_start, z_end);
+    for (int z_coord = z_start; z_coord <= z_end; z_coord++) {
+        uint32_t chunk = worldLoadChunk((VECTOR){
+            .x = x_shift_zone,
+            .y = 0, // What should this be?
+            .z = z_coord
+        });
+        printf(
+            "Loading: %d,%d\n",
+            x_shift_zone, z_coord,
+            arrayCoord(world, x, x_shift_zone),
+            arrayCoord(world, z, z_coord)
+        );
+        world->chunks[arrayCoord(world, x, x_shift_zone)][arrayCoord(world, z, z_coord)] = chunk;
+    }
+    // Unload -x_direction chunks
+    x_shift_zone = world->centre.x + (RADIUS * -x_direction);
+    printf("X shift: %d\n", x_shift_zone);
+    for (int z_coord = z_start; z_coord <= z_end; z_coord++) {
+        uint32_t unloaded_chunk = worldUnloadChunk((VECTOR){
+            .x = x_shift_zone,
+            .y = 0, // What should this be?
+            .z = z_coord
+        });
+        printf(
+            "Unloading: %d,%d => %d,%d\n",
+            x_shift_zone, z_coord,
+            arrayCoord(world, x, x_shift_zone),
+            arrayCoord(world, z, z_coord)
+        );
+        world->chunks[arrayCoord(world, x, x_shift_zone)][arrayCoord(world, z, z_coord)] = unloaded_chunk;
+    }
+}
+
+void worldLoadChunksZ(World* world, int8_t x_direction, int8_t z_direction) {
+    // Load z_direction chunks
+    int32_t z_shift_zone = world->centre.z + ((RADIUS + SHIFT_ZONE) * z_direction);
+    printf("Z shift: %d\n", z_shift_zone);
+    int32_t x_start;
+    int32_t x_end;
+    if (x_direction == -1) {
+        x_start = world->centre.x - RADIUS;
+        x_end = world->centre.x + RADIUS - SHIFT_ZONE;
+    } else if (x_direction == 1) {
+        x_start = world->centre.x - RADIUS + SHIFT_ZONE;
+        x_end = world->centre.x + RADIUS;
+    }
+    printf("X: [%d..%d]\n", x_start, x_end);
+    for (int x_coord = x_start; x_coord <= x_end; x_coord++) {
+        uint32_t chunk = worldLoadChunk((VECTOR){
+            .x = x_coord,
+            .y = 0, // What should this be?
+            .z = z_shift_zone
+        });
+        printf(
+            "Loading: %d,%d => %d,%d\n",
+            x_coord, z_shift_zone,
+            arrayCoord(world, x, x_coord),
+            arrayCoord(world, z, z_shift_zone)
+        );
+        world->chunks[arrayCoord(world, x, x_coord)][arrayCoord(world, z, z_shift_zone)] = chunk;
+    }
+    // Unload -x_direction chunks
+    z_shift_zone = world->centre.z + (RADIUS * -z_direction);
+    printf("Z shift: %d\n", z_shift_zone);
+    for (int x_coord = x_start; x_coord <= x_end; x_coord++) {
+        uint32_t unloaded_chunk = worldUnloadChunk((VECTOR){
+            .x = x_coord,
+            .y = 0, // What should this be?
+            .z = z_shift_zone
+        });
+        printf(
+            "Unloading: %d,%d => %d,%d\n",
+            x_coord, z_shift_zone,
+            arrayCoord(world, x, x_coord),
+            arrayCoord(world, z, z_shift_zone)
+        );
+        world->chunks[arrayCoord(world, x, x_coord)][arrayCoord(world, z, z_shift_zone)] = unloaded_chunk;
+    }
+}
+
+void worldLoadChunksXZ(World* world, int8_t x_direction, int8_t z_direction) {
+    // Load (x_direction,z_direction) chunk
+    int32_t x_coord = world->centre.x + ((RADIUS + SHIFT_ZONE) * x_direction);
+    int32_t z_coord = world->centre.z + ((RADIUS + SHIFT_ZONE) * z_direction);
+    uint32_t loaded_chunk = worldLoadChunk((VECTOR) {
+        .x = x_coord,
+        .y = 0, // What should this be?
+        .z = z_coord
+    });
+    printf(
+        "Loading: %d,%d => %d,%d\n",
+        x_coord, z_coord,
+        arrayCoord(world, x, x_coord),
+        arrayCoord(world, z, z_coord)
+    );
+    world->chunks[arrayCoord(world, x, x_coord)][arrayCoord(world, z, z_coord)] = loaded_chunk;
+    // Unload (-x_direction,-z_direction) chunk
+    x_coord = world->centre.x + (RADIUS * -x_direction);
+    z_coord = world->centre.z + (RADIUS * -z_direction);
+    uint32_t unloaded_chunk = worldUnloadChunk((VECTOR) {
+        .x = x_coord,
+        .y = 0, // What should this be?
+        .z = z_coord
+    });
+    printf(
+        "Unloading: %d,%d => %d,%d\n",
+        x_coord, z_coord,
+        arrayCoord(world, x, x_coord),
+        arrayCoord(world, z, z_coord)
+    );
+    world->chunks[arrayCoord(world, x, x_coord)][arrayCoord(world, z, z_coord)] = unloaded_chunk;
+}
+
+void worldLoadChunks(World* world, const VECTOR* player_pos) {
+    // Check if we need to load
+    if (worldWithinLoadRadius(world, player_pos)) {
+        return;
+    }
+    // Calculate direction shifts
+    int8_t x_direction = sign(world->centre.x + player_pos->x);
+    printf("x direction: %d\n", x_direction);
+    int8_t z_direction = sign(world->centre.z + player_pos->z);
+    printf("Z direction: %d\n", z_direction);
+    // Load chunks
+    if (x_direction != 0) {
+        worldLoadChunksX(world, x_direction, z_direction);
+    }
+    printf("----\n");
+    if (z_direction != 0) {
+        worldLoadChunksZ(world, x_direction, z_direction);
+    }
+    if (x_direction != 0 && z_direction != 0) {
+        worldLoadChunksXZ(world, x_direction, z_direction);
+    }
+    // Move centre towards player position by 1 increment
+    world->centre.x += x_direction;
+    world->centre.z += z_direction;
+    // Shift chunks into centre of arrays
+}
+
 int main() {
     // In chunks
-    VECTOR player_pos = {0, 0, 0};
+    VECTOR player_pos = {1, 0, -1};
     World _world = {
         .centre = {
             .x = 0,
@@ -53,9 +221,9 @@ int main() {
             world->chunks[arrayCoord(world, x, x)][arrayCoord(world, z, z)] = 1;
         }
     }
-    printWorld(world);
+    worldPrint(world);
+    printf("====\n");
+    worldLoadChunks(world, &player_pos);
+    worldPrint(world);
     return 0;
 }
-
-
-#endif // PSX_MINECRAFT_TEST_H

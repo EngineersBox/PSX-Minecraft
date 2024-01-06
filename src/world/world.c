@@ -19,7 +19,7 @@ void worldRender(const World *world, DisplayContext *ctx, Transforms *transforms
 }
 
 void worldLoadChunks(World* world, const VECTOR* player_pos) {
-    
+
 }
 
 BlockID worldGetChunkBlock(const ChunkBlockPosition *position) {
