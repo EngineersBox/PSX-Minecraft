@@ -1,5 +1,8 @@
 # Build and run:
-#   docker build -t clion/ubuntu/cpp-env:1.0 -f Dockerfile.cpp-env-ubuntu .
+#   docker build \
+#    --build-arg="SDK_LOCATION=path/to/psn00bsdk" \
+#    -t <tag> \
+#    -f Dockerfile .
 
 FROM ubuntu:22.04
 
