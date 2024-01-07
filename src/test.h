@@ -72,6 +72,9 @@ void worldLoadChunksX(World* world, const int8_t x_direction, const int8_t z_dir
     } else if (z_direction == 1) {
         z_start = world->centre.z - RADIUS + SHIFT_ZONE;
         z_end = world->centre.z + RADIUS;
+    } else {
+        z_start = world->centre.z - RADIUS;
+        z_end = world->centre.z + RADIUS;
     }
     printf("Z: [%d..%d]\n", z_start, z_end);
     for (int z_coord = z_start; z_coord <= z_end; z_coord++) {
@@ -118,6 +121,9 @@ void worldLoadChunksZ(World* world, const int8_t x_direction, const int8_t z_dir
         x_end = world->centre.x + RADIUS - SHIFT_ZONE;
     } else if (x_direction == 1) {
         x_start = world->centre.x - RADIUS + SHIFT_ZONE;
+        x_end = world->centre.x + RADIUS;
+    } else {
+        x_start = world->centre.x - RADIUS;
         x_end = world->centre.x + RADIUS;
     }
     printf("X: [%d..%d]\n", x_start, x_end);
