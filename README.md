@@ -25,6 +25,28 @@ This will create several files in the `build` directory. Using the
 PCSX Redux emulator, you can load the `build/PSXMC.bin` CD image
 and run it.
 
+## Docker Environment
+
+Depending on the system you are building on (Windows/Linux/OSX) you may want to build locally,
+however, in the case that you are on OSX and want the ease of a development environment in
+Linux without the extra configuration headache, a Dockerfile has been provided that can be
+used with the `build_container.sh` script to build the project using given local path to the
+PSn00bSDK on your local machine (feel free to modify the Dockerfile and embed the SDK within it).
+
+So for example, if the SDK is at `/Users/Example/Library/psn00bsdk`, first build the docker
+image via
+
+```shell
+docker build --build-arg="SDK_LOCATION=/Users/Example/Library/psn00bsdk" -t psxmc:latest -f Dockerfile .
+```
+
+With this, use the utility script `build_container.sh <SDK location> [<image>]` to bundle assets
+and compile the project. For example
+
+```shell
+./build_container.sh /Users/Example/Library/psn00bsdk psxmc:latest
+```
+
 ## Snapshot
 
 Work so far, currently WIP chunk rendering with greedy meshing

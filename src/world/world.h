@@ -24,6 +24,7 @@
 
 typedef struct {
     VECTOR* center_chunk;
+    // ?QUESTION: Can we use a 2D ring buffer of Chunk* for the loaded chunks array?
     // X, Z, Y
     Chunk _chunks[AXIS_CHUNKS][AXIS_CHUNKS][AXIS_CHUNKS];
     cvector(Chunk) chunks;
