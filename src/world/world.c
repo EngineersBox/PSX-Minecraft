@@ -22,6 +22,7 @@ void worldInit(World* world) {
     const int z_end = world->centre.vz + LOADED_CHUNKS_RADIUS + SHIFT_ZONE;
     for (int x = x_start; x <= x_end; x++) {
         for (int z = z_start; z <= z_end; z++) {
+            printf("[WORLD] LOADING CHUNK (%d,%d)\n", x, z);
             world->chunks[arrayCoord(world, vx, x)][arrayCoord(world, vz, z)][0] = worldLoadChunk((VECTOR) {
                 .vx = x,
                 .vy = 0, // What should this be?

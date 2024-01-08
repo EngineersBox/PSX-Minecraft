@@ -72,6 +72,6 @@ CMake within the Docker context attached to CLion. To the following to set this 
 
 ## Snapshot
 
-Work so far, currently WIP chunk rendering with greedy meshing
+Work so far, current progress being made on world chunk loading/unloading and fixes to greedy meshing problems
 
 ![PSXMC](./docs/PSXMC.png)
