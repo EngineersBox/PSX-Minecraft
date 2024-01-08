@@ -33,6 +33,8 @@ typedef struct {
 } World;
 
 void worldInit(World* world);
+void worldDestroy(World* world);
+
 void worldRender(const World* world, DisplayContext* ctx, Transforms* transforms);
 
 Chunk* worldLoadChunk(VECTOR chunk_position);

@@ -154,6 +154,7 @@ int main() {
         display(&dctx);
     }
     // chunkDestroy(&chunk);
+    worldDestroy(&world);
     assetsFree();
     return 0;
 }

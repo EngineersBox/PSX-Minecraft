@@ -2,8 +2,6 @@
 
 #include <math_utils.h>
 
-#include "../util/cvector_utils.h"
-
 #define positiveModulo(i, n) ((i % n + n) % n)
 #define wrapCoord(world, axis, coord) positiveModulo(((world)->head.axis + (coord)), AXIS_CHUNKS)
 #define arrayCoord(world, axis, value) wrapCoord(\
@@ -29,6 +27,20 @@ void worldInit(World* world) {
                 .vy = 0, // What should this be?
                 .vz = z
             });
+        }
+    }
+}
+
+void worldDestroy(World* world) {
+    const int x_start = world->centre.vx - LOADED_CHUNKS_RADIUS - SHIFT_ZONE;
+    const int x_end = world->centre.vz + LOADED_CHUNKS_RADIUS + SHIFT_ZONE;
+    const int z_start = world->centre.vz - LOADED_CHUNKS_RADIUS - SHIFT_ZONE;
+    const int z_end = world->centre.vz + LOADED_CHUNKS_RADIUS + SHIFT_ZONE;
+    for (int x = x_start; x <= x_end; x++) {
+        for (int z = z_start; z <= z_end; z++) {
+            Chunk** chunk = world->chunks[arrayCoord(world, vx, x)][arrayCoord(world, vz, z)];
+            worldUnloadChunk(chunk[0]);
+            *chunk = NULL;
         }
     }
 }
