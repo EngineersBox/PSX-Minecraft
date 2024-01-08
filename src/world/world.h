@@ -10,7 +10,7 @@
 #include "../render/transforms.h"
 
 // Must be positive
-#define LOADED_CHUNKS_RADIUS 2
+#define LOADED_CHUNKS_RADIUS 0
 #define SHIFT_ZONE 1
 #define CENTER 1
 #if LOADED_CHUNKS_RADIUS <= 1
