@@ -17,6 +17,8 @@
 #define CENTRE_X (SCREEN_XRES >> 1)
 #define CENTRE_Y (SCREEN_YRES >> 1)
 
+extern CVECTOR clear_colour;
+
 // Double buffer structure
 typedef struct {
     DISPENV display_env;

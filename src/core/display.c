@@ -6,6 +6,13 @@
 
 #include "display.h"
 
+CVECTOR clear_colour = {
+    .r = 63,
+    .g = 0,
+    .b = 127,
+    .cd = 0
+};
+
 void initDisplay(DisplayContext* ctx) {
     // Reset GPU and install VSync event handler
     ResetGraph(0);
@@ -28,7 +35,12 @@ void initDisplay(DisplayContext* ctx) {
     SetDefDrawEnv(&ctx->db[0].draw_env, w, 0, w, h);
     scSetClipRect(0, 0, w, h);
     // Enable draw areas clear and dither processing
-    setRGB0(&ctx->db[0].draw_env, 63, 0, 127);
+    setRGB0(
+        &ctx->db[0].draw_env,
+        clear_colour.r,
+        clear_colour.g,
+        clear_colour.b
+    );
     // ctx->db[0].display_env.isinter = 1; // Interlace
     ctx->db[0].draw_env.isbg = 1; // Background
     ctx->db[0].draw_env.dtd = 1; // Dithered
@@ -36,7 +48,12 @@ void initDisplay(DisplayContext* ctx) {
     SetDefDispEnv(&ctx->db[1].display_env, w, 0, w, h);
     SetDefDrawEnv(&ctx->db[1].draw_env, 0, 0, w, h);
     // Enable draw areas clear and dither processing
-    setRGB0(&ctx->db[1].draw_env, 63, 0, 127);
+    setRGB0(
+        &ctx->db[1].draw_env,
+        clear_colour.r,
+        clear_colour.g,
+        clear_colour.b
+    );
     // ctx->db[1].display_env.isinter = 1; // Interlace
     ctx->db[1].draw_env.isbg = 1; // Background
     ctx->db[1].draw_env.dtd = 1; // Dithered
