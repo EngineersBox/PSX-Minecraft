@@ -19,6 +19,8 @@
     (value - (world->centre.axis - RADIUS - SHIFT_ZONE))\
 )
 
+#define PRINT_CHUNKS_ABSOLUTE 1
+
 typedef struct {
     int32_t x;
     int32_t y;
@@ -37,8 +39,11 @@ typedef struct {
 void worldPrint(World* world) {
     for (int x = 0; x < AXIS_SIZE; x++) {
         for (int z = 0; z < AXIS_SIZE; z++) {
-            // printf(" %d ", world->chunks[wrapCoord(world, x, x)][wrapCoord(world, z, z)]);
-            printf(" %d ", world->chunks[x][z]);
+            #if defined(PRINT_CHUNKS_ABSOLUTE) && PRINT_CHUNKS_ABSOLUTE == 1
+                printf(" %d ", world->chunks[x][z]);
+            #else
+                printf(" %d ", world->chunks[wrapCoord(world, x, x)][wrapCoord(world, z, z)]);
+            #endif
         }
         printf("\n");
     }

@@ -19,7 +19,8 @@
 })
 #define clamp(x, lower, upper) (min((upper), max((x), (lower))))
 
-#define sign(x) (((x) > 0) - ((x) < 0))
+#define sign(v) (((v) > 0) - ((v) < 0))
+#define absv(v) (v * sign(v))
 
 static void crossProduct(const SVECTOR* v0, const SVECTOR* v1, VECTOR* out) {
     out->vx = ((v0->vy * v1->vz) - (v0->vz * v1->vy)) >> 12;

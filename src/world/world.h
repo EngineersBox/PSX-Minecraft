@@ -23,16 +23,25 @@
 #define chunkArrayCoord(world, axis, value) ((LOADED_CHUNKS_RADIUS + SHIFT_ZONE + (world)->center_chunk.axis) + value)
 
 typedef struct {
-    VECTOR* center_chunk;
-    // ?QUESTION: Can we use a 2D ring buffer of Chunk* for the loaded chunks array?
+    VECTOR centre;
+    struct {
+        uint32_t vx;
+        uint32_t vz;
+    } head; // Top left, effective (0,0) of 2D array of chunks
     // X, Z, Y
-    Chunk _chunks[AXIS_CHUNKS][AXIS_CHUNKS][AXIS_CHUNKS];
+    Chunk* _chunks[AXIS_CHUNKS][AXIS_CHUNKS][1];
     cvector(Chunk) chunks;
 } World;
 
 void worldInit(World* world);
 void worldRender(const World* world, DisplayContext* ctx, Transforms* transforms);
 
+Chunk* worldLoadChunk(VECTOR chunk_position);
+Chunk* worldUnloadChunk(VECTOR chunk_position);
+void worldLoadChunksX(World* world, int8_t x_direction, int8_t z_direction);
+void worldLoadChunksZ(World* world, int8_t x_direction, int8_t z_direction);
+void worldLoadChunksXZ(World* world, int8_t x_direction, int8_t z_direction);
+void worldShiftChunks(World* world, int8_t x_direction, int8_t z_direction);
 void worldLoadChunks(World* world, const VECTOR* player_pos);
 
 BlockID worldGetChunkBlock(const ChunkBlockPosition* position);
