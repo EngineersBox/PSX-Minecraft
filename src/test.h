@@ -12,12 +12,11 @@
 #define WORLD_HEIGHT_CHUNKS 3
 
 #define positiveModulo(i, n) ((i % n + n) % n)
-
 #define wrapCoord(world, axis, coord) positiveModulo(((world)->head.axis + (coord)), AXIS_SIZE)
 #define arrayCoord(world, axis, value) wrapCoord(\
     world, \
     axis, \
-    ((RADIUS + SHIFT_ZONE + (world)->centre.axis) + value)\
+    (value - (world->centre.axis - RADIUS - SHIFT_ZONE))\
 )
 
 typedef struct {
@@ -38,7 +37,8 @@ typedef struct {
 void worldPrint(World* world) {
     for (int x = 0; x < AXIS_SIZE; x++) {
         for (int z = 0; z < AXIS_SIZE; z++) {
-            printf(" %d ", world->chunks[wrapCoord(world, x, x)][wrapCoord(world, z, z)]);
+            // printf(" %d ", world->chunks[wrapCoord(world, x, x)][wrapCoord(world, z, z)]);
+            printf(" %d ", world->chunks[x][z]);
         }
         printf("\n");
     }
@@ -217,7 +217,7 @@ void worldLoadChunks(World* world, const VECTOR* player_pos) {
     }
     // Calculate direction shifts
     int8_t x_direction = relativeDirection(world->centre.x, player_pos->x);
-    printf("x direction: %d\n", x_direction);
+    printf("X direction: %d\n", x_direction);
     int8_t z_direction = relativeDirection(world->centre.z, player_pos->z);
     printf("Z direction: %d\n", z_direction);
     // Load chunks
@@ -237,6 +237,7 @@ void worldLoadChunks(World* world, const VECTOR* player_pos) {
     // Move centre towards player position by 1 increment
     world->centre.x += x_direction;
     world->centre.z += z_direction;
+    printf("World centre: %d,%d\n", world->centre.x, world->centre.z);
 }
 
 int main() {
@@ -262,6 +263,7 @@ int main() {
     worldLoadChunks(world, &player_pos);
     worldPrint(world);
     player_pos.z = 2;
+    player_pos.x = 2;
     printf("====\n");
     worldLoadChunks(world, &player_pos);
     worldPrint(world);
