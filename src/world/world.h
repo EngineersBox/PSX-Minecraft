@@ -29,15 +29,14 @@ typedef struct {
         uint32_t vz;
     } head; // Top left, effective (0,0) of 2D array of chunks
     // X, Z, Y
-    Chunk* _chunks[AXIS_CHUNKS][AXIS_CHUNKS][1];
-    cvector(Chunk) chunks;
+    Chunk* chunks[AXIS_CHUNKS][AXIS_CHUNKS][1];
 } World;
 
 void worldInit(World* world);
 void worldRender(const World* world, DisplayContext* ctx, Transforms* transforms);
 
 Chunk* worldLoadChunk(VECTOR chunk_position);
-Chunk* worldUnloadChunk(VECTOR chunk_position);
+void worldUnloadChunk(Chunk* chunk);
 void worldLoadChunksX(World* world, int8_t x_direction, int8_t z_direction);
 void worldLoadChunksZ(World* world, int8_t x_direction, int8_t z_direction);
 void worldLoadChunksXZ(World* world, int8_t x_direction, int8_t z_direction);

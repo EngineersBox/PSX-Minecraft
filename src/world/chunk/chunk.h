@@ -32,7 +32,7 @@ void chunkDestroy(const Chunk* chunk);
 void chunkGenerate2DHeightMap(Chunk* chunk, const VECTOR* position);
 void chunkGenerate3DHeightMap(Chunk* chunk, const VECTOR* position);
 
-void chunkGenerateMesh(Chunk* chunk, Chunk* axis_neighbours[CHUNK_AXIS_NEIGHBOURS]);
+void chunkGenerateMesh(Chunk* chunk);
 void chunkClearMesh(Chunk* chunk);
 
 void chunkModifyVoxel(Chunk* chunk, const VECTOR* position, EBlockID block);

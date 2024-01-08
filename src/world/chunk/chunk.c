@@ -256,11 +256,7 @@ void createQuad(Chunk *chunk,
     primitive->code = attributes->tint.use;
 }
 
-BlockID chunkAxisGetBlock(Chunk* chunk, Chunk* axis_neighbours[CHUNK_AXIS_NEIGHBOURS]) {
-
-}
-
-void chunkGenerateMesh(Chunk *chunk, Chunk* axis_neighbours[CHUNK_AXIS_NEIGHBOURS]) {
+void chunkGenerateMesh(Chunk *chunk) {
     // 0: X, 1: Y, 2: Z
     for (int axis = 0; axis < CHUNK_DIRECTIONS; axis++) {
         const int axis1 = (axis + 1) % CHUNK_DIRECTIONS;

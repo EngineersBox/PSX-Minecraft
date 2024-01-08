@@ -126,21 +126,6 @@ int main() {
     init();
     World world;
     worldInit(&world);
-    cvector_iterator(Chunk) chunkIter = cvector_begin(world.chunks);
-    int index = 0;
-    for (int32_t x = 0; x < 1; x++) {
-        for (int32_t y = 0; y < 2; y++) {
-            for (int32_t z = -1; z < 0; z++) {
-                cvector_push_back(
-                    world.chunks,
-                    (Chunk) {}
-                );
-                Chunk* chunk = &chunkIter[index++];
-                chunk->position = (VECTOR){x, y, z};
-                chunkInit(chunk);
-            }
-        }
-    }
     // Chunk chunk;
     // chunk.position = (VECTOR) {0, 0, 0};
     // chunkInit(&chunk);
