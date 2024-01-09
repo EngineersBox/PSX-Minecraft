@@ -4,6 +4,7 @@
 #define PSX_MINECRAFT_DISPLAY_H
 
 #include <psxgpu.h>
+#include <psxgte.h>
 
 // DB struct array sizes
 #define ORDERING_TABLE_LENGTH 1024

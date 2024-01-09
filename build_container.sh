@@ -1,11 +1,9 @@
 #!/usr/bin/env bash
 
-SDK_LOCATION=$1
-IMAGE=${2:-"clion/ubuntu/cpp-env:1.0"}
+IMAGE=${1:-"psxmc:latest"}
 
 docker run -it \
   --rm \
-  -v "$SDK_LOCATION:/opt/psn00bsdk" \
   -v "$(pwd):/tmp/PSX-Minecraft" \
   -w "/tmp/PSX-Minecraft" \
   "$IMAGE" \

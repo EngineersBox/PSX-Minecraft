@@ -30,21 +30,21 @@ and run it.
 Depending on the system you are building on (Windows/Linux/OSX) you may want to build locally,
 however, in the case that you are on OSX and want the ease of a development environment in
 Linux without the extra configuration headache, a Dockerfile has been provided that can be
-used with the `build_container.sh` script to build the project using given local path to the
-PSn00bSDK on your local machine (feel free to modify the Dockerfile and embed the SDK within it).
+used with the `build_container.sh` script to build the project.
 
-So for example, if the SDK is at `/Users/Example/Library/psn00bsdk`, first build the docker
-image via
+First build the docker image, which will initialise a Linux distribution with all the necessary
+tooling and build the SDK. You an optionally specify a build arg to target a specific branch/commit/tag
+of the SDK repo with `--build-arg="REPO_TARGET=<branch/commit/tag>"`
 
 ```shell
-docker build --build-arg="SDK_LOCATION=/Users/Example/Library/psn00bsdk" -t psxmc:latest -f Dockerfile .
+docker build --build-arg="REPO_TARGET=master" -t psxmc:latest -f Dockerfile .
 ```
 
-With this, use the utility script `build_container.sh <SDK location> [<image>]` to bundle assets
-and compile the project. For example
+With this, use the utility script `build_container.sh [<image:tag>]` to bundle assets and compile the
+project. For example
 
 ```shell
-./build_container.sh /Users/Example/Library/psn00bsdk psxmc:latest
+./build_container.sh psxmc:latest
 ```
 
 ### CLion
@@ -55,20 +55,14 @@ CMake within the Docker context attached to CLion. To the following to set this 
 1. Open up settings and go to `Build, Execution, Deployment > Toolchains`
 2. Create a new Docker toolchain and set the image to the image you used in the build before
 3. Open the container settings
-4. Add a new host path with the following field values:
-    1. Host path: path to your `psn00bsdk` install
-    2. Container path: `/opt/psn00bsdk`
-5. Add a new environment variable with the following field values:
-    1. Name: `PSN00BSDK_LIBS`
-    2. Value: `/opt/psn00bsdk/lib/libpsn00b`
-6. Set the CMake option to `Docker CMake`
-7. Go to `Build, Execution, Deployment > CMake`
-8. Create a new profile
-9. Set the toolchain to the Docker toolchain you just created
-10. Add `--preset default` to the CMake options field
-11. Exit settings
-12. Verify that the Docker daemon is running on your local
-13. Reload CMake project
+4. Set the CMake option to `Docker CMake`
+5. Go to `Build, Execution, Deployment > CMake`
+6. Create a new profile
+7. Set the toolchain to the Docker toolchain you just created
+8. Add `--preset default` to the CMake options field
+9. Exit settings
+10. Verify that the Docker daemon is running on your local
+11. Reload CMake project
 
 ## Snapshot
 
