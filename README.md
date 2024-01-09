@@ -53,7 +53,7 @@ You can use the Dockerfile to double as a build environment for CLion so that yo
 CMake within the Docker context attached to CLion. To the following to set this up:
 
 1. Open up settings and go to `Build, Execution, Deployment > Toolchains`
-2. Create a new Docker toolchain and set the image to the image you used in the build before
+2. Create a new Docker toolchain and select the image you had build before
 3. Open the container settings
 4. Set the CMake option to `Docker CMake`
 5. Go to `Build, Execution, Deployment > CMake`
