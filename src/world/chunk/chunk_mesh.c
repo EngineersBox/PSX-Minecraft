@@ -43,20 +43,22 @@ void chunkMeshClear(ChunkMesh *mesh) {
 }
 
 // TODO: Move these to SMD renderer file as general methods
-void renderLine(SMD_PRIM *primitive, DisplayContext *ctx, Transforms *transforms) {
+int renderLine(SMD_PRIM *primitive, DisplayContext *ctx, Transforms *transforms) {
     // TODO
+    return 0;
 }
 
-void renderTriangle(SMD_PRIM *primitive, DisplayContext *ctx, Transforms *transforms) {
+int renderTriangle(SMD_PRIM *primitive, DisplayContext *ctx, Transforms *transforms) {
     // TODO
+    return 0;
 }
 
-void renderQuad(const ChunkMesh *mesh, SMD_PRIM *primitive, DisplayContext *ctx, Transforms *transforms) {
+int renderQuad(const ChunkMesh *mesh, SMD_PRIM *primitive, DisplayContext *ctx, Transforms *transforms) {
     // TODO: Generalise for textured and non-textured
     int p;
     cvector_iterator(SVECTOR) verticesIter = cvector_begin(mesh->vertices);
     cvector_iterator(SVECTOR) normalsIter = cvector_begin(mesh->normals);
-    const RECT texWindow = (RECT){
+    const RECT tex_window = (RECT){
         primitive->tu0 >> 3,
         primitive->tv0 >> 3,
         BLOCK_TEXTURE_SIZE >> 3,
@@ -72,15 +74,17 @@ void renderQuad(const ChunkMesh *mesh, SMD_PRIM *primitive, DisplayContext *ctx,
     gte_rtpt();
     gte_nclip();
     gte_stopz(&p);
-    if (p < 0) {
-        return;
+    // Avoid negative depth (behind camera) and zero
+    // for constraint clearing primitive in OT
+    if (p <= 0) {
+        return -1;
     }
     // Average screen Z result for four primtives
     gte_avsz4();
     gte_stotz(&p);
     // (the shift right operator is to scale the depth precision)
     if (p >> 2 <= 0 || p >> 2 >= ORDERING_TABLE_LENGTH) {
-        return;
+        return -1;
     }
     // Initialize a textured quad primitive
     setPolyFT4(pol4);
@@ -99,7 +103,7 @@ void renderQuad(const ChunkMesh *mesh, SMD_PRIM *primitive, DisplayContext *ctx,
         (DVECTOR *) &pol4->x1,
         (DVECTOR *) &pol4->x2,
         (DVECTOR *) &pol4->x3)) {
-        return;
+        return -1;
     }
     // Load primitive color even though gte_ncs() doesn't use it.
     // This is so the GTE will output a color result with the
@@ -144,30 +148,53 @@ void renderQuad(const ChunkMesh *mesh, SMD_PRIM *primitive, DisplayContext *ctx,
     ctx->primitive = (char*) pol4;
     // Bind a texture window to ensure wrapping across merged block face primitives
     DR_TWIN* ptwin = (DR_TWIN*) ctx->primitive;
-    setTexWindow(ptwin, &texWindow);
+    setTexWindow(ptwin, &tex_window);
     addPrim(ctx->db[ctx->active].ordering_table + (p >> 2), ptwin);
     ptwin++;
     ctx->primitive = (char*) ptwin;
+    return p >> 2;
 }
+
+#define updateOffset(new_offset) ({\
+    if ((new_offset) > 0 && (new_offset) < ordering_table_offset) {\
+        ordering_table_offset = (new_offset);\
+    }\
+})
 
 void chunkMeshRender(const ChunkMesh *mesh, DisplayContext *ctx, Transforms *transforms) {
     // printf("Primitives: %d\n", cvector_size(mesh->primitives));
+    int ordering_table_offset = ORDERING_TABLE_LENGTH - 1;
     for (cvector_iterator(SMD_PRIM) primitive = cvector_begin(mesh->primitives);
          primitive != cvector_end(mesh->primitives); primitive++) {
         // printf("[%d] Primitive type: %d @ %p\n", i++, primitive->prim_id.type, primitive);
         switch (primitive->prim_id.type) {
             case PRIM_TYPE_LINE:
-                renderLine(primitive, ctx, transforms);
+                updateOffset(renderLine(primitive, ctx, transforms));
                 break;
             case PRIM_TYPE_TRI:
-                renderTriangle(primitive, ctx, transforms);
+                updateOffset(renderTriangle(primitive, ctx, transforms));
                 break;
             case PRIM_TYPE_QUAD:
-                renderQuad(mesh, primitive, ctx, transforms);
+                updateOffset(renderQuad(mesh, primitive, ctx, transforms));
                 break;
             default:
                 printf("[ERROR] ChunkMesh - Unknown primitive type: %d\n", primitive->prim_id.type);
                 return;
         }
     }
+    // if (ordering_table_offset == ORDERING_TABLE_LENGTH - 1) {
+    //     return;
+    // }
+    // // Clear window constraints
+    // DR_TWIN* ptwin = (DR_TWIN*) ctx->primitive;
+    // const RECT tex_window = {
+    //     .x = 0,
+    //     .y = 0,
+    //     .w = 0,
+    //     .h = 0
+    // };
+    // setTexWindow(ptwin, &tex_window);
+    // addPrim(ctx->db[ctx->active].ordering_table + ordering_table_offset - 1, ptwin);
+    // ptwin++;
+    // ctx->primitive = (char*) ptwin;
 }

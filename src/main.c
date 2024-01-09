@@ -125,6 +125,9 @@ int main() {
     };
     init();
     World world;
+    world.centre.vx = 0;
+    world.centre.vy = 1;
+    world.centre.vz = 0;
     worldInit(&world);
     // Chunk chunk;
     // chunk.position = (VECTOR) {0, 0, 0};
@@ -148,6 +151,8 @@ int main() {
         // Draw cubes
         // cubeRender(&cube, &dctx, &transforms);
         // cubeRender(&cube1, &dctx, &transforms);
+        // Clear window constraints
+        displayClearConstraints(&dctx);
         // Flush font to screen
         FntFlush(-1);
         // Swap buffers and draw the primitives
@@ -184,7 +189,6 @@ int _main() {
     int should_break = 0;
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 4; j++) {
-            SVECTOR *curr;
             printf("VERTEX %d: %p\n", j, obj.vec1);
             cvector_metadata_t *meta = cvector_vec_to_base(obj.vec1);
             printf("  [BEFORE] Size: %d, Cap: %d, Dest: %p\n", meta->size, meta->capacity, meta->elem_destructor);
@@ -197,7 +201,7 @@ int _main() {
             meta2 = cvector_vec_to_base(obj.vec2);
             printf("  [Normal: %p] [AFTER] Size: %d, Cap: %d, Dest: %p\n", obj.vec2, meta2->size, meta2->capacity,
                    meta2->elem_destructor);
-            curr = &obj.vec1[i1];
+            SVECTOR *curr = &obj.vec1[i1];
             curr->vx = i;
             curr->vy = j;
             curr->vz = i1;
@@ -210,14 +214,13 @@ int _main() {
         if (should_break) {
             break;
         }
-        SVECTOR *curr1;
         printf("NORMAL: %p\n", obj.vec2);
         cvector_metadata_t *meta2 = cvector_vec_to_base(obj.vec2);
         printf("  [BEFORE] Size: %d, Cap: %d, Dest: %p\n", meta2->size, meta2->capacity, meta2->elem_destructor);
         cvector_push_back(obj.vec2, (SVECTOR){});
         meta2 = cvector_vec_to_base(obj.vec2);
         printf("  [AFTER] Size: %d, Cap: %d, Dest: %p\n", meta2->size, meta2->capacity, meta2->elem_destructor);
-        curr1 = &obj.vec2[i2];
+        SVECTOR *curr1 = &obj.vec2[i2];
         curr1->vx = i;
         curr1->vx = i2;
         curr1->vz = rand();

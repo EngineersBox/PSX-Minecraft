@@ -96,3 +96,18 @@ void display(DisplayContext* ctx) {
     // Start drawing the OT of the last buffer
     DrawOTag(ctx->db[1 - ctx->active].ordering_table + (ORDERING_TABLE_LENGTH - 1));
 }
+
+void displayClearConstraints(DisplayContext* ctx) {
+    DR_TWIN* ptwin = (DR_TWIN*) ctx->primitive;
+    // Zerod fields indicates clearing/reset any applied texture windows
+    const RECT tex_window = {
+        .x = 0,
+        .y = 0,
+        .w = 0,
+        .h = 0
+    };
+    setTexWindow(ptwin, &tex_window);
+    addPrim(ctx->db[ctx->active].ordering_table, ptwin);
+    ptwin++;
+    ctx->primitive = (char*) ptwin;
+}
