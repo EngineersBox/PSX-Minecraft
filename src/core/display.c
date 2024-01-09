@@ -99,7 +99,7 @@ void display(DisplayContext* ctx) {
 
 void displayClearConstraints(DisplayContext* ctx) {
     DR_TWIN* ptwin = (DR_TWIN*) ctx->primitive;
-    // Zerod fields indicates clearing/reset any applied texture windows
+    // Zeroed fields indicates clearing/reset any applied texture windows
     const RECT tex_window = {
         .x = 0,
         .y = 0,
