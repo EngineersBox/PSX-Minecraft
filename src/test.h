@@ -11,6 +11,7 @@
 
 #define WORLD_HEIGHT_CHUNKS 3
 
+#define cmp(a, b) (((b) > (a)) - ((b) < (a)))
 #define positiveModulo(i, n) ((i % n + n) % n)
 #define wrapCoord(world, axis, coord) positiveModulo(((world)->head.axis + (coord)), AXIS_SIZE)
 #define arrayCoord(world, axis, value) wrapCoord(\
@@ -221,9 +222,9 @@ void worldLoadChunks(World* world, const VECTOR* player_pos) {
         return;
     }
     // Calculate direction shifts
-    int8_t x_direction = relativeDirection(world->centre.x, player_pos->x);
+    int8_t x_direction = cmp(world->centre.x, player_pos->x);
     printf("X direction: %d\n", x_direction);
-    int8_t z_direction = relativeDirection(world->centre.z, player_pos->z);
+    int8_t z_direction = cmp(world->centre.z, player_pos->z);
     printf("Z direction: %d\n", z_direction);
     // Load chunks
     if (x_direction != 0) {

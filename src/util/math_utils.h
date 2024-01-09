@@ -5,22 +5,65 @@
 
 #include <stdint.h>
 
+/**
+ * @brief Factor to shift left/right to convert int to/from fixed-point format
+ */
 #define FIXED_POINT_SHIFT 12
 
+/**
+ * @brief Compute the maximum of two numbers
+ * @param a - first number
+ * @param b - second number
+ * @return a if a > b, otherwise b
+ */
 #define max(a,b) ({ \
     __typeof__(a) _a = (a); \
     __typeof__(b) _b = (b); \
     _a > _b ? _a : _b; \
 })
+
+/**
+ * @brief Compute the minimum of two numbers
+ * @param a - first number
+ * @param b - second number
+ * @return a if a < b, otherwise b
+ */
 #define min(a,b) ({ \
     __typeof__(a) _a = (a); \
     __typeof__(b) _b = (b); \
     _a < _b ? _a : _b; \
 })
-#define clamp(x, lower, upper) (min((upper), max((x), (lower))))
 
-#define sign(v) (((v) > 0) - ((v) < 0))
-#define absv(v) (v * sign(v))
+/**
+ * @brief Clamp a value between an upper and lower bound
+ * @param x - value
+ * @param lower - lower bound on value
+ * @param upper - upper bound on value
+ * @return x if lower <= x <= upper, lower if x < lower, higher if x > higher
+ */
+#define clamp(x, lower, upper) (min(upper, max(x, lower)))
+
+/**
+ * @brief Compare two numbers and return an integer indicating larger value
+ * @param a - first number
+ * @param b - second number
+ * @return 0 if a == b, 1 if b > a, -1 if b < a
+ */
+#define cmp(a, b) (((b) > (a)) - ((b) < (a)))
+
+/**
+ * @brief Retrieve the sign (1 for positive, 0 for negative) of a number
+ * @param v - number to apply to
+ * @return 1 if v >= 0, otherwise 0
+ */
+#define sign(v) cmp(0, v)
+
+/**
+ * @brief Absolute value of an number
+ * @param v - number to apply to
+ * @return -v if v < 0, otherwise v
+ */
+#define absv(v) ((v) * sign(v))
 
 static void crossProduct(const SVECTOR* v0, const SVECTOR* v1, VECTOR* out) {
     out->vx = ((v0->vy * v1->vz) - (v0->vz * v1->vy)) >> 12;
@@ -43,7 +86,7 @@ typedef struct _BVECTOR {
  * @param y - int16_t divisor (number performing division)
  * @return Result of division x / y
  */
-#define fixedDiv(x, y) (int16_t)(((int32_t)x << 12) / y)
+#define fixedDiv(x, y) (int16_t)(((int32_t)x << FIXED_POINT_SHIFT) / y)
 
 /**
  * @brief Multiplies two fixed point int16_t numbers as x * y

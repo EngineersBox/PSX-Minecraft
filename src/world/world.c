@@ -10,10 +10,6 @@
     (value - (world->centre.axis - LOADED_CHUNKS_RADIUS - SHIFT_ZONE))\
 )
 
-void __chunkDestructor(void *element) {
-    chunkDestroy(element);
-}
-
 // World should be loaded before invoking this method
 void worldInit(World* world) {
     const int x_start = world->centre.vx - LOADED_CHUNKS_RADIUS - SHIFT_ZONE;
@@ -63,6 +59,8 @@ void worldRender(const World *world, DisplayContext *ctx, Transforms *transforms
     }
 }
 
+// NOTE: Should this just take int32_t x,y,z params instead of a
+//       a VECTOR struct to avoid creating needless stack objects?
 Chunk* worldLoadChunk(const VECTOR chunk_position) {
     Chunk* chunk = malloc(sizeof(Chunk));
     assert(chunk != NULL);
@@ -133,7 +131,7 @@ void worldLoadChunksZ(World* world, const int8_t x_direction, const int8_t z_dir
         });
         world->chunks[arrayCoord(world, vx, x_coord)][arrayCoord(world, vz, z_shift_zone)][0] = chunk;
     }
-    // Unload -x_direction chunks
+    // Unload -z_direction chunks
     z_shift_zone = world->centre.vz + (LOADED_CHUNKS_RADIUS * -z_direction);
     for (int x_coord = x_start; x_coord <= x_end; x_coord++) {
         Chunk** chunk = world->chunks[arrayCoord(world, vx, x_coord)][arrayCoord(world, vz, z_shift_zone)];
@@ -188,8 +186,8 @@ void worldLoadChunks(World* world, const VECTOR* player_pos) {
         return;
     }
     // Calculate direction shifts
-    const int8_t x_direction = relativeDirection(world->centre.vx, player_pos->vx);
-    const int8_t z_direction = relativeDirection(world->centre.vz, player_pos->vz);
+    const int8_t x_direction = cmp(world->centre.vx, player_pos->vx);
+    const int8_t z_direction = cmp(world->centre.vz, player_pos->vz);
     // Load chunks
     if (x_direction != 0) {
         worldLoadChunksX(world, x_direction, z_direction);
@@ -208,9 +206,9 @@ void worldLoadChunks(World* world, const VECTOR* player_pos) {
 }
 
 BlockID worldGetChunkBlock(const ChunkBlockPosition *position) {
-
+    // TODO: Implement this
 }
 
 BlockID worldGetBlock(const VECTOR *position) {
-
+    // TODO: Implement this
 }

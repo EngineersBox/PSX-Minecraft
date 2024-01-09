@@ -6,9 +6,6 @@
 #include <inline_c.h>
 
 #include "resources/assets.h"
-#include "core/display.h"
-#include "primitive/primitive.h"
-#include "primitive/clip.h"
 #include "core/input.h"
 #include "core/camera.h"
 #include "primitive/cube.h"
@@ -55,7 +52,6 @@ const SVECTOR CUBE_VERTICES[8] = {
 
 // Reference texture data
 extern const uint32_t tim_texture[];
-
 
 void init() {
     initDisplay(&dctx);
