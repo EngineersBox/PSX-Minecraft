@@ -5,6 +5,7 @@
 * [x] Implement texture loading via LZP compressed archive traversal
 * [x] Complete display/render context implementation
 * [x] Create standalone cube struct and load + render methods
+* [x] Greedy meshing for chunk rendering
 * [ ] Create loading screen to visualise loading progress. Something simple like a loading bar for now. Make it more
   fancy at a later point.
 * [ ] Camera far plane cutoff with fog relative to chunk render distance
