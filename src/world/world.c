@@ -215,7 +215,7 @@ void worldLoadChunks(World* world, const VECTOR* player_pos) {
 BlockID worldGetChunkBlock(const World* world, const ChunkBlockPosition* position) {
     const Chunk* chunk = world->chunks[arrayCoord(world, vx, position->chunk.vx)][arrayCoord(world, vz, position->chunk.vz)][0];
     if (chunk == NULL) {
-        return AIR;
+        return NONE;
     }
     return chunk->blocks[chunkBlockIndex(position->block.vx, position->block.vy, position->block.vz)];
 }

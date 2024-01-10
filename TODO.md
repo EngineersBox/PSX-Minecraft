@@ -22,5 +22,5 @@
 * [x] Fix last texture window causing font render to be weird
 * [ ] Figure out why odd numbered chunks render, no x-valued chunks render and Y alternate chunks don't render
 * [ ] Figure out why CHUNK_SIZE that isn't 8 doesn't work (e.g. 16), in that nothing renders (no errors logged)
-* [ ] Fix mesh rendering of last faces connected to neighbouring chunk, normal seems inverted. 
+* [x] Fix mesh rendering of last faces connected to neighbouring chunk, normal seems inverted. 
   This might be the inverse of changes made with windowing and indexing to fix chunk rendering initially.

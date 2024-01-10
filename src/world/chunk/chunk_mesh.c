@@ -15,11 +15,11 @@ void __svectorDestructor(void *elem) {
 }
 
 void chunkMeshInit(ChunkMesh *mesh) {
-    // !IMPORTANT: This null init is important for cvector to ensure allocation is done initially
+    // NOTE: This null init is important for cvector to ensure allocation is done initially
     mesh->primitives = NULL;
     mesh->vertices = NULL;
     mesh->normals = NULL;
-    // !BUG: These small pre-allocated sizes cause issues with realloc (out of bounds read/write)
+    // BUG: These small pre-allocated sizes cause issues with realloc (out of bounds read/write)
     printf("Init primitives\n");
     cvector_init(mesh->primitives, MESH_PRIMITIVE_VEC_INITIAL_CAPCITY, __primtiveDestructor);
     printf("Init vertices\n");
@@ -155,46 +155,24 @@ int renderQuad(const ChunkMesh *mesh, SMD_PRIM *primitive, DisplayContext *ctx, 
     return p >> 2;
 }
 
-#define updateOffset(new_offset) ({\
-    if ((new_offset) > 0 && (new_offset) < ordering_table_offset) {\
-        ordering_table_offset = (new_offset);\
-    }\
-})
-
 void chunkMeshRender(const ChunkMesh *mesh, DisplayContext *ctx, Transforms *transforms) {
     // printf("Primitives: %d\n", cvector_size(mesh->primitives));
-    int ordering_table_offset = ORDERING_TABLE_LENGTH - 1;
     for (cvector_iterator(SMD_PRIM) primitive = cvector_begin(mesh->primitives);
          primitive != cvector_end(mesh->primitives); primitive++) {
         // printf("[%d] Primitive type: %d @ %p\n", i++, primitive->prim_id.type, primitive);
         switch (primitive->prim_id.type) {
-            case PRIM_TYPE_LINE:
-                updateOffset(renderLine(primitive, ctx, transforms));
+            case PRIMITIVE_TYPE_LINE:
+                renderLine(primitive, ctx, transforms);
                 break;
-            case PRIM_TYPE_TRI:
-                updateOffset(renderTriangle(primitive, ctx, transforms));
+            case PRIMITIVE_TYPE_TRIANGLE:
+                renderTriangle(primitive, ctx, transforms);
                 break;
-            case PRIM_TYPE_QUAD:
-                updateOffset(renderQuad(mesh, primitive, ctx, transforms));
+            case PRIMITIVE_TYPE_QUAD:
+                renderQuad(mesh, primitive, ctx, transforms);
                 break;
             default:
                 printf("[ERROR] ChunkMesh - Unknown primitive type: %d\n", primitive->prim_id.type);
                 return;
         }
     }
-    // if (ordering_table_offset == ORDERING_TABLE_LENGTH - 1) {
-    //     return;
-    // }
-    // // Clear window constraints
-    // DR_TWIN* ptwin = (DR_TWIN*) ctx->primitive;
-    // const RECT tex_window = {
-    //     .x = 0,
-    //     .y = 0,
-    //     .w = 0,
-    //     .h = 0
-    // };
-    // setTexWindow(ptwin, &tex_window);
-    // addPrim(ctx->db[ctx->active].ordering_table + ordering_table_offset - 1, ptwin);
-    // ptwin++;
-    // ctx->primitive = (char*) ptwin;
 }

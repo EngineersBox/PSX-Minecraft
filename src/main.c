@@ -38,7 +38,7 @@ MATRIX color_mtx = {
 MATRIX light_mtx = {
     /* X,  Y,  Z */
     .m = {
-        { -fixedDiv(ONE, 2), -fixedDiv(ONE, 2), -fixedDiv(ONE, 2) },
+        { -FIXED_1_2, -FIXED_1_2, -FIXED_1_2 },
         { 0, 0, 0 },
         { 0, 0, 0 }
     }

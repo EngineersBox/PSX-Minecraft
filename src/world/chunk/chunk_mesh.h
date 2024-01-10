@@ -22,9 +22,9 @@
 #endif
 
 // TODO: Move these to SMD renderer file as general properties
-#define PRIM_TYPE_LINE 0
-#define PRIM_TYPE_TRI 1
-#define PRIM_TYPE_QUAD 2
+#define PRIMITIVE_TYPE_LINE 0
+#define PRIMITIVE_TYPE_TRIANGLE 1
+#define PRIMITIVE_TYPE_QUAD 2
 
 #define PRIM_LIGHTING_NONE 0 // No shading (no normals)
 #define PRIM_LIGHTING_FLAT 1 // Flat shading (1 normal)

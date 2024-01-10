@@ -90,7 +90,20 @@ typedef struct _BVECTOR {
  * @param y - int16_t divisor (number performing division)
  * @return Result of division x / y
  */
-#define fixedDiv(x, y) (int16_t)(((int32_t)x << FIXED_POINT_SHIFT) / y)
+#define fixedDiv(x, y) (int16_t)((((int32_t)x << FIXED_POINT_SHIFT) / y) >> FIXED_POINT_SHIFT)
+
+#define FIXED_1_2 (fixedDiv(ONE, 2))
+#define FIXED_1_4 (fixedDiv(ONE, 4))
+#define FIXED_1_8 (fixedDiv(ONE, 8))
+#define FIXED_1_16 (fixedDiv(ONE, 16))
+#define FIXED_1_32 (fixedDiv(ONE, 32))
+#define FIXED_1_64 (fixedDiv(ONE, 64))
+#define FIXED_1_128 (fixedDiv(ONE, 128))
+#define FIXED_1_256 (fixedDiv(ONE, 256))
+#define FIXED_1_512 (fixedDiv(ONE, 512))
+#define FIXED_1_1024 (fixedDiv(ONE, 1024))
+#define FIXED_1_2048 (fixedDiv(ONE, 2048))
+#define FIXED_1_4096 (fixedDiv(ONE, ONE))
 
 /**
  * @brief Multiplies two fixed point int16_t numbers as x * y

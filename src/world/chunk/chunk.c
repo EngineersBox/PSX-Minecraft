@@ -106,11 +106,11 @@ typedef struct {
 #define compareMask(m1, m2) ((m1).block == (m2).block && (m1).normal == (m2).normal)
 
 const INDEX INDICES[6] = {
-    // {0, 2, 1, 3},
-    // {2, 0, 3, 1},
+    {0, 2, 1, 3},
+    {2, 0, 3, 1},
 
-    {1, 0, 3, 2},
-    {0, 1, 2, 3},
+    // {1, 0, 3, 2},
+    // {0, 1, 2, 3},
     {1, 0, 3, 2},
     {0, 1, 2, 3},
     {1, 0, 3, 2},
@@ -137,7 +137,7 @@ void createQuad(Chunk *chunk,
     SMD_PRIM *primitive = &primitiveIter[smd->n_prims];
     smd->n_prims++;
     primitive->prim_id = (SMD_PRI_TYPE){};
-    primitive->prim_id.type = PRIM_TYPE_QUAD;
+    primitive->prim_id.type = PRIMITIVE_TYPE_QUAD;
     primitive->prim_id.l_type = PRIM_LIGHTING_FLAT;
     primitive->prim_id.c_type = PRIM_COLOURING_GOURAUD;
     primitive->prim_id.texture = 1;
