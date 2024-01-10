@@ -9,7 +9,8 @@
 #include "../noise.h"
 #include "../../util/math_utils.h"
 
-#define inlineVec(vec) (vec).vx, (vec).vy, (vec).vz
+// Forward declaration
+BlockID worldGetBlock(const World *world, const VECTOR *position);
 
 void chunkInit(Chunk *chunk/*, const int seed*/) {
     printf("[CHUNK: %d,%d,%d] Initialising mesh\n", inlineVec(chunk->position));
@@ -17,8 +18,6 @@ void chunkInit(Chunk *chunk/*, const int seed*/) {
     chunkClearMesh(chunk);
     printf("[CHUNK: %d,%d,%d] Generating 2D height map\n", inlineVec(chunk->position));
     chunkGenerate2DHeightMap(chunk, &chunk->position);
-    printf("[CHUNK: %d,%d,%d] Generating mesh\n", inlineVec(chunk->position));
-    chunkGenerateMesh(chunk);
     // chunk->noise.seed = seed;
 }
 
@@ -48,9 +47,6 @@ void chunkGenerate2DHeightMap(Chunk *chunk, const VECTOR *position) {
             for (int32_t y = CHUNK_SIZE; y > 0; y--) {
                 const int32_t worldY = (position->vy * CHUNK_SIZE) + (CHUNK_SIZE - y)
                                        + (CHUNK_SIZE * 16); // !IMPORTANT: TESTING OFFSET
-                // TODO: Change these chunkBlockIndex to be global lookups through world
-                //       to ensure that blocks in next chunk boundary are visible to this chunk
-                //       so the mesh is seamless
                 if (worldY < height - 3) {
                     chunk->blocks[chunkBlockIndex(x, y - 1, z)] = (BlockID) STONE;
                     // printf("STONE @ %d,%d,%d\n", x, y - 1, z);
@@ -110,8 +106,11 @@ typedef struct {
 #define compareMask(m1, m2) ((m1).block == (m2).block && (m1).normal == (m2).normal)
 
 const INDEX INDICES[6] = {
-    {0, 2, 1, 3},
-    {2, 0, 3, 1},
+    // {0, 2, 1, 3},
+    // {2, 0, 3, 1},
+
+    {1, 0, 3, 2},
+    {0, 1, 2, 3},
     {1, 0, 3, 2},
     {0, 1, 2, 3},
     {1, 0, 3, 2},
@@ -220,7 +219,7 @@ void createQuad(Chunk *chunk,
     vertex->vy = currentVert->vy;
     vertex->vz = currentVert->vz;
     // printf("V3: {%d,%d,%d}\n", vertex->vx, vertex->vy, vertex->vz);
-    // !BUG: Somehow there is a quad that is created with 2 vertices in the complete wrong place.
+    // !BUG: Somehow there is a quad that is created with 2 vertices in completely the wrong place.
     // const SVECTOR *verts[4] = {v0, v1, v2, v3};
     // #define cmpVert(a, b) (a->vx == b->vx && a->vy == b->vy && a->vz == b->vz)
     //     for (int i = 0; i < 4; i++) {
@@ -258,6 +257,7 @@ void createQuad(Chunk *chunk,
 
 void chunkGenerateMesh(Chunk *chunk) {
     // 0: X, 1: Y, 2: Z
+    VECTOR query_position = {};
     for (int axis = 0; axis < CHUNK_DIRECTIONS; axis++) {
         const int axis1 = (axis + 1) % CHUNK_DIRECTIONS;
         const int axis2 = (axis + 2) % CHUNK_DIRECTIONS;
@@ -272,20 +272,16 @@ void chunkGenerateMesh(Chunk *chunk) {
             uint16_t n = 0;
             for (chunkIter[axis2] = 0; chunkIter[axis2] < CHUNK_SIZE; chunkIter[axis2]++) {
                 for (chunkIter[axis1] = 0; chunkIter[axis1] < CHUNK_SIZE; chunkIter[axis1]++) {
-                    const BlockID currentBlock = chunkGetBlock(
-                        chunk,
-                        chunkIter[0], // + chunk->position.vx,
-                        chunkIter[1], // + chunk->position.vy,
-                        chunkIter[2] // + chunk->position.vz
-                    );
-                    const bool currentOpaque = BLOCKS[currentBlock].type != EMPTY;
-                    const BlockID compareBlock = chunkGetBlock(
-                        chunk,
-                        chunkIter[0] + axisMask[0], // + chunk->position.vx,
-                        chunkIter[1] + axisMask[1], // + chunk->position.vy,
-                        chunkIter[2] + axisMask[2] // + chunk->position.vz
-                    );
-                    const bool compareOpaque = BLOCKS[compareBlock].type != EMPTY;
+                    query_position.vx = chunkIter[0] + (chunk->position.vx * CHUNK_SIZE);
+                    query_position.vy = chunkIter[1] + (chunk->position.vy * CHUNK_SIZE);
+                    query_position.vz = chunkIter[2] + (chunk->position.vz * CHUNK_SIZE);
+                    const BlockID currentBlock = worldGetBlock(chunk->world, &query_position);
+                    const bool currentOpaque = blockIsOpaque(currentBlock);
+                    query_position.vx += axisMask[0];
+                    query_position.vy += axisMask[1];
+                    query_position.vz += axisMask[2];
+                    const BlockID compareBlock = worldGetBlock(chunk->world, &query_position);
+                    const bool compareOpaque = blockIsOpaque(compareBlock);
                     if (currentOpaque == compareOpaque) {
                         mask[n++] = (Mask){(uint16_t) NONE, 0};
                     } else if (currentOpaque) {

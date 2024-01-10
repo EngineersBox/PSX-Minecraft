@@ -16,16 +16,34 @@ void worldInit(World* world) {
     const int x_end = world->centre.vz + LOADED_CHUNKS_RADIUS + SHIFT_ZONE;
     const int z_start = world->centre.vz - LOADED_CHUNKS_RADIUS - SHIFT_ZONE;
     const int z_end = world->centre.vz + LOADED_CHUNKS_RADIUS + SHIFT_ZONE;
+    printf("[WORLD] Loading chunks\n");
     for (int x = x_start; x <= x_end; x++) {
         for (int z = z_start; z <= z_end; z++) {
-            printf("[WORLD] LOADING CHUNK (%d,%d)\n", x, z);
-            world->chunks[arrayCoord(world, vx, x)][arrayCoord(world, vz, z)][0] = worldLoadChunk((VECTOR) {
+            printf("[CHUNK: %d,%d,%d)] Generating heightmap and terrain\n", x, 0, z);
+            Chunk* chunk = worldLoadChunk(world, (VECTOR) {
                 .vx = x,
                 .vy = 0, // What should this be?
                 .vz = z
             });
+            world->chunks[arrayCoord(world, vx, x)][arrayCoord(world, vz, z)][0] = chunk;
         }
     }
+    printf("[WORLD] Building chunk meshes\n");
+    for (int x = x_start; x <= x_end; x++) {
+        for (int z = z_start; z <= z_end; z++) {
+            printf("[CHUNK: %d,%d,%d] Generating mesh\n", x, 0, z);
+            Chunk* chunk = world->chunks[arrayCoord(world, vx, x)][arrayCoord(world, vz, z)][0];
+            chunkGenerateMesh(chunk);
+            printf(
+                "[CHUNK: %d,%d,%d] Mesh { Primitives: %d, Vertices: %d, Normals: %d }\n",
+                x, 0, z,
+                chunk->mesh.smd.n_prims,
+                chunk->mesh.smd.n_verts,
+                chunk->mesh.smd.n_norms
+            );
+        }
+    }
+    printf("[WORLD] Finished loading\n");
 }
 
 void worldDestroy(World* world) {
@@ -61,12 +79,13 @@ void worldRender(const World *world, DisplayContext *ctx, Transforms *transforms
 
 // NOTE: Should this just take int32_t x,y,z params instead of a
 //       a VECTOR struct to avoid creating needless stack objects?
-Chunk* worldLoadChunk(const VECTOR chunk_position) {
+Chunk* worldLoadChunk(World* world, const VECTOR chunk_position) {
     Chunk* chunk = malloc(sizeof(Chunk));
     assert(chunk != NULL);
     chunk->position.vx = chunk_position.vx;
     chunk->position.vy = chunk_position.vy;
     chunk->position.vz = chunk_position.vz;
+    chunk->world = world;
     chunkInit(chunk);
     return chunk;
 }
@@ -92,7 +111,7 @@ void worldLoadChunksX(World* world, const int8_t x_direction, const int8_t z_dir
         z_end = world->centre.vz + LOADED_CHUNKS_RADIUS;
     }
     for (int z_coord = z_start; z_coord <= z_end; z_coord++) {
-        Chunk* chunk = worldLoadChunk((VECTOR){
+        Chunk* chunk = worldLoadChunk(world, (VECTOR){
             .vx = x_shift_zone,
             .vy = 0, // What should this be?
             .vz = z_coord
@@ -124,7 +143,7 @@ void worldLoadChunksZ(World* world, const int8_t x_direction, const int8_t z_dir
         x_end = world->centre.vx + LOADED_CHUNKS_RADIUS;
     }
     for (int x_coord = x_start; x_coord <= x_end; x_coord++) {
-        Chunk* chunk = worldLoadChunk((VECTOR){
+        Chunk* chunk = worldLoadChunk(world, (VECTOR){
             .vx = x_coord,
             .vy = 0, // What should this be?
             .vz = z_shift_zone
@@ -144,7 +163,7 @@ void worldLoadChunksXZ(World* world, const int8_t x_direction, const int8_t z_di
     // Load (x_direction,z_direction) chunk
     int32_t x_coord = world->centre.vx + ((LOADED_CHUNKS_RADIUS + SHIFT_ZONE) * x_direction);
     int32_t z_coord = world->centre.vz + ((LOADED_CHUNKS_RADIUS + SHIFT_ZONE) * z_direction);
-    Chunk* loaded_chunk = worldLoadChunk((VECTOR) {
+    Chunk* loaded_chunk = worldLoadChunk(world, (VECTOR) {
         .vx = x_coord,
         .vy = 0, // What should this be?
         .vz = z_coord
@@ -167,17 +186,6 @@ __attribute__((always_inline))
 inline int worldWithinLoadRadius(const World* world, const VECTOR* player_pos) {
     return absv(world->centre.vx - player_pos->vx) < LOADED_CHUNKS_RADIUS - 1
         && absv(world->centre.vz - player_pos->vz) < LOADED_CHUNKS_RADIUS - 1;
-}
-
-__attribute__((always_inline))
-inline int relativeDirection(const int32_t from, const int32_t to) {
-    if (to == from) {
-        return 0;
-    }
-    if (to < from) {
-        return -1;
-    }
-    return 1;
 }
 
 void worldLoadChunks(World* world, const VECTOR* player_pos) {
@@ -205,10 +213,26 @@ void worldLoadChunks(World* world, const VECTOR* player_pos) {
     world->centre.vz += z_direction;
 }
 
-BlockID worldGetChunkBlock(const ChunkBlockPosition *position) {
-    // TODO: Implement this
+BlockID worldGetChunkBlock(const World* world, const ChunkBlockPosition* position) {
+    const Chunk* chunk = world->chunks[arrayCoord(world, vx, position->chunk.vx)][arrayCoord(world, vz, position->chunk.vz)][0];
+    if (chunk == NULL) {
+        return AIR;
+    }
+    return chunk->blocks[chunkBlockIndex(position->block.vx, position->block.vy, position->block.vz)];
 }
 
-BlockID worldGetBlock(const VECTOR *position) {
-    // TODO: Implement this
+BlockID worldGetBlock(const World* world, const VECTOR* position) {
+    const ChunkBlockPosition chunk_block_position = (ChunkBlockPosition) {
+        .chunk = (VECTOR) {
+            .vx = position->vx / CHUNK_SIZE,
+            .vy = position->vy / CHUNK_SIZE,
+            .vz = position->vz / CHUNK_SIZE,
+        },
+        .block = (VECTOR) {
+            .vx = positiveModulo(position->vx, CHUNK_SIZE),
+            .vy = positiveModulo(position->vy, CHUNK_SIZE),
+            .vz = positiveModulo(position->vz, CHUNK_SIZE),
+        }
+    };
+    return worldGetChunkBlock(world, &chunk_block_position);
 }

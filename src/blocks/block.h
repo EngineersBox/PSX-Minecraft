@@ -91,6 +91,7 @@ static const Block BLOCKS[BLOCK_COUNT] = {
     }
 };
 
-#define blockAttribute(block, attr) (BLOCKS[(Blocks) (block)].(attr))
+#define blockAttribute(blockID, attr) (BLOCKS[(blockID)].attr)
+#define blockIsOpaque(blockID) ((blockID) != NONE && blockAttribute(blockID, type) != EMPTY)
 
 #endif // PSX_MINECRAFT_BLOCK_H

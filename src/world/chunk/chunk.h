@@ -19,7 +19,11 @@
 
 #define chunkBlockIndex(x, y, z) ((x) + ((y) * CHUNK_SIZE) + ((z) * CHUNK_SIZE * CHUNK_SIZE))
 
+// Forward declaration
+typedef struct World World;
+
 typedef struct {
+    World* world;
     VECTOR position;
     ChunkMesh mesh;
     // fnl_state noise;

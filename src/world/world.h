@@ -19,10 +19,7 @@
 #define AXIS_CHUNKS (((LOADED_CHUNKS_RADIUS + SHIFT_ZONE) * 2) + CENTER)
 #endif
 
-// world = World*
-#define chunkArrayCoord(world, axis, value) ((LOADED_CHUNKS_RADIUS + SHIFT_ZONE + (world)->center_chunk.axis) + value)
-
-typedef struct {
+typedef struct World {
     VECTOR centre;
     struct {
         uint32_t vx;
@@ -37,7 +34,7 @@ void worldDestroy(World* world);
 
 void worldRender(const World* world, DisplayContext* ctx, Transforms* transforms);
 
-Chunk* worldLoadChunk(VECTOR chunk_position);
+Chunk* worldLoadChunk(World* world, VECTOR chunk_position);
 void worldUnloadChunk(Chunk* chunk);
 void worldLoadChunksX(World* world, int8_t x_direction, int8_t z_direction);
 void worldLoadChunksZ(World* world, int8_t x_direction, int8_t z_direction);
@@ -45,7 +42,7 @@ void worldLoadChunksXZ(World* world, int8_t x_direction, int8_t z_direction);
 void worldShiftChunks(World* world, int8_t x_direction, int8_t z_direction);
 void worldLoadChunks(World* world, const VECTOR* player_pos);
 
-BlockID worldGetChunkBlock(const ChunkBlockPosition* position);
-BlockID worldGetBlock(const VECTOR* position);
+BlockID worldGetChunkBlock(const World* world, const ChunkBlockPosition* position);
+BlockID worldGetBlock(const World* world, const VECTOR* position);
 
 #endif // PSX_MINECRAFT_WORLD_H

@@ -10,6 +10,7 @@
 #include "core/camera.h"
 #include "primitive/cube.h"
 #include "world/world.h"
+#include "util/math_utils.h"
 
 DisplayContext dctx = {
     .active = 0,
@@ -24,9 +25,11 @@ Input input = {};
 // source color when using gte_nccs(). 4096 is 1.0 in this matrix
 // A column of zeroes effectively disables the light source.
 MATRIX color_mtx = {
-    ONE * 3 / 4, 0, 0, /* Red   */
-    ONE * 3 / 4, 0, 0, /* Green */
-    ONE * 3 / 4, 0, 0 /* Blue  */
+    .m = {
+        { ONE * 3 / 4, 0, 0 }, /* Red   */
+        { ONE * 3 / 4, 0, 0 }, /* Green */
+        { ONE * 3 / 4, 0, 0 } /* Blue  */
+    }
 };
 
 // Light matrix
@@ -34,9 +37,11 @@ MATRIX color_mtx = {
 // An entire row of zeroes effectively disables the light source.
 MATRIX light_mtx = {
     /* X,  Y,  Z */
-    -2048, -2048, -2048,
-    0, 0, 0,
-    0, 0, 0
+    .m = {
+        { -fixedDiv(ONE, 2), -fixedDiv(ONE, 2), -fixedDiv(ONE, 2) },
+        { 0, 0, 0 },
+        { 0, 0, 0 }
+    }
 };
 
 const SVECTOR CUBE_VERTICES[8] = {
@@ -66,41 +71,41 @@ void init() {
     assetsLoad();
 }
 
-static int random[128] = {
-    1, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1,
-    1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0,
-    0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1, 0, 1, 1,
-    0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1, 0, 0, 1, 0, 0, 1, 1
-};
+// static int random[128] = {
+//     1, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1,
+//     1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0,
+//     0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1, 0, 1, 1,
+//     0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1, 0, 0, 1, 0, 0, 1, 1
+// };
+//
+// void initTestBlocks(Chunk *chunk) {
+//     // for (int x = 0; x < CHUNK_SIZE; x++) {
+//     //     for (int z = 0; z < CHUNK_SIZE; z++) {
+//     //         for (int y = 0; y < CHUNK_SIZE; y++) {
+//     //             chunk->blocks[chunkBlockIndex(x, y, z)] = (BlockID) STONE;
+//     //         }
+//     //     }
+//     // }
+//     for (int x = 0; x < CHUNK_SIZE; x++) {
+//         for (int z = 0; z < CHUNK_SIZE; z++) {
+//             for (int y = 0; y < 3; y++) {
+//                 if (y == 0) {
+//                     chunk->blocks[chunkBlockIndex(x, y, z)] = (BlockID) STONE;
+//                 } else if (y == 1) {
+//                     chunk->blocks[chunkBlockIndex(x, y, z)] = random[x + (z * CHUNK_SIZE)] == 1
+//                                                                   ? (BlockID) DIRT
+//                                                                   : (BlockID) AIR;
+//                 } else if (y == 2) {
+//                     chunk->blocks[chunkBlockIndex(x, y, z)] = random[64 + x + (z * CHUNK_SIZE)] == 1
+//                                                                   ? (BlockID) GRASS
+//                                                                   : (BlockID) AIR;
+//                 }
+//             }
+//         }
+//     }
+// }
 
-void initTestBlocks(Chunk *chunk) {
-    // for (int x = 0; x < CHUNK_SIZE; x++) {
-    //     for (int z = 0; z < CHUNK_SIZE; z++) {
-    //         for (int y = 0; y < CHUNK_SIZE; y++) {
-    //             chunk->blocks[chunkBlockIndex(x, y, z)] = (BlockID) STONE;
-    //         }
-    //     }
-    // }
-    for (int x = 0; x < CHUNK_SIZE; x++) {
-        for (int z = 0; z < CHUNK_SIZE; z++) {
-            for (int y = 0; y < 3; y++) {
-                if (y == 0) {
-                    chunk->blocks[chunkBlockIndex(x, y, z)] = (BlockID) STONE;
-                } else if (y == 1) {
-                    chunk->blocks[chunkBlockIndex(x, y, z)] = random[x + (z * CHUNK_SIZE)] == 1
-                                                                  ? (BlockID) DIRT
-                                                                  : (BlockID) AIR;
-                } else if (y == 2) {
-                    chunk->blocks[chunkBlockIndex(x, y, z)] = random[64 + x + (z * CHUNK_SIZE)] == 1
-                                                                  ? (BlockID) GRASS
-                                                                  : (BlockID) AIR;
-                }
-            }
-        }
-    }
-}
-
-void cameraReset(Camera *camera) {
+void cameraReset(Camera* camera) {
     camera->position = (VECTOR){0, ONE * 0, 0};
     camera->rotation = (VECTOR){0, 0, 0};
     camera->mode = 0;
