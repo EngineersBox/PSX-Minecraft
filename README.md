@@ -64,8 +64,14 @@ CMake within the Docker context attached to CLion. To the following to set this 
 10. Verify that the Docker daemon is running on your local
 11. Reload CMake project
 
-## Snapshot
+## Progress
 
-Work so far, current progress being made on world chunk loading/unloading and fixes to greedy meshing problems
+Work so far, current progress being made on world chunk loading/unloading, inter-chunk meshing and fixes to greedy
+meshing problems with rogue vertex creation.
+
+|                                                 |                                                 |
+|-------------------------------------------------|-------------------------------------------------|
+| ![Inter-Chunk Meshing](./docs/line_cross_1.png) | ![Inter-Chunk Meshing](./docs/line_cross_2.png) |
+
 
 ![PSXMC](./docs/PSXMC.png)
