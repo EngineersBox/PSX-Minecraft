@@ -126,7 +126,7 @@ int main() {
     };
     init();
     World world;
-    world.centre.vx = 0;
+    world.centre.vx = 0; // BUG: Setting this to -1 creates bad reads during rendering
     world.centre.vy = 1;
     world.centre.vz = 0;
     worldInit(&world);
