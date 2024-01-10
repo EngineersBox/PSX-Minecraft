@@ -2,7 +2,6 @@
 
 #include <math_utils.h>
 
-#define positiveModulo(i, n) ((i % n + n) % n)
 #define wrapCoord(world, axis, coord) positiveModulo(((world)->head.axis + (coord)), AXIS_CHUNKS)
 #define arrayCoord(world, axis, value) wrapCoord(\
     world, \
@@ -222,17 +221,6 @@ BlockID worldGetChunkBlock(const World* world, const ChunkBlockPosition* positio
 }
 
 BlockID worldGetBlock(const World* world, const VECTOR* position) {
-    const ChunkBlockPosition chunk_block_position = (ChunkBlockPosition) {
-        .chunk = (VECTOR) {
-            .vx = position->vx / CHUNK_SIZE,
-            .vy = position->vy / CHUNK_SIZE,
-            .vz = position->vz / CHUNK_SIZE,
-        },
-        .block = (VECTOR) {
-            .vx = positiveModulo(position->vx, CHUNK_SIZE),
-            .vy = positiveModulo(position->vy, CHUNK_SIZE),
-            .vz = positiveModulo(position->vz, CHUNK_SIZE),
-        }
-    };
+    const ChunkBlockPosition chunk_block_position = worldToChunkBlockPosition(position, CHUNK_SIZE);
     return worldGetChunkBlock(world, &chunk_block_position);
 }

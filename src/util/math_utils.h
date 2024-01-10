@@ -65,6 +65,8 @@
  */
 #define absv(v) ((v) * sign(v))
 
+#define positiveModulo(i, n) ((i % n + n) % n)
+
 static void crossProduct(const SVECTOR *v0, const SVECTOR *v1, VECTOR *out) {
     out->vx = ((v0->vy * v1->vz) - (v0->vz * v1->vy)) >> 12;
     out->vy = ((v0->vz * v1->vx) - (v0->vx * v1->vz)) >> 12;

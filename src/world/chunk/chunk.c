@@ -219,7 +219,7 @@ void createQuad(Chunk *chunk,
     vertex->vy = currentVert->vy;
     vertex->vz = currentVert->vz;
     // printf("V3: {%d,%d,%d}\n", vertex->vx, vertex->vy, vertex->vz);
-    // !BUG: Somehow there is a quad that is created with 2 vertices in completely the wrong place.
+    // BUG: Somehow there is a quad that is created with 2 vertices in completely the wrong place.
     // const SVECTOR *verts[4] = {v0, v1, v2, v3};
     // #define cmpVert(a, b) (a->vx == b->vx && a->vy == b->vy && a->vz == b->vz)
     //     for (int i = 0; i < 4; i++) {
@@ -236,9 +236,9 @@ void createQuad(Chunk *chunk,
     SVECTOR *norm = NULL;
     printf("BEFORE norm\n");
     nextRenderAttribute(normals, n0, n_norms, norm, normalsIter);
-    // !BUG: Something weird here during realloc in cvector_push_back
+    // BUG: Something weird here during realloc in cvector_push_back
     printf("AFTER: %p\n", norm);
-    norm->vx = (axisMask[0] * mask->normal) * ONE; // !BUG: These produce out of bounds indexing on the 'norm' instance?
+    norm->vx = (axisMask[0] * mask->normal) * ONE; // BUG: These produce out of bounds indexing on the 'norm' instance?
     norm->vy = (axisMask[1] * mask->normal) * ONE;
     norm->vz = (axisMask[2] * mask->normal) * ONE;
     const Texture *texture = &textures[BLOCK_TEXTURES];

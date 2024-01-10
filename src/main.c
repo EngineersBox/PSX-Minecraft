@@ -165,6 +165,8 @@ int main() {
     return 0;
 }
 
+/** Minimal reproducable example for smashing of reallocated cvectors */
+
 typedef struct {
     SMD smd;
     cvector(SVECTOR) vec1;

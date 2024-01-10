@@ -5,10 +5,6 @@
 
 #include <psxgte.h>
 
-VECTOR worldToBlockPosition(const VECTOR* position);
-VECTOR worldToLocalBlockPosition(const VECTOR* position, int chunk_size);
-VECTOR worldToChunkPosition(const VECTOR* position, int chunk_size);
-
 typedef struct {
     VECTOR chunk;
     VECTOR block;
