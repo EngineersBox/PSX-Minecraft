@@ -158,7 +158,7 @@ int renderQuad(const ChunkMesh *mesh, SMD_PRIM *primitive, DisplayContext *ctx, 
 void chunkMeshRender(const ChunkMesh *mesh, DisplayContext *ctx, Transforms *transforms) {
     // printf("Primitives: %d\n", cvector_size(mesh->primitives));
     for (cvector_iterator(SMD_PRIM) primitive = cvector_begin(mesh->primitives);
-         primitive != cvector_end(mesh->primitives); primitive++) {
+         primitive < cvector_end(mesh->primitives); primitive++) {
         // printf("[%d] Primitive type: %d @ %p\n", i++, primitive->prim_id.type, primitive);
         switch (primitive->prim_id.type) {
             case PRIMITIVE_TYPE_LINE:

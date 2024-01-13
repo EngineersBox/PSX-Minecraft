@@ -138,8 +138,8 @@ void createQuad(Chunk *chunk,
     smd->n_prims++;
     primitive->prim_id = (SMD_PRI_TYPE){};
     primitive->prim_id.type = PRIMITIVE_TYPE_QUAD;
-    primitive->prim_id.l_type = PRIM_LIGHTING_FLAT;
-    primitive->prim_id.c_type = PRIM_COLOURING_GOURAUD;
+    primitive->prim_id.l_type = PRIMITIVE_LIGHTING_FLAT;
+    primitive->prim_id.c_type = PRIMITIVE_COLOURING_GOURAUD;
     primitive->prim_id.texture = 1;
     primitive->prim_id.blend = 0; // TODO: Check this
     primitive->prim_id.zoff = 0; // TODO: Check this
@@ -191,28 +191,28 @@ void createQuad(Chunk *chunk,
     const SVECTOR *v1;
     const SVECTOR *v2;
     const SVECTOR *v3;
-    printf("Vertex\n");
+    // printf("Vertex\n");
     nextRenderAttribute(vertices, v0, n_verts, vertex, verticesIter);
     const SVECTOR *currentVert = v0 = &vertices[indices.v0];
     vertex->vx = currentVert->vx;
     vertex->vy = currentVert->vy;
     vertex->vz = currentVert->vz;
     // printf("V0: {%d,%d,%d}\n", vertex->vx, vertex->vy, vertex->vz);
-    printf("Vertex\n");
+    // printf("Vertex\n");
     nextRenderAttribute(vertices, v1, n_verts, vertex, verticesIter);
     currentVert = v1 = &vertices[indices.v1];
     vertex->vx = currentVert->vx;
     vertex->vy = currentVert->vy;
     vertex->vz = currentVert->vz;
     // printf("V1: {%d,%d,%d}\n", vertex->vx, vertex->vy, vertex->vz);
-    printf("Vertex\n");
+    // printf("Vertex\n");
     nextRenderAttribute(vertices, v2, n_verts, vertex, verticesIter);
     currentVert = v2 = &vertices[indices.v2];
     vertex->vx = currentVert->vx;
     vertex->vy = currentVert->vy;
     vertex->vz = currentVert->vz;
     // printf("V2: {%d,%d,%d}\n", vertex->vx, vertex->vy, vertex->vz);
-    printf("Vertex\n");
+    // printf("Vertex\n");
     nextRenderAttribute(vertices, v3, n_verts, vertex, verticesIter);
     currentVert = v3 = &vertices[indices.v3];
     vertex->vx = currentVert->vx;
@@ -234,10 +234,10 @@ void createQuad(Chunk *chunk,
     //     }
     // Create normal for this quad
     SVECTOR *norm = NULL;
-    printf("BEFORE norm\n");
+    // printf("BEFORE norm\n");
     nextRenderAttribute(normals, n0, n_norms, norm, normalsIter);
     // BUG: Something weird here during realloc in cvector_push_back
-    printf("AFTER: %p\n", norm);
+    // printf("AFTER: %p\n", norm);
     norm->vx = (axisMask[0] * mask->normal) * ONE; // BUG: These produce out of bounds indexing on the 'norm' instance?
     norm->vy = (axisMask[1] * mask->normal) * ONE;
     norm->vz = (axisMask[2] * mask->normal) * ONE;
@@ -252,7 +252,7 @@ void createQuad(Chunk *chunk,
     primitive->r0 = attributes->tint.r;
     primitive->g0 = attributes->tint.g;
     primitive->b0 = attributes->tint.b;
-    primitive->code = attributes->tint.use;
+    primitive->code = attributes->tint.cd;
 }
 
 void chunkGenerateMesh(Chunk *chunk) {

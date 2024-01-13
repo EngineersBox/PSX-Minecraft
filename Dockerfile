@@ -1,12 +1,17 @@
 # Build and run:
 #   docker build \
-#    [--build-arg="REPO_TARGET=<branch/commit/tag>"]
+#    [--build-arg="REPO_TARGET=<username/reponame>"]
+#    [--build-arg="REPO_COMMIT_ISH=<branch/commit/tag>"]
+#    [--build-arg="GCC_MIPSEL_ELF_TAG=<Lameguy64/PSn00bSDK release tag>"]
+#    [--build-arg="CACHEBUST=$(date +%s)"]
 #    -t <tag> \
 #    -f Dockerfile .
 
 FROM ubuntu:22.04
 
-ARG REPO_TARGET=master
+ARG REPO_TARGET=Lameguy64/PSn00bSDK
+ARG REPO_COMMIT_ISH=master
+ARG GCC_MIPSEL_ELF_TAG=v0.24
 
 RUN DEBIAN_FRONTEND="noninteractive" apt-get update && apt-get -y install tzdata
 
@@ -66,25 +71,26 @@ ENV PSN00BSDK_LIBS="/opt/psn00bsdk/lib/libpsn00b"
 ENV PATH="$PATH:/opt/psn00bsdk/mipsel-none-elf-gcc/bin:/opt/psn00bsdk/bin"
 
 WORKDIR /opt
+# Docker cache avoidance to detect new commits
+ARG CACHEBUST=0
 # Clone SDK repo
-RUN git clone https://github.com/Lameguy64/PSn00bSDK.git
+RUN git clone "https://github.com/$REPO_TARGET.git"
 # No capitals for you!
 RUN mv PSn00bSDK psn00bsdk
 
 WORKDIR /opt/psn00bsdk
 # Checkout target branch/commit/tag
-RUN git checkout "$REPO_TARGET"
+RUN git checkout "$REPO_COMMIT_ISH"
 # Initialise submodule dependencies
 RUN git submodule update --init --recursive
 # Pull and unpack GCC
-RUN wget https://github.com/Lameguy64/PSn00bSDK/releases/download/v0.24/gcc-mipsel-none-elf-12.3.0-linux.zip
-RUN unzip gcc-mipsel-none-elf-12.3.0-linux.zip -d /opt/psn00bsdk/mipsel-none-elf-gcc
-RUN rm gcc-mipsel-none-elf-12.3.0-linux.zip
+RUN wget "https://github.com/Lameguy64/PSn00bSDK/releases/download/$GCC_MIPSEL_ELF_TAG/gcc-mipsel-none-elf-12.3.0-linux.zip" \
+    && unzip gcc-mipsel-none-elf-12.3.0-linux.zip -d /opt/psn00bsdk/mipsel-none-elf-gcc \
+    && rm gcc-mipsel-none-elf-12.3.0-linux.zip
 # Build the SDK
 RUN cmake --preset default --install-prefix /opt/psn00bsdk .
 # Double build for some weird permissions issues
 # RUN cmake --build ./build
-RUN cmake --build ./build
-RUN cmake --install ./build
+RUN cmake --build ./build && cmake --install ./build
 
 WORKDIR /

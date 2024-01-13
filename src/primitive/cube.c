@@ -89,7 +89,7 @@ void cubeRender(Cube *cube, DisplayContext *ctx, Transforms *transforms) {
         // This is so the GTE will output a color result with the
         // correct primitive code.
         const TextureAttributes attributes = cube->texture_face_attrib[i];
-        if (attributes.tint.use) {
+        if (attributes.tint.cd) {
             setRGB0(
                 pol4,
                 attributes.tint.r,
@@ -102,7 +102,7 @@ void cubeRender(Cube *cube, DisplayContext *ctx, Transforms *transforms) {
         gte_ldv0(&CUBE_NORMS[i]);
         // Apply RGB tinting to lighting calculation result on the basis
         // that it is enabled. This corresponds to the column based calc
-        if (attributes.tint.use) {
+        if (attributes.tint.cd) {
             // Normal Color Column Single
             gte_nccs();
         } else {

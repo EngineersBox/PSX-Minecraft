@@ -9,6 +9,8 @@
 #include "../core/display.h"
 #include "../render/transforms.h"
 
+#define WORLD_CHUNKS_HEIGHT 1
+
 // Must be positive
 #define LOADED_CHUNKS_RADIUS 0
 #define SHIFT_ZONE 1
@@ -26,7 +28,7 @@ typedef struct World {
         uint32_t vz;
     } head; // Top left, effective (0,0) of 2D array of chunks
     // X, Z, Y
-    Chunk* chunks[AXIS_CHUNKS][AXIS_CHUNKS][1];
+    Chunk* chunks[AXIS_CHUNKS][AXIS_CHUNKS][WORLD_CHUNKS_HEIGHT];
 } World;
 
 void worldInit(World* world);

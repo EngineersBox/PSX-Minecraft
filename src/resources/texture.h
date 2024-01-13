@@ -3,9 +3,8 @@
 #ifndef PSX_MINECRAFT_TEXTURE_H
 #define PSX_MINECRAFT_TEXTURE_H
 
+#include <psxgte.h>
 #include <stdint.h>
-
-#include "colour.h"
 
 typedef struct {
     uint16_t tpage;
@@ -17,7 +16,7 @@ typedef struct {
     uint8_t v;
     uint8_t w;
     uint8_t h;
-    RGB tint;
+    CVECTOR tint;
 } TextureAttributes;
 
 #endif // PSX_MINECRAFT_TEXTURE_H

@@ -26,12 +26,12 @@
 #define PRIMITIVE_TYPE_TRIANGLE 1
 #define PRIMITIVE_TYPE_QUAD 2
 
-#define PRIM_LIGHTING_NONE 0 // No shading (no normals)
-#define PRIM_LIGHTING_FLAT 1 // Flat shading (1 normal)
-#define PRIM_LIGHTING_SMOOTH 2 // Smooth shading (3 normals per vertex)
+#define PRIMITIVE_LIGHTING_NONE 0 // No shading (no normals)
+#define PRIMITIVE_LIGHTING_FLAT 1 // Flat shading (1 normal)
+#define PRIMITIVE_LIGHTING_SMOOTH 2 // Smooth shading (3 normals per vertex)
 
-#define PRIM_COLOURING_SOLID 0
-#define PRIM_COLOURING_GOURAUD 1
+#define PRIMITIVE_COLOURING_SOLID 0
+#define PRIMITIVE_COLOURING_GOURAUD 1
 
 typedef struct {
     SMD smd;

@@ -111,7 +111,7 @@ void cameraReset(Camera* camera) {
     camera->mode = 0;
 }
 
-int main() {
+int _main() {
     VECTOR look_pos = {0};
     Camera camera = {
         .position = {0, ONE * -300, ONE * -300},
@@ -127,12 +127,13 @@ int main() {
     init();
     World world;
     world.centre.vx = 0; // BUG: Setting this to -1 creates bad reads during rendering
-    world.centre.vy = 1;
+    world.centre.vy = 0;
     world.centre.vz = 0;
     worldInit(&world);
     // Chunk chunk;
-    // chunk.position = (VECTOR) {0, 0, 0};
+    // chunk.position = (VECTOR) {0, 1, 0};
     // chunkInit(&chunk);
+    // chunkGenerateMesh(&chunk);
     // Chunk chunk1;
     // chunk1.position = (VECTOR) {1, 1, 0};
     // initTestBlocks(&chunk1);
@@ -183,7 +184,7 @@ void initRep(TestMinRep *rep) {
     cvector_init(rep->vec2, 1, __destruct);
 }
 
-int _main() {
+int main() {
     init();
     TestMinRep obj;
     initRep(&obj);
