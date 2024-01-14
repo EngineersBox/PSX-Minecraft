@@ -6,7 +6,7 @@
 #include "../core/display.h"
 #include "../render/transforms.h"
 #include "../resources/assets.h"
-#include "../primitive/primitive.h"
+#include "../util/preprocessor.h"
 
 #define BLOCK_SIZE 50
 #define BLOCK_FACES 6
@@ -16,16 +16,27 @@
 typedef uint8_t BlockID;
 
 typedef enum _BlockType {
-    EMPTY = 0,
-    SOLID,
-    STAIR,
-    SLAB,
-    CROSS
+    BLOCKTYPE_EMPTY = 0,
+    BLOCKTYPE_SOLID,
+    BLOCKTYPE_STAIR,
+    BLOCKTYPE_SLAB,
+    BLOCKTYPE_CROSS,
+    BLOCKTYPE_HASH
 } BlockType;
+
+typedef enum _Orientation {
+    ORIENTATION_POS_X = 0,
+    ORIENTATION_NEG_X,
+    ORIENTATION_POS_Y,
+    ORIENTATION_NEG_Y,
+    ORIENTATION_POS_Z,
+    ORIENTATION_NEG_Z
+} Orientation;
 
 typedef struct _Block {
     BlockID id;
     BlockType type;
+    Orientation orientation;
     TextureAttributes faceAttributes[BLOCK_FACES];
     char* name;
 } Block;
@@ -35,63 +46,59 @@ void blockRender(Block* block, DisplayContext* ctx, Transforms* transforms);
 #define BLOCK_COUNT 256
 
 typedef enum _BlockID {
-    NONE = -1,
-    AIR,
-    STONE,
-    DIRT,
-    GRASS
+    BLOCKID_NONE = -1,
+    BLOCKID_AIR,
+    BLOCKID_STONE,
+    BLOCKID_DIRT,
+    BLOCKID_GRASS
 } EBlockID;
 
+// Order
+// - 0: -Z FRONT
+// - 1: +Z BACK
+// - 2: -Y TOP
+// - 3: +Y BOTTOM
+// - 4: -X LEFT
+// - 5: +X RIGHT
+#define declareSingleTextureFaceAttributes(neg_z, pos_z, neg_y, pos_y, neg_x, pos_x) { \
+    {(neg_z) * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, {0}}, \
+    {(pos_z) * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, {0}}, \
+    {(neg_y) * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, {0}}, \
+    {(pos_y) * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, {0}}, \
+    {(neg_x) * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, {0}}, \
+    {(pos_x) * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, {0}} \
+}
+#define defaultFaceAttributes(index) declareSingleTextureFaceAttributes(index, index, index, index, index, index)
+
+#define declareBlock(_id, _name, _type, _orientation, face_attributes) (Block) {\
+    .id = (BlockID) _id,\
+    .type = (BlockType) _type,\
+    .orientation = (Orientation) _orientation,\
+    .faceAttributes = face_attributes,\
+    .name = _name\
+}
+#define declareFixedBlock(_id, _name, _type, face_attributes) declareBlock( \
+    _id, \
+    _name, \
+    _type, \
+    ORIENTATION_POS_X, \
+    P99_PROTECT(face_attributes) \
+)
+#define declareSolidBlock(_id, _name, face_attributes) declareFixedBlock( \
+    _id, \
+    _name, \
+    BLOCKTYPE_SOLID, \
+    P99_PROTECT(face_attributes) \
+)
 
 static const Block BLOCKS[BLOCK_COUNT] = {
-    (Block) {
-        .id = (BlockID) AIR,
-        .type = (BlockType) EMPTY,
-        .faceAttributes = {},
-        .name = "air"
-    },
-    (Block) {
-        .id = (BlockID) STONE,
-        .type = SOLID,
-        .faceAttributes = {
-            {1 * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, {0}}, // -Z FRONT
-            {1 * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, {0}}, // +Z BACK
-            {1 * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, {0}}, // -Y TOP
-            {1 * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, {0}}, // +Y BOTTOM
-            {1 * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, {0}}, // -X LEFT
-            {1 * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, {0}}  // +X RIGHT
-        },
-        .name = "stone"
-    },
-    (Block) {
-        .id = (BlockID) DIRT,
-        .type = SOLID,
-        .faceAttributes = {
-            {2 * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, {0}}, // -Z FRONT
-            {2 * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, {0}}, // +Z BACK
-            {2 * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, {0}}, // -Y TOP
-            {2 * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, {0}}, // +Y BOTTOM
-            {2 * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, {0}}, // -X LEFT
-            {2 * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, {0}}  // +X RIGHT
-        },
-        .name = "dirt"
-    },
-    (Block) {
-        .id = (BlockID) GRASS,
-        .type = SOLID,
-        .faceAttributes = {
-            {3 * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, {0}}, // -Z FRONT
-            {3 * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, {0}}, // +Z BACK
-            {2 * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, {0}}, // -Y BOTTOM
-            {0 * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, {0, 155, 0, 1}}, // +Y TOP
-            {3 * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, {0}}, // -X LEFT
-            {3 * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, {0}}  // +X RIGHT
-        },
-        .name = "grass"
-    }
+    declareBlock(BLOCKID_AIR, "air", BLOCKTYPE_EMPTY, ORIENTATION_POS_X, {}),
+    declareSolidBlock(BLOCKID_STONE, "stone", defaultFaceAttributes(1)),
+    declareSolidBlock(BLOCKID_DIRT, "dirt", defaultFaceAttributes(2)),
+    declareSolidBlock(BLOCKID_GRASS, "grass", declareSingleTextureFaceAttributes(3,3,2,0,3,3)),
 };
 
 #define blockAttribute(blockID, attr) (BLOCKS[(blockID)].attr)
-#define blockIsOpaque(blockID) ((blockID) != NONE && blockAttribute(blockID, type) != EMPTY)
+#define blockIsOpaque(blockID) ((blockID) != BLOCKID_NONE && blockAttribute(blockID, type) != BLOCKTYPE_EMPTY)
 
 #endif // PSX_MINECRAFT_BLOCK_H
