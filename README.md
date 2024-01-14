@@ -33,8 +33,17 @@ Linux without the extra configuration headache, a Dockerfile has been provided t
 used with the `build_container.sh` script to build the project.
 
 First build the docker image, which will initialise a Linux distribution with all the necessary
-tooling and build the SDK. You an optionally specify a build arg to target a specific branch/commit/tag
-of the SDK repo with `--build-arg="REPO_TARGET=<branch/commit/tag>"`
+tooling and build the SDK. The following are optional arguments you can provide:
+
+* `--build-arg="REPO_TARGET=<user name>/<repo name>"` specify the namespaced repo (potential a fork) to build from. Defaults
+  to `Lameguy64/PSn00bSDK`
+* `--build-arg="REPO_COMMIT_ISH=<branch/commit/tag>"` specify a build arg to target a specific branch/commit/tag of the SDK repo.
+  Defaults to `master`
+* `--build-arg="GCC_MIPSEL_ELF_TAG=<Lameguy64/PSn00bSDK release tag>"` specify a release tag to pull the GCC build from.
+  Defaults to `v0.24`
+* `--build-arg="CACHEBUST=$(date +%s)"` force a rebuild of the repo. Defaults to `0`.
+
+Using this, we can build as follows:
 
 ```shell
 docker build --build-arg="REPO_TARGET=master" -t psxmc:latest -f Dockerfile .

@@ -111,7 +111,7 @@ void cameraReset(Camera* camera) {
     camera->mode = 0;
 }
 
-int _main() {
+int main() {
     VECTOR look_pos = {0};
     Camera camera = {
         .position = {0, ONE * -300, ONE * -300},
@@ -184,7 +184,7 @@ void initRep(TestMinRep *rep) {
     cvector_init(rep->vec2, 1, __destruct);
 }
 
-int main() {
+int _main() {
     init();
     TestMinRep obj;
     initRep(&obj);

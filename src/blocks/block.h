@@ -60,15 +60,33 @@ typedef enum _BlockID {
 // - 3: +Y BOTTOM
 // - 4: -X LEFT
 // - 5: +X RIGHT
-#define declareSingleTextureFaceAttributes(neg_z, pos_z, neg_y, pos_y, neg_x, pos_x) { \
-    {(neg_z) * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, {0}}, \
-    {(pos_z) * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, {0}}, \
-    {(neg_y) * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, {0}}, \
-    {(pos_y) * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, {0}}, \
-    {(neg_x) * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, {0}}, \
-    {(pos_x) * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, {0}} \
+#define declareTintedFaceAttributes(\
+    neg_z, neg_z_tint, \
+    pos_z, pos_z_tint, \
+    neg_y, neg_y_tint, \
+    pos_y, pos_y_tint, \
+    neg_x, neg_x_tint, \
+    pos_x, pos_x_tint \
+) { \
+    {(neg_z) * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, neg_z_tint}, \
+    {(pos_z) * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, pos_z_tint}, \
+    {(neg_y) * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, neg_y_tint}, \
+    {(pos_y) * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, pos_y_tint}, \
+    {(neg_x) * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, neg_x_tint}, \
+    {(pos_x) * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, pos_x_tint} \
 }
-#define defaultFaceAttributes(index) declareSingleTextureFaceAttributes(index, index, index, index, index, index)
+#define faceTint(r,g,b,cd) P99_PROTECT({r,g,b,cd})
+#define NO_TINT faceTint(0,0,0,0)
+#define declareFaceAttributes(neg_z, pos_z, neg_y, pos_y, neg_x, pos_x) declareTintedFaceAttributes( \
+    neg_z, NO_TINT, \
+    pos_z, NO_TINT, \
+    neg_y, NO_TINT, \
+    pos_y, NO_TINT, \
+    neg_x, NO_TINT, \
+    pos_x, NO_TINT \
+)
+
+#define defaultFaceAttributes(index) declareFaceAttributes(index, index, index, index, index, index)
 
 #define declareBlock(_id, _name, _type, _orientation, face_attributes) (Block) {\
     .id = (BlockID) _id,\
@@ -95,7 +113,18 @@ static const Block BLOCKS[BLOCK_COUNT] = {
     declareBlock(BLOCKID_AIR, "air", BLOCKTYPE_EMPTY, ORIENTATION_POS_X, {}),
     declareSolidBlock(BLOCKID_STONE, "stone", defaultFaceAttributes(1)),
     declareSolidBlock(BLOCKID_DIRT, "dirt", defaultFaceAttributes(2)),
-    declareSolidBlock(BLOCKID_GRASS, "grass", declareSingleTextureFaceAttributes(3,3,2,0,3,3)),
+    declareSolidBlock(
+        BLOCKID_GRASS,
+        "grass",
+        declareTintedFaceAttributes(
+            3, NO_TINT,
+            3, NO_TINT,
+            2, NO_TINT,
+            0, faceTint(0, 155, 0, 1),
+            3, NO_TINT,
+            3, NO_TINT
+        )
+    ),
 };
 
 #define blockAttribute(blockID, attr) (BLOCKS[(blockID)].attr)
