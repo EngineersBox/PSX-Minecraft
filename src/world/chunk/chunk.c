@@ -46,7 +46,7 @@ void chunkGenerate2DHeightMap(Chunk *chunk, const VECTOR *position) {
             printf("height: %d\n", height);
             for (int32_t y = CHUNK_SIZE; y > 0; y--) {
                 const int32_t worldY = (position->vy * CHUNK_SIZE) + (CHUNK_SIZE - y)
-                                       + (CHUNK_SIZE * 16); // !IMPORTANT: TESTING OFFSET
+                                       + (CHUNK_SIZE * 15); // !IMPORTANT: TESTING OFFSET
                 if (worldY < height - 3) {
                     chunk->blocks[chunkBlockIndex(x, y - 1, z)] = (BlockID) BLOCKID_STONE;
                     // printf("STONE @ %d,%d,%d\n", x, y - 1, z);
@@ -132,7 +132,7 @@ void createQuad(Chunk *chunk,
     cvector_iterator(SVECTOR) normalsIter = cvector_begin(mesh->normals);
     SMD *smd = &mesh->smd;
     // Construct a new POLY_FT4 (textured quad) primtive for this face
-    printf("Primitive\n");
+    printf("Primitive %d\n", smd->n_prims);
     cvector_push_back(mesh->primitives, (SMD_PRIM) {});
     SMD_PRIM *primitive = &primitiveIter[smd->n_prims];
     smd->n_prims++;
@@ -197,28 +197,28 @@ void createQuad(Chunk *chunk,
     vertex->vx = currentVert->vx;
     vertex->vy = currentVert->vy;
     vertex->vz = currentVert->vz;
-    // printf("V0: {%d,%d,%d}\n", vertex->vx, vertex->vy, vertex->vz);
+    printf("V0: {%d,%d,%d}\n", vertex->vx, vertex->vy, vertex->vz);
     // printf("Vertex\n");
     nextRenderAttribute(vertices, v1, n_verts, vertex, verticesIter);
     currentVert = v1 = &vertices[indices.v1];
     vertex->vx = currentVert->vx;
     vertex->vy = currentVert->vy;
     vertex->vz = currentVert->vz;
-    // printf("V1: {%d,%d,%d}\n", vertex->vx, vertex->vy, vertex->vz);
+    printf("V1: {%d,%d,%d}\n", vertex->vx, vertex->vy, vertex->vz);
     // printf("Vertex\n");
     nextRenderAttribute(vertices, v2, n_verts, vertex, verticesIter);
     currentVert = v2 = &vertices[indices.v2];
     vertex->vx = currentVert->vx;
     vertex->vy = currentVert->vy;
     vertex->vz = currentVert->vz;
-    // printf("V2: {%d,%d,%d}\n", vertex->vx, vertex->vy, vertex->vz);
+    printf("V2: {%d,%d,%d}\n", vertex->vx, vertex->vy, vertex->vz);
     // printf("Vertex\n");
     nextRenderAttribute(vertices, v3, n_verts, vertex, verticesIter);
     currentVert = v3 = &vertices[indices.v3];
     vertex->vx = currentVert->vx;
     vertex->vy = currentVert->vy;
     vertex->vz = currentVert->vz;
-    // printf("V3: {%d,%d,%d}\n", vertex->vx, vertex->vy, vertex->vz);
+    printf("V3: {%d,%d,%d}\n", vertex->vx, vertex->vy, vertex->vz);
     // BUG: Somehow there is a quad that is created with 2 vertices in completely the wrong place.
     // const SVECTOR *verts[4] = {v0, v1, v2, v3};
     // #define cmpVert(a, b) (a->vx == b->vx && a->vy == b->vy && a->vz == b->vz)
@@ -234,10 +234,10 @@ void createQuad(Chunk *chunk,
     //     }
     // Create normal for this quad
     SVECTOR *norm = NULL;
-    // printf("BEFORE norm\n");
+    printf("BEFORE norm\n");
     nextRenderAttribute(normals, n0, n_norms, norm, normalsIter);
     // BUG: Something weird here during realloc in cvector_push_back
-    // printf("AFTER: %p\n", norm);
+    printf("AFTER: %p\n", norm);
     norm->vx = (axisMask[0] * mask->normal) * ONE; // BUG: These produce out of bounds indexing on the 'norm' instance?
     norm->vy = (axisMask[1] * mask->normal) * ONE;
     norm->vz = (axisMask[2] * mask->normal) * ONE;
