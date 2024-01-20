@@ -25,6 +25,23 @@ void worldInit(World* world) {
                     .vy = y,
                     .vz = z
                 });
+                // BUG: These index calulcations are wrong:
+                //      -1, 0, -1 => 0,0,0
+                //      -1, 0,  0 => 0,0,1
+                //      -1, 0,  1 => 0,0,0
+                //       0, 0, -1 => 1,0,0
+                //       0, 0,  0 => 1,0,1
+                //       0, 0,  1 => 1,0,0
+                //       1, 0, -1 => 0,0,0
+                //       1, 0,  0 => 0,0,1
+                //       1, 0,  1 => 0,0,0
+                printf(
+                    "[CHUNK: %d,%d,%d] Indices: %d,%d,%d\n",
+                    x, y, z,
+                    arrayCoord(world, vx, x),
+                    y,
+                    arrayCoord(world, vz, z)
+                );
                 world->chunks[arrayCoord(world, vx, x)][arrayCoord(world, vz, z)][y] = chunk;
             }
         }
@@ -42,6 +59,13 @@ void worldInit(World* world) {
                     chunk->mesh.smd.n_prims,
                     chunk->mesh.smd.n_verts,
                     chunk->mesh.smd.n_norms
+                );
+                printf(
+                    "[CHUNK: %d,%d,%d] Indices: %d,%d,%d\n",
+                    x, y, z,
+                    arrayCoord(world, vx, x),
+                    y,
+                    arrayCoord(world, vz, z)
                 );
             }
         }
