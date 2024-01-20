@@ -1,0 +1,40 @@
+BasedOnStyle: LLVM
+IndentWidth: 4
+TabWidth: 4
+ContinuationWithIndent: 4
+UseTab: Never
+BracedInitializerIntentWidth: 4
+
+BreakBeforeBraces: Attach
+BreakBeforeBinaryOperators: NonAssignment
+BreakAdjacentStringLiterals: true
+AlwaysBreakBeforeReturnType: None
+
+BinPackArguments: false
+BinPackParameters: false
+
+PointerAlignment: Left
+QualifierAlignment: Left
+
+IndentPPDirectives: BeforeHash
+IndentGotoLabels: false
+IntentCaseLabels: true
+
+IncludeBlocks: Preserve
+
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortEnumsOnASingleLine: false
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortBlocksOnASingleLine: true
+AllowAllParametersOfDeclarationOnNextLine: false
+
+AlignTrailingComments:
+  Kind: Always
+AlignOperands: AlignAfterOperator
+AlignEscapedNewlines: DontAlign
+AlignConsecutiveShortCaseStatements:
+  Enabled: false
+AlignArrayOfStructures: Right
+AlignAfterOpenBracket: BlockIndent
+
