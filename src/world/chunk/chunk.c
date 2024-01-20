@@ -212,7 +212,7 @@ void createQuad(Chunk *chunk,
     // Create normal for this quad
     SVECTOR *norm = NULL;
     printf("BEFORE norm\n");
-    nextRenderAttribute(normals, n0, n_norms, norm, normalsIter);
+    nextRenderAttribute(normals, n0, n_norms, norm);
     printf("AFTER: %p\n", norm);
     norm->vx = (axisMask[0] * mask->normal) * ONE;
     norm->vy = (axisMask[1] * mask->normal) * ONE;
