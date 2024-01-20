@@ -210,14 +210,14 @@ int _main() {
             curr->vy = j;
             curr->vz = i1;
             i1++;
-            if (i == 2 && j == 1) {
-                should_break = 1;
-                break;
-            }
+            // if (i == 2 && j == 1) {
+            //     should_break = 1;
+            //     break;
+            // }
         }
-        if (should_break) {
-            break;
-        }
+        // if (should_break) {
+        //     break;
+        // }
         printf("NORMAL: %p\n", obj.vec2);
         cvector_metadata_t *meta2 = cvector_vec_to_base(obj.vec2);
         printf("  [BEFORE] Size: %d, Cap: %d, Dest: %p\n", meta2->size, meta2->capacity, meta2->elem_destructor);

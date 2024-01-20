@@ -127,14 +127,11 @@ void createQuad(Chunk *chunk,
                 const int16_t delta_axis_1[CHUNK_DIRECTIONS],
                 const int16_t delta_axis_2[CHUNK_DIRECTIONS]) {
     ChunkMesh *mesh = &chunk->mesh;
-    cvector_iterator(SMD_PRIM) primitiveIter = cvector_begin(mesh->primitives);
-    cvector_iterator(SVECTOR) verticesIter = cvector_begin(mesh->vertices);
-    cvector_iterator(SVECTOR) normalsIter = cvector_begin(mesh->normals);
     SMD *smd = &mesh->smd;
     // Construct a new POLY_FT4 (textured quad) primtive for this face
     printf("Primitive %d\n", smd->n_prims);
     cvector_push_back(mesh->primitives, (SMD_PRIM) {});
-    SMD_PRIM *primitive = &primitiveIter[smd->n_prims];
+    SMD_PRIM *primitive = &cvector_begin(mesh->primitives)[smd->n_prims];
     smd->n_prims++;
     primitive->prim_id = (SMD_PRI_TYPE){};
     primitive->prim_id.type = PRIMITIVE_TYPE_QUAD;
@@ -181,64 +178,43 @@ void createQuad(Chunk *chunk,
                       + (axisMask[1] * (3 - shiftedNormal)) // 2: -Y, 3: +Y
                       + (axisMask[2] * (5 - shiftedNormal)); // 4: -Z, 5: +Z
     const INDEX indices = INDICES[index];
-#define nextRenderAttribute(attribute_field, index_field, count_field, instance, iter) \
+#define nextRenderAttribute(attribute_field, index_field, count_field, instance) \
+        printf("[BEFORE] " #attribute_field ": %p\n", mesh->attribute_field); \
         cvector_push_back(mesh->attribute_field, (SVECTOR){}); \
+        printf("[AFTER] " #attribute_field ": %p\n", mesh->attribute_field); \
         primitive->index_field = smd->count_field; \
-        instance = &iter[smd->count_field++]
-    // printf("Primitive %d\n", smd->n_prims - 1);
+        instance = &cvector_begin(mesh->attribute_field)[smd->count_field++]
     SVECTOR *vertex = NULL;
-    const SVECTOR *v0;
-    const SVECTOR *v1;
-    const SVECTOR *v2;
-    const SVECTOR *v3;
-    // printf("Vertex\n");
-    nextRenderAttribute(vertices, v0, n_verts, vertex, verticesIter);
-    const SVECTOR *currentVert = v0 = &vertices[indices.v0];
+    nextRenderAttribute(vertices, v0, n_verts, vertex);
+    const SVECTOR *currentVert = &vertices[indices.v0];
     vertex->vx = currentVert->vx;
     vertex->vy = currentVert->vy;
     vertex->vz = currentVert->vz;
-    printf("V0: {%d,%d,%d}\n", vertex->vx, vertex->vy, vertex->vz);
-    // printf("Vertex\n");
-    nextRenderAttribute(vertices, v1, n_verts, vertex, verticesIter);
-    currentVert = v1 = &vertices[indices.v1];
+    printf("V0 @ %p: {%d,%d,%d}\n", vertex, vertex->vx, vertex->vy, vertex->vz);
+    nextRenderAttribute(vertices, v1, n_verts, vertex);
+    currentVert = &vertices[indices.v1];
     vertex->vx = currentVert->vx;
     vertex->vy = currentVert->vy;
     vertex->vz = currentVert->vz;
-    printf("V1: {%d,%d,%d}\n", vertex->vx, vertex->vy, vertex->vz);
-    // printf("Vertex\n");
-    nextRenderAttribute(vertices, v2, n_verts, vertex, verticesIter);
-    currentVert = v2 = &vertices[indices.v2];
+    printf("V1 @ %p: {%d,%d,%d}\n", vertex, vertex->vx, vertex->vy, vertex->vz);
+    nextRenderAttribute(vertices, v2, n_verts, vertex);
+    currentVert = &vertices[indices.v2];
     vertex->vx = currentVert->vx;
     vertex->vy = currentVert->vy;
     vertex->vz = currentVert->vz;
-    printf("V2: {%d,%d,%d}\n", vertex->vx, vertex->vy, vertex->vz);
-    // printf("Vertex\n");
-    nextRenderAttribute(vertices, v3, n_verts, vertex, verticesIter);
-    currentVert = v3 = &vertices[indices.v3];
+    printf("V2 @ %p: {%d,%d,%d}\n", vertex, vertex->vx, vertex->vy, vertex->vz);
+    nextRenderAttribute(vertices, v3, n_verts, vertex);
+    currentVert = &vertices[indices.v3];
     vertex->vx = currentVert->vx;
     vertex->vy = currentVert->vy;
     vertex->vz = currentVert->vz;
-    printf("V3: {%d,%d,%d}\n", vertex->vx, vertex->vy, vertex->vz);
-    // BUG: Somehow there is a quad that is created with 2 vertices in completely the wrong place.
-    // const SVECTOR *verts[4] = {v0, v1, v2, v3};
-    // #define cmpVert(a, b) (a->vx == b->vx && a->vy == b->vy && a->vz == b->vz)
-    //     for (int i = 0; i < 4; i++) {
-    //         for (int j = 0; j < 4; j++) {
-    //             if (i == j) {
-    //                 continue;
-    //             }
-    //             if (cmpVert(verts[i], verts[j])) {
-    //                 printf("V%d == V%d\n", i, j);
-    //             }
-    //         }
-    //     }
+    printf("V3 @ %p: {%d,%d,%d}\n", vertex, vertex->vx, vertex->vy, vertex->vz);
     // Create normal for this quad
     SVECTOR *norm = NULL;
     printf("BEFORE norm\n");
     nextRenderAttribute(normals, n0, n_norms, norm, normalsIter);
-    // BUG: Something weird here during realloc in cvector_push_back
     printf("AFTER: %p\n", norm);
-    norm->vx = (axisMask[0] * mask->normal) * ONE; // BUG: These produce out of bounds indexing on the 'norm' instance?
+    norm->vx = (axisMask[0] * mask->normal) * ONE;
     norm->vy = (axisMask[1] * mask->normal) * ONE;
     norm->vz = (axisMask[2] * mask->normal) * ONE;
     const Texture *texture = &textures[BLOCK_TEXTURES];
