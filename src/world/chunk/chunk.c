@@ -129,7 +129,7 @@ void createQuad(Chunk *chunk,
     ChunkMesh *mesh = &chunk->mesh;
     SMD *smd = &mesh->smd;
     // Construct a new POLY_FT4 (textured quad) primtive for this face
-    printf("Primitive %d\n", smd->n_prims);
+    // printf("Primitive %d\n", smd->n_prims);
     cvector_push_back(mesh->primitives, (SMD_PRIM) {});
     SMD_PRIM *primitive = &cvector_begin(mesh->primitives)[smd->n_prims];
     smd->n_prims++;
@@ -179,9 +179,7 @@ void createQuad(Chunk *chunk,
                       + (axisMask[2] * (5 - shiftedNormal)); // 4: -Z, 5: +Z
     const INDEX indices = INDICES[index];
 #define nextRenderAttribute(attribute_field, index_field, count_field, instance) \
-        printf("[BEFORE] " #attribute_field ": %p\n", mesh->attribute_field); \
         cvector_push_back(mesh->attribute_field, (SVECTOR){}); \
-        printf("[AFTER] " #attribute_field ": %p\n", mesh->attribute_field); \
         primitive->index_field = smd->count_field; \
         instance = &cvector_begin(mesh->attribute_field)[smd->count_field++]
     SVECTOR *vertex = NULL;
@@ -190,30 +188,30 @@ void createQuad(Chunk *chunk,
     vertex->vx = currentVert->vx;
     vertex->vy = currentVert->vy;
     vertex->vz = currentVert->vz;
-    printf("V0 @ %p: {%d,%d,%d}\n", vertex, vertex->vx, vertex->vy, vertex->vz);
+    // printf("V0 @ %p: {%d,%d,%d}\n", vertex, vertex->vx, vertex->vy, vertex->vz);
     nextRenderAttribute(vertices, v1, n_verts, vertex);
     currentVert = &vertices[indices.v1];
     vertex->vx = currentVert->vx;
     vertex->vy = currentVert->vy;
     vertex->vz = currentVert->vz;
-    printf("V1 @ %p: {%d,%d,%d}\n", vertex, vertex->vx, vertex->vy, vertex->vz);
+    // printf("V1 @ %p: {%d,%d,%d}\n", vertex, vertex->vx, vertex->vy, vertex->vz);
     nextRenderAttribute(vertices, v2, n_verts, vertex);
     currentVert = &vertices[indices.v2];
     vertex->vx = currentVert->vx;
     vertex->vy = currentVert->vy;
     vertex->vz = currentVert->vz;
-    printf("V2 @ %p: {%d,%d,%d}\n", vertex, vertex->vx, vertex->vy, vertex->vz);
+    // printf("V2 @ %p: {%d,%d,%d}\n", vertex, vertex->vx, vertex->vy, vertex->vz);
     nextRenderAttribute(vertices, v3, n_verts, vertex);
     currentVert = &vertices[indices.v3];
     vertex->vx = currentVert->vx;
     vertex->vy = currentVert->vy;
     vertex->vz = currentVert->vz;
-    printf("V3 @ %p: {%d,%d,%d}\n", vertex, vertex->vx, vertex->vy, vertex->vz);
+    // printf("V3 @ %p: {%d,%d,%d}\n", vertex, vertex->vx, vertex->vy, vertex->vz);
     // Create normal for this quad
     SVECTOR *norm = NULL;
-    printf("BEFORE norm\n");
+    // printf("BEFORE norm\n");
     nextRenderAttribute(normals, n0, n_norms, norm);
-    printf("AFTER: %p\n", norm);
+    // printf("AFTER: %p\n", norm);
     norm->vx = (axisMask[0] * mask->normal) * ONE;
     norm->vy = (axisMask[1] * mask->normal) * ONE;
     norm->vz = (axisMask[2] * mask->normal) * ONE;
