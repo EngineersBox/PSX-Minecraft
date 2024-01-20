@@ -25,3 +25,4 @@
 * [x] Fix mesh rendering of last faces connected to neighbouring chunk, normal seems inverted. 
   This might be the inverse of changes made with windowing and indexing to fix chunk rendering initially.
 * [ ] Camera rotation values do not wrap when a complete rotation is achieved
+* [x] Fixed stale references to mesh attribute iterators (vert/prim/norm)
