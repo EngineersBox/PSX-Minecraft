@@ -33,6 +33,10 @@
 #define PRIMITIVE_COLOURING_SOLID 0
 #define PRIMITIVE_COLOURING_GOURAUD 1
 
+// TODO: Refactor to just be SMD instead of wrapper object
+//       Need to be aware that SMD.p_prims is a void* type
+//       and not SMD_PRIM*. Sizes of elements will be different
+//       need to cast before performing any operations.
 typedef struct {
     SMD smd;
     cvector(SMD_PRIM) primitives;

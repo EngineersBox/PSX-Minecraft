@@ -20,19 +20,18 @@ void worldInit(World *world) {
     for (int x = x_start; x <= x_end; x++) {
         for (int z = z_start; z <= z_end; z++) {
             for (int y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
-                printf("[CHUNK: %d,%d,%d)] Generating heightmap and terrain\n", x, y, z);
-                Chunk *chunk = worldLoadChunk(world, (VECTOR){
-                    .vx = x,
-                    .vy = y,
-                    .vz = z
-                });
                 printf(
-                    "[CHUNK: %d,%d,%d] Indices: %d,%d,%d\n",
+                    "[CHUNK: %d,%d,%d, INDEX: %d,%d,%d] Generating heightmap and terrain\n",
                     x, y, z,
                     arrayCoord(world, vx, x),
                     y,
                     arrayCoord(world, vz, z)
                 );
+                Chunk *chunk = worldLoadChunk(world, (VECTOR){
+                    .vx = x,
+                    .vy = y,
+                    .vz = z
+                });
                 world->chunks[arrayCoord(world, vx, x)][arrayCoord(world, vz, z)][y] = chunk;
             }
         }
@@ -45,18 +44,14 @@ void worldInit(World *world) {
                 Chunk *chunk = world->chunks[arrayCoord(world, vx, x)][arrayCoord(world, vz, z)][y];
                 chunkGenerateMesh(chunk);
                 printf(
-                    "[CHUNK: %d,%d,%d] Mesh { Primitives: %d, Vertices: %d, Normals: %d }\n",
-                    x, y, z,
-                    chunk->mesh.smd.n_prims,
-                    chunk->mesh.smd.n_verts,
-                    chunk->mesh.smd.n_norms
-                );
-                printf(
-                    "[CHUNK: %d,%d,%d] Indices: %d,%d,%d\n",
+                    "[CHUNK: %d,%d,%d, INDEX: %d,%d,%d] Mesh { Primitives: %d, Vertices: %d, Normals: %d }\n",
                     x, y, z,
                     arrayCoord(world, vx, x),
                     y,
-                    arrayCoord(world, vz, z)
+                    arrayCoord(world, vz, z),
+                    chunk->mesh.smd.n_prims,
+                    chunk->mesh.smd.n_verts,
+                    chunk->mesh.smd.n_norms
                 );
             }
         }
@@ -72,6 +67,13 @@ void worldDestroy(World *world) {
     for (int x = x_start; x <= x_end; x++) {
         for (int z = z_start; z <= z_end; z++) {
             for (int y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
+                printf(
+                    "[CHUNK: %d,%d,%d, INDEX: %d,%d,%d] Destroying chunk\n",
+                    x, y, z,
+                    arrayCoord(world, vx, x),
+                    y,
+                    arrayCoord(world, vz, z)
+                );
                 Chunk **chunk = world->chunks[arrayCoord(world, vx, x)][arrayCoord(world, vz, z)];
                 worldUnloadChunk(chunk[y]);
                 chunk[y] = NULL;
@@ -130,10 +132,10 @@ void worldLoadChunksX(World *world, const int8_t x_direction, const int8_t z_dir
     for (int z_coord = z_start; z_coord <= z_end; z_coord++) {
         for (int y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
             Chunk *chunk = worldLoadChunk(world, (VECTOR){
-                                              .vx = x_shift_zone,
-                                              .vy = y, // What should this be?
-                                              .vz = z_coord
-                                          });
+                .vx = x_shift_zone,
+                .vy = y,
+                .vz = z_coord
+            });
             world->chunks[arrayCoord(world, vx, x_shift_zone)][arrayCoord(world, vz, z_coord)][y] = chunk;
         }
     }
@@ -165,10 +167,10 @@ void worldLoadChunksZ(World *world, const int8_t x_direction, const int8_t z_dir
     for (int x_coord = x_start; x_coord <= x_end; x_coord++) {
         for (int y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
             Chunk *chunk = worldLoadChunk(world, (VECTOR){
-                                              .vx = x_coord,
-                                              .vy = y, // What should this be?
-                                              .vz = z_shift_zone
-                                          });
+                .vx = x_coord,
+                .vy = y,
+                .vz = z_shift_zone
+            });
             world->chunks[arrayCoord(world, vx, x_coord)][arrayCoord(world, vz, z_shift_zone)][y] = chunk;
         }
     }
@@ -189,10 +191,10 @@ void worldLoadChunksXZ(World *world, const int8_t x_direction, const int8_t z_di
     int32_t z_coord = world->centre.vz + ((LOADED_CHUNKS_RADIUS + SHIFT_ZONE) * z_direction);
     for (int y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
         Chunk *loaded_chunk = worldLoadChunk(world, (VECTOR){
-                                                 .vx = x_coord,
-                                                 .vy = y, // What should this be?
-                                                 .vz = z_coord
-                                             });
+            .vx = x_coord,
+            .vy = y,
+            .vz = z_coord
+        });
         world->chunks[arrayCoord(world, vx, x_coord)][arrayCoord(world, vz, z_coord)][y] = loaded_chunk;
     }
     // Unload (-x_direction,-z_direction) chunk
