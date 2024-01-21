@@ -22,11 +22,6 @@
 #endif
 
 // TODO: Move these to SMD renderer file as general properties
-typedef enum {
-    PRIMITIVE_TYPE_LINE = 0,
-    PRIMITIVE_TYPE_TRIANGLE,
-    PRIMITIVE_TYPE_QUAD,
-} PrimitiveType;
 #define PRIMITIVE_TYPE_LINE 0
 #define PRIMITIVE_TYPE_TRIANGLE 1
 #define PRIMITIVE_TYPE_QUAD 2
