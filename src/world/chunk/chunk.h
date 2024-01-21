@@ -12,7 +12,7 @@
 #include "../../util/fast_noise_lite.h"
 
 // !BUG: Why does 16 not render anything but 8 does?
-#define CHUNK_SIZE 8
+#define CHUNK_SIZE 16
 #define CHUNK_DATA_SIZE (CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE)
 #define CHUNK_DIRECTIONS 3
 #define CHUNK_AXIS_NEIGHBOURS (CHUNK_DIRECTIONS * 2)
