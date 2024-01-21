@@ -12,7 +12,7 @@
 #define WORLD_CHUNKS_HEIGHT 1
 
 // Must be positive
-#define LOADED_CHUNKS_RADIUS 0
+#define LOADED_CHUNKS_RADIUS 1
 #define SHIFT_ZONE 1
 #define CENTER 1
 #if LOADED_CHUNKS_RADIUS < 1

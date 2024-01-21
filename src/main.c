@@ -125,10 +125,20 @@ int main() {
         .lighting_mtx = light_mtx
     };
     init();
-    World world;
-    world.centre.vx = 0; // BUG: Setting this to -1 creates bad reads during rendering
-    world.centre.vy = 0;
-    world.centre.vz = 0;
+    World world = {
+        .head = {
+            .vx = 0,
+            .vz = 0
+        },
+        .centre = {
+            .vx = 0,
+            .vy = 0,
+            .vz = 0
+        }
+    };
+    // world.centre.vx = 0; // BUG: Setting this to -1 creates bad reads during rendering
+    // world.centre.vy = 0;
+    // world.centre.vz = 0;
     worldInit(&world);
     // Chunk chunk;
     // chunk.position = (VECTOR) {0, 1, 0};
