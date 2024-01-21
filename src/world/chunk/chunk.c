@@ -117,16 +117,12 @@ const INDEX INDICES[6] = {
     {0, 1, 2, 3},
 };
 
-// TODO: Break this into separate methods for each section
-void createQuad(Chunk* chunk,
-                const Mask* mask,
-                const int16_t width,
-                const int16_t height,
-                const int16_t axisMask[CHUNK_DIRECTIONS],
-                const int16_t origin[CHUNK_DIRECTIONS],
-                const int16_t delta_axis_1[CHUNK_DIRECTIONS],
-                const int16_t delta_axis_2[CHUNK_DIRECTIONS]) {
-    ChunkMesh* mesh = &chunk->mesh;
+SMD_PRIM* createQuadPrimitive(ChunkMesh* mesh,
+                              const int width,
+                              const int height,
+                              const Mask* mask,
+                              const int16_t axisMask[CHUNK_DIRECTIONS],
+                              const int index) {
     SMD* smd = &mesh->smd;
     // Construct a new POLY_FT4 (textured quad) primtive for this face
     // printf("Primitive %d\n", smd->n_prims);
@@ -146,6 +142,34 @@ void createQuad(Chunk* chunk,
     primitive->prim_id.texoff = 0;
     primitive->prim_id.reserved = 0;
     primitive->prim_id.len = 4 + 8 + 4 + 8 + 4; // Some wizardry based on PSn00bSDK/tools/smxlink/main.cpp lines 518-644
+    const Texture* texture = &textures[TERRAIN_TEXTURES];
+    primitive->tpage = texture->tpage;
+    primitive->clut = texture->clut;
+    const TextureAttributes* attributes = &BLOCKS[mask->block].faceAttributes[index];
+    primitive->tu0 = attributes->u;
+    primitive->tv0 = attributes->v;
+    primitive->tu1 = BLOCK_TEXTURE_SIZE * (axisMask[0] != 0 ? height : width);
+    primitive->tv1 = BLOCK_TEXTURE_SIZE * (axisMask[0] != 0 ? width : height);
+    primitive->r0 = attributes->tint.r;
+    primitive->g0 = attributes->tint.g;
+    primitive->b0 = attributes->tint.b;
+    primitive->code = attributes->tint.cd;
+    return primitive;
+}
+
+#define nextRenderAttribute(attribute_field, index_field, count_field, instance) \
+        cvector_push_back(mesh->attribute_field, (SVECTOR){}); \
+        primitive->index_field = smd->count_field; \
+        instance = &cvector_begin(mesh->attribute_field)[smd->count_field++]
+
+void createQuadVertices(Chunk* chunk,
+                        const int16_t origin[CHUNK_DIRECTIONS],
+                        const int16_t delta_axis_1[CHUNK_DIRECTIONS],
+                        const int16_t delta_axis_2[CHUNK_DIRECTIONS],
+                        SMD_PRIM* primitive,
+                        const int index) {
+    ChunkMesh* mesh = &chunk->mesh;
+    SMD* smd = &chunk->mesh.smd;
     // Construct vertices relative to chunk mesh top left origin
     const int16_t chunk_origin_x = chunk->position.vx * CHUNK_SIZE;
     const int16_t chunk_origin_y = -chunk->position.vy * CHUNK_SIZE;
@@ -172,16 +196,7 @@ void createQuad(Chunk* chunk,
             (chunk_origin_z + origin[2] + delta_axis_1[2] + delta_axis_2[2]) * BLOCK_SIZE
         }
     };
-    // Calculate face index
-    const int8_t shiftedNormal = (mask->normal + 2) / 2; // {-1,1} => {0, 1}
-    const int index = (axisMask[0] * (1 - shiftedNormal)) // 0: -X, 1: +X
-                    + (axisMask[1] * (3 - shiftedNormal)) // 2: -Y, 3: +Y
-                    + (axisMask[2] * (5 - shiftedNormal)); // 4: -Z, 5: +Z
     const INDEX indices = INDICES[index];
-#define nextRenderAttribute(attribute_field, index_field, count_field, instance) \
-        cvector_push_back(mesh->attribute_field, (SVECTOR){}); \
-        primitive->index_field = smd->count_field; \
-        instance = &cvector_begin(mesh->attribute_field)[smd->count_field++]
     SVECTOR* vertex = NULL;
     nextRenderAttribute(vertices, v0, n_verts, vertex);
     const SVECTOR* currentVert = &vertices[indices.v0];
@@ -207,24 +222,57 @@ void createQuad(Chunk* chunk,
     vertex->vy = currentVert->vy;
     vertex->vz = currentVert->vz;
     // printf("V3 @ %p: {%d,%d,%d}\n", vertex, vertex->vx, vertex->vy, vertex->vz);
+}
+
+void createQuadNormal(ChunkMesh* mesh,
+                      SMD_PRIM* primitive,
+                      const Mask* mask,
+                      const int16_t axisMask[CHUNK_DIRECTIONS]) {
+    SMD* smd = &mesh->smd;
     // Create normal for this quad
     SVECTOR* norm = NULL;
     nextRenderAttribute(normals, n0, n_norms, norm);
     norm->vx = (axisMask[0] * mask->normal) * ONE;
     norm->vy = (axisMask[1] * mask->normal) * ONE;
     norm->vz = (axisMask[2] * mask->normal) * ONE;
-    const Texture* texture = &textures[TERRAIN_TEXTURES];
-    primitive->tpage = texture->tpage;
-    primitive->clut = texture->clut;
-    const TextureAttributes* attributes = &BLOCKS[mask->block].faceAttributes[index];
-    primitive->tu0 = attributes->u;
-    primitive->tv0 = attributes->v;
-    primitive->tu1 = BLOCK_TEXTURE_SIZE * (axisMask[0] != 0 ? height : width);
-    primitive->tv1 = BLOCK_TEXTURE_SIZE * (axisMask[0] != 0 ? width : height);
-    primitive->r0 = attributes->tint.r;
-    primitive->g0 = attributes->tint.g;
-    primitive->b0 = attributes->tint.b;
-    primitive->code = attributes->tint.cd;
+}
+
+void createQuad(Chunk* chunk,
+                const Mask* mask,
+                const int16_t width,
+                const int16_t height,
+                const int16_t axisMask[CHUNK_DIRECTIONS],
+                const int16_t origin[CHUNK_DIRECTIONS],
+                const int16_t delta_axis_1[CHUNK_DIRECTIONS],
+                const int16_t delta_axis_2[CHUNK_DIRECTIONS]) {
+    // Calculate face index
+    const int8_t shiftedNormal = (mask->normal + 2) / 2; // {-1,1} => {0, 1}
+    const int index = (axisMask[0] * (1 - shiftedNormal)) // 0: -X, 1: +X
+                      + (axisMask[1] * (3 - shiftedNormal)) // 2: -Y, 3: +Y
+                      + (axisMask[2] * (5 - shiftedNormal)); // 4: -Z, 5: +Z
+    ChunkMesh* mesh = &chunk->mesh;
+    SMD_PRIM* primitive = createQuadPrimitive(
+        mesh,
+        width,
+        height,
+        mask,
+        axisMask,
+        index
+    );
+    createQuadVertices(
+        chunk,
+        origin,
+        delta_axis_1,
+        delta_axis_2,
+        primitive,
+        index
+    );
+    createQuadNormal(
+        mesh,
+        primitive,
+        mask,
+        axisMask
+    );
 }
 
 void chunkGenerateMesh(Chunk* chunk) {
