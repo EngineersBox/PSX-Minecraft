@@ -1,6 +1,5 @@
 #include <display.h>
 #include <stdint.h>
-#include <stdio.h>
 #include <psxgpu.h>
 #include <psxgte.h>
 #include <inline_c.h>
@@ -26,9 +25,9 @@ Input input = {};
 // A column of zeroes effectively disables the light source.
 MATRIX color_mtx = {
     .m = {
-        { ONE * 3 / 4, 0, 0 }, /* Red   */
-        { ONE * 3 / 4, 0, 0 }, /* Green */
-        { ONE * 3 / 4, 0, 0 } /* Blue  */
+        {ONE * 3 / 4, 0, 0}, /* Red   */
+        {ONE * 3 / 4, 0, 0}, /* Green */
+        {ONE * 3 / 4, 0, 0} /* Blue  */
     }
 };
 
@@ -38,21 +37,10 @@ MATRIX color_mtx = {
 MATRIX light_mtx = {
     /* X,  Y,  Z */
     .m = {
-        { -FIXED_1_2, -FIXED_1_2, -FIXED_1_2 },
-        { 0, 0, 0 },
-        { 0, 0, 0 }
+        {-FIXED_1_2, -FIXED_1_2, -FIXED_1_2},
+        {0, 0, 0},
+        {0, 0, 0}
     }
-};
-
-const SVECTOR CUBE_VERTICES[8] = {
-    { -25, -25, -25, 0 }, // 0
-    {  25, -25, -25, 0 }, // 1
-    { -25,  25, -25, 0 }, // 2
-    {  25,  25, -25, 0 }, // 3
-    {  25, -25,  25, 0 }, // 4
-    { -25, -25,  25, 0 }, // 5
-    {  25,  25,  25, 0 }, // 6
-    { -25,  25,  25, 0 }  // 7
 };
 
 // Reference texture data

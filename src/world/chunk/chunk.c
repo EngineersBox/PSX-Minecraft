@@ -10,9 +10,9 @@
 #include "../../util/math_utils.h"
 
 // Forward declaration
-BlockID worldGetBlock(const World *world, const VECTOR *position);
+BlockID worldGetBlock(const World* world, const VECTOR* position);
 
-void chunkInit(Chunk *chunk/*, const int seed*/) {
+void chunkInit(Chunk* chunk/*, const int seed*/) {
     printf("[CHUNK: %d,%d,%d] Initialising mesh\n", inlineVec(chunk->position));
     chunkMeshInit(&chunk->mesh);
     chunkClearMesh(chunk);
@@ -21,11 +21,11 @@ void chunkInit(Chunk *chunk/*, const int seed*/) {
     // chunk->noise.seed = seed;
 }
 
-void chunkDestroy(const Chunk *chunk) {
+void chunkDestroy(const Chunk* chunk) {
     chunkMeshDestroy(&chunk->mesh);
 }
 
-void chunkGenerate2DHeightMap(Chunk *chunk, const VECTOR *position) {
+void chunkGenerate2DHeightMap(Chunk* chunk, const VECTOR* position) {
     for (int32_t x = 0; x < CHUNK_SIZE; x++) {
         for (int32_t z = 0; z < CHUNK_SIZE; z++) {
             const int32_t xPos = x + (position->vx * CHUNK_SIZE);
@@ -65,7 +65,7 @@ void chunkGenerate2DHeightMap(Chunk *chunk, const VECTOR *position) {
     }
 }
 
-void chunkGenerate3DHeightMap(Chunk *chunk, const VECTOR *position) {
+void chunkGenerate3DHeightMap(Chunk* chunk, const VECTOR* position) {
     for (int32_t x = 0; x < CHUNK_SIZE; x++) {
         for (int32_t y = 0; y < CHUNK_SIZE; y++) {
             for (int32_t z = 0; z < CHUNK_SIZE; z++) {
@@ -81,10 +81,10 @@ void chunkGenerate3DHeightMap(Chunk *chunk, const VECTOR *position) {
     }
 }
 
-void chunkClearMesh(Chunk *chunk) {
-    ChunkMesh *mesh = &chunk->mesh;
+void chunkClearMesh(Chunk* chunk) {
+    ChunkMesh* mesh = &chunk->mesh;
     chunkMeshClear(mesh);
-    SMD *smd = &mesh->smd;
+    SMD* smd = &mesh->smd;
     smd->id[0] = 'S';
     smd->id[1] = 'M';
     smd->id[2] = 'D';
@@ -118,20 +118,20 @@ const INDEX INDICES[6] = {
 };
 
 // TODO: Break this into separate methods for each section
-void createQuad(Chunk *chunk,
-                const Mask *mask,
+void createQuad(Chunk* chunk,
+                const Mask* mask,
                 const int16_t width,
                 const int16_t height,
                 const int16_t axisMask[CHUNK_DIRECTIONS],
                 const int16_t origin[CHUNK_DIRECTIONS],
                 const int16_t delta_axis_1[CHUNK_DIRECTIONS],
                 const int16_t delta_axis_2[CHUNK_DIRECTIONS]) {
-    ChunkMesh *mesh = &chunk->mesh;
-    SMD *smd = &mesh->smd;
+    ChunkMesh* mesh = &chunk->mesh;
+    SMD* smd = &mesh->smd;
     // Construct a new POLY_FT4 (textured quad) primtive for this face
     // printf("Primitive %d\n", smd->n_prims);
     cvector_push_back(mesh->primitives, (SMD_PRIM) {});
-    SMD_PRIM *primitive = &cvector_begin(mesh->primitives)[smd->n_prims];
+    SMD_PRIM* primitive = &cvector_begin(mesh->primitives)[smd->n_prims];
     smd->n_prims++;
     primitive->prim_id = (SMD_PRI_TYPE){};
     primitive->prim_id.type = PRIMITIVE_TYPE_QUAD;
@@ -175,16 +175,16 @@ void createQuad(Chunk *chunk,
     // Calculate face index
     const int8_t shiftedNormal = (mask->normal + 2) / 2; // {-1,1} => {0, 1}
     const int index = (axisMask[0] * (1 - shiftedNormal)) // 0: -X, 1: +X
-                      + (axisMask[1] * (3 - shiftedNormal)) // 2: -Y, 3: +Y
-                      + (axisMask[2] * (5 - shiftedNormal)); // 4: -Z, 5: +Z
+                    + (axisMask[1] * (3 - shiftedNormal)) // 2: -Y, 3: +Y
+                    + (axisMask[2] * (5 - shiftedNormal)); // 4: -Z, 5: +Z
     const INDEX indices = INDICES[index];
 #define nextRenderAttribute(attribute_field, index_field, count_field, instance) \
         cvector_push_back(mesh->attribute_field, (SVECTOR){}); \
         primitive->index_field = smd->count_field; \
         instance = &cvector_begin(mesh->attribute_field)[smd->count_field++]
-    SVECTOR *vertex = NULL;
+    SVECTOR* vertex = NULL;
     nextRenderAttribute(vertices, v0, n_verts, vertex);
-    const SVECTOR *currentVert = &vertices[indices.v0];
+    const SVECTOR* currentVert = &vertices[indices.v0];
     vertex->vx = currentVert->vx;
     vertex->vy = currentVert->vy;
     vertex->vz = currentVert->vz;
@@ -208,17 +208,15 @@ void createQuad(Chunk *chunk,
     vertex->vz = currentVert->vz;
     // printf("V3 @ %p: {%d,%d,%d}\n", vertex, vertex->vx, vertex->vy, vertex->vz);
     // Create normal for this quad
-    SVECTOR *norm = NULL;
-    // printf("BEFORE norm\n");
+    SVECTOR* norm = NULL;
     nextRenderAttribute(normals, n0, n_norms, norm);
-    // printf("AFTER: %p\n", norm);
     norm->vx = (axisMask[0] * mask->normal) * ONE;
     norm->vy = (axisMask[1] * mask->normal) * ONE;
     norm->vz = (axisMask[2] * mask->normal) * ONE;
-    const Texture *texture = &textures[BLOCK_TEXTURES];
+    const Texture* texture = &textures[TERRAIN_TEXTURES];
     primitive->tpage = texture->tpage;
     primitive->clut = texture->clut;
-    const TextureAttributes *attributes = &BLOCKS[mask->block].faceAttributes[index];
+    const TextureAttributes* attributes = &BLOCKS[mask->block].faceAttributes[index];
     primitive->tu0 = attributes->u;
     primitive->tv0 = attributes->v;
     primitive->tu1 = BLOCK_TEXTURE_SIZE * (axisMask[0] != 0 ? height : width);
@@ -229,7 +227,7 @@ void createQuad(Chunk *chunk,
     primitive->code = attributes->tint.cd;
 }
 
-void chunkGenerateMesh(Chunk *chunk) {
+void chunkGenerateMesh(Chunk* chunk) {
     // 0: X, 1: Y, 2: Z
     VECTOR query_position = {};
     for (int axis = 0; axis < CHUNK_DIRECTIONS; axis++) {
@@ -303,12 +301,6 @@ void chunkGenerateMesh(Chunk *chunk) {
                             break;
                         }
                     }
-                    deltaAxis1[0] = 0;
-                    deltaAxis1[1] = 0;
-                    deltaAxis1[2] = 0;
-                    deltaAxis2[0] = 0;
-                    deltaAxis2[1] = 0;
-                    deltaAxis2[2] = 0;
                     deltaAxis1[axis1] = width;
                     deltaAxis2[axis2] = height;
                     createQuad(
@@ -321,11 +313,13 @@ void chunkGenerateMesh(Chunk *chunk) {
                         deltaAxis1,
                         deltaAxis2
                     );
+                    memset(deltaAxis1, 0, sizeof(int16_t) * CHUNK_DIRECTIONS);
+                    memset(deltaAxis2, 0, sizeof(int16_t) * CHUNK_DIRECTIONS);
                     for (int h = 0; h < height; h++) {
                         for (int w = 0; w < width; w++) {
                             mask[n + w + (h * CHUNK_SIZE)] = (Mask){
-                                (uint16_t) BLOCKID_NONE,
-                                0
+                                .block = (uint16_t) BLOCKID_NONE,
+                                .normal = 0
                             };
                         }
                     }
@@ -337,7 +331,7 @@ void chunkGenerateMesh(Chunk *chunk) {
     }
 }
 
-void chunkRender(Chunk *chunk, DisplayContext *ctx, Transforms *transforms) {
+void chunkRender(Chunk* chunk, DisplayContext* ctx, Transforms* transforms) {
     SVECTOR rotation = {0, 0, 0};
     // Object and light matrix for object
     MATRIX omtx, olmtx;
@@ -367,17 +361,17 @@ void chunkRender(Chunk *chunk, DisplayContext *ctx, Transforms *transforms) {
 	|| (y) >= CHUNK_SIZE || (y) < 0 \
 	|| (z) >= CHUNK_SIZE || (z) < 0)
 
-BlockID chunkGetBlock(const Chunk *chunk, const int x, const int y, const int z) {
+BlockID chunkGetBlock(const Chunk* chunk, const int x, const int y, const int z) {
     if (checkIndexOOB(x, y, z)) return BLOCKID_AIR;
     return chunk->blocks[chunkBlockIndex(x, y, z)];
 }
 
-BlockID chunkGetBlockVec(const Chunk *chunk, const VECTOR *position) {
+BlockID chunkGetBlockVec(const Chunk* chunk, const VECTOR* position) {
     if (checkIndexOOB(position->vx, position->vy, position->vz)) return BLOCKID_AIR;
     return chunk->blocks[chunkBlockIndex(position->vx, position->vy, position->vz)];
 }
 
-void chunkModifyVoxel(Chunk *chunk, const VECTOR *position, const EBlockID block) {
+void chunkModifyVoxel(Chunk* chunk, const VECTOR* position, const EBlockID block) {
     const int32_t x = position->vx;
     const int32_t y = position->vy;
     const int32_t z = position->vz;

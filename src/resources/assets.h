@@ -5,17 +5,18 @@
 
 #include <psxgpu.h>
 #include <smd/smd.h>
-#include <sys/types.h>
 
 #include "texture.h"
 
-extern unsigned char _lz_resources[];
+#define TERRAIN_TEXTURES 0
+
+extern uint8_t _lz_resources[];
 #define lz_resources ((const LZP_HEAD*) _lz_resources)
 
 extern Texture* textures;
 
 void assetsLoad();
-void assetLoadImage(const TIM_IMAGE* tim, const int index);
+void assetLoadImage(const TIM_IMAGE* tim, int index);
 void assetLoadModel(const SMD* smd);
 void assetsFree();
 

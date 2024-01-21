@@ -6,15 +6,15 @@
 
 #include "../../blocks/block.h"
 
-void __primtiveDestructor(void *elem) {
+void __primtiveDestructor(void* elem) {
     memset(elem, 0, sizeof(SMD_PRIM));
 }
 
-void __svectorDestructor(void *elem) {
+void __svectorDestructor(void* elem) {
     memset(elem, 0, sizeof(SVECTOR));
 }
 
-void chunkMeshInit(ChunkMesh *mesh) {
+void chunkMeshInit(ChunkMesh* mesh) {
     // NOTE: This null init is important for cvector to ensure allocation is done initially
     mesh->primitives = NULL;
     mesh->vertices = NULL;
@@ -28,13 +28,13 @@ void chunkMeshInit(ChunkMesh *mesh) {
     cvector_init(mesh->normals, MESH_NORMAL_VEC_INITIAL_CAPCITY, __svectorDestructor);
 }
 
-void chunkMeshDestroy(const ChunkMesh *mesh) {
+void chunkMeshDestroy(const ChunkMesh* mesh) {
     cvector_free(mesh->primitives);
     cvector_free(mesh->vertices);
     cvector_free(mesh->normals);
 }
 
-void chunkMeshClear(ChunkMesh *mesh) {
+void chunkMeshClear(ChunkMesh* mesh) {
     cvector_clear(mesh->primitives);
     cvector_clear(mesh->vertices);
     cvector_clear(mesh->normals);
@@ -43,17 +43,17 @@ void chunkMeshClear(ChunkMesh *mesh) {
 }
 
 // TODO: Move these to SMD renderer file as general methods
-int renderLine(SMD_PRIM *primitive, DisplayContext *ctx, Transforms *transforms) {
+int renderLine(SMD_PRIM* primitive, DisplayContext* ctx, Transforms* transforms) {
     // TODO
     return 0;
 }
 
-int renderTriangle(SMD_PRIM *primitive, DisplayContext *ctx, Transforms *transforms) {
+int renderTriangle(SMD_PRIM* primitive, DisplayContext* ctx, Transforms* transforms) {
     // TODO
     return 0;
 }
 
-int renderQuad(const ChunkMesh *mesh, SMD_PRIM *primitive, DisplayContext *ctx, Transforms *transforms) {
+int renderQuad(const ChunkMesh* mesh, SMD_PRIM* primitive, DisplayContext* ctx, Transforms* transforms) {
     // TODO: Generalise for textured and non-textured
     int p;
     cvector_iterator(SVECTOR) verticesIter = cvector_begin(mesh->vertices);
@@ -64,7 +64,7 @@ int renderQuad(const ChunkMesh *mesh, SMD_PRIM *primitive, DisplayContext *ctx, 
         BLOCK_TEXTURE_SIZE >> 3,
         BLOCK_TEXTURE_SIZE >> 3
     };
-    POLY_FT4 *pol4 = (POLY_FT4*) ctx->primitive;
+    POLY_FT4* pol4 = (POLY_FT4*) ctx->primitive;
     gte_ldv3(
         &verticesIter[primitive->v0],
         &verticesIter[primitive->v1],
@@ -99,10 +99,10 @@ int renderQuad(const ChunkMesh *mesh, SMD_PRIM *primitive, DisplayContext *ctx, 
     // Test if quad is off-screen, discard if so
     if (quad_clip(
         &ctx->screen_clip,
-        (DVECTOR *) &pol4->x0,
-        (DVECTOR *) &pol4->x1,
-        (DVECTOR *) &pol4->x2,
-        (DVECTOR *) &pol4->x3)) {
+        (DVECTOR*) &pol4->x0,
+        (DVECTOR*) &pol4->x1,
+        (DVECTOR*) &pol4->x2,
+        (DVECTOR*) &pol4->x3)) {
         return -1;
     }
     // Load primitive color even though gte_ncs() doesn't use it.
@@ -155,7 +155,7 @@ int renderQuad(const ChunkMesh *mesh, SMD_PRIM *primitive, DisplayContext *ctx, 
     return p >> 2;
 }
 
-void chunkMeshRender(const ChunkMesh *mesh, DisplayContext *ctx, Transforms *transforms) {
+void chunkMeshRender(const ChunkMesh* mesh, DisplayContext* ctx, Transforms* transforms) {
     // printf("Primitives: %d\n", cvector_size(mesh->primitives));
     for (cvector_iterator(SMD_PRIM) primitive = cvector_begin(mesh->primitives);
          primitive < cvector_end(mesh->primitives); primitive++) {

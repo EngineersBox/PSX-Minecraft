@@ -10,7 +10,6 @@
 
 #define BLOCK_SIZE 50
 #define BLOCK_FACES 6
-#define BLOCK_TEXTURES 0
 #define BLOCK_TEXTURE_SIZE 16
 
 typedef uint8_t BlockID;
