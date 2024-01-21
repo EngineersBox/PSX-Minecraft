@@ -1,5 +1,6 @@
 #include "world.h"
 
+#include <assert.h>
 #include <math_utils.h>
 
 #define wrapCoord(world, axis, coord) positiveModulo(((world)->head.axis + (coord)), AXIS_CHUNKS)
@@ -119,17 +120,12 @@ void worldUnloadChunk(Chunk *chunk) {
 void worldLoadChunksX(World *world, const int8_t x_direction, const int8_t z_direction) {
     // Load x_direction chunks
     int32_t x_shift_zone = world->centre.vx + ((LOADED_CHUNKS_RADIUS + SHIFT_ZONE) * x_direction);
-    int32_t z_start;
-    int32_t z_end;
+    int32_t z_start = world->centre.vz - LOADED_CHUNKS_RADIUS;
+    int32_t z_end = world->centre.vz + LOADED_CHUNKS_RADIUS;
     if (z_direction == -1) {
-        z_start = world->centre.vz - LOADED_CHUNKS_RADIUS;
-        z_end = world->centre.vz + LOADED_CHUNKS_RADIUS - SHIFT_ZONE;
+        z_end -= SHIFT_ZONE;
     } else if (z_direction == 1) {
-        z_start = world->centre.vz - LOADED_CHUNKS_RADIUS + SHIFT_ZONE;
-        z_end = world->centre.vz + LOADED_CHUNKS_RADIUS;
-    } else {
-        z_start = world->centre.vz - LOADED_CHUNKS_RADIUS;
-        z_end = world->centre.vz + LOADED_CHUNKS_RADIUS;
+        z_start += SHIFT_ZONE;
     }
     for (int z_coord = z_start; z_coord <= z_end; z_coord++) {
         for (int y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
@@ -155,17 +151,16 @@ void worldLoadChunksX(World *world, const int8_t x_direction, const int8_t z_dir
 void worldLoadChunksZ(World *world, const int8_t x_direction, const int8_t z_direction) {
     // Load z_direction chunks
     int32_t z_shift_zone = world->centre.vz + ((LOADED_CHUNKS_RADIUS + SHIFT_ZONE) * z_direction);
-    int32_t x_start;
-    int32_t x_end;
+    int32_t x_start = world->centre.vx - LOADED_CHUNKS_RADIUS;;
+    int32_t x_end = world->centre.vx + LOADED_CHUNKS_RADIUS;
+    /* Can be simplified to:
+     * int32_t x_start = world->centre.vx - LOADED_CHUNKS_RADIUS + ((x_direction == -1) * SHIFT_ZONE);
+     * int32_t x_end = world->centre.vz + LOADED_CHUNKS_RADIUS - ((x_direction == 1) * SHIFT_ZONE);
+     */
     if (x_direction == -1) {
-        x_start = world->centre.vx - LOADED_CHUNKS_RADIUS;
-        x_end = world->centre.vx + LOADED_CHUNKS_RADIUS - SHIFT_ZONE;
+        x_end -= SHIFT_ZONE;
     } else if (x_direction == 1) {
-        x_start = world->centre.vx - LOADED_CHUNKS_RADIUS + SHIFT_ZONE;
-        x_end = world->centre.vx + LOADED_CHUNKS_RADIUS;
-    } else {
-        x_start = world->centre.vx - LOADED_CHUNKS_RADIUS;
-        x_end = world->centre.vx + LOADED_CHUNKS_RADIUS;
+        x_start += SHIFT_ZONE;
     }
     for (int x_coord = x_start; x_coord <= x_end; x_coord++) {
         for (int y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {

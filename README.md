@@ -75,8 +75,7 @@ CMake within the Docker context attached to CLion. To the following to set this 
 
 ## Progress
 
-Work so far, current progress being made on world chunk loading/unloading, inter-chunk meshing and fixes to greedy
-meshing problems with rogue vertex creation.
+Work so far, current progress being made on world chunk loading/unloading.
 
 |                                                 |                                                 |
 |-------------------------------------------------|-------------------------------------------------|

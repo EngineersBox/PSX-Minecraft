@@ -45,14 +45,14 @@ MATRIX light_mtx = {
 };
 
 const SVECTOR CUBE_VERTICES[8] = {
-    {-25, -25, -25, 0}, // 0
-    {25, -25, -25, 0}, // 1
-    {-25, 25, -25, 0}, // 2
-    {25, 25, -25, 0}, // 3
-    {25, -25, 25, 0}, // 4
-    {-25, -25, 25, 0}, // 5
-    {25, 25, 25, 0}, // 6
-    {-25, 25, 25, 0} // 7
+    { -25, -25, -25, 0 }, // 0
+    {  25, -25, -25, 0 }, // 1
+    { -25,  25, -25, 0 }, // 2
+    {  25,  25, -25, 0 }, // 3
+    {  25, -25,  25, 0 }, // 4
+    { -25, -25,  25, 0 }, // 5
+    {  25,  25,  25, 0 }, // 6
+    { -25,  25,  25, 0 }  // 7
 };
 
 // Reference texture data
@@ -170,75 +170,5 @@ int main() {
     // chunkDestroy(&chunk);
     worldDestroy(&world);
     assetsFree();
-    return 0;
-}
-
-/** Minimal reproducable example for smashing of reallocated cvectors */
-
-typedef struct {
-    SMD smd;
-    cvector(SVECTOR) vec1;
-    cvector(SVECTOR) vec2;
-} TestMinRep;
-
-void __destruct(void *elem) {
-}
-
-void initRep(TestMinRep *rep) {
-    rep->vec1 = NULL;
-    rep->vec2 = NULL;
-    cvector_init(rep->vec1, 1, __destruct);
-    cvector_init(rep->vec2, 1, __destruct);
-}
-
-int _main() {
-    init();
-    TestMinRep obj;
-    initRep(&obj);
-    uint32_t i1 = 0;
-    uint32_t i2 = 0;
-    int should_break = 0;
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 4; j++) {
-            printf("VERTEX %d: %p\n", j, obj.vec1);
-            cvector_metadata_t *meta = cvector_vec_to_base(obj.vec1);
-            printf("  [BEFORE] Size: %d, Cap: %d, Dest: %p\n", meta->size, meta->capacity, meta->elem_destructor);
-            cvector_metadata_t *meta2 = cvector_vec_to_base(obj.vec2);
-            printf("  [Normal: %p] [BEFORE] Size: %d, Cap: %d, Dest: %p\n", obj.vec2, meta2->size, meta2->capacity,
-                   meta2->elem_destructor);
-            cvector_push_back(obj.vec1, (SVECTOR){});
-            meta = cvector_vec_to_base(obj.vec1);
-            printf("  [AFTER] Size: %d, Cap: %d, Dest: %p\n", meta->size, meta->capacity, meta->elem_destructor);
-            meta2 = cvector_vec_to_base(obj.vec2);
-            printf("  [Normal: %p] [AFTER] Size: %d, Cap: %d, Dest: %p\n", obj.vec2, meta2->size, meta2->capacity,
-                   meta2->elem_destructor);
-            SVECTOR *curr = &obj.vec1[i1];
-            curr->vx = i;
-            curr->vy = j;
-            curr->vz = i1;
-            i1++;
-            // if (i == 2 && j == 1) {
-            //     should_break = 1;
-            //     break;
-            // }
-        }
-        // if (should_break) {
-        //     break;
-        // }
-        printf("NORMAL: %p\n", obj.vec2);
-        cvector_metadata_t *meta2 = cvector_vec_to_base(obj.vec2);
-        printf("  [BEFORE] Size: %d, Cap: %d, Dest: %p\n", meta2->size, meta2->capacity, meta2->elem_destructor);
-        cvector_push_back(obj.vec2, (SVECTOR){});
-        meta2 = cvector_vec_to_base(obj.vec2);
-        printf("  [AFTER] Size: %d, Cap: %d, Dest: %p\n", meta2->size, meta2->capacity, meta2->elem_destructor);
-        SVECTOR *curr1 = &obj.vec2[i2];
-        curr1->vx = i;
-        curr1->vx = i2;
-        curr1->vz = rand();
-        i2++;
-    }
-    while (1) {
-        display(&dctx);
-    }
     return 0;
 }
