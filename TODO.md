@@ -27,4 +27,4 @@
       This might be the inverse of changes made with windowing and indexing to fix chunk rendering initially.
 * [ ] Camera rotation values do not wrap when a complete rotation is achieved
 * [x] Fixed stale references to mesh attribute iterators (vert/prim/norm)
-* [] Logs spammed with GPU bad address read when looking down after a certain point
+* [ ] Logs spammed with GPU bad address read when looking down after a certain point
