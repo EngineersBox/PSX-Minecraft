@@ -43,17 +43,15 @@ void chunkMeshClear(ChunkMesh* mesh) {
 }
 
 // TODO: Move these to SMD renderer file as general methods
-int renderLine(SMD_PRIM* primitive, DisplayContext* ctx, Transforms* transforms) {
+void renderLine(SMD_PRIM* primitive, DisplayContext* ctx, Transforms* transforms) {
     // TODO
-    return 0;
 }
 
-int renderTriangle(SMD_PRIM* primitive, DisplayContext* ctx, Transforms* transforms) {
+void renderTriangle(SMD_PRIM* primitive, DisplayContext* ctx, Transforms* transforms) {
     // TODO
-    return 0;
 }
 
-int renderQuad(const ChunkMesh* mesh, SMD_PRIM* primitive, DisplayContext* ctx, Transforms* transforms) {
+void renderQuad(const ChunkMesh* mesh, SMD_PRIM* primitive, DisplayContext* ctx, Transforms* transforms) {
     // TODO: Generalise for textured and non-textured
     int p;
     cvector_iterator(SVECTOR) verticesIter = cvector_begin(mesh->vertices);
@@ -77,14 +75,14 @@ int renderQuad(const ChunkMesh* mesh, SMD_PRIM* primitive, DisplayContext* ctx, 
     // Avoid negative depth (behind camera) and zero
     // for constraint clearing primitive in OT
     if (p <= 0) {
-        return -1;
+        return;
     }
     // Average screen Z result for four primtives
     gte_avsz4();
     gte_stotz(&p);
     // (the shift right operator is to scale the depth precision)
     if (p >> 2 <= 0 || p >> 2 >= ORDERING_TABLE_LENGTH) {
-        return -1;
+        return;
     }
     // Initialize a textured quad primitive
     setPolyFT4(pol4);
@@ -103,7 +101,7 @@ int renderQuad(const ChunkMesh* mesh, SMD_PRIM* primitive, DisplayContext* ctx, 
         (DVECTOR*) &pol4->x1,
         (DVECTOR*) &pol4->x2,
         (DVECTOR*) &pol4->x3)) {
-        return -1;
+        return;
     }
     // Load primitive color even though gte_ncs() doesn't use it.
     // This is so the GTE will output a color result with the
@@ -152,7 +150,6 @@ int renderQuad(const ChunkMesh* mesh, SMD_PRIM* primitive, DisplayContext* ctx, 
     addPrim(ctx->db[ctx->active].ordering_table + (p >> 2), ptwin);
     ptwin++;
     ctx->primitive = (char*) ptwin;
-    return p >> 2;
 }
 
 void chunkMeshRender(const ChunkMesh* mesh, DisplayContext* ctx, Transforms* transforms) {
