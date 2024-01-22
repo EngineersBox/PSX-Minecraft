@@ -102,8 +102,8 @@ void cameraReset(Camera* camera) {
 int main() {
     VECTOR look_pos = {0};
     Camera camera = {
-        .position = {0, ONE * -300, ONE * -300},
-        .rotation = {0, 0, 0},
+        .position = {ONE * -632, ONE * -117, ONE * 233},
+        .rotation = {ONE * 248, ONE * -1592, 0},
         .mode = 0
     };
     Transforms transforms = {
