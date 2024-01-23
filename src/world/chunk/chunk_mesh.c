@@ -170,7 +170,10 @@ void chunkMeshRender(const ChunkMesh* mesh, DisplayContext* ctx, Transforms* tra
                 renderQuad(mesh, primitive, ctx, transforms);
                 break;
             default:
-                printf("[ERROR] ChunkMesh - Unknown primitive type: %d\n", primitive->prim_id.type);
+                printf(
+                    "[ERROR] ChunkMesh - Unknown primitive type: %d\n",
+                    primitive->prim_id.type
+                );
                 return;
         }
     }

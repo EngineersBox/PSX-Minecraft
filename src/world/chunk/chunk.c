@@ -275,9 +275,112 @@ void createQuad(Chunk* chunk,
     );
 }
 
+void computeMeshMask(const Chunk* chunk,
+                     const int axis1,
+                     const int axis2,
+                     int16_t chunkIter[CHUNK_DIRECTIONS],
+                     int16_t axisMask[CHUNK_DIRECTIONS],
+                     Mask mask[CHUNK_SIZE * CHUNK_SIZE]) {
+    VECTOR query_position = {};
+    uint16_t n = 0;
+    for (chunkIter[axis2] = 0; chunkIter[axis2] < CHUNK_SIZE; chunkIter[axis2]++) {
+        for (chunkIter[axis1] = 0; chunkIter[axis1] < CHUNK_SIZE; chunkIter[axis1]++) {
+            query_position.vx = chunkIter[0] + (chunk->position.vx * CHUNK_SIZE);
+            query_position.vy = chunkIter[1] + (chunk->position.vy * CHUNK_SIZE);
+            query_position.vz = chunkIter[2] + (chunk->position.vz * CHUNK_SIZE);
+            const BlockID currentBlock = worldGetBlock(chunk->world, &query_position);
+            const bool currentOpaque = blockIsOpaque(currentBlock);
+            query_position.vx += axisMask[0];
+            query_position.vy += axisMask[1];
+            query_position.vz += axisMask[2];
+            const BlockID compareBlock = worldGetBlock(chunk->world, &query_position);
+            const bool compareOpaque = blockIsOpaque(compareBlock);
+            if (currentOpaque == compareOpaque) {
+                mask[n++] = (Mask){(uint16_t) BLOCKID_NONE, 0};
+            } else if (currentOpaque) {
+                mask[n++] = (Mask){(int16_t) currentBlock, 1};
+            } else {
+                mask[n++] = (Mask){(int16_t) compareBlock, -1};
+            }
+        }
+    }
+}
+
+void generateMeshLexicographically(Chunk* chunk,
+                                   const int axis1,
+                                   const int axis2,
+                                   int16_t deltaAxis1[CHUNK_DIRECTIONS],
+                                   int16_t deltaAxis2[CHUNK_DIRECTIONS],
+                                   int16_t chunkIter[CHUNK_DIRECTIONS],
+                                   int16_t axisMask[CHUNK_DIRECTIONS],
+                                   Mask mask[CHUNK_SIZE * CHUNK_SIZE]) {
+    int16_t n = 0;
+    // Generate a mesh from mask using lexicographic ordering
+    // looping over each block in this slice of the chunk
+    for (int j = 0; j < CHUNK_SIZE; j++) {
+        for (int i = 0; i < CHUNK_SIZE;) {
+            if (mask[n].normal == 0) {
+                i++;
+                n++;
+                continue;
+            }
+            const Mask currentMask = mask[n];
+            chunkIter[axis1] = i;
+            chunkIter[axis2] = j;
+            // Compute the width of this quad and store it in w
+            // This is done by searching along the current axis until mask[n + w] is false
+            int width;
+            for (width = 1; i + width < CHUNK_SIZE && compareMask(mask[n + width], currentMask); width++) {
+            }
+            // Compute the height of this quad and store it in h
+            // This is done by checking if every block next to this row (range 0 to w) is also part of the mask.
+            // For example, if w is 5 we currently have a quad of dimensions 1 x 5. To reduce triangle count,
+            // greedy meshing will attempt to expand this quad out to CHUNK_SIZE x 5, but will stop if it reaches a hole in the mask
+            bool done = false;
+            int height;
+            for (height = 1; j + height < CHUNK_SIZE; height++) {
+                // Check each block next to this quad
+                for (int w = 0; w < width; w++) {
+                    // If there's a hole in the mask, exit
+                    if (!compareMask(mask[n + w + (height * CHUNK_SIZE)], currentMask)) {
+                        done = true;
+                        break;
+                    }
+                }
+                if (done) {
+                    break;
+                }
+            }
+            deltaAxis1[axis1] = width;
+            deltaAxis2[axis2] = height;
+            createQuad(
+                chunk,
+                &currentMask,
+                width,
+                height,
+                axisMask,
+                chunkIter,
+                deltaAxis1,
+                deltaAxis2
+            );
+            memset(deltaAxis1, 0, sizeof(int16_t) * CHUNK_DIRECTIONS);
+            memset(deltaAxis2, 0, sizeof(int16_t) * CHUNK_DIRECTIONS);
+            for (int h = 0; h < height; h++) {
+                for (int w = 0; w < width; w++) {
+                    mask[n + w + (h * CHUNK_SIZE)] = (Mask){
+                        .block = (uint16_t) BLOCKID_NONE,
+                        .normal = 0
+                    };
+                }
+            }
+            i += width;
+            n += width;
+        }
+    }
+}
+
 void chunkGenerateMesh(Chunk* chunk) {
     // 0: X, 1: Y, 2: Z
-    VECTOR query_position = {};
     for (int axis = 0; axis < CHUNK_DIRECTIONS; axis++) {
         const int axis1 = (axis + 1) % CHUNK_DIRECTIONS;
         const int axis2 = (axis + 2) % CHUNK_DIRECTIONS;
@@ -289,92 +392,25 @@ void chunkGenerateMesh(Chunk* chunk) {
         Mask mask[CHUNK_SIZE * CHUNK_SIZE] = {0};
         for (chunkIter[axis] = -1; chunkIter[axis] < CHUNK_SIZE;) {
             // Compute mask
-            uint16_t n = 0;
-            for (chunkIter[axis2] = 0; chunkIter[axis2] < CHUNK_SIZE; chunkIter[axis2]++) {
-                for (chunkIter[axis1] = 0; chunkIter[axis1] < CHUNK_SIZE; chunkIter[axis1]++) {
-                    query_position.vx = chunkIter[0] + (chunk->position.vx * CHUNK_SIZE);
-                    query_position.vy = chunkIter[1] + (chunk->position.vy * CHUNK_SIZE);
-                    query_position.vz = chunkIter[2] + (chunk->position.vz * CHUNK_SIZE);
-                    const BlockID currentBlock = worldGetBlock(chunk->world, &query_position);
-                    const bool currentOpaque = blockIsOpaque(currentBlock);
-                    query_position.vx += axisMask[0];
-                    query_position.vy += axisMask[1];
-                    query_position.vz += axisMask[2];
-                    const BlockID compareBlock = worldGetBlock(chunk->world, &query_position);
-                    const bool compareOpaque = blockIsOpaque(compareBlock);
-                    if (currentOpaque == compareOpaque) {
-                        mask[n++] = (Mask){(uint16_t) BLOCKID_NONE, 0};
-                    } else if (currentOpaque) {
-                        mask[n++] = (Mask){(int16_t) currentBlock, 1};
-                    } else {
-                        mask[n++] = (Mask){(int16_t) compareBlock, -1};
-                    }
-                }
-            }
+            computeMeshMask(
+                chunk,
+                axis1,
+                axis2,
+                chunkIter,
+                axisMask,
+                mask
+            );
             chunkIter[axis]++;
-            n = 0;
-            // Generate a mesh from mask using lexicographic ordering
-            // looping over each block in this slice of the chunk
-            for (int j = 0; j < CHUNK_SIZE; j++) {
-                for (int i = 0; i < CHUNK_SIZE;) {
-                    if (mask[n].normal == 0) {
-                        i++;
-                        n++;
-                        continue;
-                    }
-                    const Mask currentMask = mask[n];
-                    chunkIter[axis1] = i;
-                    chunkIter[axis2] = j;
-                    // Compute the width of this quad and store it in w
-                    // This is done by searching along the current axis until mask[n + w] is false
-                    int width;
-                    for (width = 1; i + width < CHUNK_SIZE && compareMask(mask[n + width], currentMask); width++) {
-                    }
-                    // Compute the height of this quad and store it in h
-                    // This is done by checking if every block next to this row (range 0 to w) is also part of the mask.
-                    // For example, if w is 5 we currently have a quad of dimensions 1 x 5. To reduce triangle count,
-                    // greedy meshing will attempt to expand this quad out to CHUNK_SIZE x 5, but will stop if it reaches a hole in the mask
-                    bool done = false;
-                    int height;
-                    for (height = 1; j + height < CHUNK_SIZE; height++) {
-                        // Check each block next to this quad
-                        for (int w = 0; w < width; w++) {
-                            // If there's a hole in the mask, exit
-                            if (!compareMask(mask[n + w + (height * CHUNK_SIZE)], currentMask)) {
-                                done = true;
-                                break;
-                            }
-                        }
-                        if (done) {
-                            break;
-                        }
-                    }
-                    deltaAxis1[axis1] = width;
-                    deltaAxis2[axis2] = height;
-                    createQuad(
-                        chunk,
-                        &currentMask,
-                        width,
-                        height,
-                        axisMask,
-                        chunkIter,
-                        deltaAxis1,
-                        deltaAxis2
-                    );
-                    memset(deltaAxis1, 0, sizeof(int16_t) * CHUNK_DIRECTIONS);
-                    memset(deltaAxis2, 0, sizeof(int16_t) * CHUNK_DIRECTIONS);
-                    for (int h = 0; h < height; h++) {
-                        for (int w = 0; w < width; w++) {
-                            mask[n + w + (h * CHUNK_SIZE)] = (Mask){
-                                .block = (uint16_t) BLOCKID_NONE,
-                                .normal = 0
-                            };
-                        }
-                    }
-                    i += width;
-                    n += width;
-                }
-            }
+            generateMeshLexicographically(
+                chunk,
+                axis1,
+                axis2,
+                deltaAxis1,
+                deltaAxis2,
+                chunkIter,
+                axisMask,
+                mask
+            );
         }
     }
 }

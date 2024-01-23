@@ -102,7 +102,8 @@ void cameraReset(Camera* camera) {
 int main() {
     VECTOR look_pos = {0};
     Camera camera = {
-        .position = {ONE * -632, ONE * -117, ONE * 233},
+        .position = { 0, ONE * - 200, ONE * -200 },
+        // .position = {ONE * -632, ONE * -117, ONE * 233},
         .rotation = {ONE * 248, ONE * -1592, 0},
         .mode = 0
     };
@@ -136,12 +137,16 @@ int main() {
     while (1) {
         // Set pad pointer to buffer data
         camera.mode = 0;
+        printf("Before camera update\n");
         cameraUpdate(&camera, &input, &transforms, &look_pos);
+        printf("After camera update\n");
         // Set rotation and translation matrix
         gte_SetRotMatrix(&transforms.geometry_mtx);
         gte_SetTransMatrix(&transforms.geometry_mtx);
         // Draw the world
+        printf("Before render\n");
         worldRender(&world, &dctx, &transforms);
+        printf("After render\n");
         // Draw the chunk
         // chunkRender(&chunk, &dctx, &transforms);
         // chunkRender(&chunk1, &dctx, &transforms);
@@ -149,11 +154,17 @@ int main() {
         // cubeRender(&cube, &dctx, &transforms);
         // cubeRender(&cube1, &dctx, &transforms);
         // Clear window constraints
+        printf("Before clear constraint\n");
         displayClearConstraints(&dctx);
+        printf("After clear constraint\n");
         // Flush font to screen
+        printf("Before flush\n");
         FntFlush(-1);
+        printf("After flush\n");
         // Swap buffers and draw the primitives
+        printf("Before display\n");
         display(&dctx);
+        printf("After display\n");
     }
     // chunkDestroy(&chunk);
     worldDestroy(&world);
