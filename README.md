@@ -46,7 +46,7 @@ tooling and build the SDK. The following are optional arguments you can provide:
 Using this, we can build as follows:
 
 ```shell
-docker build --build-arg="REPO_TARGET=master" -t psxmc:latest -f Dockerfile .
+docker build -t psxmc:latest -f Dockerfile .
 ```
 
 With this, use the utility script `build_container.sh [<image:tag>]` to bundle assets and compile the
@@ -75,7 +75,8 @@ CMake within the Docker context attached to CLion. To the following to set this 
 
 ## Progress
 
-Work so far, current progress being made on world chunk loading/unloading.
+Work so far, current progress being made on world chunk loading/unloading and fixing some issues with
+unbounded reads/writes.
 
 |                                                 |                                                 |
 |-------------------------------------------------|-------------------------------------------------|
