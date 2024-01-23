@@ -314,7 +314,7 @@ void generateMeshLexicographically(Chunk* chunk,
                                    int16_t chunkIter[CHUNK_DIRECTIONS],
                                    int16_t axisMask[CHUNK_DIRECTIONS],
                                    Mask mask[CHUNK_SIZE * CHUNK_SIZE]) {
-    int16_t n = 0;
+    uint16_t n = 0;
     // Generate a mesh from mask using lexicographic ordering
     // looping over each block in this slice of the chunk
     for (int j = 0; j < CHUNK_SIZE; j++) {
