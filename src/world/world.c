@@ -20,13 +20,6 @@ void worldInit(World* world) {
     for (int x = x_start; x <= x_end; x++) {
         for (int z = z_start; z <= z_end; z++) {
             for (int y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
-                printf(
-                    "[CHUNK: %d,%d,%d, INDEX: %d,%d,%d] Generating heightmap and terrain\n",
-                    x, y, z,
-                    arrayCoord(world, vx, x),
-                    y,
-                    arrayCoord(world, vz, z)
-                );
                 Chunk* chunk = worldLoadChunk(world, (VECTOR){
                                                   .vx = x,
                                                   .vy = y,
@@ -106,6 +99,15 @@ void worldRender(const World* world, DisplayContext* ctx, Transforms* transforms
 Chunk* worldLoadChunk(World* world, const VECTOR chunk_position) {
     Chunk* chunk = malloc(sizeof(Chunk));
     assert(chunk != NULL);
+    printf(
+        "[CHUNK: %d,%d,%d, INDEX: %d,%d,%d] Generating heightmap and terrain\n",
+        chunk_position.vx,
+        chunk_position.vy,
+        chunk_position.vz,
+        arrayCoord(world, vx, chunk_position.vx),
+        chunk_position.vy,
+        arrayCoord(world, vz, chunk_position.vz)
+    );
     chunk->position.vx = chunk_position.vx;
     chunk->position.vy = chunk_position.vy;
     chunk->position.vz = chunk_position.vz;
