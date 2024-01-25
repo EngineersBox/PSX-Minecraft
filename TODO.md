@@ -9,7 +9,8 @@
 * [ ] Create loading screen to visualise loading progress. Something simple like a loading bar for now. Make it more
   fancy at a later point.
 * [ ] Camera far plane cutoff with fog relative to chunk render distance
-* [ ] Continuous shifting world chunk array
+* [x] Continuous shifting world chunk array
+* [ ] Frustum and depth-first search culling through chunks
 
 ## Refactor
 
@@ -27,4 +28,4 @@
       This might be the inverse of changes made with windowing and indexing to fix chunk rendering initially.
 * [ ] Camera rotation values do not wrap when a complete rotation is achieved
 * [x] Fixed stale references to mesh attribute iterators (vert/prim/norm)
-* [ ] Logs spammed with GPU bad address read when looking down after a certain point
+* [x] Logs spammed with GPU bad address read when looking down after a certain point

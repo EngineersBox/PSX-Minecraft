@@ -27,35 +27,35 @@ class ColoredFormatter(coloredlogs.ColoredFormatter):
             }
         }
         coloredlogs.DEFAULT_LEVEL_STYLES = {
-            'critical': {
-                'bold': True,
-                'color': 'red'
+            "critical": {
+                "bold": True,
+                "color": "red"
             },
-            'debug': {
-                'color': 'magenta'
+            "debug": {
+                "color": "magenta"
             },
-            'error': {
-                'color': 'red'
+            "error": {
+                "color": "red"
             },
-            'info': {
+            "info": {
                 "color": "blue"
             },
-            'notice': {
-                'color': 'magenta'
+            "notice": {
+                "color": "magenta"
             },
-            'spam': {
-                'color': 'green',
-                'faint': True
+            "spam": {
+                "color": "green",
+                "faint": True
             },
-            'success': {
-                'bold': True,
-                'color': 'green'
+            "success": {
+                "bold": True,
+                "color": "green"
             },
-            'verbose': {
-                'color': 'blue'
+            "verbose": {
+                "color": "blue"
             },
-            'warning': {
-                'color': 'yellow'
+            "warning": {
+                "color": "yellow"
             }
         }
 
