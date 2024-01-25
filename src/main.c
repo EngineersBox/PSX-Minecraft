@@ -103,13 +103,12 @@ int main() {
     VECTOR look_pos = {0};
     Camera camera = {
         .position = { 0, ONE * - 200, ONE * -200 },
-        // .position = {ONE * -632, ONE * -117, ONE * 233},
         .rotation = {ONE * 248, ONE * -1592, 0},
         .mode = 0
     };
     Transforms transforms = {
         .translation_rotation = {0},
-        .translation_position = {0, 0, 200},
+        .translation_position = {0, 0, 0},
         .geometry_mtx = {},
         .lighting_mtx = light_mtx
     };
@@ -126,14 +125,6 @@ int main() {
         }
     };
     worldInit(&world);
-    // Chunk chunk;
-    // chunk.position = (VECTOR) {0, 1, 0};
-    // chunkInit(&chunk);
-    // chunkGenerateMesh(&chunk);
-    // Chunk chunk1;
-    // chunk1.position = (VECTOR) {1, 1, 0};
-    // initTestBlocks(&chunk1);
-    // chunkInit(&chunk1);
     while (1) {
         // Set pad pointer to buffer data
         camera.mode = 0;
@@ -143,12 +134,6 @@ int main() {
         gte_SetTransMatrix(&transforms.geometry_mtx);
         // Draw the world
         worldRender(&world, &dctx, &transforms);
-        // Draw the chunk
-        // chunkRender(&chunk, &dctx, &transforms);
-        // chunkRender(&chunk1, &dctx, &transforms);
-        // Draw cubes
-        // cubeRender(&cube, &dctx, &transforms);
-        // cubeRender(&cube1, &dctx, &transforms);
         // Clear window constraints
         displayClearConstraints(&dctx);
         // Flush font to screen
