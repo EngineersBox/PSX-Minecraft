@@ -75,12 +75,11 @@ CMake within the Docker context attached to CLion. To the following to set this 
 
 ## Progress
 
-Work so far, current progress being made on world chunk loading/unloading and fixing some issues with
-unbounded reads/writes.
+Work so far, current progress being made on world chunk loading/unloading
 
-|                                                 |                                                 |
-|-------------------------------------------------|-------------------------------------------------|
-| ![Inter-Chunk Meshing](./docs/line_cross_1.png) | ![Inter-Chunk Meshing](./docs/line_cross_2.png) |
+|                                            |                                            |
+|--------------------------------------------|--------------------------------------------|
+| ![Inter-Chunk Meshing](./docs/psxmc_1.png) | ![Inter-Chunk Meshing](./docs/psxmc_2.png) |
 
 
 ![PSXMC](./docs/PSXMC.png)

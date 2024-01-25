@@ -8,7 +8,7 @@
 
 // DB struct array sizes
 #define ORDERING_TABLE_LENGTH (1 << 11)
-#define PACKET_BUFFER_LENGTH (1 << 14)
+#define PACKET_BUFFER_LENGTH (1 << 15)
 
 // Screen resolution
 #define SCREEN_XRES	320

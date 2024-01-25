@@ -46,7 +46,7 @@ void chunkGenerate2DHeightMap(Chunk* chunk, const VECTOR* position) {
             printf("height: %d\n", height);
             for (int32_t y = CHUNK_SIZE; y > 0; y--) {
                 const int32_t worldY = (position->vy * CHUNK_SIZE) + (CHUNK_SIZE - y)
-                                       + (CHUNK_SIZE * 15); // !IMPORTANT: TESTING OFFSET
+                                       + (CHUNK_SIZE * 13); // !IMPORTANT: TESTING OFFSET
                 if (worldY < height - 3) {
                     chunk->blocks[chunkBlockIndex(x, y - 1, z)] = (BlockID) BLOCKID_STONE;
                     // printf("STONE @ %d,%d,%d\n", x, y - 1, z);

@@ -37,7 +37,7 @@ MATRIX color_mtx = {
 MATRIX light_mtx = {
     /* X,  Y,  Z */
     .m = {
-        {-FIXED_1_2, -FIXED_1_2, -FIXED_1_2},
+        {-FIXED_1_2, -FIXED_1_2, FIXED_1_2},
         {0, 0, 0},
         {0, 0, 0}
     }
@@ -120,7 +120,7 @@ int main() {
             .vz = 0
         },
         .centre = {
-            .vx = -1,
+            .vx = 0,
             .vy = 0,
             .vz = 0
         }
