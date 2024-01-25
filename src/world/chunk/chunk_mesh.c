@@ -140,6 +140,9 @@ void renderQuad(const ChunkMesh* mesh, SMD_PRIM* primitive, DisplayContext* ctx,
         primitive->tu1,
         primitive->tv1
     );
+    pol4->r0 *= p >> 2;
+    pol4->g0 *= p >> 2;
+    pol4->b0 *= p >> 2;
     // Bind texture page and colour look-up-table
     pol4->tpage = primitive->tpage;
     pol4->clut = primitive->clut;
