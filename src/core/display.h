@@ -7,8 +7,8 @@
 #include <psxgte.h>
 
 // DB struct array sizes
-#define ORDERING_TABLE_LENGTH 1024 + 512
-#define PACKET_BUFFER_LENGTH 8096
+#define ORDERING_TABLE_LENGTH (1 << 11)
+#define PACKET_BUFFER_LENGTH (1 << 14)
 
 // Screen resolution
 #define SCREEN_XRES	320
@@ -29,14 +29,20 @@ typedef struct {
 } DB;
 
 typedef struct {
-    int active;
     char* primitive;
     RECT screen_clip;
     DB db[2];
+    uint8_t active;
 } DisplayContext;
 
 void initDisplay(DisplayContext* ctx);
+
 void display(DisplayContext* ctx);
+
 void displayClearConstraints(DisplayContext* ctx);
+
+char* displayAllocatePrimitive(DisplayContext* ctx, size_t size);
+void displayFreePrimitive(DisplayContext* ctx, size_t size);
+uint32_t* displayAllocateOrderingTable(DisplayContext* ctx, size_t size);
 
 #endif //PSX_MINECRAFT_DISPLAY_H

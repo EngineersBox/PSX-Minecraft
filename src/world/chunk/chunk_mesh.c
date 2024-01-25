@@ -63,7 +63,7 @@ void renderQuad(const ChunkMesh* mesh, SMD_PRIM* primitive, DisplayContext* ctx,
         BLOCK_TEXTURE_SIZE >> 3,
         BLOCK_TEXTURE_SIZE >> 3
     };
-    POLY_FT4* pol4 = (POLY_FT4*) ctx->primitive;
+    POLY_FT4* pol4 = (POLY_FT4*) displayAllocatePrimitive(ctx, sizeof(POLY_FT4));
     gte_ldv3(
         &verticesIter[primitive->v0],
         &verticesIter[primitive->v1],
@@ -76,6 +76,7 @@ void renderQuad(const ChunkMesh* mesh, SMD_PRIM* primitive, DisplayContext* ctx,
     // Avoid negative depth (behind camera) and zero
     // for constraint clearing primitive in OT
     if (p <= 0) {
+        displayFreePrimitive(ctx, sizeof(POLY_FT4));
         return;
     }
     // Average screen Z result for four primtives
@@ -83,6 +84,7 @@ void renderQuad(const ChunkMesh* mesh, SMD_PRIM* primitive, DisplayContext* ctx,
     gte_stotz(&p);
     // (the shift right operator is to scale the depth precision)
     if (p >> 2 <= 0 || p >> 2 >= ORDERING_TABLE_LENGTH) {
+        displayFreePrimitive(ctx, sizeof(POLY_FT4));
         return;
     }
     // Initialize a textured quad primitive
@@ -102,6 +104,7 @@ void renderQuad(const ChunkMesh* mesh, SMD_PRIM* primitive, DisplayContext* ctx,
         (DVECTOR*) &pol4->x1,
         (DVECTOR*) &pol4->x2,
         (DVECTOR*) &pol4->x3)) {
+        displayFreePrimitive(ctx, sizeof(POLY_FT4));
         return;
     }
     // Load primitive color even though gte_ncs() doesn't use it.
@@ -141,16 +144,14 @@ void renderQuad(const ChunkMesh* mesh, SMD_PRIM* primitive, DisplayContext* ctx,
     pol4->tpage = primitive->tpage;
     pol4->clut = primitive->clut;
     // Sort primitive to the ordering table
-    addPrim(ctx->db[ctx->active].ordering_table + (p >> 2), pol4);
+    uint32_t* ot_object = displayAllocateOrderingTable(ctx, p >> 2);
+    addPrim(ot_object, pol4);
     // Advance to make another primitive
-    pol4++;
-    ctx->primitive = (char*) pol4;
     // Bind a texture window to ensure wrapping across merged block face primitives
-    DR_TWIN* ptwin = (DR_TWIN*) ctx->primitive;
+    DR_TWIN* ptwin = (DR_TWIN*) displayAllocatePrimitive(ctx, sizeof(DR_TWIN));
     setTexWindow(ptwin, &tex_window);
-    addPrim(ctx->db[ctx->active].ordering_table + (p >> 2), ptwin);
-    ptwin++;
-    ctx->primitive = (char*) ptwin;
+    ot_object = displayAllocateOrderingTable(ctx, p >> 2);
+    addPrim(ot_object, ptwin);
 }
 
 void chunkMeshRender(const ChunkMesh* mesh, DisplayContext* ctx, Transforms* transforms) {
