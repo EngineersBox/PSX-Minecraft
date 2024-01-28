@@ -11,11 +11,14 @@
 * [ ] Camera far plane cutoff with fog relative to chunk render distance
 * [x] Continuous shifting world chunk array
 * [ ] Frustum and depth-first search culling through chunks
+* [ ] Graphing lib to use for resource usage and debugging
+* [ ] Ray cast from camera normal to block retrieving exact block coordinates in world
 
 ## Refactor
 
 * [x] Support texture windowing for wrap-around in multiples of texture width/height
 * [ ] Move rendering handlers in ChunkMesh to standalone SMD renderer file
+* [ ] Camera displayed position to be units of `BLOCK_SIZE`
 
 ## Fix
 
