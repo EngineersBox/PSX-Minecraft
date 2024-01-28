@@ -261,7 +261,7 @@ BlockID worldGetChunkBlock(const World* world, const ChunkBlockPosition* positio
 
 BlockID worldGetBlock(const World* world, const VECTOR* position) {
     // World is void below 0 on y-axis
-    if (position->vy < 0) {
+    if (position->vy < 0 || position->vy >= WORLD_HEIGHT) {
         return BLOCKID_NONE;
     }
     const ChunkBlockPosition chunk_block_position = worldToChunkBlockPosition(position, CHUNK_SIZE);

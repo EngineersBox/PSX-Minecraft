@@ -10,6 +10,7 @@
 #include "../render/transforms.h"
 
 #define WORLD_CHUNKS_HEIGHT 2
+#define WORLD_HEIGHT (CHUNK_SIZE * WORLD_CHUNKS_HEIGHT)
 
 // Must be positive
 #define LOADED_CHUNKS_RADIUS 1
