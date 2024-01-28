@@ -9,7 +9,7 @@
 #include "../core/display.h"
 #include "../render/transforms.h"
 
-#define WORLD_CHUNKS_HEIGHT 1
+#define WORLD_CHUNKS_HEIGHT 2
 
 // Must be positive
 #define LOADED_CHUNKS_RADIUS 1

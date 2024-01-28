@@ -246,6 +246,11 @@ void worldLoadChunks(World* world, const VECTOR* player_pos) {
 }
 
 BlockID worldGetChunkBlock(const World* world, const ChunkBlockPosition* position) {
+    // World is void below 0 on y-axis and nothing above height limit
+    if ((position->chunk.vy <= 0 && position->block.vy < 0)
+        || position->chunk.vy >= WORLD_CHUNKS_HEIGHT) {
+        return BLOCKID_NONE;
+    }
     const Chunk* chunk = world->chunks[arrayCoord(world, vx, position->chunk.vx)][arrayCoord(
         world, vz, position->chunk.vz)][position->chunk.vy];
     if (chunk == NULL) {
@@ -255,6 +260,10 @@ BlockID worldGetChunkBlock(const World* world, const ChunkBlockPosition* positio
 }
 
 BlockID worldGetBlock(const World* world, const VECTOR* position) {
+    // World is void below 0 on y-axis
+    if (position->vy < 0) {
+        return BLOCKID_NONE;
+    }
     const ChunkBlockPosition chunk_block_position = worldToChunkBlockPosition(position, CHUNK_SIZE);
     return worldGetChunkBlock(world, &chunk_block_position);
 }
