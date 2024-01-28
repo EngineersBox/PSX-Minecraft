@@ -5,7 +5,7 @@
 #include <inline_c.h>
 #include <stdlib.h>
 
-#include "../core/display.h"
+#include "../render/render_context.h"
 #include "clip.h"
 
 const SVECTOR CUBE_NORMS[6] = {
@@ -28,7 +28,7 @@ const INDEX CUBE_INDICES[6] = {
 
 // #define RENDER_SIDES_COLOURED
 
-void cubeRender(Cube *cube, DisplayContext *ctx, Transforms *transforms) {
+void cubeRender(Cube *cube, RenderContext *ctx, Transforms *transforms) {
     int p;
     // Object and light matrix for object
     MATRIX omtx, olmtx;

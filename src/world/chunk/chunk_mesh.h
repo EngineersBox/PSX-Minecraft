@@ -6,7 +6,7 @@
 #include <smd/smd.h>
 
 #include "../../util/cvector.h"
-#include "../../core/display.h"
+#include "../../render/render_context.h"
 #include "../../render/transforms.h"
 
 #ifndef MESH_PRIMITIVE_VEC_INITIAL_CAPCITY
@@ -47,6 +47,6 @@ typedef struct {
 void chunkMeshInit(ChunkMesh* mesh);
 void chunkMeshDestroy(const ChunkMesh* mesh);
 void chunkMeshClear(ChunkMesh* mesh);
-void chunkMeshRender(const ChunkMesh* mesh, DisplayContext* ctx, Transforms* transforms);
+void chunkMeshRender(const ChunkMesh* mesh, RenderContext* ctx, Transforms* transforms);
 
 #endif // PSX_MINECRAFT_CHUNK_MESH_H

@@ -3,7 +3,7 @@
 #ifndef PSX_MINECRAFT_BLOCK_H
 #define PSX_MINECRAFT_BLOCK_H
 
-#include "../core/display.h"
+#include "../render/render_context.h"
 #include "../render/transforms.h"
 #include "../resources/assets.h"
 #include "../util/preprocessor.h"
@@ -40,7 +40,7 @@ typedef struct _Block {
     char* name;
 } Block;
 
-void blockRender(Block* block, DisplayContext* ctx, Transforms* transforms);
+void blockRender(Block* block, RenderContext* ctx, Transforms* transforms);
 
 #define BLOCK_COUNT 256
 

@@ -5,7 +5,7 @@
 
 #include <psxgte.h>
 #include "chunk_mesh.h"
-#include "../../core/display.h"
+#include "../../render/render_context.h"
 #include "../../render/transforms.h"
 #include "../../blocks/block.h"
 #include "../position.h"
@@ -41,7 +41,7 @@ void chunkClearMesh(Chunk* chunk);
 
 void chunkModifyVoxel(Chunk* chunk, const VECTOR* position, EBlockID block);
 
-void chunkRender(Chunk* chunk, DisplayContext* ctx, Transforms* transforms);
+void chunkRender(Chunk* chunk, RenderContext* ctx, Transforms* transforms);
 
 BlockID chunkGetBlock(const Chunk* chunk, int x, int y, int z);
 BlockID chunkGetBlockVec(const Chunk* chunk, const VECTOR* position);

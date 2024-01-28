@@ -44,15 +44,15 @@ void chunkMeshClear(ChunkMesh* mesh) {
 }
 
 // TODO: Move these to SMD renderer file as general methods
-void renderLine(SMD_PRIM* primitive, DisplayContext* ctx, Transforms* transforms) {
+void renderLine(SMD_PRIM* primitive, RenderContext* ctx, Transforms* transforms) {
     // TODO
 }
 
-void renderTriangle(SMD_PRIM* primitive, DisplayContext* ctx, Transforms* transforms) {
+void renderTriangle(SMD_PRIM* primitive, RenderContext* ctx, Transforms* transforms) {
     // TODO
 }
 
-void renderQuad(const ChunkMesh* mesh, SMD_PRIM* primitive, DisplayContext* ctx, Transforms* transforms) {
+void renderQuad(const ChunkMesh* mesh, SMD_PRIM* primitive, RenderContext* ctx, Transforms* transforms) {
     // TODO: Generalise for textured and non-textured
     int p;
     cvector_iterator(SVECTOR) verticesIter = cvector_begin(mesh->vertices);
@@ -63,7 +63,7 @@ void renderQuad(const ChunkMesh* mesh, SMD_PRIM* primitive, DisplayContext* ctx,
         BLOCK_TEXTURE_SIZE >> 3,
         BLOCK_TEXTURE_SIZE >> 3
     };
-    POLY_FT4* pol4 = (POLY_FT4*) displayAllocatePrimitive(ctx, sizeof(POLY_FT4));
+    POLY_FT4* pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
     gte_ldv3(
         &verticesIter[primitive->v0],
         &verticesIter[primitive->v1],
@@ -76,7 +76,7 @@ void renderQuad(const ChunkMesh* mesh, SMD_PRIM* primitive, DisplayContext* ctx,
     // Avoid negative depth (behind camera) and zero
     // for constraint clearing primitive in OT
     if (p <= 0) {
-        displayFreePrimitive(ctx, sizeof(POLY_FT4));
+        freePrimitive(ctx, sizeof(POLY_FT4));
         return;
     }
     // Average screen Z result for four primtives
@@ -84,7 +84,7 @@ void renderQuad(const ChunkMesh* mesh, SMD_PRIM* primitive, DisplayContext* ctx,
     gte_stotz(&p);
     // (the shift right operator is to scale the depth precision)
     if (p >> 2 <= 0 || p >> 2 >= ORDERING_TABLE_LENGTH) {
-        displayFreePrimitive(ctx, sizeof(POLY_FT4));
+        freePrimitive(ctx, sizeof(POLY_FT4));
         return;
     }
     // Initialize a textured quad primitive
@@ -104,7 +104,7 @@ void renderQuad(const ChunkMesh* mesh, SMD_PRIM* primitive, DisplayContext* ctx,
         (DVECTOR*) &pol4->x1,
         (DVECTOR*) &pol4->x2,
         (DVECTOR*) &pol4->x3)) {
-        displayFreePrimitive(ctx, sizeof(POLY_FT4));
+        freePrimitive(ctx, sizeof(POLY_FT4));
         return;
     }
     // Load primitive color even though gte_ncs() doesn't use it.
@@ -144,17 +144,17 @@ void renderQuad(const ChunkMesh* mesh, SMD_PRIM* primitive, DisplayContext* ctx,
     pol4->tpage = primitive->tpage;
     pol4->clut = primitive->clut;
     // Sort primitive to the ordering table
-    uint32_t* ot_object = displayAllocateOrderingTable(ctx, p >> 2);
+    uint32_t* ot_object = allocateOrderingTable(ctx, p >> 2);
     addPrim(ot_object, pol4);
     // Advance to make another primitive
     // Bind a texture window to ensure wrapping across merged block face primitives
-    DR_TWIN* ptwin = (DR_TWIN*) displayAllocatePrimitive(ctx, sizeof(DR_TWIN));
+    DR_TWIN* ptwin = (DR_TWIN*) allocatePrimitive(ctx, sizeof(DR_TWIN));
     setTexWindow(ptwin, &tex_window);
-    ot_object = displayAllocateOrderingTable(ctx, p >> 2);
+    ot_object = allocateOrderingTable(ctx, p >> 2);
     addPrim(ot_object, ptwin);
 }
 
-void chunkMeshRender(const ChunkMesh* mesh, DisplayContext* ctx, Transforms* transforms) {
+void chunkMeshRender(const ChunkMesh* mesh, RenderContext* ctx, Transforms* transforms) {
     // printf("Primitives: %d\n", cvector_size(mesh->primitives));
     // int i = 0;
     cvector_iterator(SMD_PRIM) primitive;

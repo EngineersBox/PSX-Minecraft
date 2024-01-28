@@ -1,5 +1,5 @@
 #include "block.h"
 
-void blockRender(Block* block, DisplayContext* ctx, Transforms* transforms) {
+void blockRender(Block* block, RenderContext* ctx, Transforms* transforms) {
 
 }

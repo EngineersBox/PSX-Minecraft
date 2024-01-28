@@ -4,9 +4,8 @@
 #include <inline_c.h>
 #include <smd/smd.h>
 
-#include "display.h"
+#include "render_context.h"
 
-#include <assert.h>
 #include <stdlib.h>
 
 CVECTOR clear_colour = {
@@ -16,7 +15,7 @@ CVECTOR clear_colour = {
     .cd = 0
 };
 
-void initDisplay(DisplayContext* ctx) {
+void initRenderContext(RenderContext* ctx) {
     // Reset GPU and install VSync event handler
     ResetGraph(0);
     // Set display and draw environment areas
@@ -82,7 +81,7 @@ void initDisplay(DisplayContext* ctx) {
     }
 }
 
-void display(DisplayContext* ctx) {
+void swapBuffers(RenderContext* ctx) {
     // Wait for GPU to finish drawing and vertical retrace
     DrawSync(0);
     VSync(0);
@@ -100,7 +99,7 @@ void display(DisplayContext* ctx) {
     DrawOTag(ctx->db[1 - ctx->active].ordering_table + (ORDERING_TABLE_LENGTH - 1));
 }
 
-void displayClearConstraints(DisplayContext* ctx) {
+void renderClearConstraints(RenderContext* ctx) {
     DR_TWIN* ptwin = (DR_TWIN*) ctx->primitive;
     // Zeroed fields indicates clearing/reset any applied texture windows
     const RECT tex_window = {
@@ -115,7 +114,7 @@ void displayClearConstraints(DisplayContext* ctx) {
     ctx->primitive = (char*) ptwin;
 }
 
-char* displayAllocatePrimitive(DisplayContext* ctx, const size_t size) {
+char* allocatePrimitive(RenderContext* ctx, const size_t size) {
     ptrdiff_t free_space = PACKET_BUFFER_LENGTH;
     free_space -= (uintptr_t) ctx->primitive - (uintptr_t) ctx->db[ctx->active].packet_buffer;
     if (free_space < size) {
@@ -127,7 +126,7 @@ char* displayAllocatePrimitive(DisplayContext* ctx, const size_t size) {
     return prev;
 }
 
-void displayFreePrimitive(DisplayContext* ctx, const size_t size) {
+void freePrimitive(RenderContext* ctx, const size_t size) {
     const ptrdiff_t allocated_space = (uintptr_t) ctx->primitive - (uintptr_t) ctx->db[ctx->active].packet_buffer;
     if (allocated_space < size) {
         printf(
@@ -140,7 +139,7 @@ void displayFreePrimitive(DisplayContext* ctx, const size_t size) {
     ctx->primitive -= size;
 }
 
-uint32_t* displayAllocateOrderingTable(DisplayContext* ctx, const size_t size) {
+uint32_t* allocateOrderingTable(RenderContext* ctx, const size_t size) {
     ptrdiff_t free_space = ORDERING_TABLE_LENGTH;
     free_space -= ((uintptr_t) ctx->db[ctx->active].ordering_table + size) - (uintptr_t) ctx->db[ctx->active].ordering_table;
     if (free_space < size) {

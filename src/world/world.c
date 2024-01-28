@@ -75,7 +75,7 @@ void worldDestroy(World* world) {
     }
 }
 
-void worldRender(const World* world, DisplayContext* ctx, Transforms* transforms) {
+void worldRender(const World* world, RenderContext* ctx, Transforms* transforms) {
     // TODO: Revamp with BFS for visible chunks occlusion (use frustum culling too?)
     const int x_start = world->centre.vx - LOADED_CHUNKS_RADIUS;
     const int x_end = world->centre.vx + LOADED_CHUNKS_RADIUS;

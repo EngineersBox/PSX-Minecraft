@@ -6,7 +6,7 @@
 #include "position.h"
 #include "../util/cvector.h"
 #include "chunk/chunk.h"
-#include "../core/display.h"
+#include "../render/render_context.h"
 #include "../render/transforms.h"
 
 #define WORLD_CHUNKS_HEIGHT 2
@@ -35,7 +35,7 @@ typedef struct World {
 void worldInit(World* world);
 void worldDestroy(World* world);
 
-void worldRender(const World* world, DisplayContext* ctx, Transforms* transforms);
+void worldRender(const World* world, RenderContext* ctx, Transforms* transforms);
 
 Chunk* worldLoadChunk(World* world, VECTOR chunk_position);
 void worldUnloadChunk(Chunk* chunk);

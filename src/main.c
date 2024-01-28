@@ -1,4 +1,4 @@
-#include <display.h>
+#include <render_context.h>
 #include <stdint.h>
 #include <psxgpu.h>
 #include <psxgte.h>
@@ -11,7 +11,7 @@
 #include "world/world.h"
 #include "util/math_utils.h"
 
-DisplayContext dctx = {
+RenderContext render_context = {
     .active = 0,
     .db = {},
     .primitive = NULL
@@ -47,7 +47,7 @@ MATRIX light_mtx = {
 extern const uint32_t tim_texture[];
 
 void init() {
-    initDisplay(&dctx);
+    initRenderContext(&render_context);
     initInput(&input);
     /* Set light ambient color and light color matrix */
     gte_SetBackColor(63, 63, 63);
@@ -133,13 +133,13 @@ int main() {
         gte_SetRotMatrix(&transforms.geometry_mtx);
         gte_SetTransMatrix(&transforms.geometry_mtx);
         // Draw the world
-        worldRender(&world, &dctx, &transforms);
+        worldRender(&world, &render_context, &transforms);
         // Clear window constraints
-        displayClearConstraints(&dctx);
+        renderClearConstraints(&render_context);
         // Flush font to screen
         FntFlush(-1);
         // Swap buffers and draw the primitives
-        display(&dctx);
+        swapBuffers(&render_context);
     }
     // chunkDestroy(&chunk);
     worldDestroy(&world);

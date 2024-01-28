@@ -9,7 +9,7 @@
 
 #include "../resources/texture.h"
 #include "../resources/assets.h"
-#include "../core/display.h"
+#include "../render/render_context.h"
 #include "../render/transforms.h"
 #include "../primitive/primitive.h"
 
@@ -26,6 +26,6 @@ typedef struct {
 extern const SVECTOR CUBE_NORMS[];
 extern const INDEX CUBE_INDICES[];
 
-void cubeRender(Cube* cube, DisplayContext* ctx, Transforms* transforms);
+void cubeRender(Cube* cube, RenderContext* ctx, Transforms* transforms);
 
 #endif //PSX_MINECRAFT_CUBE_H

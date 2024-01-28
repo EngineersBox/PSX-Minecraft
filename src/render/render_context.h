@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef PSX_MINECRAFT_DISPLAY_H
-#define PSX_MINECRAFT_DISPLAY_H
+#ifndef PSX_MINECRAFT_RENDER_CONTEXT_H
+#define PSX_MINECRAFT_RENDER_CONTEXT_H
 
 #include <psxgpu.h>
 #include <psxgte.h>
@@ -33,16 +33,16 @@ typedef struct {
     RECT screen_clip;
     DB db[2];
     uint8_t active;
-} DisplayContext;
+} RenderContext;
 
-void initDisplay(DisplayContext* ctx);
+void initRenderContext(RenderContext* ctx);
 
-void display(DisplayContext* ctx);
+void swapBuffers(RenderContext* ctx);
 
-void displayClearConstraints(DisplayContext* ctx);
+void renderClearConstraints(RenderContext* ctx);
 
-char* displayAllocatePrimitive(DisplayContext* ctx, size_t size);
-void displayFreePrimitive(DisplayContext* ctx, size_t size);
-uint32_t* displayAllocateOrderingTable(DisplayContext* ctx, size_t size);
+char* allocatePrimitive(RenderContext* ctx, size_t size);
+void freePrimitive(RenderContext* ctx, size_t size);
+uint32_t* allocateOrderingTable(RenderContext* ctx, size_t size);
 
-#endif //PSX_MINECRAFT_DISPLAY_H
+#endif // PSX_MINECRAFT_RENDER_CONTEXT_H
