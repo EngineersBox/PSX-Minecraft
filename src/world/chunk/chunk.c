@@ -295,17 +295,17 @@ void computeMeshMask(const Chunk* chunk,
             query_position.vz += axisMask[2];
             const BlockID compareBlock = worldGetBlock(chunk->world, &query_position);
             const bool compareOpaque = blockIsOpaque(compareBlock);
-            printf(
-                "(%d,%d,%d) %d == (%d,%d,%d) %d\n",
-                chunkIter[0] + (chunk->position.vx * CHUNK_SIZE),
-                chunkIter[1] + (chunk->position.vy * CHUNK_SIZE),
-                chunkIter[2] + (chunk->position.vz * CHUNK_SIZE),
-                currentOpaque,
-                axisMask[0] + chunkIter[0] + (chunk->position.vx * CHUNK_SIZE),
-                axisMask[1] + chunkIter[1] + (chunk->position.vy * CHUNK_SIZE),
-                axisMask[2] + chunkIter[2] + (chunk->position.vz * CHUNK_SIZE),
-                compareOpaque
-            );
+            // printf(
+            //     "(%d,%d,%d) %d == (%d,%d,%d) %d\n",
+            //     chunkIter[0] + (chunk->position.vx * CHUNK_SIZE),
+            //     chunkIter[1] + (chunk->position.vy * CHUNK_SIZE),
+            //     chunkIter[2] + (chunk->position.vz * CHUNK_SIZE),
+            //     currentOpaque,
+            //     axisMask[0] + chunkIter[0] + (chunk->position.vx * CHUNK_SIZE),
+            //     axisMask[1] + chunkIter[1] + (chunk->position.vy * CHUNK_SIZE),
+            //     axisMask[2] + chunkIter[2] + (chunk->position.vz * CHUNK_SIZE),
+            //     compareOpaque
+            // );
             if (currentOpaque == compareOpaque) {
                 mask[n++] = (Mask){(uint16_t) BLOCKID_NONE, 0};
             } else if (currentOpaque) {

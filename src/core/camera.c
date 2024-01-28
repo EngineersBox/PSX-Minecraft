@@ -3,19 +3,23 @@
 #include <psxapi.h>
 #include <psxgpu.h>
 
+#include "../blocks/block.h"
 #include "../util/math_utils.h"
 
 #define isPressed(pad_button) (!(input->pad->btn & (pad_button)))
 
-void printDebugCamera(const Camera *camera, const Input *input) {
+void printDebugCamera(const Camera* camera, const Input* input) {
     // Print out some info
     FntPrint(-1, "BUTTONS=%04x\n", input->pad->btn);
+    const int32_t x = camera->position.vx / BLOCK_SIZE;
+    const int32_t y = camera->position.vy / BLOCK_SIZE;
+    const int32_t z = camera->position.vz / BLOCK_SIZE;
     FntPrint(
         -1,
-        "X=%d Y=%d Z=%d\n",
-        camera->position.vx >> FIXED_POINT_SHIFT,
-        camera->position.vy >> FIXED_POINT_SHIFT,
-        camera->position.vz >> FIXED_POINT_SHIFT
+        "X=%d.%d Y=%d.%d Z=%d.%d\n",
+        fixedGetWhole(x), fixedGetFractional(x),
+        fixedGetWhole(y), fixedGetFractional(y),
+        fixedGetWhole(z), fixedGetFractional(z)
     );
     FntPrint(
         -1,
@@ -103,7 +107,7 @@ void handleDigitalPadAndDualAnalogShock(Camera* camera, const Input* input, cons
     }
 }
 
-void handleDualAnalogShock(Camera *camera, const Input *input, const Transforms *transforms) {
+void handleDualAnalogShock(Camera* camera, const Input* input, const Transforms* transforms) {
     // For dual-analog and dual-shock (analog input)
     if ((input->pad->type != 0x5) && (input->pad->type != 0x7)) {
         return;
@@ -133,7 +137,7 @@ void handleDualAnalogShock(Camera *camera, const Input *input, const Transforms 
     }
 }
 
-void cameraUpdate(Camera *camera, const Input *input, Transforms *transforms, const VECTOR *look_pos) {
+void cameraUpdate(Camera* camera, const Input* input, Transforms* transforms, const VECTOR* look_pos) {
     // Parse controller input
     camera->mode = 0;
     // Divide out fractions of camera rotation
@@ -185,7 +189,7 @@ void cameraUpdate(Camera *camera, const Input *input, Transforms *transforms, co
     }
 }
 
-void lookAt(const VECTOR *eye, const VECTOR *at, const SVECTOR *up, MATRIX *mtx) {
+void lookAt(const VECTOR* eye, const VECTOR* at, const SVECTOR* up, MATRIX* mtx) {
     VECTOR taxis;
     SVECTOR zaxis;
     SVECTOR xaxis;

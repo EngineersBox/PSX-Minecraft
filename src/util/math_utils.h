@@ -84,6 +84,11 @@ typedef struct _BVECTOR {
 
 // Fixed point
 
+#define FIXED_MASK_FRACTIONAL 0xffff
+#define FIXED_MASK_WHOLE (~FIXED_MASK_FRACTIONAL)
+#define fixedGetFractional(value) ((value) & FIXED_MASK_FRACTIONAL)
+#define fixedGetWhole(value) ((value) >> FIXED_POINT_SHIFT)
+
 /**
  * @brief Divides two fixed point int16_t numbers as x / y
  * @param x - int16_t dividend (number being divided)
