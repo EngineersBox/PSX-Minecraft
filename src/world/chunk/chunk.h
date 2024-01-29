@@ -26,7 +26,6 @@ typedef struct {
     World* world;
     VECTOR position;
     ChunkMesh mesh;
-    // fnl_state noise;
     BlockID blocks[CHUNK_DATA_SIZE];
 } Chunk;
 

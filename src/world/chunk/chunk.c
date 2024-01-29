@@ -198,30 +198,16 @@ void createQuadVertices(Chunk* chunk,
     };
     const INDEX indices = INDICES[index];
     SVECTOR* vertex = NULL;
-    nextRenderAttribute(vertices, v0, n_verts, vertex);
-    const SVECTOR* currentVert = &vertices[indices.v0];
-    vertex->vx = currentVert->vx;
-    vertex->vy = currentVert->vy;
-    vertex->vz = currentVert->vz;
-    // printf("V0 @ %p: {%d,%d,%d}\n", vertex, vertex->vx, vertex->vy, vertex->vz);
-    nextRenderAttribute(vertices, v1, n_verts, vertex);
-    currentVert = &vertices[indices.v1];
-    vertex->vx = currentVert->vx;
-    vertex->vy = currentVert->vy;
-    vertex->vz = currentVert->vz;
-    // printf("V1 @ %p: {%d,%d,%d}\n", vertex, vertex->vx, vertex->vy, vertex->vz);
-    nextRenderAttribute(vertices, v2, n_verts, vertex);
-    currentVert = &vertices[indices.v2];
-    vertex->vx = currentVert->vx;
-    vertex->vy = currentVert->vy;
-    vertex->vz = currentVert->vz;
-    // printf("V2 @ %p: {%d,%d,%d}\n", vertex, vertex->vx, vertex->vy, vertex->vz);
-    nextRenderAttribute(vertices, v3, n_verts, vertex);
-    currentVert = &vertices[indices.v3];
-    vertex->vx = currentVert->vx;
-    vertex->vy = currentVert->vy;
-    vertex->vz = currentVert->vz;
-    // printf("V3 @ %p: {%d,%d,%d}\n", vertex, vertex->vx, vertex->vy, vertex->vz);
+    const SVECTOR* currentVert;
+    #define bindVertex(v) nextRenderAttribute(vertices, v, n_verts, vertex); \
+        currentVert = &vertices[indices.v]; \
+        vertex->vx = currentVert->vx; \
+        vertex->vy = currentVert->vy; \
+        vertex->vz = currentVert->vz
+    bindVertex(v0);
+    bindVertex(v1);
+    bindVertex(v2);
+    bindVertex(v3);
 }
 
 void createQuadNormal(ChunkMesh* mesh,
