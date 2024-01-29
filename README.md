@@ -2,10 +2,28 @@
 
 Remake of Minecraft for PS1 with PSn00bSDK
 
+**Table of Contents**
+<!-- TOC -->
+* [PSX-Minecraft](#psx-minecraft)
+  * [Dependencies](#dependencies)
+  * [References](#references)
+  * [Building](#building)
+  * [Docker Environment](#docker-environment)
+    * [CLion](#clion)
+  * [Progress](#progress)
+<!-- TOC -->
+
 ## Dependencies
 
 * Emulator: [PCSX Redux](https://github.com/grumpycoders/pcsx-redux)
 * PS1 Library: [PSn00bSDK](https://github.com/Lameguy64/PSn00bSDK)
+
+## References
+
+* [Inline Programming Reference](./docs/Inline%20Programming%20Reference.pdf)
+* [LibPSn00b Reference](./docs/LibPSn00b%20Reference.pdf)
+* [Playstation Specifications psx-spx](https://psx-spx.consoledev.net/kernelbios/)
+  (Everything from hardware to software in great detail)
 
 ## Building
 
