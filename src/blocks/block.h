@@ -40,8 +40,6 @@ typedef struct _Block {
     char* name;
 } Block;
 
-void blockRender(Block* block, RenderContext* ctx, Transforms* transforms);
-
 #define BLOCK_COUNT 256
 
 typedef enum _BlockID {
@@ -128,5 +126,7 @@ static const Block BLOCKS[BLOCK_COUNT] = {
 
 #define blockAttribute(blockID, attr) (BLOCKS[(blockID)].attr)
 #define blockIsOpaque(blockID) ((blockID) != BLOCKID_NONE && blockAttribute(blockID, type) != BLOCKTYPE_EMPTY)
+
+void blockRender(Block* block, RenderContext* ctx, Transforms* transforms);
 
 #endif // PSX_MINECRAFT_BLOCK_H

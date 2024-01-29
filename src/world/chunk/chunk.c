@@ -12,13 +12,12 @@
 // Forward declaration
 BlockID worldGetBlock(const World* world, const VECTOR* position);
 
-void chunkInit(Chunk* chunk/*, const int seed*/) {
+void chunkInit(Chunk* chunk) {
     printf("[CHUNK: %d,%d,%d] Initialising mesh\n", inlineVec(chunk->position));
     chunkMeshInit(&chunk->mesh);
     chunkClearMesh(chunk);
     printf("[CHUNK: %d,%d,%d] Generating 2D height map\n", inlineVec(chunk->position));
     chunkGenerate2DHeightMap(chunk, &chunk->position);
-    // chunk->noise.seed = seed;
 }
 
 void chunkDestroy(const Chunk* chunk) {
