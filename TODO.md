@@ -13,6 +13,7 @@
 * [ ] Frustum and depth-first search culling through chunks
 * [ ] Graphing lib to use for resource usage and debugging
 * [ ] Ray cast from camera normal to block retrieving exact block coordinates in world
+* [x] Dynamic chunk loading and unloading with movement
 
 ## Refactor
 

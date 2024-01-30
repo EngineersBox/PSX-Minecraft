@@ -129,7 +129,7 @@ int main() {
         // Set pad pointer to buffer data
         camera.mode = 0;
         cameraUpdate(&camera, &input, &transforms, &look_pos);
-        // worldUpdate(&world, &camera.position);
+        worldUpdate(&world, &camera.position);
         // Set rotation and translation matrix
         gte_SetRotMatrix(&transforms.geometry_mtx);
         gte_SetTransMatrix(&transforms.geometry_mtx);

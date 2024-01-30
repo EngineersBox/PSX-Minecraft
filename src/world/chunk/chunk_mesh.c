@@ -21,12 +21,9 @@ void chunkMeshInit(ChunkMesh* mesh) {
     SMD_PRIM* p_prims = NULL;
     mesh->p_verts = NULL;
     mesh->p_norms = NULL;
-    printf("Init primitives\n");
     cvector_init(p_prims, MESH_PRIMITIVE_VEC_INITIAL_CAPCITY, __primtiveDestructor);
     mesh->p_prims = p_prims;
-    printf("Init vertices\n");
     cvector_init(mesh->p_verts, MESH_VERTEX_VEC_INITIAL_CAPCITY, __svectorDestructor);
-    printf("Init normals\n");
     cvector_init(mesh->p_norms, MESH_NORMAL_VEC_INITIAL_CAPCITY, __svectorDestructor);
 }
 

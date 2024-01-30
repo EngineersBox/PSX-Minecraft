@@ -93,7 +93,9 @@ CMake within the Docker context attached to CLion. To the following to set this 
 
 ## Progress
 
-Work so far, current progress being made on world chunk loading/unloading
+Currently, the world can be loaded dynamically around the camera with chunks being
+loaded and unloaded when the player enters a loading radius. Meshes are built dynamically
+when a chunk is loaded.
 
 |                                            |                                            |
 |--------------------------------------------|--------------------------------------------|
