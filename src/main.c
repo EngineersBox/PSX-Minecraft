@@ -102,7 +102,7 @@ void cameraReset(Camera* camera) {
 int main() {
     VECTOR look_pos = {0};
     Camera camera = {
-        .position = { 0, ONE * -200, ONE * -200 },
+        .position = { 0, ONE * 0, ONE * 0 },
         .rotation = {ONE * 248, ONE * -1592, 0},
         .mode = 0
     };
@@ -129,6 +129,7 @@ int main() {
         // Set pad pointer to buffer data
         camera.mode = 0;
         cameraUpdate(&camera, &input, &transforms, &look_pos);
+        // worldUpdate(&world, &camera.position);
         // Set rotation and translation matrix
         gte_SetRotMatrix(&transforms.geometry_mtx);
         gte_SetTransMatrix(&transforms.geometry_mtx);

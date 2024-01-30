@@ -245,14 +245,19 @@ void worldLoadChunks(World* world, const VECTOR* player_pos) {
     world->centre.vz += z_direction;
 }
 
+void worldUpdate(World* world, const VECTOR* player_pos) {
+    worldLoadChunks(world, player_pos);
+}
+
 BlockID worldGetChunkBlock(const World* world, const ChunkBlockPosition* position) {
     // World is void below 0 on y-axis and nothing above height limit
     if ((position->chunk.vy <= 0 && position->block.vy < 0)
         || position->chunk.vy >= WORLD_CHUNKS_HEIGHT) {
         return BLOCKID_NONE;
     }
-    const Chunk* chunk = world->chunks[arrayCoord(world, vx, position->chunk.vx)][arrayCoord(
-        world, vz, position->chunk.vz)][position->chunk.vy];
+    const Chunk* chunk = world->chunks[arrayCoord(world, vx, position->chunk.vx)]
+                                      [arrayCoord(world, vz, position->chunk.vz)]
+                                      [position->chunk.vy];
     if (chunk == NULL) {
         return BLOCKID_NONE;
     }

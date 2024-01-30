@@ -28,6 +28,7 @@ typedef struct World {
         uint32_t vx;
         uint32_t vz;
     } head; // Top left, effective (0,0) of 2D array of chunks
+    // TODO: Refactor chunks array from 3D -> 1D for better locality
     // X, Z, Y
     Chunk* chunks[AXIS_CHUNKS][AXIS_CHUNKS][WORLD_CHUNKS_HEIGHT];
 } World;
@@ -44,6 +45,8 @@ void worldLoadChunksZ(World* world, int8_t x_direction, int8_t z_direction);
 void worldLoadChunksXZ(World* world, int8_t x_direction, int8_t z_direction);
 void worldShiftChunks(World* world, int8_t x_direction, int8_t z_direction);
 void worldLoadChunks(World* world, const VECTOR* player_pos);
+
+void worldUpdate(World* world, const VECTOR* player_pos);
 
 BlockID worldGetChunkBlock(const World* world, const ChunkBlockPosition* position);
 BlockID worldGetBlock(const World* world, const VECTOR* position);
