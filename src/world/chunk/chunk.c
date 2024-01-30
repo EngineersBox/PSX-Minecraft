@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include <smd/smd.h>
 
+#include "../../util/cvector.h"
 #include "../../primitive/primitive.h"
 #include "../noise.h"
 #include "../../util/math_utils.h"
@@ -83,18 +84,14 @@ void chunkGenerate3DHeightMap(Chunk* chunk, const VECTOR* position) {
 void chunkClearMesh(Chunk* chunk) {
     ChunkMesh* mesh = &chunk->mesh;
     chunkMeshClear(mesh);
-    SMD* smd = &mesh->smd;
-    smd->id[0] = 'S';
-    smd->id[1] = 'M';
-    smd->id[2] = 'D';
-    smd->version = 0x01;
-    smd->flags = 0x0;
-    smd->p_verts = cvector_begin(mesh->vertices);
-    smd->p_norms = cvector_begin(mesh->normals);
-    smd->p_prims = cvector_begin(mesh->primitives);
-    smd->n_verts = 0;
-    smd->n_norms = 0;
-    smd->n_prims = 0;
+    mesh->id[0] = 'S';
+    mesh->id[1] = 'M';
+    mesh->id[2] = 'D';
+    mesh->version = 0x01;
+    mesh->flags = 0x0;
+    mesh->n_verts = 0;
+    mesh->n_norms = 0;
+    mesh->n_prims = 0;
 }
 
 typedef struct {
@@ -122,12 +119,16 @@ SMD_PRIM* createQuadPrimitive(ChunkMesh* mesh,
                               const Mask* mask,
                               const int16_t axisMask[CHUNK_DIRECTIONS],
                               const int index) {
-    SMD* smd = &mesh->smd;
     // Construct a new POLY_FT4 (textured quad) primtive for this face
     // printf("Primitive %d\n", smd->n_prims);
-    cvector_push_back(mesh->primitives, (SMD_PRIM) {});
-    SMD_PRIM* primitive = &cvector_begin(mesh->primitives)[smd->n_prims];
-    smd->n_prims++;
+    SMD_PRIM* p_prims = (SMD_PRIM*) mesh->p_prims;
+    cvector_push_back(p_prims, (SMD_PRIM) {});
+    // The SMD.p_prims field has been cast to an lvalue of SMD_PRIM*
+    // to a separate variable. Any realloc that occurs will set the
+    // new address to the local variable, we should propagate that
+    // change to the SMD field.
+    mesh->p_prims = p_prims;
+    SMD_PRIM* primitive = &cvector_begin(p_prims)[mesh->n_prims++];
     primitive->prim_id = (SMD_PRI_TYPE){};
     primitive->prim_id.type = PRIMITIVE_TYPE_QUAD;
     primitive->prim_id.l_type = PRIMITIVE_LIGHTING_FLAT;
@@ -158,8 +159,8 @@ SMD_PRIM* createQuadPrimitive(ChunkMesh* mesh,
 
 #define nextRenderAttribute(attribute_field, index_field, count_field, instance) \
         cvector_push_back(mesh->attribute_field, (SVECTOR){}); \
-        primitive->index_field = smd->count_field; \
-        instance = &cvector_begin(mesh->attribute_field)[smd->count_field++]
+        primitive->index_field = mesh->count_field; \
+        instance = &cvector_begin(mesh->attribute_field)[mesh->count_field++]
 
 void createQuadVertices(Chunk* chunk,
                         const int16_t origin[CHUNK_DIRECTIONS],
@@ -168,7 +169,6 @@ void createQuadVertices(Chunk* chunk,
                         SMD_PRIM* primitive,
                         const int index) {
     ChunkMesh* mesh = &chunk->mesh;
-    SMD* smd = &chunk->mesh.smd;
     // Construct vertices relative to chunk mesh top left origin
     const int16_t chunk_origin_x = chunk->position.vx * CHUNK_SIZE;
     const int16_t chunk_origin_y = -chunk->position.vy * CHUNK_SIZE;
@@ -198,7 +198,7 @@ void createQuadVertices(Chunk* chunk,
     const INDEX indices = INDICES[index];
     SVECTOR* vertex = NULL;
     const SVECTOR* currentVert;
-    #define bindVertex(v) nextRenderAttribute(vertices, v, n_verts, vertex); \
+    #define bindVertex(v) nextRenderAttribute(p_verts, v, n_verts, vertex); \
         currentVert = &vertices[indices.v]; \
         vertex->vx = currentVert->vx; \
         vertex->vy = currentVert->vy; \
@@ -213,10 +213,9 @@ void createQuadNormal(ChunkMesh* mesh,
                       SMD_PRIM* primitive,
                       const Mask* mask,
                       const int16_t axisMask[CHUNK_DIRECTIONS]) {
-    SMD* smd = &mesh->smd;
     // Create normal for this quad
     SVECTOR* norm = NULL;
-    nextRenderAttribute(normals, n0, n_norms, norm);
+    nextRenderAttribute(p_norms, n0, n_norms, norm);
     norm->vx = (axisMask[0] * mask->normal) * ONE;
     norm->vy = (axisMask[1] * mask->normal) * ONE;
     norm->vz = (axisMask[2] * mask->normal) * ONE;

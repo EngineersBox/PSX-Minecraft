@@ -4,6 +4,7 @@
 #include <inline_c.h>
 #include <stdlib.h>
 
+#include "../../util/cvector.h"
 #include "../../util/cvector_utils.h"
 #include "../../blocks/block.h"
 
@@ -17,30 +18,28 @@ void __svectorDestructor(void* elem) {
 
 void chunkMeshInit(ChunkMesh* mesh) {
     // NOTE: This null init is important for cvector to ensure allocation is done initially
-    mesh->primitives = NULL;
-    mesh->vertices = NULL;
-    mesh->normals = NULL;
-    // BUG: These small pre-allocated sizes cause issues with realloc (out of bounds read/write)
+    SMD_PRIM* p_prims = NULL;
+    mesh->p_verts = NULL;
+    mesh->p_norms = NULL;
     printf("Init primitives\n");
-    cvector_init(mesh->primitives, MESH_PRIMITIVE_VEC_INITIAL_CAPCITY, __primtiveDestructor);
+    cvector_init(p_prims, MESH_PRIMITIVE_VEC_INITIAL_CAPCITY, __primtiveDestructor);
+    mesh->p_prims = p_prims;
     printf("Init vertices\n");
-    cvector_init(mesh->vertices, MESH_VERTEX_VEC_INITIAL_CAPCITY, __svectorDestructor);
+    cvector_init(mesh->p_verts, MESH_VERTEX_VEC_INITIAL_CAPCITY, __svectorDestructor);
     printf("Init normals\n");
-    cvector_init(mesh->normals, MESH_NORMAL_VEC_INITIAL_CAPCITY, __svectorDestructor);
+    cvector_init(mesh->p_norms, MESH_NORMAL_VEC_INITIAL_CAPCITY, __svectorDestructor);
 }
 
 void chunkMeshDestroy(const ChunkMesh* mesh) {
-    cvector_free(mesh->primitives);
-    cvector_free(mesh->vertices);
-    cvector_free(mesh->normals);
+    cvector_free((SMD_PRIM*) mesh->p_prims);
+    cvector_free(mesh->p_verts);
+    cvector_free(mesh->p_norms);
 }
 
-void chunkMeshClear(ChunkMesh* mesh) {
-    cvector_clear(mesh->primitives);
-    cvector_clear(mesh->vertices);
-    cvector_clear(mesh->normals);
-    mesh->smd = (SMD){};
-    memset(&mesh->smd, 0, sizeof(SMD));
+void chunkMeshClear(const ChunkMesh* mesh) {
+    cvector_clear((SMD_PRIM*) mesh->p_prims);
+    cvector_clear(mesh->p_verts);
+    cvector_clear(mesh->p_norms);
 }
 
 // TODO: Move these to SMD renderer file as general methods
@@ -55,8 +54,8 @@ void renderTriangle(SMD_PRIM* primitive, RenderContext* ctx, Transforms* transfo
 void renderQuad(const ChunkMesh* mesh, SMD_PRIM* primitive, RenderContext* ctx, Transforms* transforms) {
     // TODO: Generalise for textured and non-textured
     int p;
-    cvector_iterator(SVECTOR) verticesIter = cvector_begin(mesh->vertices);
-    cvector_iterator(SVECTOR) normalsIter = cvector_begin(mesh->normals);
+    cvector_iterator(SVECTOR) verticesIter = cvector_begin(mesh->p_verts);
+    cvector_iterator(SVECTOR) normalsIter = cvector_begin(mesh->p_norms);
     const RECT tex_window = (RECT){
         primitive->tu0 >> 3,
         primitive->tv0 >> 3,
@@ -155,11 +154,9 @@ void renderQuad(const ChunkMesh* mesh, SMD_PRIM* primitive, RenderContext* ctx, 
 }
 
 void chunkMeshRender(const ChunkMesh* mesh, RenderContext* ctx, Transforms* transforms) {
-    // printf("Primitives: %d\n", cvector_size(mesh->primitives));
-    // int i = 0;
+    const SMD_PRIM* p_prims = (SMD_PRIM*) mesh->p_prims;
     cvector_iterator(SMD_PRIM) primitive;
-    cvector_for_each_in(primitive, mesh->primitives) {
-        // printf("[%d] Primitive type: %d @ %p\n", i++, primitive->prim_id.type, primitive);
+    cvector_for_each_in(primitive, p_prims) {
         switch (primitive->prim_id.type) {
             case PRIMITIVE_TYPE_LINE:
                 renderLine(primitive, ctx, transforms);

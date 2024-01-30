@@ -5,7 +5,6 @@
 
 #include <smd/smd.h>
 
-#include "../../util/cvector.h"
 #include "../../render/render_context.h"
 #include "../../render/transforms.h"
 
@@ -33,20 +32,11 @@
 #define PRIMITIVE_COLOURING_SOLID 0
 #define PRIMITIVE_COLOURING_GOURAUD 1
 
-// TODO: Refactor to just be SMD instead of wrapper object
-//       Need to be aware that SMD.p_prims is a void* type
-//       and not SMD_PRIM*. Sizes of elements will be different
-//       need to cast before performing any operations.
-typedef struct {
-    SMD smd;
-    cvector(SMD_PRIM) primitives;
-    cvector(SVECTOR) vertices;
-    cvector(SVECTOR) normals;
-} ChunkMesh;
+typedef SMD ChunkMesh;
 
 void chunkMeshInit(ChunkMesh* mesh);
 void chunkMeshDestroy(const ChunkMesh* mesh);
-void chunkMeshClear(ChunkMesh* mesh);
+void chunkMeshClear(const ChunkMesh* mesh);
 void chunkMeshRender(const ChunkMesh* mesh, RenderContext* ctx, Transforms* transforms);
 
 #endif // PSX_MINECRAFT_CHUNK_MESH_H

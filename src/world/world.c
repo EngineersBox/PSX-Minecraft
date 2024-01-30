@@ -42,9 +42,9 @@ void worldInit(World* world) {
                     arrayCoord(world, vx, x),
                     y,
                     arrayCoord(world, vz, z),
-                    chunk->mesh.smd.n_prims,
-                    chunk->mesh.smd.n_verts,
-                    chunk->mesh.smd.n_norms
+                    chunk->mesh.n_prims,
+                    chunk->mesh.n_verts,
+                    chunk->mesh.n_norms
                 );
             }
         }
