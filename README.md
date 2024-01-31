@@ -20,10 +20,11 @@ Remake of Minecraft for PS1 with PSn00bSDK
 
 ## References
 
-* [Inline Programming Reference](./docs/Inline%20Programming%20Reference.pdf)
-* [LibPSn00b Reference](./docs/LibPSn00b%20Reference.pdf)
-* [Playstation Specifications psx-spx](https://psx-spx.consoledev.net/kernelbios/)
+* [Inline programming reference](./docs/Inline%20Programming%20Reference.pdf)
+* [LibPSn00b reference](./docs/LibPSn00b%20Reference.pdf)
+* [Playstation specifications psx-spx](https://psx-spx.consoledev.net/kernelbios/)
   (Everything from hardware to software in great detail)
+* [PsyQ Docs and examples](https://psx.arthus.net/sdk/Psy-Q/)
 
 ## Building
 
