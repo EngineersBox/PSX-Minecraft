@@ -103,7 +103,7 @@ void cameraReset(Camera* camera) {
 int main() {
     VECTOR look_pos = {0};
     Camera camera = {
-        .position = { 0, ONE * 0, ONE * 0 },
+        .position = { ONE * 0, ONE * 0, ONE * 0 },
         .rotation = {ONE * 248, ONE * -1592, 0},
         .mode = 0
     };
@@ -116,13 +116,13 @@ int main() {
     init();
     World world = {
         .head = {
-            .vx = 0,
-            .vz = 0
+            .vx = 1,
+            .vz = 1
         },
         .centre = {
-            .vx = 0,
+            .vx = 1,
             .vy = 0,
-            .vz = 0
+            .vz = 1
         }
     };
     worldInit(&world);

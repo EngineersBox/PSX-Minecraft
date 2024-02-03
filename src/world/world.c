@@ -25,7 +25,7 @@ void worldInit(World* world) {
                                                   .vy = y,
                                                   .vz = z
                                               });
-                world->chunks[arrayCoord(world, vx, x)][arrayCoord(world, vz, z)][y] = chunk;
+                world->chunks[arrayCoord(world, vz, z)][arrayCoord(world, vx, x)][y] = chunk;
             }
         }
     }
@@ -34,7 +34,7 @@ void worldInit(World* world) {
         for (int z = z_start; z <= z_end; z++) {
             for (int y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
                 printf("[CHUNK: %d,%d,%d] Generating mesh\n", x, 0, z);
-                Chunk* chunk = world->chunks[arrayCoord(world, vx, x)][arrayCoord(world, vz, z)][y];
+                Chunk* chunk = world->chunks[arrayCoord(world, vz, z)][arrayCoord(world, vx, x)][y];
                 chunkGenerateMesh(chunk);
                 printf(
                     "[CHUNK: %d,%d,%d, INDEX: %d,%d,%d] Mesh { Primitives: %d, Vertices: %d, Normals: %d }\n",
@@ -67,7 +67,7 @@ void worldDestroy(World* world) {
                     y,
                     arrayCoord(world, vz, z)
                 );
-                Chunk** chunk = world->chunks[arrayCoord(world, vx, x)][arrayCoord(world, vz, z)];
+                Chunk** chunk = world->chunks[arrayCoord(world, vz, z)][arrayCoord(world, vx, x)];
                 worldUnloadChunk(world, chunk[y]);
                 chunk[y] = NULL;
             }
@@ -87,7 +87,7 @@ void worldRender(const World* world, RenderContext* ctx, Transforms* transforms)
         for (int z = z_start; z <= z_end; z++) {
             for (int y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
                 chunkRender(
-                    world->chunks[arrayCoord(world, vx, x)][arrayCoord(world, vz, z)][y],
+                    world->chunks[arrayCoord(world, vz, z)][arrayCoord(world, vx, x)][y],
                     ctx,
                     transforms
                 );
@@ -150,14 +150,14 @@ void worldLoadChunksX(World* world, const int8_t x_direction, const int8_t z_dir
                                               .vz = z_coord
                                           });
             chunkGenerateMesh(chunk);
-            world->chunks[arrayCoord(world, vx, x_shift_zone)][arrayCoord(world, vz, z_coord)][y] = chunk;
+            world->chunks[arrayCoord(world, vz, z_coord)][arrayCoord(world, vx, x_shift_zone)][y] = chunk;
         }
     }
     // Unload -x_direction chunks
     x_shift_zone = world->centre.vx + (LOADED_CHUNKS_RADIUS * -x_direction);
     for (int z_coord = z_start; z_coord <= z_end; z_coord++) {
         for (int y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
-            Chunk** chunk = world->chunks[arrayCoord(world, vx, x_shift_zone)][arrayCoord(world, vz, z_coord)];
+            Chunk** chunk = world->chunks[arrayCoord(world, vz, z_coord)][arrayCoord(world, vx, x_shift_zone)];
             worldUnloadChunk(world, chunk[y]);
             chunk[y] = NULL;
         }
@@ -186,14 +186,14 @@ void worldLoadChunksZ(World* world, const int8_t x_direction, const int8_t z_dir
                                               .vz = z_shift_zone
                                           });
             chunkGenerateMesh(chunk);
-            world->chunks[arrayCoord(world, vx, x_coord)][arrayCoord(world, vz, z_shift_zone)][y] = chunk;
+            world->chunks[arrayCoord(world, vz, z_shift_zone)][arrayCoord(world, vx, x_coord)][y] = chunk;
         }
     }
     // Unload -z_direction chunks
     z_shift_zone = world->centre.vz + (LOADED_CHUNKS_RADIUS * -z_direction);
     for (int x_coord = x_start; x_coord <= x_end; x_coord++) {
         for (int y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
-            Chunk** chunk = world->chunks[arrayCoord(world, vx, x_coord)][arrayCoord(world, vz, z_shift_zone)];
+            Chunk** chunk = world->chunks[arrayCoord(world, vz, z_shift_zone)][arrayCoord(world, vx, x_coord)];
             worldUnloadChunk(world, chunk[y]);
             chunk[y] = NULL;
         }
@@ -211,13 +211,13 @@ void worldLoadChunksXZ(World* world, const int8_t x_direction, const int8_t z_di
                                                  .vz = z_coord
                                              });
         chunkGenerateMesh(loaded_chunk);
-        world->chunks[arrayCoord(world, vx, x_coord)][arrayCoord(world, vz, z_coord)][y] = loaded_chunk;
+        world->chunks[arrayCoord(world, vz, z_coord)][arrayCoord(world, vx, x_coord)][y] = loaded_chunk;
     }
     // Unload (-x_direction,-z_direction) chunk
     x_coord = world->centre.vx + (LOADED_CHUNKS_RADIUS * -x_direction);
     z_coord = world->centre.vz + (LOADED_CHUNKS_RADIUS * -z_direction);
     for (int y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
-        Chunk** unloaded_chunk = world->chunks[arrayCoord(world, vx, x_coord)][arrayCoord(world, vz, z_coord)];
+        Chunk** unloaded_chunk = world->chunks[arrayCoord(world, vz, z_coord)][arrayCoord(world, vx, x_coord)];
         worldUnloadChunk(world, unloaded_chunk[y]);
         unloaded_chunk[y] = NULL;
     }
@@ -287,8 +287,15 @@ void worldUpdate(World* world, const VECTOR* player_pos) {
         prevy = player_chunk_pos.vy;
         prevz = player_chunk_pos.vz;
         printf("Player chunk pos: %d,%d,%d\n", inlineVec(player_chunk_pos));
+        worldLoadChunks(world, &player_chunk_pos);
+        printf("[WORLD] Head { x: %d, z: %d }\n", world->head.vx, world->head.vz);
+        for (int x = 0; x < AXIS_CHUNKS; x++) {
+            for (int z = 0; z < AXIS_CHUNKS; z++) {
+                printf("%d ", world->chunks[z][x][0] != NULL);
+            }
+            printf("\n");
+        }
     }
-    worldLoadChunks(world, &player_chunk_pos);
 }
 
 BlockID worldGetChunkBlock(const World* world, const ChunkBlockPosition* position) {
@@ -297,8 +304,8 @@ BlockID worldGetChunkBlock(const World* world, const ChunkBlockPosition* positio
         || position->chunk.vy >= WORLD_CHUNKS_HEIGHT) {
         return BLOCKID_NONE;
     }
-    const Chunk* chunk = world->chunks[arrayCoord(world, vx, position->chunk.vx)]
-        [arrayCoord(world, vz, position->chunk.vz)]
+    const Chunk* chunk = world->chunks[arrayCoord(world, vz, position->chunk.vz)]
+        [arrayCoord(world, vx, position->chunk.vx)]
         [position->chunk.vy];
     if (chunk == NULL) {
         return BLOCKID_NONE;

@@ -13,6 +13,13 @@
 // Forward declaration
 BlockID worldGetBlock(const World* world, const VECTOR* position);
 
+typedef struct {
+    int16_t block;
+    int8_t normal;
+} Mask;
+
+#define compareMask(m1, m2) ((m1).block == (m2).block && (m1).normal == (m2).normal)
+
 void chunkInit(Chunk* chunk) {
     printf("[CHUNK: %d,%d,%d] Initialising mesh\n", inlineVec(chunk->position));
     chunkMeshInit(&chunk->mesh);
@@ -82,31 +89,12 @@ void chunkGenerate3DHeightMap(Chunk* chunk, const VECTOR* position) {
 }
 
 void chunkClearMesh(Chunk* chunk) {
-    ChunkMesh* mesh = &chunk->mesh;
-    chunkMeshClear(mesh);
-    mesh->id[0] = 'S';
-    mesh->id[1] = 'M';
-    mesh->id[2] = 'D';
-    mesh->version = 0x01;
-    mesh->flags = 0x0;
-    mesh->n_verts = 0;
-    mesh->n_norms = 0;
-    mesh->n_prims = 0;
+    chunkMeshClear(&chunk->mesh);
 }
-
-typedef struct {
-    int16_t block;
-    int8_t normal;
-} Mask;
-
-#define compareMask(m1, m2) ((m1).block == (m2).block && (m1).normal == (m2).normal)
 
 const INDEX INDICES[6] = {
     {0, 2, 1, 3},
     {2, 0, 3, 1},
-
-    // {1, 0, 3, 2},
-    // {0, 1, 2, 3},
     {1, 0, 3, 2},
     {0, 1, 2, 3},
     {1, 0, 3, 2},

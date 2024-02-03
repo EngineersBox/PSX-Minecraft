@@ -36,7 +36,7 @@ typedef SMD ChunkMesh;
 
 void chunkMeshInit(ChunkMesh* mesh);
 void chunkMeshDestroy(const ChunkMesh* mesh);
-void chunkMeshClear(const ChunkMesh* mesh);
+void chunkMeshClear(ChunkMesh* mesh);
 void chunkMeshRender(const ChunkMesh* mesh, RenderContext* ctx, Transforms* transforms);
 
 #endif // PSX_MINECRAFT_CHUNK_MESH_H

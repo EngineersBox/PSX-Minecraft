@@ -33,10 +33,18 @@ void chunkMeshDestroy(const ChunkMesh* mesh) {
     cvector_free(mesh->p_norms);
 }
 
-void chunkMeshClear(const ChunkMesh* mesh) {
+void chunkMeshClear(ChunkMesh* mesh) {
     cvector_clear((SMD_PRIM*) mesh->p_prims);
     cvector_clear(mesh->p_verts);
     cvector_clear(mesh->p_norms);
+    mesh->id[0] = 'S';
+    mesh->id[1] = 'M';
+    mesh->id[2] = 'D';
+    mesh->version = 0x01;
+    mesh->flags = 0x0;
+    mesh->n_verts = 0;
+    mesh->n_norms = 0;
+    mesh->n_prims = 0;
 }
 
 // TODO: Move these to SMD renderer file as general methods
