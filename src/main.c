@@ -47,6 +47,7 @@ MATRIX light_mtx = {
 extern const uint32_t tim_texture[];
 
 void init() {
+    blockInitialiseBuiltin();
     initRenderContext(&render_context);
     initInput(&input);
     /* Set light ambient color and light color matrix */

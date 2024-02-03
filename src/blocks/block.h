@@ -3,6 +3,9 @@
 #ifndef PSX_MINECRAFT_BLOCK_H
 #define PSX_MINECRAFT_BLOCK_H
 
+#include <stdlib.h>
+#include <stdio.h>
+
 #include "../render/render_context.h"
 #include "../render/transforms.h"
 #include "../resources/assets.h"
@@ -106,26 +109,21 @@ typedef enum _BlockID {
     P99_PROTECT(face_attributes) \
 )
 
-static const Block BLOCKS[BLOCK_COUNT] = {
-    declareBlock(BLOCKID_AIR, "air", BLOCKTYPE_EMPTY, ORIENTATION_POS_X, {}),
-    declareSolidBlock(BLOCKID_STONE, "stone", defaultFaceAttributes(1)),
-    declareSolidBlock(BLOCKID_DIRT, "dirt", defaultFaceAttributes(2)),
-    declareSolidBlock(
-        BLOCKID_GRASS,
-        "grass",
-        declareTintedFaceAttributes(
-            3, NO_TINT,
-            3, NO_TINT,
-            2, NO_TINT,
-            0, faceTint(0, 155, 0, 1),
-            3, NO_TINT,
-            3, NO_TINT
-        )
-    ),
-};
+extern uint8_t _last_block_index;
+extern Block BLOCKS[BLOCK_COUNT];
+
+#define blockInitialise(blockDef) ({ \
+    if (_last_block_index >= BLOCK_COUNT) { \
+        printf("[ERROR] Maximum blocks declared\n"); \
+        abort(); \
+    } \
+    BLOCKS[_last_block_index++] = blockDef; \
+})
 
 #define blockAttribute(blockID, attr) (BLOCKS[(blockID)].attr)
 #define blockIsOpaque(blockID) ((blockID) != BLOCKID_NONE && blockAttribute(blockID, type) != BLOCKTYPE_EMPTY)
+
+void blockInitialiseBuiltin();
 
 void blockRender(Block* block, RenderContext* ctx, Transforms* transforms);
 
