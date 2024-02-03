@@ -43,22 +43,22 @@ void chunkGenerate2DHeightMap(Chunk* chunk, const VECTOR* position) {
             //     0,
             //     CHUNK_SIZE
             // );
-            printf("height: %d\n", height);
+            printf("[CHUNK: %d,%d,%d] Height: %d\n", inlineVec(chunk->position), height);
             for (int32_t y = CHUNK_SIZE; y > 0; y--) {
                 const int32_t worldY = (position->vy * CHUNK_SIZE) + (CHUNK_SIZE - y)
                                        + (CHUNK_SIZE * 13); // !IMPORTANT: TESTING OFFSET
                 if (worldY < height - 3) {
                     chunk->blocks[chunkBlockIndex(x, y - 1, z)] = (BlockID) BLOCKID_STONE;
-                    // printf("STONE @ %d,%d,%d\n", x, y - 1, z);
+                    printf("[CHUNK: %d,%d,%d] Stone @ %d,%d,%d\n", inlineVec(chunk->position), x, y - 1, z);
                 } else if (worldY < height - 1) {
                     chunk->blocks[chunkBlockIndex(x, y - 1, z)] = (BlockID) BLOCKID_DIRT;
-                    // printf("DIRT @ %d,%d,%d\n", x, y - 1, z);
+                    printf("[CHUNK: %d,%d,%d] Dirt @ %d,%d,%d\n", inlineVec(chunk->position), x, y - 1, z);
                 } else if (worldY == height - 1) {
                     chunk->blocks[chunkBlockIndex(x, y - 1, z)] = (BlockID) BLOCKID_GRASS;
-                    // printf("GRASS @ %d,%d,%d\n", x, y - 1, z);
+                    printf("[CHUNK: %d,%d,%d] Grass @ %d,%d,%d\n", inlineVec(chunk->position), x, y - 1, z);
                 } else {
                     chunk->blocks[chunkBlockIndex(x, y - 1, z)] = (BlockID) BLOCKID_AIR;
-                    // printf("AIR @ %d,%d,%d\n", x, y - 1, z);
+                    printf("[CHUNK: %d,%d,%d] Air @ %d,%d,%d\n", inlineVec(chunk->position), x, y - 1, z);
                 }
             }
         }

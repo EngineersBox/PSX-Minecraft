@@ -8,6 +8,8 @@ project(
 	HOMEPAGE_URL "https://github.com/EngineersBox/PSX-Minecraft"
 )
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
 set(ASSETS_DIR ${PROJECT_SOURCE_DIR}/assets)
 configure_file(assets.xml _assets.xml)

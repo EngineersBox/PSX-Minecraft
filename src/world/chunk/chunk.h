@@ -30,7 +30,7 @@ typedef struct {
     BlockID blocks[CHUNK_DATA_SIZE];
 } Chunk;
 
-void chunkInit(Chunk* chunk/*, int seed*/);
+void chunkInit(Chunk* chunk);
 void chunkDestroy(const Chunk* chunk);
 
 void chunkGenerate2DHeightMap(Chunk* chunk, const VECTOR* position);

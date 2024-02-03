@@ -118,9 +118,9 @@ Chunk* worldLoadChunk(World* world, const VECTOR chunk_position) {
     return chunk;
 }
 
-void worldUnloadChunk(World* world, Chunk* chunk) {
+void worldUnloadChunk(const World* world, Chunk* chunk) {
     printf(
-        "[CHUNK: %d,%d,%d, INDEX: %d,%d,%d] Unloading chunk",
+        "[CHUNK: %d,%d,%d, INDEX: %d,%d,%d] Unloading chunk\n",
         chunk->position.vx,
         chunk->position.vy,
         chunk->position.vz,

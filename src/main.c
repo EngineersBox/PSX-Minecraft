@@ -1,9 +1,9 @@
-#include <render_context.h>
 #include <stdint.h>
 #include <psxgpu.h>
 #include <psxgte.h>
 #include <inline_c.h>
 
+#include "render/render_context.h"
 #include "resources/assets.h"
 #include "core/input.h"
 #include "core/camera.h"

@@ -20,7 +20,8 @@ RUN apt-get update \
         gcc \
         g++ \
         gdb \
-        clang \
+        clang-15 \
+        clangd-15 \
         make \
         ninja-build \
         autoconf \
@@ -40,6 +41,12 @@ RUN apt-get update \
         gpg \
         ca-certificates \
     && apt-get clean
+
+# Create clang(d) symlinks to avoid versioned binaries
+RUN ln -s /usr/bin/clangd-15 /usr/bin/clangd \
+    && ln -s /usr/bin/clang-cpp-15 /usr/bin/clang-cpp \
+    && ln -s /usr/bin/clang-15 /usr/bin/clang \
+    && ln -s /usr/bin/clang++-15 /usr/bin/clang++
 
 # Ensure we don't have an existing CMake installation
 RUN apt-get --yes purge --auto-remove cmake
@@ -66,6 +73,9 @@ RUN apt update \
     && apt-get clean
 
 RUN python3 -m pip install coloredlogs
+
+# Add cclangd script for LSPs
+ADD cclangd /usr/local/bin/cclangd
 
 ENV PSN00BSDK_LIBS="/opt/psn00bsdk/lib/libpsn00b"
 ENV PATH="$PATH:/opt/psn00bsdk/mipsel-none-elf-gcc/bin:/opt/psn00bsdk/bin"
