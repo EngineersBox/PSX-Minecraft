@@ -163,13 +163,13 @@ void chunkMeshRender(const ChunkMesh* mesh, RenderContext* ctx, Transforms* tran
     cvector_iterator(SMD_PRIM) primitive;
     cvector_for_each_in(primitive, p_prims) {
         switch (primitive->prim_id.type) {
-            case PRIMITIVE_TYPE_LINE:
+            case SMD_PRI_TYPE_LINE:
                 renderLine(primitive, ctx, transforms);
                 break;
-            case PRIMITIVE_TYPE_TRIANGLE:
+            case SMD_PRI_TYPE_TRIANGLE:
                 renderTriangle(primitive, ctx, transforms);
                 break;
-            case PRIMITIVE_TYPE_QUAD:
+            case SMD_PRI_TYPE_QUAD:
                 renderQuad(mesh, primitive, ctx, transforms);
                 break;
             default:

@@ -118,9 +118,9 @@ SMD_PRIM* createQuadPrimitive(ChunkMesh* mesh,
     mesh->p_prims = p_prims;
     SMD_PRIM* primitive = &cvector_begin(p_prims)[mesh->n_prims++];
     primitive->prim_id = (SMD_PRI_TYPE){};
-    primitive->prim_id.type = PRIMITIVE_TYPE_QUAD;
-    primitive->prim_id.l_type = PRIMITIVE_LIGHTING_FLAT;
-    primitive->prim_id.c_type = PRIMITIVE_COLOURING_GOURAUD;
+    primitive->prim_id.type = SMD_PRI_TYPE_QUAD;
+    primitive->prim_id.l_type = SMD_PRI_TYPE_LIGHTING_FLAT;
+    primitive->prim_id.c_type = SMD_PRI_TYPE_COLORING_GOURAUD;
     primitive->prim_id.texture = 1;
     primitive->prim_id.blend = 0; // TODO: Check this
     primitive->prim_id.zoff = 0; // TODO: Check this
