@@ -12,6 +12,7 @@ FROM ubuntu:22.04
 ARG REPO_TARGET=Lameguy64/PSn00bSDK
 ARG REPO_COMMIT_ISH=master
 ARG GCC_MIPSEL_ELF_TAG=v0.24
+ARG PSN00BSDK_LIBC_ALLOCATOR="TLSF"
 
 RUN DEBIAN_FRONTEND="noninteractive" apt-get update && apt-get -y install tzdata
 
@@ -98,9 +99,8 @@ RUN wget "https://github.com/Lameguy64/PSn00bSDK/releases/download/$GCC_MIPSEL_E
     && unzip gcc-mipsel-none-elf-12.3.0-linux.zip -d /opt/psn00bsdk/mipsel-none-elf-gcc \
     && rm gcc-mipsel-none-elf-12.3.0-linux.zip
 # Build the SDK
-RUN cmake --preset default --install-prefix /opt/psn00bsdk .
-# Double build for some weird permissions issues
-# RUN cmake --build ./build
-RUN cmake --build ./build && cmake --install ./build
+RUN cmake -D PSN00BSDK_LIBC_ALLOCATOR=$PSN00BSDK_LIBC_ALLOCATOR --preset default --install-prefix /opt/psn00bsdk . \
+    && cmake --build ./build  \
+    && cmake --install ./build
 
 WORKDIR /

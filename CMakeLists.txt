@@ -30,25 +30,25 @@ if (NOT (asset_count EQUAL 0))
 endif()
 
 # Include source content
-file (GLOB_RECURSE PSXMC_SOURCES CONFIGURE_DEPENDS "src/*.c")
-file (GLOB_RECURSE PSXMC_HEADERS CONFIGURE_DEPENDS "src/*.h")
+file(GLOB_RECURSE PSXMC_SOURCES CONFIGURE_DEPENDS "src/*.c")
+file(GLOB_RECURSE PSXMC_HEADERS CONFIGURE_DEPENDS "src/*.h")
 
-set (PSXMC_INCLUDE_DIRS "")
+set(PSXMC_INCLUDE_DIRS "")
 foreach (_headerFile ${PSXMC_HEADERS})
 	get_filename_component(_dir ${_headerFile} PATH)
-	list (APPEND PSXMC_INCLUDE_DIRS ${_dir})
+	list(APPEND PSXMC_INCLUDE_DIRS ${_dir})
 endforeach()
-list (REMOVE_DUPLICATES PSXMC_INCLUDE_DIRS)
+list(REMOVE_DUPLICATES PSXMC_INCLUDE_DIRS)
 
 # Mark executable
 psn00bsdk_add_executable(PSXMC GPREL ${PSXMC_SOURCES})
 target_include_directories(PSXMC PRIVATE ${PSXMC_INCLUDE_DIRS})
 
 psn00bsdk_add_cd_image(
-	iso      # Target name
+	iso # Target name
 	PSXMC # Output file name (= template.bin + template.cue)
 	iso.xml  # Path to config file
-	DEPENDS PSXMC system.cnf
+	DEPENDS PSXMC system.cnf # PS1 system conig dependency
 )
 
 # Include assets in binary
