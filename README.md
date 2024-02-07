@@ -55,11 +55,14 @@ First build the docker image, which will initialise a Linux distribution with al
 tooling and build the SDK. The following are optional arguments you can provide:
 
 * `--build-arg="REPO_TARGET=<user name>/<repo name>"` specify the namespaced repo (potential a fork) to build from. Defaults
-  to `Lameguy64/PSn00bSDK`
+  to `Lameguy64/PSn00bSDK`.
 * `--build-arg="REPO_COMMIT_ISH=<branch/commit/tag>"` specify a build arg to target a specific branch/commit/tag of the SDK repo.
-  Defaults to `master`
+  Defaults to `master`.
 * `--build-arg="GCC_MIPSEL_ELF_TAG=<Lameguy64/PSn00bSDK release tag>"` specify a release tag to pull the GCC build from.
-  Defaults to `v0.24`
+  Defaults to `v0.24`.
+* `--build-arg=PSN00BSDK_LIBC_ALLOCATOR=<CUSTOM | AAF | TLSF>` specify an allocator to use in the SDK build, must be one
+  of `CUSTOM`, `AAF` (allocated-first-fit), or `TLSF` (two-level-segregated-fit). This currently requires `EngineersBox/PSn00bSDK`
+  fork with `multiple-allocators` branch. Defaults to `TLSF`.
 * `--build-arg="CACHEBUST=$(date +%s)"` force a rebuild of the repo. Defaults to `0`.
 
 Using this, we can build as follows:
