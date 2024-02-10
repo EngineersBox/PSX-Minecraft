@@ -44,7 +44,7 @@ void chunkGenerate2DHeightMap(Chunk* chunk, const VECTOR* position) {
             //     0,
             //     Size
             // );
-            const int height = noise2d(xPos * ONE, zPos * ONE);
+            const int height = noise2d(xPos * ONE, zPos * ONE) / 2;
             // clamp(
             //     noise,
             //     0,
@@ -53,7 +53,7 @@ void chunkGenerate2DHeightMap(Chunk* chunk, const VECTOR* position) {
             printf("[CHUNK: %d,%d,%d] Height: %d\n", inlineVec(chunk->position), height);
             for (int32_t y = CHUNK_SIZE; y > 0; y--) {
                 const int32_t worldY = (position->vy * CHUNK_SIZE) + (CHUNK_SIZE - y)
-                                       + (CHUNK_SIZE * 13); // !IMPORTANT: TESTING OFFSET
+                                       + (CHUNK_SIZE * 6); // !IMPORTANT: TESTING OFFSET
                 if (worldY < height - 3) {
                     chunk->blocks[chunkBlockIndex(x, y - 1, z)] = (BlockID) BLOCKID_STONE;
                     printf("[CHUNK: %d,%d,%d] Stone @ %d,%d,%d\n", inlineVec(chunk->position), x, y - 1, z);

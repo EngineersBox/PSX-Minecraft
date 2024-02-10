@@ -153,6 +153,12 @@ void worldLoadChunksX(World* world, const int8_t x_direction, const int8_t z_dir
             world->chunks[arrayCoord(world, vz, z_coord)][arrayCoord(world, vx, x_shift_zone)][y] = chunk;
         }
     }
+    for (int z_coord = z_start; z_coord <= z_end; z_coord++) {
+        for (int y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
+            Chunk* chunk = world->chunks[arrayCoord(world, vz, z_coord)][arrayCoord(world, vx, x_shift_zone)][y];
+            chunkGenerateMesh(chunk);
+        }
+    }
     // Unload -x_direction chunks
     x_shift_zone = world->centre.vx + (LOADED_CHUNKS_RADIUS * -x_direction);
     for (int z_coord = z_start; z_coord <= z_end; z_coord++) {
@@ -185,8 +191,13 @@ void worldLoadChunksZ(World* world, const int8_t x_direction, const int8_t z_dir
                                               .vy = y,
                                               .vz = z_shift_zone
                                           });
-            chunkGenerateMesh(chunk);
             world->chunks[arrayCoord(world, vz, z_shift_zone)][arrayCoord(world, vx, x_coord)][y] = chunk;
+        }
+    }
+    for (int x_coord = x_start; x_coord <= x_end; x_coord++) {
+        for (int y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
+            Chunk* chunk = world->chunks[arrayCoord(world, vz, z_shift_zone)][arrayCoord(world, vx, x_coord)][y];
+            chunkGenerateMesh(chunk);
         }
     }
     // Unload -z_direction chunks
@@ -210,8 +221,11 @@ void worldLoadChunksXZ(World* world, const int8_t x_direction, const int8_t z_di
                                                  .vy = y,
                                                  .vz = z_coord
                                              });
-        chunkGenerateMesh(loaded_chunk);
         world->chunks[arrayCoord(world, vz, z_coord)][arrayCoord(world, vx, x_coord)][y] = loaded_chunk;
+    }
+    for (int y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
+        Chunk* loaded_chunk = world->chunks[arrayCoord(world, vz, z_coord)][arrayCoord(world, vx, x_coord)][y];
+        chunkGenerateMesh(loaded_chunk);
     }
     // Unload (-x_direction,-z_direction) chunk
     x_coord = world->centre.vx + (LOADED_CHUNKS_RADIUS * -x_direction);
