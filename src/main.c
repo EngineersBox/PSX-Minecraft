@@ -164,7 +164,8 @@ int main() {
         renderClearConstraints(&render_context);
         // Flush font to screen
         FntFlush(-1);
-        testLine();
+        // testLine();
+        debugDrawPBUsageGraph(&render_context, 0, SCREEN_YRES);
         // Swap buffers and draw the primitives
         swapBuffers(&render_context);
     }
