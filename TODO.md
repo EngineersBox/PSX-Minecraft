@@ -31,7 +31,7 @@
 * [x] Last vertex in chunk not correct
 * [x] Last texture window causing font render to be weird
 * [x] Figure out why odd numbered chunks render, no x-valued chunks render and Y alternate chunks don't render
-* [ ] Figure out why `CHUNK_SIZE` that isn't 8 doesn't work (e.g. 16), in that nothing renders (no errors logged)
+* [x] Figure out why `CHUNK_SIZE` that isn't 8 doesn't work (e.g. 16), in that nothing renders (no errors logged)
 * [x] Fix mesh rendering of last faces connected to neighbouring chunk, normal seems inverted. 
       This might be the inverse of changes made with windowing and indexing to fix chunk rendering initially.
 * [x] Camera rotation values do not wrap when a complete rotation is achieved

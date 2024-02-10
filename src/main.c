@@ -120,9 +120,9 @@ int main() {
             .vz = 1
         },
         .centre = {
-            .vx = 1,
+            .vx = 0,
             .vy = 0,
-            .vz = 1
+            .vz = 0
         }
     };
     worldInit(&world);
