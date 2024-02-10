@@ -8,6 +8,9 @@
 #include "input.h"
 #include "../render/transforms.h"
 
+#define CAMERA_ROTATE_SPEED 10
+#define CAMERA_MOVE_SPEED 2
+
 struct Camera;
 
 typedef void(*CameraReset)(struct Camera*);

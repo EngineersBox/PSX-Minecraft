@@ -29,6 +29,7 @@ void printDebugCamera(const Camera* camera, const Input* input) {
     );
 }
 
+
 void handleDigitalPadAndDualAnalogShock(Camera* camera, const Input* input, const Transforms* transforms) {
     // For digital input->pad, dual-analog and dual-shock
     if (input->pad->type != 0x4
@@ -42,57 +43,57 @@ void handleDigitalPadAndDualAnalogShock(Camera* camera, const Input* input, cons
     // Look controls
     if (isPressed(PAD_UP)) {
         // Look up
-        camera->rotation.vx -= ONE * 8;
+        camera->rotation.vx = positiveModulo(camera->rotation.vx - (ONE * CAMERA_ROTATE_SPEED), ONE << FIXED_POINT_SHIFT);
     } else if (isPressed(PAD_DOWN)) {
         // Look down
-        camera->rotation.vx += ONE * 8;
+        camera->rotation.vx = positiveModulo(camera->rotation.vx + (ONE * CAMERA_ROTATE_SPEED), ONE << FIXED_POINT_SHIFT);
     }
     if (isPressed(PAD_LEFT)) {
         // Look left
-        camera->rotation.vy += ONE * 8;
+        camera->rotation.vy = positiveModulo(camera->rotation.vy + (ONE * CAMERA_ROTATE_SPEED), ONE << FIXED_POINT_SHIFT);
     } else if (isPressed(PAD_RIGHT)) {
         // Look right
-        camera->rotation.vy -= ONE * 8;
+        camera->rotation.vy = positiveModulo(camera->rotation.vy - (ONE * CAMERA_ROTATE_SPEED), ONE << FIXED_POINT_SHIFT);
     }
     // Movement controls
     if (isPressed(PAD_TRIANGLE)) {
         // Move forward
         camera->position.vx -= ((isin(transforms->translation_rotation.vy)
-                                 * icos(transforms->translation_rotation.vx)) >> FIXED_POINT_SHIFT) << 2;
-        camera->position.vy += isin(transforms->translation_rotation.vx) << 2;
+                                 * icos(transforms->translation_rotation.vx)) >> FIXED_POINT_SHIFT) << CAMERA_MOVE_SPEED;
+        camera->position.vy += isin(transforms->translation_rotation.vx) << CAMERA_MOVE_SPEED;
         camera->position.vz += ((icos(transforms->translation_rotation.vy)
-                                 * icos(transforms->translation_rotation.vx)) >> FIXED_POINT_SHIFT) << 2;
+                                 * icos(transforms->translation_rotation.vx)) >> FIXED_POINT_SHIFT) << CAMERA_MOVE_SPEED;
     } else if (isPressed(PAD_CROSS)) {
         // Move backward
         camera->position.vx += ((isin(transforms->translation_rotation.vy)
-                                 * icos(transforms->translation_rotation.vx)) >> FIXED_POINT_SHIFT) << 2;
-        camera->position.vy -= isin(transforms->translation_rotation.vx) << 2;
+                                 * icos(transforms->translation_rotation.vx)) >> FIXED_POINT_SHIFT) << CAMERA_MOVE_SPEED;
+        camera->position.vy -= isin(transforms->translation_rotation.vx) << CAMERA_MOVE_SPEED;
         camera->position.vz -= ((icos(transforms->translation_rotation.vy)
-                                 * icos(transforms->translation_rotation.vx)) >> FIXED_POINT_SHIFT) << 2;
+                                 * icos(transforms->translation_rotation.vx)) >> FIXED_POINT_SHIFT) << CAMERA_MOVE_SPEED;
     }
     if (isPressed(PAD_SQUARE)) {
         // Slide left
-        camera->position.vx -= icos(transforms->translation_rotation.vy) << 2;
-        camera->position.vz -= isin(transforms->translation_rotation.vy) << 2;
+        camera->position.vx -= icos(transforms->translation_rotation.vy) << CAMERA_MOVE_SPEED;
+        camera->position.vz -= isin(transforms->translation_rotation.vy) << CAMERA_MOVE_SPEED;
     } else if (isPressed(PAD_CIRCLE)) {
         // Slide right
-        camera->position.vx += icos(transforms->translation_rotation.vy) << 2;
-        camera->position.vz += isin(transforms->translation_rotation.vy) << 2;
+        camera->position.vx += icos(transforms->translation_rotation.vy) << CAMERA_MOVE_SPEED;
+        camera->position.vz += isin(transforms->translation_rotation.vy) << CAMERA_MOVE_SPEED;
     }
     if (isPressed(PAD_R1)) {
         // Slide up
         camera->position.vx -= ((isin(transforms->translation_rotation.vy)
-                                 * isin(transforms->translation_rotation.vx)) >> FIXED_POINT_SHIFT) << 2;
-        camera->position.vy -= icos(transforms->translation_rotation.vx) << 2;
+                                 * isin(transforms->translation_rotation.vx)) >> FIXED_POINT_SHIFT) << CAMERA_MOVE_SPEED;
+        camera->position.vy -= icos(transforms->translation_rotation.vx) << CAMERA_MOVE_SPEED;
         camera->position.vz += ((icos(transforms->translation_rotation.vy)
-                                 * isin(transforms->translation_rotation.vx)) >> FIXED_POINT_SHIFT) << 2;
+                                 * isin(transforms->translation_rotation.vx)) >> FIXED_POINT_SHIFT) << CAMERA_MOVE_SPEED;
     } else if (isPressed(PAD_R2)) {
         // Slide down
         camera->position.vx += ((isin(transforms->translation_rotation.vy)
-                                 * isin(transforms->translation_rotation.vx)) >> FIXED_POINT_SHIFT) << 2;
-        camera->position.vy += icos(transforms->translation_rotation.vx) << 2;
+                                 * isin(transforms->translation_rotation.vx)) >> FIXED_POINT_SHIFT) << CAMERA_MOVE_SPEED;
+        camera->position.vy += icos(transforms->translation_rotation.vx) << CAMERA_MOVE_SPEED;
         camera->position.vz -= ((icos(transforms->translation_rotation.vy)
-                                 * isin(transforms->translation_rotation.vx)) >> FIXED_POINT_SHIFT) << 2;
+                                 * isin(transforms->translation_rotation.vx)) >> FIXED_POINT_SHIFT) << CAMERA_MOVE_SPEED;
     }
     // DEBUG: Look at cube
     if (isPressed(PAD_L1)) {

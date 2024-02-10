@@ -34,6 +34,6 @@
 * [ ] Figure out why `CHUNK_SIZE` that isn't 8 doesn't work (e.g. 16), in that nothing renders (no errors logged)
 * [x] Fix mesh rendering of last faces connected to neighbouring chunk, normal seems inverted. 
       This might be the inverse of changes made with windowing and indexing to fix chunk rendering initially.
-* [ ] Camera rotation values do not wrap when a complete rotation is achieved
+* [x] Camera rotation values do not wrap when a complete rotation is achieved
 * [x] Fixed stale references to mesh attribute iterators (primitive/vertex/normal)
 * [x] Logs spammed with GPU bad address read when looking down after a certain point
