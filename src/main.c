@@ -10,6 +10,8 @@
 #include "primitive/cube.h"
 #include "world/world.h"
 #include "util/math_utils.h"
+#include "primitive/line.h"
+#include "render/debug.h"
 
 RenderContext render_context = {
     .active = 0,
@@ -100,6 +102,28 @@ void cameraReset(Camera* camera) {
     camera->mode = 0;
 }
 
+void testLine() {
+    LINE_G2* line = (LINE_G2*) allocatePrimitive(&render_context, sizeof(LINE_G2));
+    setXY2(
+        line,
+        100, 100,
+        200, 200
+    );
+    setRGB0(
+        line,
+        255,
+        0,
+        0
+    );
+    setRGB1(
+        line,
+        0,
+        255,
+        0
+    );
+    lineG2Render(line, 0, &render_context);
+}
+
 int main() {
     VECTOR look_pos = {0};
     Camera camera = {
@@ -140,6 +164,7 @@ int main() {
         renderClearConstraints(&render_context);
         // Flush font to screen
         FntFlush(-1);
+        testLine();
         // Swap buffers and draw the primitives
         swapBuffers(&render_context);
     }

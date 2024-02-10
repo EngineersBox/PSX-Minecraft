@@ -143,7 +143,7 @@ uint32_t* allocateOrderingTable(RenderContext* ctx, const size_t size) {
     ptrdiff_t free_space = ORDERING_TABLE_LENGTH;
     free_space -= ((uintptr_t) ctx->db[ctx->active].ordering_table + size) - (uintptr_t) ctx->db[ctx->active].ordering_table;
     if (free_space < size) {
-        printf("[ERROR] Not enough space in ordering: %d < %d\n", free_space, size);
+        printf("[ERROR] Not enough space in ordering table: %d < %d\n", free_space, size);
         abort();
     }
     return ctx->db[ctx->active].ordering_table + size;
