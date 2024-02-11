@@ -43,12 +43,12 @@ void renderBlackBackground(RenderContext* ctx, const uint16_t base_screen_x, con
     setXY4(
         pol4,
         base_screen_x, base_screen_y,
-        base_screen_x, base_screen_y + height,
         base_screen_x + width, base_screen_y,
-        base_screen_x + width, base_screen_y + height
+        base_screen_x, base_screen_y - height,
+        base_screen_x + width, base_screen_y - height
     );
-    setRGB0(pol4, 5, 5, 5);
-    polyF4Render(pol4, 0, ctx);
+    setRGB0(pol4, 1, 1, 1);
+    polyF4Render(pol4, 1, ctx);
 }
 
 void debugDrawPBUsageGraph(RenderContext* ctx, const uint16_t base_screen_x, const uint16_t base_screen_y) {
