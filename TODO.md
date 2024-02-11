@@ -37,3 +37,4 @@
 * [x] Camera rotation values do not wrap when a complete rotation is achieved
 * [x] Fixed stale references to mesh attribute iterators (primitive/vertex/normal)
 * [x] Logs spammed with GPU bad address read when looking down after a certain point
+* [ ] Chunk mesh construction replicates world bottom at top of world 
