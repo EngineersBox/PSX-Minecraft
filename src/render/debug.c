@@ -1,6 +1,5 @@
 #include "debug.h"
 
-#include <stdio.h>
 #include "../util/math_utils.h"
 #include "../primitive/primitive.h"
 
@@ -66,19 +65,4 @@ void debugDrawPBUsageGraph(RenderContext* ctx, const uint16_t base_screen_x, con
     circularBufferPush(&packet_buffer_usage, used);
     renderBlackBackground(ctx, base_screen_x, base_screen_y, SAMPLE_WINDOW_SIZE, SAMPLE_MAX_VALUE);
     renderUsageGraph(ctx, &packet_buffer_usage, base_screen_x, base_screen_y);
-}
-
-void debugDrawOTUsageGraph(RenderContext* ctx, const uint16_t base_screen_x, const uint16_t base_screen_y) {
-    static int sampledOT = 0;
-    if (sampledOT < SAMPLE_RATE) {
-        sampledOT++;
-        renderUsageGraph(ctx, &ordering_table_usage, base_screen_x, base_screen_y);
-        return;
-    }
-    sampledOT = 0;
-    ptrdiff_t used = (uintptr_t) ctx->primitive - (uintptr_t) ctx->db[ctx->active].packet_buffer;
-    used /= sizeof(uint32_t);
-    used /= PB_DATA_POINT_PER_PIXEL;
-    circularBufferPush(&ordering_table_usage, used);
-    renderUsageGraph(ctx, &ordering_table_usage, base_screen_x, base_screen_y);
 }

@@ -4,7 +4,7 @@ void circularBufferPush(CircularBuffer* buf, const uint8_t data) {
     int next = buf->head + 1;
     if (buf->count >= buf->maxlen) {
         buf->tail = (buf->tail + 1) % buf->maxlen;
-        next = 0;
+        next %= buf->maxlen;
     } else {
         buf->count++;
     }

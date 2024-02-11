@@ -329,10 +329,19 @@ BlockID worldGetChunkBlock(const World* world, const ChunkBlockPosition* positio
 
 BlockID worldGetBlock(const World* world, const VECTOR* position) {
     // World is void below 0 and above world-height on y-axis
-    printf("Y: %d\n", position->vy);
     if (position->vy < 0 || position->vy >= WORLD_HEIGHT) {
+        // printf("Invalid Y: %d\n", position->vy);
         return BLOCKID_NONE;
     }
     const ChunkBlockPosition chunk_block_position = worldToChunkBlockPosition(position, CHUNK_SIZE);
+    // printf(
+    //     "CB POS: [C: (%d,%d,%d)] [B: (%d,%d,%d)]\n",
+    //     chunk_block_position.chunk.vx,
+    //     chunk_block_position.chunk.vy,
+    //     chunk_block_position.chunk.vz,
+    //     chunk_block_position.block.vx,
+    //     chunk_block_position.block.vy,
+    //     chunk_block_position.block.vz
+    // );
     return worldGetChunkBlock(world, &chunk_block_position);
 }
