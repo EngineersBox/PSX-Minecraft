@@ -252,7 +252,8 @@ void computeMeshMask(const Chunk* chunk,
                      const int axis2,
                      int16_t chunkIter[CHUNK_DIRECTIONS],
                      int16_t axisMask[CHUNK_DIRECTIONS],
-                     Mask mask[CHUNK_SIZE * CHUNK_SIZE]) {
+                     Mask mask[CHUNK_SIZE * CHUNK_SIZE],
+                     const int axis) {
     VECTOR query_position = {};
     uint16_t n = 0;
     for (chunkIter[axis2] = 0; chunkIter[axis2] < CHUNK_SIZE; chunkIter[axis2]++) {
@@ -260,11 +261,19 @@ void computeMeshMask(const Chunk* chunk,
             query_position.vx = chunkIter[0] + (chunk->position.vx * CHUNK_SIZE);
             query_position.vy = chunkIter[1] + (chunk->position.vy * CHUNK_SIZE);
             query_position.vz = chunkIter[2] + (chunk->position.vz * CHUNK_SIZE);
+            // BUG: The conditions on block retrieval causes extra mesh segments to
+            //      be created at the top and bottom of each chunk regardless of the
+            //      neighbouring chunk blocks. Without the condition there are still
+            //      bottom segements of the mesh created amd also a ghost segement at
+            //      the top of the world mirroring the bottom face of the bottom of
+            //      the world.
+            // const BlockID currentBlock = 0 <= chunkIter[axis] ? worldGetBlock(chunk->world, &query_position) : BLOCKID_NONE;
             const BlockID currentBlock = worldGetBlock(chunk->world, &query_position);
             const bool currentOpaque = blockIsOpaque(currentBlock);
             query_position.vx += axisMask[0];
             query_position.vy += axisMask[1];
             query_position.vz += axisMask[2];
+            // const BlockID compareBlock = chunkIter[axis] < CHUNK_SIZE - 1 ? worldGetBlock(chunk->world, &query_position) : BLOCKID_NONE;
             const BlockID compareBlock = worldGetBlock(chunk->world, &query_position);
             const bool compareOpaque = blockIsOpaque(compareBlock);
             if (axisMask[1] == 1) {
@@ -383,7 +392,8 @@ void chunkGenerateMesh(Chunk* chunk) {
                 axis2,
                 chunkIter,
                 axisMask,
-                mask
+                mask,
+                axis
             );
             chunkIter[axis]++;
             generateMeshLexicographically(

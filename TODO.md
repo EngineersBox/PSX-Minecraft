@@ -38,3 +38,4 @@
 * [x] Fixed stale references to mesh attribute iterators (primitive/vertex/normal)
 * [x] Logs spammed with GPU bad address read when looking down after a certain point
 * [ ] Chunk mesh construction replicates world bottom at top of world 
+* [ ] Chunk meshing generates redundant faces at sides of chunk
