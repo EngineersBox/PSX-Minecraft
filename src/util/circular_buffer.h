@@ -9,15 +9,17 @@ typedef struct {
     uint8_t* const buffer;
     volatile int head;
     volatile int tail;
+    volatile int count;
     const int maxlen;
 } CircularBuffer;
 
 #define DEFINE_CIRCULAR_BUFFER(name, size) \
-    uint8_t name##_data[(size)]; \
+        uint8_t name##_data[(size)]; \
     CircularBuffer name = { \
         .buffer = name##_data, \
         .head = 0, \
         .tail = 0, \
+        .count = 0, \
         .maxlen = (size) \
     }
 

@@ -2,11 +2,11 @@
 
 void circularBufferPush(CircularBuffer* buf, const uint8_t data) {
     int next = buf->head + 1;
-    if (next >= buf->maxlen) {
+    if (buf->count >= buf->maxlen) {
+        buf->tail = (buf->tail + 1) % buf->maxlen;
         next = 0;
-    }
-    if (next == buf->tail) {
-        buf->tail++;
+    } else {
+        buf->count++;
     }
     buf->buffer[buf->head] = data;
     buf->head = next;

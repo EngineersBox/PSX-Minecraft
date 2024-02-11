@@ -10,7 +10,6 @@
 #include "primitive/cube.h"
 #include "world/world.h"
 #include "util/math_utils.h"
-#include "primitive/line.h"
 #include "render/debug.h"
 
 RenderContext render_context = {
