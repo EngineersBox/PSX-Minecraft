@@ -51,6 +51,12 @@ void worldUpdate(World* world, const VECTOR* player_pos);
 BlockID worldGetChunkBlock(const World* world, const ChunkBlockPosition* position);
 BlockID worldGetBlock(const World* world, const VECTOR* position);
 
-BlockID worldRaycastIntersection(const World* world, const Camera* camera);
+typedef struct {
+    VECTOR pos;
+    BlockID block;
+    VECTOR face;
+} RayCastResult;
+
+RayCastResult worldRayCastIntersection(const World* world, const Camera* camera, uint32_t radius);
 
 #endif // PSX_MINECRAFT_WORLD_H

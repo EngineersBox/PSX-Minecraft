@@ -236,6 +236,8 @@ typedef struct _BVECTOR {
  */
 #define vdiv(v0, v1) vop(v0, v1, /)
 
+VECTOR rotationToDirection(const VECTOR* rotation);
+
 // VECTOR - Inline
 
 // TODO: Finish macro docstrings

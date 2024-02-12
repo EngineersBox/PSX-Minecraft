@@ -346,8 +346,116 @@ BlockID worldGetBlock(const World* world, const VECTOR* position) {
     return worldGetChunkBlock(world, &chunk_block_position);
 }
 
-BlockID worldRaycastIntersection(const World* world, const Camera* camera) {
+int32_t intbound(const int32_t s, const int32_t ds) {
+    if (ds < 0) {
+        return intbound(-s, -ds);
+    }
+    return (ONE - positiveModulo(s, 1)) / ds;
+}
+
+int32_t signum(const int32_t x) {
+    if (x > 0) {
+        return 1;
+    }
+    return x < 0 ? -1 : 0;
+}
+
+RayCastResult worldRayCastIntersection(const World* world, const Camera* camera, uint32_t radius) {
     // See: https://github.com/kpreid/cubes/blob/c5e61fa22cb7f9ba03cd9f22e5327d738ec93969/world.js#L307
     // See: http://www.cse.yorku.ca/~amana/research/grid.pdf
-    
+    int32_t x = camera->position.vx / BLOCK_SIZE;
+    int32_t y = camera->position.vy / BLOCK_SIZE;
+    int32_t z = camera->position.vz / BLOCK_SIZE;
+    const VECTOR direction = rotationToDirection(&camera->rotation);
+    const int32_t dx = direction.vx;
+    const int32_t dy = direction.vy;
+    const int32_t dz = direction.vz;
+    const int32_t step_x = sign(dx);
+    const int32_t step_y = sign(dy);
+    const int32_t step_z = sign(dz);
+    int32_t t_max_x = intbound(x, dx);
+    int32_t t_max_y = intbound(y, dy);
+    int32_t t_max_z = intbound(z, dz);
+    int32_t t_delta_x = step_x / (dx >> FIXED_POINT_SHIFT);
+    int32_t t_delta_y = step_y / (dy >> FIXED_POINT_SHIFT);
+    int32_t t_delta_z = step_z / (dz >> FIXED_POINT_SHIFT);
+    VECTOR face = {};
+    if (dx == 0 && dy == 0 && dz == 0) {
+        return (RayCastResult) {
+            .pos = {0},
+            .block = BLOCKID_NONE,
+            .face = {0}
+        };
+    }
+    // Rescale from units of 1 cube-edge to units of 'direction' so we can
+    // compare with 't'.
+    radius /= SquareRoot12(dx * dx + dy * dy + dz * dz);
+    const int32_t world_min_x = (world->centre.vx - LOADED_CHUNKS_RADIUS) * CHUNK_SIZE;
+    const int32_t world_max_x = (world->centre.vx + LOADED_CHUNKS_RADIUS) * CHUNK_SIZE;
+    const int32_t world_min_y = (world->centre.vy - LOADED_CHUNKS_RADIUS) * CHUNK_SIZE;
+    const int32_t world_max_y = (world->centre.vy + LOADED_CHUNKS_RADIUS) * CHUNK_SIZE;
+    const int32_t world_min_z = (world->centre.vz - LOADED_CHUNKS_RADIUS) * CHUNK_SIZE;
+    const int32_t world_max_z = (world->centre.vz + LOADED_CHUNKS_RADIUS) * CHUNK_SIZE;
+
+#define inWorld(v) (step_##v > 0 ? v < world_max_##v : v >= world_min_##v)
+    while (inWorld(x) && inWorld(y) && inWorld(z)) {
+#undef inWorld
+#define outWorld(v) (v < world_min_##v || v >= world_max_##v)
+        if (!(outWorld(x) || outWorld(y) || outWorld(z))) {
+#undef outWorld
+            break;
+        }
+        // tMaxX stores the t-value at which we cross a cube boundary along the
+        // X axis, and similarly for Y and Z. Therefore, choosing the least tMax
+        // chooses the closest cube boundary. Only the first case of the four
+        // has been commented in detail.
+        if (t_max_x < t_max_y) {
+            if (t_max_x < t_max_z) {
+                if (t_max_x > radius) break;
+                // Update which cube we are now in.
+                x += step_x;
+                // Adjust tMaxX to the next X-oriented boundary crossing.
+                t_max_x += t_delta_x;
+                // Record the normal vector of the cube face we entered.
+                face.vx = -step_x;
+                face.vy = 0;
+                face.vz = 0;
+            } else {
+                if (t_max_z > radius) break;
+                z += step_z;
+                t_max_z += t_delta_z;
+                face.vx = 0;
+                face.vy = 0;
+                face.vz = -step_z;
+            }
+        } else {
+            if (t_max_y < t_max_z) {
+                if (t_max_y > radius) break;
+                y += step_y;
+                t_max_y += t_delta_y;
+                face.vx = 0;
+                face.vy = -step_y;
+                face.vz = 0;
+            } else {
+                // Identical to the second case, repeated for simplicity in
+                // the conditionals.
+                if (t_max_z > radius) break;
+                z += step_z;
+                t_max_z += t_delta_z;
+                face.vx = 0;
+                face.vy = 0;
+                face.vz = -step_z;
+            }
+        }
+    }
+    const VECTOR intersection = (VECTOR) {
+        .vx = x,
+        .vy = y,
+        .vz = z
+    };
+    return (RayCastResult) {
+        .pos = intersection,
+        .block = worldGetBlock(world, &intersection),
+        .face = face
+    };
 }
