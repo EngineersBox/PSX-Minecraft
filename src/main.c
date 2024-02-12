@@ -124,6 +124,7 @@ void testLine() {
 }
 
 int main() {
+    init();
     VECTOR look_pos = {0};
     Camera camera = {
         .position = { ONE * 0, ONE * 0, ONE * 0 },
@@ -136,7 +137,6 @@ int main() {
         .geometry_mtx = {},
         .lighting_mtx = light_mtx
     };
-    init();
     World world = {
         .head = {
             .vx = 1,

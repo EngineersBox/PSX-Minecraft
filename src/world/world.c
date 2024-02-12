@@ -345,3 +345,9 @@ BlockID worldGetBlock(const World* world, const VECTOR* position) {
     // );
     return worldGetChunkBlock(world, &chunk_block_position);
 }
+
+BlockID worldRaycastIntersection(const World* world, const Camera* camera) {
+    // See: https://github.com/kpreid/cubes/blob/c5e61fa22cb7f9ba03cd9f22e5327d738ec93969/world.js#L307
+    // See: http://www.cse.yorku.ca/~amana/research/grid.pdf
+    
+}

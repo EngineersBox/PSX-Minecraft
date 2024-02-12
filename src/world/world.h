@@ -4,10 +4,10 @@
 #define PSX_MINECRAFT_WORLD_H
 
 #include "position.h"
-#include "../util/cvector.h"
 #include "chunk/chunk.h"
 #include "../render/render_context.h"
 #include "../render/transforms.h"
+#include "../core/camera.h"
 
 #define WORLD_CHUNKS_HEIGHT 2
 #define WORLD_HEIGHT (CHUNK_SIZE * WORLD_CHUNKS_HEIGHT)
@@ -50,5 +50,7 @@ void worldUpdate(World* world, const VECTOR* player_pos);
 
 BlockID worldGetChunkBlock(const World* world, const ChunkBlockPosition* position);
 BlockID worldGetBlock(const World* world, const VECTOR* position);
+
+BlockID worldRaycastIntersection(const World* world, const Camera* camera);
 
 #endif // PSX_MINECRAFT_WORLD_H

@@ -44,28 +44,28 @@ void chunkGenerate2DHeightMap(Chunk* chunk, const VECTOR* position) {
             //     0,
             //     Size
             // );
-            const int height = noise2d(xPos * ONE, zPos * ONE) / 2;
+            const int height = noise2d(xPos * ONE, zPos * ONE) >> 1; // Div by 2
             // clamp(
             //     noise,
             //     0,
             //     CHUNK_SIZE
             // );
-            printf("[CHUNK: %d,%d,%d] Height: %d\n", inlineVec(chunk->position), height);
+            // printf("[CHUNK: %d,%d,%d] Height: %d\n", inlineVec(chunk->position), height);
             for (int32_t y = CHUNK_SIZE; y > 0; y--) {
                 const int32_t worldY = (position->vy * CHUNK_SIZE) + (CHUNK_SIZE - y)
                                        + (CHUNK_SIZE * 6); // !IMPORTANT: TESTING OFFSET
                 if (worldY < height - 3) {
                     chunk->blocks[chunkBlockIndex(x, y - 1, z)] = (BlockID) BLOCKID_STONE;
-                    printf("[CHUNK: %d,%d,%d] Stone @ %d,%d,%d\n", inlineVec(chunk->position), x, y - 1, z);
+                    // printf("[CHUNK: %d,%d,%d] Stone @ %d,%d,%d\n", inlineVec(chunk->position), x, y - 1, z);
                 } else if (worldY < height - 1) {
                     chunk->blocks[chunkBlockIndex(x, y - 1, z)] = (BlockID) BLOCKID_DIRT;
-                    printf("[CHUNK: %d,%d,%d] Dirt @ %d,%d,%d\n", inlineVec(chunk->position), x, y - 1, z);
+                    // printf("[CHUNK: %d,%d,%d] Dirt @ %d,%d,%d\n", inlineVec(chunk->position), x, y - 1, z);
                 } else if (worldY == height - 1) {
                     chunk->blocks[chunkBlockIndex(x, y - 1, z)] = (BlockID) BLOCKID_GRASS;
-                    printf("[CHUNK: %d,%d,%d] Grass @ %d,%d,%d\n", inlineVec(chunk->position), x, y - 1, z);
+                    // printf("[CHUNK: %d,%d,%d] Grass @ %d,%d,%d\n", inlineVec(chunk->position), x, y - 1, z);
                 } else {
                     chunk->blocks[chunkBlockIndex(x, y - 1, z)] = (BlockID) BLOCKID_AIR;
-                    printf("[CHUNK: %d,%d,%d] Air @ %d,%d,%d\n", inlineVec(chunk->position), x, y - 1, z);
+                    // printf("[CHUNK: %d,%d,%d] Air @ %d,%d,%d\n", inlineVec(chunk->position), x, y - 1, z);
                 }
             }
         }
@@ -248,12 +248,12 @@ void createQuad(Chunk* chunk,
 }
 
 void computeMeshMask(const Chunk* chunk,
+                     const int axis,
                      const int axis1,
                      const int axis2,
                      int16_t chunkIter[CHUNK_DIRECTIONS],
                      int16_t axisMask[CHUNK_DIRECTIONS],
-                     Mask mask[CHUNK_SIZE * CHUNK_SIZE],
-                     const int axis) {
+                     Mask mask[CHUNK_SIZE * CHUNK_SIZE]) {
     VECTOR query_position = {};
     uint16_t n = 0;
     for (chunkIter[axis2] = 0; chunkIter[axis2] < CHUNK_SIZE; chunkIter[axis2]++) {
@@ -267,28 +267,28 @@ void computeMeshMask(const Chunk* chunk,
             //      bottom segements of the mesh created amd also a ghost segement at
             //      the top of the world mirroring the bottom face of the bottom of
             //      the world.
-            // const BlockID currentBlock = 0 <= chunkIter[axis] ? worldGetBlock(chunk->world, &query_position) : BLOCKID_NONE;
-            const BlockID currentBlock = worldGetBlock(chunk->world, &query_position);
+            const BlockID currentBlock = 0 <= chunkIter[axis] ? worldGetBlock(chunk->world, &query_position) : BLOCKID_NONE;
+            // const BlockID currentBlock = worldGetBlock(chunk->world, &query_position);
             const bool currentOpaque = blockIsOpaque(currentBlock);
             query_position.vx += axisMask[0];
             query_position.vy += axisMask[1];
             query_position.vz += axisMask[2];
-            // const BlockID compareBlock = chunkIter[axis] < CHUNK_SIZE - 1 ? worldGetBlock(chunk->world, &query_position) : BLOCKID_NONE;
-            const BlockID compareBlock = worldGetBlock(chunk->world, &query_position);
+            const BlockID compareBlock = chunkIter[axis] < CHUNK_SIZE - 1 ? worldGetBlock(chunk->world, &query_position) : BLOCKID_NONE;
+            // const BlockID compareBlock = worldGetBlock(chunk->world, &query_position);
             const bool compareOpaque = blockIsOpaque(compareBlock);
-            if (axisMask[1] == 1) {
-                printf(
-                    "(%d,%d,%d) %d == %d (%d,%d,%d)\n",
-                    chunkIter[0] + (chunk->position.vx * CHUNK_SIZE),
-                    chunkIter[1] + (chunk->position.vy * CHUNK_SIZE),
-                    chunkIter[2] + (chunk->position.vz * CHUNK_SIZE),
-                    currentOpaque,
-                    compareOpaque,
-                    axisMask[0] + chunkIter[0] + (chunk->position.vx * CHUNK_SIZE),
-                    axisMask[1] + chunkIter[1] + (chunk->position.vy * CHUNK_SIZE),
-                    axisMask[2] + chunkIter[2] + (chunk->position.vz * CHUNK_SIZE)
-                );
-            }
+            // if (axisMask[1] == 1) {
+            //     printf(
+            //         "(%d,%d,%d) %d == %d (%d,%d,%d)\n",
+            //         chunkIter[0] + (chunk->position.vx * CHUNK_SIZE),
+            //         chunkIter[1] + (chunk->position.vy * CHUNK_SIZE),
+            //         chunkIter[2] + (chunk->position.vz * CHUNK_SIZE),
+            //         currentOpaque,
+            //         compareOpaque,
+            //         axisMask[0] + chunkIter[0] + (chunk->position.vx * CHUNK_SIZE),
+            //         axisMask[1] + chunkIter[1] + (chunk->position.vy * CHUNK_SIZE),
+            //         axisMask[2] + chunkIter[2] + (chunk->position.vz * CHUNK_SIZE)
+            //     );
+            // }
             if (currentOpaque == compareOpaque) {
                 mask[n++] = (Mask){(uint16_t) BLOCKID_NONE, 0};
             } else if (currentOpaque) {
@@ -388,12 +388,12 @@ void chunkGenerateMesh(Chunk* chunk) {
             // Compute mask
             computeMeshMask(
                 chunk,
+                axis,
                 axis1,
                 axis2,
                 chunkIter,
                 axisMask,
-                mask,
-                axis
+                mask
             );
             chunkIter[axis]++;
             generateMeshLexicographically(
