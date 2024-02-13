@@ -403,10 +403,13 @@ RayCastResult worldRayCastIntersection(const World* world, const Camera* camera,
     printf("Radius after: %d\n", radius);
     const int32_t world_min_x = (world->centre.vx - LOADED_CHUNKS_RADIUS) * CHUNK_SIZE;
     const int32_t world_max_x = (world->centre.vx + LOADED_CHUNKS_RADIUS) * CHUNK_SIZE;
+    printf("World X [Min: %d] [Max: %d]\n", world_min_x, world_max_x);
     const int32_t world_min_y = (world->centre.vy - LOADED_CHUNKS_RADIUS) * CHUNK_SIZE;
     const int32_t world_max_y = (world->centre.vy + LOADED_CHUNKS_RADIUS) * CHUNK_SIZE;
+    printf("World Y [Min: %d] [Max: %d]\n", world_min_y, world_max_y);
     const int32_t world_min_z = (world->centre.vz - LOADED_CHUNKS_RADIUS) * CHUNK_SIZE;
     const int32_t world_max_z = (world->centre.vz + LOADED_CHUNKS_RADIUS) * CHUNK_SIZE;
+    printf("World Z [Min: %d] [Max: %d]\n", world_min_z, world_max_z);
 
 #define inWorld(v) (step_##v > 0 ? (v >> FIXED_POINT_SHIFT) < world_max_##v : (v >> FIXED_POINT_SHIFT) >= world_min_##v)
     while (inWorld(x) && inWorld(y) && inWorld(z)) {
