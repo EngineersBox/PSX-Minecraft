@@ -24,6 +24,7 @@
 * [x] Removed aliasing wrappers for primitive/vertex/normal arrays in `ChunkMesh` and
       refactor to direct type alias of `SMD`
 * [x] Camera displayed position to be units of `BLOCK_SIZE`
+* [ ] Y-axis values are negative upwards, coords should start at 0 from bottom of chunk and go up positively.
 
 ## Fix
 
@@ -37,5 +38,5 @@
 * [x] Camera rotation values do not wrap when a complete rotation is achieved
 * [x] Fixed stale references to mesh attribute iterators (primitive/vertex/normal)
 * [x] Logs spammed with GPU bad address read when looking down after a certain point
-* [ ] Chunk mesh construction replicates world bottom at top of world 
-* [ ] Chunk meshing generates redundant faces at sides of chunk
+* [x] Chunk mesh construction replicates world bottom at top of world 
+* [x] Chunk meshing generates redundant faces at sides of chunk

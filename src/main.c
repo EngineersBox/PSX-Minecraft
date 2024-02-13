@@ -115,7 +115,7 @@ int main() {
     init();
     VECTOR look_pos = {0};
     Camera camera = {
-        .position = { ONE * 0, ONE * 0, ONE * 0 },
+        .position = { ONE * 0, ONE * 1, ONE * 0 },
         .rotation = {ONE * 248, ONE * -1592, 0},
         .mode = 0,
         .reset_handler = &cameraReset
@@ -134,7 +134,7 @@ int main() {
         },
         .centre = {
             .vx = 0,
-            .vy = 0,
+            .vy = 1,
             .vz = 0
         }
     };

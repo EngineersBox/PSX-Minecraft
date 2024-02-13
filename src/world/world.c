@@ -330,7 +330,7 @@ BlockID worldGetChunkBlock(const World* world, const ChunkBlockPosition* positio
 BlockID worldGetBlock(const World* world, const VECTOR* position) {
     // World is void below 0 and above world-height on y-axis
     if (position->vy < 0 || position->vy >= WORLD_HEIGHT) {
-        // printf("Invalid Y: %d\n", position->vy);
+        printf("Invalid Y: %d\n", position->vy);
         return BLOCKID_NONE;
     }
     const ChunkBlockPosition chunk_block_position = worldToChunkBlockPosition(position, CHUNK_SIZE);
@@ -365,9 +365,11 @@ int32_t signum(const int32_t x) {
 RayCastResult worldRayCastIntersection(const World* world, const Camera* camera, int32_t radius) {
     // See: https://github.com/kpreid/cubes/blob/c5e61fa22cb7f9ba03cd9f22e5327d738ec93969/world.js#L307
     // See: http://www.cse.yorku.ca/~amana/research/grid.pdf
-    int32_t x = camera->position.vx / BLOCK_SIZE;
-    int32_t y = camera->position.vy / BLOCK_SIZE;
-    int32_t z = camera->position.vz / BLOCK_SIZE;
+    VECTOR position = (VECTOR) {
+        .vx = camera->position.vx / BLOCK_SIZE,
+        .vy = camera->position.vy / BLOCK_SIZE,
+        .vz = camera->position.vz / BLOCK_SIZE
+    };
     printf("Before rotation to direction\n");
     const VECTOR direction = rotationToDirection(&camera->rotation);
     const int32_t dx = direction.vx;
@@ -379,9 +381,9 @@ RayCastResult worldRayCastIntersection(const World* world, const Camera* camera,
     const int32_t step_z = sign(dz) * ONE;
     printf("step: (%d,%d,%d)\n", step_x, step_y, step_z);
     printf("Before intbound\n");
-    int32_t t_max_x = intbound(x, dx);
-    int32_t t_max_y = intbound(y, dy);
-    int32_t t_max_z = intbound(z, dz);
+    int32_t t_max_x = intbound(position.vx, dx);
+    int32_t t_max_y = intbound(position.vy, dy);
+    int32_t t_max_z = intbound(position.vz, dz);
     printf("After intbound: (%d,%d,%d)\n", t_max_x, t_max_y, t_max_z);
     const int32_t t_delta_x = step_x / dx;
     const int32_t t_delta_y = step_y / dy;
@@ -399,26 +401,46 @@ RayCastResult worldRayCastIntersection(const World* world, const Camera* camera,
     // Rescale from units of 1 cube-edge to units of 'direction' so we can
     // compare with 't'.
     printf("Radius before: %d\n", radius);
+    // TODO: These two operations just return radius to its original value.
+    //       Might as well remove them.
     radius /= SquareRoot0(dx * dx + dy * dy + dz * dz);
+    radius <<= FIXED_POINT_SHIFT;
     printf("Radius after: %d\n", radius);
-    const int32_t world_min_x = (world->centre.vx - LOADED_CHUNKS_RADIUS) * CHUNK_SIZE;
-    const int32_t world_max_x = (world->centre.vx + LOADED_CHUNKS_RADIUS) * CHUNK_SIZE;
+    const int32_t world_min_x = (world->centre.vx - WORLD_CHUNKS_RADIUS) * CHUNK_SIZE;
+    const int32_t world_max_x = (world->centre.vx + WORLD_CHUNKS_RADIUS) * CHUNK_SIZE;
     printf("World X [Min: %d] [Max: %d]\n", world_min_x, world_max_x);
-    const int32_t world_min_y = (world->centre.vy - LOADED_CHUNKS_RADIUS) * CHUNK_SIZE;
-    const int32_t world_max_y = (world->centre.vy + LOADED_CHUNKS_RADIUS) * CHUNK_SIZE;
+    const int32_t world_min_y = (world->centre.vy - WORLD_CHUNKS_RADIUS) * CHUNK_SIZE;
+    const int32_t world_max_y = (world->centre.vy + WORLD_CHUNKS_RADIUS) * CHUNK_SIZE;
     printf("World Y [Min: %d] [Max: %d]\n", world_min_y, world_max_y);
-    const int32_t world_min_z = (world->centre.vz - LOADED_CHUNKS_RADIUS) * CHUNK_SIZE;
-    const int32_t world_max_z = (world->centre.vz + LOADED_CHUNKS_RADIUS) * CHUNK_SIZE;
+    const int32_t world_min_z = (world->centre.vz - WORLD_CHUNKS_RADIUS) * CHUNK_SIZE;
+    const int32_t world_max_z = (world->centre.vz + WORLD_CHUNKS_RADIUS) * CHUNK_SIZE;
     printf("World Z [Min: %d] [Max: %d]\n", world_min_z, world_max_z);
 
-#define inWorld(v) (step_##v > 0 ? (v >> FIXED_POINT_SHIFT) < world_max_##v : (v >> FIXED_POINT_SHIFT) >= world_min_##v)
+#define inWorld(_v) (step_##_v > 0 ? (position.v##_v >> FIXED_POINT_SHIFT) < world_max_##_v : (position.v##_v >> FIXED_POINT_SHIFT) >= world_min_##_v)
     while (inWorld(x) && inWorld(y) && inWorld(z)) {
 #undef inWorld
-        printf("[Raycast] Checking (%d,%d,%d)\n", x >> FIXED_POINT_SHIFT, y >> FIXED_POINT_SHIFT, z >> FIXED_POINT_SHIFT);
-#define outWorld(v) ((v >> FIXED_POINT_SHIFT) < world_min_##v || (v >> FIXED_POINT_SHIFT) >= world_max_##v)
+        printf("[Raycast] Checking (%d,%d,%d)\n", position.vx >> FIXED_POINT_SHIFT, position.vy >> FIXED_POINT_SHIFT, position.vz >> FIXED_POINT_SHIFT);
+#define outWorld(_v) ((position.v##_v >> FIXED_POINT_SHIFT) < world_min_##_v || (position.v##_v >> FIXED_POINT_SHIFT) >= world_max_##_v)
         if (!(outWorld(x) || outWorld(y) || outWorld(z))) {
 #undef outWorld
-            break;
+            // BUG: Y-axis values are negative upwards, coords should start at 0 from bottom of chunk and go up positively.
+            printf(
+                "Out of world [X: %d < %d || %d >= %d] [Y: %d < %d || %d >= %d] [Z: %d < %d || %d >= %d]\n",
+                position.vx >> FIXED_POINT_SHIFT, world_min_x,
+                position.vx >> FIXED_POINT_SHIFT, world_max_x,
+                position.vy >> FIXED_POINT_SHIFT, world_min_y,
+                position.vy >> FIXED_POINT_SHIFT, world_max_y,
+                position.vz >> FIXED_POINT_SHIFT, world_min_z,
+                position.vz >> FIXED_POINT_SHIFT, world_max_z
+            );
+            position.vz >>= FIXED_POINT_SHIFT;
+            position.vy >>= FIXED_POINT_SHIFT;
+            position.vz >>= FIXED_POINT_SHIFT;
+            const BlockID block = worldGetBlock(world, &position);
+            position.vz <<= FIXED_POINT_SHIFT;
+            position.vy <<= FIXED_POINT_SHIFT;
+            position.vz <<= FIXED_POINT_SHIFT;
+            if (block != BLOCKID_NONE && block != BLOCKID_AIR) break;
         }
         // tMaxX stores the t-value at which we cross a cube boundary along the
         // X axis, and similarly for Y and Z. Therefore, choosing the least tMax
@@ -426,9 +448,12 @@ RayCastResult worldRayCastIntersection(const World* world, const Camera* camera,
         // has been commented in detail.
         if (t_max_x < t_max_y) {
             if (t_max_x < t_max_z) {
-                if (t_max_x > radius) break;
+                if (t_max_x > radius) {
+                    printf("Exceeds radius on x: %d > %d\n", t_max_x, radius);
+                    break;
+                }
                 // Update which cube we are now in.
-                x += step_x;
+                position.vx += step_x;
                 // Adjust tMaxX to the next X-oriented boundary crossing.
                 t_max_x += t_delta_x;
                 // Record the normal vector of the cube face we entered.
@@ -436,8 +461,11 @@ RayCastResult worldRayCastIntersection(const World* world, const Camera* camera,
                 face.vy = 0;
                 face.vz = 0;
             } else {
-                if (t_max_z > radius) break;
-                z += step_z;
+                if (t_max_z > radius) {
+                    printf("Exceeds radius on z: %d > %d\n", t_max_z, radius);
+                    break;
+                }
+                position.vz += step_z;
                 t_max_z += t_delta_z;
                 face.vx = 0;
                 face.vy = 0;
@@ -445,8 +473,11 @@ RayCastResult worldRayCastIntersection(const World* world, const Camera* camera,
             }
         } else {
             if (t_max_y < t_max_z) {
-                if (t_max_y > radius) break;
-                y += step_y;
+                if (t_max_y > radius) {
+                    printf("Exceeds radius on y: %d > %d\n", t_max_y, radius);
+                    break;
+                }
+                position.vy += step_y;
                 t_max_y += t_delta_y;
                 face.vx = 0;
                 face.vy = -step_y;
@@ -454,8 +485,11 @@ RayCastResult worldRayCastIntersection(const World* world, const Camera* camera,
             } else {
                 // Identical to the second case, repeated for simplicity in
                 // the conditionals.
-                if (t_max_z > radius) break;
-                z += step_z;
+                if (t_max_z > radius) {
+                    printf("Exceeds radius on z (2): %d > %d\n", t_max_z, radius);
+                    break;
+                }
+                position.vz += step_z;
                 t_max_z += t_delta_z;
                 face.vx = 0;
                 face.vy = 0;
@@ -464,9 +498,9 @@ RayCastResult worldRayCastIntersection(const World* world, const Camera* camera,
         }
     }
     const VECTOR intersection = (VECTOR) {
-        .vx = x >> FIXED_POINT_SHIFT,
-        .vy = y >> FIXED_POINT_SHIFT,
-        .vz = z >> FIXED_POINT_SHIFT
+        .vx = position.vx >> FIXED_POINT_SHIFT,
+        .vy = position.vy >> FIXED_POINT_SHIFT,
+        .vz = position.vz >> FIXED_POINT_SHIFT
     };
     printf("Before getting block\n");
     return (RayCastResult) {
