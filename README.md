@@ -97,13 +97,15 @@ CMake within the Docker context attached to CLion. To the following to set this 
 
 ## Progress
 
-Currently, the world can be loaded dynamically around the camera with chunks being
-loaded and unloaded when the player enters a loading radius. Meshes are built dynamically
-when a chunk is loaded.
+Working on world-ray intersection for updating terrain data based on ray cast from camera
+orientation.
 
-|                                            |                                            |
-|--------------------------------------------|--------------------------------------------|
-| ![Inter-Chunk Meshing](./docs/psxmc_1.png) | ![Inter-Chunk Meshing](./docs/psxmc_2.png) |
+[//]: # (|                                            |                                            |)
 
+[//]: # (|--------------------------------------------|--------------------------------------------|)
+
+[//]: # (| ![Inter-Chunk Meshing]&#40;./docs/psxmc_1.png&#41; | ![Inter-Chunk Meshing]&#40;./docs/psxmc_2.png&#41; |)
+
+[//]: # ()
 
 ![PSXMC](./docs/PSXMC.png)
