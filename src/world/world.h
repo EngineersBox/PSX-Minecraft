@@ -57,6 +57,6 @@ typedef struct {
     VECTOR face;
 } RayCastResult;
 
-RayCastResult worldRayCastIntersection(const World* world, const Camera* camera, uint32_t radius);
+RayCastResult worldRayCastIntersection(const World* world, const Camera* camera, int32_t radius);
 
 #endif // PSX_MINECRAFT_WORLD_H

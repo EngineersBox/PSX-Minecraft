@@ -347,9 +347,11 @@ BlockID worldGetBlock(const World* world, const VECTOR* position) {
 }
 
 int32_t intbound(const int32_t s, const int32_t ds) {
+    printf("[intbound] s: %d, ds: %d\n", s, ds);
     if (ds < 0) {
         return intbound(-s, -ds);
     }
+    printf("[inbound] end\n");
     return (ONE - positiveModulo(s, 1)) / ds;
 }
 
@@ -360,27 +362,32 @@ int32_t signum(const int32_t x) {
     return x < 0 ? -1 : 0;
 }
 
-RayCastResult worldRayCastIntersection(const World* world, const Camera* camera, uint32_t radius) {
+RayCastResult worldRayCastIntersection(const World* world, const Camera* camera, int32_t radius) {
     // See: https://github.com/kpreid/cubes/blob/c5e61fa22cb7f9ba03cd9f22e5327d738ec93969/world.js#L307
     // See: http://www.cse.yorku.ca/~amana/research/grid.pdf
     int32_t x = camera->position.vx / BLOCK_SIZE;
     int32_t y = camera->position.vy / BLOCK_SIZE;
     int32_t z = camera->position.vz / BLOCK_SIZE;
+    printf("Before rotation to direction\n");
     const VECTOR direction = rotationToDirection(&camera->rotation);
     const int32_t dx = direction.vx;
     const int32_t dy = direction.vy;
     const int32_t dz = direction.vz;
+    printf("dx: %d, dy: %d, dz: %d\n", dx, dy, dz);
     const int32_t step_x = sign(dx);
     const int32_t step_y = sign(dy);
     const int32_t step_z = sign(dz);
+    printf("Before intbound\n");
     int32_t t_max_x = intbound(x, dx);
     int32_t t_max_y = intbound(y, dy);
     int32_t t_max_z = intbound(z, dz);
+    printf("After intbound\n");
     int32_t t_delta_x = step_x / (dx >> FIXED_POINT_SHIFT);
     int32_t t_delta_y = step_y / (dy >> FIXED_POINT_SHIFT);
     int32_t t_delta_z = step_z / (dz >> FIXED_POINT_SHIFT);
     VECTOR face = {};
     if (dx == 0 && dy == 0 && dz == 0) {
+        printf("Zero delta\n");
         return (RayCastResult) {
             .pos = {0},
             .block = BLOCKID_NONE,
@@ -389,6 +396,7 @@ RayCastResult worldRayCastIntersection(const World* world, const Camera* camera,
     }
     // Rescale from units of 1 cube-edge to units of 'direction' so we can
     // compare with 't'.
+    printf("Before sqrt12\n");
     radius /= SquareRoot12(dx * dx + dy * dy + dz * dz);
     const int32_t world_min_x = (world->centre.vx - LOADED_CHUNKS_RADIUS) * CHUNK_SIZE;
     const int32_t world_max_x = (world->centre.vx + LOADED_CHUNKS_RADIUS) * CHUNK_SIZE;
@@ -453,6 +461,7 @@ RayCastResult worldRayCastIntersection(const World* world, const Camera* camera,
         .vy = y,
         .vz = z
     };
+    printf("Before getting block\n");
     return (RayCastResult) {
         .pos = intersection,
         .block = worldGetBlock(world, &intersection),

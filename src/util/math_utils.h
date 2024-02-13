@@ -4,6 +4,7 @@
 #define MATH_UTILS_H
 
 #include <stdint.h>
+#include <psxgte.h>
 
 /**
  * @brief Factor to shift left/right to convert int to/from fixed-point format

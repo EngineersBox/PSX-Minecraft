@@ -95,32 +95,20 @@ void init() {
 //     }
 // }
 
-void cameraReset(Camera* camera) {
-    camera->position = (VECTOR){0, ONE * 0, 0};
-    camera->rotation = (VECTOR){0, 0, 0};
-    camera->mode = 0;
-}
+World world;
 
-void testLine() {
-    LINE_G2* line = (LINE_G2*) allocatePrimitive(&render_context, sizeof(LINE_G2));
-    setXY2(
-        line,
-        100, 100,
-        200, 200
+void cameraReset(Camera* camera) {
+    const RayCastResult result = worldRayCastIntersection(&world, camera, ONE * 5);
+    printf(
+        "Ray cast result: [Pos: (%d,%d,%d)] [Block: %d] [Face: (%d,%d,%d)]\n",
+        result.pos.vx,
+        result.pos.vy,
+        result.pos.vz,
+        result.block,
+        result.face.vx,
+        result.face.vy,
+        result.face.vz
     );
-    setRGB0(
-        line,
-        255,
-        0,
-        0
-    );
-    setRGB1(
-        line,
-        0,
-        255,
-        0
-    );
-    lineG2Render(line, 0, &render_context);
 }
 
 int main() {
@@ -129,15 +117,17 @@ int main() {
     Camera camera = {
         .position = { ONE * 0, ONE * 0, ONE * 0 },
         .rotation = {ONE * 248, ONE * -1592, 0},
-        .mode = 0
+        .mode = 0,
+        .reset_handler = &cameraReset
     };
+    printf("Reset handler: %p\n", camera.reset_handler);
     Transforms transforms = {
         .translation_rotation = {0},
         .translation_position = {0, 0, 0},
         .geometry_mtx = {},
         .lighting_mtx = light_mtx
     };
-    World world = {
+    world = (World) {
         .head = {
             .vx = 1,
             .vz = 1
