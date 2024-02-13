@@ -374,9 +374,9 @@ RayCastResult worldRayCastIntersection(const World* world, const Camera* camera,
     const int32_t dy = direction.vy;
     const int32_t dz = direction.vz;
     printf("dx: %d, dy: %d, dz: %d\n", dx, dy, dz);
-    const int32_t step_x = sign(dx);
-    const int32_t step_y = sign(dy);
-    const int32_t step_z = sign(dz);
+    const int32_t step_x = sign(dx) * ONE;
+    const int32_t step_y = sign(dy) * ONE;
+    const int32_t step_z = sign(dz) * ONE;
     printf("step: (%d,%d,%d)\n", step_x, step_y, step_z);
     printf("Before intbound\n");
     int32_t t_max_x = intbound(x, dx);
