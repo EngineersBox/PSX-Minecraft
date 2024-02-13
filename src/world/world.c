@@ -377,14 +377,15 @@ RayCastResult worldRayCastIntersection(const World* world, const Camera* camera,
     const int32_t step_x = sign(dx);
     const int32_t step_y = sign(dy);
     const int32_t step_z = sign(dz);
+    printf("step: (%d,%d,%d)\n", step_x, step_y, step_z);
     printf("Before intbound\n");
     int32_t t_max_x = intbound(x, dx);
     int32_t t_max_y = intbound(y, dy);
     int32_t t_max_z = intbound(z, dz);
-    printf("After intbound\n");
-    int32_t t_delta_x = step_x / (dx >> FIXED_POINT_SHIFT);
-    int32_t t_delta_y = step_y / (dy >> FIXED_POINT_SHIFT);
-    int32_t t_delta_z = step_z / (dz >> FIXED_POINT_SHIFT);
+    printf("After intbound: (%d,%d,%d)\n", t_max_x, t_max_y, t_max_z);
+    int32_t t_delta_x = step_x / dx;
+    int32_t t_delta_y = step_y / dy;
+    int32_t t_delta_z = step_z / dz;
     printf("t_delta: (%d,%d,%d)\n", t_delta_x, t_delta_y, t_delta_z);
     VECTOR face = {};
     if (dx == 0 && dy == 0 && dz == 0) {
