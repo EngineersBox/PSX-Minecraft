@@ -351,7 +351,7 @@ int32_t intbound(const int32_t s, const int32_t ds) {
     if (ds < 0) {
         return intbound(-s, -ds);
     }
-    printf("[inbound] end\n");
+    printf("[intbound] end\n");
     return (ONE - positiveModulo(s, 1)) / ds;
 }
 
@@ -385,6 +385,7 @@ RayCastResult worldRayCastIntersection(const World* world, const Camera* camera,
     int32_t t_delta_x = step_x / (dx >> FIXED_POINT_SHIFT);
     int32_t t_delta_y = step_y / (dy >> FIXED_POINT_SHIFT);
     int32_t t_delta_z = step_z / (dz >> FIXED_POINT_SHIFT);
+    printf("t_delta: (%d,%d,%d)\n", t_delta_x, t_delta_y, t_delta_z);
     VECTOR face = {};
     if (dx == 0 && dy == 0 && dz == 0) {
         printf("Zero delta\n");
