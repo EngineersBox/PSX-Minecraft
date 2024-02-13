@@ -11,10 +11,10 @@
 * [ ] Camera far plane cutoff with fog relative to chunk render distance
 * [x] Continuous shifting world chunk array
 * [ ] Frustum and depth-first search culling through chunks
-* [ ] Graphing lib to use for resource usage and debugging
+* [x] Graphing lib to use for resource usage and debugging
 * [ ] Ray cast from camera normal to block retrieving exact block coordinates in world
 * [x] Dynamic chunk loading and unloading with movement
-* [ ] Player entity with hitbox
+* [ ] Player entity with hit box
 * [ ] Basic entity-mesh interaction physics with gravity
 
 ## Refactor
