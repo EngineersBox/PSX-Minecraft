@@ -383,9 +383,9 @@ RayCastResult worldRayCastIntersection(const World* world, const Camera* camera,
     int32_t t_max_y = intbound(y, dy);
     int32_t t_max_z = intbound(z, dz);
     printf("After intbound: (%d,%d,%d)\n", t_max_x, t_max_y, t_max_z);
-    int32_t t_delta_x = step_x / (dx >> FIXED_POINT_SHIFT);
-    int32_t t_delta_y = step_y / (dy >> FIXED_POINT_SHIFT);
-    int32_t t_delta_z = step_z / (dz >> FIXED_POINT_SHIFT);
+    const int32_t t_delta_x = step_x / dx;
+    const int32_t t_delta_y = step_y / dy;
+    const int32_t t_delta_z = step_z / dz;
     printf("t_delta: (%d,%d,%d)\n", t_delta_x, t_delta_y, t_delta_z);
     VECTOR face = {};
     if (dx == 0 && dy == 0 && dz == 0) {
@@ -398,8 +398,9 @@ RayCastResult worldRayCastIntersection(const World* world, const Camera* camera,
     }
     // Rescale from units of 1 cube-edge to units of 'direction' so we can
     // compare with 't'.
-    printf("Before sqrt12\n");
-    radius /= SquareRoot12(dx * dx + dy * dy + dz * dz);
+    printf("Radius before: %d\n", radius);
+    radius /= SquareRoot0(dx * dx + dy * dy + dz * dz);
+    printf("Radius after: %d\n", radius);
     const int32_t world_min_x = (world->centre.vx - LOADED_CHUNKS_RADIUS) * CHUNK_SIZE;
     const int32_t world_max_x = (world->centre.vx + LOADED_CHUNKS_RADIUS) * CHUNK_SIZE;
     const int32_t world_min_y = (world->centre.vy - LOADED_CHUNKS_RADIUS) * CHUNK_SIZE;
@@ -407,10 +408,11 @@ RayCastResult worldRayCastIntersection(const World* world, const Camera* camera,
     const int32_t world_min_z = (world->centre.vz - LOADED_CHUNKS_RADIUS) * CHUNK_SIZE;
     const int32_t world_max_z = (world->centre.vz + LOADED_CHUNKS_RADIUS) * CHUNK_SIZE;
 
-#define inWorld(v) (step_##v > 0 ? v < world_max_##v : v >= world_min_##v)
+#define inWorld(v) (step_##v > 0 ? (v >> FIXED_POINT_SHIFT) < world_max_##v : (v >> FIXED_POINT_SHIFT) >= world_min_##v)
     while (inWorld(x) && inWorld(y) && inWorld(z)) {
 #undef inWorld
-#define outWorld(v) (v < world_min_##v || v >= world_max_##v)
+        printf("[Raycast] Checking (%d,%d,%d)\n", x >> FIXED_POINT_SHIFT, y >> FIXED_POINT_SHIFT, z >> FIXED_POINT_SHIFT);
+#define outWorld(v) ((v >> FIXED_POINT_SHIFT) < world_min_##v || (v >> FIXED_POINT_SHIFT) >= world_max_##v)
         if (!(outWorld(x) || outWorld(y) || outWorld(z))) {
 #undef outWorld
             break;
@@ -459,9 +461,9 @@ RayCastResult worldRayCastIntersection(const World* world, const Camera* camera,
         }
     }
     const VECTOR intersection = (VECTOR) {
-        .vx = x,
-        .vy = y,
-        .vz = z
+        .vx = x >> FIXED_POINT_SHIFT,
+        .vy = y >> FIXED_POINT_SHIFT,
+        .vz = z >> FIXED_POINT_SHIFT
     };
     printf("Before getting block\n");
     return (RayCastResult) {

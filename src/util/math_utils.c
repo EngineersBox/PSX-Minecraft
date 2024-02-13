@@ -4,10 +4,12 @@
 
 VECTOR rotationToDirection(const VECTOR* rotation) {
     printf("Rotation: (%d,%d,%d)\n", rotation->vx, rotation->vy, rotation->vz);
-    const int32_t xz_len = icos(rotation->vx >> FIXED_POINT_SHIFT) << FIXED_POINT_SHIFT;
+    const int32_t x = rotation->vx >> FIXED_POINT_SHIFT;
+    const int32_t y = rotation->vy >> FIXED_POINT_SHIFT;
+    const int32_t xz_len = icos(x);
     return (VECTOR) {
-        .vx = xz_len * icos(rotation->vy >> FIXED_POINT_SHIFT),
-        .vy = isin(rotation->vx >> FIXED_POINT_SHIFT) << FIXED_POINT_SHIFT,
-        .vz = xz_len * isin(-rotation->vy >> FIXED_POINT_SHIFT)
+        .vx = (xz_len * icos(y)) >> FIXED_POINT_SHIFT,
+        .vy = isin(x),
+        .vz = (xz_len * isin(-y)) >> FIXED_POINT_SHIFT
     };
 }
