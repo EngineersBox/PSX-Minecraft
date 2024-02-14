@@ -100,12 +100,10 @@ CMake within the Docker context attached to CLion. To the following to set this 
 Working on world-ray intersection for updating terrain data based on ray cast from camera
 orientation.
 
-[//]: # (|                                            |                                            |)
+|                              |                              |
+|------------------------------|------------------------------|
+| ![PSXMC](./docs/PSXMC-1.png) | ![PSXMC](./docs/PSXMC-2.png) |
+|                              |                              |
 
-[//]: # (|--------------------------------------------|--------------------------------------------|)
-
-[//]: # (| ![Inter-Chunk Meshing]&#40;./docs/psxmc_1.png&#41; | ![Inter-Chunk Meshing]&#40;./docs/psxmc_2.png&#41; |)
-
-[//]: # ()
 
 ![PSXMC](./docs/PSXMC.png)
