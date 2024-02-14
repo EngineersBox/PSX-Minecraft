@@ -411,7 +411,7 @@ void chunkGenerateMesh(Chunk* chunk) {
 }
 
 void chunkRender(Chunk* chunk, RenderContext* ctx, Transforms* transforms) {
-    SVECTOR rotation = {0, 0, 0};
+    static SVECTOR rotation = {0, 0, 0};
     // Object and light matrix for object
     MATRIX omtx, olmtx;
     // Set object rotation and position

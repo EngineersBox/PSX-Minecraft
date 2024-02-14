@@ -290,9 +290,9 @@ void worldUpdate(World* world, const VECTOR* player_pos) {
     static int32_t prevy = 0;
     static int32_t prevz = 0;
     const VECTOR player_chunk_pos = (VECTOR){
-        .vx = (player_pos->vx >> FIXED_POINT_SHIFT) / CHUNK_BLOCK_SIZE,
-        .vy = (player_pos->vy >> FIXED_POINT_SHIFT) / CHUNK_BLOCK_SIZE,
-        .vz = (player_pos->vz >> FIXED_POINT_SHIFT) / CHUNK_BLOCK_SIZE
+        .vx = (-player_pos->vx >> FIXED_POINT_SHIFT) / CHUNK_BLOCK_SIZE,
+        .vy = (-player_pos->vy >> FIXED_POINT_SHIFT) / CHUNK_BLOCK_SIZE,
+        .vz = (-player_pos->vz >> FIXED_POINT_SHIFT) / CHUNK_BLOCK_SIZE
     };
     if (player_chunk_pos.vx != prevx
         || player_chunk_pos.vy != prevy

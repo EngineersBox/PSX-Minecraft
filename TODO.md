@@ -24,7 +24,8 @@
 * [x] Removed aliasing wrappers for primitive/vertex/normal arrays in `ChunkMesh` and
       refactor to direct type alias of `SMD`
 * [x] Camera displayed position to be units of `BLOCK_SIZE`
-* [ ] Y-axis values are negative upwards, coords should start at 0 from bottom of chunk and go up positively.
+* [x] Y-axis values are negative upwards should be positive
+* [ ] Block world coords should start at 0 from bottom of chunk and go up positively.
 
 ## Fix
 

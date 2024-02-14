@@ -111,11 +111,15 @@ void cameraReset(Camera* camera) {
     );
 }
 
+void drawCrossHair() {
+
+}
+
 int main() {
     init();
     VECTOR look_pos = {0};
     Camera camera = {
-        .position = { ONE * 0, ONE * 1, ONE * 0 },
+        .position = { ONE * 0, ONE * 0, ONE * 0 },
         .rotation = {ONE * 248, ONE * -1592, 0},
         .mode = 0,
         .reset_handler = &cameraReset
@@ -154,6 +158,7 @@ int main() {
         // Flush font to screen
         FntFlush(-1);
         // testLine();
+        // TODO: Move crosshair to UI handler and structs
         debugDrawPBUsageGraph(&render_context, 0, SCREEN_YRES);
         // Swap buffers and draw the primitives
         swapBuffers(&render_context);

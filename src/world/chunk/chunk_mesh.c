@@ -87,7 +87,7 @@ void renderQuad(const ChunkMesh* mesh, SMD_PRIM* primitive, RenderContext* ctx, 
     gte_avsz4();
     gte_stotz(&p);
     // (the shift right operator is to scale the depth precision)
-    if (p >> 2 <= 0 || p >> 2 >= ORDERING_TABLE_LENGTH) {
+    if (p >> 2 <= 1 || p >> 2 >= ORDERING_TABLE_LENGTH) {
         freePrimitive(ctx, sizeof(POLY_FT4));
         return;
     }
