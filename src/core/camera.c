@@ -16,11 +16,6 @@ void printDebugCamera(const Camera* camera, const Input* input) {
     const int32_t z = camera->position.vz / BLOCK_SIZE;
     FntPrint(
         -1,
-        "%d,%d,%d\n",
-        x, y, z
-    );
-    FntPrint(
-        -1,
         "X=%d.%d Y=%d.%d Z=%d.%d\n",
         fixedGetWhole(x), fixedGetFractional(x),
         fixedGetWhole(y), fixedGetFractional(y),
