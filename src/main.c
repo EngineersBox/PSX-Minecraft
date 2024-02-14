@@ -111,6 +111,7 @@ void cameraReset(Camera* camera) {
     );
 }
 
+// TODO: Move crosshair to UI handler and structs
 void drawCrossHair() {
     LINE_F2* vertical = (LINE_F2*) allocatePrimitive(&render_context, sizeof(LINE_F2));
     setXY2(
@@ -173,7 +174,6 @@ int main() {
         // Flush font to screen
         FntFlush(-1);
         // testLine();
-        // TODO: Move crosshair to UI handler and structs
         drawCrossHair();
         debugDrawPBUsageGraph(&render_context, 0, SCREEN_YRES);
         // Swap buffers and draw the primitives
