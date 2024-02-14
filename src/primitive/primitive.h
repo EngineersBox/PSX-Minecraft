@@ -15,6 +15,7 @@ typedef struct {
 } INDEX;
 
 void lineG2Render(const LINE_G2* line, int ot_entry, RenderContext* ctx);
+void lineF2Render(const LINE_F2* line, int ot_entry, RenderContext* ctx);
 void polyF4Render(const POLY_F4* pol4, int ot_entry, RenderContext* ctx);
 
 #endif //PSX_MINECRAFT_PRIMITIVE_H

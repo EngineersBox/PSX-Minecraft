@@ -16,6 +16,7 @@
 * [x] Dynamic chunk loading and unloading with movement
 * [ ] Player entity with hit box
 * [ ] Basic entity-mesh interaction physics with gravity
+* [x] Crosshair
 
 ## Refactor
 

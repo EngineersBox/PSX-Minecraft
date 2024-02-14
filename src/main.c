@@ -112,7 +112,22 @@ void cameraReset(Camera* camera) {
 }
 
 void drawCrossHair() {
-
+    LINE_F2* vertical = (LINE_F2*) allocatePrimitive(&render_context, sizeof(LINE_F2));
+    setXY2(
+        vertical,
+        CENTRE_X, CENTRE_Y - 2,
+        CENTRE_X, CENTRE_Y + 2
+    );
+    setRGB0(vertical, 0xff, 0xff, 0xff);
+    LINE_F2* horizontal = (LINE_F2*) allocatePrimitive(&render_context, sizeof(LINE_F2));
+    setXY2(
+        horizontal,
+        CENTRE_X - 2, CENTRE_Y,
+        CENTRE_X + 2, CENTRE_Y
+    );
+    setRGB0(horizontal, 0xff, 0xff, 0xff);
+    lineF2Render(vertical, 0, &render_context);
+    lineF2Render(horizontal, 0, &render_context);
 }
 
 int main() {
@@ -159,6 +174,7 @@ int main() {
         FntFlush(-1);
         // testLine();
         // TODO: Move crosshair to UI handler and structs
+        drawCrossHair();
         debugDrawPBUsageGraph(&render_context, 0, SCREEN_YRES);
         // Swap buffers and draw the primitives
         swapBuffers(&render_context);

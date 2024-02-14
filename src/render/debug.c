@@ -23,14 +23,14 @@ void renderUsageGraph(RenderContext* ctx,  const CircularBuffer* buffer, const u
         setRGB0(
             line,
             0,
-            255,
+            0xff,
             0
         );
         const uint8_t increment = usage * SAMPLE_RGB_INCREMENT;
         setRGB1(
             line,
             increment,
-            255 - increment,
+            0xff - increment,
             0
         );
         lineG2Render(line, 0, ctx);
