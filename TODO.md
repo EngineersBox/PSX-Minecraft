@@ -26,7 +26,7 @@
       refactor to direct type alias of `SMD`
 * [x] Camera displayed position to be units of `BLOCK_SIZE`
 * [x] Y-axis values are negative upwards should be positive
-* [ ] Block world coords should start at 0 from bottom of chunk and go up positively.
+* [x] Block world coords should start at 0 from bottom of chunk and go up positively.
 
 ## Fix
 

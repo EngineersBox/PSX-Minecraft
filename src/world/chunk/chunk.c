@@ -159,7 +159,8 @@ void createQuadVertices(Chunk* chunk,
     ChunkMesh* mesh = &chunk->mesh;
     // Construct vertices relative to chunk mesh top left origin
     const int16_t chunk_origin_x = chunk->position.vx * CHUNK_SIZE;
-    const int16_t chunk_origin_y = -chunk->position.vy * CHUNK_SIZE;
+    // Offset by 1 to ensure bottom block of bottom chunk starts at Y = 0
+    const int16_t chunk_origin_y = (-chunk->position.vy - 1) * CHUNK_SIZE;
     const int16_t chunk_origin_z = chunk->position.vz * CHUNK_SIZE;
     const SVECTOR vertices[4] = {
         {
