@@ -157,7 +157,7 @@ void createQuadVertices(Chunk* chunk,
                         SMD_PRIM* primitive,
                         const int index) {
     ChunkMesh* mesh = &chunk->mesh;
-    // Construct vertices relative to chunk mesh top left origin
+    // Construct vertices relative to chunk mesh bottom left origin
     const int16_t chunk_origin_x = chunk->position.vx * CHUNK_SIZE;
     // Offset by 1 to ensure bottom block of bottom chunk starts at Y = 0
     const int16_t chunk_origin_y = (-chunk->position.vy - 1) * CHUNK_SIZE;

@@ -96,14 +96,15 @@ void init() {
 // }
 
 World world;
+RayCastResult result;
 
 void cameraReset(Camera* camera) {
-    const RayCastResult result = worldRayCastIntersection(&world, camera, ONE * 5);
+    result = worldRayCastIntersection(&world, camera, ONE * 5);
     printf(
         "Ray cast result: [Pos: (%d,%d,%d)] [Block: %d] [Face: (%d,%d,%d)]\n",
-        result.pos.vx,
-        result.pos.vy,
-        result.pos.vz,
+        result.pos.vx >> FIXED_POINT_SHIFT,
+        result.pos.vy >> FIXED_POINT_SHIFT,
+        result.pos.vz >> FIXED_POINT_SHIFT,
         result.block,
         result.face.vx,
         result.face.vy,
@@ -133,7 +134,6 @@ void drawCrossHair() {
 
 int main() {
     init();
-    VECTOR look_pos = {0};
     Camera camera = {
         .position = { ONE * 0, ONE * 0, ONE * 0 },
         .rotation = {ONE * 248, ONE * -1592, 0},
@@ -149,12 +149,12 @@ int main() {
     };
     world = (World) {
         .head = {
-            .vx = 1,
-            .vz = 1
+            .vx = 0,
+            .vz = 0
         },
         .centre = {
             .vx = 0,
-            .vy = 1,
+            .vy = 0,
             .vz = 0
         }
     };
@@ -162,7 +162,7 @@ int main() {
     while (1) {
         // Set pad pointer to buffer data
         camera.mode = 0;
-        cameraUpdate(&camera, &input, &transforms, &look_pos);
+        cameraUpdate(&camera, &input, &transforms, &result.pos);
         worldUpdate(&world, &camera.position);
         // Set rotation and translation matrix
         gte_SetRotMatrix(&transforms.geometry_mtx);

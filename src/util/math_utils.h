@@ -66,7 +66,11 @@
  */
 #define absv(v) ((v) * sign(v))
 
-#define positiveModulo(i, n) (((i) % (n) + (n)) % (n))
+// #define positiveModulo(i, n) (((i) % (n) + (n)) % (n))
+__attribute__((always_inline))
+static int32_t positiveModulo(const int32_t i, const int32_t n) {
+    return (((i % n) + n) % n);
+}
 
 static void crossProduct(const SVECTOR *v0, const SVECTOR *v1, VECTOR *out) {
     out->vx = ((v0->vy * v1->vz) - (v0->vz * v1->vy)) >> 12;
