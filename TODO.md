@@ -17,6 +17,7 @@
 * [ ] Player entity with hit box
 * [ ] Basic entity-mesh interaction physics with gravity
 * [x] Crosshair
+* [x] Axis marker
 
 ## Refactor
 
@@ -27,6 +28,8 @@
 * [x] Camera displayed position to be units of `BLOCK_SIZE`
 * [x] Y-axis values are negative upwards should be positive
 * [x] Block world coords should start at 0 from bottom of chunk and go up positively.
+* [ ] Move crosshair render handler to UI directory with dependent structure
+* [ ] Move axis render handler to UI directory with dependent structure
 
 ## Fix
 

@@ -1,3 +1,4 @@
+#include <clip.h>
 #include <stdint.h>
 #include <psxgpu.h>
 #include <psxgte.h>
@@ -96,6 +97,116 @@ void drawCrossHair() {
     lineF2Render(horizontal, 0, &render_context);
 }
 
+SMD_PRIM x_prim = (SMD_PRIM) {
+    .prim_id = 0,
+    .r0 = 0xff,
+    .g0 = 0x1,
+    .b0 = 0x1,
+};
+SVECTOR x_vert[2] = {
+    (SVECTOR) {
+        .vx = 0,
+        .vy = 0,
+        .vz = 0
+    },
+    (SVECTOR) {
+        .vx = 3,
+        .vy = 0,
+        .vz = 0
+    }
+};
+
+SMD_PRIM y_prim = (SMD_PRIM) {
+    .prim_id = 0,
+    .r0 = 0x1,
+    .g0 = 0x1,
+    .b0 = 0xff,
+};
+SVECTOR y_vert[2] = {
+    (SVECTOR) {
+        .vx = 0,
+        .vy = 0,
+        .vz = 0
+    },
+    (SVECTOR) {
+        .vx = 0,
+        .vy = 3,
+        .vz = 0
+    }
+};
+
+SMD_PRIM z_prim = (SMD_PRIM) {
+    .prim_id = 0,
+    .r0 = 0x1,
+    .g0 = 0xff,
+    .b0 = 0x1,
+};
+SVECTOR z_vert[2] = {
+    (SVECTOR) {
+        .vx = 0,
+        .vy = 0,
+        .vz = 0
+    },
+    (SVECTOR) {
+        .vx = 0,
+        .vy = 0,
+        .vz = 3
+    }
+};
+
+void drawLine(SMD_PRIM* primitive, SVECTOR vertices[2]) {
+    LINE_F2* line = (LINE_F2*) allocatePrimitive(&render_context, sizeof(LINE_F2));
+    gte_ldv01(
+        &vertices[0],
+        &vertices[1]
+    );
+    // Rotation, Translation and Perspective Triple
+    gte_rtpt();
+    // Initialize a line
+    setLineF2(line);
+    // Set the projected vertices to the primitive
+    gte_stsxy0(&line->x0);
+    gte_stsxy1(&line->x1);
+    setRGB0(
+        line,
+        primitive->r0,
+        primitive->g0,
+        primitive->b0
+    );
+    uint32_t* ot_object = allocateOrderingTable(&render_context, 0);
+    addPrim(ot_object, line);
+}
+
+// TODO: Move this to UI directory with dependent structure
+void drawAxis(Camera* camera, Transforms* transforms) {
+    static SVECTOR rotation = {0};
+    VECTOR position = (VECTOR) {
+        .vx = camera->position.vx >> FIXED_POINT_SHIFT,
+        .vy = camera->position.vy >> FIXED_POINT_SHIFT,
+        .vz = camera->position.vz >> FIXED_POINT_SHIFT
+    };
+    // Object and light matrix for object
+    MATRIX omtx;
+    // Set object rotation and position
+    RotMatrix(&rotation, &omtx);
+    TransMatrix(&omtx, &position);
+    // Composite coordinate matrix transform, so object will be rotated and
+    // positioned relative to camera matrix (mtx), so it'll appear as
+    // world-space relative.
+    CompMatrixLV(&transforms->geometry_mtx, &omtx, &omtx);
+    // Save matrix
+    PushMatrix();
+    // Set matrices
+    gte_SetRotMatrix(&omtx);
+    gte_SetTransMatrix(&omtx);
+    // gte_SetTransMatrix(&omtx);
+    drawLine(&x_prim, x_vert);
+    drawLine(&y_prim, y_vert);
+    drawLine(&z_prim, z_vert);
+    // Restore matrix
+    PopMatrix();
+}
+
 int main() {
     init();
     Camera camera = {
@@ -137,7 +248,8 @@ int main() {
         // Flush font to screen
         FntFlush(-1);
         // testLine();
-        drawCrossHair();
+        // drawCrossHair();
+        drawAxis(&camera, &transforms);
         debugDrawPBUsageGraph(&render_context, 0, SCREEN_YRES);
         // Swap buffers and draw the primitives
         swapBuffers(&render_context);
