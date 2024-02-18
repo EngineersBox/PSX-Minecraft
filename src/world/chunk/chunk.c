@@ -5,9 +5,9 @@
 #include <stdbool.h>
 #include <smd/smd.h>
 
-#include "../../util/cvector.h"
-#include "../../primitive/primitive.h"
-#include "../noise.h"
+#include "../../structure/cvector.h"
+#include "../../structure/primitive/primitive.h"
+#include "../generation/noise.h"
 #include "../../util/math_utils.h"
 
 // Forward declaration

@@ -7,7 +7,7 @@
 #include "resources/assets.h"
 #include "core/input.h"
 #include "core/camera.h"
-#include "primitive/cube.h"
+#include "structure/primitive/cube.h"
 #include "world/world.h"
 #include "util/math_utils.h"
 #include "render/debug.h"
@@ -98,7 +98,7 @@ void init() {
 World world;
 RayCastResult result;
 
-void cameraReset(Camera* camera) {
+void cameraStartHandler(Camera* camera) {
     result = worldRayCastIntersection(&world, camera, ONE * 5);
     printf(
         "Ray cast result: [Pos: (%d,%d,%d)] [Block: %d] [Face: (%d,%d,%d)]\n",
@@ -138,9 +138,8 @@ int main() {
         .position = { ONE * 0, ONE * 0, ONE * 0 },
         .rotation = {ONE * 248, ONE * -1592, 0},
         .mode = 0,
-        .reset_handler = &cameraReset
+        .start_handler = &cameraStartHandler
     };
-    printf("Reset handler: %p\n", camera.reset_handler);
     Transforms transforms = {
         .translation_rotation = {0},
         .translation_position = {0, 0, 0},

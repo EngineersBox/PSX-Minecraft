@@ -106,7 +106,7 @@ void handleDigitalPadAndDualAnalogShock(Camera* camera, const Input* input, cons
         camera->mode = 1;
     }
     if (isPressed(PAD_START)) {
-        camera->reset_handler(camera);
+        camera->start_handler(camera);
     }
     if (isPressed(PAD_SELECT)) {
         _boot();

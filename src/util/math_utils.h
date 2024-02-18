@@ -66,11 +66,11 @@
  */
 #define absv(v) ((v) * sign(v))
 
-// #define positiveModulo(i, n) (((i) % (n) + (n)) % (n))
-__attribute__((always_inline))
-static int32_t positiveModulo(const int32_t i, const int32_t n) {
-    return (((i % n) + n) % n);
-}
+#define positiveModulo(i, n) (((i) % (n) + (n)) % (n))
+// __attribute__((always_inline))
+// static int32_t positiveModulo(const int32_t i, const int32_t n) {
+//     return (((i % n) + n) % n);
+// }
 
 static void crossProduct(const SVECTOR *v0, const SVECTOR *v1, VECTOR *out) {
     out->vx = ((v0->vy * v1->vz) - (v0->vz * v1->vy)) >> 12;
@@ -86,6 +86,7 @@ typedef struct _BVECTOR {
 } BVECTOR;
 
 #define inlineVec(vec) (vec).vx, (vec).vy, (vec).vz
+#define inlineVecPtr(vec) (vec)->vx, (vec)->vy, (vec)->vz
 
 // Fixed point
 
@@ -239,7 +240,7 @@ typedef struct _BVECTOR {
  * @param v1 - Second VECTOR* instance 
  * @return A new vector with the results of piece-wise division
  */
-#define vdiv(v0, v1) vop(v0, v1, /)
+#define vpdiv(v0, v1) vpop(v0, v1, /)
 
 VECTOR rotationToDirection(const VECTOR* rotation);
 
@@ -319,5 +320,31 @@ VECTOR rotationToDirection(const VECTOR* rotation);
 #define cvisub(v0, v1) cviop(v0, v1, -)
 #define cvimul(v0, v1) cviop(v0, v1, *)
 #define cvidiv(v0, v1) cviop(v0, v1, /)
+
+// DVECTOR - New instance
+
+#define dvop(v0, v1, op) ((DVECTOR) { \
+    _vec_op_single(r, v0, v1, op), \
+    _vec_op_single(g, v0, v1, op), \
+})
+
+#define dvadd(v0, v1) dvop(v0, v1, +)
+#define dvsub(v0, v1) dvop(v0, v1, -)
+#define dvmul(v0, v1) dvop(v0, v1, *)
+#define dvdiv(v0, v1) dvop(v0, v1, /)
+
+// DVECTOR - Inline
+
+#define dviop(v0, v1, op) ({ \
+    do { \
+        _ivec_op_single(r, v0, v1, op); \
+        _ivec_op_single(g, v0, v1, op); \
+    } while (0); \
+})
+
+#define dviadd(v0, v1) dviop(v0, v1, +)
+#define dvisub(v0, v1) dviop(v0, v1, -)
+#define dvimul(v0, v1) dviop(v0, v1, *)
+#define dvidiv(v0, v1) dviop(v0, v1, /)
 
 #endif //MATH_UTILS_H

@@ -9,7 +9,6 @@
 #include "../../render/transforms.h"
 #include "../../blocks/block.h"
 #include "../position.h"
-#include "../../util/fast_noise_lite.h"
 
 #define CHUNK_SIZE 8
 #define CHUNK_BLOCK_SIZE (CHUNK_SIZE * BLOCK_SIZE)

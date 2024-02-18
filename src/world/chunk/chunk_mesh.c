@@ -4,8 +4,8 @@
 #include <inline_c.h>
 #include <stdlib.h>
 
-#include "../../util/cvector.h"
-#include "../../util/cvector_utils.h"
+#include "../../structure/cvector.h"
+#include "../../structure/cvector_utils.h"
 #include "../../blocks/block.h"
 
 void __primtiveDestructor(void* elem) {

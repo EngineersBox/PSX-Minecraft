@@ -246,21 +246,9 @@ void worldShiftChunks(World* world, const int8_t x_direction, const int8_t z_dir
 __attribute__((always_inline))
 inline int worldWithinLoadRadius(const World* world, const VECTOR* player_chunk_pos) {
     return absv(world->centre.vx - player_chunk_pos->vx) < LOADED_CHUNKS_RADIUS - 1
-// #if LOADED_CHUNKS_RADIUS == 1
-//            < LOADED_CHUNKS_RADIUS
-// #else
-//            < LOADED_CHUNKS_RADIUS - 1
-// #endif
-           && absv(world->centre.vz - player_chunk_pos->vz) < LOADED_CHUNKS_RADIUS - 1
-// #if LOADED_CHUNKS_RADIUS == 1
-//            < LOADED_CHUNKS_RADIUS
-// #else
-//            < LOADED_CHUNKS_RADIUS - 1
-// #endif
-        ;
+           && absv(world->centre.vz - player_chunk_pos->vz) < LOADED_CHUNKS_RADIUS - 1;
 }
 
-// BUG: Fix player movement loading chunks in opposite direction
 void worldLoadChunks(World* world, const VECTOR* player_chunk_pos) {
     // Check if we need to load
     if (worldWithinLoadRadius(world, player_chunk_pos)) {
@@ -288,7 +276,6 @@ void worldLoadChunks(World* world, const VECTOR* player_chunk_pos) {
 }
 
 void worldUpdate(World* world, const VECTOR* player_pos) {
-    // TODO: These are temp testing static vars, remove them later
     static int32_t prevx = 0;
     static int32_t prevy = 0;
     static int32_t prevz = 0;
@@ -341,15 +328,6 @@ BlockID worldGetBlock(const World* world, const VECTOR* position) {
         return BLOCKID_NONE;
     }
     const ChunkBlockPosition chunk_block_position = worldToChunkBlockPosition(position, CHUNK_SIZE);
-    // printf(
-    //     "CB POS: [C: (%d,%d,%d)] [B: (%d,%d,%d)]\n",
-    //     chunk_block_position.chunk.vx,
-    //     chunk_block_position.chunk.vy,
-    //     chunk_block_position.chunk.vz,
-    //     chunk_block_position.block.vx,
-    //     chunk_block_position.block.vy,
-    //     chunk_block_position.block.vz
-    // );
     return worldGetChunkBlock(world, &chunk_block_position);
 }
 
@@ -360,13 +338,6 @@ int32_t intbound(const int32_t s, const int32_t ds) {
     }
     printf("[intbound] end\n");
     return ((ONE - positiveModulo(s, 1)) << FIXED_POINT_SHIFT) / ds;
-}
-
-int32_t signum(const int32_t x) {
-    if (x > 0) {
-        return 1;
-    }
-    return x < 0 ? -1 : 0;
 }
 
 RayCastResult worldRayCastIntersection(const World* world, const Camera* camera, int32_t radius) {
@@ -522,12 +493,11 @@ RayCastResult worldRayCastIntersection(const World* world, const Camera* camera,
         .vy = position.vy >> FIXED_POINT_SHIFT,
         .vz = position.vz >> FIXED_POINT_SHIFT
     };
-    BlockID block = worldGetBlock(world, &intersection);
     printf("Position: (%d,%d,%d)\n", intersection.vx, intersection.vy, intersection.vz);
     printf("Before getting block\n");
     return (RayCastResult) {
         .pos = position,
-        .block = block,
+        .block = worldGetBlock(world, &intersection),
         .face = face
     };
 }

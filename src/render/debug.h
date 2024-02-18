@@ -4,7 +4,7 @@
 #define PSX_MINECRAFT_DEBUG_H
 
 #include "render_context.h"
-#include "../util/circular_buffer.h"
+#include "../structure/circular_buffer.h"
 
 #define SAMPLE_MAX_VALUE 50
 #define SAMPLE_WINDOW_SIZE 80
