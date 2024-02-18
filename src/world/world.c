@@ -241,6 +241,9 @@ void worldLoadChunksXZ(World* world, const int8_t x_direction, const int8_t z_di
 void worldShiftChunks(World* world, const int8_t x_direction, const int8_t z_direction) {
     world->head.vx = wrapCoord(world, vx, x_direction);
     world->head.vz = wrapCoord(world, vz, z_direction);
+    // Move centre towards player position by 1 increment
+    world->centre.vx += x_direction;
+    world->centre.vz += z_direction;
 }
 
 __attribute__((always_inline))
@@ -270,9 +273,6 @@ void worldLoadChunks(World* world, const VECTOR* player_chunk_pos) {
     }
     // Shift chunks into centre of arrays
     worldShiftChunks(world, x_direction, z_direction);
-    // Move centre towards player position by 1 increment
-    world->centre.vx += x_direction;
-    world->centre.vz += z_direction;
 }
 
 void worldUpdate(World* world, const VECTOR* player_pos) {
@@ -364,9 +364,9 @@ RayCastResult worldRayCastIntersection(const World* world, const Camera* camera,
     int32_t t_max_y = intbound(position.vy, dy);
     int32_t t_max_z = intbound(position.vz, dz);
     printf("After intbound: (%d,%d,%d)\n", t_max_x, t_max_y, t_max_z);
-    const int32_t t_delta_x = step_x / dx;
-    const int32_t t_delta_y = step_y / dy;
-    const int32_t t_delta_z = step_z / dz;
+    const int32_t t_delta_x = (step_x << FIXED_POINT_SHIFT) / dx;
+    const int32_t t_delta_y = (step_y << FIXED_POINT_SHIFT) / dy;
+    const int32_t t_delta_z = (step_z << FIXED_POINT_SHIFT) / dz;
     printf("t_delta: (%d,%d,%d)\n", t_delta_x, t_delta_y, t_delta_z);
     VECTOR face = {};
     if (dx == 0 && dy == 0 && dz == 0) {

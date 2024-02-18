@@ -5,7 +5,8 @@ IMAGE=${1:-"psxmc:latest"}
 docker run -id \
   --rm \
   -v "$(pwd):/tmp/PSX-Minecraft" \
-  -w "/tmp/PSX-Minecraft" \
+  -v "$(pwd):$(pwd)" \
+  -w "$(pwd)" \
   --name "psx_minecraft" \
   "$IMAGE" \
   /bin/bash

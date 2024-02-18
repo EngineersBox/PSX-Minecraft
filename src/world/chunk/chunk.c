@@ -25,12 +25,7 @@ void chunkInit(Chunk* chunk) {
     chunkMeshInit(&chunk->mesh);
     chunkClearMesh(chunk);
     printf("[CHUNK: %d,%d,%d] Generating 2D height map\n", inlineVec(chunk->position));
-    if (chunk->position.vx == 1 && chunk->position.vz == 0 && chunk->position.vy == 0) {
-        memset(chunk->blocks, 0, sizeof(BlockID) * CHUNK_DATA_SIZE);
-        chunk->blocks[chunkBlockIndex((14 % CHUNK_SIZE), 4, 4)] = BLOCKID_GRASS;;
-    } else {
-        chunkGenerate2DHeightMap(chunk, &chunk->position);
-    }
+    chunkGenerate2DHeightMap(chunk, &chunk->position);
 }
 
 void chunkDestroy(const Chunk* chunk) {
@@ -282,19 +277,6 @@ void computeMeshMask(const Chunk* chunk,
             const BlockID compareBlock = chunkIter[axis] < CHUNK_SIZE - 1 ? worldGetBlock(chunk->world, &query_position) : BLOCKID_NONE;
             // const BlockID compareBlock = worldGetBlock(chunk->world, &query_position);
             const bool compareOpaque = blockIsOpaque(compareBlock);
-            // if (axisMask[1] == 1) {
-            //     printf(
-            //         "(%d,%d,%d) %d == %d (%d,%d,%d)\n",
-            //         chunkIter[0] + (chunk->position.vx * CHUNK_SIZE),
-            //         chunkIter[1] + (chunk->position.vy * CHUNK_SIZE),
-            //         chunkIter[2] + (chunk->position.vz * CHUNK_SIZE),
-            //         currentOpaque,
-            //         compareOpaque,
-            //         axisMask[0] + chunkIter[0] + (chunk->position.vx * CHUNK_SIZE),
-            //         axisMask[1] + chunkIter[1] + (chunk->position.vy * CHUNK_SIZE),
-            //         axisMask[2] + chunkIter[2] + (chunk->position.vz * CHUNK_SIZE)
-            //     );
-            // }
             if (currentOpaque == compareOpaque) {
                 mask[n++] = (Mask){(uint16_t) BLOCKID_NONE, 0};
             } else if (currentOpaque) {

@@ -18,6 +18,10 @@ RenderContext render_context = {
     .primitive = NULL
 };
 Input input = {};
+// Reference texture data
+extern const uint32_t tim_texture[];
+World world = {};
+RayCastResult result = {};
 
 // Light color matrix
 // Each column represents the color matrix of each light source and is
@@ -44,9 +48,6 @@ MATRIX light_mtx = {
     }
 };
 
-// Reference texture data
-extern const uint32_t tim_texture[];
-
 void init() {
     blockInitialiseBuiltin();
     initRenderContext(&render_context);
@@ -60,43 +61,6 @@ void init() {
     // Unpack LZP archive and load assets
     assetsLoad();
 }
-
-// static int random[128] = {
-//     1, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1,
-//     1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0,
-//     0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1, 0, 1, 1,
-//     0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1, 0, 0, 1, 0, 0, 1, 1
-// };
-//
-// void initTestBlocks(Chunk *chunk) {
-//     // for (int x = 0; x < CHUNK_SIZE; x++) {
-//     //     for (int z = 0; z < CHUNK_SIZE; z++) {
-//     //         for (int y = 0; y < CHUNK_SIZE; y++) {
-//     //             chunk->blocks[chunkBlockIndex(x, y, z)] = (BlockID) STONE;
-//     //         }
-//     //     }
-//     // }
-//     for (int x = 0; x < CHUNK_SIZE; x++) {
-//         for (int z = 0; z < CHUNK_SIZE; z++) {
-//             for (int y = 0; y < 3; y++) {
-//                 if (y == 0) {
-//                     chunk->blocks[chunkBlockIndex(x, y, z)] = (BlockID) STONE;
-//                 } else if (y == 1) {
-//                     chunk->blocks[chunkBlockIndex(x, y, z)] = random[x + (z * CHUNK_SIZE)] == 1
-//                                                                   ? (BlockID) DIRT
-//                                                                   : (BlockID) AIR;
-//                 } else if (y == 2) {
-//                     chunk->blocks[chunkBlockIndex(x, y, z)] = random[64 + x + (z * CHUNK_SIZE)] == 1
-//                                                                   ? (BlockID) GRASS
-//                                                                   : (BlockID) AIR;
-//                 }
-//             }
-//         }
-//     }
-// }
-
-World world;
-RayCastResult result;
 
 void cameraStartHandler(Camera* camera) {
     result = worldRayCastIntersection(&world, camera, ONE * 5);

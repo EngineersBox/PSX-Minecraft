@@ -11,5 +11,5 @@ if [ -z "$(docker ps -q -f name="$1" -f status=running)" ]; then
     clangd --background-index
 else
     # Important part here is both the '-i' and the redirection of STDERR
-    docker exec -i "$1" /usr/bin/clangd --background-index 2>/dev/null
+    docker exec -i "$1" /usr/bin/clangd --compile-commands-dir="./build" --background-index 2>/dev/null
 fi
