@@ -6,22 +6,22 @@
 
 #include "../util/math_utils.h"
 
-const SVECTOR origin = (SVECTOR) {
+const SVECTOR ORIGIN = (SVECTOR) {
     .vx = 0,
     .vy = 0,
     .vz = 0
 };
-const SVECTOR x_direction = (SVECTOR) {
+const SVECTOR X_DIRECTION = (SVECTOR) {
     .vx = 3,
     .vy = 0,
     .vz = 0
 };
-const SVECTOR y_direction = (SVECTOR) {
+const SVECTOR Y_DIRECTION = (SVECTOR) {
     .vx = 0,
     .vy = -3,
     .vz = 0
 };
-const SVECTOR z_direction = (SVECTOR) {
+const SVECTOR Z_DIRECTION = (SVECTOR) {
     .vx = 0,
     .vy = 0,
     .vz = 3
@@ -29,7 +29,7 @@ const SVECTOR z_direction = (SVECTOR) {
 
 void drawLine(RenderContext* ctx, const SVECTOR* vertex, uint8_t r, uint8_t g, uint8_t b) {
     LINE_F2* line = (LINE_F2*) allocatePrimitive(ctx, sizeof(LINE_F2));
-    gte_ldv01(&origin, vertex);
+    gte_ldv01(&ORIGIN, vertex);
     // Rotation, Translation and Perspective Triple
     gte_rtpt();
     // Initialize a line
@@ -63,10 +63,10 @@ void axisDraw(RenderContext* ctx, const Transforms* transforms, const Camera* ca
     // Set matrices
     gte_SetRotMatrix(&omtx);
     gte_SetTransMatrix(&omtx);
-    // gte_SetTransMatrix(&omtx);
-    drawLine(ctx, &x_direction, 0xff, 0x0, 0x0);
-    drawLine(ctx, &y_direction, 0x0, 0xff, 0x0);
-    drawLine(ctx, &z_direction, 0x0, 0x0, 0xff);
+    // Draw axis lines
+    drawLine(ctx, &X_DIRECTION, 0xff, 0x0, 0x0);
+    drawLine(ctx, &Y_DIRECTION, 0x0, 0xff, 0x0);
+    drawLine(ctx, &Z_DIRECTION, 0x0, 0x0, 0xff);
     // Restore matrix
     PopMatrix();
 }
