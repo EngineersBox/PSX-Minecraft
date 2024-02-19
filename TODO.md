@@ -45,3 +45,5 @@
 * [x] Logs spammed with GPU bad address read when looking down after a certain point
 * [x] Chunk mesh construction replicates world bottom at top of world 
 * [x] Chunk meshing generates redundant faces at sides of chunk
+* [ ] Ray cast direction does not fully match camera rotation normal
+* [ ] Mesh vertices z-depth is inconsistent leading to faces drawn in wrong order and thus culling fails

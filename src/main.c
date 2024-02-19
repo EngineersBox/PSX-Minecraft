@@ -137,7 +137,7 @@ SVECTOR y_vert[2] = {
     },
     (SVECTOR) {
         .vx = 0,
-        .vy = 3,
+        .vy = -3, // Negative because world coords are inverted compared to camera coords
         .vz = 0
     }
 };
