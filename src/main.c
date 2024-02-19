@@ -25,6 +25,7 @@ Input input = {};
 extern const uint32_t tim_texture[];
 World world = {};
 RayCastResult result = {};
+Transforms transforms = {};
 
 // Light color matrix
 // Each column represents the color matrix of each light source and is
@@ -58,6 +59,13 @@ void init() {
     /* Set light ambient color and light color matrix */
     gte_SetBackColor(63, 63, 63);
     gte_SetColorMatrix(&color_mtx);
+    // Create transforms
+    transforms = (Transforms) {
+        .translation_rotation = {0},
+        .translation_position = {0, 0, 0},
+        .geometry_mtx = {},
+        .lighting_mtx = light_mtx
+    };
     // Load font and open a text stream
     FntLoad(960, 0);
     FntOpen(0, 8, 320, 216, 0, 100);
@@ -81,7 +89,6 @@ void cameraStartHandler(Camera* camera) {
         result.face.vz
     );
     if (blockIsOpaque(result.block)) {
-        printf("Modifying ray cast result block\n");
         worldModifyVoxel(&world, &result.pos, BLOCKID_AIR);
     }
 }
@@ -93,12 +100,6 @@ int main() {
         .rotation = {ONE * 248, ONE * -1592, 0},
         .mode = 0,
         .start_handler = &cameraStartHandler
-    };
-    Transforms transforms = {
-        .translation_rotation = {0},
-        .translation_position = {0, 0, 0},
-        .geometry_mtx = {},
-        .lighting_mtx = light_mtx
     };
     world = (World) {
         .head = {
@@ -124,12 +125,13 @@ int main() {
         worldRender(&world, &render_context, &transforms);
         // Clear window constraints
         renderClearConstraints(&render_context);
-        // Flush font to screen
-        FntFlush(-1);
+        // Render UI
         // testLine();
         // crosshairDraw(&render_context);
         axisDraw(&render_context, &transforms, &camera);
         debugDrawPBUsageGraph(&render_context, 0, SCREEN_YRES);
+        // Flush font to screen
+        FntFlush(-1);
         // Swap buffers and draw the primitives
         swapBuffers(&render_context);
     }
