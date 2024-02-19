@@ -10,13 +10,13 @@
 
 void printDebugCamera(const Camera* camera, const Input* input) {
     // Print out some info
-    FntPrint(-1, "BUTTONS=%04x\n", input->pad->btn);
+    FntPrint(0, "BUTTONS=%04x\n", input->pad->btn);
     const int32_t x = camera->position.vx / BLOCK_SIZE;
     const int32_t y_down = camera->position.vy / BLOCK_SIZE;
     const int32_t y_up = -camera->position.vy / BLOCK_SIZE;
     const int32_t z = camera->position.vz / BLOCK_SIZE;
     FntPrint(
-        -1,
+        0,
         ""
         "X=%d.%05d\n"
         "Y=%d.%05d (DOWN)\n"
@@ -28,7 +28,7 @@ void printDebugCamera(const Camera* camera, const Input* input) {
         fixedGetWhole(z), fixedGetFractional(z)
     );
     FntPrint(
-        -1,
+        0,
         "RX=%d RY=%d\n",
         camera->rotation.vx >> FIXED_POINT_SHIFT,
         camera->rotation.vy >> FIXED_POINT_SHIFT

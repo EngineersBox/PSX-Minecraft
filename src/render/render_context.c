@@ -71,7 +71,7 @@ void initRenderContext(RenderContext* ctx) {
     setRECT(&ctx->screen_clip, 0, 0, SCREEN_XRES, SCREEN_YRES);
     // Initialise the GTE
     InitGeom();
-    // Set screen depth (basically FOV control, W/2 works best
+    // Set screen depth (basically FOV control, W/2 works best)
     gte_SetGeomScreen(CENTRE_X);
     // Set GTE offset (reccomended method of centering)
     if (video_mode == MODE_NTSC) {

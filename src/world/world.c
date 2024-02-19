@@ -1,7 +1,13 @@
 #include "world.h"
 
 #include <assert.h>
-#include <math_utils.h>
+#include <inline_c.h>
+#include <psxapi.h>
+#include <psxgpu.h>
+
+#include "../util/math_utils.h"
+#include "../ui/progress_bar.h"
+#include "../ui/background.h"
 
 #define wrapCoord(world, axis, coord) positiveModulo(((world)->head.axis + (coord)), AXIS_CHUNKS)
 #define arrayCoord(world, axis, value) wrapCoord(\
@@ -11,11 +17,31 @@
 )
 
 // World should be loaded before invoking this method
-void worldInit(World* world) {
+void worldInit(World* world, RenderContext* ctx) {
     const int x_start = world->centre.vx - LOADED_CHUNKS_RADIUS;
     const int x_end = world->centre.vx + LOADED_CHUNKS_RADIUS;
     const int z_start = world->centre.vz - LOADED_CHUNKS_RADIUS;
     const int z_end = world->centre.vz + LOADED_CHUNKS_RADIUS;
+    ProgressBar bar = (ProgressBar) {
+        .position = {
+            .x = CENTRE_X - (CENTRE_X / 2),
+            .y = CENTRE_Y - 2
+        },
+        .dimensions = {
+            .width = CENTRE_X,
+            .height = 4
+        },
+        .value = 0,
+        .maximum = ((x_end + 1) - x_start) * ((z_end + 1) - z_start) * WORLD_CHUNKS_HEIGHT * 2
+    };
+    const int fnt_id = FntOpen(
+        CENTRE_X - (CENTRE_X / 2),
+        CENTRE_Y - 25,
+        CENTRE_X,
+        CENTRE_Y,
+        0,
+        100
+    );
     printf("[WORLD] Loading chunks\n");
     for (int x = x_start; x <= x_end; x++) {
         for (int z = z_start; z <= z_end; z++) {
@@ -26,6 +52,20 @@ void worldInit(World* world) {
                                                   .vz = z
                                               });
                 world->chunks[arrayCoord(world, vz, z)][arrayCoord(world, vx, x)][y] = chunk;
+                FntPrint(
+                    fnt_id,
+                    "Loading World\n"
+                );
+                FntPrint(
+                    fnt_id,
+                    "Loading Chunk (%d,%d,%d)\n",
+                    x, y, z
+                );
+                backgroundDraw(ctx, 2, 2 * BLOCK_TEXTURE_SIZE, 0 * BLOCK_TEXTURE_SIZE);
+                bar.value++;
+                progressBarRender(&bar, 1, ctx);
+                FntFlush(fnt_id);
+                swapBuffers(ctx);
             }
         }
     }
@@ -46,6 +86,20 @@ void worldInit(World* world) {
                     chunk->mesh.n_verts,
                     chunk->mesh.n_norms
                 );
+                FntPrint(
+                    fnt_id,
+                    "Loading World\n"
+                );
+                FntPrint(
+                    fnt_id,
+                    "Building Chunk Mesh (%d,%d,%d)\n",
+                    x, y, z
+                );
+                backgroundDraw(ctx, 2, 2 * BLOCK_TEXTURE_SIZE, 0 * BLOCK_TEXTURE_SIZE);
+                bar.value++;
+                progressBarRender(&bar, 1, ctx);
+                FntFlush(fnt_id);
+                swapBuffers(ctx);
             }
         }
     }

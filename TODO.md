@@ -6,13 +6,13 @@
 * [x] Complete display/render context implementation
 * [x] Create standalone cube struct and load + render methods
 * [x] Greedy meshing for chunk rendering
-* [ ] Create loading screen to visualise loading progress. Something simple like a loading bar for now. Make it more
+* [x] Create loading screen to visualise loading progress. Something simple like a loading bar for now. Make it more
   fancy at a later point.
 * [ ] Camera far plane cutoff with fog relative to chunk render distance
 * [x] Continuous shifting world chunk array
 * [ ] Frustum and depth-first search culling through chunks
 * [x] Graphing lib to use for resource usage and debugging
-* [ ] Ray cast from camera normal to block retrieving exact block coordinates in world
+* [x] Ray cast from camera normal to block retrieving exact block coordinates in world
 * [x] Dynamic chunk loading and unloading with movement
 * [ ] Player entity with hit box
 * [ ] Basic entity-mesh interaction physics with gravity
@@ -28,8 +28,8 @@
 * [x] Camera displayed position to be units of `BLOCK_SIZE`
 * [x] Y-axis values are negative upwards should be positive
 * [x] Block world coords should start at 0 from bottom of chunk and go up positively.
-* [ ] Move crosshair render handler to UI directory with dependent structure
-* [ ] Move axis render handler to UI directory with dependent structure
+* [x] Move crosshair render handler to UI directory with dependent structure
+* [x] Move axis render handler to UI directory with dependent structure
 
 ## Fix
 
@@ -47,3 +47,4 @@
 * [x] Chunk meshing generates redundant faces at sides of chunk
 * [ ] Ray cast direction does not fully match camera rotation normal
 * [ ] Mesh vertices z-depth is inconsistent leading to faces drawn in wrong order and thus culling fails
+* [ ] Background in loading screen not rendering texture

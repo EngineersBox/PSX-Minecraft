@@ -36,7 +36,7 @@ typedef struct World {
     Chunk* chunks[AXIS_CHUNKS][AXIS_CHUNKS][WORLD_CHUNKS_HEIGHT];
 } World;
 
-void worldInit(World* world);
+void worldInit(World* world, RenderContext* ctx);
 void worldDestroy(World* world);
 
 void worldRender(const World* world, RenderContext* ctx, Transforms* transforms);

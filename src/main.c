@@ -112,7 +112,7 @@ int main() {
             .vz = 0
         }
     };
-    worldInit(&world);
+    worldInit(&world, &render_context);
     while (1) {
         // Set pad pointer to buffer data
         camera.mode = 0;
@@ -131,7 +131,7 @@ int main() {
         axisDraw(&render_context, &transforms, &camera);
         debugDrawPBUsageGraph(&render_context, 0, SCREEN_YRES);
         // Flush font to screen
-        FntFlush(-1);
+        FntFlush(0);
         // Swap buffers and draw the primitives
         swapBuffers(&render_context);
     }
