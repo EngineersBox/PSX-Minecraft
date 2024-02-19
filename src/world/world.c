@@ -331,6 +331,31 @@ BlockID worldGetBlock(const World* world, const VECTOR* position) {
     return worldGetChunkBlock(world, &chunk_block_position);
 }
 
+bool worldModifyVoxelChunkBlock(World* world, const ChunkBlockPosition* position, EBlockID block) {
+    // World is void below 0 on y-axis and nothing above height limit
+    if ((position->chunk.vy <= 0 && position->block.vy < 0)
+        || position->chunk.vy >= WORLD_CHUNKS_HEIGHT) {
+        return false;
+        }
+    Chunk* chunk = world->chunks[arrayCoord(world, vz, position->chunk.vz)]
+        [arrayCoord(world, vx, position->chunk.vx)]
+        [position->chunk.vy];
+    if (chunk == NULL) {
+        return false;
+    }
+    return chunkModifyVoxel(chunk, &position->block, block);
+}
+
+bool worldModifyVoxel(World* world, const VECTOR* position, EBlockID block) {
+    // World is void below 0 and above world-height on y-axis
+    if (position->vy < 0 || position->vy >= WORLD_HEIGHT) {
+        printf("[ERROR] Invalid Y: %d\n", position->vy);
+        return false;
+    }
+    const ChunkBlockPosition chunk_block_position = worldToChunkBlockPosition(position, CHUNK_SIZE);
+    return worldModifyVoxelChunkBlock(world, &chunk_block_position, block);
+}
+
 int32_t intbound(const int32_t s, const int32_t ds) {
     printf("[intbound] s: %d, ds: %d\n", s, ds);
     if (ds < 0) {

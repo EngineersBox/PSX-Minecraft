@@ -65,16 +65,23 @@ void init() {
 
 void cameraStartHandler(Camera* camera) {
     result = worldRayCastIntersection(&world, camera, ONE * 5);
+    result.pos.vx >>= FIXED_POINT_SHIFT;
+    result.pos.vy >>= FIXED_POINT_SHIFT;
+    result.pos.vz >>= FIXED_POINT_SHIFT;
     printf(
         "Ray cast result: [Pos: (%d,%d,%d)] [Block: %d] [Face: (%d,%d,%d)]\n",
-        result.pos.vx >> FIXED_POINT_SHIFT,
-        result.pos.vy >> FIXED_POINT_SHIFT,
-        result.pos.vz >> FIXED_POINT_SHIFT,
+        result.pos.vx,
+        result.pos.vy,
+        result.pos.vz,
         result.block,
         result.face.vx,
         result.face.vy,
         result.face.vz
     );
+    if (blockIsOpaque(result.block)) {
+        printf("Modifying ray cast result block\n");
+        worldModifyVoxel(&world, &result.pos, BLOCKID_AIR);
+    }
 }
 
 // TODO: Move crosshair to UI handler and structs

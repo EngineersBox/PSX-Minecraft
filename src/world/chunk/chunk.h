@@ -4,6 +4,8 @@
 #define PSX_MINECRAFT_CHUNK_H
 
 #include <psxgte.h>
+#include <stdbool.h>
+
 #include "chunk_mesh.h"
 #include "../../render/render_context.h"
 #include "../../render/transforms.h"
@@ -37,7 +39,7 @@ void chunkGenerate3DHeightMap(Chunk* chunk, const VECTOR* position);
 void chunkGenerateMesh(Chunk* chunk);
 void chunkClearMesh(Chunk* chunk);
 
-void chunkModifyVoxel(Chunk* chunk, const VECTOR* position, EBlockID block);
+bool chunkModifyVoxel(Chunk* chunk, const VECTOR* position, EBlockID block);
 
 void chunkRender(Chunk* chunk, RenderContext* ctx, Transforms* transforms);
 

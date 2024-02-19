@@ -3,6 +3,8 @@
 #ifndef PSX_MINECRAFT_WORLD_H
 #define PSX_MINECRAFT_WORLD_H
 
+#include <stdbool.h>
+
 #include "position.h"
 #include "chunk/chunk.h"
 #include "../render/render_context.h"
@@ -51,6 +53,9 @@ void worldUpdate(World* world, const VECTOR* player_pos);
 
 BlockID worldGetChunkBlock(const World* world, const ChunkBlockPosition* position);
 BlockID worldGetBlock(const World* world, const VECTOR* position);
+
+bool worldModifyVoxelChunkBlock(World* world, const ChunkBlockPosition* position, EBlockID block);
+bool worldModifyVoxel(World* world, const VECTOR* position, EBlockID block);
 
 typedef struct {
     VECTOR pos;

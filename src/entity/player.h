@@ -5,9 +5,11 @@
 
 #include "../core/camera.h"
 #include "../world/world.h"
+#include "../ui/ui.h"
 
 typedef struct {
     Camera camera;
+
 } Player;
 
 
