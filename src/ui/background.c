@@ -46,6 +46,7 @@ void backgroundDraw(RenderContext* ctx,
     //      properly even with texture windowing.
     // Left half of the screen
     drawBackgroundHalf(ctx, ot_entry, u, v, 0);
+    // Right half of the screen
     drawBackgroundHalf(ctx, ot_entry, u, v, CENTRE_X);
     DR_TWIN* ptwin = (DR_TWIN*) allocatePrimitive(ctx, sizeof(DR_TWIN));
     const RECT tex_window = (RECT){
