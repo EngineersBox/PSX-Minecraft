@@ -50,3 +50,4 @@
 * [ ] Ray cast direction does not fully match camera rotation normal
 * [ ] Mesh vertices z-depth is inconsistent leading to faces drawn in wrong order and thus culling fails
 * [x] Background in loading screen not rendering texture
+* [ ] Vertices are distorted (in their location) when very close to the camera
