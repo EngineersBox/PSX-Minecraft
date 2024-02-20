@@ -1,5 +1,7 @@
 #include "background.h"
 
+#include <noise.h>
+
 #include "../resources/assets.h"
 #include "../blocks/block.h"
 
@@ -14,6 +16,8 @@ void backgroundDraw(RenderContext* ctx, const int ot_entry, const int8_t u, cons
         0, SCREEN_YRES,
         SCREEN_XRES, SCREEN_YRES
     );
+    // Mid point grey as mask for additive texturing
+    setRGB0(pol4, 0x80, 0x80, 0x80);
     // Set texture coords and dimensions
     setUVWH(
         pol4,
@@ -22,7 +26,6 @@ void backgroundDraw(RenderContext* ctx, const int ot_entry, const int8_t u, cons
         SCREEN_XRES,
         SCREEN_YRES
     );
-    printf("U: %d, V: %d, W: %d, H: %d\n", u, v, BLOCK_TEXTURE_SIZE * SCREEN_XRES, BLOCK_TEXTURE_SIZE * SCREEN_YRES);
     // Bind texture page and colour look-up-table
     const Texture* texture = &textures[TERRAIN_TEXTURES];
     pol4->tpage = texture->tpage;

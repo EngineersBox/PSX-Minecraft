@@ -36,7 +36,7 @@ void worldInit(World* world, RenderContext* ctx) {
     };
     const int fnt_id = FntOpen(
         CENTRE_X - (CENTRE_X / 2),
-        CENTRE_Y - 25,
+        CENTRE_Y - 28,
         CENTRE_X,
         CENTRE_Y,
         0,
