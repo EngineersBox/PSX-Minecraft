@@ -18,6 +18,7 @@
 * [ ] Basic entity-mesh interaction physics with gravity
 * [x] Crosshair
 * [x] Axis marker
+* [ ] Check if camera not moving then ray cast once to get block targeted and draw outline around if in reach range
 
 ## Refactor
 

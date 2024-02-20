@@ -447,7 +447,7 @@ RayCastResult worldRayCastIntersection(const World* world, const Camera* camera,
     const int32_t t_delta_y = (step_y << FIXED_POINT_SHIFT) / dy;
     const int32_t t_delta_z = (step_z << FIXED_POINT_SHIFT) / dz;
     printf("t_delta: (%d,%d,%d)\n", t_delta_x, t_delta_y, t_delta_z);
-    VECTOR face = {};
+    VECTOR face = (VECTOR) { .vx = 0, .vy = 0, .vz = 0 };
     if (dx == 0 && dy == 0 && dz == 0) {
         printf("Zero delta\n");
         return (RayCastResult) {
@@ -458,12 +458,6 @@ RayCastResult worldRayCastIntersection(const World* world, const Camera* camera,
     }
     // Rescale from units of 1 cube-edge to units of 'direction' so we can
     // compare with 't'.
-    printf("Radius before: %d\n", radius);
-    // TODO: These two operations just return radius to its original value.
-    //       Might as well remove them.
-    radius /= SquareRoot0(dx * dx + dy * dy + dz * dz);
-    radius <<= FIXED_POINT_SHIFT;
-    printf("Radius after: %d\n", radius);
     const int32_t world_min_x = (world->centre.vx - WORLD_CHUNKS_RADIUS) * CHUNK_SIZE;
     const int32_t world_max_x = (world->centre.vx + WORLD_CHUNKS_RADIUS) * CHUNK_SIZE;
     printf("World X [Min: %d] [Max: %d]\n", world_min_x, world_max_x);
