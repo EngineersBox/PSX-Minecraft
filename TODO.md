@@ -30,6 +30,7 @@
 * [x] Block world coords should start at 0 from bottom of chunk and go up positively.
 * [x] Move crosshair render handler to UI directory with dependent structure
 * [x] Move axis render handler to UI directory with dependent structure
+* [ ] Create loading screen structure with update/render methods and move content in world to there
 
 ## Fix
 
