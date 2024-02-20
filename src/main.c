@@ -1,4 +1,3 @@
-#include <clip.h>
 #include <stdint.h>
 #include <psxgpu.h>
 #include <psxgte.h>
@@ -126,7 +125,6 @@ int main() {
         // Clear window constraints
         renderClearConstraints(&render_context);
         // Render UI
-        // testLine();
         // crosshairDraw(&render_context);
         axisDraw(&render_context, &transforms, &camera);
         debugDrawPBUsageGraph(&render_context, 0, SCREEN_YRES);
