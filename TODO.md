@@ -47,4 +47,4 @@
 * [x] Chunk meshing generates redundant faces at sides of chunk
 * [ ] Ray cast direction does not fully match camera rotation normal
 * [ ] Mesh vertices z-depth is inconsistent leading to faces drawn in wrong order and thus culling fails
-* [ ] Background in loading screen not rendering texture
+* [x] Background in loading screen not rendering texture
