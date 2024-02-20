@@ -77,7 +77,7 @@ void cubeRender(Cube *cube, RenderContext *ctx, Transforms *transforms) {
         gte_rtps();
         gte_stsxy(&pol4->x3);
         // Test if quad is off-screen, discard if so
-        if (quad_clip(
+        if (quadClip(
             &ctx->screen_clip,
             (DVECTOR *) &pol4->x0,
             (DVECTOR *) &pol4->x1,

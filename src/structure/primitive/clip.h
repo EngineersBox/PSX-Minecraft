@@ -3,7 +3,6 @@
 #ifndef CLIP_H
 #define CLIP_H
 
-#include <sys/types.h>
 #include <psxgte.h>
 #include <psxgpu.h>
 
@@ -15,7 +14,7 @@
  * v0,v1,v2		- Triangle coordinates
  *
  */
-int tri_clip(const RECT* clip, const DVECTOR* v0, const DVECTOR* v1, const DVECTOR *v2);
+int triClip(const RECT* clip, const DVECTOR* v0, const DVECTOR* v1, const DVECTOR *v2);
 
 /* quad_clip
  *
@@ -25,6 +24,6 @@ int tri_clip(const RECT* clip, const DVECTOR* v0, const DVECTOR* v1, const DVECT
  * v0,v1,v2,v3	- Quad coordinates
  *
  */
-int quad_clip(const RECT* clip, const DVECTOR* v0, const DVECTOR* v1, const DVECTOR* v2, const DVECTOR* v3);
+int quadClip(const RECT* clip, const DVECTOR* v0, const DVECTOR* v1, const DVECTOR* v2, const DVECTOR* v3);
 
 #endif //CLIP_H
