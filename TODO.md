@@ -19,6 +19,8 @@
 * [x] Crosshair
 * [x] Axis marker
 * [ ] Check if camera not moving then ray cast once to get block targeted and draw outline around if in reach range
+* [ ] Thread scheduler using hardware timers for IRQ interleaved execution
+* [ ] Update queue for operations on the world
 
 ## Refactor
 
@@ -32,6 +34,7 @@
 * [x] Move crosshair render handler to UI directory with dependent structure
 * [x] Move axis render handler to UI directory with dependent structure
 * [ ] Create loading screen structure with update/render methods and move content in world to there
+* [ ] Turn these TODO list sections into tables instead of checkmark lists 
 
 ## Fix
 
