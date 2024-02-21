@@ -467,6 +467,8 @@ RayCastResult worldRayCastIntersection(const World* world, const Camera* camera,
     const int32_t world_min_z = (world->centre.vz - WORLD_CHUNKS_RADIUS) * CHUNK_SIZE;
     const int32_t world_max_z = (world->centre.vz + WORLD_CHUNKS_RADIUS) * CHUNK_SIZE;
     printf("World Z [Min: %d] [Max: %d]\n", world_min_z, world_max_z);
+    // TODO: Change this to avoid checking in world, instead check if total distance walked
+    //       is less than the radius.
     printf("X: %d, Y: %d, Z: %d\n", position.vx >> FIXED_POINT_SHIFT, position.vy >> FIXED_POINT_SHIFT, position.vz >> FIXED_POINT_SHIFT);
 #define inWorld(_v) (step_##_v > 0 ? (position.v##_v >> FIXED_POINT_SHIFT) < world_max_##_v : (position.v##_v >> FIXED_POINT_SHIFT) >= world_min_##_v)
     while (inWorld(x) && inWorld(y) && inWorld(z)) {

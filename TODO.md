@@ -35,6 +35,7 @@
 * [x] Move axis render handler to UI directory with dependent structure
 * [ ] Create loading screen structure with update/render methods and move content in world to there
 * [ ] Turn these TODO list sections into tables instead of checkmark lists 
+* [ ] Raycast should check distance walked is less than radius instead of out of world check
 
 ## Fix
 
