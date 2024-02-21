@@ -30,7 +30,7 @@
 			publisher		="ENGINEERSBOX"
 			data_preparer	="PSN00BSDK ${PSN00BSDK_VERSION}"
 			application		="PLAYSTATION"
-			copyright		="LICENSE;1"
+			copyright		="LICENSE"
 		/>
 
 		<!--

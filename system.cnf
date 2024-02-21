@@ -1,4 +1,4 @@
-BOOT=cdrom:\PSXMC.exe;1
+BOOT=cdrom:\PSXMC.exe
 TCB=4
 EVENT=10
 STACK=801FFFF0
