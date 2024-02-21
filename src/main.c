@@ -86,6 +86,7 @@ SVECTOR verts[] = {
 };
 
 bool render_marker = false;
+VECTOR origin_pos = {0};
 VECTOR marker_pos = {0};
 SVECTOR marker_rot = {0};
 SVECTOR marker_verts[8];
@@ -106,6 +107,9 @@ void cameraStartHandler(Camera* camera) {
         result.face.vz
     );
     if (blockIsOpaque(result.block)) {
+        origin_pos.vx = camera->position.vx;
+        origin_pos.vy = camera->position.vy;
+        origin_pos.vz = camera->position.vz;
         marker_pos.vx = (result.pos.vx * BLOCK_SIZE) + (BLOCK_SIZE >> 1);
         marker_pos.vy = (-result.pos.vy * BLOCK_SIZE) - (BLOCK_SIZE >> 1);
         marker_pos.vz = (result.pos.vz * BLOCK_SIZE) + (BLOCK_SIZE >> 1);
@@ -138,10 +142,11 @@ void drawMarker() {
     if (!render_marker) {
         return;
     }
+    // Trace end marker
     marker_rot.vy += 16;
     marker_rot.vz += 16;
     POLY_F4* pol4;
-    int p, sz;
+    int p;
     SVECTOR spos;
     MATRIX omtx, olmtx;
     // Set object rotation and position
@@ -173,7 +178,6 @@ void drawMarker() {
         gte_stopz(&p);
         if (p < 0) {
             freePrimitive(&render_context, sizeof(POLY_F4));
-            // printf("Behind\n");
             continue;
         }
         // Average screen Z result for four primtives
@@ -190,16 +194,15 @@ void drawMarker() {
         gte_rtps();
         gte_stsxy(&pol4->x3);
         // Test if quad is off-screen, discard if so
-        // if (quadClip(
-        //     &render_context.screen_clip,
-        //     (DVECTOR *) &pol4->x0,
-        //     (DVECTOR *) &pol4->x1,
-        //     (DVECTOR *) &pol4->x2,
-        //     (DVECTOR *) &pol4->x3)) {
-        //     freePrimitive(&render_context, sizeof(POLY_F4));
-        //     printf("Clipped\n");
-        //     continue;
-        // }
+        if (quadClip(
+            &render_context.screen_clip,
+            (DVECTOR *) &pol4->x0,
+            (DVECTOR *) &pol4->x1,
+            (DVECTOR *) &pol4->x2,
+            (DVECTOR *) &pol4->x3)) {
+            freePrimitive(&render_context, sizeof(POLY_F4));
+            continue;
+        }
         setRGB0(
             pol4,
             0xff,
@@ -216,6 +219,43 @@ void drawMarker() {
         uint32_t* ot_entry = allocateOrderingTable(&render_context, 0);
         addPrim(ot_entry, pol4);
     }
+    PopMatrix();
+    // Ray trace line
+    static SVECTOR _rot = {0};
+    RotMatrix(&_rot, &omtx);
+    TransMatrix(&omtx, &marker_pos);
+    // Multiply light matrix to object matrix
+    MulMatrix0(&transforms.lighting_mtx, &omtx, &olmtx);
+    // Set result to GTE light matrix
+    gte_SetLightMatrix(&olmtx);
+    // Composite coordinate matrix transform, so object will be rotated and
+    // positioned relative to camera matrix (mtx), so it'll appear as
+    // world-space relative.
+    CompMatrixLV(&transforms.geometry_mtx, &omtx, &omtx);
+    // Save matrix
+    PushMatrix();
+    // Set matrices
+    gte_SetRotMatrix(&omtx);
+    gte_SetTransMatrix(&omtx);
+    // Generate line
+    LINE_F2* line = (LINE_F2*) allocatePrimitive(&render_context, sizeof(LINE_F2));
+    setLineF2(line);
+    gte_ldv0(&origin_pos);
+    // Rotation, Translation and Perspective Triple
+    gte_rtps();
+    gte_stsxy(&line->x0);
+    gte_ldv0(&marker_pos);
+    // Rotation, Translation and Perspective Triple
+    gte_rtps();
+    gte_stsxy(&line->x1);
+    setRGB0(
+        line,
+        0x00,
+        0x0,
+        0xff
+    );
+    uint32_t* ot_entry = allocateOrderingTable(&render_context, 0);
+    addPrim(ot_entry, line);
     PopMatrix();
 }
 
