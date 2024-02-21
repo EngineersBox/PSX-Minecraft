@@ -9,7 +9,7 @@ VECTOR rotationToDirection(const VECTOR* rotation) {
     const int32_t xz_len = icos(x);
     return (VECTOR) {
         .vx = (xz_len * isin(-y)) >> FIXED_POINT_SHIFT,
-        .vy = isin(x),
+        .vy = -isin(x), // Negation to conver from -Y up to +Y up coordinate space
         .vz = (xz_len * icos(y)) >> FIXED_POINT_SHIFT
     };
 }

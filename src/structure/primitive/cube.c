@@ -26,8 +26,6 @@ const INDEX CUBE_INDICES[6] = {
     {1, 4, 3, 6}
 };
 
-// #define RENDER_SIDES_COLOURED
-
 void cubeRender(Cube *cube, RenderContext *ctx, Transforms *transforms) {
     int p;
     // Object and light matrix for object

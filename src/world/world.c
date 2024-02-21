@@ -390,7 +390,7 @@ bool worldModifyVoxelChunkBlock(World* world, const ChunkBlockPosition* position
     if ((position->chunk.vy <= 0 && position->block.vy < 0)
         || position->chunk.vy >= WORLD_CHUNKS_HEIGHT) {
         return false;
-        }
+    }
     Chunk* chunk = world->chunks[arrayCoord(world, vz, position->chunk.vz)]
         [arrayCoord(world, vx, position->chunk.vx)]
         [position->chunk.vy];
@@ -407,6 +407,15 @@ bool worldModifyVoxel(World* world, const VECTOR* position, EBlockID block) {
         return false;
     }
     const ChunkBlockPosition chunk_block_position = worldToChunkBlockPosition(position, CHUNK_SIZE);
+    printf(
+        "Chunk: (%d,%d,%d) Block: (%d,%d,%d)\n",
+        chunk_block_position.chunk.vx,
+        chunk_block_position.chunk.vy,
+        chunk_block_position.chunk.vz,
+        chunk_block_position.block.vx,
+        chunk_block_position.block.vy,
+        chunk_block_position.block.vz
+    );
     return worldModifyVoxelChunkBlock(world, &chunk_block_position, block);
 }
 
