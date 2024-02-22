@@ -451,6 +451,7 @@ RayCastResult worldRayCastIntersection(const World* world,
     const int32_t step_z = sign(dz) << FIXED_POINT_SHIFT;
     printf("step: (%d,%d,%d)\n", step_x, step_y, step_z);
     printf("Before intbound\n");
+    // TODO: Should these be relative to camera position instead of closest block position? (E.g. don't div by BLOCK_SIZE)
     int32_t t_max_x = intbound(position.vx, dx);
     int32_t t_max_y = intbound(position.vy, dy);
     int32_t t_max_z = intbound(position.vz, dz);
