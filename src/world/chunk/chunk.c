@@ -440,7 +440,7 @@ BlockID chunkGetBlockVec(const Chunk* chunk, const VECTOR* position) {
 
 bool chunkModifyVoxel(Chunk* chunk, const VECTOR* position, const EBlockID block) {
     const int32_t x = position->vx;
-    const int32_t y = position->vy;
+    const int32_t y = positiveModulo(-position->vy - 1, CHUNK_SIZE);
     const int32_t z = position->vz;
     if (checkIndexOOB(x, y, z)) {
         return false;

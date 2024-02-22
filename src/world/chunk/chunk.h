@@ -18,7 +18,7 @@
 #define CHUNK_DIRECTIONS 3
 #define CHUNK_AXIS_NEIGHBOURS (CHUNK_DIRECTIONS * 2)
 
-#define chunkBlockIndex(x, y, z) ((x) + ((y) * CHUNK_SIZE) + ((z) * CHUNK_SIZE * CHUNK_SIZE))
+#define chunkBlockIndex(x, y, z) ((z) + ((y) * CHUNK_SIZE) + ((x) * CHUNK_SIZE * CHUNK_SIZE))
 
 // Forward declaration
 typedef struct World World;

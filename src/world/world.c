@@ -428,7 +428,10 @@ int32_t intbound(const int32_t s, const int32_t ds) {
     return ((ONE - positiveModulo(s, 1)) << FIXED_POINT_SHIFT) / ds;
 }
 
-RayCastResult worldRayCastIntersection(const World* world, const Camera* camera, int32_t radius) {
+RayCastResult worldRayCastIntersection(const World* world,
+                                       const Camera* camera,
+                                       const int32_t radius,
+                                       cvector(SVECTOR)* markers) {
     // See: https://github.com/kpreid/cubes/blob/c5e61fa22cb7f9ba03cd9f22e5327d738ec93969/world.js#L307
     // See: http://www.cse.yorku.ca/~amana/research/grid.pdf
     VECTOR position = (VECTOR) {
@@ -488,6 +491,11 @@ RayCastResult worldRayCastIntersection(const World* world, const Camera* camera,
             position.vz >> FIXED_POINT_SHIFT, world_min_z,
             position.vz >> FIXED_POINT_SHIFT, world_max_z
         );
+        cvector_push_back((*markers), (SVECTOR) {});
+        SVECTOR* cpos = &(*markers)[cvector_size((*markers)) - 1];
+        cpos->vx =  ((position.vx >> FIXED_POINT_SHIFT) * BLOCK_SIZE) + (BLOCK_SIZE >> 1);
+        cpos->vy = -((position.vy >> FIXED_POINT_SHIFT) * BLOCK_SIZE) - (BLOCK_SIZE >> 1);
+        cpos->vz =  ((position.vz >> FIXED_POINT_SHIFT) * BLOCK_SIZE) + (BLOCK_SIZE >> 1);
 #define inWorld(_v) (step_##_v > 0 ? (position.v##_v >> FIXED_POINT_SHIFT) < world_max_##_v : (position.v##_v >> FIXED_POINT_SHIFT) >= world_min_##_v)
         if (inWorld(x) && inWorld(y) && inWorld(z)) {
 #undef inWorld

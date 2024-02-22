@@ -10,6 +10,7 @@
 #include "../render/render_context.h"
 #include "../render/transforms.h"
 #include "../core/camera.h"
+#include "../structure/cvector.h"
 
 #define WORLD_CHUNKS_HEIGHT 2
 #define WORLD_HEIGHT (CHUNK_SIZE * WORLD_CHUNKS_HEIGHT)
@@ -63,6 +64,6 @@ typedef struct {
     VECTOR face;
 } RayCastResult;
 
-RayCastResult worldRayCastIntersection(const World* world, const Camera* camera, int32_t radius);
+RayCastResult worldRayCastIntersection(const World* world, const Camera* camera, int32_t radius, cvector(SVECTOR)* markers);
 
 #endif // PSX_MINECRAFT_WORLD_H
