@@ -367,8 +367,8 @@ BlockID worldGetChunkBlock(const World* world, const ChunkBlockPosition* positio
         return BLOCKID_NONE;
     }
     const Chunk* chunk = world->chunks[arrayCoord(world, vz, position->chunk.vz)]
-        [arrayCoord(world, vx, position->chunk.vx)]
-        [position->chunk.vy];
+                                      [arrayCoord(world, vx, position->chunk.vx)]
+                                      [position->chunk.vy];
     if (chunk == NULL) {
         return BLOCKID_NONE;
     }
@@ -392,8 +392,8 @@ bool worldModifyVoxelChunkBlock(World* world, const ChunkBlockPosition* position
         return false;
     }
     Chunk* chunk = world->chunks[arrayCoord(world, vz, position->chunk.vz)]
-        [arrayCoord(world, vx, position->chunk.vx)]
-        [position->chunk.vy];
+                                [arrayCoord(world, vx, position->chunk.vx)]
+                                [position->chunk.vy];
     if (chunk == NULL) {
         return false;
     }

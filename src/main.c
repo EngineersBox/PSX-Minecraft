@@ -75,7 +75,7 @@ void init() {
     assetsLoad();
 }
 
-#define MARKER_SIZE 10
+#define MARKER_SIZE 25
 SVECTOR verts[] = {
     { -MARKER_SIZE, -MARKER_SIZE, -MARKER_SIZE, 0 },
     {  MARKER_SIZE, -MARKER_SIZE, -MARKER_SIZE, 0 },
