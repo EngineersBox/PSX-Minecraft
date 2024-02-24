@@ -425,19 +425,82 @@ int32_t intbound(const int32_t s, const int32_t ds) {
         return intbound(-s, -ds);
     }
     printf("[intbound] end\n");
-    return ((ONE - positiveModulo(s, 1)) << FIXED_POINT_SHIFT) / ds;
+    return (((BLOCK_SIZE << FIXED_POINT_SHIFT) - positiveModulo(s, 1)) << FIXED_POINT_SHIFT) / ds;
+}
+
+RayCastResult worldRayCastIntersection_new(const World* world,
+                                       const Camera* camera,
+                                       const int32_t radius,
+                                       cvector(SVECTOR*) markers) {
+    VECTOR position = (VECTOR) {
+        .vx = camera->position.vx,// / BLOCK_SIZE,
+        .vy = -camera->position.vy,// / BLOCK_SIZE,
+        .vz = camera->position.vz// / BLOCK_SIZE
+    };
+    const VECTOR direction = rotationToDirection(&camera->rotation);
+    int32_t dx = direction.vx;
+    int32_t dy = direction.vy;
+    int32_t dz = direction.vz;
+    const int32_t ds = SquareRoot12(dx * dx + dy * dy * dz * dz);
+    dx /= ds;
+    dy /= ds;
+    dz /= ds;
+    int32_t ix = (((position.vx / BLOCK_SIZE) >> FIXED_POINT_SHIFT) * BLOCK_SIZE) << FIXED_POINT_SHIFT;
+    int32_t iy = (((position.vy / BLOCK_SIZE) >> FIXED_POINT_SHIFT) * BLOCK_SIZE) << FIXED_POINT_SHIFT;
+    int32_t iz = (((position.vz / BLOCK_SIZE) >> FIXED_POINT_SHIFT) * BLOCK_SIZE) << FIXED_POINT_SHIFT;
+    int32_t step_x = sign(dx) << FIXED_POINT_SHIFT;
+    int32_t step_y = sign(dy) << FIXED_POINT_SHIFT;
+    int32_t step_z = sign(dz) << FIXED_POINT_SHIFT;
+    int32_t tx_delta = abs((ONE << FIXED_POINT_SHIFT) / dx);
+    int32_t ty_delta = abs((ONE << FIXED_POINT_SHIFT) / dy);
+    int32_t tz_delta = abs((ONE << FIXED_POINT_SHIFT) / dz);
+    int32_t x_dist = step_x > 0 ? ix + (BLOCK_SIZE << FIXED_POINT_SHIFT) - position.vx : position.vx - ix;
+    int32_t y_dist = step_y > 0 ? iy + (BLOCK_SIZE << FIXED_POINT_SHIFT) - position.vy : position.vy - iy;
+    int32_t z_dist = step_z > 0 ? iz + (BLOCK_SIZE << FIXED_POINT_SHIFT) - position.vz : position.vz - iz;
+    int32_t tx_max = tx_delta * x_dist;
+    int32_t ty_max = ty_delta * y_dist;
+    int32_t tz_max = tz_delta * z_dist;
+    int32_t stepped_index = -1;
+    int32_t t = 0;
+    const int32_t world_min_x = (world->centre.vx - WORLD_CHUNKS_RADIUS) * CHUNK_SIZE * BLOCK_SIZE;
+    const int32_t world_max_x = (world->centre.vx + WORLD_CHUNKS_RADIUS) * CHUNK_SIZE * BLOCK_SIZE;
+    printf("World X [Min: %d] [Max: %d]\n", world_min_x, world_max_x);
+    const int32_t world_min_y = 0;
+    const int32_t world_max_y = WORLD_HEIGHT * BLOCK_SIZE;
+    printf("World Y [Min: %d] [Max: %d]\n", world_min_y, world_max_y);
+    const int32_t world_min_z = (world->centre.vz - WORLD_CHUNKS_RADIUS) * CHUNK_SIZE * BLOCK_SIZE;
+    const int32_t world_max_z = (world->centre.vz + WORLD_CHUNKS_RADIUS) * CHUNK_SIZE * BLOCK_SIZE;
+    printf("World Z [Min: %d] [Max: %d]\n", world_min_z, world_max_z);
+    while (t < radius) {
+#define inWorld(_v) (step_##_v > 0 ? (position.v##_v >> FIXED_POINT_SHIFT) < world_max_##_v : (position.v##_v >> FIXED_POINT_SHIFT) >= world_min_##_v)
+        if (inWorld(x) && inWorld(y) && inWorld(z)) {
+#undef inWorld
+            const VECTOR temp_pos = (VECTOR) {
+                .vx = (position.vx / BLOCK_SIZE) >> FIXED_POINT_SHIFT,
+                .vy = (position.vy / BLOCK_SIZE) >> FIXED_POINT_SHIFT,
+                .vz = (position.vz / BLOCK_SIZE) >> FIXED_POINT_SHIFT,
+            };
+            printf("Querying block: (%d,%d,%d)\n", temp_pos.vx, temp_pos.vy, temp_pos.vz);
+            const BlockID block = worldGetBlock(world, &temp_pos);
+            printf("Querying block (back shift): (%d,%d,%d)\n", temp_pos.vx, temp_pos.vy, temp_pos.vz);
+            if (block != BLOCKID_NONE && block != BLOCKID_AIR) {
+                break;
+            }
+        }
+    }
+    return (RayCastResult) {0};
 }
 
 RayCastResult worldRayCastIntersection(const World* world,
                                        const Camera* camera,
-                                       const int32_t radius,
+                                       int32_t radius,
                                        cvector(SVECTOR)* markers) {
     // See: https://github.com/kpreid/cubes/blob/c5e61fa22cb7f9ba03cd9f22e5327d738ec93969/world.js#L307
     // See: http://www.cse.yorku.ca/~amana/research/grid.pdf
     VECTOR position = (VECTOR) {
-        .vx = camera->position.vx / BLOCK_SIZE,
-        .vy = -camera->position.vy / BLOCK_SIZE,
-        .vz = camera->position.vz / BLOCK_SIZE
+        .vx = camera->position.vx,// / BLOCK_SIZE,
+        .vy = -camera->position.vy,// / BLOCK_SIZE,
+        .vz = camera->position.vz// / BLOCK_SIZE
     };
     printf("Origin: (%d,%d,%d)\n", position.vx, position.vy, position.vz);
     printf("Before rotation to direction\n");
@@ -446,9 +509,9 @@ RayCastResult worldRayCastIntersection(const World* world,
     const int32_t dy = direction.vy;
     const int32_t dz = direction.vz;
     printf("dx: %d, dy: %d, dz: %d\n", dx, dy, dz);
-    const int32_t step_x = sign(dx) << FIXED_POINT_SHIFT;
-    const int32_t step_y = sign(dy) << FIXED_POINT_SHIFT;
-    const int32_t step_z = sign(dz) << FIXED_POINT_SHIFT;
+    const int32_t step_x = (sign(dx) << FIXED_POINT_SHIFT) * BLOCK_SIZE;
+    const int32_t step_y = (sign(dy) << FIXED_POINT_SHIFT) * BLOCK_SIZE;
+    const int32_t step_z = (sign(dz) << FIXED_POINT_SHIFT) * BLOCK_SIZE;
     printf("step: (%d,%d,%d)\n", step_x, step_y, step_z);
     printf("Before intbound\n");
     // TODO: Should these be relative to camera position instead of closest block position? (E.g. don't div by BLOCK_SIZE)
@@ -471,16 +534,17 @@ RayCastResult worldRayCastIntersection(const World* world,
     }
     // Rescale from units of 1 cube-edge to units of 'direction' so we can
     // compare with 't'.
-    const int32_t world_min_x = (world->centre.vx - WORLD_CHUNKS_RADIUS) * CHUNK_SIZE;
-    const int32_t world_max_x = (world->centre.vx + WORLD_CHUNKS_RADIUS) * CHUNK_SIZE;
+    const int32_t world_min_x = (world->centre.vx - WORLD_CHUNKS_RADIUS) * CHUNK_SIZE * BLOCK_SIZE;
+    const int32_t world_max_x = (world->centre.vx + WORLD_CHUNKS_RADIUS) * CHUNK_SIZE * BLOCK_SIZE;
     printf("World X [Min: %d] [Max: %d]\n", world_min_x, world_max_x);
     const int32_t world_min_y = 0;
-    const int32_t world_max_y = WORLD_HEIGHT;
+    const int32_t world_max_y = WORLD_HEIGHT * BLOCK_SIZE;
     printf("World Y [Min: %d] [Max: %d]\n", world_min_y, world_max_y);
-    const int32_t world_min_z = (world->centre.vz - WORLD_CHUNKS_RADIUS) * CHUNK_SIZE;
-    const int32_t world_max_z = (world->centre.vz + WORLD_CHUNKS_RADIUS) * CHUNK_SIZE;
+    const int32_t world_min_z = (world->centre.vz - WORLD_CHUNKS_RADIUS) * CHUNK_SIZE * BLOCK_SIZE;
+    const int32_t world_max_z = (world->centre.vz + WORLD_CHUNKS_RADIUS) * CHUNK_SIZE * BLOCK_SIZE;
     printf("World Z [Min: %d] [Max: %d]\n", world_min_z, world_max_z);
     printf("X: %d, Y: %d, Z: %d\n", position.vx >> FIXED_POINT_SHIFT, position.vy >> FIXED_POINT_SHIFT, position.vz >> FIXED_POINT_SHIFT);
+    radius *= BLOCK_SIZE;
     while (1) {
         printf("[Raycast] Checking (%d,%d,%d)\n", position.vx >> FIXED_POINT_SHIFT, position.vy >> FIXED_POINT_SHIFT, position.vz >> FIXED_POINT_SHIFT);
         printf(
@@ -494,21 +558,20 @@ RayCastResult worldRayCastIntersection(const World* world,
         );
         cvector_push_back((*markers), (SVECTOR) {});
         SVECTOR* cpos = &(*markers)[cvector_size((*markers)) - 1];
-        cpos->vx =  ((position.vx >> FIXED_POINT_SHIFT) * BLOCK_SIZE) + (BLOCK_SIZE >> 1);
-        cpos->vy = -((position.vy >> FIXED_POINT_SHIFT) * BLOCK_SIZE) - (BLOCK_SIZE >> 1);
-        cpos->vz =  ((position.vz >> FIXED_POINT_SHIFT) * BLOCK_SIZE) + (BLOCK_SIZE >> 1);
+        cpos->vx =  (position.vx >> FIXED_POINT_SHIFT);
+        cpos->vy = -(position.vy >> FIXED_POINT_SHIFT);
+        cpos->vz =  (position.vz >> FIXED_POINT_SHIFT);
 #define inWorld(_v) (step_##_v > 0 ? (position.v##_v >> FIXED_POINT_SHIFT) < world_max_##_v : (position.v##_v >> FIXED_POINT_SHIFT) >= world_min_##_v)
         if (inWorld(x) && inWorld(y) && inWorld(z)) {
 #undef inWorld
-            position.vx >>= FIXED_POINT_SHIFT;
-            position.vy >>= FIXED_POINT_SHIFT;
-            position.vz >>= FIXED_POINT_SHIFT;
-            printf("Querying block: (%d,%d,%d)\n", position.vx, position.vy, position.vz);
-            const BlockID block = worldGetBlock(world, &position);
-            position.vx <<= FIXED_POINT_SHIFT;
-            position.vy <<= FIXED_POINT_SHIFT;
-            position.vz <<= FIXED_POINT_SHIFT;
-            printf("Querying block (back shift): (%d,%d,%d)\n", position.vx, position.vy, position.vz);
+            const VECTOR temp_pos = (VECTOR) {
+                .vx = (position.vx / BLOCK_SIZE) >> FIXED_POINT_SHIFT,
+                .vy = (position.vy / BLOCK_SIZE) >> FIXED_POINT_SHIFT,
+                .vz = (position.vz / BLOCK_SIZE) >> FIXED_POINT_SHIFT,
+            };
+            printf("Querying block: (%d,%d,%d)\n", temp_pos.vx, temp_pos.vy, temp_pos.vz);
+            const BlockID block = worldGetBlock(world, &temp_pos);
+            printf("Querying block (back shift): (%d,%d,%d)\n", temp_pos.vx, temp_pos.vy, temp_pos.vz);
             if (block != BLOCKID_NONE && block != BLOCKID_AIR) {
                 break;
             }
@@ -578,14 +641,18 @@ RayCastResult worldRayCastIntersection(const World* world,
         }
     }
     const VECTOR intersection = (VECTOR) {
-        .vx = position.vx >> FIXED_POINT_SHIFT,
-        .vy = position.vy >> FIXED_POINT_SHIFT,
-        .vz = position.vz >> FIXED_POINT_SHIFT
+        .vx = (position.vx / BLOCK_SIZE) >> FIXED_POINT_SHIFT,
+        .vy = (position.vy / BLOCK_SIZE) >> FIXED_POINT_SHIFT,
+        .vz = (position.vz / BLOCK_SIZE) >> FIXED_POINT_SHIFT
     };
     printf("Position: (%d,%d,%d)\n", intersection.vx, intersection.vy, intersection.vz);
     printf("Before getting block\n");
     return (RayCastResult) {
-        .pos = position,
+        .pos = (VECTOR) {
+            .vx = position.vx / BLOCK_SIZE,
+            .vy = position.vy / BLOCK_SIZE,
+            .vz = position.vz / BLOCK_SIZE
+        },
         .block = worldGetBlock(world, &intersection),
         .face = face
     };
