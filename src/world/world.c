@@ -558,9 +558,9 @@ RayCastResult worldRayCastIntersection(const World* world,
         );
         cvector_push_back((*markers), (SVECTOR) {});
         SVECTOR* cpos = &(*markers)[cvector_size((*markers)) - 1];
-        cpos->vx =  (position.vx >> FIXED_POINT_SHIFT);
-        cpos->vy = -(position.vy >> FIXED_POINT_SHIFT);
-        cpos->vz =  (position.vz >> FIXED_POINT_SHIFT);
+        cpos->vx = (((position.vx / BLOCK_SIZE) >> FIXED_POINT_SHIFT) * BLOCK_SIZE) + (BLOCK_SIZE >> 1);
+        cpos->vy = (((-position.vy / BLOCK_SIZE) >> FIXED_POINT_SHIFT) * BLOCK_SIZE) + (BLOCK_SIZE >> 1);
+        cpos->vz = (((position.vz / BLOCK_SIZE) >> FIXED_POINT_SHIFT) * BLOCK_SIZE) + (BLOCK_SIZE >> 1);
 #define inWorld(_v) (step_##_v > 0 ? (position.v##_v >> FIXED_POINT_SHIFT) < world_max_##_v : (position.v##_v >> FIXED_POINT_SHIFT) >= world_min_##_v)
         if (inWorld(x) && inWorld(y) && inWorld(z)) {
 #undef inWorld

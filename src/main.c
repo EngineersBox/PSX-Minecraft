@@ -92,13 +92,15 @@ cvector(SVECTOR) markers = NULL;
 VECTOR zero_vec = {0};
 SVECTOR zero_svec = {0};
 
+SVECTOR camera_pos = {0};
 SVECTOR origin_pos = {0};
 SVECTOR marker_pos = {0};
 SVECTOR marker_rot = {0};
+SVECTOR direction_pos = {0};
 
 void cameraStartHandler(Camera* camera) {
     cvector_clear(markers);
-    result = worldRayCastIntersection(&world, camera, ONE * 5, &markers);
+    result = worldRayCastIntersection(&world, camera, ONE * 6, &markers);
     printf("Marker count: %d\n", cvector_size(markers));
     result.pos.vx >>= FIXED_POINT_SHIFT;
     result.pos.vy >>= FIXED_POINT_SHIFT;
@@ -113,6 +115,11 @@ void cameraStartHandler(Camera* camera) {
         result.face.vy,
         result.face.vz
     );
+    camera_pos = (SVECTOR) {
+        .vx = camera->position.vx >> FIXED_POINT_SHIFT,
+        .vy = camera->position.vy >> FIXED_POINT_SHIFT,
+        .vz = camera->position.vz >> FIXED_POINT_SHIFT
+    };
     origin_pos.vx = (((camera->position.vx / BLOCK_SIZE) >> FIXED_POINT_SHIFT) * BLOCK_SIZE) + (BLOCK_SIZE >> 1);
     origin_pos.vy = (((camera->position.vy / BLOCK_SIZE) >> FIXED_POINT_SHIFT) * BLOCK_SIZE) + (BLOCK_SIZE >> 1);
     origin_pos.vz = (((camera->position.vz / BLOCK_SIZE) >> FIXED_POINT_SHIFT) * BLOCK_SIZE) + (BLOCK_SIZE >> 1);
@@ -120,20 +127,69 @@ void cameraStartHandler(Camera* camera) {
     marker_pos.vy = (-result.pos.vy * BLOCK_SIZE) - (BLOCK_SIZE >> 1); // + ((result.face.vy >> FIXED_POINT_SHIFT) * (BLOCK_SIZE >> 1));
     marker_pos.vz =  (result.pos.vz * BLOCK_SIZE) + (BLOCK_SIZE >> 1); // + ((result.face.vz >> FIXED_POINT_SHIFT) * (BLOCK_SIZE >> 1));
     worldModifyVoxel(&world, &result.pos, BLOCKID_AIR);
+    printf("Origin: (%d,%d,%d)\n", inlineVec(origin_pos));
     printf(
         "Marker: (%d,%d,%d) Camera: (%d,%d,%d)\n",
-        marker_pos.vx,
-        marker_pos.vy,
-        marker_pos.vz,
-        camera->position.vx,
-        camera->position.vy,
-        camera->position.vz
+        inlineVec(marker_pos),
+        inlineVec(camera->position)
+    );
+    const VECTOR direction = rotationToDirection(&camera->rotation);
+    printf("Direction: (%d,%d,%d)\n", inlineVec(direction));
+    direction_pos = (SVECTOR) {
+        .vx = (camera->position.vx + (direction.vx * BLOCK_SIZE)) >> FIXED_POINT_SHIFT,
+        .vy = (camera->position.vy - (direction.vy * BLOCK_SIZE)) >> FIXED_POINT_SHIFT,
+        .vz = (camera->position.vz + (direction.vz * BLOCK_SIZE)) >> FIXED_POINT_SHIFT
+    };
+    printf(
+        "CPOS: (%d,%d,%d) DPOS: (%d,%d,%d)\n",
+        inlineVec(origin_pos),
+        inlineVec(direction_pos)
     );
     render_marker = true;
     SVECTOR* cmarker;
     cvector_for_each_in(cmarker, markers) {
         printf("[TRACE] MARKER: (%d,%d,%d)\n", inlineVecPtr(cmarker));
     }
+}
+
+void drawDirectionLine() {
+    MATRIX omtx, olmtx;
+    // Ray trace line
+    RotMatrix(&zero_svec, &omtx);
+    TransMatrix(&omtx, &zero_vec);
+    // Multiply light matrix to object matrix
+    MulMatrix0(&transforms.lighting_mtx, &omtx, &olmtx);
+    // Set result to GTE light matrix
+    gte_SetLightMatrix(&olmtx);
+    // Composite coordinate matrix transform, so object will be rotated and
+    // positioned relative to camera matrix (mtx), so it'll appear as
+    // world-space relative.
+    CompMatrixLV(&transforms.geometry_mtx, &omtx, &omtx);
+    // Save matrix
+    PushMatrix();
+    // Set matrices
+    gte_SetRotMatrix(&omtx);
+    gte_SetTransMatrix(&omtx);
+    // Generate line
+    LINE_F2* line = (LINE_F2*) allocatePrimitive(&render_context, sizeof(LINE_F2));
+    setLineF2(line);
+    gte_ldv0(&origin_pos);
+    // Rotation, Translation and Perspective Single
+    gte_rtps();
+    gte_stsxy(&line->x0);
+    gte_ldv0(&direction_pos);
+    // Rotation, Translation and Perspective Single
+    gte_rtps();
+    gte_stsxy(&line->x1);
+    setRGB0(
+        line,
+        0x0,
+        0xff,
+        0x0
+    );
+    uint32_t* ot_entry = allocateOrderingTable(&render_context, 0);
+    addPrim(ot_entry, line);
+    PopMatrix();
 }
 
 void drawRayLine() {
@@ -181,6 +237,7 @@ void drawMarker() {
         return;
     }
     VECTOR zero = {0};
+    drawDirectionLine();
     drawRayLine();
     // Trace end marker
     // marker_rot.vy += 16;

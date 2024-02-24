@@ -3,7 +3,7 @@
 #include <stdio.h>
 
 VECTOR rotationToDirection(const VECTOR* rotation) {
-    printf("Rotation: (%d,%d,%d)\n", rotation->vx, rotation->vy, rotation->vz);
+    // printf("Rotation: (%d,%d,%d)\n", rotation->vx, rotation->vy, rotation->vz);
     const int32_t x = rotation->vx >> FIXED_POINT_SHIFT;
     const int32_t y = rotation->vy >> FIXED_POINT_SHIFT;
     const int32_t xz_len = icos(x);
