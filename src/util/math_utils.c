@@ -13,3 +13,8 @@ VECTOR rotationToDirection(const VECTOR* rotation) {
         .vz = (xz_len * icos(y)) >> FIXED_POINT_SHIFT
     };
 }
+
+// 4096 / ((((a & 0xffff) << 12) / (b & 0xffff)) >> 12)
+// ((a & 0xffff) * (b & 0xffff)) >> 12
+
+// 0.7 * 0.2 = 0.14

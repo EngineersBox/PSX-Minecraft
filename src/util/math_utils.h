@@ -97,11 +97,20 @@ typedef struct _BVECTOR {
 
 /**
  * @brief Divides two fixed point int16_t numbers as x / y
- * @param x - int16_t dividend (number being divided)
- * @param y - int16_t divisor (number performing division)
+ * @param x int16_t dividend (number being divided)
+ * @param y int16_t divisor (number performing division)
  * @return Result of division x / y
  */
 #define fixedDiv(x, y) (int16_t)((((int32_t)x << FIXED_POINT_SHIFT) / y) >> FIXED_POINT_SHIFT)
+
+/**
+ * @brief Multiply the fractional components of two fixed point numbers as 0.x * 0.y:
+ *        For example 0.7 * 0.2 = 0.14 => 2,867 * 819.2) >> FIXED_POINT_SHIFT = 573
+ * @param x int16_t fractional number
+ * @param y int16_t fractional number
+ * @return Result of fractional multiplication (x * y) >> FIXED_POINT_SHIFT
+ */
+#define fixedMulFrac(x, y) (((x) * (y)) >> FIXED_POINT_SHIFT)
 
 #define FIXED_1_2 (fixedDiv(ONE, 2))
 #define FIXED_1_4 (fixedDiv(ONE, 4))

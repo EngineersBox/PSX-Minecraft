@@ -14,6 +14,7 @@
 #define BLOCK_SIZE 50
 #define BLOCK_FACES 6
 #define BLOCK_TEXTURE_SIZE 16
+#define BLOCK_COUNT 256
 
 typedef uint8_t BlockID;
 
@@ -42,8 +43,6 @@ typedef struct _Block {
     TextureAttributes faceAttributes[BLOCK_FACES];
     char* name;
 } Block;
-
-#define BLOCK_COUNT 256
 
 typedef enum _BlockID {
     BLOCKID_NONE = -1,

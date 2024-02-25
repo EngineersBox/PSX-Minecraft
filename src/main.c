@@ -107,18 +107,14 @@ void cameraStartHandler(Camera* camera) {
     result.pos.vz >>= FIXED_POINT_SHIFT;
     printf(
         "Ray cast result: [Pos: (%d,%d,%d)] [Block: %d] [Face: (%d,%d,%d)]\n",
-        result.pos.vx,
-        result.pos.vy,
-        result.pos.vz,
+        inlineVec(result.pos),
         result.block,
-        result.face.vx,
-        result.face.vy,
-        result.face.vz
+        inlineVec(result.face)
     );
     camera_pos = (SVECTOR) {
         .vx = camera->position.vx >> FIXED_POINT_SHIFT,
         .vy = camera->position.vy >> FIXED_POINT_SHIFT,
-        .vz = camera->position.vz >> FIXED_POINT_SHIFT
+        .vz = camera->position.vz >> FIXED_POINT_SHIFT,
     };
     origin_pos.vx = (((camera->position.vx / BLOCK_SIZE) >> FIXED_POINT_SHIFT) * BLOCK_SIZE) + (BLOCK_SIZE >> 1);
     origin_pos.vy = (((camera->position.vy / BLOCK_SIZE) >> FIXED_POINT_SHIFT) * BLOCK_SIZE) + (BLOCK_SIZE >> 1);
