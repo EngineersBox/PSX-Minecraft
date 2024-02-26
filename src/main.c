@@ -70,7 +70,7 @@ void init() {
     };
     // Load font and open a text stream
     FntLoad(960, 0);
-    FntOpen(0, 8, 320, 216, 0, 100);
+    FntOpen(0, 8, 320, 216, 0, 150);
     // Unpack LZP archive and load assets
     assetsLoad();
 }

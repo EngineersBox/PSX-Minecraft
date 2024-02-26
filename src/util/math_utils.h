@@ -135,121 +135,149 @@ typedef struct _BVECTOR {
 
 // TODO: Add vec+const variations
 
+#define DEF_VEC_OP()
+
 // Field operations
-#define _vec_op_single(field, v0, v1, op) .field = (v0).field op (v1).field
-#define _vec_ptr_op_single(field, v0, v1, op) .field = (v0)->field op (v1)->field
-#define _ivec_op_single(field, v0, v1, op) (v0).field op= (v1).field
-#define _ivec_ptr_op_single(field, v0, v1, op) (v0)->field op= (v1)->field
+#define _vector_op(a, b, c, op) a = b op c
+#define _vector_iop(a, b, op) a op= b
+
+#define _vector_op_mm(field, v0, v1, op) _vector_op(.field, (v0).field, (v1).field, op)
+#define _vector_op_mc(field, v0, c, op) _vector_op(.field, (v0).field, c, op)
+#define _vector_p_op_mm(field, v0, v1, op) _vector_op(.field, (v0)->field, (v1)->field, op)
+#define _vector_p_op_mc(field, v0, c, op) _vector_op(.field, (v0)->field, c, op)
+
+#define _vector_i_op_mm(field, v0, v1, op) _vector_iop((v0).field, (v1).field, op)
+#define _vector_i_op_mc(field, v0, c, op) _vector_iop((v0).field, c, op)
+#define _vector_ip_op_mm(field, v0, v1, op) _vector_iop((v0)->field, (v1)->field, op)
+#define _vector_ip_op_mc(field, v0, c, op) _vector_iop((v0)->field, c, op)
 
 // VECTOR - New instance
 
 /**
- * @brief vop - Apply a given op piece-wise between two VECTOR instances, returning
+ * @brief vector_op - Apply a given op piece-wise between two VECTOR instances, returning
  * the results in a new VECTOR instance
  * @param v0 - First VECTOR instance
  * @param v1  - Second VECTOR instance
  * @param op - Operation to perform piece-wise
  * @return A new vetor with the results of piece-wise operation
  */
-#define vop(v0, v1, op) ((VECTOR) { \
-    _vec_op_single(vx, v0, v1, op), \
-    _vec_op_single(vy, v0, v1, op), \
-    _vec_op_single(vz, v0, v1, op) \
-})
+#define vector_op(v0, v1, op) (VECTOR) { \
+    _vector_op_mm(vx, v0, v1, op), \
+    _vector_op_mm(vy, v0, v1, op), \
+    _vector_op_mm(vz, v0, v1, op) \
+}
+#define vector_c_op(v0, c, op) (VECTOR) { \
+    _vector_op_mc(vx, v0, c, op), \
+    _vector_op_mc(vy, v0, c, op), \
+    _vector_op_mc(vz, v0, c, op) \
+}
 
 /**
- * @brief vpop - Apply a given op piece-wise between two VECTOR* pointers, returning
+ * @brief vector_p_op - Apply a given op piece-wise between two VECTOR* pointers, returning
  * the results in a new VECTOR instance
  * @param v0 - First VECTOR* instance
  * @param v1  - Second VECTOR* instance
  * @param op - Operation to perform piece-wise
  * @return A new vetor with the results of piece-wise operation
  */
-#define vpop(v0, v1, op) ((VECTOR) { \
-    _vec_ptr_op_single(vx, v0, v1, op), \
-    _vec_ptr_op_single(vy, v0, v1, op), \
-    _vec_ptr_op_single(vz, v0, v1, op) \
-})
+#define vector_p_op(v0, v1, op) (VECTOR) { \
+    _vector_p_op_mm(vx, v0, v1, op), \
+    _vector_p_op_mm(vy, v0, v1, op), \
+    _vector_p_op_mm(vz, v0, v1, op) \
+}
+#define vector_c_p_op(v0, c, op) (VECTOR) { \
+    _vector_p_op_mc(vx, v0, c, op), \
+    _vector_p_op_mc(vy, v0, c, op), \
+    _vector_p_op_mc(vz, v0, c, op) \
+}
 
 /**
- * @brief vadd - Add VECTORs v0 and v1 together piece-wise to form
+ * @brief vector_add - Add VECTORs v0 and v1 together piece-wise to form
  * a new vector instance and return it. This does
  * not modify the original vectors
  * @param v0 - First VECTOR instance
  * @param v1 - Second VECTOR instance
  * @return A new vector with the results of piece-wise addition
  */
-#define vadd(v0, v1) vop(v0, v1, +)
+#define vector_add(v0, v1) vector_op(v0, v1, +)
+#define vector_const_add(v0, c) vector_c_op(v0, c, +)
 
 /**
- * @brief vpadd - Add VECTOR pointers v0 and v1 together piece-wise to form
+ * @brief vector_p_add - Add VECTOR pointers v0 and v1 together piece-wise to form
  * a new vector instance and return it. This does
  * not modify the original vectors
  * @param v0 - First VECTOR* instance
  * @param v1 - Second VECTOR* instance
  * @return A new vector with the results of piece-wise addition
  */
-#define vpadd(v0, v1) vpop(v0, v1, +)
+#define vector_p_add(v0, v1) vector_p_op(v0, v1, +)
+#define vector_const_p_add(v0, c) vector_c_p_op(v0, c, +)
 
 /**
- * @brief vsub - Subtract VECTORs v0 and v1 together piece-wise to form
+ * @brief vector_sub - Subtract VECTORs v0 and v1 together piece-wise to form
  * a new vector instance and return it. This does
  * not modify the original vectors
  * @param v0 - First VECTOR instance
  * @param v1 - Second VECTOR instance
  * @return A new vector with the results of piece-wise subtraction
  */
-#define vsub(v0, v1) vop(v0, v1, -)
+#define vector_sub(v0, v1) vector_op(v0, v1, -)
+#define vector_const_sub(v0, c) vector_c_op(v0, c, -)
 
 /**
- * @brief vpsub - Subtract VECTOR pointers v0 and v1 together piece-wise to form
+ * @brief vector_p_sub - Subtract VECTOR pointers v0 and v1 together piece-wise to form
  * a new vector instance and return it. This does
  * not modify the original vectors
  * @param v0 - First VECTOR* instance
  * @param v1 - Second VECTOR* instance
  * @return A new vector with the results of piece-wise subtraction
  */
-#define vpsub(v0, v1) vpop(v0, v1, -)
+#define vector_p_sub(v0, v1) vector_p_op(v0, v1, -)
+#define vector_const_p_sub(v0, c) vector_c_p_op(v0, c, -)
 
 /**
- * @brief vmul - Multiply VECTORs v0 and v1 together piece-wise to form
+ * @brief vector_mul - Multiply VECTORs v0 and v1 together piece-wise to form
  * a new vector instance and return it. This does
  * not modify the original vectors
  * @param v0 - First VECTOR instance 
  * @param v1 - Second VECTOR instance
  * @return A new vector with the results of piece-wise multiplication
  */
-#define vmul(v0, v1) vop(v0, v1, *)
+#define vector_mul(v0, v1) vector_op(v0, v1, *)
+#define vector_const_mul(v0, c) vector_c_op(v0, c, *)
 
 /**
- * @brief vpmul - Multiply VECTOR pointers v0 and v1 together piece-wise to form
+ * @brief vector_p_mul - Multiply VECTOR pointers v0 and v1 together piece-wise to form
  * a new vector instance and return it. This does
  * not modify the original vectors
  * @param v0 - First VECTOR* instance 
  * @param v1 - Second VECTOR* instance
  * @return A new vector with the results of piece-wise multiplication
  */
-#define vpmul(v0, v1) vpop(v0, v1, *)
+#define vector_p_mul(v0, v1) vector_p_op(v0, v1, *)
+#define vector_const_p_mul(v0, c) vector_c_p_op(v0, c, *)
 
 /**
- * @brief vdiv - Divide VECTORs v0 and v1 together piece-wise to form
+ * @brief vector_div - Divide VECTORs v0 and v1 together piece-wise to form
  * a new vector instance and return it. This does
  * not modify the original vectors
  * @param v0 - First VECTOR instance
  * @param v1 - Second VECTOR instance 
  * @return A new vector with the results of piece-wise division
  */
-#define vdiv(v0, v1) vop(v0, v1, /)
+#define vector_div(v0, v1) vector_op(v0, v1, /)
+#define vector_const_div(v0, c) vector_c_op(v0, c, /)
 
 /**
- * @brief vpdiv - Divide VECTOR pointers v0 and v1 together piece-wise to form
+ * @brief vector_p_div - Divide VECTOR pointers v0 and v1 together piece-wise to form
  * a new vector instance and return it. This does
  * not modify the original vectors
  * @param v0 - First VECTOR* instance
  * @param v1 - Second VECTOR* instance 
  * @return A new vector with the results of piece-wise division
  */
-#define vpdiv(v0, v1) vpop(v0, v1, /)
+#define vector_p_div(v0, v1) vector_p_op(v0, v1, /)
+#define vector_const_p_div(v0, c) vector_c_p_op(v0, c, /)
 
 VECTOR rotationToDirection(const VECTOR* rotation);
 
@@ -257,103 +285,343 @@ VECTOR rotationToDirection(const VECTOR* rotation);
 
 // TODO: Finish macro docstrings
 
-#define viop(v0, v1, op) ({ \
+#define vector_i_op(v0, v1, op) ({ \
     do { \
-        _ivec_op_single(vx, v0, v1, op); \
-        _ivec_op_single(vy, v0, v1, op); \
-        _ivec_op_single(vz, v0, v1, op); \
+        _vector_i_op_mm(vx, v0, v1, op); \
+        _vector_i_op_mm(vy, v0, v1, op); \
+        _vector_i_op_mm(vz, v0, v1, op); \
+    } while (0); \
+})
+#define vector_ip_op(v0, v1, op) ({ \
+    do { \
+        _vector_ip_op_mm(vx, v0, v1, op); \
+        _vector_ip_op_mm(vy, v0, v1, op); \
+        _vector_ip_op_mm(vz, v0, v1, op); \
+    } while (0); \
+})
+#define vector_c_i_op(v0, c, op) ({ \
+    do { \
+        _vector_i_op_mc(vx, v0, c, op); \
+        _vector_i_op_mc(vy, v0, c, op); \
+        _vector_i_op_mc(vz, v0, c, op); \
+    } while (0); \
+})
+#define vector_c_ip_op(v0, c, op) ({ \
+    do { \
+        _vector_ip_op_mc(vx, v0, c, op); \
+        _vector_ip_op_mc(vy, v0, c, op); \
+        _vector_ip_op_mc(vz, v0, c, op); \
     } while (0); \
 })
 
-#define viadd(v0, v1) viop(v0, v1, +)
-#define visub(v0, v1) viop(v0, v1, -)
-#define vimul(v0, v1) viop(v0, v1, *)
-#define vidiv(v0, v1) viop(v0, v1, /)
+#define vector_i_add(v0, v1) vector_i_op(v0, v1, +)
+#define vector_i_sub(v0, v1) vector_i_op(v0, v1, -)
+#define vector_i_mul(v0, v1) vector_i_op(v0, v1, *)
+#define vector_i_div(v0, v1) vector_i_op(v0, v1, /)
+
+#define vector_const_i_add(v0, c) vector_c_i_op(v0, c, +)
+#define vector_const_i_sub(v0, c) vector_c_i_op(v0, c, -)
+#define vector_const_i_mul(v0, c) vector_c_i_op(v0, c, *)
+#define vector_const_i_div(v0, c) vector_c_i_op(v0, c, /)
+
+#define vector_ip_add(v0, v1) vector_ip_op(v0, v1, +)
+#define vector_ip_sub(v0, v1) vector_ip_op(v0, v1, -)
+#define vector_ip_mul(v0, v1) vector_ip_op(v0, v1, *)
+#define vector_ip_div(v0, v1) vector_ip_op(v0, v1, /)
+
+#define vector_const_ip_add(v0, c) vector_c_ip_op(v0, c, +)
+#define vector_const_ip_sub(v0, c) vector_c_ip_op(v0, c, -)
+#define vector_const_ip_mul(v0, c) vector_c_ip_op(v0, c, *)
+#define vector_const_ip_div(v0, c) vector_c_ip_op(v0, c, /)
 
 // SVECTOR - New instance
 
-#define svop(v0, v1, op) ((SVECTOR) { \
-    _vec_op_single(vx, v0, v1, op), \
-    _vec_op_single(vy, v0, v1, op), \
-    _vec_op_single(vz, v0, v1, op), \
-    _vec_op_single(pad, v0, v1, op) \
-})
+#define svector_op(v0, v1, op) (SVECTOR) { \
+    _vector_op_mm(vx, v0, v1, op), \
+    _vector_op_mm(vy, v0, v1, op), \
+    _vector_op_mm(vz, v0, v1, op), \
+    _vector_op_mm(pad, v0, v1, op) \
+}
+#define svector_p_op(v0, v1, op) (SVECTOR) { \
+    _vector_p_op_mm(vx, v0, v1, op), \
+    _vector_p_op_mm(vy, v0, v1, op), \
+    _vector_p_op_mm(vz, v0, v1, op), \
+    _vector_p_op_mm(pad, v0, v1, op) \
+}
+#define svector_c_op(v0, c, op) (SVECTOR) { \
+    _vector_op_mc(vx, v0, c, op), \
+    _vector_op_mc(vy, v0, c, op), \
+    _vector_op_mc(vz, v0, c, op), \
+    _vector_op_mc(pad, v0, c, op) \
+}
+#define svector_c_p_op(v0, c, op) (SVECTOR) { \
+    _vector_p_op_mc(vx, v0, c, op), \
+    _vector_p_op_mc(vy, v0, c, op), \
+    _vector_p_op_mc(vz, v0, c, op), \
+    _vector_p_op_mc(pad, v0, c, op) \
+}
 
-#define svadd(v0, v1) svop(v0, v1, +)
-#define svsub(v0, v1) svop(v0, v1, -)
-#define svmul(v0, v1) svop(v0, v1, *)
-#define svdiv(v0, v1) svop(v0, v1, /)
+#define svector_add(v0, v1) svector_op(v0, v1, +)
+#define svector_sub(v0, v1) svector_op(v0, v1, -)
+#define svector_mul(v0, v1) svector_op(v0, v1, *)
+#define svector_div(v0, v1) svector_op(v0, v1, /)
+
+#define svector_const_add(v0, c) svector_c_op(v0, c, +)
+#define svector_const_sub(v0, c) svector_c_op(v0, c, -)
+#define svector_const_mul(v0, c) svector_c_op(v0, c, *)
+#define svector_const_div(v0, c) svector_c_op(v0, c, /)
+
+#define svector_p_add(v0, v1) svector_p_op(v0, v1, +)
+#define svector_p_sub(v0, v1) svector_p_op(v0, v1, -)
+#define svector_p_mul(v0, v1) svector_p_op(v0, v1, *)
+#define svector_p_div(v0, v1) svector_p_op(v0, v1, /)
+
+#define svector_const_p_add(v0, c) svector_c_p_op(v0, c, +)
+#define svector_const_p_sub(v0, c) svector_c_p_op(v0, c, -)
+#define svector_const_p_mul(v0, c) svector_c_p_op(v0, c, *)
+#define svector_const_p_div(v0, c) svector_c_p_op(v0, c, /)
 
 // SVECTOR - Inline
 
-#define sviop(v0, v1, op) ({ \
+#define svector_i_op(v0, v1, op) ({ \
     do { \
-        _ivec_op_single(vx, v0, v1, op); \
-        _ivec_op_single(vy, v0, v1, op); \
-        _ivec_op_single(vz, v0, v1, op); \
-        _ivec_op_single(pad, v0, v1, op); \
+        _vector_i_op_mm(vx, v0, v1, op); \
+        _vector_i_op_mm(vy, v0, v1, op); \
+        _vector_i_op_mm(vz, v0, v1, op); \
+        _vector_i_op_mm(pad, v0, v1, op); \
+    } while (0); \
+})
+#define svector_ip_op(v0, v1, op) ({ \
+    do { \
+        _vector_ip_op_mm(vx, v0, v1, op); \
+        _vector_ip_op_mm(vy, v0, v1, op); \
+        _vector_ip_op_mm(vz, v0, v1, op); \
+        _vector_ip_op_mm(pad, v0, v1, op); \
+    } while (0); \
+})
+#define svector_c_i_op(v0, c, op) ({ \
+    do { \
+        _vector_i_op_mc(vx, v0, c, op); \
+        _vector_i_op_mc(vy, v0, c, op); \
+        _vector_i_op_mc(vz, v0, c, op); \
+        _vector_i_op_mc(pad, v0, c, op); \
+    } while (0); \
+})
+#define svector_c_ip_op(v0, c, op) ({ \
+    do { \
+        _vector_ip_op_mc(vx, v0, c, op); \
+        _vector_ip_op_mc(vy, v0, c, op); \
+        _vector_ip_op_mc(vz, v0, c, op); \
+        _vector_ip_op_mc(pad, v0, c, op); \
     } while (0); \
 })
 
-#define sviadd(v0, v1) sviop(v0, v1, +)
-#define svisub(v0, v1) sviop(v0, v1, -)
-#define svimul(v0, v1) sviop(v0, v1, *)
-#define svidiv(v0, v1) sviop(v0, v1, /)
+#define svector_i_add(v0, v1) svector_i_op(v0, v1, +)
+#define svector_i_sub(v0, v1) svector_i_op(v0, v1, -)
+#define svector_i_mul(v0, v1) svector_i_op(v0, v1, *)
+#define svector_i_div(v0, v1) svector_i_op(v0, v1, /)
+
+#define svector_const_i_add(v0, c) svector_c_i_op(v0, c, +)
+#define svector_const_i_sub(v0, c) svector_c_i_op(v0, c, -)
+#define svector_const_i_mul(v0, c) svector_c_i_op(v0, c, *)
+#define svector_const_i_div(v0, c) svector_c_i_op(v0, c, /)
+
+#define svector_ip_add(v0, v1) svector_ip_op(v0, v1, +)
+#define svector_ip_sub(v0, v1) svector_ip_op(v0, v1, -)
+#define svector_ip_mul(v0, v1) svector_ip_op(v0, v1, *)
+#define svector_ip_div(v0, v1) svector_ip_op(v0, v1, /)
+
+#define svector_const_ip_add(v0, c) svector_c_ip_op(v0, c, +)
+#define svector_const_ip_sub(v0, c) svector_c_ip_op(v0, c, -)
+#define svector_const_ip_mul(v0, c) svector_c_ip_op(v0, c, *)
+#define svector_const_ip_div(v0, c) svector_c_ip_op(v0, c, /)
 
 // CVECTOR - New instance
 
-#define cvop(v0, v1, op) ((CVECTOR) { \
-    _vec_op_single(r, v0, v1, op), \
-    _vec_op_single(g, v0, v1, op), \
-    _vec_op_single(g, v0, v1, op), \
-    _vec_op_single(cd, v0, v1, op) \
-})
+#define cvector_op(v0, v1, op) (CVECTOR) { \
+    _vector_op_mm(r, v0, v1, op), \
+    _vector_op_mm(g, v0, v1, op), \
+    _vector_op_mm(g, v0, v1, op), \
+    _vector_op_mm(cd, v0, v1, op) \
+}
+#define cvector_p_op(v0, v1, op) (CVECTOR) { \
+    _vector_p_op_mm(r, v0, v1, op), \
+    _vector_p_op_mm(g, v0, v1, op), \
+    _vector_p_op_mm(g, v0, v1, op), \
+    _vector_p_op_mm(cd, v0, v1, op) \
+}
+#define cvector_c_op(v0, c, op) (CVECTOR) { \
+    _vector_op_mc(r, v0, c, op), \
+    _vector_op_mc(g, v0, c, op), \
+    _vector_op_mc(g, v0, c, op), \
+    _vector_op_mc(cd, v0, c, op) \
+}
+#define cvector_c_p_op(v0, c, op) (CVECTOR) { \
+    _vector_p_op_mc(r, v0, c, op), \
+    _vector_p_op_mc(g, v0, c, op), \
+    _vector_p_op_mc(g, v0, c, op), \
+    _vector_p_op_mc(cd, v0, c, op) \
+}
 
-#define cvadd(v0, v1) cvop(v0, v1, +)
-#define cvsub(v0, v1) cvop(v0, v1, -)
-#define cvmul(v0, v1) cvop(v0, v1, *)
-#define cvdiv(v0, v1) cvop(v0, v1, /)
+#define cvector_add(v0, v1) cvector_op(v0, v1, +)
+#define cvector_sub(v0, v1) cvector_op(v0, v1, -)
+#define cvector_mul(v0, v1) cvector_op(v0, v1, *)
+#define cvector_div(v0, v1) cvector_op(v0, v1, /)
+
+#define cvector_const_add(v0, c) cvector_c_op(v0, c, +)
+#define cvector_const_sub(v0, c) cvector_c_op(v0, c, -)
+#define cvector_const_mul(v0, c) cvector_c_op(v0, c, *)
+#define cvector_const_div(v0, c) cvector_c_op(v0, c, /)
+
+#define cvector_p_add(v0, v1) cvector_p_op(v0, v1, +)
+#define cvector_p_sub(v0, v1) cvector_p_op(v0, v1, -)
+#define cvector_p_mul(v0, v1) cvector_p_op(v0, v1, *)
+#define cvector_p_div(v0, v1) cvector_p_op(v0, v1, /)
+
+#define cvector_const_p_add(v0, c) cvector_c_p_op(v0, c, +)
+#define cvector_const_p_sub(v0, c) cvector_c_p_op(v0, c, -)
+#define cvector_const_p_mul(v0, c) cvector_c_p_op(v0, c, *)
+#define cvector_const_p_div(v0, c) cvector_c_p_op(v0, c, /)
 
 // CVECTOR - Inline
 
-#define cviop(v0, v1, op) ({ \
+#define cvector_i_op(v0, v1, op) ({ \
     do { \
-        _ivec_op_single(r, v0, v1, op); \
-        _ivec_op_single(g, v0, v1, op); \
-        _ivec_op_single(b, v0, v1, op); \
-        _ivec_op_single(cd, v0, v1, op); \
+        _vector_i_op_mm(r, v0, v1, op); \
+        _vector_i_op_mm(g, v0, v1, op); \
+        _vector_i_op_mm(b, v0, v1, op); \
+        _vector_i_op_mm(cd, v0, v1, op); \
+    } while (0); \
+})
+#define cvector_ip_op(v0, v1, op) ({ \
+    do { \
+        _vector_ip_op_mm(r, v0, v1, op); \
+        _vector_ip_op_mm(g, v0, v1, op); \
+        _vector_ip_op_mm(b, v0, v1, op); \
+        _vector_ip_op_mm(cd, v0, v1, op); \
+    } while (0); \
+})
+#define cvector_c_i_op(v0, c, op) ({ \
+    do { \
+        _vector_i_op_mc(r, v0, c, op); \
+        _vector_i_op_mc(g, v0, c, op); \
+        _vector_i_op_mc(b, v0, c, op); \
+        _vector_i_op_mc(cd, v0, c, op); \
+    } while (0); \
+})
+#define cvector_c_ip_op(v0, c, op) ({ \
+    do { \
+        _vector_ip_op_mc(r, v0, c, op); \
+        _vector_ip_op_mc(g, v0, c, op); \
+        _vector_ip_op_mc(b, v0, c, op); \
+        _vector_ip_op_mc(cd, v0, c, op); \
     } while (0); \
 })
 
-#define cviadd(v0, v1) cviop(v0, v1, +)
-#define cvisub(v0, v1) cviop(v0, v1, -)
-#define cvimul(v0, v1) cviop(v0, v1, *)
-#define cvidiv(v0, v1) cviop(v0, v1, /)
+#define cvector_i_add(v0, v1) cvector_i_op(v0, v1, +)
+#define cvector_i_sub(v0, v1) cvector_i_op(v0, v1, -)
+#define cvector_i_mul(v0, v1) cvector_i_op(v0, v1, *)
+#define cvector_i_div(v0, v1) cvector_i_op(v0, v1, /)
+
+#define cvector_const_i_add(v0, c) cvector_c_i_op(v0, c, +)
+#define cvector_const_i_sub(v0, c) cvector_c_i_op(v0, c, -)
+#define cvector_const_i_mul(v0, c) cvector_c_i_op(v0, c, *)
+#define cvector_const_i_div(v0, c) cvector_c_i_op(v0, c, /)
+
+#define cvector_ip_add(v0, v1) cvector_ip_op(v0, v1, +)
+#define cvector_ip_sub(v0, v1) cvector_ip_op(v0, v1, -)
+#define cvector_ip_mul(v0, v1) cvector_ip_op(v0, v1, *)
+#define cvector_ip_div(v0, v1) cvector_ip_op(v0, v1, /)
+
+#define cvector_const_ip_add(v0, c) cvector_c_ip_op(v0, c, +)
+#define cvector_const_ip_sub(v0, c) cvector_c_ip_op(v0, c, -)
+#define cvector_const_ip_mul(v0, c) cvector_c_ip_op(v0, c, *)
+#define cvector_const_ip_div(v0, c) cvector_c_ip_op(v0, c, /)
 
 // DVECTOR - New instance
 
-#define dvop(v0, v1, op) ((DVECTOR) { \
-    _vec_op_single(r, v0, v1, op), \
-    _vec_op_single(g, v0, v1, op), \
-})
+#define dvector_op(v0, v1, op) (DVECTOR) { \
+    _vector_op_mm(r, v0, v1, op), \
+    _vector_op_mm(g, v0, v1, op), \
+}
+#define dvector_p_op(v0, v1, op) (DVECTOR) { \
+    _vector_p_op_mm(r, v0, v1, op), \
+    _vector_p_op_mm(g, v0, v1, op), \
+}
+#define dvector_c_op(v0, c, op) (DVECTOR) { \
+    _vector_op_mc(r, v0, c, op), \
+    _vector_op_mc(g, v0, c, op), \
+}
+#define dvector_c_p_op(v0, c, op) (DVECTOR) { \
+    _vector_p_op_mc(r, v0, c, op), \
+    _vector_p_op_mc(g, v0, c, op), \
+}
 
-#define dvadd(v0, v1) dvop(v0, v1, +)
-#define dvsub(v0, v1) dvop(v0, v1, -)
-#define dvmul(v0, v1) dvop(v0, v1, *)
-#define dvdiv(v0, v1) dvop(v0, v1, /)
+#define dvector_add(v0, v1) dvector_op(v0, v1, +)
+#define dvector_sub(v0, v1) dvector_op(v0, v1, -)
+#define dvector_mul(v0, v1) dvector_op(v0, v1, *)
+#define dvector_div(v0, v1) dvector_op(v0, v1, /)
+
+#define dvector_const_add(v0, c) dvector_c_op(v0, c, +)
+#define dvector_const_sub(v0, c) dvector_c_op(v0, c, -)
+#define dvector_const_mul(v0, c) dvector_c_op(v0, c, *)
+#define dvector_const_div(v0, c) dvector_c_op(v0, c, /)
+
+#define dvector_p_add(v0, v1) dvector_p_op(v0, v1, +)
+#define dvector_p_sub(v0, v1) dvector_p_op(v0, v1, -)
+#define dvector_p_mul(v0, v1) dvector_p_op(v0, v1, *)
+#define dvector_p_div(v0, v1) dvector_p_op(v0, v1, /)
+
+#define dvector_const_p_add(v0, c) dvector_c_p_op(v0, c, +)
+#define dvector_const_p_sub(v0, c) dvector_c_p_op(v0, c, -)
+#define dvector_const_p_mul(v0, c) dvector_c_p_op(v0, c, *)
+#define dvector_const_p_div(v0, c) dvector_c_p_op(v0, c, /)
 
 // DVECTOR - Inline
 
-#define dviop(v0, v1, op) ({ \
+#define dvector_i_op(v0, v1, op) ({ \
     do { \
-        _ivec_op_single(r, v0, v1, op); \
-        _ivec_op_single(g, v0, v1, op); \
+        _vector_i_op_mm(r, v0, v1, op); \
+        _vector_i_op_mm(g, v0, v1, op); \
+    } while (0); \
+})
+#define dvector_ip_op(v0, v1, op) ({ \
+    do { \
+        _vector_ip_op_mm(r, v0, v1, op); \
+        _vector_ip_op_mm(g, v0, v1, op); \
+    } while (0); \
+})
+#define dvector_c_i_op(v0, c, op) ({ \
+    do { \
+        _vector_i_op_mc(r, v0, c, op); \
+        _vector_i_op_mc(g, v0, c, op); \
+    } while (0); \
+})
+#define dvector_c_ip_op(v0, c, op) ({ \
+    do { \
+        _vector_ip_op_mc(r, v0, c, op); \
+        _vector_ip_op_mc(g, v0, c, op); \
     } while (0); \
 })
 
-#define dviadd(v0, v1) dviop(v0, v1, +)
-#define dvisub(v0, v1) dviop(v0, v1, -)
-#define dvimul(v0, v1) dviop(v0, v1, *)
-#define dvidiv(v0, v1) dviop(v0, v1, /)
+#define dvector_i_add(v0, v1) dvector_i_op(v0, v1, +)
+#define dvector_i_sub(v0, v1) dvector_i_op(v0, v1, -)
+#define dvector_i_mul(v0, v1) dvector_i_op(v0, v1, *)
+#define dvector_i_div(v0, v1) dvector_i_op(v0, v1, /)
+
+#define dvector_const_i_add(v0, c) dvector_c_i_op(v0, c, +)
+#define dvector_const_i_sub(v0, c) dvector_c_i_op(v0, c, -)
+#define dvector_const_i_mul(v0, c) dvector_c_i_op(v0, c, *)
+#define dvector_const_i_div(v0, c) dvector_c_i_op(v0, c, /)
+
+#define dvector_ip_add(v0, v1) dvector_ip_op(v0, v1, +)
+#define dvector_ip_sub(v0, v1) dvector_ip_op(v0, v1, -)
+#define dvector_ip_mul(v0, v1) dvector_ip_op(v0, v1, *)
+#define dvector_ip_div(v0, v1) dvector_ip_op(v0, v1, /)
+
+#define dvector_const_ip_add(v0, c) dvector_c_ip_op(v0, c, +)
+#define dvector_const_ip_sub(v0, c) dvector_c_ip_op(v0, c, -)
+#define dvector_const_ip_mul(v0, c) dvector_c_ip_op(v0, c, *)
+#define dvector_const_ip_div(v0, c) dvector_c_ip_op(v0, c, /)
 
 #endif //MATH_UTILS_H

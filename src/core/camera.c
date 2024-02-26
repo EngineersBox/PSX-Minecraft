@@ -33,6 +33,12 @@ void printDebugCamera(const Camera* camera, const Input* input) {
         camera->rotation.vx >> FIXED_POINT_SHIFT,
         camera->rotation.vy >> FIXED_POINT_SHIFT
     );
+    const VECTOR direction = rotationToDirection(&camera->rotation);
+    FntPrint(
+        0,
+        "DX=%d DY=%d DZ=%d\n",
+        inlineVec(direction)
+    );
 }
 
 
