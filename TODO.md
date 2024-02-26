@@ -36,6 +36,7 @@
 * [ ] Create loading screen structure with update/render methods and move content in world to there
 * [ ] Turn these TODO list sections into tables instead of checkmark lists 
 * [x] Ray cast should check distance walked is less than radius instead of out of world check
+* [ ] Support other resolutions that aren't 320x240
 
 ## Fix
 

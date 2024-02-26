@@ -11,10 +11,11 @@
 #define PACKET_BUFFER_LENGTH (1 << 16)
 
 // Screen resolution
-// #define SCREEN_XRES	320
-// #define SCREEN_YRES	240
-#define SCREEN_XRES 640
-#define SCREEN_YRES 480
+#define SCREEN_XRES	320
+#define SCREEN_YRES	240
+// TODO: Fix support for other resolutions
+// #define SCREEN_XRES 640
+// #define SCREEN_YRES 480
 
 // Screen center position
 #define CENTRE_X (SCREEN_XRES >> 1)

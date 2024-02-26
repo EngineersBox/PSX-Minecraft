@@ -100,7 +100,7 @@ SVECTOR direction_pos = {0};
 
 void cameraStartHandler(Camera* camera) {
     cvector_clear(markers);
-    result = worldRayCastIntersection(&world, camera, ONE * 6, &markers);
+    result = worldRayCastIntersection(&world, camera, BLOCK_SIZE * 6, &markers);
     printf("Marker count: %d\n", cvector_size(markers));
     result.pos.vx >>= FIXED_POINT_SHIFT;
     result.pos.vy >>= FIXED_POINT_SHIFT;

@@ -469,9 +469,9 @@ RayCastResult worldRayCastIntersection(const World* world,
     const int32_t step_y = sign(dy);
     const int32_t step_z = sign(dz);
     printf("Step: (%d,%d,%d)\n", step_x, step_y, step_z);
-    const int32_t tx_delta = absv((ONE << FIXED_POINT_SHIFT) / dx);
-    const int32_t ty_delta = absv((ONE << FIXED_POINT_SHIFT) / dy);
-    const int32_t tz_delta = absv((ONE << FIXED_POINT_SHIFT) / dz);
+    const int32_t tx_delta = absv((ONE * BLOCK_SIZE) / dx);
+    const int32_t ty_delta = absv((ONE * BLOCK_SIZE) / dy);
+    const int32_t tz_delta = absv((ONE * BLOCK_SIZE) / dz);
     printf("Delta: (%d,%d,%d)\n", tx_delta, ty_delta, tz_delta);
     const int32_t x_dist = step_x < 0 ? (((ix + 1) * BLOCK_SIZE) << FIXED_POINT_SHIFT) - position.vx : position.vx - ((ix * BLOCK_SIZE) << FIXED_POINT_SHIFT);
     const int32_t y_dist = step_y < 0 ? (((iy + 1) * BLOCK_SIZE) << FIXED_POINT_SHIFT) - position.vy : position.vy - ((iy * BLOCK_SIZE) << FIXED_POINT_SHIFT);
