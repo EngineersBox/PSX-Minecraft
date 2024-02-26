@@ -438,9 +438,9 @@ RayCastResult worldRayCastIntersection(const World* world,
         .vz = camera->position.vz// / BLOCK_SIZE
     };
     const VECTOR direction = rotationToDirection(&camera->rotation);
-    int32_t dx = direction.vx;
-    int32_t dy = direction.vy;
-    int32_t dz = direction.vz;
+    const int32_t dx = direction.vx;
+    const int32_t dy = direction.vy;
+    const int32_t dz = direction.vz;
     printf("Direction: (%d,%d,%d)\n", inlineVec(direction));
     if (dx == 0 && dy == 0 && dz == 0) {
         printf("Zero delta\n");
@@ -465,17 +465,17 @@ RayCastResult worldRayCastIntersection(const World* world,
     int32_t iy = (position.vy / BLOCK_SIZE) >> FIXED_POINT_SHIFT;
     int32_t iz = (position.vz / BLOCK_SIZE) >> FIXED_POINT_SHIFT;
     printf("Index position: (%d,%d,%d)\n", ix, iy, iz);
-    int32_t step_x = sign(dx);
-    int32_t step_y = sign(dy);
-    int32_t step_z = sign(dz);
+    const int32_t step_x = sign(dx);
+    const int32_t step_y = sign(dy);
+    const int32_t step_z = sign(dz);
     printf("Step: (%d,%d,%d)\n", step_x, step_y, step_z);
-    int32_t tx_delta = absv((ONE << FIXED_POINT_SHIFT) / dx);
-    int32_t ty_delta = absv((ONE << FIXED_POINT_SHIFT) / dy);
-    int32_t tz_delta = absv((ONE << FIXED_POINT_SHIFT) / dz);
+    const int32_t tx_delta = absv((ONE << FIXED_POINT_SHIFT) / dx);
+    const int32_t ty_delta = absv((ONE << FIXED_POINT_SHIFT) / dy);
+    const int32_t tz_delta = absv((ONE << FIXED_POINT_SHIFT) / dz);
     printf("Delta: (%d,%d,%d)\n", tx_delta, ty_delta, tz_delta);
-    int32_t x_dist = step_x < 0 ? (((ix + 1) * BLOCK_SIZE) << FIXED_POINT_SHIFT) - position.vx : position.vx - ((ix * BLOCK_SIZE) << FIXED_POINT_SHIFT);
-    int32_t y_dist = step_y < 0 ? (((iy + 1) * BLOCK_SIZE) << FIXED_POINT_SHIFT) - position.vy : position.vy - ((iy * BLOCK_SIZE) << FIXED_POINT_SHIFT);
-    int32_t z_dist = step_z < 0 ? (((iz + 1) * BLOCK_SIZE) << FIXED_POINT_SHIFT) - position.vz : position.vz - ((iz * BLOCK_SIZE) << FIXED_POINT_SHIFT);
+    const int32_t x_dist = step_x < 0 ? (((ix + 1) * BLOCK_SIZE) << FIXED_POINT_SHIFT) - position.vx : position.vx - ((ix * BLOCK_SIZE) << FIXED_POINT_SHIFT);
+    const int32_t y_dist = step_y < 0 ? (((iy + 1) * BLOCK_SIZE) << FIXED_POINT_SHIFT) - position.vy : position.vy - ((iy * BLOCK_SIZE) << FIXED_POINT_SHIFT);
+    const int32_t z_dist = step_z < 0 ? (((iz + 1) * BLOCK_SIZE) << FIXED_POINT_SHIFT) - position.vz : position.vz - ((iz * BLOCK_SIZE) << FIXED_POINT_SHIFT);
     printf("Dist: (%d,%d,%d)\n", x_dist, y_dist, z_dist);
     int32_t tx_max = fixedMulFrac(tx_delta, x_dist) >> FIXED_POINT_SHIFT;
     int32_t ty_max = fixedMulFrac(ty_delta, y_dist) >> FIXED_POINT_SHIFT;
