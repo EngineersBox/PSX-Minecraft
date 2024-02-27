@@ -4,17 +4,20 @@
 #define PSX_MINECRAFT_APP_LOGIC_H
 
 #include <interface99.h>
-#include <stdbool.h>
+#include <stdint.h>
 
-#include "../render/render_context.h"
-#include "../render/transforms.h"
-#include "camera.h"
+typedef struct {
+    uint32_t fps;
+    uint32_t tps;
+    uint32_t diff_ms;
+} Stats;
 
 #define AppLogic_IFACE \
     vfunc(void, cleanup, VSelf) \
     vfunc(void, init, VSelf, void* ctx) \
-    vfunc(void, input, VSelf, RenderContext* ctx, Transforms* transforms, Camera* camera, uint16_t diffTime, bool inputConsumed) \
-    vfunc(void, update, VSelf, RenderContext* ctx, Transforms* transforms, Camera* camera, uint16_t diffTime)
+    vfunc(void, input, VSelf, const Stats* stats) \
+    vfunc(void, update, VSelf, const Stats* stats) \
+    vfunc(void, render, VSelf, const Stats* stats)
 
 interface(AppLogic);
 

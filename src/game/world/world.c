@@ -152,6 +152,7 @@ void worldRender(const World* world, RenderContext* ctx, Transforms* transforms)
 // NOTE: Should this just take int32_t x,y,z params instead of a
 //       a VECTOR struct to avoid creating needless stack objects?
 Chunk* worldLoadChunk(World* world, const VECTOR chunk_position) {
+    // TODO: Fix 8-bit read out of bounds when loading chunks (something left over from engine refractor)
     Chunk* chunk = malloc(sizeof(Chunk));
     assert(chunk != NULL);
     printf(

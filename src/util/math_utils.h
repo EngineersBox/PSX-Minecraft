@@ -90,8 +90,10 @@ typedef struct _BVECTOR {
 
 // Fixed point
 
-#define FIXED_MASK_FRACTIONAL 0xffff
+#define FIXED_MASK_FRACTIONAL 0xFFF
 #define FIXED_MASK_WHOLE (~FIXED_MASK_FRACTIONAL)
+#define FIXED_POINT_MAX FIXED_MASK_WHOLE
+
 #define fixedGetFractional(value) ((value) & FIXED_MASK_FRACTIONAL)
 #define fixedGetWhole(value) ((value) >> FIXED_POINT_SHIFT)
 

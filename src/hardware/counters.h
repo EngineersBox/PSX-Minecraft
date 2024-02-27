@@ -6,6 +6,8 @@
 #include <stdint.h>
 #include <hwregs_c.h>
 
+#include "clock.h"
+
 typedef union {
     struct {
         // 0 = free run, 1 = sync via bit 1-2
@@ -26,7 +28,7 @@ typedef union {
         // IRQ when counter = target, 0 = disable, 1 = enable
         uint8_t irqAtTarget: 1;
         // IRQ when counter = 0xffff, 0 = disable, 1 = enable
-        uint8_t irqAtMax: 1;
+        uint8_t irqAtFFFF: 1;
         // 0 = one shot, 1 = repeatedly
         uint8_t irqOnceRepeat: 1;
         // 0 = short bit10 = 0 pulse, 1 = toggle bit10 on/off
@@ -54,6 +56,10 @@ typedef union {
 // All counter sync state
 #define COUNTER_SYNC_FREE_RUN 0
 #define COUNTER_SYNC_BIT1_2 1
+
+// Reset conditions
+#define COUNTER_RESET_AT_FFFF 0
+#define COUNTER_RESET_AT_TARGET 1
 
 // Counter 0 sync modes
 #define COUNTER_0_SYNCMODE_PAUSE_ON_HBLANK 0
@@ -83,8 +89,17 @@ typedef union {
 #define COUNTER_2_SOURCE_SYSTEM_CLOCK 0
 #define COUNTER_2_SOURCE_SYSTEM_CLOCK_DIV_8 2
 
+#define COUNTER_MAX_VALUE 0xffff
+#define COUNTER_CYCLES_PER_SECOND (CPU_CLOCK_HZ / COUNTER_MAX_VALUE)
+
 #define getCounterMode(id) (HW_CPU_CounterMode) { .bits = TIMER_CTRL(id) }
 #define setCounterMode(id, mode) TIMER_CTRL(id) = mode.bits;
+
+#define getCounterTarget(id) TIMER_RELOAD(id)
+#define setCounterTarget(id, target) TIMER_RELOAD(id) = target
+
 #define readCounterValue(id) TIMER_VALUE(id)
+
+extern volatile uint32_t time_ms;
 
 #endif // PSX_MINECRAFT_COUNTERS_H

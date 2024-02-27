@@ -20,7 +20,7 @@ void drawBackgroundHalf(RenderContext* ctx,
         CENTRE_X + x, SCREEN_YRES
     );
     // Mid point grey as mask for additive texturing
-    setRGB0(pol4, 0x20, 0x20, 0x20);
+    setRGB0(pol4, 0x28, 0x28, 0x28);
     // Set texture coords and dimensions
     setUVWH(
         pol4,

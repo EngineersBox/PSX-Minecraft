@@ -9,42 +9,6 @@
 
 #define isPressed(pad_button) (!(input->pad->btn & (pad_button)))
 
-void printDebugCamera(const Camera* camera, const Input* input) {
-    // Print out some info
-    FntPrint(0, "BUTTONS=%04x\n", input->pad->btn);
-    const int32_t x = camera->position.vx / BLOCK_SIZE;
-    const int32_t y_down = camera->position.vy / BLOCK_SIZE;
-    const int32_t y_up = -camera->position.vy / BLOCK_SIZE;
-    const int32_t z = camera->position.vz / BLOCK_SIZE;
-    FntPrint(
-        0,
-        ""
-        "X=%d.%05d\n"
-        "Y=%d.%05d (DOWN)\n"
-        "Y=%d.%05d (UP)\n"
-        "Z=%d.%05d\n",
-        fixedGetWhole(x), fixedGetFractional(x),
-        fixedGetWhole(y_down), fixedGetFractional(y_down),
-        fixedGetWhole(y_up), fixedGetFractional(y_up),
-        fixedGetWhole(z), fixedGetFractional(z)
-    );
-    FntPrint(
-        0,
-        "RX=%d RY=%d\n",
-        camera->rotation.vx >> FIXED_POINT_SHIFT,
-        camera->rotation.vy >> FIXED_POINT_SHIFT
-    );
-    const VECTOR direction = rotationToDirection(&camera->rotation);
-    FntPrint(
-        0,
-        "DX=%d DY=%d DZ=%d\n",
-        inlineVec(direction)
-    );
-    const uint16_t timer = readCounterValue(COUNTER_2_ID);
-    FntPrint(0, "CNT=%d\n",timer);
-}
-
-
 void handleDigitalPadAndDualAnalogShock(Camera* camera, const Input* input, const Transforms* transforms) {
     // For digital input->pad, dual-analog and dual-shock
     if (input->pad->type != 0x4
@@ -163,7 +127,6 @@ void cameraUpdate(Camera* camera, const Input* input, Transforms* transforms, co
         handleDigitalPadAndDualAnalogShock(camera, input, transforms);
         handleDualAnalogShock(camera, input, transforms);
     }
-    printDebugCamera(camera, input);
     // First-person camera mode
     if (camera->mode == 0) {
         // Set rotation to the matrix

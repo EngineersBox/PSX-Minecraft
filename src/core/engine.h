@@ -11,8 +11,8 @@
 typedef struct {
     AppLogic* app_logic;
     volatile bool running;
-    uint8_t targetFPS;
-    uint8_t targetUPS;
+    uint8_t target_fps;
+    uint8_t target_tps;
 } Engine;
 
 void engineInit(Engine* engine, void* ctx);
