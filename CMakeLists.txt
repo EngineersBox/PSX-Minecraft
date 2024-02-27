@@ -51,6 +51,25 @@ psn00bsdk_add_cd_image(
 	DEPENDS PSXMC system.cnf # PS1 system conig dependency
 )
 
+# Include dependencies
+include(FetchContent)
+
+FetchContent_Declare(
+		interface99
+		URL https://github.com/Hirrolot/interface99/archive/refs/tags/v1.0.1.tar.gz
+)
+
+FetchContent_MakeAvailable(interface99)
+
+target_link_libraries(PSXMC PRIVATE interface99)
+
+# Disable full macro expansion backtraces for Metalang99.
+if(CMAKE_C_COMPILER_ID STREQUAL "Clang")
+	target_compile_options(PSXMC PRIVATE -fmacro-backtrace-limit=1)
+elseif(CMAKE_C_COMPILER_ID STREQUAL "GNU")
+	target_compile_options(PSXMC PRIVATE -ftrack-macro-expansion=0)
+endif()
+
 # Include assets in binary
 if (NOT (asset_count EQUAL 0))
 	psn00bsdk_target_incbin(

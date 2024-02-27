@@ -5,6 +5,7 @@
 
 #include "../blocks/block.h"
 #include "../util/math_utils.h"
+// #include "../hardware/counters.h"
 
 #define isPressed(pad_button) (!(input->pad->btn & (pad_button)))
 
@@ -39,6 +40,8 @@ void printDebugCamera(const Camera* camera, const Input* input) {
         "DX=%d DY=%d DZ=%d\n",
         inlineVec(direction)
     );
+    // const uint16_t timer = readCounterValue(0);
+    // FntPrint(0, "CNT=%d\n",timer);
 }
 
 

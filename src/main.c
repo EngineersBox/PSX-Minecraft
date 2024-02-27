@@ -16,6 +16,7 @@
 #include "ui/crosshair.h"
 #include "ui/axis.h"
 #include "structure/cvector.h"
+#include "hardware/counters.h"
 
 RenderContext render_context = {
     .active = 0,
@@ -76,7 +77,7 @@ void init() {
 }
 
 #define MARKER_SIZE 20
-SVECTOR verts[] = {
+SVECTOR verts[8] = {
     { -MARKER_SIZE, -MARKER_SIZE, -MARKER_SIZE, 0 },
     {  MARKER_SIZE, -MARKER_SIZE, -MARKER_SIZE, 0 },
     { -MARKER_SIZE,  MARKER_SIZE, -MARKER_SIZE, 0 },
@@ -335,7 +336,7 @@ int main() {
     init();
     Camera camera = {
         .position = { ONE * 0, ONE * 0, ONE * 0 },
-        .rotation = {ONE * 248, ONE * -1592, 0},
+        .rotation = { ONE * 248, ONE * -1592, 0 },
         .mode = 0,
         .start_handler = &cameraStartHandler
     };
@@ -351,6 +352,13 @@ int main() {
         }
     };
     worldInit(&world, &render_context);
+    const HW_CPU_CounterMode mode = (HW_CPU_CounterMode) {
+        .fields = {
+            .syncEnable = 1,
+            .interruptRequest = 1
+        }
+    };
+    setCounterMode(0, mode);
     while (1) {
         // Set pad pointer to buffer data
         camera.mode = 0;
