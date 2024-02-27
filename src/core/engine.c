@@ -1,14 +1,13 @@
 #include "engine.h"
 
 #include <psxetc.h>
-#include <stdio.h>
 
 #include "../util/math_utils.h"
 #include "../hardware/counters.h"
 
 volatile uint32_t time_ms = 0;
 
-void counter2IrqCallback() {
+void irqCallbackTimeMsIncrement() {
     time_ms++;
 }
 
@@ -18,17 +17,15 @@ void engineInit(Engine* engine, void* ctx) {
     const HW_CPU_CounterMode mode = (HW_CPU_CounterMode) {
         .fields = {
             .sync = COUNTER_SYNC_FREE_RUN,
-            .source = COUNTER_2_SOURCE_SYSTEM_CLOCK,
+            .source = COUNTER_0_SOURCE_SYSTEM_CLOCK,
             .reset = COUNTER_RESET_AT_TARGET,
             .irqAtTarget = 1,
             .irqOnceRepeat = 1
         }
     };
-    setCounterMode(COUNTER_2_ID, mode);
-    setCounterTarget(COUNTER_2_ID, CPU_CYCLES_PER_MS);
-    InterruptCallback(IRQ_TIMER2, &counter2IrqCallback);
-    printf("Cycles per second: %d\n", COUNTER_CYCLES_PER_SECOND);
-    printf("Fixed point max: %d\n", FIXED_POINT_MAX);
+    setCounterMode(COUNTER_0_ID, mode);
+    setCounterTarget(COUNTER_0_ID, CPU_CYCLES_PER_MS);
+    InterruptCallback(IRQ_TIMER0, &irqCallbackTimeMsIncrement);
 }
 
 void engineRun(Engine* engine) {
@@ -63,7 +60,7 @@ void engineRun(Engine* engine) {
             frames++;
         }
         initial_time = now;
-        if (seconds + 1 == now / 1000){
+        if (seconds + 1 == now / 1000) {
             stats.fps = frames;
             stats.tps = ticks;
             frames = 0;

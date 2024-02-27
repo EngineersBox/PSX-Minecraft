@@ -14,6 +14,3 @@
 #define CPU_CYCLES_PER_MS (CPU_CLOCK_HZ / 1000)
 
 #endif // PSX_MINECRAFT_CLOCK_H
-
-//((44100 * 0x300) / 1000) / 0xffff
-// 0x300 = 768
