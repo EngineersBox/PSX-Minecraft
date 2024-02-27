@@ -19,8 +19,8 @@ void engineInit(Engine* engine, void* ctx) {
             .sync = COUNTER_SYNC_FREE_RUN,
             .source = COUNTER_0_SOURCE_SYSTEM_CLOCK,
             .reset = COUNTER_RESET_AT_TARGET,
-            .irqAtTarget = 1,
-            .irqOnceRepeat = 1
+            .irqAtTarget = true,
+            .irqInvocationType = COUNTER_IRQ_INVOCATION_REPEATED
         }
     };
     setCounterMode(COUNTER_0_ID, mode);

@@ -30,7 +30,7 @@ typedef union {
         // IRQ when counter = 0xffff, 0 = disable, 1 = enable
         uint8_t irqAtFFFF: 1;
         // 0 = one shot, 1 = repeatedly
-        uint8_t irqOnceRepeat: 1;
+        uint8_t irqInvocationType: 1;
         // 0 = short bit10 = 0 pulse, 1 = toggle bit10 on/off
         uint8_t irqMode: 1;
         // Counter 0:  0 or 2 = System Clock,  1 or 3 = Dotclock
@@ -60,6 +60,10 @@ typedef union {
 // Reset conditions
 #define COUNTER_RESET_AT_FFFF 0
 #define COUNTER_RESET_AT_TARGET 1
+
+// IRQ invocation types
+#define COUNTER_IRQ_INVOCATION_ONE_SHOT 0
+#define COUNTER_IRQ_INVOCATION_REPEATED 1
 
 // Counter 0 sync modes
 #define COUNTER_0_SYNCMODE_PAUSE_ON_HBLANK 0
