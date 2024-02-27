@@ -354,11 +354,13 @@ int main() {
     worldInit(&world, &render_context);
     const HW_CPU_CounterMode mode = (HW_CPU_CounterMode) {
         .fields = {
-            .syncEnable = 1,
+            .sync = COUNTER_SYNC_FREE_RUN,
+            .syncMode = COUNTER_2_SYNCMODE_FREE_RUN,
+            .source = COUNTER_2_SOURCE_SYSTEM_CLOCK_DIV_8,
             .interruptRequest = 1
         }
     };
-    setCounterMode(0, mode);
+    setCounterMode(COUNTER_2_ID, mode);
     while (1) {
         // Set pad pointer to buffer data
         camera.mode = 0;
