@@ -21,6 +21,7 @@
 * [ ] Check if camera not moving then ray cast once to get block targeted and draw outline around if in reach range
 * [ ] Thread scheduler using hardware timers for IRQ interleaved execution
 * [ ] Update queue for operations on the world
+* [x] Proper engine structure with logic interface
 
 ## Refactor
 

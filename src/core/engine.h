@@ -17,7 +17,7 @@ typedef struct {
 
 void engineInit(Engine* engine, void* ctx);
 
-void engineStart(Engine* engine);
+void engineRun(Engine* engine);
 void engineStop(Engine* engine);
 
 #endif // PSX_MINECRAFT_ENGINE_H

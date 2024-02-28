@@ -99,7 +99,7 @@ typedef struct _BVECTOR {
 
 /**
  * @brief Multiply the fractional components of two fixed point numbers as 0.x * 0.y:
- *        For example 0.7 * 0.2 = 0.14 => 2,867 * 819.2) >> FIXED_POINT_SHIFT = 573
+ *        For example 0.7 * 0.2 = 0.14 <=> (2867 * 819) >> FIXED_POINT_SHIFT = 573
  * @param x int16_t fractional number
  * @param y int16_t fractional number
  * @return Result of fractional multiplication (x * y) >> FIXED_POINT_SHIFT

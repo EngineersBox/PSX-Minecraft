@@ -139,7 +139,7 @@ void Minecraft_update(VSelf, const Stats* stats) {
 
 void cameraStartHandler(Camera* camera) {
     cvector_clear(markers);
-    result = worldRayCastIntersection(world, camera, BLOCK_SIZE * 6, &markers);
+    result = worldRayCastIntersection(world, camera, BLOCK_SIZE * 6 * ONE, &markers);
     printf("Marker count: %d\n", cvector_size(markers));
     result.pos.vx >>= FIXED_POINT_SHIFT;
     result.pos.vy >>= FIXED_POINT_SHIFT;

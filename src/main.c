@@ -14,6 +14,6 @@ int main() {
         .target_tps = 20
     };
     engineInit(&engine, NULL);
-    engineStart(&engine);
+    engineRun(&engine);
     return 0;
 }

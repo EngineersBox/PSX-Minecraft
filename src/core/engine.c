@@ -29,6 +29,7 @@ void engineInit(Engine* engine, void* ctx) {
 }
 
 void engineRun(Engine* engine) {
+    engine->running = true;
     uint32_t seconds = 0;
     uint16_t initial_time = time_ms;
     const uint32_t time_t = 1000 / engine->target_tps;
@@ -37,7 +38,8 @@ void engineRun(Engine* engine) {
     uint32_t delta_fps = 0;
     Stats stats = {
         .fps = 0,
-        .tps = 0
+        .tps = 0,
+        .diff_ms = 0
     };
     uint32_t frames = 0;
     uint32_t ticks = 0;
@@ -63,17 +65,13 @@ void engineRun(Engine* engine) {
         if (seconds + 1 == now / 1000) {
             stats.fps = frames;
             stats.tps = ticks;
+            stats.diff_ms = diff;
             frames = 0;
             ticks = 0;
             seconds++;
         }
     }
     VCALL(*engine->app_logic, cleanup);
-}
-
-void engineStart(Engine* engine) {
-    engine->running = true;
-    engineRun(engine);
 }
 
 void engineStop(Engine* engine) {

@@ -1,7 +1,6 @@
 #include "world.h"
 
 #include <assert.h>
-#include <inline_c.h>
 #include <psxapi.h>
 #include <psxgpu.h>
 
@@ -18,6 +17,14 @@
 
 // World should be loaded before invoking this method
 void worldInit(World* world, RenderContext* ctx) {
+    // Clear the chunks first to ensure they are all NULL upon initialisation
+    for (int x = 0; x < AXIS_CHUNKS; x++) {
+        for (int z = 0; z < AXIS_CHUNKS; z++) {
+            for (int y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
+                world->chunks[z][x][y] = NULL;
+            }
+        }
+    }
     const int x_start = world->centre.vx - LOADED_CHUNKS_RADIUS;
     const int x_end = world->centre.vx + LOADED_CHUNKS_RADIUS;
     const int z_start = world->centre.vz - LOADED_CHUNKS_RADIUS;
@@ -131,7 +138,6 @@ void worldDestroy(World* world) {
 
 void worldRender(const World* world, RenderContext* ctx, Transforms* transforms) {
     // PERF: Revamp with BFS for visible chunks occlusion (use frustum culling too?)
-
     const int x_start = world->centre.vx - LOADED_CHUNKS_RADIUS;
     const int x_end = world->centre.vx + LOADED_CHUNKS_RADIUS;
     const int z_start = world->centre.vz - LOADED_CHUNKS_RADIUS;
@@ -152,7 +158,6 @@ void worldRender(const World* world, RenderContext* ctx, Transforms* transforms)
 // NOTE: Should this just take int32_t x,y,z params instead of a
 //       a VECTOR struct to avoid creating needless stack objects?
 Chunk* worldLoadChunk(World* world, const VECTOR chunk_position) {
-    // TODO: Fix 8-bit read out of bounds when loading chunks (something left over from engine refractor)
     Chunk* chunk = malloc(sizeof(Chunk));
     assert(chunk != NULL);
     printf(
@@ -318,14 +323,18 @@ void worldLoadChunks(World* world, const VECTOR* player_chunk_pos) {
     printf("x_dir: %d, z_dir: %d\n", x_direction, z_direction);
     // Load chunks
     if (x_direction != 0) {
+        printf("X\n");
         worldLoadChunksX(world, x_direction, z_direction);
     }
     if (z_direction != 0) {
+        printf("Z\n");
         worldLoadChunksZ(world, x_direction, z_direction);
     }
     if (x_direction != 0 && z_direction != 0) {
+        printf("XZ\n");
         worldLoadChunksXZ(world, x_direction, z_direction);
     }
+    printf("Shift chunks\n");
     // Shift chunks into centre of arrays
     worldShiftChunks(world, x_direction, z_direction);
 }
@@ -434,9 +443,9 @@ RayCastResult worldRayCastIntersection(const World* world,
                                        const int32_t radius,
                                        cvector(SVECTOR*) markers) {
     VECTOR position = (VECTOR) {
-        .vx = camera->position.vx,// / BLOCK_SIZE,
-        .vy = -camera->position.vy,// / BLOCK_SIZE,
-        .vz = camera->position.vz// / BLOCK_SIZE
+        .vx = camera->position.vx,
+        .vy = -camera->position.vy,
+        .vz = camera->position.vz
     };
     const VECTOR direction = rotationToDirection(&camera->rotation);
     const int32_t dx = direction.vx;
@@ -451,17 +460,6 @@ RayCastResult worldRayCastIntersection(const World* world,
             .face = {0}
         };
     }
-    // TODO: This always equates to 4096 aka ONE. Can just remove it and the scaling of dx/dy/dz
-    // const int32_t ds = SquareRoot12(
-    //     fixedMulFrac(dx, dx)
-    //     + fixedMulFrac(dy, dy)
-    //     + fixedMulFrac(dz, dz)
-    // );
-    // printf("DS: %d\n", ds);
-    // dx = (dx << FIXED_POINT_SHIFT) / ds;
-    // dy = (dy << FIXED_POINT_SHIFT) / ds;
-    // dz = (dz << FIXED_POINT_SHIFT) / ds;
-    // printf("Scaled direction: (%d,%d,%d)\n", dx, dy, dz);
     int32_t ix = (position.vx / BLOCK_SIZE) >> FIXED_POINT_SHIFT;
     int32_t iy = (position.vy / BLOCK_SIZE) >> FIXED_POINT_SHIFT;
     int32_t iz = (position.vz / BLOCK_SIZE) >> FIXED_POINT_SHIFT;
@@ -470,17 +468,17 @@ RayCastResult worldRayCastIntersection(const World* world,
     const int32_t step_y = sign(dy);
     const int32_t step_z = sign(dz);
     printf("Step: (%d,%d,%d)\n", step_x, step_y, step_z);
-    const int32_t tx_delta = absv((ONE * BLOCK_SIZE) / dx);
-    const int32_t ty_delta = absv((ONE * BLOCK_SIZE) / dy);
-    const int32_t tz_delta = absv((ONE * BLOCK_SIZE) / dz);
+    const int32_t tx_delta = absv((ONE << FIXED_POINT_SHIFT) / dx);
+    const int32_t ty_delta = absv((ONE << FIXED_POINT_SHIFT) / dy);
+    const int32_t tz_delta = absv((ONE << FIXED_POINT_SHIFT) / dz);
     printf("Delta: (%d,%d,%d)\n", tx_delta, ty_delta, tz_delta);
-    const int32_t x_dist = step_x < 0 ? (((ix + 1) * BLOCK_SIZE) << FIXED_POINT_SHIFT) - position.vx : position.vx - ((ix * BLOCK_SIZE) << FIXED_POINT_SHIFT);
-    const int32_t y_dist = step_y < 0 ? (((iy + 1) * BLOCK_SIZE) << FIXED_POINT_SHIFT) - position.vy : position.vy - ((iy * BLOCK_SIZE) << FIXED_POINT_SHIFT);
-    const int32_t z_dist = step_z < 0 ? (((iz + 1) * BLOCK_SIZE) << FIXED_POINT_SHIFT) - position.vz : position.vz - ((iz * BLOCK_SIZE) << FIXED_POINT_SHIFT);
+    const int32_t x_dist = step_x > 0 ? (((ix + 1) * BLOCK_SIZE) << FIXED_POINT_SHIFT) - position.vx : position.vx - ((ix * BLOCK_SIZE) << FIXED_POINT_SHIFT);
+    const int32_t y_dist = step_y > 0 ? (((iy + 1) * BLOCK_SIZE) << FIXED_POINT_SHIFT) - position.vy : position.vy - ((iy * BLOCK_SIZE) << FIXED_POINT_SHIFT);
+    const int32_t z_dist = step_z > 0 ? (((iz + 1) * BLOCK_SIZE) << FIXED_POINT_SHIFT) - position.vz : position.vz - ((iz * BLOCK_SIZE) << FIXED_POINT_SHIFT);
     printf("Dist: (%d,%d,%d)\n", x_dist, y_dist, z_dist);
-    int32_t tx_max = fixedMulFrac(tx_delta, x_dist) >> FIXED_POINT_SHIFT;
-    int32_t ty_max = fixedMulFrac(ty_delta, y_dist) >> FIXED_POINT_SHIFT;
-    int32_t tz_max = fixedMulFrac(tz_delta, z_dist) >> FIXED_POINT_SHIFT;
+    int32_t tx_max = fixedMulFrac(tx_delta, x_dist);
+    int32_t ty_max = fixedMulFrac(ty_delta, y_dist);
+    int32_t tz_max = fixedMulFrac(tz_delta, z_dist);
     printf("Max: (%d,%d,%d)\n", tx_max, ty_max, tz_max);
     int32_t stepped_index = -1;
     int32_t t = 0;
@@ -513,9 +511,9 @@ RayCastResult worldRayCastIntersection(const World* world,
             const BlockID block = worldGetBlock(world, &temp_pos);
             printf("Queried block: (%d,%d,%d) = %d\n", inlineVec(temp_pos), block);
             if (block != BLOCKID_NONE && block != BLOCKID_AIR) {
-                hit_position.vx = position.vx + ((t >> FIXED_POINT_SHIFT) * dx);
-                hit_position.vy = position.vy + ((t >> FIXED_POINT_SHIFT) * dy);
-                hit_position.vz = position.vz + ((t >> FIXED_POINT_SHIFT) * dz);
+                hit_position.vx = position.vx + ((t * dx) >> FIXED_POINT_SHIFT);
+                hit_position.vy = position.vy + ((t * dy) >> FIXED_POINT_SHIFT);
+                hit_position.vz = position.vz + ((t * dz) >> FIXED_POINT_SHIFT);
                 hit_norm.vx = hit_norm.vy = hit_norm.vz = 0;
                 if (stepped_index == 0) {
                     hit_norm.vx = -step_x;
