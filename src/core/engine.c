@@ -17,15 +17,15 @@ void engineInit(Engine* engine, void* ctx) {
     const HW_CPU_CounterMode mode = (HW_CPU_CounterMode) {
         .fields = {
             .sync = COUNTER_SYNC_FREE_RUN,
-            .source = COUNTER_0_SOURCE_SYSTEM_CLOCK,
+            .source = COUNTER_2_SOURCE_SYSTEM_CLOCK,
             .reset = COUNTER_RESET_AT_TARGET,
             .irqAtTarget = true,
             .irqInvocationType = COUNTER_IRQ_INVOCATION_REPEATED
         }
     };
-    setCounterMode(COUNTER_0_ID, mode);
-    setCounterTarget(COUNTER_0_ID, CPU_CYCLES_PER_MS);
-    InterruptCallback(IRQ_TIMER0, &irqCallbackTimeMsIncrement);
+    setCounterMode(COUNTER_2_ID, mode);
+    setCounterTarget(COUNTER_2_ID, CPU_CYCLES_PER_MS);
+    InterruptCallback(IRQ_TIMER2, &irqCallbackTimeMsIncrement);
 }
 
 void engineRun(Engine* engine) {
