@@ -38,6 +38,7 @@
 * [ ] Turn these TODO list sections into tables instead of checkmark lists 
 * [x] Ray cast should check distance walked is less than radius instead of out of world check
 * [ ] Support other resolutions that aren't 320x240
+* [ ] Use geometry matrix to centre loading screen text and loading bar instead of manual positioning
 
 ## Fix
 

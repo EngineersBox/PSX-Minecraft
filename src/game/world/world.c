@@ -29,6 +29,9 @@ void worldInit(World* world, RenderContext* ctx) {
     const int x_end = world->centre.vx + LOADED_CHUNKS_RADIUS;
     const int z_start = world->centre.vz - LOADED_CHUNKS_RADIUS;
     const int z_end = world->centre.vz + LOADED_CHUNKS_RADIUS;
+    // TODO: Move text and progress bar to (0,0) and move to
+    //       (CENTRE_X,CENTRE_Y) using translation vector and
+    //       geometry matrix
     ProgressBar bar = (ProgressBar) {
         .position = {
             .x = CENTRE_X - (CENTRE_X / 2),
