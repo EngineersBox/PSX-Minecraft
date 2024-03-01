@@ -1,6 +1,6 @@
 #include "position.h"
 
-#include "../util/math_utils.h"
+#include "../math/math_utils.h"
 
 ChunkBlockPosition worldToChunkBlockPosition(const VECTOR* position, const int chunk_size) {
     return (ChunkBlockPosition) {

@@ -8,7 +8,7 @@
 #include "../../structure/cvector.h"
 #include "../../structure/primitive/primitive.h"
 #include "../generation/noise.h"
-#include "../../util/math_utils.h"
+#include "../../math/math_utils.h"
 
 // Forward declaration
 BlockID worldGetBlock(const World* world, const VECTOR* position);

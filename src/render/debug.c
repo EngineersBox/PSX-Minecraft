@@ -1,6 +1,6 @@
 #include "debug.h"
 
-#include "../util/math_utils.h"
+#include "../math/math_utils.h"
 #include "../primitive/primitive.h"
 
 DEFINE_CIRCULAR_BUFFER(ordering_table_usage, SAMPLE_WINDOW_SIZE);

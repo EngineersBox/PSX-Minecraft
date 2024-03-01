@@ -159,7 +159,7 @@ void renderQuad(const ChunkMesh* mesh, SMD_PRIM* primitive, RenderContext* ctx, 
 }
 
 void chunkMeshRender(const ChunkMesh* mesh, RenderContext* ctx, Transforms* transforms) {
-    const SMD_PRIM* p_prims = (SMD_PRIM*) mesh->p_prims;
+    SMD_PRIM* p_prims = (SMD_PRIM*) mesh->p_prims;
     cvector_iterator(SMD_PRIM) primitive;
     cvector_for_each_in(primitive, p_prims) {
         switch (primitive->prim_id.type) {

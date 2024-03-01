@@ -4,7 +4,7 @@
 #include <psxgpu.h>
 
 #include "../blocks/block.h"
-#include "../util/math_utils.h"
+#include "../math/math_utils.h"
 #include "../hardware/counters.h"
 
 #define isPressed(pad_button) (!(input->pad->btn & (pad_button)))

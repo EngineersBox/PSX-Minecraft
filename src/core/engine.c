@@ -2,7 +2,7 @@
 
 #include <psxetc.h>
 
-#include "../util/math_utils.h"
+#include "../math/math_utils.h"
 #include "../hardware/counters.h"
 
 volatile uint32_t time_ms = 0;

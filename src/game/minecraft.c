@@ -7,7 +7,7 @@
 #include "../structure/primitive/cube.h"
 #include "../structure/cvector_utils.h"
 #include "../render/debug.h"
-#include "../util/math_utils.h"
+#include "../math/math_utils.h"
 
 // Reference texture data
 extern const uint32_t tim_texture[];

@@ -4,7 +4,7 @@
 #include <psxapi.h>
 #include <psxgpu.h>
 
-#include "../util/math_utils.h"
+#include "../math/math_utils.h"
 #include "../ui/progress_bar.h"
 #include "../ui/background.h"
 
@@ -435,10 +435,10 @@ int32_t intbound(const int32_t s, const int32_t ds) {
         return intbound(-s, -ds);
     }
     printf("[intbound] end\n");
-    return (((BLOCK_SIZE << FIXED_POINT_SHIFT) - positiveModulo(s, 1)) << FIXED_POINT_SHIFT) / ds;
+    return (((BLOCK_SIZE << FIXED_POINT_SHIFT) - positiveModulo(s, BLOCK_SIZE << FIXED_POINT_SHIFT)) << FIXED_POINT_SHIFT) / ds;
 }
 
-RayCastResult worldRayCastIntersection(const World* world,
+RayCastResult worldRayCastIntersection_new1(const World* world,
                                        const Camera* camera,
                                        const int32_t radius,
                                        cvector(SVECTOR*) markers) {
@@ -566,7 +566,85 @@ RayCastResult worldRayCastIntersection(const World* world,
     };
 }
 
-RayCastResult worldRayCastIntersection_old(const World* world,
+RayCastResult worldRayCastIntersection_new(const World* world,
+                                       const Camera* camera,
+                                       const int32_t radius,
+                                       cvector(SVECTOR*) markers) {
+    const VECTOR direction = rotationToDirection(&camera->rotation);
+    const int32_t dir_x = direction.vx;
+    const int32_t dir_y = direction.vy;
+    const int32_t dir_z = direction.vz;
+    printf("Direction: (%d,%d,%d)\n", inlineVec(direction));
+    if (dir_x == 0 && dir_y == 0 && dir_z == 0) {
+        printf("Zero delta\n");
+        return (RayCastResult) {
+            .pos = {0},
+            .block = BLOCKID_NONE,
+            .face = {0}
+        };
+    }
+    int32_t x;
+    int32_t y;
+    int32_t z;
+    int32_t x1 = x = camera->position.vx;
+    int32_t y1 = y = -camera->position.vy;
+    int32_t z1 = z = camera->position.vz;
+    int32_t x2 = x1 + (dir_x * radius);
+    int32_t y2 = y1 + (dir_y * radius);
+    int32_t z2 = z1 + (dir_z * radius);
+    int dx = absv(x1 - x2);
+    int dy = absv(y1 - y2);
+    int dz = absv(z1 - z2);
+    int32_t sx = x1 ? 1 : -1;
+    int32_t sy = y1 ? 1 : -1;
+    int32_t sz = z1 ? 1 : -1;
+    if (dx >= dy && dx >= dz) {
+        int32_t ey = (3 * dy) - dz;
+        int32_t ez = (3 * dz) - dx;
+        for (int i = 0; i < dx; i++) {
+            x += sx;
+            // TODO: Check intersection (x,y,z)
+            if (ey > 0 && ez > 0) {
+                if (ey * dz > ez * dy) {
+                    y += sy;
+                    // TODO: Check intersection (x,y,z)
+                    z += sz;
+                    // TODO: Check intersection (x,y,z)
+                } else {
+                    z += sz;
+                    // TODO: Check intersection (x,y,z)
+                    y += sy;
+                    // TODO: Check intersection (x,y,z)
+                }
+                ey += 2 * (dy - dx);
+                ez += 2 * (dz - dx);
+            } else {
+                if (ey > 0) {
+                    y += sy;
+                    // TODO: Check intersection (x,y,z)
+                    ey += 2 * (dy - dx);
+                    ez += 2 * dz;
+                } else {
+                    ey += 2 * dy;
+                    if (ez > 0) {
+                        z += sz;
+                        // TODO: Check intersection (x,y,z)
+                        ez += 2 * (dz - dx);
+                    } else {
+                        ez += 2 * dz;
+                    }
+                }
+            }
+        }
+    } else if (dy >= dx && dy >= dz) {
+        // y is the driving axis
+    } else {
+        // z is the driving axis
+    }
+    return (RayCastResult) {};
+}
+
+RayCastResult worldRayCastIntersection(const World* world,
                                        const Camera* camera,
                                        int32_t radius,
                                        cvector(SVECTOR)* markers) {
@@ -584,6 +662,14 @@ RayCastResult worldRayCastIntersection_old(const World* world,
     const int32_t dy = direction.vy;
     const int32_t dz = direction.vz;
     printf("dx: %d, dy: %d, dz: %d\n", dx, dy, dz);
+    if (dx == 0 && dy == 0 && dz == 0) {
+        printf("Zero delta\n");
+        return (RayCastResult) {
+            .pos = {0},
+            .block = BLOCKID_NONE,
+            .face = {0}
+        };
+    }
     const int32_t step_x = (sign(dx) << FIXED_POINT_SHIFT) * BLOCK_SIZE;
     const int32_t step_y = (sign(dy) << FIXED_POINT_SHIFT) * BLOCK_SIZE;
     const int32_t step_z = (sign(dz) << FIXED_POINT_SHIFT) * BLOCK_SIZE;
@@ -599,14 +685,6 @@ RayCastResult worldRayCastIntersection_old(const World* world,
     const int32_t t_delta_z = (step_z << FIXED_POINT_SHIFT) / dz;
     printf("t_delta: (%d,%d,%d)\n", t_delta_x, t_delta_y, t_delta_z);
     VECTOR face = (VECTOR) { .vx = 0, .vy = 0, .vz = 0 };
-    if (dx == 0 && dy == 0 && dz == 0) {
-        printf("Zero delta\n");
-        return (RayCastResult) {
-            .pos = {0},
-            .block = BLOCKID_NONE,
-            .face = {0}
-        };
-    }
     // Rescale from units of 1 cube-edge to units of 'direction' so we can
     // compare with 't'.
     const int32_t world_min_x = (world->centre.vx - WORLD_CHUNKS_RADIUS) * CHUNK_SIZE * BLOCK_SIZE;

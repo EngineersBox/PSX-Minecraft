@@ -4,7 +4,7 @@
 #include <psxgte.h>
 #include <psxgpu.h>
 
-#include "../util/math_utils.h"
+#include "../math/math_utils.h"
 
 const SVECTOR ORIGIN = (SVECTOR) {
     .vx = 0,
