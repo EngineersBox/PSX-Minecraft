@@ -9,16 +9,30 @@
 #include "../../structure/primitive/primitive.h"
 #include "../generation/noise.h"
 #include "../../math/math_utils.h"
+#include "../../util/interface99_extensions.h"
 
 // Forward declaration
-BlockID worldGetBlock(const World* world, const VECTOR* position);
+Block* worldGetBlock(const World* world, const VECTOR* position);
 
 typedef struct {
-    int16_t block;
+    Block* block;
     int8_t normal;
 } Mask;
 
-#define compareMask(m1, m2) ((m1).block == (m2).block && (m1).normal == (m2).normal)
+bool compareMask(Mask m1, Mask m2) {
+    if (m1.block == NULL && m2.block == NULL) {
+        return true;
+    }
+    if (m1.block == NULL || m2.block == NULL) {
+        return false;
+    }
+    return m1.block->id == m2.block->id && m1.normal == m2.normal;
+}
+
+// #define compareMask(m1, m2) (\
+//     (((m1).block == NULL && (m2).block == NULL) || (m1).block->id == (m2).block->id)\
+//     && (m1).normal == (m2).normal\
+// )
 
 void chunkInit(Chunk* chunk) {
     printf("[CHUNK: %d,%d,%d] Initialising mesh\n", inlineVec(chunk->position));
@@ -55,16 +69,16 @@ void chunkGenerate2DHeightMap(Chunk* chunk, const VECTOR* position) {
                 const int32_t worldY = (position->vy * CHUNK_SIZE) + (CHUNK_SIZE - y)
                                        + (CHUNK_SIZE * 6); // !IMPORTANT: TESTING OFFSET
                 if (worldY < height - 3) {
-                    chunk->blocks[chunkBlockIndex(x, y - 1, z)] = (BlockID) BLOCKID_STONE;
+                    chunk->blocks[chunkBlockIndex(x, y - 1, z)] = VCAST(Block*, STONE_BLOCK_SINGLETON);
                     // printf("[CHUNK: %d,%d,%d] Stone @ %d,%d,%d\n", inlineVec(chunk->position), x, y - 1, z);
                 } else if (worldY < height - 1) {
-                    chunk->blocks[chunkBlockIndex(x, y - 1, z)] = (BlockID) BLOCKID_DIRT;
+                    chunk->blocks[chunkBlockIndex(x, y - 1, z)] = VCAST(Block*, DIRT_BLOCK_SINGLETON);
                     // printf("[CHUNK: %d,%d,%d] Dirt @ %d,%d,%d\n", inlineVec(chunk->position), x, y - 1, z);
                 } else if (worldY == height - 1) {
-                    chunk->blocks[chunkBlockIndex(x, y - 1, z)] = (BlockID) BLOCKID_GRASS;
+                    chunk->blocks[chunkBlockIndex(x, y - 1, z)] = VCAST(Block*, GRASS_BLOCK_SINGLETON);
                     // printf("[CHUNK: %d,%d,%d] Grass @ %d,%d,%d\n", inlineVec(chunk->position), x, y - 1, z);
                 } else {
-                    chunk->blocks[chunkBlockIndex(x, y - 1, z)] = (BlockID) BLOCKID_AIR;
+                    chunk->blocks[chunkBlockIndex(x, y - 1, z)] = VCAST(Block*, AIR_BLOCK_SINGLETON);
                     // printf("[CHUNK: %d,%d,%d] Air @ %d,%d,%d\n", inlineVec(chunk->position), x, y - 1, z);
                 }
             }
@@ -82,7 +96,10 @@ void chunkGenerate3DHeightMap(Chunk* chunk, const VECTOR* position) {
                     z + position->vz
                 );
                 printf("Height: %d\n", height);
-                chunk->blocks[chunkBlockIndex(x, y, z)] = (BlockID) (height >= 0 ? BLOCKID_AIR : BLOCKID_STONE);
+                chunk->blocks[chunkBlockIndex(x, y, z)] = VCAST(
+                    Block*,
+                    height >= 0 ? AIR_BLOCK_SINGLETON : STONE_BLOCK_SINGLETON
+                );
             }
         }
     }
@@ -133,7 +150,7 @@ SMD_PRIM* createQuadPrimitive(ChunkMesh* mesh,
     const Texture* texture = &textures[TERRAIN_TEXTURES];
     primitive->tpage = texture->tpage;
     primitive->clut = texture->clut;
-    const TextureAttributes* attributes = &BLOCKS[mask->block].faceAttributes[index];
+    const TextureAttributes* attributes = &mask->block->faceAttributes[index];
     primitive->tu0 = attributes->u;
     primitive->tv0 = attributes->v;
     primitive->tu1 = BLOCK_TEXTURE_SIZE * (axisMask[0] != 0 ? height : width);
@@ -268,21 +285,28 @@ void computeMeshMask(const Chunk* chunk,
             //      bottom segements of the mesh created amd also a ghost segement at
             //      the top of the world mirroring the bottom face of the bottom of
             //      the world.
-            const BlockID currentBlock = 0 <= chunkIter[axis] ? worldGetBlock(chunk->world, &query_position) : BLOCKID_NONE;
+            Block* currentBlock = 0 <= chunkIter[axis] ? worldGetBlock(chunk->world, &query_position) : VCAST(Block*, AIR_BLOCK_SINGLETON);
+            if (currentBlock == NULL) {
+                currentBlock = VCAST(Block*, AIR_BLOCK_SINGLETON);
+            }
             // const BlockID currentBlock = worldGetBlock(chunk->world, &query_position);
-            const bool currentOpaque = blockIsOpaque(currentBlock);
+            // TODO: Refactor to have a Block instance method for opacity check
+            const bool currentOpaque = blockIsOpaque(currentBlock->id);
             query_position.vx += axisMask[0];
             query_position.vy += axisMask[1];
             query_position.vz += axisMask[2];
-            const BlockID compareBlock = chunkIter[axis] < CHUNK_SIZE - 1 ? worldGetBlock(chunk->world, &query_position) : BLOCKID_NONE;
+            Block* compareBlock = chunkIter[axis] < CHUNK_SIZE - 1 ? worldGetBlock(chunk->world, &query_position) : VCAST(Block*, AIR_BLOCK_SINGLETON);
+            if (compareBlock == NULL) {
+                compareBlock = VCAST(Block*, AIR_BLOCK_SINGLETON);
+            }
             // const BlockID compareBlock = worldGetBlock(chunk->world, &query_position);
-            const bool compareOpaque = blockIsOpaque(compareBlock);
+            const bool compareOpaque = blockIsOpaque(compareBlock->id);
             if (currentOpaque == compareOpaque) {
-                mask[n++] = (Mask){(uint16_t) BLOCKID_NONE, 0};
+                mask[n++] = (Mask){VCAST(Block*, AIR_BLOCK_SINGLETON), 0};
             } else if (currentOpaque) {
-                mask[n++] = (Mask){(int16_t) currentBlock, 1};
+                mask[n++] = (Mask){currentBlock, 1};
             } else {
-                mask[n++] = (Mask){(int16_t) compareBlock, -1};
+                mask[n++] = (Mask){compareBlock, -1};
             }
         }
     }
@@ -350,7 +374,7 @@ void generateMeshLexicographically(Chunk* chunk,
             for (int h = 0; h < height; h++) {
                 for (int w = 0; w < width; w++) {
                     mask[n + w + (h * CHUNK_SIZE)] = (Mask){
-                        .block = (uint16_t) BLOCKID_NONE,
+                        .block = VCAST(Block*, AIR_BLOCK_SINGLETON),
                         .normal = 0
                     };
                 }
@@ -428,24 +452,24 @@ void chunkRender(Chunk* chunk, RenderContext* ctx, Transforms* transforms) {
 	|| (y) >= CHUNK_SIZE || (y) < 0 \
 	|| (z) >= CHUNK_SIZE || (z) < 0)
 
-BlockID chunkGetBlock(const Chunk* chunk, const int x, const int y, const int z) {
+Block* chunkGetBlock(const Chunk* chunk, const int x, const int y, const int z) {
     if (checkIndexOOB(x, y, z)) return BLOCKID_AIR;
     return chunk->blocks[chunkBlockIndex(x, y, z)];
 }
 
-BlockID chunkGetBlockVec(const Chunk* chunk, const VECTOR* position) {
+Block* chunkGetBlockVec(const Chunk* chunk, const VECTOR* position) {
     if (checkIndexOOB(position->vx, position->vy, position->vz)) return BLOCKID_AIR;
     return chunk->blocks[chunkBlockIndex(position->vx, position->vy, position->vz)];
 }
 
-bool chunkModifyVoxel(Chunk* chunk, const VECTOR* position, const EBlockID block) {
+bool chunkModifyVoxel(Chunk* chunk, const VECTOR* position, Block* block) {
     const int32_t x = position->vx;
     const int32_t y = positiveModulo(-position->vy - 1, CHUNK_SIZE);
     const int32_t z = position->vz;
     if (checkIndexOOB(x, y, z)) {
         return false;
     }
-    chunk->blocks[chunkBlockIndex(x, y, z)] = (BlockID) block;
+    chunk->blocks[chunkBlockIndex(x, y, z)] = block;
     chunkClearMesh(chunk);
     chunkGenerateMesh(chunk);
     return true;

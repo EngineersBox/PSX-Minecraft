@@ -27,7 +27,7 @@ typedef struct {
     World* world;
     VECTOR position;
     ChunkMesh mesh;
-    BlockID blocks[CHUNK_DATA_SIZE];
+    Block* blocks[CHUNK_DATA_SIZE];
 } Chunk;
 
 void chunkInit(Chunk* chunk);
@@ -39,11 +39,11 @@ void chunkGenerate3DHeightMap(Chunk* chunk, const VECTOR* position);
 void chunkGenerateMesh(Chunk* chunk);
 void chunkClearMesh(Chunk* chunk);
 
-bool chunkModifyVoxel(Chunk* chunk, const VECTOR* position, EBlockID block);
+bool chunkModifyVoxel(Chunk* chunk, const VECTOR* position, Block* block);
 
 void chunkRender(Chunk* chunk, RenderContext* ctx, Transforms* transforms);
 
-BlockID chunkGetBlock(const Chunk* chunk, int x, int y, int z);
-BlockID chunkGetBlockVec(const Chunk* chunk, const VECTOR* position);
+Block* chunkGetBlock(const Chunk* chunk, int x, int y, int z);
+Block* chunkGetBlockVec(const Chunk* chunk, const VECTOR* position);
 
 #endif // PSX_MINECRAFT_CHUNK_H

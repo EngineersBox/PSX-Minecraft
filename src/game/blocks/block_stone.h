@@ -1,15 +1,15 @@
 #pragma once
 
-#ifndef PSX_MINECRAFT_STONE_BLOCK_H
-#define PSX_MINECRAFT_STONE_BLOCK_H
+#ifndef PSX_MINECRAFT_BLOCK_STONE_H
+#define PSX_MINECRAFT_BLOCK_STONE_H
 
 #include <interface99.h>
 
 #include "block.h"
 
-typedef struct {
-    Block block; // Composition with parent
-} StoneBlock;
+DEFN_BLOCK(StoneBlock);
+
+StoneBlock* stoneBlockCreate();
 
 void stoneBlockInit(VSelf);
 void StoneBlock_init(VSelf);
@@ -27,4 +27,4 @@ impl(IBlock, StoneBlock);
 
 extern IBlock STONE_BLOCK_SINGLETON;
 
-#endif // PSX_MINECRAFT_STONE_BLOCK_H
+#endif // PSX_MINECRAFT_BLOCK_STONE_H

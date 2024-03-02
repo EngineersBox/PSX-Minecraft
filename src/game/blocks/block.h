@@ -45,11 +45,18 @@ typedef struct {
     char* name;
 } Block;
 
+#define DEFN_BLOCK(name, ...) \
+    typedef struct {\
+        Block block; \
+        __VA_ARGS__; \
+    } name;
+
 #define IBlock_IFACE \
     vfunc(void, init, VSelf) \
     vfunc(void, access, VSelf) \
     vfunc(void, destroy, VSelf) \
     vfunc(void, update, VSelf)
+    // vfunc(bool, isOpaque, VSelf) // TODO: Uncomment this and implement it
 
 interface(IBlock);
 

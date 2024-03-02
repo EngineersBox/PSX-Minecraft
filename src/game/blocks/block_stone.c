@@ -1,6 +1,10 @@
-#include "stone_block.h"
+#include "block_stone.h"
 
 #include "block_id.h"
+
+StoneBlock* stoneBlockCreate() {
+    return (StoneBlock*) &STONE_BLOCK_SINGLETON;
+}
 
 void stoneBlockInit(VSelf) __attribute__((alias("StoneBlock_init")));
 void StoneBlock_init(VSelf) {

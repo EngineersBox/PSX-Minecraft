@@ -20,4 +20,7 @@
             __VA_ARGS__;                                                                           \
         }))
 
+#define VCAST(type, obj) VCAST99(type, obj)
+#define VCAST99(type, obj) ((type)(obj).self)
+
 #endif // PSX_MINECRAFT_INTERFACE99_EXTENSIONS_H

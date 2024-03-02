@@ -52,15 +52,15 @@ void worldLoadChunks(World* world, const VECTOR* player_chunk_pos);
 
 void worldUpdate(World* world, const VECTOR* player_pos);
 
-BlockID worldGetChunkBlock(const World* world, const ChunkBlockPosition* position);
-BlockID worldGetBlock(const World* world, const VECTOR* position);
+Block* worldGetChunkBlock(const World* world, const ChunkBlockPosition* position);
+Block* worldGetBlock(const World* world, const VECTOR* position);
 
-bool worldModifyVoxelChunkBlock(World* world, const ChunkBlockPosition* position, EBlockID block);
-bool worldModifyVoxel(World* world, const VECTOR* position, EBlockID block);
+bool worldModifyVoxelChunkBlock(World* world, const ChunkBlockPosition* position, Block* block);
+bool worldModifyVoxel(World* world, const VECTOR* position, Block* block);
 
 typedef struct {
     VECTOR pos;
-    BlockID block;
+    Block* block;
     VECTOR face;
 } RayCastResult;
 

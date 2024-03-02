@@ -392,32 +392,32 @@ void worldUpdate(World* world, const VECTOR* player_pos) {
     }
 }
 
-BlockID worldGetChunkBlock(const World* world, const ChunkBlockPosition* position) {
+Block* worldGetChunkBlock(const World* world, const ChunkBlockPosition* position) {
     // World is void below 0 on y-axis and nothing above height limit
     if ((position->chunk.vy <= 0 && position->block.vy < 0)
         || position->chunk.vy >= WORLD_CHUNKS_HEIGHT) {
-        return BLOCKID_NONE;
+        return VCAST(Block*, AIR_BLOCK_SINGLETON);
     }
     const Chunk* chunk = world->chunks[arrayCoord(world, vz, position->chunk.vz)]
                                       [arrayCoord(world, vx, position->chunk.vx)]
                                       [position->chunk.vy];
     if (chunk == NULL) {
-        return BLOCKID_NONE;
+        return VCAST(Block*, AIR_BLOCK_SINGLETON);
     }
     return chunkGetBlockVec(chunk, &position->block);
 }
 
-BlockID worldGetBlock(const World* world, const VECTOR* position) {
+Block* worldGetBlock(const World* world, const VECTOR* position) {
     // World is void below 0 and above world-height on y-axis
     if (position->vy < 0 || position->vy >= WORLD_HEIGHT) {
         printf("[ERROR] Invalid Y: %d\n", position->vy);
-        return BLOCKID_NONE;
+        return VCAST(Block*, AIR_BLOCK_SINGLETON);
     }
     const ChunkBlockPosition chunk_block_position = worldToChunkBlockPosition(position, CHUNK_SIZE);
     return worldGetChunkBlock(world, &chunk_block_position);
 }
 
-bool worldModifyVoxelChunkBlock(World* world, const ChunkBlockPosition* position, EBlockID block) {
+bool worldModifyVoxelChunkBlock(World* world, const ChunkBlockPosition* position, Block* block) {
     // World is void below 0 on y-axis and nothing above height limit
     if ((position->chunk.vy <= 0 && position->block.vy < 0)
         || position->chunk.vy >= WORLD_CHUNKS_HEIGHT) {
@@ -432,7 +432,7 @@ bool worldModifyVoxelChunkBlock(World* world, const ChunkBlockPosition* position
     return chunkModifyVoxel(chunk, &position->block, block);
 }
 
-bool worldModifyVoxel(World* world, const VECTOR* position, EBlockID block) {
+bool worldModifyVoxel(World* world, const VECTOR* position, Block* block) {
     // World is void below 0 and above world-height on y-axis
     if (position->vy < 0 || position->vy >= WORLD_HEIGHT) {
         printf("[ERROR] Invalid Y: %d\n", position->vy);
@@ -478,7 +478,7 @@ RayCastResult worldRayCastIntersection_new1(const World* world,
         printf("Zero delta\n");
         return (RayCastResult) {
             .pos = {0},
-            .block = BLOCKID_NONE,
+            .block = NULL,
             .face = {0}
         };
     }
@@ -530,9 +530,9 @@ RayCastResult worldRayCastIntersection_new1(const World* world,
             cpos->vx = (ix * BLOCK_SIZE) + (BLOCK_SIZE >> 1);
             cpos->vy = (-iy * BLOCK_SIZE) + (BLOCK_SIZE >> 1);
             cpos->vz = (iz * BLOCK_SIZE) + (BLOCK_SIZE >> 1);
-            const BlockID block = worldGetBlock(world, &temp_pos);
-            printf("Queried block: (%d,%d,%d) = %d\n", inlineVec(temp_pos), block);
-            if (block != BLOCKID_NONE && block != BLOCKID_AIR) {
+            const Block* block = worldGetBlock(world, &temp_pos);
+            printf("Queried block: (%d,%d,%d) = %d\n", inlineVec(temp_pos), block->id);
+            if (block->id != BLOCKID_NONE && block->id != BLOCKID_AIR) {
                 hit_position.vx = position.vx + ((t * dx) >> FIXED_POINT_SHIFT);
                 hit_position.vy = position.vy + ((t * dy) >> FIXED_POINT_SHIFT);
                 hit_position.vz = position.vz + ((t * dz) >> FIXED_POINT_SHIFT);
@@ -601,7 +601,7 @@ RayCastResult worldRayCastIntersection_new(const World* world,
         printf("Zero delta\n");
         return (RayCastResult) {
             .pos = {0},
-            .block = BLOCKID_NONE,
+            .block = NULL,
             .face = {0}
         };
     }
@@ -688,7 +688,7 @@ RayCastResult worldRayCastIntersection(const World* world,
         printf("Zero delta\n");
         return (RayCastResult) {
             .pos = {0},
-            .block = BLOCKID_NONE,
+            .block = NULL,
             .face = {0}
         };
     }
@@ -735,9 +735,9 @@ RayCastResult worldRayCastIntersection(const World* world,
                 .vy = (position.vy / BLOCK_SIZE) >> FIXED_POINT_SHIFT,
                 .vz = (position.vz / BLOCK_SIZE) >> FIXED_POINT_SHIFT,
             };
-            const BlockID block = worldGetBlock(world, &temp_pos);
-            printf("Querying block: (%d,%d,%d) = %s\n", inlineVec(temp_pos), blockIdStringify(block));
-            if (block != BLOCKID_NONE && block != BLOCKID_AIR) {
+            const Block* block = worldGetBlock(world, &temp_pos);
+            printf("Querying block: (%d,%d,%d) = %s\n", inlineVec(temp_pos), blockIdStringify(block->id));
+            if (block->id != BLOCKID_NONE && block->id != BLOCKID_AIR) {
                 break;
             }
         }
