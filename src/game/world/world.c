@@ -3,7 +3,9 @@
 #include <assert.h>
 #include <psxapi.h>
 #include <psxgpu.h>
+#include <psxgte.h>
 
+#include "../render/font.h"
 #include "../math/math_utils.h"
 #include "../ui/progress_bar.h"
 #include "../ui/background.h"
@@ -34,24 +36,16 @@ void worldInit(World* world, RenderContext* ctx) {
     //       geometry matrix
     ProgressBar bar = (ProgressBar) {
         .position = {
-            .x = CENTRE_X - (CENTRE_X / 2),
+            .x = CENTRE_X - (CENTRE_X / 3),
             .y = CENTRE_Y - 2
         },
         .dimensions = {
-            .width = CENTRE_X,
+            .width = (2 * CENTRE_X / 3),
             .height = 4
         },
         .value = 0,
         .maximum = ((x_end + 1) - x_start) * ((z_end + 1) - z_start) * WORLD_CHUNKS_HEIGHT * 2
     };
-    const int fnt_id = FntOpen(
-        CENTRE_X - (CENTRE_X / 2),
-        CENTRE_Y - 28,
-        CENTRE_X,
-        CENTRE_Y,
-        0,
-        100
-    );
     printf("[WORLD] Loading chunks\n");
     for (int x = x_start; x <= x_end; x++) {
         for (int z = z_start; z <= z_end; z++) {
@@ -62,19 +56,31 @@ void worldInit(World* world, RenderContext* ctx) {
                                                   .vz = z
                                               });
                 world->chunks[arrayCoord(world, vz, z)][arrayCoord(world, vx, x)][y] = chunk;
-                FntPrint(
-                    fnt_id,
-                    "Loading World\n"
+                fontPrintCentreOffset(
+                    ctx,
+                    CENTRE_X,
+                    CENTRE_Y - ((FONT_SPRITE_HEIGHT + 2) * 3),
+                    0,
+                    "Loading World"
                 );
-                FntPrint(
-                    fnt_id,
-                    "Loading Chunk (%d,%d,%d)\n",
+                fontPrintCentreOffset(
+                    ctx,
+                    CENTRE_X,
+                    CENTRE_Y - ((FONT_SPRITE_HEIGHT + 2) * 2) - 1,
+                    10,
+                    "Chunk [%d,%d,%d]",
                     x, y, z
+                );
+                fontPrintCentreOffset(
+                    ctx,
+                    CENTRE_X,
+                    CENTRE_Y - ((FONT_SPRITE_HEIGHT + 2) * 1) - 1,
+                    0,
+                    "Loading Chunk Data"
                 );
                 backgroundDraw(ctx, 2, 2 * BLOCK_TEXTURE_SIZE, 0 * BLOCK_TEXTURE_SIZE);
                 bar.value++;
                 progressBarRender(&bar, 1, ctx);
-                FntFlush(fnt_id);
                 swapBuffers(ctx);
             }
         }
@@ -96,19 +102,32 @@ void worldInit(World* world, RenderContext* ctx) {
                     chunk->mesh.n_verts,
                     chunk->mesh.n_norms
                 );
-                FntPrint(
-                    fnt_id,
-                    "Loading World\n"
+                fontPrintCentreOffset(
+                    ctx,
+                    CENTRE_X,
+                    CENTRE_Y - ((FONT_SPRITE_HEIGHT + 2) * 3),
+                    0,
+                    "Loading World"
                 );
-                FntPrint(
-                    fnt_id,
-                    "Building Chunk Mesh (%d,%d,%d)\n",
+                fontPrintCentreOffset(
+                    ctx,
+                    CENTRE_X,
+                    CENTRE_Y - ((FONT_SPRITE_HEIGHT + 2) * 2) - 1,
+                    10,
+                    "Chunk [%d,%d,%d]",
+                    x, y, z
+                );
+                fontPrintCentreOffset(
+                    ctx,
+                    CENTRE_X,
+                    CENTRE_Y - ((FONT_SPRITE_HEIGHT + 2) * 1) - 1,
+                    10,
+                    "Building Mesh",
                     x, y, z
                 );
                 backgroundDraw(ctx, 2, 2 * BLOCK_TEXTURE_SIZE, 0 * BLOCK_TEXTURE_SIZE);
                 bar.value++;
                 progressBarRender(&bar, 1, ctx);
-                FntFlush(fnt_id);
                 swapBuffers(ctx);
             }
         }
@@ -678,7 +697,6 @@ RayCastResult worldRayCastIntersection(const World* world,
     const int32_t step_z = (sign(dz) << FIXED_POINT_SHIFT) * BLOCK_SIZE;
     printf("step: (%d,%d,%d)\n", step_x, step_y, step_z);
     printf("Before intbound\n");
-    // TODO: Should these be relative to camera position instead of closest block position? (E.g. don't div by BLOCK_SIZE)
     int32_t t_max_x = intbound(position.vx, dx);
     int32_t t_max_y = intbound(position.vy, dy);
     int32_t t_max_z = intbound(position.vz, dz);
@@ -703,21 +721,13 @@ RayCastResult worldRayCastIntersection(const World* world,
     radius *= BLOCK_SIZE;
     while (1) {
         printf("[Raycast] Checking (%d,%d,%d)\n", position.vx >> FIXED_POINT_SHIFT, position.vy >> FIXED_POINT_SHIFT, position.vz >> FIXED_POINT_SHIFT);
-        printf(
-            "Out of world check [X: %d < %d || %d >= %d] [Y: %d < %d || %d >= %d] [Z: %d < %d || %d >= %d]\n",
-            position.vx >> FIXED_POINT_SHIFT, world_min_x,
-            position.vx >> FIXED_POINT_SHIFT, world_max_x,
-            position.vy >> FIXED_POINT_SHIFT, world_min_y,
-            position.vy >> FIXED_POINT_SHIFT, world_max_y,
-            position.vz >> FIXED_POINT_SHIFT, world_min_z,
-            position.vz >> FIXED_POINT_SHIFT, world_max_z
-        );
         cvector_push_back((*markers), (SVECTOR) {});
         SVECTOR* cpos = &(*markers)[cvector_size((*markers)) - 1];
         cpos->vx = (((position.vx / BLOCK_SIZE) >> FIXED_POINT_SHIFT) * BLOCK_SIZE) + (BLOCK_SIZE >> 1);
         cpos->vy = (((-position.vy / BLOCK_SIZE) >> FIXED_POINT_SHIFT) * BLOCK_SIZE) + (BLOCK_SIZE >> 1);
         cpos->vz = (((position.vz / BLOCK_SIZE) >> FIXED_POINT_SHIFT) * BLOCK_SIZE) + (BLOCK_SIZE >> 1);
 #define inWorld(_v) (step_##_v > 0 ? (position.v##_v >> FIXED_POINT_SHIFT) < world_max_##_v : (position.v##_v >> FIXED_POINT_SHIFT) >= world_min_##_v)
+        printf("In world: [X: %d] [Y: %d] [Z: %d]\n", inWorld(x), inWorld(y), inWorld(z));
         if (inWorld(x) && inWorld(y) && inWorld(z)) {
 #undef inWorld
             const VECTOR temp_pos = (VECTOR) {
@@ -725,9 +735,8 @@ RayCastResult worldRayCastIntersection(const World* world,
                 .vy = (position.vy / BLOCK_SIZE) >> FIXED_POINT_SHIFT,
                 .vz = (position.vz / BLOCK_SIZE) >> FIXED_POINT_SHIFT,
             };
-            printf("Querying block: (%d,%d,%d)\n", inlineVec(temp_pos));
             const BlockID block = worldGetBlock(world, &temp_pos);
-            printf("Querying block (back shift): (%d,%d,%d)\n", inlineVec(temp_pos));
+            printf("Querying block: (%d,%d,%d) = %s\n", inlineVec(temp_pos), blockIdStringify(block));
             if (block != BLOCKID_NONE && block != BLOCKID_AIR) {
                 break;
             }
@@ -805,9 +814,9 @@ RayCastResult worldRayCastIntersection(const World* world,
     printf("Before getting block\n");
     return (RayCastResult) {
         .pos = (VECTOR) {
-            .vx = position.vx / BLOCK_SIZE,
-            .vy = position.vy / BLOCK_SIZE,
-            .vz = position.vz / BLOCK_SIZE
+            .vx = position.vx,
+            .vy = position.vy,
+            .vz = position.vz
         },
         .block = worldGetBlock(world, &intersection),
         .face = face

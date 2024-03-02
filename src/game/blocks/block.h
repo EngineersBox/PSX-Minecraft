@@ -44,13 +44,20 @@ typedef struct _Block {
     char* name;
 } Block;
 
+#define MK_BLOCK_LIST(f) \
+    f(BLOCKID_AIR) \
+    f(BLOCKID_STONE) \
+    f(BLOCKID_DIRT) \
+    f(BLOCKID_GRASS)
+
 typedef enum _BlockID {
     BLOCKID_NONE = -1,
-    BLOCKID_AIR,
-    BLOCKID_STONE,
-    BLOCKID_DIRT,
-    BLOCKID_GRASS
+    MK_BLOCK_LIST(P99_ENUM_ENTRY)
 } EBlockID;
+
+extern const char* EBLOCKID_NAMES[];
+
+#define blockIdStringify(id) (id) == BLOCKID_NONE ? "BLOCKID_NONE" : EBLOCKID_NAMES[(id)]
 
 // Order
 // - 0: -Z FRONT

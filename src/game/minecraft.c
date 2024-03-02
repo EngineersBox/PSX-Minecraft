@@ -139,11 +139,11 @@ void Minecraft_update(VSelf, const Stats* stats) {
 
 void cameraStartHandler(Camera* camera) {
     cvector_clear(markers);
-    result = worldRayCastIntersection(world, camera, BLOCK_SIZE * 6 * ONE, &markers);
+    result = worldRayCastIntersection(world, camera, 6 * ONE, &markers);
     printf("Marker count: %d\n", cvector_size(markers));
-    result.pos.vx >>= FIXED_POINT_SHIFT;
-    result.pos.vy >>= FIXED_POINT_SHIFT;
-    result.pos.vz >>= FIXED_POINT_SHIFT;
+    result.pos.vx = (result.pos.vx / BLOCK_SIZE) >> FIXED_POINT_SHIFT;
+    result.pos.vz = (result.pos.vz / BLOCK_SIZE) >> FIXED_POINT_SHIFT;
+    result.pos.vy = (result.pos.vy / BLOCK_SIZE) >> FIXED_POINT_SHIFT;
     printf(
         "Ray cast result: [Pos: (%d,%d,%d)] [Block: %d] [Face: (%d,%d,%d)]\n",
         inlineVec(result.pos),

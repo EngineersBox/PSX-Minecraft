@@ -1,5 +1,9 @@
 #include "block.h"
 
+const char* EBLOCKID_NAMES[] = {
+    MK_BLOCK_LIST(P99_STRING_ARRAY_INDEX)
+};
+
 uint8_t _last_block_index = 0;
 Block BLOCKS[BLOCK_COUNT] = {};
 
