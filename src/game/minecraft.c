@@ -69,7 +69,7 @@ void cameraStartHandler(Camera* camera);
 void minecraftInit(VSelf, void* ctx) __attribute__((alias("Minecraft_init")));
 void Minecraft_init(VSelf, void* ctx) {
     VSELF(Minecraft);
-    blockInitialiseBuiltin();
+    blocksInitialiseBuiltin();
     self->internals = (Internals) {
         .ctx = (RenderContext) {
             .active = 0,

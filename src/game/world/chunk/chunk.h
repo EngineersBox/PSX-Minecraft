@@ -9,7 +9,7 @@
 #include "chunk_mesh.h"
 #include "../../render/render_context.h"
 #include "../../render/transforms.h"
-#include "../../blocks/block.h"
+#include "../../blocks/blocks.h"
 #include "../position.h"
 
 #define CHUNK_SIZE 8

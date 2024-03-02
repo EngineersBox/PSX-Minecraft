@@ -5,20 +5,21 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <interface99.h>
 
-#include "../render/render_context.h"
-#include "../render/transforms.h"
-#include "../resources/assets.h"
-#include "../util/preprocessor.h"
+#include "../../util/interface99_extensions.h"
+#include "../../render/render_context.h"
+#include "../../render/transforms.h"
+#include "../../resources/assets.h"
+#include "../../util/preprocessor.h"
 
 #define BLOCK_SIZE 50
 #define BLOCK_FACES 6
 #define BLOCK_TEXTURE_SIZE 16
-#define BLOCK_COUNT 256
 
 typedef uint8_t BlockID;
 
-typedef enum _BlockType {
+typedef enum {
     BLOCKTYPE_EMPTY = 0,
     BLOCKTYPE_SOLID,
     BLOCKTYPE_STAIR,
@@ -27,7 +28,7 @@ typedef enum _BlockType {
     BLOCKTYPE_HASH
 } BlockType;
 
-typedef enum _Orientation {
+typedef enum {
     ORIENTATION_POS_X = 0,
     ORIENTATION_NEG_X,
     ORIENTATION_POS_Y,
@@ -36,7 +37,7 @@ typedef enum _Orientation {
     ORIENTATION_NEG_Z
 } Orientation;
 
-typedef struct _Block {
+typedef struct {
     BlockID id;
     BlockType type;
     Orientation orientation;
@@ -44,20 +45,13 @@ typedef struct _Block {
     char* name;
 } Block;
 
-#define MK_BLOCK_LIST(f) \
-    f(BLOCKID_AIR) \
-    f(BLOCKID_STONE) \
-    f(BLOCKID_DIRT) \
-    f(BLOCKID_GRASS)
+#define IBlock_IFACE \
+    vfunc(void, init, VSelf) \
+    vfunc(void, access, VSelf) \
+    vfunc(void, destroy, VSelf) \
+    vfunc(void, update, VSelf)
 
-typedef enum _BlockID {
-    BLOCKID_NONE = -1,
-    MK_BLOCK_LIST(P99_ENUM_ENTRY)
-} EBlockID;
-
-extern const char* EBLOCKID_NAMES[];
-
-#define blockIdStringify(id) (id) == BLOCKID_NONE ? "BLOCKID_NONE" : EBLOCKID_NAMES[(id)]
+interface(IBlock);
 
 // Order
 // - 0: -Z FRONT
@@ -91,7 +85,6 @@ extern const char* EBLOCKID_NAMES[];
     neg_x, NO_TINT, \
     pos_x, NO_TINT \
 )
-
 #define defaultFaceAttributes(index) declareFaceAttributes(index, index, index, index, index, index)
 
 #define declareBlock(_id, _name, _type, _orientation, face_attributes) (Block) {\
@@ -115,21 +108,8 @@ extern const char* EBLOCKID_NAMES[];
     P99_PROTECT(face_attributes) \
 )
 
-extern uint8_t _last_block_index;
-extern Block BLOCKS[BLOCK_COUNT];
-
-#define blockInitialise(blockDef) ({ \
-    if (_last_block_index >= BLOCK_COUNT) { \
-        printf("[ERROR] Maximum blocks declared\n"); \
-        abort(); \
-    } \
-    BLOCKS[_last_block_index++] = blockDef; \
-})
-
 #define blockAttribute(blockID, attr) (BLOCKS[(blockID)].attr)
 #define blockIsOpaque(blockID) ((blockID) != BLOCKID_NONE && blockAttribute(blockID, type) != BLOCKTYPE_EMPTY)
-
-void blockInitialiseBuiltin();
 
 void blockRender(Block* block, RenderContext* ctx, Transforms* transforms);
 
