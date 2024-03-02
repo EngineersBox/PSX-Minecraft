@@ -285,7 +285,12 @@ void computeMeshMask(const Chunk* chunk,
             //      bottom segements of the mesh created amd also a ghost segement at
             //      the top of the world mirroring the bottom face of the bottom of
             //      the world.
-            Block* currentBlock = 0 <= chunkIter[axis] ? worldGetBlock(chunk->world, &query_position) : VCAST(Block*, AIR_BLOCK_SINGLETON);
+            Block* currentBlock;
+            if (0 <= chunkIter[axis]) {
+                currentBlock = worldGetBlock(chunk->world, &query_position);
+            } else {
+                currentBlock = VCAST(Block*, AIR_BLOCK_SINGLETON);
+            }
             if (currentBlock == NULL) {
                 currentBlock = VCAST(Block*, AIR_BLOCK_SINGLETON);
             }
@@ -295,7 +300,12 @@ void computeMeshMask(const Chunk* chunk,
             query_position.vx += axisMask[0];
             query_position.vy += axisMask[1];
             query_position.vz += axisMask[2];
-            Block* compareBlock = chunkIter[axis] < CHUNK_SIZE - 1 ? worldGetBlock(chunk->world, &query_position) : VCAST(Block*, AIR_BLOCK_SINGLETON);
+            Block* compareBlock;
+            if (chunkIter[axis] < CHUNK_SIZE - 1) {
+                compareBlock = worldGetBlock(chunk->world, &query_position);
+            } else {
+                compareBlock = VCAST(Block*, AIR_BLOCK_SINGLETON);
+            }
             if (compareBlock == NULL) {
                 compareBlock = VCAST(Block*, AIR_BLOCK_SINGLETON);
             }
