@@ -7,9 +7,9 @@
 
 #include "block.h"
 
-DEFN_BLOCK(StoneBlock);
+DEFN_BLOCK(STONE, StoneBlock);
 
-StoneBlock* stoneBlockCreate();
+IBlock* stoneBlockCreate();
 
 void stoneBlockInit(VSelf);
 void StoneBlock_init(VSelf);
@@ -24,7 +24,5 @@ void stoneBlockUpdate(VSelf);
 void StoneBlock_update(VSelf);
 
 impl(IBlock, StoneBlock);
-
-extern IBlock STONE_BLOCK_SINGLETON;
 
 #endif // PSX_MINECRAFT_BLOCK_STONE_H

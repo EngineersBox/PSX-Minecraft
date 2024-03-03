@@ -22,6 +22,7 @@
 * [ ] Thread scheduler using hardware timers for IRQ interleaved execution
 * [ ] Update queue for operations on the world
 * [x] Proper engine structure with logic interface
+* [x] Inheritable Block interface with concrete implementations
 
 ## Refactor
 
@@ -39,6 +40,7 @@
 * [x] Ray cast should check distance walked is less than radius instead of out of world check
 * [ ] Support other resolutions that aren't 320x240
 * [ ] Use geometry matrix to centre loading screen text and loading bar instead of manual positioning
+* [x] Refactor `World` and `Chunk` to support interface based blocks with dynamic dispatch handlers
 
 ## Fix
 

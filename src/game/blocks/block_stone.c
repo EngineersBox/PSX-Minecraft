@@ -1,9 +1,11 @@
 #include "block_stone.h"
 
+#include "../../util/interface99_extensions.h"
+
 #include "block_id.h"
 
-StoneBlock* stoneBlockCreate() {
-    return (StoneBlock*) &STONE_BLOCK_SINGLETON;
+IBlock* stoneBlockCreate() {
+    return &STONE_IBLOCK_SINGLETON;
 }
 
 void stoneBlockInit(VSelf) __attribute__((alias("StoneBlock_init")));

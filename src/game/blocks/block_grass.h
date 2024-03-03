@@ -7,9 +7,9 @@
 
 #include "block.h"
 
-DEFN_BLOCK(GrassBlock);
+DEFN_BLOCK(GRASS, GrassBlock);
 
-GrassBlock* grassBlockCreate();
+IBlock* grassBlockCreate();
 
 void grassBlockInit(VSelf);
 void GrassBlock_init(VSelf);
@@ -24,7 +24,5 @@ void grassBlockUpdate(VSelf);
 void GrassBlock_update(VSelf);
 
 impl(IBlock, GrassBlock);
-
-extern IBlock GRASS_BLOCK_SINGLETON;
 
 #endif // PSX_MINECRAFT_BLOCK_GRASS_H

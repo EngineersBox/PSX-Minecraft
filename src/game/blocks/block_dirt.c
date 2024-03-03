@@ -1,9 +1,10 @@
 #include "block_dirt.h"
 
+#include "../../util/interface99_extensions.h"
 #include "block_id.h"
 
-DirtBlock* dirtBlockCreate() {
-    return (DirtBlock*) &DIRT_BLOCK_SINGLETON;
+IBlock* dirtBlockCreate() {
+    return &DIRT_IBLOCK_SINGLETON;
 }
 
 void dirtBlockInit(VSelf) __attribute__((alias("DirtBlock_init")));

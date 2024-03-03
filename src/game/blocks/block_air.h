@@ -3,13 +3,14 @@
 #ifndef PSX_MINECRAFT_BLOCK_AIR_H
 #define PSX_MINECRAFT_BLOCK_AIR_H
 
+#include <stdbool.h>
 #include <interface99.h>
 
 #include "block.h"
 
-DEFN_BLOCK(AirBlock);
+DEFN_BLOCK(AIR, AirBlock);
 
-AirBlock* airBlockCreate();
+IBlock* airBlockCreate();
 
 void airBlockInit(VSelf);
 void AirBlock_init(VSelf);
@@ -23,8 +24,10 @@ void AirBlock_destroy(VSelf);
 void airBlockUpdate(VSelf);
 void AirBlock_update(VSelf);
 
-impl(IBlock, AirBlock);
+bool airBlockIsOpaque(VSelf);
+bool AirBlock_isOpaque(VSelf);
 
-extern IBlock AIR_BLOCK_SINGLETON;
+#define AirBlock_isOpaque_CUSTOM ()
+impl(IBlock, AirBlock);
 
 #endif // PSX_MINECRAFT_BLOCK_AIR_H

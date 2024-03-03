@@ -5,9 +5,9 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include <interface99.h>
 
-#include "../../util/interface99_extensions.h"
 #include "../../render/render_context.h"
 #include "../../render/transforms.h"
 #include "../../resources/assets.h"
@@ -45,20 +45,25 @@ typedef struct {
     char* name;
 } Block;
 
-#define DEFN_BLOCK(name, ...) \
-    typedef struct {\
-        Block block; \
-        __VA_ARGS__; \
-    } name;
-
 #define IBlock_IFACE \
     vfunc(void, init, VSelf) \
     vfunc(void, access, VSelf) \
     vfunc(void, destroy, VSelf) \
-    vfunc(void, update, VSelf)
-    // vfunc(bool, isOpaque, VSelf) // TODO: Uncomment this and implement it
+    vfunc(void, update, VSelf) \
+    vfuncDefault(bool, isOpaque, VSelf)
+
+bool iBlockIsOpaque(VSelf);
+bool IBlock_isOpaque(VSelf);
 
 interface(IBlock);
+
+#define DEFN_BLOCK(extern_name, name, ...) \
+    typedef struct {\
+        Block block; \
+        __VA_ARGS__; \
+    } name; \
+    extern IBlock extern_name##_IBLOCK_SINGLETON; \
+    extern name extern_name##_BLOCK_SINGLETON;
 
 // Order
 // - 0: -Z FRONT
@@ -114,9 +119,6 @@ interface(IBlock);
     BLOCKTYPE_SOLID, \
     P99_PROTECT(face_attributes) \
 )
-
-#define blockAttribute(blockID, attr) (BLOCKS[(blockID)].attr)
-#define blockIsOpaque(blockID) ((blockID) != BLOCKID_NONE && blockAttribute(blockID, type) != BLOCKTYPE_EMPTY)
 
 void blockRender(Block* block, RenderContext* ctx, Transforms* transforms);
 

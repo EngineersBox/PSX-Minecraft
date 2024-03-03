@@ -1,9 +1,10 @@
 #include "block_air.h"
 
+#include "../../util/interface99_extensions.h"
 #include "block_id.h"
 
-AirBlock* airBlockCreate() {
-    return (AirBlock*) &AIR_BLOCK_SINGLETON;
+IBlock* airBlockCreate() {
+    return &AIR_IBLOCK_SINGLETON;
 }
 
 void airBlockInit(VSelf) __attribute__((alias("AirBlock_init")));
@@ -29,4 +30,9 @@ void AirBlock_destroy(VSelf) {
 
 void airBlockUpdate(VSelf) __attribute__((alias("AirBlock_update")));
 void AirBlock_update(VSelf) {
+}
+
+bool airBlockIsOpaque(VSelf) __attribute__((alias("AirBlock_isOpaque")));
+bool AirBlock_isOpaque(VSelf) {
+    return false;
 }

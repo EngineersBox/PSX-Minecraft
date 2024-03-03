@@ -12,12 +12,11 @@
     f(BLOCKID_GRASS)
 
 typedef enum {
-    BLOCKID_NONE = -1,
     MK_BLOCK_LIST(P99_ENUM_ENTRY)
 } EBlockID;
 
 extern const char* EBLOCKID_NAMES[];
 
-#define blockIdStringify(id) (id) == BLOCKID_NONE ? "BLOCKID_NONE" : EBLOCKID_NAMES[(id)]
+#define blockIdStringify(id) EBLOCKID_NAMES[(id)]
 
 #endif // PSX_MINECRAFT_BLOCK_ID_H

@@ -7,9 +7,9 @@
 
 #include "block.h"
 
-DEFN_BLOCK(DirtBlock);
+DEFN_BLOCK(DIRT, DirtBlock);
 
-DirtBlock* dirtBlockCreate();
+IBlock* dirtBlockCreate();
 
 void dirtBlockInit(VSelf);
 void DirtBlock_init(VSelf);
@@ -25,6 +25,5 @@ void DirtBlock_update(VSelf);
 
 impl(IBlock, DirtBlock);
 
-extern IBlock DIRT_BLOCK_SINGLETON;
 
 #endif // PSX_MINECRAFT_BLOCK_DIRT_H

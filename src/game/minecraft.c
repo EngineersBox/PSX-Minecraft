@@ -1,6 +1,7 @@
 #include "minecraft.h"
 
 #include <inline_c.h>
+#include <interface99_extensions.h>
 
 #include "../ui/axis.h"
 #include "../structure/primitive/clip.h"
@@ -147,7 +148,7 @@ void cameraStartHandler(Camera* camera) {
     printf(
         "Ray cast result: [Pos: (%d,%d,%d)] [Block: %d] [Face: (%d,%d,%d)]\n",
         inlineVec(result.pos),
-        result.block == NULL ? -1 : result.block->id,
+        result.block == NULL ? -1 : VCAST(Block*, *result.block)->id,
         inlineVec(result.face)
     );
     camera_pos = (SVECTOR) {
@@ -161,7 +162,7 @@ void cameraStartHandler(Camera* camera) {
     marker_pos.vx =  (result.pos.vx * BLOCK_SIZE) + (BLOCK_SIZE >> 1); // + ((result.face.vx >> FIXED_POINT_SHIFT) * (BLOCK_SIZE >> 1));
     marker_pos.vy = (-result.pos.vy * BLOCK_SIZE) - (BLOCK_SIZE >> 1); // + ((result.face.vy >> FIXED_POINT_SHIFT) * (BLOCK_SIZE >> 1));
     marker_pos.vz =  (result.pos.vz * BLOCK_SIZE) + (BLOCK_SIZE >> 1); // + ((result.face.vz >> FIXED_POINT_SHIFT) * (BLOCK_SIZE >> 1));
-    worldModifyVoxel(world, &result.pos, VCAST(Block*, AIR_BLOCK_SINGLETON));
+    worldModifyVoxel(world, &result.pos, airBlockCreate());
     printf("Origin: (%d,%d,%d)\n", inlineVec(origin_pos));
     printf(
         "Marker: (%d,%d,%d) Camera: (%d,%d,%d)\n",

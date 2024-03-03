@@ -1,6 +1,7 @@
 #include "world.h"
 
 #include <assert.h>
+#include <interface99_extensions.h>
 #include <psxapi.h>
 #include <psxgpu.h>
 #include <psxgte.h>
@@ -392,32 +393,37 @@ void worldUpdate(World* world, const VECTOR* player_pos) {
     }
 }
 
-Block* worldGetChunkBlock(const World* world, const ChunkBlockPosition* position) {
+IBlock* worldGetChunkBlock(const World* world, const ChunkBlockPosition* position) {
     // World is void below 0 on y-axis and nothing above height limit
     if ((position->chunk.vy <= 0 && position->block.vy < 0)
         || position->chunk.vy >= WORLD_CHUNKS_HEIGHT) {
-        return VCAST(Block*, AIR_BLOCK_SINGLETON);
+        printf(
+            "[ERROR] Invalid Y [Chunk: %d] [Block: %d]\n",
+            position->chunk.vy,
+            position->block.vy
+        );
+        return airBlockCreate();
     }
     const Chunk* chunk = world->chunks[arrayCoord(world, vz, position->chunk.vz)]
                                       [arrayCoord(world, vx, position->chunk.vx)]
                                       [position->chunk.vy];
     if (chunk == NULL) {
-        return VCAST(Block*, AIR_BLOCK_SINGLETON);
+        return airBlockCreate();
     }
     return chunkGetBlockVec(chunk, &position->block);
 }
 
-Block* worldGetBlock(const World* world, const VECTOR* position) {
+IBlock* worldGetBlock(const World* world, const VECTOR* position) {
     // World is void below 0 and above world-height on y-axis
     if (position->vy < 0 || position->vy >= WORLD_HEIGHT) {
         printf("[ERROR] Invalid Y: %d\n", position->vy);
-        return VCAST(Block*, AIR_BLOCK_SINGLETON);
+        return airBlockCreate();
     }
     const ChunkBlockPosition chunk_block_position = worldToChunkBlockPosition(position, CHUNK_SIZE);
     return worldGetChunkBlock(world, &chunk_block_position);
 }
 
-bool worldModifyVoxelChunkBlock(World* world, const ChunkBlockPosition* position, Block* block) {
+bool worldModifyVoxelChunkBlock(const World* world, const ChunkBlockPosition* position, IBlock* block) {
     // World is void below 0 on y-axis and nothing above height limit
     if ((position->chunk.vy <= 0 && position->block.vy < 0)
         || position->chunk.vy >= WORLD_CHUNKS_HEIGHT) {
@@ -432,7 +438,7 @@ bool worldModifyVoxelChunkBlock(World* world, const ChunkBlockPosition* position
     return chunkModifyVoxel(chunk, &position->block, block);
 }
 
-bool worldModifyVoxel(World* world, const VECTOR* position, Block* block) {
+bool worldModifyVoxel(const World* world, const VECTOR* position, IBlock* block) {
     // World is void below 0 and above world-height on y-axis
     if (position->vy < 0 || position->vy >= WORLD_HEIGHT) {
         printf("[ERROR] Invalid Y: %d\n", position->vy);
@@ -530,9 +536,9 @@ RayCastResult worldRayCastIntersection_new1(const World* world,
             cpos->vx = (ix * BLOCK_SIZE) + (BLOCK_SIZE >> 1);
             cpos->vy = (-iy * BLOCK_SIZE) + (BLOCK_SIZE >> 1);
             cpos->vz = (iz * BLOCK_SIZE) + (BLOCK_SIZE >> 1);
-            const Block* block = worldGetBlock(world, &temp_pos);
+            const Block* block = VCAST(Block*, *worldGetBlock(world, &temp_pos));
             printf("Queried block: (%d,%d,%d) = %d\n", inlineVec(temp_pos), block->id);
-            if (block->id != BLOCKID_NONE && block->id != BLOCKID_AIR) {
+            if (block->id != BLOCKID_AIR) {
                 hit_position.vx = position.vx + ((t * dx) >> FIXED_POINT_SHIFT);
                 hit_position.vy = position.vy + ((t * dy) >> FIXED_POINT_SHIFT);
                 hit_position.vz = position.vz + ((t * dz) >> FIXED_POINT_SHIFT);
@@ -735,9 +741,9 @@ RayCastResult worldRayCastIntersection(const World* world,
                 .vy = (position.vy / BLOCK_SIZE) >> FIXED_POINT_SHIFT,
                 .vz = (position.vz / BLOCK_SIZE) >> FIXED_POINT_SHIFT,
             };
-            const Block* block = worldGetBlock(world, &temp_pos);
+            const Block* block = VCAST(Block*, *worldGetBlock(world, &temp_pos));
             printf("Querying block: (%d,%d,%d) = %s\n", inlineVec(temp_pos), blockIdStringify(block->id));
-            if (block->id != BLOCKID_NONE && block->id != BLOCKID_AIR) {
+            if (block->id != BLOCKID_AIR) {
                 break;
             }
         }

@@ -1,9 +1,10 @@
 #include "block_grass.h"
 
+#include "../../util/interface99_extensions.h"
 #include "block_id.h"
 
-GrassBlock* grassBlockCreate() {
-    return (GrassBlock*) &GRASS_BLOCK_SINGLETON;
+IBlock* grassBlockCreate() {
+    return &GRASS_IBLOCK_SINGLETON;
 }
 
 void grassBlockInit(VSelf) __attribute__((alias("GrassBlock_init")));
