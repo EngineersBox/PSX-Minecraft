@@ -19,22 +19,27 @@ typedef struct {
     int8_t normal;
 } Mask;
 
-bool compareMask(Mask m1, Mask m2) {
-    if (m1.block == NULL && m2.block == NULL) {
-        return true;
-    }
-    if (m1.block == NULL || m2.block == NULL) {
-        return false;
-    }
-    const Block* block1 = VCAST(Block*, *m1.block);
-    const Block* block2 = VCAST(Block*, *m2.block);
-    return block1->id == block2->id && m1.normal == m2.normal;
-}
+// bool compareMask2(Mask m1, Mask m2) {
+//     if (m1.block == NULL && m2.block == NULL) {
+//         return true;
+//     }
+//     if (m1.block == NULL || m2.block == NULL) {
+//         return false;
+//     }
+//     const Block* block1 = VCAST(Block*, *m1.block);
+//     const Block* block2 = VCAST(Block*, *m2.block);
+//     return block1->id == block2->id && m1.normal == m2.normal;
+// }
 
-// #define compareMask(m1, m2) (\
-//     (((m1).block == NULL && (m2).block == NULL) || (m1).block->id == (m2).block->id)\
-//     && (m1).normal == (m2).normal\
-// )
+#define compareMask(m1, m2) (\
+    (m1.block == NULL && m2.block == NULL) \
+    || ( \
+        m1.block != NULL \
+        && m2.block != NULL \
+        && VCAST(Block*, *m1.block)->id == VCAST(Block*, *m2.block)->id \
+        && m1.normal == m2.normal \
+    ) \
+)
 
 void chunkInit(Chunk* chunk) {
     printf("[CHUNK: %d,%d,%d] Initialising mesh\n", inlineVec(chunk->position));
@@ -202,22 +207,22 @@ void createQuadVertices(Chunk* chunk,
     const int16_t chunk_origin_y = (-chunk->position.vy - 1) * CHUNK_SIZE;
     const int16_t chunk_origin_z = chunk->position.vz * CHUNK_SIZE;
     const SVECTOR vertices[4] = {
-        {
+        [0] = {
             (chunk_origin_x + origin[0]) * BLOCK_SIZE,
             (chunk_origin_y + origin[1]) * BLOCK_SIZE,
             (chunk_origin_z + origin[2]) * BLOCK_SIZE
         },
-        {
+        [1] = {
             (chunk_origin_x + origin[0] + delta_axis_1[0]) * BLOCK_SIZE,
             (chunk_origin_y + origin[1] + delta_axis_1[1]) * BLOCK_SIZE,
             (chunk_origin_z + origin[2] + delta_axis_1[2]) * BLOCK_SIZE
         },
-        {
+        [2] = {
             (chunk_origin_x + origin[0] + delta_axis_2[0]) * BLOCK_SIZE,
             (chunk_origin_y + origin[1] + delta_axis_2[1]) * BLOCK_SIZE,
             (chunk_origin_z + origin[2] + delta_axis_2[2]) * BLOCK_SIZE
         },
-        {
+        [3] = {
             (chunk_origin_x + origin[0] + delta_axis_1[0] + delta_axis_2[0]) * BLOCK_SIZE,
             (chunk_origin_y + origin[1] + delta_axis_1[1] + delta_axis_2[1]) * BLOCK_SIZE,
             (chunk_origin_z + origin[2] + delta_axis_1[2] + delta_axis_2[2]) * BLOCK_SIZE
@@ -334,11 +339,11 @@ void computeMeshMask(const Chunk* chunk,
             // const BlockID compareBlock = worldGetBlock(chunk->world, &query_position);
             const bool compareOpaque = VCALL(*compareBlock, isOpaque);
             if (currentOpaque == compareOpaque) {
-                mask[n++] = (Mask){airBlockCreate(), 0};
+                mask[n++] = (Mask){ airBlockCreate(), 0 };
             } else if (currentOpaque) {
-                mask[n++] = (Mask){currentBlock, 1};
+                mask[n++] = (Mask){ currentBlock, 1 };
             } else {
-                mask[n++] = (Mask){compareBlock, -1};
+                mask[n++] = (Mask){ compareBlock, -1 };
             }
         }
     }
