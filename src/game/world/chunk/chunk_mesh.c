@@ -68,6 +68,24 @@ void renderQuad(const ChunkMesh* mesh, SMD_PRIM* primitive, RenderContext* ctx, 
         BLOCK_TEXTURE_SIZE >> 3
     };
     POLY_FT4* pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
+    // Initialize a textured quad primitive
+    setPolyFT4(pol4);
+    gte_ldv3(
+        &verticesIter[primitive->v1],
+        &verticesIter[primitive->v2],
+        &verticesIter[primitive->v3]
+    );
+    // Rotation, Translation and Perspective Triple
+    gte_rtpt();
+    gte_nclip();
+    gte_stopz(&p);
+    // Avoid negative depth (behind camera) and zero
+    // for constraint clearing primitive in OT
+    if (p <= 0) {
+        freePrimitive(ctx, sizeof(POLY_FT4));
+        return;
+    }
+    gte_stsxy2(&pol4->x3);
     gte_ldv3(
         &verticesIter[primitive->v0],
         &verticesIter[primitive->v1],
@@ -91,16 +109,16 @@ void renderQuad(const ChunkMesh* mesh, SMD_PRIM* primitive, RenderContext* ctx, 
         freePrimitive(ctx, sizeof(POLY_FT4));
         return;
     }
-    // Initialize a textured quad primitive
-    setPolyFT4(pol4);
+    // // Initialize a textured quad primitive
+    // setPolyFT4(pol4);
     // Set the projected vertices to the primitive
     gte_stsxy0(&pol4->x0);
     gte_stsxy1(&pol4->x1);
     gte_stsxy2(&pol4->x2);
     // Compute the last vertex and set the result
-    gte_ldv0(&verticesIter[primitive->v3]);
-    gte_rtps();
-    gte_stsxy(&pol4->x3);
+    // gte_ldv0(&verticesIter[primitive->v3]);
+    // gte_rtps();
+    // gte_stsxy(&pol4->x3);
     // Test if quad is off-screen, discard if so
     if (quadClip(
         &ctx->screen_clip,

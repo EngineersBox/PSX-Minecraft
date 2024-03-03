@@ -8,7 +8,6 @@
 #include <psxgte.h>
 
 #include "../resources/texture.h"
-#include "../resources/assets.h"
 #include "../render/render_context.h"
 #include "../render/transforms.h"
 #include "../primitive/primitive.h"
@@ -20,7 +19,7 @@ typedef struct {
     SVECTOR rotation;
     TextureAttributes texture_face_attrib[CUBE_FACES];
     size_t texture;
-    const SVECTOR* vertices;
+    const SVECTOR vertices[8];
 } Cube;
 
 extern const SVECTOR CUBE_NORMS[];
