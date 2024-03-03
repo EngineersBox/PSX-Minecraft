@@ -83,8 +83,8 @@ void renderQuad(const ChunkMesh* mesh, SMD_PRIM* primitive, RenderContext* ctx, 
         freePrimitive(ctx, sizeof(POLY_FT4));
         return;
     }
-    // Average screen Z result for four primtives
-    gte_avsz4();
+    // Average screen Z result for three vertices
+    gte_avsz3();
     gte_stotz(&p);
     // (the shift right operator is to scale the depth precision)
     if (p >> 2 <= 1 || p >> 2 >= ORDERING_TABLE_LENGTH) {
@@ -111,6 +111,13 @@ void renderQuad(const ChunkMesh* mesh, SMD_PRIM* primitive, RenderContext* ctx, 
         freePrimitive(ctx, sizeof(POLY_FT4));
         return;
     }
+    // gte_avsz4();
+    // gte_stopz(&p);
+    // // (the shift right operator is to scale the depth precision)
+    // if (p >> 2 <= 1 || p >> 2 >= ORDERING_TABLE_LENGTH) {
+    //     freePrimitive(ctx, sizeof(POLY_FT4));
+    //     return;
+    // }
     // Load primitive color even though gte_ncs() doesn't use it.
     // This is so the GTE will output a color result with the
     // correct primitive code.

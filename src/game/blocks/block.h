@@ -13,7 +13,7 @@
 #include "../../resources/assets.h"
 #include "../../util/preprocessor.h"
 
-#define BLOCK_SIZE 50
+#define BLOCK_SIZE 80
 #define BLOCK_FACES 6
 #define BLOCK_TEXTURE_SIZE 16
 
