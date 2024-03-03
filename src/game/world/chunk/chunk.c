@@ -465,6 +465,7 @@ void chunkRender(Chunk* chunk, RenderContext* ctx, Transforms* transforms) {
     MATRIX omtx, olmtx;
     // Set object rotation and position
     RotMatrix(&rotation, &omtx);
+    ApplyMatrixLV(&omtx, &transforms->translation_position, &transforms->translation_position);
     TransMatrix(&omtx, &chunk->position);
     // Multiply light matrix to object matrix
     MulMatrix0(&transforms->lighting_mtx, &omtx, &olmtx);

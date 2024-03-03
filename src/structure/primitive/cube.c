@@ -5,6 +5,7 @@
 #include <inline_c.h>
 #include <stdlib.h>
 
+#include "../../resources/assets.h"
 #include "../render/render_context.h"
 #include "clip.h"
 

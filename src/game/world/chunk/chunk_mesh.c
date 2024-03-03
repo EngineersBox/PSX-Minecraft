@@ -8,6 +8,10 @@
 #include "../../structure/cvector_utils.h"
 #include "../../blocks/block.h"
 
+#ifndef QUAD_DUAL_TRI_NCLIP
+#define QUAD_DUAL_TRI_NCLIP 0
+#endif
+
 void __primtiveDestructor(void* elem) {
     memset(elem, 0, sizeof(SMD_PRIM));
 }
@@ -68,12 +72,13 @@ void renderQuad(const ChunkMesh* mesh, SMD_PRIM* primitive, RenderContext* ctx, 
         BLOCK_TEXTURE_SIZE >> 3
     };
     POLY_FT4* pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
+#if QUAD_DUAL_TRI_NCLIP
     // Initialize a textured quad primitive
     setPolyFT4(pol4);
     gte_ldv3(
-        &verticesIter[primitive->v1],
+        &verticesIter[primitive->v3],
         &verticesIter[primitive->v2],
-        &verticesIter[primitive->v3]
+        &verticesIter[primitive->v1]
     );
     // Rotation, Translation and Perspective Triple
     gte_rtpt();
@@ -85,7 +90,8 @@ void renderQuad(const ChunkMesh* mesh, SMD_PRIM* primitive, RenderContext* ctx, 
         freePrimitive(ctx, sizeof(POLY_FT4));
         return;
     }
-    gte_stsxy2(&pol4->x3);
+    gte_stsxy0(&pol4->x3);
+#endif
     gte_ldv3(
         &verticesIter[primitive->v0],
         &verticesIter[primitive->v1],
@@ -104,21 +110,24 @@ void renderQuad(const ChunkMesh* mesh, SMD_PRIM* primitive, RenderContext* ctx, 
     // Average screen Z result for three vertices
     gte_avsz3();
     gte_stotz(&p);
-    // (the shift right operator is to scale the depth precision)
-    if (p >> 2 <= 1 || p >> 2 >= ORDERING_TABLE_LENGTH) {
+    if (p <= 0 || p >= ORDERING_TABLE_LENGTH) {
         freePrimitive(ctx, sizeof(POLY_FT4));
         return;
     }
-    // // Initialize a textured quad primitive
-    // setPolyFT4(pol4);
+#if !QUAD_DUAL_TRI_NCLIP
+    // Initialize a textured quad primitive
+    setPolyFT4(pol4);
+#endif
     // Set the projected vertices to the primitive
     gte_stsxy0(&pol4->x0);
     gte_stsxy1(&pol4->x1);
     gte_stsxy2(&pol4->x2);
+#if !QUAD_DUAL_TRI_NCLIP
     // Compute the last vertex and set the result
-    // gte_ldv0(&verticesIter[primitive->v3]);
-    // gte_rtps();
-    // gte_stsxy(&pol4->x3);
+    gte_ldv0(&verticesIter[primitive->v3]);
+    gte_rtps();
+    gte_stsxy(&pol4->x3);
+#endif
     // Test if quad is off-screen, discard if so
     if (quadClip(
         &ctx->screen_clip,
@@ -129,13 +138,6 @@ void renderQuad(const ChunkMesh* mesh, SMD_PRIM* primitive, RenderContext* ctx, 
         freePrimitive(ctx, sizeof(POLY_FT4));
         return;
     }
-    // gte_avsz4();
-    // gte_stopz(&p);
-    // // (the shift right operator is to scale the depth precision)
-    // if (p >> 2 <= 1 || p >> 2 >= ORDERING_TABLE_LENGTH) {
-    //     freePrimitive(ctx, sizeof(POLY_FT4));
-    //     return;
-    // }
     // Load primitive color even though gte_ncs() doesn't use it.
     // This is so the GTE will output a color result with the
     // correct primitive code.
@@ -173,13 +175,13 @@ void renderQuad(const ChunkMesh* mesh, SMD_PRIM* primitive, RenderContext* ctx, 
     pol4->tpage = primitive->tpage;
     pol4->clut = primitive->clut;
     // Sort primitive to the ordering table
-    uint32_t* ot_object = allocateOrderingTable(ctx, p >> 2);
+    uint32_t* ot_object = allocateOrderingTable(ctx, p);
     addPrim(ot_object, pol4);
     // Advance to make another primitive
     // Bind a texture window to ensure wrapping across merged block face primitives
     DR_TWIN* ptwin = (DR_TWIN*) allocatePrimitive(ctx, sizeof(DR_TWIN));
     setTexWindow(ptwin, &tex_window);
-    ot_object = allocateOrderingTable(ctx, p >> 2);
+    ot_object = allocateOrderingTable(ctx, p);
     addPrim(ot_object, ptwin);
 }
 
