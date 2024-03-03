@@ -9,9 +9,7 @@
 #include "../render/transforms.h"
 
 #define CAMERA_ROTATE_SPEED 15
-#define CAMERA_MOVE_SPEED 4
-
-
+#define CAMERA_MOVE_SPEED 3
 
 struct Camera;
 
