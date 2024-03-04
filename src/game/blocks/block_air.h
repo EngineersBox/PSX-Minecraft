@@ -8,7 +8,7 @@
 
 #include "block.h"
 
-DEFN_BLOCK(AIR, AirBlock);
+DEFN_BLOCK_STATELESS(AIR, AirBlock);
 
 IBlock* airBlockCreate();
 

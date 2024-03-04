@@ -57,11 +57,14 @@ bool IBlock_isOpaque(VSelf);
 
 interface(IBlock);
 
-#define DEFN_BLOCK(extern_name, name, ...) \
+#define DEFN_BLOCK_STATEFUL(name, ...) \
     typedef struct {\
         Block block; \
-        __VA_ARGS__; \
-    } name; \
+        __VA_ARGS__ \
+    } name;
+
+#define DEFN_BLOCK_STATELESS(extern_name, name, ...) \
+    DEFN_BLOCK_STATEFUL(name, P99_PROTECT(__VA_ARGS__)) \
     extern IBlock extern_name##_IBLOCK_SINGLETON; \
     extern name extern_name##_BLOCK_SINGLETON;
 
@@ -119,7 +122,5 @@ interface(IBlock);
     BLOCKTYPE_SOLID, \
     P99_PROTECT(face_attributes) \
 )
-
-void blockRender(Block* block, RenderContext* ctx, Transforms* transforms);
 
 #endif // PSX_MINECRAFT_BLOCK_H

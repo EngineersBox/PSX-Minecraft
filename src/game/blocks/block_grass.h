@@ -7,7 +7,7 @@
 
 #include "block.h"
 
-DEFN_BLOCK(GRASS, GrassBlock);
+DEFN_BLOCK_STATELESS(GRASS, GrassBlock);
 
 IBlock* grassBlockCreate();
 

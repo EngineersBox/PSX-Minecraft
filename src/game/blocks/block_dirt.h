@@ -7,7 +7,7 @@
 
 #include "block.h"
 
-DEFN_BLOCK(DIRT, DirtBlock);
+DEFN_BLOCK_STATELESS(DIRT, DirtBlock);
 
 IBlock* dirtBlockCreate();
 

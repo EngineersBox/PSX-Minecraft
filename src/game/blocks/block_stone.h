@@ -7,7 +7,7 @@
 
 #include "block.h"
 
-DEFN_BLOCK(STONE, StoneBlock);
+DEFN_BLOCK_STATELESS(STONE, StoneBlock);
 
 IBlock* stoneBlockCreate();
 
