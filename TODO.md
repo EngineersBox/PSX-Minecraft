@@ -23,6 +23,7 @@
 * [ ] Update queue for operations on the world
 * [x] Proper engine structure with logic interface
 * [x] Inheritable Block interface with concrete implementations
+* [x] 2D array indexed terrain texture specification in face attributes
 
 ## Refactor
 
@@ -60,3 +61,4 @@
 * [ ] Mesh vertices z-depth is inconsistent leading to faces drawn in wrong order and thus culling fails
 * [x] Background in loading screen not rendering texture
 * [ ] Vertices are distorted (in their location) when very close to the camera
+* [ ] Transparent textures rendering multiple layers of textures from different points in terrain texture

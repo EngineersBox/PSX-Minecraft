@@ -292,6 +292,40 @@ void createQuad(Chunk* chunk,
     );
 }
 
+Mask createMask(IBlock* currentIBlock, IBlock* compareIBlock) {
+    const Block* currentBlock = VCAST(Block*, *currentIBlock);
+    const Block* compareBlock = VCAST(Block*, *compareIBlock);
+    if (currentBlock->id == BLOCKID_AIR && compareBlock->id == BLOCKID_AIR) {
+        return (Mask) { airBlockCreate(), 0 };
+    }
+    const bool currentOpaque = VCALL(*currentIBlock, isOpaque);
+    const bool compareOpaque = VCALL(*compareIBlock, isOpaque);
+    if (currentOpaque && !compareOpaque) {
+        // Current block is visible
+        return (Mask) { currentIBlock, 1 };
+    }
+    if (!currentOpaque && compareOpaque) {
+        // Comparing block is visible
+        return (Mask) { compareIBlock, -1 };
+    }
+    if (currentOpaque) {
+        // Both blocks are opaque
+        return (Mask) { airBlockCreate(), 0 };
+    }
+    // Both blocks are transparent
+    // NOTE: Temp use of GRASS to mimic GLASS with transparency
+    if (currentBlock->id == BLOCKID_GRASS && compareBlock->id == BLOCKID_GRASS) {
+        // Glass should not replicate faces between blocks
+        return (Mask) { airBlockCreate(), 0 };
+    }
+    // Both transparent but different types
+    return (Mask) {
+        currentBlock->id != BLOCKID_AIR ? currentIBlock : compareIBlock,
+        currentBlock->id != BLOCKID_AIR ? 1 : -1
+    };
+
+}
+
 void computeMeshMask(const Chunk* chunk,
                      const int axis,
                      const int axis1,
@@ -321,9 +355,9 @@ void computeMeshMask(const Chunk* chunk,
             if (currentBlock == NULL) {
                 currentBlock = airBlockCreate();
             }
+            // Block* curBlock = VCAST(Block*, *currentBlock);
             // const BlockID currentBlock = worldGetBlock(chunk->world, &query_position);
-            // TODO: Refactor to have a Block instance method for opacity check
-            const bool currentOpaque = VCALL(*currentBlock, isOpaque);
+            // const bool currentOpaque = VCALL(*currentBlock, isOpaque);
             query_position.vx += axisMask[0];
             query_position.vy += axisMask[1];
             query_position.vz += axisMask[2];
@@ -336,15 +370,24 @@ void computeMeshMask(const Chunk* chunk,
             if (compareBlock == NULL) {
                 compareBlock = airBlockCreate();
             }
+            // Block* comBlock = VCAST(Block*, *compareBlock);
             // const BlockID compareBlock = worldGetBlock(chunk->world, &query_position);
-            const bool compareOpaque = VCALL(*compareBlock, isOpaque);
-            if (currentOpaque == compareOpaque) {
-                mask[n++] = (Mask){ airBlockCreate(), 0 };
-            } else if (currentOpaque) {
-                mask[n++] = (Mask){ currentBlock, 1 };
-            } else {
-                mask[n++] = (Mask){ compareBlock, -1 };
-            }
+            // const bool compareOpaque = VCALL(*compareBlock, isOpaque);
+            mask[n++] = createMask(currentBlock, compareBlock);
+            // if (currentOpaque == compareOpaque) {
+            //     // if (curBlock->id != BLOCKID_AIR) {
+            //     //     mask[n++] = (Mask){ currentBlock, 1 };
+            //     // } else if (comBlock->id != BLOCKID_AIR) {
+            //     //     mask[n++] = (Mask){ compareBlock, -1 };
+            //     // } else {
+            //     //     mask[n++] = (Mask){ airBlockCreate(), 0 };
+            //     // }
+            //     mask[n++] = (Mask){ airBlockCreate(), 0 };
+            // } else if (currentOpaque || curBlock->id != BLOCKID_AIR) {
+            //     mask[n++] = (Mask){ currentBlock, 1 };
+            // } else {
+            //     mask[n++] = (Mask){ compareBlock, -1 };
+            // }
         }
     }
 }

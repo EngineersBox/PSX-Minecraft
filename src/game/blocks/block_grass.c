@@ -15,12 +15,12 @@ void GrassBlock_init(VSelf) {
         BLOCKID_GRASS,
         "grass",
         declareTintedFaceAttributes(
-            3, NO_TINT,
-            3, NO_TINT,
-            2, NO_TINT,
-            0, faceTint(0, 155, 0, 1),
-            3, NO_TINT,
-            3, NO_TINT
+            /*3*/ 49, NO_TINT,
+            /*3*/ 49, NO_TINT,
+            /*2*/ 49, NO_TINT,
+            /*0*/ 49, NO_TINT, //faceTint(0, 155, 0, 1),
+            /*3*/ 49, NO_TINT,
+            /*3*/ 49, NO_TINT
         )
     );
 }
@@ -35,4 +35,9 @@ void GrassBlock_destroy(VSelf) {
 
 void grassBlockUpdate(VSelf) __attribute__((alias("GrassBlock_update")));
 void GrassBlock_update(VSelf) {
+}
+
+bool grassBlockIsOpaque(VSelf) __attribute__((alias("GrassBlock_isOpaque")));
+bool GrassBlock_isOpaque(VSelf) {
+    return false;
 }

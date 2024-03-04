@@ -83,12 +83,12 @@ interface(IBlock);
     neg_x, neg_x_tint, \
     pos_x, pos_x_tint \
 ) { \
-    {(neg_z) * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, neg_z_tint}, \
-    {(pos_z) * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, pos_z_tint}, \
-    {(neg_y) * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, neg_y_tint}, \
-    {(pos_y) * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, pos_y_tint}, \
-    {(neg_x) * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, neg_x_tint}, \
-    {(pos_x) * BLOCK_TEXTURE_SIZE, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, pos_x_tint} \
+    {((neg_z) % 16) * BLOCK_TEXTURE_SIZE, ((neg_z) / 16) * BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, neg_z_tint}, \
+    {((pos_z) % 16) * BLOCK_TEXTURE_SIZE, ((pos_z) / 16) * BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, pos_z_tint}, \
+    {((neg_y) % 16) * BLOCK_TEXTURE_SIZE, ((neg_y) / 16) * BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, neg_y_tint}, \
+    {((pos_y) % 16) * BLOCK_TEXTURE_SIZE, ((pos_y) / 16) * BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, pos_y_tint}, \
+    {((neg_x) % 16) * BLOCK_TEXTURE_SIZE, ((neg_x) / 16) * BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, neg_x_tint}, \
+    {((pos_x) % 16) * BLOCK_TEXTURE_SIZE, ((pos_x) / 16) * BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, pos_x_tint} \
 }
 #define faceTint(r,g,b,cd) P99_PROTECT({r,g,b,cd})
 #define NO_TINT faceTint(0,0,0,0)
