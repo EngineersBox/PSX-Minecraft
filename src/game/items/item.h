@@ -5,6 +5,7 @@
 
 #include <interface99.h>
 #include <stdint.h>
+#include <psxgte.h>
 
 typedef uint8_t ItemID;
 
@@ -12,11 +13,13 @@ typedef struct {
     ItemID id;
     uint8_t stack_size;
     uint8_t max_stack_size;
+    VECTOR position;
     char* name;
 } Item;
 
 #define ItemRenderer_IFACE \
-    vfunc(void, render, VSelf, Item* item)
+    vfunc(void, renderInWorld, VSelf) \
+    vfunc(void, renderInInventory, VSelf)
 
 interface(ItemRenderer);
 
