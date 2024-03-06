@@ -17,8 +17,8 @@ void GrassBlock_init(VSelf);
 void grassBlockAccess(VSelf);
 void GrassBlock_access(VSelf);
 
-void grassBlockDestroy(VSelf);
-void GrassBlock_destroy(VSelf);
+IItem* grassBlockDestroy(VSelf);
+IItem* GrassBlock_destroy(VSelf);
 
 void grassBlockUpdate(VSelf);
 void GrassBlock_update(VSelf);

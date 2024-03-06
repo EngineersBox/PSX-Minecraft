@@ -12,6 +12,7 @@
 #include "../../render/transforms.h"
 #include "../../resources/assets.h"
 #include "../../util/preprocessor.h"
+#include "../items/item.h"
 
 #define BLOCK_SIZE 70
 #define BLOCK_FACES 6
@@ -48,7 +49,7 @@ typedef struct {
 #define IBlock_IFACE \
     vfunc(void, init, VSelf) \
     vfunc(void, access, VSelf) \
-    vfunc(void, destroy, VSelf) \
+    vfunc(IItem*, destroy, VSelf) \
     vfunc(void, update, VSelf) \
     vfuncDefault(bool, isOpaque, VSelf)
 

@@ -29,8 +29,9 @@ void grassBlockAccess(VSelf) __attribute__((alias("GrassBlock_access")));
 void GrassBlock_access(VSelf) {
 }
 
-void grassBlockDestroy(VSelf) __attribute__((alias("GrassBlock_destroy")));
-void GrassBlock_destroy(VSelf) {
+IItem* grassBlockDestroy(VSelf) __attribute__((alias("GrassBlock_destroy")));
+IItem* GrassBlock_destroy(VSelf) {
+    return NULL;
 }
 
 void grassBlockUpdate(VSelf) __attribute__((alias("GrassBlock_update")));

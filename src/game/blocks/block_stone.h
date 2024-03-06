@@ -17,8 +17,8 @@ void StoneBlock_init(VSelf);
 void stoneBlockAccess(VSelf);
 void StoneBlock_access(VSelf);
 
-void stoneBlockDestroy(VSelf);
-void StoneBlock_destroy(VSelf);
+IItem* stoneBlockDestroy(VSelf);
+IItem* StoneBlock_destroy(VSelf);
 
 void stoneBlockUpdate(VSelf);
 void StoneBlock_update(VSelf);

@@ -22,8 +22,9 @@ void dirtBlockAccess(VSelf) __attribute__((alias("DirtBlock_access")));
 void DirtBlock_access(VSelf) {
 }
 
-void dirtBlockDestroy(VSelf) __attribute__((alias("DirtBlock_destroy")));
-void DirtBlock_destroy(VSelf) {
+IItem* dirtBlockDestroy(VSelf) __attribute__((alias("DirtBlock_destroy")));
+IItem* DirtBlock_destroy(VSelf) {
+    return NULL;
 }
 
 void dirtBlockUpdate(VSelf) __attribute__((alias("DirtBlock_update")));

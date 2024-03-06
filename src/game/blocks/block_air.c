@@ -24,8 +24,9 @@ void airBlockAccess(VSelf) __attribute__((alias("AirBlock_access")));
 void AirBlock_access(VSelf) {
 }
 
-void airBlockDestroy(VSelf) __attribute__((alias("AirBlock_destroy")));
-void AirBlock_destroy(VSelf) {
+IItem* airBlockDestroy(VSelf) __attribute__((alias("AirBlock_destroy")));
+IItem* AirBlock_destroy(VSelf) {
+    return NULL;
 }
 
 void airBlockUpdate(VSelf) __attribute__((alias("AirBlock_update")));
