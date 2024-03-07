@@ -42,6 +42,7 @@
 * [ ] Support other resolutions that aren't 320x240
 * [ ] Use geometry matrix to centre loading screen text and loading bar instead of manual positioning
 * [x] Refactor `World` and `Chunk` to support interface based blocks with dynamic dispatch handlers
+* [ ] Move static values like block/item names and max stack sizes to global constants accessed by ID
 
 ## Fix
 

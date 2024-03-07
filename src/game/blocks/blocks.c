@@ -3,14 +3,14 @@
 #include <interface99_extensions.h>
 
 // Stateless blocks
-#define DEFN_STATELESS_BLOCK(type, name) \
+#define _STATELESS_BLOCK(type, name) \
     type name##_BLOCK_SINGLETON = {}; \
     IBlock name##_IBLOCK_SINGLETON;
 
-DEFN_STATELESS_BLOCK(AirBlock, AIR);
-DEFN_STATELESS_BLOCK(StoneBlock, STONE);
-DEFN_STATELESS_BLOCK(DirtBlock, DIRT);
-DEFN_STATELESS_BLOCK(GrassBlock, GRASS);
+_STATELESS_BLOCK(AirBlock, AIR);
+_STATELESS_BLOCK(StoneBlock, STONE);
+_STATELESS_BLOCK(DirtBlock, DIRT);
+_STATELESS_BLOCK(GrassBlock, GRASS);
 
 #define initBlockSingleton(type, name) ({\
     name##_IBLOCK_SINGLETON = DYN(type, IBlock, &name##_BLOCK_SINGLETON); \

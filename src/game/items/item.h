@@ -7,27 +7,33 @@
 #include <stdint.h>
 #include <psxgte.h>
 
+#include "../../render/render_context.h"
+#include "../../render/transforms.h"
+
 typedef uint8_t ItemID;
+
+typedef enum {
+    ITEMTYPE_BLOCK,
+    ITEMTYPE_RESOURCE,
+    ITEMTYPE_TOOL
+} ItemType;
 
 typedef struct {
     ItemID id;
+    ItemType type;
     uint8_t stack_size;
     uint8_t max_stack_size;
+    // World position or screen position
     VECTOR position;
+    VECTOR rotation;
     char* name;
 } Item;
 
-#define ItemRenderer_IFACE \
-    vfunc(void, renderInWorld, VSelf) \
-    vfunc(void, renderInInventory, VSelf)
-
-interface(ItemRenderer);
-
 #define IItem_IFACE \
+    vfunc(void, init, VSelf) \
+    vfunc(void, applyDamage, VSelf) \
     vfunc(void, useAction, VSelf) \
     vfunc(void, attackAction, VSelf)
-
-#define IItem_EXTENDS (ItemRenderer)
 
 interface(IItem);
 
