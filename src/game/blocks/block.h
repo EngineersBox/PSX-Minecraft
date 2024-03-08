@@ -49,7 +49,7 @@ typedef struct {
 #define IBlock_IFACE \
     vfunc(void, init, VSelf) \
     vfunc(void, access, VSelf) \
-    vfunc(IItem*, destroy, VSelf) \
+    vfunc(void, destroy, VSelf, IItem* item_result) \
     vfunc(void, update, VSelf) \
     vfuncDefault(bool, isOpaque, VSelf)
 

@@ -17,8 +17,8 @@ void DirtBlock_init(VSelf);
 void dirtBlockAccess(VSelf);
 void DirtBlock_access(VSelf);
 
-IItem* dirtBlockDestroy(VSelf);
-IItem* DirtBlock_destroy(VSelf);
+void dirtBlockDestroy(VSelf, IItem* item_result);
+void DirtBlock_destroy(VSelf, IItem* item_result);
 
 void dirtBlockUpdate(VSelf);
 void DirtBlock_update(VSelf);

@@ -18,8 +18,8 @@ void AirBlock_init(VSelf);
 void airBlockAccess(VSelf);
 void AirBlock_access(VSelf);
 
-IItem* airBlockDestroy(VSelf);
-IItem* AirBlock_destroy(VSelf);
+void airBlockDestroy(VSelf, IItem* item_result);
+void AirBlock_destroy(VSelf, IItem* item_result);
 
 void airBlockUpdate(VSelf);
 void AirBlock_update(VSelf);

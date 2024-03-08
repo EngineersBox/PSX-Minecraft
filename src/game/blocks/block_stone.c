@@ -23,9 +23,8 @@ void stoneBlockAccess(VSelf) __attribute__((alias("StoneBlock_access")));
 void StoneBlock_access(VSelf) {
 }
 
-IItem* stoneBlockDestroy(VSelf) __attribute__((alias("StoneBlock_destroy")));
-IItem* StoneBlock_destroy(VSelf) {
-    return NULL;
+void stoneBlockDestroy(VSelf, IItem* item_result) __attribute__((alias("StoneBlock_destroy")));
+void StoneBlock_destroy(VSelf, IItem* item_result) {
 }
 
 void stoneBlockUpdate(VSelf) __attribute__((alias("StoneBlock_update")));
