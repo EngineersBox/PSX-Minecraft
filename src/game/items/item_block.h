@@ -13,12 +13,12 @@
 
 typedef struct {
     Item item;
-    TextureAttributes faceAttributes[ITEM_BLOCK_FACES];
+    TextureAttributes face_attributes[ITEM_BLOCK_FACES];
 } ItemBlock;
 
 #define DEFN_ITEM_BLOCK(name, ...) \
     typedef struct { \
-        ItemBlock item; \
+        ItemBlock item_block; \
         __VA_ARGS__ \
     } name;
 

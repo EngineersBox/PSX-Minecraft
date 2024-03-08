@@ -177,7 +177,7 @@ SMD_PRIM* createQuadPrimitive(ChunkMesh* mesh,
     primitive->tpage = texture->tpage;
     primitive->clut = texture->clut;
     const Block* block = VCAST(Block*, *mask->block);
-    const TextureAttributes* attributes = &block->faceAttributes[index];
+    const TextureAttributes* attributes = &block->face_attributes[index];
     primitive->tu0 = attributes->u;
     primitive->tv0 = attributes->v;
     primitive->tu1 = BLOCK_TEXTURE_SIZE * (axisMask[0] != 0 ? height : width);

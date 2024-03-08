@@ -19,6 +19,14 @@ typedef struct {
     CVECTOR tint;
 } TextureAttributes;
 
+#define declareTintedFaceAttribute(pos, tint) { \
+    ((pos) % 16) * BLOCK_TEXTURE_SIZE, \
+    ((pos) / 16) * BLOCK_TEXTURE_SIZE, \
+    BLOCK_TEXTURE_SIZE, \
+    BLOCK_TEXTURE_SIZE, \
+    tint \
+}
+
 // Order
 // - 0: -Z FRONT
 // - 1: +Z BACK
@@ -34,12 +42,12 @@ typedef struct {
     neg_x, neg_x_tint, \
     pos_x, pos_x_tint \
 ) { \
-    {((neg_z) % 16) * BLOCK_TEXTURE_SIZE, ((neg_z) / 16) * BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, neg_z_tint}, \
-    {((pos_z) % 16) * BLOCK_TEXTURE_SIZE, ((pos_z) / 16) * BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, pos_z_tint}, \
-    {((neg_y) % 16) * BLOCK_TEXTURE_SIZE, ((neg_y) / 16) * BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, neg_y_tint}, \
-    {((pos_y) % 16) * BLOCK_TEXTURE_SIZE, ((pos_y) / 16) * BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, pos_y_tint}, \
-    {((neg_x) % 16) * BLOCK_TEXTURE_SIZE, ((neg_x) / 16) * BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, neg_x_tint}, \
-    {((pos_x) % 16) * BLOCK_TEXTURE_SIZE, ((pos_x) / 16) * BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE, pos_x_tint} \
+    declareTintedFaceAttribute(neg_z, P99_PROTECT(neg_z_tint)), \
+    declareTintedFaceAttribute(pos_z, P99_PROTECT(pos_z_tint)), \
+    declareTintedFaceAttribute(neg_y, P99_PROTECT(neg_y_tint)), \
+    declareTintedFaceAttribute(pos_y, P99_PROTECT(pos_y_tint)), \
+    declareTintedFaceAttribute(neg_x, P99_PROTECT(neg_x_tint)), \
+    declareTintedFaceAttribute(pos_x, P99_PROTECT(pos_x_tint)) \
 }
 #define faceTint(r,g,b,cd) P99_PROTECT({r,g,b,cd})
 #define NO_TINT faceTint(0,0,0,0)

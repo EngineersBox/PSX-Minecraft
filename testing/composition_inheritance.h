@@ -38,7 +38,7 @@ typedef struct {
     BlockID id;
     BlockType type;
     Orientation orientation;
-    int16_t faceAttributes[BLOCK_FACES];
+    int16_t face_attributes[BLOCK_FACES];
     char* name;
 } Block;
 
@@ -54,7 +54,7 @@ int main() {
             .id = 1,
             .type = BLOCKTYPE_SOLID,
             .orientation = ORIENTATION_POS_X,
-            .faceAttributes = { 1, 2, 3, 4, 5, 6  },
+            .face_attributes = { 1, 2, 3, 4, 5, 6  },
             .name = "stone"
         },
         .stone_type = 3,
@@ -66,12 +66,12 @@ int main() {
         block->id,
         block->type,
         block->orientation,
-        block->faceAttributes[0],
-        block->faceAttributes[1],
-        block->faceAttributes[2],
-        block->faceAttributes[3],
-        block->faceAttributes[4],
-        block->faceAttributes[5],
+        block->face_attributes[0],
+        block->face_attributes[1],
+        block->face_attributes[2],
+        block->face_attributes[3],
+        block->face_attributes[4],
+        block->face_attributes[5],
         block->name
     );
     return 0;

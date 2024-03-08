@@ -14,7 +14,7 @@ void someItemBlockDestroy(StoneItemBlock* stone_item_block) {
 void stoneItemBlockInit(VSelf) __attribute__((alias("StoneItemBlock_init")));
 void StoneItemBlock_init(VSelf) {
     VSELF(StoneItemBlock);
-    self->item = (ItemBlock) {
+    self->item_block = (ItemBlock) {
         .item = (Item) {
             .id = 1,
             .type = ITEMTYPE_BLOCK,
@@ -24,7 +24,7 @@ void StoneItemBlock_init(VSelf) {
             .rotation = (VECTOR) {0},
             .name = "stone"
         },
-        .faceAttributes = defaultFaceAttributes(1),
+        .face_attributes = defaultFaceAttributes(1),
     };
 }
 

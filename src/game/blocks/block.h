@@ -42,7 +42,7 @@ typedef struct {
     BlockID id;
     BlockType type;
     Orientation orientation;
-    TextureAttributes faceAttributes[BLOCK_FACES];
+    TextureAttributes face_attributes[BLOCK_FACES];
     char* name;
 } Block;
 
@@ -69,11 +69,11 @@ interface(IBlock);
     extern IBlock extern_name##_IBLOCK_SINGLETON; \
     extern name extern_name##_BLOCK_SINGLETON;
 
-#define declareBlock(_id, _name, _type, _orientation, face_attributes) (Block) {\
+#define declareBlock(_id, _name, _type, _orientation, _face_attributes) (Block) {\
     .id = (BlockID) _id,\
     .type = (BlockType) _type,\
     .orientation = (Orientation) _orientation,\
-    .faceAttributes = face_attributes,\
+    .face_attributes = _face_attributes,\
     .name = _name\
 }
 #define declareFixedBlock(_id, _name, _type, face_attributes) declareBlock( \
