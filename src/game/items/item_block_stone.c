@@ -1,6 +1,6 @@
 #include "item_block_stone.h"
 
-#include <stddef.h>
+#include <stdlib.h>
 #include <interface99.h>
 
 StoneItemBlock* stoneItemBlockCreate() {

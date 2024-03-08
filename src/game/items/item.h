@@ -37,6 +37,9 @@ typedef struct {
 
 interface(IItem);
 
+IItem* itemCreate();
+void itemDestroy(IItem* item);
+
 #define DEFN_ITEM(name, ...) \
     typedef struct { \
         Item item; \
