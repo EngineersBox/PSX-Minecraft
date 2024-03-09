@@ -35,6 +35,9 @@ void StoneBlock_update(VSelf) {
 
 void stoneBlockProvideItem(VSelf, IItem* item) __attribute__((alias("StoneBlock_provideItem")));
 void StoneBlock_provideItem(VSelf, IItem* item) {
+    if (item == NULL) {
+        return;
+    }
     VSELF(StoneBlock);
     StoneItemBlock* stone_item_block = stoneItemBlockCreate();
     DYN_PTR(item, StoneItemBlock, IItem, stone_item_block);

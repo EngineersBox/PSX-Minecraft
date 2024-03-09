@@ -35,6 +35,9 @@ void DirtBlock_update(VSelf) {
 
 void dirtBlockProvideItem(VSelf, IItem* item) __attribute__((alias("DirtBlock_provideItem")));
 void DirtBlock_provideItem(VSelf, IItem* item) {
+    if (item == NULL) {
+        return;
+    }
     VSELF(DirtBlock);
     DirtItemBlock* dirt_item_block = dirtItemBlockCreate();
     DYN_PTR(item, DirtItemBlock, IItem, dirt_item_block);

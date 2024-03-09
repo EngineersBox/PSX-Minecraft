@@ -316,10 +316,10 @@ Mask createMask(IBlock* currentIBlock, IBlock* compareIBlock) {
     }
     // Both blocks are transparent
     // NOTE: Temp use of GRASS to mimic GLASS with transparency
-    if (currentBlock->id == BLOCKID_GRASS && compareBlock->id == BLOCKID_GRASS) {
-        // Glass should not replicate faces between blocks
-        return (Mask) { airBlockCreate(), 0 };
-    }
+    // if (currentBlock->id == BLOCKID_GRASS && compareBlock->id == BLOCKID_GRASS) {
+    //     // Glass should not replicate faces between blocks
+    //     return (Mask) { airBlockCreate(), 0 };
+    // }
     // Both transparent but different types
     return (Mask) {
         currentBlock->id != BLOCKID_AIR ? currentIBlock : compareIBlock,
@@ -562,7 +562,7 @@ bool chunkModifyVoxel(Chunk* chunk, const VECTOR* position, IBlock* block, IItem
         (IItem) {}
     );
     IItem* item = &chunk->dropped_items[cvector_size(chunk->dropped_items) - 1];
-    VCALL(*old_block, provideItem, item);
+    // TODO: Fix out of bound write on this call
     VCALL(*old_block, destroy, item);
     if (item_result != NULL) {
         *item_result = item;

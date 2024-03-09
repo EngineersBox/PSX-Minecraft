@@ -153,7 +153,7 @@ void renderQuad(const ChunkMesh* mesh, SMD_PRIM* primitive, RenderContext* ctx, 
     // Load the face normal
     gte_ldv0(&normalsIter[primitive->n0]);
     // Apply RGB tinting to lighting calculation result on the basis
-    // that it is enabled. This corresponds to the column based calc
+    // that it is enabled.
     if (primitive->code) {
         // Normal Color Column Single
         gte_nccs();

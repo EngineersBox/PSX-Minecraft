@@ -16,12 +16,12 @@ void GrassBlock_init(VSelf) {
         BLOCKID_GRASS,
         "grass",
         declareTintedFaceAttributes(
-            /*3*/ 49, NO_TINT,
-            /*3*/ 49, NO_TINT,
-            /*2*/ 49, NO_TINT,
-            /*0*/ 49, NO_TINT,// faceTint(0, 155, 0, 1),
-            /*3*/ 49, NO_TINT,
-            /*3*/ 49, NO_TINT
+            3 /*49*/, NO_TINT,
+            3 /*49*/, NO_TINT,
+            2 /*49*/, NO_TINT,
+            0 /*49*/, /*NO_TINT,*/ faceTint(0, 155, 0, 1),
+            3 /*49*/, NO_TINT,
+            3 /*49*/, NO_TINT
         )
     );
 }
@@ -47,6 +47,9 @@ bool GrassBlock_isOpaque(VSelf) {
 
 void grassBlockProvideItem(VSelf, IItem* item) __attribute__((alias("GrassBlock_provideItem")));
 void GrassBlock_provideItem(VSelf, IItem* item) {
+    if (item == NULL) {
+        return;
+    }
     VSELF(GrassBlock);
     GrassItemBlock* grass_item_block = grassItemBlockCreate();
     DYN_PTR(item, GrassItemBlock, IItem, grass_item_block);

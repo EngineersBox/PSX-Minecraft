@@ -43,5 +43,8 @@ bool AirBlock_isOpaque(VSelf) {
 
 void airBlockProvideItem(VSelf, IItem* item) __attribute__((alias("AirBlock_provideItem")));
 void AirBlock_provideItem(VSelf, IItem* item) {
+    if (item == NULL) {
+        return;
+    }
     *item = (IItem) {};
 }
