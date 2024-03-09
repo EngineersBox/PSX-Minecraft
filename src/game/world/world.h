@@ -55,8 +55,8 @@ void worldUpdate(World* world, const VECTOR* player_pos);
 IBlock* worldGetChunkBlock(const World* world, const ChunkBlockPosition* position);
 IBlock* worldGetBlock(const World* world, const VECTOR* position);
 
-bool worldModifyVoxelChunkBlock(const World* world, const ChunkBlockPosition* position, IBlock* block);
-bool worldModifyVoxel(const World* world, const VECTOR* position, IBlock* block);
+bool worldModifyVoxelChunkBlock(const World* world, const ChunkBlockPosition* position, IBlock* block, IItem** item_result);
+bool worldModifyVoxel(const World* world, const VECTOR* position, IBlock* block, IItem** item_result);
 
 typedef struct {
     VECTOR pos;

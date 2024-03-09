@@ -6,11 +6,13 @@
 #include <psxgte.h>
 #include <stdbool.h>
 
+#include "../../../structure/cvector.h"
 #include "chunk_mesh.h"
 #include "../../render/render_context.h"
 #include "../../render/transforms.h"
 #include "../../blocks/blocks.h"
 #include "../position.h"
+#include "../../items/item.h"
 
 #define CHUNK_SIZE 8
 #define CHUNK_BLOCK_SIZE (CHUNK_SIZE * BLOCK_SIZE)
@@ -28,6 +30,7 @@ typedef struct {
     VECTOR position;
     ChunkMesh mesh;
     IBlock* blocks[CHUNK_DATA_SIZE];
+    cvector(IItem) dropped_items;
 } Chunk;
 
 void chunkInit(Chunk* chunk);
@@ -39,7 +42,7 @@ void chunkGenerate3DHeightMap(Chunk* chunk, const VECTOR* position);
 void chunkGenerateMesh(Chunk* chunk);
 void chunkClearMesh(Chunk* chunk);
 
-bool chunkModifyVoxel(Chunk* chunk, const VECTOR* position, IBlock* block);
+bool chunkModifyVoxel(Chunk* chunk, const VECTOR* position, IBlock* block, IItem** item_result);
 
 void chunkRender(Chunk* chunk, RenderContext* ctx, Transforms* transforms);
 

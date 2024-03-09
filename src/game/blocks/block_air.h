@@ -27,6 +27,9 @@ void AirBlock_update(VSelf);
 bool airBlockIsOpaque(VSelf);
 bool AirBlock_isOpaque(VSelf);
 
+void airBlockProvideItem(VSelf, IItem* item);
+void AirBlock_provideItem(VSelf, IItem* item);
+
 #define AirBlock_isOpaque_CUSTOM ()
 impl(IBlock, AirBlock);
 

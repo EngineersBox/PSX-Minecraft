@@ -23,6 +23,9 @@ void StoneBlock_destroy(VSelf, IItem* item_result);
 void stoneBlockUpdate(VSelf);
 void StoneBlock_update(VSelf);
 
+void stoneBlockProvideItem(VSelf, IItem* item);
+void StoneBlock_provideItem(VSelf, IItem* item);
+
 impl(IBlock, StoneBlock);
 
 #endif // PSX_MINECRAFT_BLOCK_STONE_H

@@ -42,6 +42,8 @@ typedef struct {
 )
 
 void chunkInit(Chunk* chunk) {
+    // TODO: Do we want a generic free handler for the items?
+    cvector_init(chunk->dropped_items, 0, NULL);
     printf("[CHUNK: %d,%d,%d] Initialising mesh\n", inlineVec(chunk->position));
     chunkMeshInit(&chunk->mesh);
     chunkClearMesh(chunk);
@@ -547,12 +549,23 @@ IBlock* chunkGetBlockVec(const Chunk* chunk, const VECTOR* position) {
     return chunk->blocks[chunkBlockIndex(position->vx, position->vy, position->vz)];
 }
 
-bool chunkModifyVoxel(Chunk* chunk, const VECTOR* position, IBlock* block) {
+bool chunkModifyVoxel(Chunk* chunk, const VECTOR* position, IBlock* block, IItem** item_result) {
     const int32_t x = position->vx;
     const int32_t y = positiveModulo(-position->vy - 1, CHUNK_SIZE);
     const int32_t z = position->vz;
     if (checkIndexOOB(x, y, z)) {
         return false;
+    }
+    const IBlock* old_block = chunk->blocks[chunkBlockIndex(x, y, z)];
+    cvector_push_back(
+        chunk->dropped_items,
+        (IItem) {}
+    );
+    IItem* item = &chunk->dropped_items[cvector_size(chunk->dropped_items) - 1];
+    VCALL(*old_block, provideItem, item);
+    VCALL(*old_block, destroy, item);
+    if (item_result != NULL) {
+        *item_result = item;
     }
     chunk->blocks[chunkBlockIndex(x, y, z)] = block;
     chunkClearMesh(chunk);

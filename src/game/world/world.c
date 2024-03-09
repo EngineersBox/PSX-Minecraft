@@ -416,7 +416,7 @@ IBlock* worldGetBlock(const World* world, const VECTOR* position) {
     return worldGetChunkBlock(world, &chunk_block_position);
 }
 
-bool worldModifyVoxelChunkBlock(const World* world, const ChunkBlockPosition* position, IBlock* block) {
+bool worldModifyVoxelChunkBlock(const World* world, const ChunkBlockPosition* position, IBlock* block, IItem** item_result) {
     // World is void below 0 on y-axis and nothing above height limit
     if ((position->chunk.vy <= 0 && position->block.vy < 0)
         || position->chunk.vy >= WORLD_CHUNKS_HEIGHT) {
@@ -428,10 +428,10 @@ bool worldModifyVoxelChunkBlock(const World* world, const ChunkBlockPosition* po
     if (chunk == NULL) {
         return false;
     }
-    return chunkModifyVoxel(chunk, &position->block, block);
+    return chunkModifyVoxel(chunk, &position->block, block, item_result);
 }
 
-bool worldModifyVoxel(const World* world, const VECTOR* position, IBlock* block) {
+bool worldModifyVoxel(const World* world, const VECTOR* position, IBlock* block, IItem** item_result) {
     // World is void below 0 and above world-height on y-axis
     if (position->vy < 0 || position->vy >= WORLD_HEIGHT) {
         printf("[ERROR] Invalid Y: %d\n", position->vy);
@@ -447,7 +447,7 @@ bool worldModifyVoxel(const World* world, const VECTOR* position, IBlock* block)
         chunk_block_position.block.vy,
         chunk_block_position.block.vz
     );
-    return worldModifyVoxelChunkBlock(world, &chunk_block_position, block);
+    return worldModifyVoxelChunkBlock(world, &chunk_block_position, block, item_result);
 }
 
 int32_t intbound(const int32_t s, const int32_t ds) {

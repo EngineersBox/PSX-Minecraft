@@ -23,6 +23,9 @@ void DirtBlock_destroy(VSelf, IItem* item_result);
 void dirtBlockUpdate(VSelf);
 void DirtBlock_update(VSelf);
 
+void dirtBlockProvideItem(VSelf, IItem* item);
+void DirtBlock_provideItem(VSelf, IItem* item);
+
 impl(IBlock, DirtBlock);
 
 

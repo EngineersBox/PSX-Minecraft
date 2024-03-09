@@ -1,5 +1,7 @@
 #include "block_air.h"
 
+#include <interface99.h>
+
 #include "../../util/interface99_extensions.h"
 #include "block_id.h"
 
@@ -26,6 +28,8 @@ void AirBlock_access(VSelf) {
 
 void airBlockDestroy(VSelf, IItem* item_result) __attribute__((alias("AirBlock_destroy")));
 void AirBlock_destroy(VSelf, IItem* item_result) {
+    VSELF(AirBlock);
+    airBlockProvideItem(self, item_result);
 }
 
 void airBlockUpdate(VSelf) __attribute__((alias("AirBlock_update")));
@@ -35,4 +39,9 @@ void AirBlock_update(VSelf) {
 bool airBlockIsOpaque(VSelf) __attribute__((alias("AirBlock_isOpaque")));
 bool AirBlock_isOpaque(VSelf) {
     return false;
+}
+
+void airBlockProvideItem(VSelf, IItem* item) __attribute__((alias("AirBlock_provideItem")));
+void AirBlock_provideItem(VSelf, IItem* item) {
+    *item = (IItem) {};
 }

@@ -1,7 +1,6 @@
 #include "item_block_stone.h"
 
 #include <stdlib.h>
-#include <interface99.h>
 
 StoneItemBlock* stoneItemBlockCreate() {
     return (StoneItemBlock*) malloc(sizeof(StoneItemBlock));
