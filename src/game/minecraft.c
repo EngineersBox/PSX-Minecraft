@@ -165,6 +165,9 @@ void cameraStartHandler(Camera* camera) {
     marker_pos.vx =  (result.pos.vx * BLOCK_SIZE) + (BLOCK_SIZE >> 1); // + ((result.face.vx >> FIXED_POINT_SHIFT) * (BLOCK_SIZE >> 1));
     marker_pos.vy = (-result.pos.vy * BLOCK_SIZE) - (BLOCK_SIZE >> 1); // + ((result.face.vy >> FIXED_POINT_SHIFT) * (BLOCK_SIZE >> 1));
     marker_pos.vz =  (result.pos.vz * BLOCK_SIZE) + (BLOCK_SIZE >> 1); // + ((result.face.vz >> FIXED_POINT_SHIFT) * (BLOCK_SIZE >> 1));
+    // TODO: When removing a block (as it takes time to break) should the camera be locked in
+    //       place as to avoid needing to continually raycast each frame until the block is broken
+    //       or the trigger/key/mouse is unpressed?
     IItem* item = NULL;
     worldModifyVoxel(world, &result.pos, airBlockCreate(), &item);
     printf("Origin: (%d,%d,%d)\n", inlineVec(origin_pos));
