@@ -165,6 +165,10 @@ void worldRender(const World* world, RenderContext* ctx, Transforms* transforms)
     const int x_end = world->centre.vx + LOADED_CHUNKS_RADIUS;
     const int z_start = world->centre.vz - LOADED_CHUNKS_RADIUS;
     const int z_end = world->centre.vz + LOADED_CHUNKS_RADIUS;
+    // TODO: Render current chunk and track how much of the screen has been drawn (somehow?)
+    //       if there are still bits that are missing traverse to next chunks in the direction
+    //       the player is facing and render them. Stop drawing if screen is full and/or there
+    //       are no more loaded chunks to traverse to.
     for (int x = x_start; x <= x_end; x++) {
         for (int z = z_start; z <= z_end; z++) {
             for (int y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
