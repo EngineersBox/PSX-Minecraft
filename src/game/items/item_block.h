@@ -22,12 +22,12 @@ typedef struct {
         __VA_ARGS__ \
     } name;
 
-#define itemBlockReplicateFaceAttributes(_item_block, _block) \
-    (_item_block).face_attributes[0] = (_block).face_attributes[0]; \
-    (_item_block).face_attributes[1] = (_block).face_attributes[1]; \
-    (_item_block).face_attributes[2] = (_block).face_attributes[2]; \
-    (_item_block).face_attributes[3] = (_block).face_attributes[3]; \
-    (_item_block).face_attributes[4] = (_block).face_attributes[4]; \
-    (_item_block).face_attributes[5] = (_block).face_attributes[5];
+#define itemBlockReplicateFaceAttributes(_item_block_to, _block_from) \
+    (_item_block_to).face_attributes[0] = (_block_from).face_attributes[0]; \
+    (_item_block_to).face_attributes[1] = (_block_from).face_attributes[1]; \
+    (_item_block_to).face_attributes[2] = (_block_from).face_attributes[2]; \
+    (_item_block_to).face_attributes[3] = (_block_from).face_attributes[3]; \
+    (_item_block_to).face_attributes[4] = (_block_from).face_attributes[4]; \
+    (_item_block_to).face_attributes[5] = (_block_from).face_attributes[5];
 
 #endif // PSX_MINECRAFT_ITEM_BLOCK_H
