@@ -22,11 +22,20 @@ typedef uint8_t BlockID;
 
 typedef enum {
     BLOCKTYPE_EMPTY = 0,
+    // Regular block
     BLOCKTYPE_SOLID,
+    // Stairs
     BLOCKTYPE_STAIR,
+    // Slabs, bed, cake
     BLOCKTYPE_SLAB,
+    // Spalings, flowers, reeds
     BLOCKTYPE_CROSS,
-    BLOCKTYPE_HASH
+    // Wheat
+    BLOCKTYPE_HASH,
+    // Redstone, rails, door, trapdoor
+    BLOCKTYPE_PLATE,
+    // Torches
+    BLOCKTYPE_ROD
 } BlockType;
 
 typedef enum {

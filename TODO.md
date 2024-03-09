@@ -24,6 +24,7 @@
 * [x] Proper engine structure with logic interface
 * [x] Inheritable Block interface with concrete implementations
 * [x] 2D array indexed terrain texture specification in face attributes
+* [ ] Breaking overlays for a block, enabled with a marker variable and a target resolved by ray cast and a texture reference
 
 ## Refactor
 
