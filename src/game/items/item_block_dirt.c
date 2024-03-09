@@ -2,6 +2,8 @@
 
 #include <stdlib.h>
 
+#include "item_id.h"
+
 DirtItemBlock* dirtItemBlockCreate() {
     return (DirtItemBlock*) malloc(sizeof(DirtItemBlock));
 }
@@ -15,7 +17,7 @@ void DirtItemBlock_init(VSelf) {
     VSELF(DirtItemBlock);
     self->item_block = (ItemBlock) {
         .item = (Item) {
-            .id = 3,
+            .id = ITEMID_DIRT,
             .type = ITEMTYPE_BLOCK,
             .stack_size = 0,
             .max_stack_size = 64,

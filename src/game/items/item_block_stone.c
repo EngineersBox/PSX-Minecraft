@@ -2,6 +2,8 @@
 
 #include <stdlib.h>
 
+#include "item_id.h"
+
 StoneItemBlock* stoneItemBlockCreate() {
     return (StoneItemBlock*) malloc(sizeof(StoneItemBlock));
 }
@@ -15,7 +17,7 @@ void StoneItemBlock_init(VSelf) {
     VSELF(StoneItemBlock);
     self->item_block = (ItemBlock) {
         .item = (Item) {
-            .id = 1,
+            .id = ITEMID_STONE,
             .type = ITEMTYPE_BLOCK,
             .stack_size = 0,
             .max_stack_size = 64,

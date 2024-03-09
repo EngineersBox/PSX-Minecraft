@@ -2,6 +2,8 @@
 
 #include <stdlib.h>
 
+#include "item_id.h"
+
 GrassItemBlock* grassItemBlockCreate() {
     return (GrassItemBlock*) malloc(sizeof(GrassItemBlock));
 }
@@ -15,7 +17,7 @@ void GrassItemBlock_init(VSelf) {
     VSELF(GrassItemBlock);
     self->item_block = (ItemBlock) {
         .item = (Item) {
-            .id = 2,
+            .id = ITEMID_GRASS,
             .type = ITEMTYPE_BLOCK,
             .stack_size = 0,
             .max_stack_size = 64,
