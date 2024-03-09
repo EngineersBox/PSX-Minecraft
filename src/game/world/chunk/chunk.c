@@ -43,6 +43,7 @@ typedef struct {
 
 void chunkInit(Chunk* chunk) {
     // TODO: Do we want a generic free handler for the items?
+    chunk->dropped_items = NULL;
     cvector_init(chunk->dropped_items, 0, NULL);
     printf("[CHUNK: %d,%d,%d] Initialising mesh\n", inlineVec(chunk->position));
     chunkMeshInit(&chunk->mesh);
@@ -562,7 +563,6 @@ bool chunkModifyVoxel(Chunk* chunk, const VECTOR* position, IBlock* block, IItem
         (IItem) {}
     );
     IItem* item = &chunk->dropped_items[cvector_size(chunk->dropped_items) - 1];
-    // TODO: Fix out of bound write on this call
     VCALL(*old_block, destroy, item);
     if (item_result != NULL) {
         *item_result = item;
