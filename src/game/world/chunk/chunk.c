@@ -569,8 +569,10 @@ void constructItemPosition(const Chunk* chunk, const VECTOR* block_position, VEC
     const int16_t chunk_origin_y = (-chunk->position.vy - 1) * CHUNK_SIZE;
     const int16_t chunk_origin_z = chunk->position.vz * CHUNK_SIZE;
     item_position->vx = (chunk_origin_x + block_position->vx) * BLOCK_SIZE + (BLOCK_SIZE / 2);
+    // TODO: Fix this positioning block in wrong chunk
     item_position->vy = (chunk_origin_y + block_position->vy) * BLOCK_SIZE - (BLOCK_SIZE / 2);
     item_position->vz = (chunk_origin_z + block_position->vz) * BLOCK_SIZE + (BLOCK_SIZE / 2);
+    printf("[Item] Position: (%d,%d,%d)\n", inlineVecPtr(item_position));
 }
 
 bool chunkModifyVoxel(Chunk* chunk, const VECTOR* position, IBlock* block, IItem** item_result) {

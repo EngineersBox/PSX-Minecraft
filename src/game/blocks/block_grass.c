@@ -19,7 +19,7 @@ void GrassBlock_init(VSelf) {
             3 /*49*/, NO_TINT,
             3 /*49*/, NO_TINT,
             2 /*49*/, NO_TINT,
-            0 /*49*/, /*NO_TINT,*/ faceTint(0, 155, 0, 1),
+            0 /*49*/, /*NO_TINT,*/ faceTint(91, 139, 50, 1),
             3 /*49*/, NO_TINT,
             3 /*49*/, NO_TINT
         )
