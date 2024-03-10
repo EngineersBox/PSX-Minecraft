@@ -12,6 +12,24 @@ void someItemBlockDestroy(StoneItemBlock* stone_item_block) {
     free(stone_item_block);
 }
 
+void stoneItemBlockRenderWorld(VSelf, RenderContext* ctx, Transforms* transforms) __attribute__((alias("StoneItemBlock_renderWorld")));
+void StoneItemBlock_renderWorld(VSelf, RenderContext* ctx, Transforms* transforms) {
+    VSELF(StoneItemBlock);
+    itemBlockRenderWorld(&self->item_block, ctx, transforms);
+}
+
+void stoneItemBlockRenderInventory(VSelf, RenderContext* ctx, Transforms* transforms) __attribute__((alias("StoneItemBlock_renderInventory")));
+void StoneItemBlock_renderInventory(VSelf, RenderContext* ctx, Transforms* transforms) {
+    VSELF(StoneItemBlock);
+    itemBlockRenderInventory(&self->item_block, ctx, transforms);
+}
+
+void stoneItemBlockRenderHand(VSelf, RenderContext* ctx, Transforms* transforms) __attribute__((alias("StoneItemBlock_renderHand")));
+void StoneItemBlock_renderHand(VSelf, RenderContext* ctx, Transforms* transforms) {
+    VSELF(StoneItemBlock);
+    itemBlockRenderHand(&self->item_block, ctx, transforms);
+}
+
 void stoneItemBlockInit(VSelf) __attribute__((alias("StoneItemBlock_init")));
 void StoneItemBlock_init(VSelf) {
     VSELF(StoneItemBlock);

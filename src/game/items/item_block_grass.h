@@ -12,6 +12,17 @@ DEFN_ITEM_BLOCK(GrassItemBlock);
 GrassItemBlock* grassItemBlockCreate();
 void grassItemBlockDestroy(GrassItemBlock* grass_item_block);
 
+void grassItemBlockRenderWorld(VSelf, RenderContext* ctx, Transforms* transforms);
+void GrassItemBlock_renderWorld(VSelf, RenderContext* ctx, Transforms* transforms);
+
+void grassItemBlockRenderInventory(VSelf, RenderContext* ctx, Transforms* transforms);
+void GrassItemBlock_renderInventory(VSelf, RenderContext* ctx, Transforms* transforms);
+
+void grassItemBlockRenderHand(VSelf, RenderContext* ctx, Transforms* transforms);
+void GrassItemBlock_renderHand(VSelf, RenderContext* ctx, Transforms* transforms);
+
+impl(Renderable, GrassItemBlock);
+
 void grassItemBlockInit(VSelf);
 void GrassItemBlock_init(VSelf);
 

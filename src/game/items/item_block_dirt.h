@@ -7,11 +7,23 @@
 #include <interface99.h>
 
 #include "item_block.h"
+#include "../../render/renderable.h"
 
 DEFN_ITEM_BLOCK(DirtItemBlock);
 
 DirtItemBlock* dirtItemBlockCreate();
 void dirtItemBlockDestroy(DirtItemBlock* dirt_item_block);
+
+void dirtItemBlockRenderWorld(VSelf, RenderContext* ctx, Transforms* transforms);
+void DirtItemBlock_renderWorld(VSelf, RenderContext* ctx, Transforms* transforms);
+
+void dirtItemBlockRenderInventory(VSelf, RenderContext* ctx, Transforms* transforms);
+void DirtItemBlock_renderInventory(VSelf, RenderContext* ctx, Transforms* transforms);
+
+void dirtItemBlockRenderHand(VSelf, RenderContext* ctx, Transforms* transforms);
+void DirtItemBlock_renderHand(VSelf, RenderContext* ctx, Transforms* transforms);
+
+impl(Renderable, DirtItemBlock);
 
 void dirtItemBlockInit(VSelf);
 void DirtItemBlock_init(VSelf);
@@ -24,6 +36,7 @@ void DirtItemBlock_useAction(VSelf);
 
 void dirtItemBlockAttackAction(VSelf);
 void DirtItemBlock_attackAction(VSelf);
+
 
 impl(IItem, DirtItemBlock);
 

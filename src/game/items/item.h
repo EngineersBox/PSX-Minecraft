@@ -7,6 +7,7 @@
 #include <stdint.h>
 #include <psxgte.h>
 
+#include "../../render/renderable.h"
 #include "../../render/render_context.h"
 #include "../../render/transforms.h"
 
@@ -35,6 +36,7 @@ typedef struct {
     vfunc(void, useAction, VSelf) \
     vfunc(void, attackAction, VSelf)
 
+#define IItem_EXTENDS (Renderable)
 interface(IItem);
 
 IItem* itemCreate();

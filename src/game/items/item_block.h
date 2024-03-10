@@ -8,6 +8,8 @@
 #include "../blocks/block.h"
 #include "item.h"
 #include "../../resources/texture.h"
+#include "../../render/render_context.h"
+#include "../../render/transforms.h"
 
 #define ITEM_BLOCK_FACES 6
 
@@ -29,5 +31,9 @@ typedef struct {
     (_item_block_to).face_attributes[3] = (_block_from).face_attributes[3]; \
     (_item_block_to).face_attributes[4] = (_block_from).face_attributes[4]; \
     (_item_block_to).face_attributes[5] = (_block_from).face_attributes[5];
+
+void itemBlockRenderWorld(ItemBlock* item, RenderContext* ctx, Transforms* transforms);
+void itemBlockRenderInventory(ItemBlock* item, RenderContext* ctx, Transforms* transforms);
+void itemBlockRenderHand(ItemBlock* item, RenderContext* ctx, Transforms* transforms);
 
 #endif // PSX_MINECRAFT_ITEM_BLOCK_H

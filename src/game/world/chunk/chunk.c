@@ -1,6 +1,7 @@
 #include "chunk.h"
 
 #include <clip.h>
+#include <cvector_utils.h>
 #include <inline_c.h>
 #include <stdbool.h>
 #include <smd/smd.h>
@@ -505,6 +506,16 @@ void chunkGenerateMesh(Chunk* chunk) {
     }
 }
 
+void chunkRenderDroppedItems(Chunk* chunk, RenderContext* ctx, Transforms* transforms) {
+    if (cvector_size(chunk->dropped_items) < 1) {
+        return;
+    }
+    IItem* item;
+    cvector_for_each_in(item, chunk->dropped_items) {
+        VCALL_SUPER(*item, Renderable, renderWorld, ctx, transforms);
+    }
+}
+
 void chunkRender(Chunk* chunk, RenderContext* ctx, Transforms* transforms) {
     static SVECTOR rotation = {0, 0, 0};
     // Object and light matrix for object
@@ -528,6 +539,7 @@ void chunkRender(Chunk* chunk, RenderContext* ctx, Transforms* transforms) {
     gte_SetTransMatrix(&omtx);
     // Sort + render mesh
     chunkMeshRender(&chunk->mesh, ctx, transforms);
+    chunkRenderDroppedItems(chunk, ctx, transforms);
     // Restore matrix
     PopMatrix();
 }
