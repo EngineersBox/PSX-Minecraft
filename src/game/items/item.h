@@ -39,6 +39,8 @@ typedef struct {
 #define IItem_EXTENDS (Renderable)
 interface(IItem);
 
+extern const IItem IITEM_NULL;
+
 IItem* itemCreate();
 void itemDestroy(IItem* item);
 

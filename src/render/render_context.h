@@ -7,7 +7,7 @@
 #include <psxgte.h>
 
 // DB struct array sizes
-#define ORDERING_TABLE_LENGTH (1 << 12)
+#define ORDERING_TABLE_LENGTH (1 << 13)
 #define PACKET_BUFFER_LENGTH (1 << 16)
 
 // Screen resolution

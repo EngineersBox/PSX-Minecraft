@@ -46,5 +46,5 @@ void AirBlock_provideItem(VSelf, IItem* item) {
     if (item == NULL) {
         return;
     }
-    *item = (IItem) {};
+    *item = IITEM_NULL;
 }

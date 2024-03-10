@@ -576,16 +576,21 @@ bool chunkModifyVoxel(Chunk* chunk, const VECTOR* position, IBlock* block, IItem
     );
     IItem* iitem = &chunk->dropped_items[cvector_size(chunk->dropped_items) - 1];
     VCALL(*old_block, destroy, iitem);
-    if (iitem != NULL) {
+    if (iitem->self != NULL) {
         Item* item = VCAST(Item*, *iitem);
         item->position = (VECTOR) {
             .vx = position->vx + ((BLOCK_SIZE / 2) << FIXED_POINT_SHIFT),
             .vy = position->vy,
             .vz = position->vz + ((BLOCK_SIZE / 2) << FIXED_POINT_SHIFT)
         };
-    }
-    if (item_result != NULL) {
-        *item_result = iitem;
+        if (item_result != NULL) {
+            *item_result = iitem;
+        }
+    } else {
+        cvector_erase(chunk->dropped_items, cvector_size(chunk->dropped_items) - 1);
+        if (item_result != NULL) {
+            *item_result = NULL;;
+        }
     }
     chunk->blocks[chunkBlockIndex(x, y, z)] = block;
     chunkClearMesh(chunk);
