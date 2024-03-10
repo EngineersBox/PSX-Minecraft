@@ -15,7 +15,6 @@ void grassItemBlockDestroy(GrassItemBlock* grass_item_block) {
 void grassItemBlockRenderWorld(VSelf, RenderContext* ctx, Transforms* transforms) __attribute__((alias("GrassItemBlock_renderWorld")));
 void GrassItemBlock_renderWorld(VSelf, RenderContext* ctx, Transforms* transforms) {
     VSELF(GrassItemBlock);
-    printf("[ItemBlock] Rendering grass item block in world\n");
     itemBlockRenderWorld(&self->item_block, ctx, transforms);
 }
 

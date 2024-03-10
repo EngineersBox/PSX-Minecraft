@@ -36,9 +36,9 @@ void itemBlockRenderWorld(ItemBlock* item, RenderContext* ctx, Transforms* trans
         };
         POLY_FT4* pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
 #define createVert(_v) (SVECTOR) { \
-            item->item.position.vx + (item_block_verts[CUBE_INDICES[i]._v].vx << FIXED_POINT_SHIFT), \
-            item->item.position.vy + (item_block_verts[CUBE_INDICES[i]._v].vy << FIXED_POINT_SHIFT), \
-            item->item.position.vz + (item_block_verts[CUBE_INDICES[i]._v].vz << FIXED_POINT_SHIFT), \
+            item->item.position.vx + item_block_verts[CUBE_INDICES[i]._v].vx, \
+            item->item.position.vy + item_block_verts[CUBE_INDICES[i]._v].vy, \
+            item->item.position.vz + item_block_verts[CUBE_INDICES[i]._v].vz, \
             0 \
         }
         SVECTOR current_verts[4] = {

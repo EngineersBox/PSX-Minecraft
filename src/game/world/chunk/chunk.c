@@ -562,6 +562,17 @@ IBlock* chunkGetBlockVec(const Chunk* chunk, const VECTOR* position) {
     return chunk->blocks[chunkBlockIndex(position->vx, position->vy, position->vz)];
 }
 
+void constructItemPosition(const Chunk* chunk, const VECTOR* block_position, VECTOR* item_position) {
+    // Construct vertices relative to chunk mesh bottom left origin
+    const int16_t chunk_origin_x = chunk->position.vx * CHUNK_SIZE;
+    // Offset by 1 to ensure bottom block of bottom chunk starts at Y = 0
+    const int16_t chunk_origin_y = (-chunk->position.vy - 1) * CHUNK_SIZE;
+    const int16_t chunk_origin_z = chunk->position.vz * CHUNK_SIZE;
+    item_position->vx = (chunk_origin_x + block_position->vx) * BLOCK_SIZE + (BLOCK_SIZE / 2);
+    item_position->vy = (chunk_origin_y + block_position->vy) * BLOCK_SIZE - (BLOCK_SIZE / 2);
+    item_position->vz = (chunk_origin_z + block_position->vz) * BLOCK_SIZE + (BLOCK_SIZE / 2);
+}
+
 bool chunkModifyVoxel(Chunk* chunk, const VECTOR* position, IBlock* block, IItem** item_result) {
     const int32_t x = position->vx;
     const int32_t y = positiveModulo(-position->vy - 1, CHUNK_SIZE);
@@ -578,11 +589,7 @@ bool chunkModifyVoxel(Chunk* chunk, const VECTOR* position, IBlock* block, IItem
     VCALL(*old_block, destroy, iitem);
     if (iitem->self != NULL) {
         Item* item = VCAST(Item*, *iitem);
-        item->position = (VECTOR) {
-            .vx = position->vx + ((BLOCK_SIZE / 2) << FIXED_POINT_SHIFT),
-            .vy = position->vy,
-            .vz = position->vz + ((BLOCK_SIZE / 2) << FIXED_POINT_SHIFT)
-        };
+        constructItemPosition(chunk, position, &item->position);
         if (item_result != NULL) {
             *item_result = iitem;
         }

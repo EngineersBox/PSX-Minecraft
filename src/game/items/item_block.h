@@ -12,7 +12,7 @@
 #include "../../render/transforms.h"
 
 #define ITEM_BLOCK_FACES 6
-#define ITEM_BLOCK_SIZE 20
+#define ITEM_BLOCK_SIZE 10
 
 typedef struct {
     Item item;
