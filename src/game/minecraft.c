@@ -285,96 +285,96 @@ void drawMarker(Minecraft* minecraft) {
     // Trace end marker
     // marker_rot.vy += 16;
     // marker_rot.vz += 16;
-    POLY_F4* pol4;
-    int p;
-    MATRIX omtx, olmtx;
-    // printf("CURRENT MARKER: (%d,%d,%d)\n", inlineVecPtr(current_marker));
-    // Set object rotation and position
-    RotMatrix(&marker_rot, &omtx);
-    TransMatrix(&omtx, &zero);
-    // Multiply light matrix to object matrix
-    MulMatrix0(&minecraft->internals.transforms.lighting_mtx, &omtx, &olmtx);
-    // Set result to GTE light matrix
-    gte_SetLightMatrix(&olmtx);
-    // Composite coordinate matrix transform, so object will be rotated and
-    // positioned relative to camera matrix (mtx), so it'll appear as
-    // world-space relative.
-    CompMatrixLV(&minecraft->internals.transforms.geometry_mtx, &omtx, &omtx);
-    // Save matrix
-    PushMatrix();
-    cvector_iterator(SVECTOR) current_marker;
-    cvector_for_each_in(current_marker, markers) {
-        // Set matrices
-        gte_SetRotMatrix(&omtx);
-        gte_SetTransMatrix(&omtx);
-        for (int i=0; i<8; i++) {
-            pol4 = (POLY_F4*) allocatePrimitive(&minecraft->internals.ctx, sizeof(POLY_F4));
-#define createVert(_v) (SVECTOR) { \
-            current_marker->vx + verts[CUBE_INDICES[i]._v].vx, \
-            current_marker->vy + verts[CUBE_INDICES[i]._v].vy, \
-            current_marker->vz + verts[CUBE_INDICES[i]._v].vz, \
-            0 \
-        }
-            SVECTOR current_verts[4] = {
-                createVert(v0),
-                createVert(v1),
-                createVert(v2),
-                createVert(v3)
-            };
-            gte_ldv3(
-                &current_verts[0],
-                &current_verts[1],
-                &current_verts[2]
-            );
-            // Rotation, Translation and Perspective Triple
-            gte_rtpt();
-            gte_nclip();
-            gte_stopz(&p);
-            if (p < 0) {
-                freePrimitive(&minecraft->internals.ctx, sizeof(POLY_F4));
-                continue;
-            }
-            // Average screen Z result for four primtives
-            gte_avsz4();
-            gte_stotz(&p);
-            // Initialize a textured quad primitive
-            setPolyF4(pol4);
-            // Set the projected vertices to the primitive
-            gte_stsxy0(&pol4->x0);
-            gte_stsxy1(&pol4->x1);
-            gte_stsxy2(&pol4->x2);
-            // Compute the last vertex and set the result
-            gte_ldv0(&current_verts[3]);
-            gte_rtps();
-            gte_stsxy(&pol4->x3);
-            // Test if quad is off-screen, discard if so
-            if (quadClip(
-                &minecraft->internals.ctx.screen_clip,
-                (DVECTOR*) &pol4->x0,
-                (DVECTOR*) &pol4->x1,
-                (DVECTOR*) &pol4->x2,
-                (DVECTOR*) &pol4->x3)) {
-                freePrimitive(&minecraft->internals.ctx, sizeof(POLY_F4));
-                continue;
-                }
-            setRGB0(
-                pol4,
-                0xff,
-                0x0,
-                0x0
-            );
-            gte_ldrgb(&pol4->r0);
-            // Load the face normal
-            gte_ldv0(&CUBE_NORMS[i]);
-            // Normal Color Column Single
-            gte_nccs();
-            // Store result to the primitive
-            gte_strgb(&pol4->r0);
-            uint32_t* ot_entry = allocateOrderingTable(&minecraft->internals.ctx, 0);
-            addPrim(ot_entry, pol4);
-        }
-    }
-    PopMatrix();
+//     POLY_F4* pol4;
+//     int p;
+//     MATRIX omtx, olmtx;
+//     // printf("CURRENT MARKER: (%d,%d,%d)\n", inlineVecPtr(current_marker));
+//     // Set object rotation and position
+//     RotMatrix(&marker_rot, &omtx);
+//     TransMatrix(&omtx, &zero);
+//     // Multiply light matrix to object matrix
+//     MulMatrix0(&minecraft->internals.transforms.lighting_mtx, &omtx, &olmtx);
+//     // Set result to GTE light matrix
+//     gte_SetLightMatrix(&olmtx);
+//     // Composite coordinate matrix transform, so object will be rotated and
+//     // positioned relative to camera matrix (mtx), so it'll appear as
+//     // world-space relative.
+//     CompMatrixLV(&minecraft->internals.transforms.geometry_mtx, &omtx, &omtx);
+//     // Save matrix
+//     PushMatrix();
+//     cvector_iterator(SVECTOR) current_marker;
+//     cvector_for_each_in(current_marker, markers) {
+//         // Set matrices
+//         gte_SetRotMatrix(&omtx);
+//         gte_SetTransMatrix(&omtx);
+//         for (int i=0; i<8; i++) {
+//             pol4 = (POLY_F4*) allocatePrimitive(&minecraft->internals.ctx, sizeof(POLY_F4));
+// #define createVert(_v) (SVECTOR) { \
+//             current_marker->vx + verts[CUBE_INDICES[i]._v].vx, \
+//             current_marker->vy + verts[CUBE_INDICES[i]._v].vy, \
+//             current_marker->vz + verts[CUBE_INDICES[i]._v].vz, \
+//             0 \
+//         }
+//             SVECTOR current_verts[4] = {
+//                 createVert(v0),
+//                 createVert(v1),
+//                 createVert(v2),
+//                 createVert(v3)
+//             };
+//             gte_ldv3(
+//                 &current_verts[0],
+//                 &current_verts[1],
+//                 &current_verts[2]
+//             );
+//             // Rotation, Translation and Perspective Triple
+//             gte_rtpt();
+//             gte_nclip();
+//             gte_stopz(&p);
+//             if (p < 0) {
+//                 freePrimitive(&minecraft->internals.ctx, sizeof(POLY_F4));
+//                 continue;
+//             }
+//             // Average screen Z result for four primtives
+//             gte_avsz4();
+//             gte_stotz(&p);
+//             // Initialize a textured quad primitive
+//             setPolyF4(pol4);
+//             // Set the projected vertices to the primitive
+//             gte_stsxy0(&pol4->x0);
+//             gte_stsxy1(&pol4->x1);
+//             gte_stsxy2(&pol4->x2);
+//             // Compute the last vertex and set the result
+//             gte_ldv0(&current_verts[3]);
+//             gte_rtps();
+//             gte_stsxy(&pol4->x3);
+//             // Test if quad is off-screen, discard if so
+//             if (quadClip(
+//                 &minecraft->internals.ctx.screen_clip,
+//                 (DVECTOR*) &pol4->x0,
+//                 (DVECTOR*) &pol4->x1,
+//                 (DVECTOR*) &pol4->x2,
+//                 (DVECTOR*) &pol4->x3)) {
+//                 freePrimitive(&minecraft->internals.ctx, sizeof(POLY_F4));
+//                 continue;
+//                 }
+//             setRGB0(
+//                 pol4,
+//                 0xff,
+//                 0x0,
+//                 0x0
+//             );
+//             gte_ldrgb(&pol4->r0);
+//             // Load the face normal
+//             gte_ldv0(&CUBE_NORMS[i]);
+//             // Normal Color Column Single
+//             gte_nccs();
+//             // Store result to the primitive
+//             gte_strgb(&pol4->r0);
+//             uint32_t* ot_entry = allocateOrderingTable(&minecraft->internals.ctx, 0);
+//             addPrim(ot_entry, pol4);
+//         }
+//     }
+//     PopMatrix();
 }
 
 void drawDebugText(const Minecraft* minecraft, const Stats* stats) {

@@ -12,6 +12,24 @@ void dirtItemBlockDestroy(DirtItemBlock* dirt_item_block) {
     free(dirt_item_block);
 }
 
+void dirtItemBlockRenderWorld(VSelf, RenderContext* ctx, Transforms* transforms) __attribute__((alias("DirtItemBlock_renderWorld")));
+void DirtItemBlock_renderWorld(VSelf, RenderContext* ctx, Transforms* transforms) {
+    VSELF(DirtItemBlock);
+    itemBlockRenderWorld(&self->item_block, ctx, transforms);
+}
+
+void dirtItemBlockRenderInventory(VSelf, RenderContext* ctx, Transforms* transforms) __attribute__((alias("DirtItemBlock_renderInventory")));
+void DirtItemBlock_renderInventory(VSelf, RenderContext* ctx, Transforms* transforms) {
+    VSELF(DirtItemBlock);
+    itemBlockRenderInventory(&self->item_block, ctx, transforms);
+}
+
+void dirtItemBlockRenderHand(VSelf, RenderContext* ctx, Transforms* transforms) __attribute__((alias("DirtItemBlock_renderHand")));
+void DirtItemBlock_renderHand(VSelf, RenderContext* ctx, Transforms* transforms) {
+    VSELF(DirtItemBlock);
+    itemBlockRenderHand(&self->item_block, ctx, transforms);
+}
+
 void dirtItemBlockInit(VSelf) __attribute__((alias("DirtItemBlock_init")));
 void DirtItemBlock_init(VSelf) {
     VSELF(DirtItemBlock);
