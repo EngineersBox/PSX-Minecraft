@@ -21,7 +21,6 @@ SVECTOR item_block_verts[VERTICES_COUNT] = {
 };
 
 void itemBlockRenderWorld(ItemBlock* item, RenderContext* ctx, Transforms* transforms) {
-    // TODO: Something is causing ordering table to exceed max size
     int p;
     TextureAttributes* face_attribute;
     const Texture* texture = &textures[TERRAIN_TEXTURES];
