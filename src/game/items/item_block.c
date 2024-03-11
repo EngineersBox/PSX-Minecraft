@@ -19,7 +19,8 @@ SVECTOR item_block_verts[VERTICES_COUNT] = {
     {  ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE, 0 },
     { -ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE, 0 }
 };
-#define BOB_DISTANCE ((BLOCK_SIZE / 2) - (BLOCK_SIZE / 8))
+#define ITEM_BOB_DISTANCE ((BLOCK_SIZE / 2) - (BLOCK_SIZE / 8))
+#define ITEM_ROTATION_QUANTA 32
 
 void itemBlockRenderWorld(ItemBlock* item, RenderContext* ctx, Transforms* transforms) {
     VECTOR position = {
@@ -159,10 +160,10 @@ void itemBlockRenderWorld(ItemBlock* item, RenderContext* ctx, Transforms* trans
         ot_object = allocateOrderingTable(ctx, p);
         addPrim(ot_object, ptwin);
     }
-    item->item.rotation.vy = (item->item.rotation.vy + 32) % ONE;
+    item->item.rotation.vy = (item->item.rotation.vy + ITEM_ROTATION_QUANTA) % ONE;
     if (item->item.bob_offset <= 0) {
         item->item.bob_direction = 1;
-    } else if (item->item.bob_offset >= BOB_DISTANCE) {
+    } else if (item->item.bob_offset >= ITEM_BOB_DISTANCE) {
         item->item.bob_direction = -1;
     }
     item->item.bob_offset += item->item.bob_direction;
