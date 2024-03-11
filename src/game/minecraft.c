@@ -2,6 +2,8 @@
 
 #include <inline_c.h>
 #include <interface99_extensions.h>
+#include <psxgpu.h>
+#include <psxgte.h>
 
 #include "../ui/axis.h"
 #include "../structure/primitive/clip.h"
@@ -89,9 +91,9 @@ void Minecraft_init(VSelf, void* ctx) {
         }
     };
     // Set light ambient color and light color matrix
-    gte_SetBackColor(63, 63, 63);
+    gte_SetBackColor(128, 128, 128);
+    gte_SetFarColor(1, 1, 1);
     gte_SetColorMatrix(&color_mtx);
-    gte_SetFarColor(63, 63, 63);
     // FOV?
     gte_SetGeomScreen(100);
     initRenderContext(&self->internals.ctx);

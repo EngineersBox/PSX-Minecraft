@@ -63,6 +63,7 @@ void renderTriangle(SMD_PRIM* primitive, RenderContext* ctx, Transforms* transfo
 void renderQuad(const ChunkMesh* mesh, SMD_PRIM* primitive, RenderContext* ctx, Transforms* transforms) {
     // TODO: Generalise for textured and non-textured
     int p;
+    // int dp;
     cvector_iterator(SVECTOR) verticesIter = cvector_begin(mesh->p_verts);
     cvector_iterator(SVECTOR) normalsIter = cvector_begin(mesh->p_norms);
     const RECT tex_window = (RECT){
@@ -101,6 +102,7 @@ void renderQuad(const ChunkMesh* mesh, SMD_PRIM* primitive, RenderContext* ctx, 
     gte_rtpt();
     gte_nclip();
     gte_stopz(&p);
+    // gte_stdp(&dp);
     // Avoid negative depth (behind camera) and zero
     // for constraint clearing primitive in OT
     if (p <= 0) {
@@ -152,6 +154,7 @@ void renderQuad(const ChunkMesh* mesh, SMD_PRIM* primitive, RenderContext* ctx, 
     gte_ldrgb(&pol4->r0);
     // Load the face normal
     gte_ldv0(&normalsIter[primitive->n0]);
+    // gte_lddp(&dp);
     // Apply RGB tinting to lighting calculation result on the basis
     // that it is enabled.
     if (primitive->code) {
@@ -161,9 +164,6 @@ void renderQuad(const ChunkMesh* mesh, SMD_PRIM* primitive, RenderContext* ctx, 
         // Normal Color Single
         gte_ncs();
     }
-    // TODO: Fix depth queuing and fog
-    gte_lddp(p);
-    gte_dpct();
     // Store result to the primitive
     gte_strgb(&pol4->r0);
     // Set texture coords and dimensions

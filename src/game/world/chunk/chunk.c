@@ -541,9 +541,9 @@ void chunkRender(Chunk* chunk, RenderContext* ctx, Transforms* transforms) {
     gte_SetTransMatrix(&omtx);
     // Sort + render mesh
     chunkMeshRender(&chunk->mesh, ctx, transforms);
-    chunkRenderDroppedItems(chunk, ctx, transforms);
     // Restore matrix
     PopMatrix();
+    chunkRenderDroppedItems(chunk, ctx, transforms);
 }
 
 #define checkIndexOOB(x, y, z) ((x) >= CHUNK_SIZE || (x) < 0 \

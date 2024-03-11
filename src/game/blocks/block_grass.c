@@ -56,4 +56,5 @@ void GrassBlock_provideItem(VSelf, IItem* item) {
     VCALL(*item, init);
     itemBlockReplicateFaceAttributes(grass_item_block->item_block, self->block);
     grass_item_block->item_block.item.stack_size = 1;
+    grass_item_block->item_block.item.bob_direction = 1;
 }

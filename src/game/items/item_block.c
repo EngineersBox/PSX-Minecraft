@@ -19,8 +19,33 @@ SVECTOR item_block_verts[VERTICES_COUNT] = {
     {  ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE, 0 },
     { -ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE, 0 }
 };
+#define BOB_DISTANCE ((BLOCK_SIZE / 2) - (BLOCK_SIZE / 8))
 
 void itemBlockRenderWorld(ItemBlock* item, RenderContext* ctx, Transforms* transforms) {
+    VECTOR position = {
+        .vx = item->item.position.vx,
+        .vy = item->item.position.vy + item->item.bob_offset,
+        .vz = item->item.position.vz
+    };
+    // Object and light matrix for object
+    MATRIX omtx, olmtx;
+    // Set object rotation and position
+    RotMatrix(&item->item.rotation, &omtx);
+    ApplyMatrixLV(&omtx, &transforms->translation_position, &transforms->translation_position);
+    TransMatrix(&omtx, &position);
+    // Multiply light matrix to object matrix
+    MulMatrix0(&transforms->lighting_mtx, &omtx, &olmtx);
+    // Set result to GTE light matrix
+    gte_SetLightMatrix(&olmtx);
+    // Composite coordinate matrix transform, so object will be rotated and
+    // positioned relative to camera matrix (mtx), so it'll appear as
+    // world-space relative.
+    CompMatrixLV(&transforms->geometry_mtx, &omtx, &omtx);
+    // Save matrix
+    PushMatrix();
+    // Set matrices
+    gte_SetRotMatrix(&omtx);
+    gte_SetTransMatrix(&omtx);
     int p;
     TextureAttributes* face_attribute;
     const Texture* texture = &textures[TERRAIN_TEXTURES];
@@ -35,9 +60,9 @@ void itemBlockRenderWorld(ItemBlock* item, RenderContext* ctx, Transforms* trans
         };
         POLY_FT4* pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
 #define createVert(_v) (SVECTOR) { \
-            item->item.position.vx + item_block_verts[CUBE_INDICES[i]._v].vx, \
-            item->item.position.vy + item_block_verts[CUBE_INDICES[i]._v].vy, \
-            item->item.position.vz + item_block_verts[CUBE_INDICES[i]._v].vz, \
+            item_block_verts[CUBE_INDICES[i]._v].vx, \
+            item_block_verts[CUBE_INDICES[i]._v].vy, \
+            item_block_verts[CUBE_INDICES[i]._v].vz, \
             0 \
         }
         SVECTOR current_verts[4] = {
@@ -134,6 +159,14 @@ void itemBlockRenderWorld(ItemBlock* item, RenderContext* ctx, Transforms* trans
         ot_object = allocateOrderingTable(ctx, p);
         addPrim(ot_object, ptwin);
     }
+    item->item.rotation.vy = (item->item.rotation.vy + 32) % ONE;
+    if (item->item.bob_offset <= 0) {
+        item->item.bob_direction = 1;
+    } else if (item->item.bob_offset >= BOB_DISTANCE) {
+        item->item.bob_direction = -1;
+    }
+    item->item.bob_offset += item->item.bob_direction;
+    PopMatrix();
 }
 
 void itemBlockRenderInventory(ItemBlock* item, RenderContext* ctx, Transforms* transforms) {

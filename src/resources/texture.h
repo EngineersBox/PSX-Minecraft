@@ -50,7 +50,7 @@ typedef struct {
     declareTintedFaceAttribute(pos_x, P99_PROTECT(pos_x_tint)) \
 }
 #define faceTint(r,g,b,cd) P99_PROTECT({r,g,b,cd})
-#define NO_TINT faceTint(0,0,0,0)
+#define NO_TINT faceTint(128,128,128,0)
 #define declareFaceAttributes(neg_z, pos_z, neg_y, pos_y, neg_x, pos_x) declareTintedFaceAttributes( \
     neg_z, NO_TINT, \
     pos_z, NO_TINT, \

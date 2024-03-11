@@ -40,7 +40,7 @@ void GrassItemBlock_init(VSelf) {
             .stack_size = 0,
             .max_stack_size = 64,
             .position = (VECTOR) {0},
-            .rotation = (VECTOR) {0},
+            .rotation = (SVECTOR) {0},
             .name = "grass"
         },
         .face_attributes = declareTintedFaceAttributes(

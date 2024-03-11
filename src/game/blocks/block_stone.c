@@ -44,4 +44,5 @@ void StoneBlock_provideItem(VSelf, IItem* item) {
     VCALL(*item, init);
     itemBlockReplicateFaceAttributes(stone_item_block->item_block, self->block);
     stone_item_block->item_block.item.stack_size = 1;
+    stone_item_block->item_block.item.bob_direction = 1;
 }

@@ -44,4 +44,5 @@ void DirtBlock_provideItem(VSelf, IItem* item) {
     VCALL(*item, init);
     itemBlockReplicateFaceAttributes(dirt_item_block->item_block, self->block);
     dirt_item_block->item_block.item.stack_size = 1;
+    dirt_item_block->item_block.item.bob_direction = 1;
 }
