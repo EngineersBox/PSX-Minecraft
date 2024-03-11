@@ -20,6 +20,9 @@ SVECTOR item_block_verts[VERTICES_COUNT] = {
     { -ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE, 0 }
 };
 #define ITEM_BOB_DISTANCE ((BLOCK_SIZE / 2) - (BLOCK_SIZE / 8))
+// Minecraft's item spin rate is 2.87675 degrees per tick
+// 2.87675 / 360 = 0.0079909722
+// (2.87675 / 360) * 4096 = 32.7310222222
 #define ITEM_ROTATION_QUANTA 32
 
 void itemBlockRenderWorld(ItemBlock* item, RenderContext* ctx, Transforms* transforms) {
