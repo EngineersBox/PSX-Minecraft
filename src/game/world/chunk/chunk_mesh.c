@@ -161,6 +161,9 @@ void renderQuad(const ChunkMesh* mesh, SMD_PRIM* primitive, RenderContext* ctx, 
         // Normal Color Single
         gte_ncs();
     }
+    // TODO: Fix depth queuing and fog
+    gte_lddp(p);
+    gte_dpct();
     // Store result to the primitive
     gte_strgb(&pol4->r0);
     // Set texture coords and dimensions

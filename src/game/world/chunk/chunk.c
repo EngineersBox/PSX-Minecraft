@@ -55,6 +55,8 @@ void chunkInit(Chunk* chunk) {
 
 void chunkDestroy(const Chunk* chunk) {
     chunkMeshDestroy(&chunk->mesh);
+    cvector_clear(chunk->dropped_items);
+    free(chunk->dropped_items);
 }
 
 void chunkGenerate2DHeightMap(Chunk* chunk, const VECTOR* position) {

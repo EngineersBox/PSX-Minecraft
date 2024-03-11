@@ -8,8 +8,6 @@
 #include <psxgte.h>
 
 #include "../../render/renderable.h"
-#include "../../render/render_context.h"
-#include "../../render/transforms.h"
 
 typedef uint8_t ItemID;
 

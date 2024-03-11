@@ -91,7 +91,7 @@ void Minecraft_init(VSelf, void* ctx) {
     // Set light ambient color and light color matrix
     gte_SetBackColor(63, 63, 63);
     gte_SetColorMatrix(&color_mtx);
-    gte_SetFarColor(128, 128, 128);
+    gte_SetFarColor(63, 63, 63);
     // FOV?
     gte_SetGeomScreen(100);
     initRenderContext(&self->internals.ctx);
