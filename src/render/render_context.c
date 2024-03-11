@@ -34,7 +34,7 @@ void initRenderContext(RenderContext* ctx) {
     }
     // First set of display/draw environments
     SetDefDispEnv(&ctx->db[0].display_env, 0, 0, w, h);
-    SetDefDrawEnv(&ctx->db[0].draw_env, w, 0, w, h);
+    SetDefDrawEnv(&ctx->db[0].draw_env, 0, h, w, h);
     scSetClipRect(0, 0, w, h);
     // Enable draw areas clear and dither processing
     setRGB0(
@@ -47,7 +47,7 @@ void initRenderContext(RenderContext* ctx) {
     ctx->db[0].draw_env.isbg = 1; // Background
     ctx->db[0].draw_env.dtd = 1; // Dithered
     // Second set of diplay/draw envirnoments
-    SetDefDispEnv(&ctx->db[1].display_env, w, 0, w, h);
+    SetDefDispEnv(&ctx->db[1].display_env, 0, h, w, h);
     SetDefDrawEnv(&ctx->db[1].draw_env, 0, 0, w, h);
     // Enable draw areas clear and dither processing
     setRGB0(
