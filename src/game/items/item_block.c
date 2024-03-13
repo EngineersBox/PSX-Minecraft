@@ -25,12 +25,19 @@ SVECTOR item_block_verts[VERTICES_COUNT] = {
 // (2.87675 / 360) * 4096 = 32.7310222222
 #define ITEM_ROTATION_QUANTA 32
 
+
+// Domain: [0,36] -> [0,1] (X)
+// Range:  [0,16] (Y)
+// f(x) = 16 * (1 / (1 + e^((-7.5 * x) + (7.5 / 2))))
 const int32_t sigmoid_lut[ITEM_BLOCK_BOB_ANIM_SAMPLES] = {
     0, 0, 0, 0, 0, 0, 1, 1, 1, 2, 2,
     2, 3, 3, 4, 5, 6, 6, 7, 8, 9, 9,
     10, 11, 12, 12, 13, 13, 13, 14,
     14, 14, 15, 15, 15, 15, 15
 };
+// Domain: [0,36] -> [0,1] (X)
+// Range:  [0,16] (Y)
+// f(x) = 16 * (0.5 + ((sin((pi * x) - (pi / 2))) / 2))
 const int32_t sin_lut[ITEM_BLOCK_BOB_ANIM_SAMPLES] = {
     0, 0, 0, 0, 0, 0, 1, 1, 1, 2, 2,
     3, 3, 4, 5, 5, 6, 6, 7, 8, 9, 9,
@@ -186,11 +193,6 @@ void itemBlockRenderWorld(ItemBlock* item, RenderContext* ctx, Transforms* trans
     } else if (item->item.bob_offset >= ITEM_BLOCK_BOB_ANIM_SAMPLES) {
         item->item.bob_direction = -1;
     }
-    // TODO: Convert to use precomputed values of sigmoid (1/(1+e^x)) for interpolation
-    // Domain: [0,1] (X)
-    // Range:  [0,1] (Y)
-    // 1 / (1 + e^(-10x + 5))
-    // 0.5 + ((sin((pi * x) - (pi/ 2 ))) / 2)
     item->item.bob_offset += item->item.bob_direction;
     PopMatrix();
 }
