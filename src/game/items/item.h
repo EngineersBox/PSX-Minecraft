@@ -22,9 +22,9 @@ typedef struct {
     ItemType type;
     uint8_t stack_size;
     uint8_t max_stack_size;
-    // World position or screen position
     uint8_t bob_offset;
     uint8_t bob_direction;
+    // World position or screen position
     VECTOR position;
     SVECTOR rotation;
     char* name;

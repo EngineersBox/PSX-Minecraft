@@ -19,18 +19,33 @@ SVECTOR item_block_verts[VERTICES_COUNT] = {
     {  ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE, 0 },
     { -ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE, 0 }
 };
-#define ITEM_BOB_DISTANCE ((BLOCK_SIZE / 2) - ITEM_BLOCK_SIZE)
+#define ITEM_BLOCK_BOB_ANIM_SAMPLES 37
 // Minecraft's item spin rate is 2.87675 degrees per tick
 // 2.87675 / 360 = 0.0079909722
 // (2.87675 / 360) * 4096 = 32.7310222222
 #define ITEM_ROTATION_QUANTA 32
 
-const int32_t sigmoid_lut[ITEM_BOB_DISTANCE] = {};
+const int32_t sigmoid_lut[ITEM_BLOCK_BOB_ANIM_SAMPLES] = {
+    0, 0, 0, 0, 0, 0, 1, 1, 1, 2, 2,
+    2, 3, 3, 4, 5, 6, 6, 7, 8, 9, 9,
+    10, 11, 12, 12, 13, 13, 13, 14,
+    14, 14, 15, 15, 15, 15, 15
+};
+const int32_t sin_lut[ITEM_BLOCK_BOB_ANIM_SAMPLES] = {
+    0, 0, 0, 0, 0, 0, 1, 1, 1, 2, 2,
+    3, 3, 4, 5, 5, 6, 6, 7, 8, 9, 9,
+    10, 10, 11, 12, 12, 13, 13, 14,
+    14, 14, 15, 15, 15, 15, 15
+};
+
+#ifndef ITEM_BLOCK_ANIM_LUT
+#define ITEM_BLOCK_ANIM_LUT sin_lut
+#endif
 
 void itemBlockRenderWorld(ItemBlock* item, RenderContext* ctx, Transforms* transforms) {
     VECTOR position = {
         .vx = item->item.position.vx,
-        .vy = item->item.position.vy + item->item.bob_offset,
+        .vy = item->item.position.vy + ITEM_BLOCK_ANIM_LUT[item->item.bob_offset],
         .vz = item->item.position.vz
     };
     // Object and light matrix for object
@@ -168,12 +183,12 @@ void itemBlockRenderWorld(ItemBlock* item, RenderContext* ctx, Transforms* trans
     item->item.rotation.vy = (item->item.rotation.vy + ITEM_ROTATION_QUANTA) % ONE;
     if (item->item.bob_offset <= 0) {
         item->item.bob_direction = 1;
-    } else if (item->item.bob_offset >= ITEM_BOB_DISTANCE) {
+    } else if (item->item.bob_offset >= ITEM_BLOCK_BOB_ANIM_SAMPLES) {
         item->item.bob_direction = -1;
     }
     // TODO: Convert to use precomputed values of sigmoid (1/(1+e^x)) for interpolation
     // Domain: [0,1] (X)
-    // Range: [0,1] (Y)
+    // Range:  [0,1] (Y)
     // 1 / (1 + e^(-10x + 5))
     // 0.5 + ((sin((pi * x) - (pi/ 2 ))) / 2)
     item->item.bob_offset += item->item.bob_direction;
