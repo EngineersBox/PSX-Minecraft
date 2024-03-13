@@ -171,7 +171,11 @@ void itemBlockRenderWorld(ItemBlock* item, RenderContext* ctx, Transforms* trans
     } else if (item->item.bob_offset >= ITEM_BOB_DISTANCE) {
         item->item.bob_direction = -1;
     }
-    // TODO: COnvert to use precomputed values of sigmoid (1/(1+e^x)) for interpolation
+    // TODO: Convert to use precomputed values of sigmoid (1/(1+e^x)) for interpolation
+    // Domain: [0,1] (X)
+    // Range: [0,1] (Y)
+    // 1 / (1 + e^(-10x + 5))
+    // 0.5 + ((sin((pi * x) - (pi/ 2 ))) / 2)
     item->item.bob_offset += item->item.bob_direction;
     PopMatrix();
 }
