@@ -49,31 +49,7 @@ const int32_t sin_lut[ITEM_BLOCK_BOB_ANIM_SAMPLES] = {
 #define ITEM_BLOCK_ANIM_LUT sin_lut
 #endif
 
-void itemBlockRenderWorld(ItemBlock* item, RenderContext* ctx, Transforms* transforms) {
-    VECTOR position = {
-        .vx = item->item.position.vx,
-        .vy = item->item.position.vy + ITEM_BLOCK_ANIM_LUT[item->item.bob_offset],
-        .vz = item->item.position.vz
-    };
-    // Object and light matrix for object
-    MATRIX omtx, olmtx;
-    // Set object rotation and position
-    RotMatrix(&item->item.rotation, &omtx);
-    ApplyMatrixLV(&omtx, &transforms->translation_position, &transforms->translation_position);
-    TransMatrix(&omtx, &position);
-    // Multiply light matrix to object matrix
-    MulMatrix0(&transforms->lighting_mtx, &omtx, &olmtx);
-    // Set result to GTE light matrix
-    gte_SetLightMatrix(&olmtx);
-    // Composite coordinate matrix transform, so object will be rotated and
-    // positioned relative to camera matrix (mtx), so it'll appear as
-    // world-space relative.
-    CompMatrixLV(&transforms->geometry_mtx, &omtx, &omtx);
-    // Save matrix
-    PushMatrix();
-    // Set matrices
-    gte_SetRotMatrix(&omtx);
-    gte_SetTransMatrix(&omtx);
+void renderItemBlock(ItemBlock* item, RenderContext* ctx, const VECTOR* position_offset) {
     int p;
     TextureAttributes* face_attribute;
     const Texture* texture = &textures[TERRAIN_TEXTURES];
@@ -88,9 +64,9 @@ void itemBlockRenderWorld(ItemBlock* item, RenderContext* ctx, Transforms* trans
         };
         POLY_FT4* pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
 #define createVert(_v) (SVECTOR) { \
-            item_block_verts[CUBE_INDICES[i]._v].vx, \
-            item_block_verts[CUBE_INDICES[i]._v].vy, \
-            item_block_verts[CUBE_INDICES[i]._v].vz, \
+            item_block_verts[CUBE_INDICES[i]._v].vx + position_offset->vx, \
+            item_block_verts[CUBE_INDICES[i]._v].vy + position_offset->vy, \
+            item_block_verts[CUBE_INDICES[i]._v].vz + position_offset->vz, \
             0 \
         }
         SVECTOR current_verts[4] = {
@@ -186,6 +162,81 @@ void itemBlockRenderWorld(ItemBlock* item, RenderContext* ctx, Transforms* trans
         setTexWindow(ptwin, &tex_window);
         ot_object = allocateOrderingTable(ctx, p);
         addPrim(ot_object, ptwin);
+    }
+}
+
+const VECTOR item_stack_render_offsets[5] = {
+    [0] = (VECTOR) {0},
+    [1] = (VECTOR) {
+        .vx = 4,
+        .vy = 4,
+        .vz = 4,
+    },
+    [2] = (VECTOR) {
+        .vx = -4,
+        .vy = 2,
+        .vz = 4,
+    },
+    [3] = (VECTOR) {
+        .vx = 4,
+        .vy = 5,
+        .vz = -4,
+    },
+    [4] = (VECTOR) {
+        .vx = -4,
+        .vy = 3,
+        .vz = -4,
+    },
+
+};
+
+void itemBlockRenderWorld(ItemBlock* item, RenderContext* ctx, Transforms* transforms) {
+    VECTOR position = {
+        .vx = item->item.position.vx,
+        .vy = item->item.position.vy + ITEM_BLOCK_ANIM_LUT[item->item.bob_offset],
+        .vz = item->item.position.vz
+    };
+    // Object and light matrix for object
+    MATRIX omtx, olmtx;
+    // Set object rotation and position
+    RotMatrix(&item->item.rotation, &omtx);
+    ApplyMatrixLV(&omtx, &transforms->translation_position, &transforms->translation_position);
+    TransMatrix(&omtx, &position);
+    // Multiply light matrix to object matrix
+    MulMatrix0(&transforms->lighting_mtx, &omtx, &olmtx);
+    // Set result to GTE light matrix
+    gte_SetLightMatrix(&olmtx);
+    // Composite coordinate matrix transform, so object will be rotated and
+    // positioned relative to camera matrix (mtx), so it'll appear as
+    // world-space relative.
+    CompMatrixLV(&transforms->geometry_mtx, &omtx, &omtx);
+    // Save matrix
+    PushMatrix();
+    // Set matrices
+    gte_SetRotMatrix(&omtx);
+    gte_SetTransMatrix(&omtx);
+    if (item->item.stack_size <= 1) {
+        renderItemBlock(item, ctx, &item_stack_render_offsets[0]);
+    } else if (item->item.stack_size <= 16) {
+        #pragma GCC unroll 2
+        for (int i = 0; i < 2; i ++) {
+            renderItemBlock(item, ctx, &item_stack_render_offsets[i]);
+        }
+    } else if (item->item.stack_size <= 32) {
+        #pragma GCC unroll 3
+        for (int i = 0; i < 3; i ++) {
+            renderItemBlock(item, ctx, &item_stack_render_offsets[i]);
+        }
+    } else if (item->item.stack_size <= 48) {
+        #pragma GCC unroll 4
+        for (int i = 0; i < 4; i ++) {
+            renderItemBlock(item, ctx, &item_stack_render_offsets[i]);
+        }
+    } else {
+        #pragma GCC unroll 5
+        for (int i = 0; i < 5; i ++) {
+            renderItemBlock(item, ctx, &item_stack_render_offsets[i]);
+        }
     }
     item->item.rotation.vy = (item->item.rotation.vy + ITEM_ROTATION_QUANTA) % ONE;
     if (item->item.bob_offset <= 0) {
