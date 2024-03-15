@@ -6,12 +6,16 @@
 #include <interface99.h>
 #include <stdint.h>
 #include <psxgte.h>
+#include <stdbool.h>
 
 #include "../../render/renderable.h"
 #include "../../math/math_utils.h"
 
 #define PICKUP_DISTANCE 154
 #define PICKUP_DISTANCE_SQUARED pow2(PICKUP_DISTANCE)
+#define PICKUP_TO_INV_DISTANCE 25
+#define PICKUP_TO_INV_DISTANCE_SQUARED pow2(PICKUP_TO_INV_DISTANCE)
+#define PICKUP_MOVE_ANIM_DISTANCE 4
 
 typedef uint8_t ItemID;
 
@@ -28,6 +32,7 @@ typedef struct {
     uint8_t max_stack_size;
     uint8_t bob_offset;
     uint8_t bob_direction;
+    bool picked_up;
     // World position or screen position
     VECTOR position;
     SVECTOR rotation;

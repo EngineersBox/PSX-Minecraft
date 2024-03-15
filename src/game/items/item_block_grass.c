@@ -41,7 +41,8 @@ void GrassItemBlock_init(VSelf) {
             .max_stack_size = 64,
             .position = (VECTOR) {0},
             .rotation = (SVECTOR) {0},
-            .name = "grass"
+            .name = "grass",
+            .picked_up = false
         },
         .face_attributes = declareTintedFaceAttributes(
             3 /*49*/, NO_TINT,

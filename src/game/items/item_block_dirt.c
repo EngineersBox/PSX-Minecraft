@@ -41,7 +41,8 @@ void DirtItemBlock_init(VSelf) {
             .max_stack_size = 64,
             .position = (VECTOR) {0},
             .rotation = (SVECTOR) {0},
-            .name = "dirt"
+            .name = "dirt",
+            .picked_up = false
         },
         .face_attributes = defaultFaceAttributes(2),
     };

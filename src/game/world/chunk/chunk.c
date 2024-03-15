@@ -616,12 +616,27 @@ void chunkUpdate(Chunk* chunk, const VECTOR* player_position) {
     IItem* iitem;
     uint32_t i = 0;
     cvector_for_each_in(iitem, chunk->dropped_items) {
-        const Item* item = VCAST(Item*, *iitem);
+        Item* item = VCAST(Item*, *iitem);
         const int32_t sq_dist = squareDistance(&pos, &item->position);
-        if (sq_dist <= PICKUP_DISTANCE_SQUARED) {
-            cvector_erase(chunk->dropped_items, i);
+        if (sq_dist > PICKUP_DISTANCE_SQUARED) {
+            i++;
+            continue;
+        } else if (!item->picked_up) {
+            item->picked_up = true;
+            i++;
+            continue;
+        } else if (sq_dist <= PICKUP_TO_INV_DISTANCE_SQUARED) {
             printf("[ITEM] Picked up: %s x%d\n", item->name, item->stack_size);
+            cvector_erase(chunk->dropped_items, i);
+            i++;
+            continue;
         }
+        const int32_t sign_x = sign(pos.vx - item->position.vx);
+        const int32_t sign_y = sign(pos.vy - item->position.vy);
+        const int32_t sign_z = sign(pos.vz - item->position.vz);
+        item->position.vx += sign_x * PICKUP_MOVE_ANIM_DISTANCE;
+        item->position.vy += sign_y * PICKUP_MOVE_ANIM_DISTANCE;
+        item->position.vz += sign_z * PICKUP_MOVE_ANIM_DISTANCE;
         i++;
     }
 }

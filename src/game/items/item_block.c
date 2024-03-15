@@ -25,7 +25,6 @@ SVECTOR item_block_verts[VERTICES_COUNT] = {
 // (2.87675 / 360) * 4096 = 32.7310222222
 #define ITEM_ROTATION_QUANTA 32
 
-
 // Domain: [0,36] -> [0,1] (X)
 // Range:  [0,16] (Y)
 // f(x) = 16 * (1 / (1 + e^((-7.5 * x) + (7.5 / 2))))
@@ -48,6 +47,30 @@ const int32_t sin_lut[ITEM_BLOCK_BOB_ANIM_SAMPLES] = {
 #ifndef ITEM_BLOCK_ANIM_LUT
 #define ITEM_BLOCK_ANIM_LUT sin_lut
 #endif
+
+const VECTOR item_stack_render_offsets[5] = {
+    [0] = (VECTOR) {0},
+    [1] = (VECTOR) {
+        .vx = 4,
+        .vy = 4,
+        .vz = 4,
+    },
+    [2] = (VECTOR) {
+        .vx = -4,
+        .vy = 2,
+        .vz = 4,
+    },
+    [3] = (VECTOR) {
+        .vx = 4,
+        .vy = 5,
+        .vz = -4,
+    },
+    [4] = (VECTOR) {
+        .vx = -4,
+        .vy = 3,
+        .vz = -4,
+    },
+};
 
 void renderItemBlock(ItemBlock* item, RenderContext* ctx, const VECTOR* position_offset) {
     int p;
@@ -164,31 +187,6 @@ void renderItemBlock(ItemBlock* item, RenderContext* ctx, const VECTOR* position
         addPrim(ot_object, ptwin);
     }
 }
-
-const VECTOR item_stack_render_offsets[5] = {
-    [0] = (VECTOR) {0},
-    [1] = (VECTOR) {
-        .vx = 4,
-        .vy = 4,
-        .vz = 4,
-    },
-    [2] = (VECTOR) {
-        .vx = -4,
-        .vy = 2,
-        .vz = 4,
-    },
-    [3] = (VECTOR) {
-        .vx = 4,
-        .vy = 5,
-        .vz = -4,
-    },
-    [4] = (VECTOR) {
-        .vx = -4,
-        .vy = 3,
-        .vz = -4,
-    },
-
-};
 
 void itemBlockRenderWorld(ItemBlock* item, RenderContext* ctx, Transforms* transforms) {
     VECTOR position = {

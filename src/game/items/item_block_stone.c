@@ -41,7 +41,8 @@ void StoneItemBlock_init(VSelf) {
             .max_stack_size = 64,
             .position = (VECTOR) {0},
             .rotation = (SVECTOR) {0},
-            .name = "stone"
+            .name = "stone",
+            .picked_up = false
         },
         .face_attributes = defaultFaceAttributes(1),
     };
