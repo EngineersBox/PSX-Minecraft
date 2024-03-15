@@ -98,12 +98,8 @@ CMake within the Docker context attached to CLion. To the following to set this 
 ## Progress
 
 Working on world-ray intersection for updating terrain data based on ray cast from camera
-orientation.
-
-|                              |                              |
-|------------------------------|------------------------------|
-| ![PSXMC](./docs/PSXMC-1.png) | ![PSXMC](./docs/PSXMC-2.png) |
-|                              |                              |
-
+orientation and item & inventories
 
 ![PSXMC](./docs/PSXMC.png)
+![PSXMC](./docs/PSXMC-1.png)
+![PSXMC](./docs/PSXMC-2.png)
