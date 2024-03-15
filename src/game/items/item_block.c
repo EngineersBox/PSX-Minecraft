@@ -56,19 +56,19 @@ const VECTOR item_stack_render_offsets[5] = {
         .vz = 4,
     },
     [2] = (VECTOR) {
-        .vx = -4,
+        .vx = -5,
         .vy = 2,
-        .vz = 4,
+        .vz = 3,
     },
     [3] = (VECTOR) {
-        .vx = 4,
+        .vx = 2,
         .vy = 5,
         .vz = -4,
     },
     [4] = (VECTOR) {
-        .vx = -4,
+        .vx = -3,
         .vy = 3,
-        .vz = -4,
+        .vz = -5,
     },
 };
 
