@@ -509,9 +509,6 @@ void chunkGenerateMesh(Chunk* chunk) {
 }
 
 void chunkRenderDroppedItems(Chunk* chunk, RenderContext* ctx, Transforms* transforms) {
-    if (cvector_size(chunk->dropped_items) < 1) {
-        return;
-    }
     IItem* item;
     cvector_for_each_in(item, chunk->dropped_items) {
         VCALL_SUPER(*item, Renderable, renderWorld, ctx, transforms);
