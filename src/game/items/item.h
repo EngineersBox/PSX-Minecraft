@@ -15,7 +15,7 @@
 #define PICKUP_DISTANCE_SQUARED pow2(PICKUP_DISTANCE)
 #define PICKUP_TO_INV_DISTANCE 25
 #define PICKUP_TO_INV_DISTANCE_SQUARED pow2(PICKUP_TO_INV_DISTANCE)
-#define PICKUP_MOVE_ANIM_DISTANCE 4
+#define PICKUP_MOVE_ANIM_DISTANCE 8
 
 typedef uint8_t ItemID;
 
@@ -38,6 +38,8 @@ typedef struct {
     SVECTOR rotation;
     char* name;
 } Item;
+
+bool itemUpdate(Item* item, const VECTOR* player_position);
 
 #define IItem_IFACE \
     vfunc(void, init, VSelf) \
