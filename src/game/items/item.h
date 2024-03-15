@@ -8,6 +8,10 @@
 #include <psxgte.h>
 
 #include "../../render/renderable.h"
+#include "../../math/math_utils.h"
+
+#define PICKUP_DISTANCE 154
+#define PICKUP_DISTANCE_SQUARED pow2(PICKUP_DISTANCE)
 
 typedef uint8_t ItemID;
 

@@ -606,3 +606,22 @@ bool chunkModifyVoxel(Chunk* chunk, const VECTOR* position, IBlock* block, IItem
     chunkGenerateMesh(chunk);
     return true;
 }
+
+void chunkUpdate(Chunk* chunk, const VECTOR* player_position) {
+    const VECTOR pos = (VECTOR) {
+        .vx = player_position->vx >> FIXED_POINT_SHIFT,
+        .vy = player_position->vy >> FIXED_POINT_SHIFT,
+        .vz = player_position->vz >> FIXED_POINT_SHIFT,
+    };
+    IItem* iitem;
+    uint32_t i = 0;
+    cvector_for_each_in(iitem, chunk->dropped_items) {
+        const Item* item = VCAST(Item*, *iitem);
+        const int32_t sq_dist = squareDistance(&pos, &item->position);
+        if (sq_dist <= PICKUP_DISTANCE_SQUARED) {
+            cvector_erase(chunk->dropped_items, i);
+            printf("[ITEM] Picked up: %s x%d\n", item->name, item->stack_size);
+        }
+        i++;
+    }
+}

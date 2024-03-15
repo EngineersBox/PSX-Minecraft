@@ -36,6 +36,15 @@
 })
 
 /**
+ * @brief Computer the second power of v as v^2 or v * v
+ * @param v - Value to square
+ * @return v * v
+ */
+#define pow2(v) ((v) * (v))
+
+#define squareDistance(v1, v2) (pow2((v2)->vx - (v1)->vx) + pow2((v2)->vy - (v1)->vy) + pow2((v2)->vz - (v1)->vz))
+
+/**
  * @brief Clamp a value between an upper and lower bound
  * @param x - value
  * @param lower - lower bound on value

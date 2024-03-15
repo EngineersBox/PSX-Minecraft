@@ -49,4 +49,6 @@ void chunkRender(Chunk* chunk, RenderContext* ctx, Transforms* transforms);
 IBlock* chunkGetBlock(const Chunk* chunk, int x, int y, int z);
 IBlock* chunkGetBlockVec(const Chunk* chunk, const VECTOR* position);
 
+void chunkUpdate(Chunk* chunk, const VECTOR* player_position);
+
 #endif // PSX_MINECRAFT_CHUNK_H

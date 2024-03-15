@@ -388,6 +388,20 @@ void worldUpdate(World* world, const VECTOR* player_pos) {
             printf("\n");
         }
     }
+    const int x_start = world->centre.vx - LOADED_CHUNKS_RADIUS;
+    const int x_end = world->centre.vx + LOADED_CHUNKS_RADIUS;
+    const int z_start = world->centre.vz - LOADED_CHUNKS_RADIUS;
+    const int z_end = world->centre.vz + LOADED_CHUNKS_RADIUS;
+    for (int x = x_start; x <= x_end; x++) {
+        for (int z = z_start; z <= z_end; z++) {
+            for (int y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
+                chunkUpdate(
+                    world->chunks[arrayCoord(world, vz, z)][arrayCoord(world, vx, x)][y],
+                    player_pos
+                );
+            }
+        }
+    }
 }
 
 IBlock* worldGetChunkBlock(const World* world, const ChunkBlockPosition* position) {
