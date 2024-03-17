@@ -6,6 +6,7 @@
 #include <stdbool.h>
 #include <psxgte.h>
 #include <interface99.h>
+#include <metalang99.h>
 
 #include "../structure/cvector.h"
 #include "../render/render_context.h"
@@ -31,28 +32,29 @@ typedef struct UIComponent {
 typedef struct {
     char* title;
     bool active;
-    cvector(IUIComponent) components;
 } UI;
 
-// typedef struct {
-//     char* title;
-//     bool active;
-//     bool open;
-// } UI;
-//
-// #define DEFN_COMPONENTS(...) struct { \
-//         UIComponent __VA_ARGS__ \
-//     } components
-//
-// #define DEFN_UI(name, components) struct { \
-//         UI ui; \
-//         components \
-//     } name
-//
-// DEFN_UI(
+#define _TYPE_AS_UI_COMPONENT_PTR(x) IUIComponent* x
+
+#define DEFN_COMPONENTS(...) struct { \
+        ML99_EVAL(ML99_variadicsForEach( \
+            ML99_compose(v(ML99_semicoloned), ML99_reify(v(_TYPE_AS_UI_COMPONENT_PTR))), \
+            v(__VA_ARGS__) \
+        )) \
+    } components
+
+#define DEFN_UI(name, components) struct { \
+        UI ui; \
+        components \
+    } name
+
+#define TYPE_DEFN_UI(name, components) typedef DEFN_UI(name, components)
+
+// Example
+// TYPE_DEFN_UI(
 //     test_ui,
 //     DEFN_COMPONENTS(
-//         test, test2;
+//         test, test2
 //     );
 // );
 

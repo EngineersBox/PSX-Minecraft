@@ -11,6 +11,7 @@
 #include "../structure/cvector_utils.h"
 #include "../render/debug.h"
 #include "../math/math_utils.h"
+#include "../ui/ui.h"
 
 // Reference texture data
 extern const uint32_t tim_texture[];

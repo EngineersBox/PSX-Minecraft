@@ -56,12 +56,18 @@ psn00bsdk_add_cd_image(
 include(FetchContent)
 
 FetchContent_Declare(
+		metalang99
+		URL https://github.com/Hirrolot/metalang99/archive/refs/tags/v1.13.3.tar.gz
+)
+FetchContent_Declare(
 		interface99
 		URL https://github.com/Hirrolot/interface99/archive/refs/tags/v1.0.1.tar.gz
 )
 
+FetchContent_MakeAvailable(metalang99)
 FetchContent_MakeAvailable(interface99)
 
+target_link_libraries(PSXMC PRIVATE metalang99)
 target_link_libraries(PSXMC PRIVATE interface99)
 
 # Disable full macro expansion backtraces for Metalang99.

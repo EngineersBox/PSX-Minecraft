@@ -23,4 +23,5 @@ typedef struct {
     cvector(Slot) slots;
 } Inventory;
 
+
 #endif // PSX_MINECRAFT_INVENTORY_H
