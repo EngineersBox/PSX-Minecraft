@@ -18,6 +18,6 @@ typedef struct {
 
 void playerInit(Player* player);
 void playerUpdate(Player* player);
-void playerRender(Player* player, RenderContext* ctx, Transforms* transforms);
+void playerRender(const Player* player, RenderContext* ctx, Transforms* transforms);
 
 #endif // PSX_MINECRAFT_PLAYER_H

@@ -17,6 +17,6 @@ typedef struct {
 } Hotbar;
 
 void hotbarInit(Hotbar* hotbar);
-void hotbarRender(Hotbar* hotbar, RenderContext* ctx, Transforms* transforms);
+void hotbarRender(const Hotbar* hotbar, RenderContext* ctx, Transforms* transforms);
 
 #endif // PSX_MINECRAFT_HOTBAR_H
