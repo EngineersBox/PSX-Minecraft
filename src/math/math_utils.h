@@ -35,6 +35,13 @@
     _a < _b ? _a : _b; \
 })
 
+#define quadIntersect(cursor, base, dim) ( \
+    (cursor)->vx >= (base)->vx \
+    && (cursor)->vy >= (base)->vy \
+    && (cursor)->vx <= (base)->vx + (dim)->vx \
+    && (cursor)->vy <= (base)->vy + (dim)->vy \
+)
+
 /**
  * @brief Computer the second power of v as v^2 or v * v
  * @param v - Value to square

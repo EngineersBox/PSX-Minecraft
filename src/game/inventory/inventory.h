@@ -7,7 +7,7 @@
 #include <stdbool.h>
 #include <psxgte.h>
 
-#include "../../structure/svector.h"
+#include "../../structure/cvector.h"
 #include "../items/item.h"
 #include "../../ui/ui.h"
 

@@ -12,7 +12,7 @@
 #include "../render/transforms.h"
 
 #define IUIComponent_IFACE \
-    vfunc(void, action, VSelf, const DVECTOR* cursor_position) \
+    vfunc(void, action, VSelf, const DVECTOR* cursor_position, const bool pressed) \
     vfunc(void, render, VSelf, RenderContext* ctx, Transforms* transforms)
 
 interface(IUIComponent);
