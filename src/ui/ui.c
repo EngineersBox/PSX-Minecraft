@@ -2,8 +2,8 @@
 
 #include "../structure/cvector_utils.h"
 
-void uiRender(UI* ui, RenderContext* ctx, Transforms* transforms) {
-    if (ui->components == NULL) {
+void uiRender(const UI* ui, RenderContext* ctx, Transforms* transforms) {
+    if (ui->components == NULL || !ui->active) {
         return;
     }
     IUIComponent* component;

@@ -34,7 +34,7 @@ typedef struct {
     cvector(IUIComponent) components;
 } UI;
 
-void uiRender(UI* ui, RenderContext* ctx, Transforms* transforms);
+void uiRender(const UI* ui, RenderContext* ctx, Transforms* transforms);
 
 // #define _TYPE_AS_UI_COMPONENT_PTR(x) IUIComponent* x
 //
