@@ -28,6 +28,11 @@ typedef struct UIComponent {
         __VA_ARGS__ \
     } name
 
+// TODO: Texture for UI will be loaded in a fixed position in the VRAM
+//       buffer, since only one UI view can be active at any given time.
+//       When the UI is opened, the texture is loaded and when it is closed,
+//       the texture is unloaded.
+
 typedef struct {
     char* title;
     bool active;
