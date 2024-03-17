@@ -3,7 +3,6 @@
 #ifndef PSX_MINECRAFT_INVENTORY_H
 #define PSX_MINECRAFT_INVENTORY_H
 
-#include <stdint.h>
 #include <stdbool.h>
 #include <psxgte.h>
 
@@ -22,6 +21,5 @@ typedef struct {
     UI ui;
     cvector(Slot) slots;
 } Inventory;
-
 
 #endif // PSX_MINECRAFT_INVENTORY_H

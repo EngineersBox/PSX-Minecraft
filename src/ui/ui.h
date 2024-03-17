@@ -23,32 +23,34 @@ typedef struct UIComponent {
     DVECTOR dimensions;
 } UIComponent;
 
-#define DEFN_UI_COMPONENT(name, ...) \
-    typedef struct {\
+#define DEFN_UI_COMPONENT(name, ...) typedef struct {\
         UIComponent component; \
         __VA_ARGS__ \
-    } name;
+    } name
 
 typedef struct {
     char* title;
     bool active;
+    cvector(IUIComponent) components;
 } UI;
 
-#define _TYPE_AS_UI_COMPONENT_PTR(x) IUIComponent* x
+void uiRender(UI* ui, RenderContext* ctx, Transforms* transforms);
 
-#define DEFN_COMPONENTS(...) struct { \
-        ML99_EVAL(ML99_variadicsForEach( \
-            ML99_compose(v(ML99_semicoloned), ML99_reify(v(_TYPE_AS_UI_COMPONENT_PTR))), \
-            v(__VA_ARGS__) \
-        )) \
-    } components
-
-#define DEFN_UI(name, components) struct { \
-        UI ui; \
-        components \
-    } name
-
-#define TYPE_DEFN_UI(name, components) typedef DEFN_UI(name, components)
+// #define _TYPE_AS_UI_COMPONENT_PTR(x) IUIComponent* x
+//
+// #define DEFN_COMPONENTS(...) struct { \
+//         ML99_EVAL(ML99_variadicsForEach( \
+//             ML99_compose(v(ML99_semicoloned), ML99_reify(v(_TYPE_AS_UI_COMPONENT_PTR))), \
+//             v(__VA_ARGS__) \
+//         )) \
+//     } components
+//
+// #define DEFN_UI(name, components) struct { \
+//         UI ui; \
+//         components \
+//     } name
+//
+// #define TYPE_DEFN_UI(name, components) typedef DEFN_UI(name, components)
 
 // Example
 // TYPE_DEFN_UI(
