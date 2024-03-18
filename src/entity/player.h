@@ -12,11 +12,15 @@
 typedef struct {
     Camera camera;
     VECTOR position;
-    Inventory inventory;
-    Hotbar hotbar;
+    // Inventory inventory;
+    // Hotbar hotbar;
+    IUI inventory;
+    IUI hotbar;
 } Player;
 
 void playerInit(Player* player);
+void playerDestroy(const Player* player);
+
 void playerUpdate(Player* player);
 void playerRender(const Player* player, RenderContext* ctx, Transforms* transforms);
 

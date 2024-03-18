@@ -52,6 +52,7 @@ typedef struct {
     __VA_ARGS__ \
 } name
 
+void uiInit(UI* ui);
 void uiRender(const UI* ui, RenderContext* ctx, Transforms* transforms);
 
 // #define _TYPE_AS_UI_COMPONENT_PTR(x) IUIComponent* x

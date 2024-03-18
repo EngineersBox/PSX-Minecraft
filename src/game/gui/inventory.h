@@ -27,7 +27,6 @@ void inventoryFreeTexture(VSelf);
 void Inventory_freeTexture(VSelf);
 
 void inventoryInit(Inventory* inventory, Hotbar* hotbar);
-void inventoryRender(const Inventory* inventory, RenderContext* ctx, Transforms* transforms);
 
 impl(IUI, Inventory);
 

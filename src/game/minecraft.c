@@ -12,6 +12,7 @@
 #include "../render/debug.h"
 #include "../math/math_utils.h"
 #include "../ui/ui.h"
+#include "../entity/player.h"
 
 // Reference texture data
 extern const uint32_t tim_texture[];
@@ -66,6 +67,7 @@ SVECTOR marker_rot = {0};
 SVECTOR direction_pos = {0};
 
 World* world;
+Player* player;
 
 // Forward declaration
 void cameraStartHandler(Camera* camera);
@@ -114,6 +116,8 @@ void Minecraft_init(VSelf, void* ctx) {
     worldInit(self->world, &self->internals.ctx);
     world = self->world;
     cvector_init(markers, 1, NULL);
+    player = (Player*) malloc(sizeof(Player));
+    playerInit(player);
 }
 
 void minecraftCleanup(VSelf) __attribute__((alias("Minecraft_cleanup")));
@@ -121,6 +125,8 @@ void Minecraft_cleanup(VSelf) {
     VSELF(Minecraft);
     worldDestroy(self->world);
     free(self->world);
+    playerDestroy(player);
+    free(player);
     assetsFree();
 }
 
@@ -427,6 +433,7 @@ void Minecraft_render(VSelf, const Stats* stats) {
     // Draw marker
     drawMarker(self);
     // Render UI
+    playerRender(player, &self->internals.ctx, &self->internals.transforms);
     // crosshairDraw(&render_context);
     drawDebugText(self, stats);
     axisDraw(&self->internals.ctx, &self->internals.transforms, &self->internals.camera);

@@ -8,16 +8,16 @@
 #include "../ui.h"
 
 DEFN_UI_COMPONENT(
-    Button,
+    UIButton,
     bool pressed;
 );
 
-void buttonAction(VSelf, const DVECTOR* cursor_position, const bool pressed);
-void Button_action(VSelf, const DVECTOR* cursor_position, const bool pressed);
+void uiButtonAction(VSelf, const DVECTOR* cursor_position, const bool pressed);
+void UIButton_action(VSelf, const DVECTOR* cursor_position, const bool pressed);
 
-void buttonRender(VSelf, RenderContext* ctx, Transforms* transforms);
-void Button_render(VSelf, RenderContext* ctx, Transforms* transforms);
+void uiButtonRender(VSelf, RenderContext* ctx, Transforms* transforms);
+void UIButton_render(VSelf, RenderContext* ctx, Transforms* transforms);
 
-impl(IUIComponent, Button);
+impl(IUIComponent, UIButton);
 
 #endif // PSX_MINECRAFT_BUTTON_H

@@ -43,25 +43,27 @@ AssetBundle ASSET_BUNDLES[] = {
 Texture* textures;
 
 void _loadTextures(const int lzp_index) {
+    // TODO: Something weird going on here, print statement shows GUI twice, but VRAM
+    //       view shows both terrain and GUI
     TIM_IMAGE tim;
     QLP_HEAD* tex_buff = (QLP_HEAD*) malloc(lzpFileSize(lz_resources, lzp_index));
     lzpUnpackFile(tex_buff, lz_resources, lzp_index);
     const int file_count = qlpFileCount(tex_buff);
     printf("[TEXTURE] Loading %d texture(s)\n", file_count);
     if (file_count > 0) {
-        textures = (Texture*) malloc(file_count * sizeof(Texture));
+        textures = (Texture*) calloc(file_count, sizeof(Texture));
     }
-    for (int j = 0; j < file_count; j++) {
+    for (int i = 0; i < file_count; i++) {
         const QLP_FILE* file = qlpFileEntry(lzp_index, tex_buff);
-        if (!GetTimInfo((u_long*) qlpFileAddr(j, tex_buff), &tim)) {
+        if (!GetTimInfo((uint32_t*) qlpFileAddr(i, tex_buff), &tim)) {
             printf(
                 "[TEXTURE: %d] Loading: [Name: %s] [Addr: %p] [Mode: 0x%x]\n",
-                j,
+                i,
                 file->name,
                 tim.caddr,
                 tim.mode
             );
-            assetLoadImage(&tim, j);
+            assetLoadImage(&tim, i);
         }
     }
     free(tex_buff);

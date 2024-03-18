@@ -31,7 +31,7 @@ void drawBackgroundHalf(RenderContext* ctx,
         SCREEN_YRES
     );
     // Bind texture page and colour look-up-table
-    const Texture* texture = &textures[ASSET_TEXTURES_INDEX];
+    const Texture* texture = &textures[ASSET_TEXTURES_TERRAIN_INDEX];
     pol4->tpage = texture->tpage;
     pol4->clut = texture->clut;
     // Sort primitive to the ordering table

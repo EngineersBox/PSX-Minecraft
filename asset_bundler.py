@@ -198,7 +198,6 @@ def main():
     success, fail, skipped = bundle(lzp_project.getroot())
     sort_elements(lzp_project.getroot())
     defines = generate_defines(lzp_project.getroot())
-    print(defines)
     with open("src/resources/asset_indices.h", "w") as file:
         file.write(defines)
     ET.indent(lzp_project)

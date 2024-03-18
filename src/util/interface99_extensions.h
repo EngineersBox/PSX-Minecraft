@@ -26,8 +26,8 @@
 #define DYN_PTR(ptr, implementer, iface, ...) DYN_PTR99(ptr, implementer, iface, __VA_ARGS__)
 #define DYN_LIT_PTR(ptr, implementer, iface, ...) DYN_LIT_PTR99(ptr, implementer, iface, __VA_ARGS__)
 #define DYN_PTR99(ptr, implementer, iface, ...) ({ \
-    ptr->self = (void *)(__VA_ARGS__); \
-    ptr->vptr = &VTABLE99(implementer, iface); \
+    (ptr)->self = (void *)(__VA_ARGS__); \
+    (ptr)->vptr = &VTABLE99(implementer, iface); \
 })
 #define DYN_LIT_PTR99(ptr, implementer, iface, ...) DYN_PTR99(ptr, implementer, iface, &(implementer)__VA_ARGS__)
 

@@ -2,6 +2,11 @@
 
 #include "../structure/cvector_utils.h"
 
+void uiInit(UI* ui) {
+    ui->components = NULL;
+    cvector_init(ui->components, 0, NULL);
+}
+
 void uiRender(const UI* ui, RenderContext* ctx, Transforms* transforms) {
     if (ui->components == NULL || !ui->active) {
         return;
