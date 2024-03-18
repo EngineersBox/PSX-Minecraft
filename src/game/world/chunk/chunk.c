@@ -11,6 +11,7 @@
 #include "../generation/noise.h"
 #include "../../math/math_utils.h"
 #include "../../util/interface99_extensions.h"
+#include "../../resources/asset_indices.h"
 
 // Forward declaration
 IBlock* worldGetBlock(const World* world, const VECTOR* position);
@@ -179,7 +180,7 @@ SMD_PRIM* createQuadPrimitive(ChunkMesh* mesh,
     primitive->prim_id.texoff = 0;
     primitive->prim_id.reserved = 0;
     primitive->prim_id.len = 4 + 8 + 4 + 8 + 4; // Some wizardry based on PSn00bSDK/tools/smxlink/main.cpp lines 518-644
-    const Texture* texture = &textures[TERRAIN_TEXTURES];
+    const Texture* texture = &textures[ASSET_TEXTURES_TERRAIN_INDEX];
     primitive->tpage = texture->tpage;
     primitive->clut = texture->clut;
     const Block* block = VCAST(Block*, *mask->block);

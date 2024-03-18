@@ -18,17 +18,18 @@ configure_file(assets.xml _assets.xml)
 # Add a build step to pack assets into a single .LZP file. Note that, since we
 # are specifying dependencies, CMake can detect when source assets are edited
 # and rebuild the archive automatically.
-file(GLOB _assets ${ASSETS_DIR}/**/*.tim ${ASSETS_DIR}/**/*.smd)
+file(GLOB_RECURSE _assets ${ASSETS_DIR}/*.tim ${ASSETS_DIR}/*.smd)
 list(LENGTH _assets asset_count)
 if (NOT (asset_count EQUAL 0))
 	add_custom_command(
 		COMMAND    ${LZPACK} -y _assets.xml
 		OUTPUT     assets.lzp
-		BYPRODUCTS textures.qlp gui.qlp
+		BYPRODUCTS textures.qlp
 		DEPENDS    ${_assets}
 		COMMENT    "Building LZP archive"
 	)
 endif()
+message("Globbed assets: ${asset_count} => [${_assets}]")
 
 # Include source content
 file(GLOB_RECURSE PSXMC_SOURCES CONFIGURE_DEPENDS "src/*.c")
@@ -40,6 +41,7 @@ foreach (_headerFile ${PSXMC_HEADERS})
 	list(APPEND PSXMC_INCLUDE_DIRS ${_dir})
 endforeach()
 list(REMOVE_DUPLICATES PSXMC_INCLUDE_DIRS)
+message("Include dirs: [${PSXMC_INCLUDE_DIRS}]")
 
 # Mark executable
 psn00bsdk_add_executable(PSXMC GPREL ${PSXMC_SOURCES})
@@ -87,5 +89,5 @@ if (NOT (asset_count EQUAL 0))
 	)
 endif()
 
-psn00bsdk_target_incbin(PSXMC PRIVATE tim_texture "assets/texture.tim_old")
+#psn00bsdk_target_incbin(PSXMC PRIVATE tim_texture "assets/texture.tim")
 install(FILES ${PROJECT_BINARY_DIR}/PSXMC.exe TYPE BIN)

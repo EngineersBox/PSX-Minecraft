@@ -164,11 +164,31 @@ def bundle(lzp_project) -> (int, int, int):
     return success, fail, skipped
 
 
-def sort_elements(lzp_project):
+def sort_elements(lzp_project: ET.Element):
     assets = lzp_project.find("create[@packname='assets.lzp']")
     lzp_project.remove(assets)
     lzp_project.append(assets)
 
+
+def generate_defines(lzp_project: ET.Element) -> str:
+    defines = ""
+    pack_index = 0
+    for element in lzp_project.findall("create[@format='qlp']"):
+        define_prefix = element.attrib["packname"].removesuffix(".qlp")
+        defines += "#define " + f"ASSET_{define_prefix}_INDEX {pack_index}".upper() + "\n"
+        pack_asset_index = 0
+        for file_element in element:
+            defines += "#define " + f"ASSET_{define_prefix}_{file_element.attrib['alias']}_INDEX {pack_asset_index}".upper() + "\n"
+            pack_asset_index += 1
+        pack_index += 1
+    return """#pragma once
+
+#ifndef PSX_MINECRAFT_ASSET_INDICES_H
+#define PSX_MINECRAFT_ASSET_INDICES_H
+
+""" + defines + """
+#endif // PSX_MINECRAFT_ASSET_INDICES_H    
+"""
 
 def main():
     with open("assets.xml", "w+") as file:
@@ -177,6 +197,10 @@ def main():
     lzp_project = ET.parse("assets.xml")
     success, fail, skipped = bundle(lzp_project.getroot())
     sort_elements(lzp_project.getroot())
+    defines = generate_defines(lzp_project.getroot())
+    print(defines)
+    with open("src/resources/asset_indices.h", "w") as file:
+        file.write(defines)
     ET.indent(lzp_project)
     lzp_project.write("assets.xml")
     LOGGER.info("Written bundled assets XML to assets.xml")

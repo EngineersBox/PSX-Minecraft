@@ -7,6 +7,7 @@
 #include "../../structure/primitive/clip.h"
 #include "../../math/math_utils.h"
 #include "../../structure/primitive/cube.h"
+#include "../../resources/asset_indices.h"
 
 #define VERTICES_COUNT 8
 SVECTOR item_block_verts[VERTICES_COUNT] = {
@@ -75,7 +76,7 @@ const VECTOR item_stack_render_offsets[5] = {
 void renderItemBlock(ItemBlock* item, RenderContext* ctx, const VECTOR* position_offset) {
     int p;
     TextureAttributes* face_attribute;
-    const Texture* texture = &textures[TERRAIN_TEXTURES];
+    const Texture* texture = &textures[ASSET_TEXTURES_TERRAIN_INDEX];
     RECT tex_window;
     for (int i  = 0; i < BLOCK_FACES; i++) {
         face_attribute = &item->face_attributes[i];

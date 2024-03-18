@@ -3,6 +3,7 @@
 #include <noise.h>
 
 #include "../resources/assets.h"
+#include "../resources/asset_indices.h"
 #include "../blocks/block.h"
 
 void drawBackgroundHalf(RenderContext* ctx,
@@ -30,7 +31,7 @@ void drawBackgroundHalf(RenderContext* ctx,
         SCREEN_YRES
     );
     // Bind texture page and colour look-up-table
-    const Texture* texture = &textures[TERRAIN_TEXTURES];
+    const Texture* texture = &textures[ASSET_TEXTURES_INDEX];
     pol4->tpage = texture->tpage;
     pol4->clut = texture->clut;
     // Sort primitive to the ordering table

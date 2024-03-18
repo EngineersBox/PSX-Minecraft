@@ -3,7 +3,7 @@
     <file alias="terrain">${ASSETS_DIR}/terrain.tim</file>
   </create>
   <create packname="gui.qlp" format="qlp">
-    <file alias="test">${ASSETS_DIR}/gui/test.tim</file>
+    <file alias="gui">${ASSETS_DIR}/gui/gui.tim</file>
   </create>
   <create packname="assets.lzp" format="lzp">
     <file alias="textures">textures.qlp</file>

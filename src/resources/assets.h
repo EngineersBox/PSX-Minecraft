@@ -8,8 +8,6 @@
 
 #include "texture.h"
 
-#define TERRAIN_TEXTURES 0
-
 extern uint8_t _lz_resources[];
 #define lz_resources ((const LZP_HEAD*) _lz_resources)
 
