@@ -112,7 +112,6 @@ ASSET_TYPES = {
     ".smd": "models"
 }
 
-
 def bundle(lzp_project) -> (int, int, int):
     assets = ET.SubElement(
         lzp_project,
@@ -140,12 +139,21 @@ def bundle(lzp_project) -> (int, int, int):
                     LOGGER.error(f"File {file_name} exceeds max name length: {len(file_name)} > {MAX_FILE_NAME_SIZE}")
                     fail += 1
                     continue
+                if len(file_path.parts) > 3:
+                    LOGGER.warning(f"File {file_name} is nested more than one level, skipping unsupported file")
+                    skipped += 1
+                    continue
                 LOGGER.info(f"Bundling asset {file_path}")
-                root.removeprefix("assets")
+                element_name = None
+                if len(file_path.parts) > 2:
+                    element_name = file_path.parts[1]
+                else:
+                    element_name = ASSET_TYPES[file_path.suffix]
+                    LOGGER.info(f"Asset {file_name} has no namespacing, deriving from asset extension: '{file_path.suffix}' => '{element_name}'")
                 bind_element(
                     lzp_project,
                     assets,
-                    ASSET_TYPES[file_path.suffix],
+                    element_name,
                     file_path.name.removesuffix(file_path.suffix),
                     "${ASSETS_DIR}" + root.removeprefix("assets") + "/" + file
                 )

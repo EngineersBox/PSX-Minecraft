@@ -11,6 +11,7 @@
 #include "../structure/cvector.h"
 #include "../render/render_context.h"
 #include "../render/transforms.h"
+#include "../resources/texture.h"
 
 #define IUIComponent_IFACE \
     vfunc(void, action, VSelf, const DVECTOR* cursor_position, const bool pressed) \
@@ -33,11 +34,23 @@ typedef struct UIComponent {
 //       When the UI is opened, the texture is loaded and when it is closed,
 //       the texture is unloaded.
 
+#define IUI_IFACE \
+    vfunc(void, loadTexture, VSelf) \
+    vfunc(void, freeTexture, VSelf)
+
+interface(IUI);
+
 typedef struct {
     char* title;
+    Texture* texture;
     bool active;
     cvector(IUIComponent) components;
 } UI;
+
+#define DEFN_UI(name, ...) typedef struct { \
+    UI ui; \
+    __VA_ARGS__ \
+} name
 
 void uiRender(const UI* ui, RenderContext* ctx, Transforms* transforms);
 

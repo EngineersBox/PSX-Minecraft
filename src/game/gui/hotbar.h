@@ -11,10 +11,9 @@
 
 #define HOTBAR_SLOT_COUNT 9
 
-typedef struct {
-    UI ui;
+DEFN_UI(Hotbar,
     cvector(Slot) slots;
-} Hotbar;
+);
 
 void hotbarInit(Hotbar* hotbar);
 void hotbarRender(const Hotbar* hotbar, RenderContext* ctx, Transforms* transforms);

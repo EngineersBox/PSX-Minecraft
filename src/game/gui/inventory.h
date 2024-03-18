@@ -15,13 +15,20 @@
 // * [36-44] -> [0-8]: hotbar (via pointer, not included in count)
 #define INVENTORY_SLOT_COUNT 36
 
-typedef struct {
-    UI ui;
+DEFN_UI(Inventory,
     cvector(Slot) slots;
     Hotbar* hotbar;
-} Inventory;
+);
+
+void inventoryLoadTexture(VSelf);
+void Inventory_loadTexture(VSelf);
+
+void inventoryFreeTexture(VSelf);
+void Inventory_freeTexture(VSelf);
 
 void inventoryInit(Inventory* inventory, Hotbar* hotbar);
 void inventoryRender(const Inventory* inventory, RenderContext* ctx, Transforms* transforms);
+
+impl(IUI, Inventory);
 
 #endif // PSX_MINECRAFT_INVENTORY_H
