@@ -653,7 +653,10 @@ void chunkUpdate(Chunk* chunk, Player* player) {
             //   b. [1:FALSE] Go to 2
             // 2. Is there space in the inventory
             //   a. [2:TRUE] Add the item stack into the next free slot
-            //   b. [2:FALSE] Add item back into array at the same index
+            //   b. [2:FALSE] Add item back into array at the same index (make sure item world position is correct)
+
+            // BUG: Something here causes an invalid instruction error
+            //      in dynarec (probably bad pointer stuff)
             VCALL(**iitem, destroy);
             itemDestroy(*iitem);
             cvector_erase(chunk->dropped_items, i);

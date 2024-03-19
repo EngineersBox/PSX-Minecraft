@@ -120,6 +120,7 @@ void Minecraft_init(VSelf, void* ctx) {
     playerInit(player);
     player->camera = &self->internals.camera;
     player->position = self->internals.camera.position;
+    player->position.vy += (BLOCK_SIZE << FIXED_POINT_SHIFT);
 }
 
 void minecraftCleanup(VSelf) __attribute__((alias("Minecraft_cleanup")));
