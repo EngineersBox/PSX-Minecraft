@@ -61,7 +61,7 @@ typedef struct {
     vfunc(IItem*, destroy, VSelf) \
     vfunc(void, update, VSelf) \
     vfuncDefault(bool, isOpaque, VSelf) \
-    vfunc(Item*, provideItem, VSelf)
+    vfunc(IItem*, provideItem, VSelf)
 
 bool iBlockIsOpaque(VSelf);
 bool IBlock_isOpaque(VSelf);
