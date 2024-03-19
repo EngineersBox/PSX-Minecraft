@@ -148,7 +148,7 @@ void Minecraft_input(VSelf, const Stats* stats) {
 void minecraftUpdate(VSelf, const Stats* stats) __attribute__((alias("Minecraft_update")));
 void Minecraft_update(VSelf, const Stats* stats) {
     VSELF(Minecraft);
-    worldUpdate(self->world, &self->internals.camera.position);
+    worldUpdate(self->world, player);
     gte_SetRotMatrix(&self->internals.transforms.geometry_mtx);
     gte_SetTransMatrix(&self->internals.transforms.geometry_mtx);
 }

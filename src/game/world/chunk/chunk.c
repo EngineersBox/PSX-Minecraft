@@ -607,6 +607,7 @@ bool chunkModifyVoxel(Chunk* chunk, const VECTOR* position, IBlock* block, IItem
     return true;
 }
 
+// This only works because PS1 games are single threaded (mostly)
 Player* _current_player = NULL;
 
 bool itemPickupValidator(const Item* item) {
