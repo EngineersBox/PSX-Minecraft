@@ -99,8 +99,8 @@ void swapBuffers(RenderContext* ctx) {
     DrawOTag(ctx->db[1 - ctx->active].ordering_table + (ORDERING_TABLE_LENGTH - 1));
 }
 
-void renderClearConstraints(RenderContext* ctx) {
-    DR_TWIN* ptwin = (DR_TWIN*) ctx->primitive;
+void renderClearConstraintsIndex(RenderContext* ctx, uint32_t index) {
+    DR_TWIN* ptwin = (DR_TWIN*) allocatePrimitive(ctx, sizeof(DR_TWIN));
     // Zeroed fields indicates clearing/reset any applied texture windows
     const RECT tex_window = {
         .x = 0,
@@ -109,9 +109,12 @@ void renderClearConstraints(RenderContext* ctx) {
         .h = 0
     };
     setTexWindow(ptwin, &tex_window);
-    addPrim(ctx->db[ctx->active].ordering_table, ptwin);
-    ptwin++;
-    ctx->primitive = (char*) ptwin;
+    uint32_t* ot_object = allocateOrderingTable(ctx, index);
+    addPrim(ot_object, ptwin);
+}
+
+void renderClearConstraints(RenderContext* ctx) {
+    renderClearConstraintsIndex(ctx, 0);
 }
 
 char* allocatePrimitive(RenderContext* ctx, const size_t size) {

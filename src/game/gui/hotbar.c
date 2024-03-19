@@ -11,19 +11,19 @@ void hotbarInit(Hotbar* hotbar) {
     hotbar->slots = NULL;
     cvector_init(hotbar->slots, HOTBAR_SLOT_COUNT, NULL);
     cvector_push_back(hotbar->ui.components, (IUIComponent) {});
-    IUIComponent* component = &hotbar->ui.components[cvector_size(hotbar->ui.components)];
+    IUIComponent* component = &hotbar->ui.components[cvector_size(hotbar->ui.components) - 1];
     UIBackground* background = (UIBackground*) malloc(sizeof(UIBackground));
-    background->component.dimensions = (DVECTOR) {
-        .vx = HOTBAR_WIDTH,
-        .vy = HOTBAR_HEIGHT
-    };
     background->component.position = (DVECTOR) {
         .vx = CENTRE_X - (HOTBAR_WIDTH / 2),
         .vy = SCREEN_YRES - HOTBAR_HEIGHT - 1
     };
+    background->component.dimensions = (DVECTOR) {
+        .vx = HOTBAR_WIDTH,
+        .vy = HOTBAR_HEIGHT
+    };
     background->texture_coords = (DVECTOR) {
-        .vx = 576,
-        .vy = 1
+        .vx = (16 * 16),
+        .vy = 0
     };
     background->texture_width = (DVECTOR) {
         .vx = HOTBAR_WIDTH,

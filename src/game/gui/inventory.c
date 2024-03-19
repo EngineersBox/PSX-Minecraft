@@ -11,6 +11,7 @@ void Inventory_freeTexture(VSelf) {
 }
 
 void inventoryInit(Inventory* inventory, Hotbar* hotbar) {
+    uiInit(&inventory->ui);
     inventory->hotbar = hotbar;
     inventory->slots = NULL;
     cvector_init(inventory->slots, INVENTORY_SLOT_COUNT, NULL);

@@ -1,6 +1,7 @@
 #include "background.h"
 
 #include <noise.h>
+#include <primitive.h>
 
 #include "../resources/assets.h"
 #include "../resources/asset_indices.h"
@@ -11,7 +12,6 @@ void drawBackgroundHalf(RenderContext* ctx,
                         const int8_t u, const int8_t v,
                         const uint16_t x) {
     POLY_FT4* pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
-    setPolyFT4(pol4);
     // Set full screen vertex positions
     setXY4(
         pol4,
@@ -35,8 +35,7 @@ void drawBackgroundHalf(RenderContext* ctx,
     pol4->tpage = texture->tpage;
     pol4->clut = texture->clut;
     // Sort primitive to the ordering table
-    uint32_t* ot_object = allocateOrderingTable(ctx, ot_entry);
-    addPrim(ot_object, pol4);
+    polyFT4Render(pol4, ot_entry, ctx);
 }
 
 void backgroundDraw(RenderContext* ctx,

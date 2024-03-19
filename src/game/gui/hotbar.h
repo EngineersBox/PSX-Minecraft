@@ -10,8 +10,8 @@
 #include "slot.h"
 
 #define HOTBAR_SLOT_COUNT 9
-#define HOTBAR_WIDTH 180
-#define HOTBAR_HEIGHT 19
+#define HOTBAR_WIDTH 182
+#define HOTBAR_HEIGHT 22
 
 DEFN_UI(
     Hotbar,

@@ -27,8 +27,11 @@ void UIBackground_render(VSelf, RenderContext* ctx, Transforms* transforms) {
         self->texture_width.vx,
         self->texture_width.vy
     );
+    // Mid point grey as mask for additive texturing
+    setRGB0(pol4, 0x80, 0x80, 0x80);
     const Texture* texture = &textures[ASSET_TEXTURES_GUI_INDEX];
     pol4->tpage = texture->tpage;
     pol4->clut = texture->clut;
-    polyFT4Render(pol4, 0, ctx);
+    polyFT4Render(pol4, 1, ctx);
+    renderClearConstraintsIndex(ctx, 1);
 }

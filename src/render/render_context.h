@@ -42,6 +42,7 @@ void initRenderContext(RenderContext* ctx);
 
 void swapBuffers(RenderContext* ctx);
 
+void renderClearConstraintsIndex(RenderContext* ctx, uint32_t index);
 void renderClearConstraints(RenderContext* ctx);
 
 char* allocatePrimitive(RenderContext* ctx, size_t size);

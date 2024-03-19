@@ -5,6 +5,8 @@
 void playerInit(Player* player) {
     Inventory* inventory = (Inventory*) malloc(sizeof(Inventory));
     Hotbar* hotbar = (Hotbar*) malloc(sizeof(Hotbar));
+    hotbarInit(hotbar);
+    inventoryInit(inventory, hotbar);
     DYN_PTR(&player->hotbar, Hotbar, IUI, hotbar);
     DYN_PTR(&player->inventory, Inventory, IUI, inventory);
 }
@@ -17,6 +19,6 @@ void playerDestroy(const Player* player) {
 }
 
 void playerRender(const Player* player, RenderContext* ctx, Transforms* transforms) {
-    uiRender(VCAST(UI*, player->hotbar), ctx, transforms);
-    uiRender(VCAST(UI*, player->inventory), ctx, transforms);
+    uiRender(VCAST(const UI*, player->hotbar), ctx, transforms);
+    uiRender(VCAST(const UI*, player->inventory), ctx, transforms);
 }
