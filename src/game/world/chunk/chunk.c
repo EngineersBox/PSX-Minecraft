@@ -510,9 +510,12 @@ void chunkGenerateMesh(Chunk* chunk) {
 }
 
 void chunkRenderDroppedItems(Chunk* chunk, RenderContext* ctx, Transforms* transforms) {
-    IItem* item;
+    IItem** item;
     cvector_for_each_in(item, chunk->dropped_items) {
-        VCALL_SUPER(*item, Renderable, renderWorld, ctx, transforms);
+        if (*item == NULL) {
+            continue;
+        }
+        VCALL_SUPER(**item, Renderable, renderWorld, ctx, transforms);
     }
 }
 
