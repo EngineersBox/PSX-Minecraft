@@ -118,6 +118,8 @@ void Minecraft_init(VSelf, void* ctx) {
     cvector_init(markers, 1, NULL);
     player = (Player*) malloc(sizeof(Player));
     playerInit(player);
+    player->camera = &self->internals.camera;
+    player->position = self->internals.camera.position;
 }
 
 void minecraftCleanup(VSelf) __attribute__((alias("Minecraft_cleanup")));
@@ -140,6 +142,7 @@ void Minecraft_input(VSelf, const Stats* stats) {
         &self->internals.transforms,
         &result.pos
     );
+    player->position = self->internals.camera.position;
 }
 
 void minecraftUpdate(VSelf, const Stats* stats) __attribute__((alias("Minecraft_update")));

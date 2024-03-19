@@ -12,7 +12,6 @@
 DEFN_ITEM_BLOCK(DirtItemBlock);
 
 DirtItemBlock* dirtItemBlockCreate();
-void dirtItemBlockDestroy(DirtItemBlock* dirt_item_block);
 
 void dirtItemBlockRenderWorld(VSelf, RenderContext* ctx, Transforms* transforms);
 void DirtItemBlock_renderWorld(VSelf, RenderContext* ctx, Transforms* transforms);
@@ -27,6 +26,9 @@ impl(Renderable, DirtItemBlock);
 
 void dirtItemBlockInit(VSelf);
 void DirtItemBlock_init(VSelf);
+
+void dirtItemBlockDestroy(VSelf);
+void DirtItemBlock_destroy(VSelf);
 
 void dirtItemBlockApplyDamage(VSelf);
 void DirtItemBlock_applyDamage(VSelf);

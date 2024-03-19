@@ -9,6 +9,7 @@ void playerInit(Player* player) {
     inventoryInit(inventory, hotbar);
     DYN_PTR(&player->hotbar, Hotbar, IUI, hotbar);
     DYN_PTR(&player->inventory, Inventory, IUI, inventory);
+    player->next_free_slot = 0;
 }
 
 void playerDestroy(const Player* player) {

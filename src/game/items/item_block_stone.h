@@ -11,7 +11,6 @@
 DEFN_ITEM_BLOCK(StoneItemBlock);
 
 StoneItemBlock* stoneItemBlockCreate();
-void stoneItemBlockDestroy(StoneItemBlock* stone_item_block);
 
 void stoneItemBlockRenderWorld(VSelf, RenderContext* ctx, Transforms* transforms);
 void StoneItemBlock_renderWorld(VSelf, RenderContext* ctx, Transforms* transforms);
@@ -26,6 +25,9 @@ impl(Renderable, StoneItemBlock);
 
 void stoneItemBlockInit(VSelf);
 void StoneItemBlock_init(VSelf);
+
+void stoneItemBlockDestroy(VSelf);
+void StoneItemBlock_destroy(VSelf);
 
 void stoneItemBlockApplyDamage(VSelf);
 void StoneItemBlock_applyDamage(VSelf);

@@ -23,26 +23,25 @@ void dirtBlockAccess(VSelf) __attribute__((alias("DirtBlock_access")));
 void DirtBlock_access(VSelf) {
 }
 
-void dirtBlockDestroy(VSelf, IItem* item_result) __attribute__((alias("DirtBlock_destroy")));
-void DirtBlock_destroy(VSelf, IItem* item_result) {
+IItem* dirtBlockDestroy(VSelf) __attribute__((alias("DirtBlock_destroy")));
+IItem* DirtBlock_destroy(VSelf) {
     VSELF(DirtBlock);
-    dirtBlockProvideItem(self, item_result);
+    return dirtBlockProvideItem(self);
 }
 
 void dirtBlockUpdate(VSelf) __attribute__((alias("DirtBlock_update")));
 void DirtBlock_update(VSelf) {
 }
 
-void dirtBlockProvideItem(VSelf, IItem* item) __attribute__((alias("DirtBlock_provideItem")));
-void DirtBlock_provideItem(VSelf, IItem* item) {
-    if (item == NULL) {
-        return;
-    }
+IItem* dirtBlockProvideItem(VSelf) __attribute__((alias("DirtBlock_provideItem")));
+IItem* DirtBlock_provideItem(VSelf) {
     VSELF(DirtBlock);
+    IItem* item = itemCreate();
     DirtItemBlock* dirt_item_block = dirtItemBlockCreate();
     DYN_PTR(item, DirtItemBlock, IItem, dirt_item_block);
     VCALL(*item, init);
     itemBlockReplicateFaceAttributes(dirt_item_block->item_block, self->block);
     dirt_item_block->item_block.item.stack_size = 1;
     dirt_item_block->item_block.item.bob_direction = 1;
+    return item;
 }

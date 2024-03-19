@@ -359,14 +359,14 @@ void worldLoadChunks(World* world, const VECTOR* player_chunk_pos) {
     worldShiftChunks(world, x_direction, z_direction);
 }
 
-void worldUpdate(World* world, const VECTOR* player_pos) {
+void worldUpdate(World* world, Player* player) {
     static int32_t prevx = 0;
     static int32_t prevy = 0;
     static int32_t prevz = 0;
     const VECTOR player_chunk_pos = (VECTOR){
-        .vx = (player_pos->vx >> FIXED_POINT_SHIFT) / CHUNK_BLOCK_SIZE,
-        .vy = (player_pos->vy >> FIXED_POINT_SHIFT) / CHUNK_BLOCK_SIZE,
-        .vz = (player_pos->vz >> FIXED_POINT_SHIFT) / CHUNK_BLOCK_SIZE
+        .vx = (player->position.vx >> FIXED_POINT_SHIFT) / CHUNK_BLOCK_SIZE,
+        .vy = (player->position.vy >> FIXED_POINT_SHIFT) / CHUNK_BLOCK_SIZE,
+        .vz = (player->position.vz >> FIXED_POINT_SHIFT) / CHUNK_BLOCK_SIZE
     };
     if (player_chunk_pos.vx != prevx
         || player_chunk_pos.vy != prevy
@@ -397,7 +397,7 @@ void worldUpdate(World* world, const VECTOR* player_pos) {
             for (int y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
                 chunkUpdate(
                     world->chunks[arrayCoord(world, vz, z)][arrayCoord(world, vx, x)][y],
-                    player_pos
+                    player
                 );
             }
         }

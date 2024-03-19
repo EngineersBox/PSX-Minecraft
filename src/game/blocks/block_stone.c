@@ -23,26 +23,25 @@ void stoneBlockAccess(VSelf) __attribute__((alias("StoneBlock_access")));
 void StoneBlock_access(VSelf) {
 }
 
-void stoneBlockDestroy(VSelf, IItem* item_result) __attribute__((alias("StoneBlock_destroy")));
-void StoneBlock_destroy(VSelf, IItem* item_result) {
+IItem* stoneBlockDestroy(VSelf) __attribute__((alias("StoneBlock_destroy")));
+IItem* StoneBlock_destroy(VSelf) {
     VSELF(StoneBlock);
-    stoneBlockProvideItem(self, item_result);
+    return stoneBlockProvideItem(self);
 }
 
 void stoneBlockUpdate(VSelf) __attribute__((alias("StoneBlock_update")));
 void StoneBlock_update(VSelf) {
 }
 
-void stoneBlockProvideItem(VSelf, IItem* item) __attribute__((alias("StoneBlock_provideItem")));
-void StoneBlock_provideItem(VSelf, IItem* item) {
-    if (item == NULL) {
-        return;
-    }
+IItem* stoneBlockProvideItem(VSelf) __attribute__((alias("StoneBlock_provideItem")));
+IItem* StoneBlock_provideItem(VSelf) {
     VSELF(StoneBlock);
+    IItem* item = itemCreate();
     StoneItemBlock* stone_item_block = stoneItemBlockCreate();
     DYN_PTR(item, StoneItemBlock, IItem, stone_item_block);
     VCALL(*item, init);
     itemBlockReplicateFaceAttributes(stone_item_block->item_block, self->block);
     stone_item_block->item_block.item.stack_size = 1;
     stone_item_block->item_block.item.bob_direction = 1;
+    return item;
 }

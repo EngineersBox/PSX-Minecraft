@@ -8,8 +8,10 @@ StoneItemBlock* stoneItemBlockCreate() {
     return (StoneItemBlock*) malloc(sizeof(StoneItemBlock));
 }
 
-void someItemBlockDestroy(StoneItemBlock* stone_item_block) {
-    free(stone_item_block);
+void stoneItemBlockDestroy(VSelf) __attribute__((alias("StoneItemBlock_destroy")));
+void StoneItemBlock_destroy(VSelf) {
+    VSELF(StoneItemBlock);
+    free(self);
 }
 
 void stoneItemBlockRenderWorld(VSelf, RenderContext* ctx, Transforms* transforms) __attribute__((alias("StoneItemBlock_renderWorld")));

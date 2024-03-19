@@ -26,10 +26,10 @@ void airBlockAccess(VSelf) __attribute__((alias("AirBlock_access")));
 void AirBlock_access(VSelf) {
 }
 
-void airBlockDestroy(VSelf, IItem* item_result) __attribute__((alias("AirBlock_destroy")));
-void AirBlock_destroy(VSelf, IItem* item_result) {
+IItem* airBlockDestroy(VSelf) __attribute__((alias("AirBlock_destroy")));
+IItem* AirBlock_destroy(VSelf) {
     VSELF(AirBlock);
-    airBlockProvideItem(self, item_result);
+    return airBlockProvideItem(self);
 }
 
 void airBlockUpdate(VSelf) __attribute__((alias("AirBlock_update")));
@@ -41,10 +41,7 @@ bool AirBlock_isOpaque(VSelf) {
     return false;
 }
 
-void airBlockProvideItem(VSelf, IItem* item) __attribute__((alias("AirBlock_provideItem")));
-void AirBlock_provideItem(VSelf, IItem* item) {
-    if (item == NULL) {
-        return;
-    }
-    *item = IITEM_NULL;
+IItem* airBlockProvideItem(VSelf) __attribute__((alias("AirBlock_provideItem")));
+IItem* AirBlock_provideItem(VSelf) {
+    return (IItem*) &IITEM_NULL;
 }

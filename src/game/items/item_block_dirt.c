@@ -8,8 +8,10 @@ DirtItemBlock* dirtItemBlockCreate() {
     return (DirtItemBlock*) malloc(sizeof(DirtItemBlock));
 }
 
-void dirtItemBlockDestroy(DirtItemBlock* dirt_item_block) {
-    free(dirt_item_block);
+void dirtItemBlockDestroy(VSelf) __attribute__((alias("DirtItemBlock_destroy")));
+void DirtItemBlock_destroy(VSelf) {
+    VSELF(DirtItemBlock);
+    free(self);
 }
 
 void dirtItemBlockRenderWorld(VSelf, RenderContext* ctx, Transforms* transforms) __attribute__((alias("DirtItemBlock_renderWorld")));

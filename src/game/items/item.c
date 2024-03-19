@@ -1,21 +1,24 @@
 #include "item.h"
 
 #include <stdlib.h>
+#include <stdbool.h>
 
 const IItem IITEM_NULL = (IItem) {
     .self = NULL,
     .vptr = NULL
 };
 
-bool itemUpdate(Item* item, const VECTOR* player_position) {
-    const int32_t sq_dist = squareDistance(player_position, &item->position);
-    if (sq_dist > PICKUP_DISTANCE_SQUARED) {
-        return false;
-    } else if (!item->picked_up) {
-        item->picked_up = true;
-        return false;
-    } else if (sq_dist <= PICKUP_TO_INV_DISTANCE_SQUARED) {
-        return true;
+bool itemUpdate(Item* item, const VECTOR* player_position, const ItemPickupValidator validator) {
+    if (validator(item)) {
+        const int32_t sq_dist = squareDistance(player_position, &item->position);
+        if (sq_dist > PICKUP_DISTANCE_SQUARED) {
+            return false;
+        } else if (!item->picked_up) {
+            item->picked_up = true;
+            return false;
+        } else if (sq_dist <= PICKUP_TO_INV_DISTANCE_SQUARED) {
+            return true;
+        }
     }
     const int32_t sign_x = sign(player_position->vx - item->position.vx);
     const int32_t sign_y = sign(player_position->vy - item->position.vy);

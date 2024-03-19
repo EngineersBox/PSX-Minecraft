@@ -8,8 +8,10 @@ GrassItemBlock* grassItemBlockCreate() {
     return (GrassItemBlock*) malloc(sizeof(GrassItemBlock));
 }
 
-void grassItemBlockDestroy(GrassItemBlock* grass_item_block) {
-    free(grass_item_block);
+void grassItemBlockDestroy(VSelf) __attribute__((alias("GrassItemBlock_destroy")));
+void GrassItemBlock_destroy(VSelf) {
+    VSELF(GrassItemBlock);
+    free(self);
 }
 
 void grassItemBlockRenderWorld(VSelf, RenderContext* ctx, Transforms* transforms) __attribute__((alias("GrassItemBlock_renderWorld")));

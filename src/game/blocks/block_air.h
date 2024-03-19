@@ -18,8 +18,8 @@ void AirBlock_init(VSelf);
 void airBlockAccess(VSelf);
 void AirBlock_access(VSelf);
 
-void airBlockDestroy(VSelf, IItem* item_result);
-void AirBlock_destroy(VSelf, IItem* item_result);
+IItem* airBlockDestroy(VSelf);
+IItem* AirBlock_destroy(VSelf);
 
 void airBlockUpdate(VSelf);
 void AirBlock_update(VSelf);
@@ -27,8 +27,8 @@ void AirBlock_update(VSelf);
 bool airBlockIsOpaque(VSelf);
 bool AirBlock_isOpaque(VSelf);
 
-void airBlockProvideItem(VSelf, IItem* item);
-void AirBlock_provideItem(VSelf, IItem* item);
+IItem* airBlockProvideItem(VSelf);
+IItem* AirBlock_provideItem(VSelf);
 
 #define AirBlock_isOpaque_CUSTOM ()
 impl(IBlock, AirBlock);

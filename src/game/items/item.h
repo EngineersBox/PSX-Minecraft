@@ -39,13 +39,21 @@ typedef struct {
     char* name;
 } Item;
 
-bool itemUpdate(Item* item, const VECTOR* player_position);
+/**
+ * @brief Determine if an item can be picked up
+ * @param item Item to check against
+ * @return true if item can be picked up, false otherwise
+ */
+typedef bool (*ItemPickupValidator)(const Item* item);
+
+bool itemUpdate(Item* item, const VECTOR* player_position, const ItemPickupValidator validator);
 
 #define IItem_IFACE \
     vfunc(void, init, VSelf) \
     vfunc(void, applyDamage, VSelf) \
     vfunc(void, useAction, VSelf) \
-    vfunc(void, attackAction, VSelf)
+    vfunc(void, attackAction, VSelf) \
+    vfunc(void, destroy, VSelf)
 
 #define IItem_EXTENDS (Renderable)
 interface(IItem);

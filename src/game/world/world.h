@@ -11,6 +11,7 @@
 #include "../render/transforms.h"
 #include "../core/camera.h"
 #include "../structure/cvector.h"
+#include "../entity/player.h"
 
 #define WORLD_CHUNKS_HEIGHT 2
 #define WORLD_HEIGHT (CHUNK_SIZE * WORLD_CHUNKS_HEIGHT)
@@ -50,7 +51,7 @@ void worldLoadChunksXZ(World* world, int8_t x_direction, int8_t z_direction);
 void worldShiftChunks(World* world, int8_t x_direction, int8_t z_direction);
 void worldLoadChunks(World* world, const VECTOR* player_chunk_pos);
 
-void worldUpdate(World* world, const VECTOR* player_pos);
+void worldUpdate(World* world, Player* player);
 
 IBlock* worldGetChunkBlock(const World* world, const ChunkBlockPosition* position);
 IBlock* worldGetBlock(const World* world, const VECTOR* position);

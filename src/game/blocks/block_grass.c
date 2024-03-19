@@ -30,10 +30,10 @@ void grassBlockAccess(VSelf) __attribute__((alias("GrassBlock_access")));
 void GrassBlock_access(VSelf) {
 }
 
-void grassBlockDestroy(VSelf, IItem* item_result) __attribute__((alias("GrassBlock_destroy")));
-void GrassBlock_destroy(VSelf, IItem* item_result) {
+IItem* grassBlockDestroy(VSelf) __attribute__((alias("GrassBlock_destroy")));
+IItem* GrassBlock_destroy(VSelf) {
     VSELF(GrassBlock);
-    grassBlockProvideItem(self, item_result);
+    return grassBlockProvideItem(self);
 }
 
 void grassBlockUpdate(VSelf) __attribute__((alias("GrassBlock_update")));
@@ -45,16 +45,15 @@ bool GrassBlock_isOpaque(VSelf) {
     return false;
 }
 
-void grassBlockProvideItem(VSelf, IItem* item) __attribute__((alias("GrassBlock_provideItem")));
-void GrassBlock_provideItem(VSelf, IItem* item) {
-    if (item == NULL) {
-        return;
-    }
+IItem* grassBlockProvideItem(VSelf) __attribute__((alias("GrassBlock_provideItem")));
+IItem* GrassBlock_provideItem(VSelf) {
     VSELF(GrassBlock);
+    IItem* item = itemCreate();
     GrassItemBlock* grass_item_block = grassItemBlockCreate();
     DYN_PTR(item, GrassItemBlock, IItem, grass_item_block);
     VCALL(*item, init);
     itemBlockReplicateFaceAttributes(grass_item_block->item_block, self->block);
     grass_item_block->item_block.item.stack_size = 64;
     grass_item_block->item_block.item.bob_direction = 1;
+    return item;
 }

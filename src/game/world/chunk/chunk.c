@@ -583,11 +583,10 @@ bool chunkModifyVoxel(Chunk* chunk, const VECTOR* position, IBlock* block, IItem
     const IBlock* old_block = chunk->blocks[chunkBlockIndex(x, y, z)];
     cvector_push_back(
         chunk->dropped_items,
-        (IItem) {}
+        NULL
     );
-    IItem* iitem = &chunk->dropped_items[cvector_size(chunk->dropped_items) - 1];
-    VCALL(*old_block, destroy, iitem);
-    if (iitem->self != NULL) {
+    IItem* iitem = chunk->dropped_items[cvector_size(chunk->dropped_items) - 1] = VCALL(*old_block, destroy);
+    if (iitem != NULL && iitem->self != NULL) {
         Item* item = VCAST(Item*, *iitem);
         constructItemPosition(chunk, position, &item->position);
         if (item_result != NULL) {
@@ -605,18 +604,54 @@ bool chunkModifyVoxel(Chunk* chunk, const VECTOR* position, IBlock* block, IItem
     return true;
 }
 
-void chunkUpdate(Chunk* chunk, const VECTOR* player_position) {
+Player* _current_player = NULL;
+
+bool itemPickupValidator(const Item* item) {
+    if (_current_player->next_free_slot == PLAYER_INV_NO_SLOT_AVAILABLE) {
+        return false;
+    }
+    // TODO: Need to check the following:
+    // 1. Does the item already exist in the inventory?
+    //   a. [1:TRUE] Does the existing have space?
+    //     i. [a:TRUE] Return true
+    //     ii. [a:FALSE] Go to 2
+    //   b. [1:FALSE] Go to 2
+    // 2. Is there space in the inventory
+    //   a. [2:TRUE] Return true
+    //   b. [2:FALSE] Return false
+    return true;
+}
+
+void chunkUpdate(Chunk* chunk, Player* player) {
+    _current_player = player;
     const VECTOR pos = (VECTOR) {
-        .vx = player_position->vx >> FIXED_POINT_SHIFT,
-        .vy = player_position->vy >> FIXED_POINT_SHIFT,
-        .vz = player_position->vz >> FIXED_POINT_SHIFT,
+        .vx = player->position.vx >> FIXED_POINT_SHIFT,
+        .vy = player->position.vy >> FIXED_POINT_SHIFT,
+        .vz = player->position.vz >> FIXED_POINT_SHIFT,
     };
-    IItem* iitem;
+    IItem** iitem;
     uint32_t i = 0;
     cvector_for_each_in(iitem, chunk->dropped_items) {
-        Item* item = VCAST(Item*, *iitem);
-        if (itemUpdate(item, &pos)) {
+        if (*iitem == NULL) {
+            continue;
+        }
+        Item* item = VCAST(Item*, **iitem);
+        if (itemUpdate(item, &pos, itemPickupValidator)) {
             printf("[ITEM] Picked up: %s x%d\n", item->name, item->stack_size);
+            // TODO: Need to check the following to add item to inventory:
+            // 1. Does the item already exist in the inventory?
+            //   a. [1:TRUE] Does the existing have space?
+            //     i. [a:TRUE] Add the item quantity to the existing stack (up to max)
+            //     ii. [a:TRUE] Is there some items left over?
+            //       1_1. [ii:TRUE] Duplicate this item instance and go to 1
+            //       1_2: [ii:FALSE] Done
+            //     iii. [a:FALSE] Go to 2
+            //   b. [1:FALSE] Go to 2
+            // 2. Is there space in the inventory
+            //   a. [2:TRUE] Add the item stack into the next free slot
+            //   b. [2:FALSE] Add item back into array at the same index
+            VCALL(**iitem, destroy);
+            itemDestroy(*iitem);
             cvector_erase(chunk->dropped_items, i);
             continue;
         }
