@@ -94,6 +94,7 @@ void Minecraft_init(VSelf, void* ctx) {
             .start_handler = &cameraStartHandler
         }
     };
+    self->internals.ctx.camera = &self->internals.camera;
     // Set light ambient color and light color matrix
     gte_SetBackColor(128, 128, 128);
     gte_SetFarColor(1, 1, 1);
@@ -133,8 +134,8 @@ void Minecraft_init(VSelf, void* ctx) {
     VCALL(*item, init);
     slot->item = item;
     grass_item_block->item_block.item.position = (VECTOR) {
-        .vx = CENTRE_X,
-        .vy = CENTRE_Y,
+        .vx = 0,
+        .vy = 0,
         .vz = 0
     };
 }

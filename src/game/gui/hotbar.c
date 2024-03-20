@@ -33,7 +33,7 @@ void hotbarInit(Hotbar* hotbar) {
     DYN_PTR(component, UIBackground, IUIComponent, background);
 }
 
-void hotbarRenderSlots(const Hotbar* hotbar, RenderContext* ctx, Transforms* transforms) {
+void hotbarRenderSlots(const Hotbar* hotbar,  RenderContext* ctx, Transforms* transforms) {
     Slot* slot;
     cvector_for_each_in(slot, hotbar->slots) {
         if (slot->item == NULL) {
