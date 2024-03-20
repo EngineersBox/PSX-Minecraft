@@ -11,15 +11,15 @@
 
 #define VERTICES_COUNT 8
 SVECTOR item_block_verts[VERTICES_COUNT] = {
-    { -ITEM_BLOCK_SIZE, -ITEM_BLOCK_SIZE, -ITEM_BLOCK_SIZE, 0 },
-    {  ITEM_BLOCK_SIZE, -ITEM_BLOCK_SIZE, -ITEM_BLOCK_SIZE, 0 },
-    { -ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE, -ITEM_BLOCK_SIZE, 0 },
-    {  ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE, -ITEM_BLOCK_SIZE, 0 },
-    {  ITEM_BLOCK_SIZE, -ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE, 0 },
-    { -ITEM_BLOCK_SIZE, -ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE, 0 },
-    {  ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE, 0 },
-    { -ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE, 0 }
-};
+    { -ITEM_BLOCK_SIZE, -ITEM_BLOCK_SIZE, -ITEM_BLOCK_SIZE, 0 }, // 0b000
+    {  ITEM_BLOCK_SIZE, -ITEM_BLOCK_SIZE, -ITEM_BLOCK_SIZE, 0 }, // 0b100
+    { -ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE, -ITEM_BLOCK_SIZE, 0 }, // 0b010
+    {  ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE, -ITEM_BLOCK_SIZE, 0 }, // 0b110
+    { -ITEM_BLOCK_SIZE, -ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE, 0 }, // 0b001
+    {  ITEM_BLOCK_SIZE, -ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE, 0 }, // 0b101
+    { -ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE, 0 }, // 0b011
+    {  ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE, 0 }, // 0b111
+}; // 6 <-> 7, 4 <-> 5
 #define ITEM_BLOCK_BOB_ANIM_SAMPLES 37
 // Minecraft's item spin rate is 2.87675 degrees per tick
 // 2.87675 / 360 = 0.0079909722
@@ -73,12 +73,53 @@ const VECTOR item_stack_render_offsets[5] = {
     },
 };
 
-void renderItemBlock(ItemBlock* item, RenderContext* ctx, const VECTOR* position_offset) {
+#define FULL_BLOCK_FACE_INDICES_COUNT BLOCK_FACES
+const uint8_t FULL_BLOCK_FACE_INDICES[FULL_BLOCK_FACE_INDICES_COUNT] = { 0, 1, 2, 3, 4, 5 };
+
+#define ISOMETRIC_BLOCK_FACE_INDICES_COUNT 3
+const uint8_t ISOMETRIC_BLOCK_FACE_INDICES[ISOMETRIC_BLOCK_FACE_INDICES_COUNT] = { 0, 1, 2 }; // TODO: Check this
+
+/**
+ * Why does this work? Heres the layout of the vertices explicitly:
+ * { -ITEM_BLOCK_SIZE, -ITEM_BLOCK_SIZE, -ITEM_BLOCK_SIZE, 0 }, // 0b000
+ * {  ITEM_BLOCK_SIZE, -ITEM_BLOCK_SIZE, -ITEM_BLOCK_SIZE, 0 }, // 0b100
+ * { -ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE, -ITEM_BLOCK_SIZE, 0 }, // 0b010
+ * {  ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE, -ITEM_BLOCK_SIZE, 0 }, // 0b110
+ * { -ITEM_BLOCK_SIZE, -ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE, 0 }, // 0b001
+ * {  ITEM_BLOCK_SIZE, -ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE, 0 }, // 0b101
+ * { -ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE, 0 }, // 0b011
+ * {  ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE, 0 }, // 0b111
+ * Look familiar? Yeah.. that's a 3-bit binary adder output table.
+ * So what we need is to take some 3-bit number and create the relevant
+ * sign for the size (ITEM_BLOCK_SIZE in this case). We do that by
+ * looking at the binary representation, which maps to each X,Y,Z
+ * value's sign. So we can use a bit AND operation (&) to extract
+ * the sign of each X,Y,Z value. That sign is either 0 or 1 (Encoded
+ * as [0,1] here). We need a positive or negative value, so we need
+ * a function to map [0,1] to [-1,1] which looks like this:
+ * f(x) = -1 + (x << 1) <- Use x = 0 or x = 1 to see for yourself.
+ * We can extend this with the bit encoding from before with masking
+ * and shifting to get the sign bit (in the least-signficiant bit
+ * position) as the value used with f(x) from before. This yields
+ * the definition below, with the addition of a multiplier for the
+ * desired vertex offset as size here.
+ */
+
+// [0,1] -> [-SIZE,SIZE]
+#define convertToVertex(v, mask, shift, size) (size * (-1 + ((((v) & (mask)) >> (shift)) << 1)))
+
+void renderItemBlock(ItemBlock* item,
+                     RenderContext* ctx,
+                     const VECTOR* position_offset,
+                     const uint8_t* face_indices,
+                     const uint8_t face_indices_count) {
     int p;
     TextureAttributes* face_attribute;
     const Texture* texture = &textures[ASSET_TEXTURES_TERRAIN_INDEX];
     RECT tex_window;
-    for (int i  = 0; i < BLOCK_FACES; i++) {
+    int i;
+    for (int idx = 0; idx < face_indices_count; idx++) {
+        i = face_indices[idx];
         face_attribute = &item->face_attributes[i];
         tex_window = (RECT) {
             face_attribute->u >> 3,
@@ -87,10 +128,16 @@ void renderItemBlock(ItemBlock* item, RenderContext* ctx, const VECTOR* position
             face_attribute->h >> 3
         };
         POLY_FT4* pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
+// #define createVert(_v) (SVECTOR) { \
+//             item_block_verts[CUBE_INDICES[i]._v].vx + position_offset->vx, \
+//             item_block_verts[CUBE_INDICES[i]._v].vy + position_offset->vy, \
+//             item_block_verts[CUBE_INDICES[i]._v].vz + position_offset->vz, \
+//             0 \
+//         }
 #define createVert(_v) (SVECTOR) { \
-            item_block_verts[CUBE_INDICES[i]._v].vx + position_offset->vx, \
-            item_block_verts[CUBE_INDICES[i]._v].vy + position_offset->vy, \
-            item_block_verts[CUBE_INDICES[i]._v].vz + position_offset->vz, \
+            convertToVertex(CUBE_INDICES[i]._v, 0b001, 0, ITEM_BLOCK_SIZE) + position_offset->vx, \
+            convertToVertex(CUBE_INDICES[i]._v, 0b010, 1, ITEM_BLOCK_SIZE) + position_offset->vy, \
+            convertToVertex(CUBE_INDICES[i]._v, 0b100, 2, ITEM_BLOCK_SIZE) + position_offset->vz, \
             0 \
         }
         SVECTOR current_verts[4] = {
@@ -215,26 +262,56 @@ void itemBlockRenderWorld(ItemBlock* item, RenderContext* ctx, Transforms* trans
     gte_SetRotMatrix(&omtx);
     gte_SetTransMatrix(&omtx);
     if (item->item.stack_size <= 1) {
-        renderItemBlock(item, ctx, &item_stack_render_offsets[0]);
+        renderItemBlock(
+            item,
+            ctx,
+            &item_stack_render_offsets[0],
+            FULL_BLOCK_FACE_INDICES,
+            FULL_BLOCK_FACE_INDICES_COUNT
+        );
     } else if (item->item.stack_size <= 16) {
         #pragma GCC unroll 2
         for (int i = 0; i < 2; i ++) {
-            renderItemBlock(item, ctx, &item_stack_render_offsets[i]);
+            renderItemBlock(
+                item,
+                ctx,
+                &item_stack_render_offsets[i],
+                FULL_BLOCK_FACE_INDICES,
+                FULL_BLOCK_FACE_INDICES_COUNT
+            );
         }
     } else if (item->item.stack_size <= 32) {
         #pragma GCC unroll 3
         for (int i = 0; i < 3; i ++) {
-            renderItemBlock(item, ctx, &item_stack_render_offsets[i]);
+            renderItemBlock(
+                item,
+                ctx,
+                &item_stack_render_offsets[i],
+                FULL_BLOCK_FACE_INDICES,
+                FULL_BLOCK_FACE_INDICES_COUNT
+            );
         }
     } else if (item->item.stack_size <= 48) {
         #pragma GCC unroll 4
         for (int i = 0; i < 4; i ++) {
-            renderItemBlock(item, ctx, &item_stack_render_offsets[i]);
+            renderItemBlock(
+                item,
+                ctx,
+                &item_stack_render_offsets[i],
+                FULL_BLOCK_FACE_INDICES,
+                FULL_BLOCK_FACE_INDICES_COUNT
+            );
         }
     } else {
         #pragma GCC unroll 5
         for (int i = 0; i < 5; i ++) {
-            renderItemBlock(item, ctx, &item_stack_render_offsets[i]);
+            renderItemBlock(
+                item,
+                ctx,
+                &item_stack_render_offsets[i],
+                FULL_BLOCK_FACE_INDICES,
+                FULL_BLOCK_FACE_INDICES_COUNT
+            );
         }
     }
     item->item.rotation.vy = (item->item.rotation.vy + ITEM_ROTATION_QUANTA) % ONE;

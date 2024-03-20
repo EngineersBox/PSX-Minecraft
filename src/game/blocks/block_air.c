@@ -43,5 +43,5 @@ bool AirBlock_isOpaque(VSelf) {
 
 IItem* airBlockProvideItem(VSelf) __attribute__((alias("AirBlock_provideItem")));
 IItem* AirBlock_provideItem(VSelf) {
-    return (IItem*) &IITEM_NULL;
+    return NULL;
 }

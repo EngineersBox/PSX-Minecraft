@@ -55,10 +55,9 @@ bool itemUpdate(Item* item, const VECTOR* player_position, const ItemPickupValid
     vfunc(void, attackAction, VSelf) \
     vfunc(void, destroy, VSelf)
 
+// Superinterface: renderWorld, renderInventory, renderHand
 #define IItem_EXTENDS (Renderable)
 interface(IItem);
-
-extern const IItem IITEM_NULL;
 
 IItem* itemCreate();
 void itemDestroy(IItem* item);

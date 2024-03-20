@@ -116,11 +116,12 @@ void Minecraft_init(VSelf, void* ctx) {
     worldInit(self->world, &self->internals.ctx);
     world = self->world;
     cvector_init(markers, 1, NULL);
+    // Initialise player
     player = (Player*) malloc(sizeof(Player));
     playerInit(player);
     player->camera = &self->internals.camera;
     player->position = self->internals.camera.position;
-    player->position.vy += (BLOCK_SIZE << FIXED_POINT_SHIFT);
+    player->position.vy += BLOCK_SIZE << FIXED_POINT_SHIFT;
 }
 
 void minecraftCleanup(VSelf) __attribute__((alias("Minecraft_cleanup")));
@@ -144,6 +145,8 @@ void Minecraft_input(VSelf, const Stats* stats) {
         &result.pos
     );
     player->position = self->internals.camera.position;
+    // Player is 2 blocks high, with position caluclated at the feet
+    player->position.vy += BLOCK_SIZE << FIXED_POINT_SHIFT;
 }
 
 void minecraftUpdate(VSelf, const Stats* stats) __attribute__((alias("Minecraft_update")));

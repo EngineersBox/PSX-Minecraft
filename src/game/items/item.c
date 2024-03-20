@@ -3,11 +3,6 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-const IItem IITEM_NULL = (IItem) {
-    .self = NULL,
-    .vptr = NULL
-};
-
 bool itemUpdate(Item* item, const VECTOR* player_position, const ItemPickupValidator validator) {
     if (validator(item)) {
         const int32_t sq_dist = squareDistance(player_position, &item->position);
