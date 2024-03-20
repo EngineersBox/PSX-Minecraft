@@ -134,8 +134,8 @@ void Minecraft_init(VSelf, void* ctx) {
     VCALL(*item, init);
     slot->item = item;
     grass_item_block->item_block.item.position = (VECTOR) {
-        .vx = -30,
-        .vy = 55,
+        .vx = -40,
+        .vy = 54,
         .vz = 0
     };
     grass_item_block->item_block.item.rotation = (SVECTOR) {
