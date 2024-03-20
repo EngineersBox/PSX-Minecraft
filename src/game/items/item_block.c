@@ -440,6 +440,11 @@ void renderItemBlockInv(ItemBlock* item,
 
 void itemBlockRenderInventory(ItemBlock* item, RenderContext* ctx, Transforms* transforms) {
     static VECTOR _zero_vec = {0};
+    VECTOR position = (VECTOR) {
+        .vx = ctx->camera->position.vx >> FIXED_POINT_SHIFT + item->item.position.vx,
+        .vy = ctx->camera->position.vy >> FIXED_POINT_SHIFT + item->item.position.vy,
+        .vz = ctx->camera->position.vz >> FIXED_POINT_SHIFT + item->item.position.vz,
+    };
     // Object and light matrix for object
     MATRIX omtx, olmtx;
     // Set object rotation and position
@@ -452,7 +457,7 @@ void itemBlockRenderInventory(ItemBlock* item, RenderContext* ctx, Transforms* t
     // Composite coordinate matrix transform, so object will be rotated and
     // positioned relative to camera matrix (mtx), so it'll appear as
     // world-space relative.
-    // CompMatrixLV(&transforms->geometry_mtx, &omtx, &omtx);
+    CompMatrixLV(&transforms->geometry_mtx, &omtx, &omtx);
     // Save matrix
     PushMatrix();
     // Set matrices
