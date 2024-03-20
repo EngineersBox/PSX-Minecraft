@@ -134,9 +134,9 @@ void Minecraft_init(VSelf, void* ctx) {
     VCALL(*item, init);
     slot->item = item;
     grass_item_block->item_block.item.position = (VECTOR) {
-        .vx = -40,
-        .vy = 54,
-        .vz = 0
+        .vx = 81,  // Screen X
+        .vy = 228, // Screen Y
+        .vz = ITEM_BLOCK_INVENTORY_SCALING  // Scaling
     };
     grass_item_block->item_block.item.rotation = (SVECTOR) {
         .vx = ONE >> 4,

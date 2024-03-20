@@ -20,16 +20,11 @@ SVECTOR item_block_verts[VERTICES_COUNT] = {
     { -ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE, 0 }, // 0b011
     {  ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE, 0 }, // 0b111
 }; // 6 <-> 7, 4 <-> 5
-#define ITEM_BLOCK_BOB_ANIM_SAMPLES 37
-// Minecraft's item spin rate is 2.87675 degrees per tick
-// 2.87675 / 360 = 0.0079909722
-// (2.87675 / 360) * 4096 = 32.7310222222
-#define ITEM_ROTATION_QUANTA 32
 
 // Domain: [0,36] -> [0,1] (X)
 // Range:  [0,16] (Y)
 // f(x) = 16 * (1 / (1 + e^((-7.5 * x) + (7.5 / 2))))
-const int32_t sigmoid_lut[ITEM_BLOCK_BOB_ANIM_SAMPLES] = {
+const int32_t item_block_anim_sigmoid_lut[ITEM_BLOCK_BOB_ANIM_SAMPLES] = {
     0, 0, 0, 0, 0, 0, 1, 1, 1, 2, 2,
     2, 3, 3, 4, 5, 6, 6, 7, 8, 9, 9,
     10, 11, 12, 12, 13, 13, 13, 14,
@@ -38,16 +33,12 @@ const int32_t sigmoid_lut[ITEM_BLOCK_BOB_ANIM_SAMPLES] = {
 // Domain: [0,36] -> [0,1] (X)
 // Range:  [0,16] (Y)
 // f(x) = 16 * (0.5 + ((sin((pi * x) - (pi / 2))) / 2))
-const int32_t sin_lut[ITEM_BLOCK_BOB_ANIM_SAMPLES] = {
+const int32_t item_block_anim_sin_lut[ITEM_BLOCK_BOB_ANIM_SAMPLES] = {
     0, 0, 0, 0, 0, 0, 1, 1, 1, 2, 2,
     3, 3, 4, 5, 5, 6, 6, 7, 8, 9, 9,
     10, 10, 11, 12, 12, 13, 13, 14,
     14, 14, 15, 15, 15, 15, 15
 };
-
-#ifndef ITEM_BLOCK_ANIM_LUT
-#define ITEM_BLOCK_ANIM_LUT sin_lut
-#endif
 
 const VECTOR item_stack_render_offsets[5] = {
     [0] = (VECTOR) {0},
@@ -73,11 +64,8 @@ const VECTOR item_stack_render_offsets[5] = {
     },
 };
 
-#define FULL_BLOCK_FACE_INDICES_COUNT BLOCK_FACES
 const uint8_t FULL_BLOCK_FACE_INDICES[FULL_BLOCK_FACE_INDICES_COUNT] = { 0, 1, 2, 3, 4, 5 };
-
-#define ISOMETRIC_BLOCK_FACE_INDICES_COUNT 3
-const uint8_t ISOMETRIC_BLOCK_FACE_INDICES[ISOMETRIC_BLOCK_FACE_INDICES_COUNT] = { 0,3,5 }; // TODO: Check this
+const uint8_t ISOMETRIC_BLOCK_FACE_INDICES[ISOMETRIC_BLOCK_FACE_INDICES_COUNT] = { 0,3,5 };
 
 /**
  * Why does this work? Heres the layout of the vertices explicitly:
@@ -147,6 +135,7 @@ void renderItemBlock(ItemBlock* item,
             createVert(v2),
             createVert(v3)
         };
+#undef createVert
         gte_ldv3(
             &current_verts[0],
             &current_verts[1],
@@ -330,8 +319,6 @@ void itemBlockRenderWorld(ItemBlock* item, RenderContext* ctx, Transforms* trans
     PopMatrix();
 }
 
-#define ITEM_BLOCK_INVENTORY_SIZE 2
-
 void renderItemBlockInv(ItemBlock* item,
                      RenderContext* ctx,
                      const VECTOR* position_offset,
@@ -360,9 +347,9 @@ void renderItemBlockInv(ItemBlock* item,
 //             0 \
 //         }
 #define createVert(_v) (SVECTOR) { \
-            convertToVertex(CUBE_INDICES[i]._v, 0b001, 0, size) + position_offset->vx, \
-            convertToVertex(CUBE_INDICES[i]._v, 0b010, 1, size) + position_offset->vy, \
-            convertToVertex(CUBE_INDICES[i]._v, 0b100, 2, size) + position_offset->vz, \
+            convertToVertex(CUBE_INDICES[i]._v, 0b001, 0, size), \
+            convertToVertex(CUBE_INDICES[i]._v, 0b010, 1, size), \
+            convertToVertex(CUBE_INDICES[i]._v, 0b100, 2, size), \
             0 \
         }
         SVECTOR current_verts[4] = {
@@ -371,6 +358,7 @@ void renderItemBlockInv(ItemBlock* item,
             createVert(v2),
             createVert(v3)
         };
+#undef createVert
         gte_ldv3(
             &current_verts[0],
             &current_verts[1],
@@ -390,6 +378,13 @@ void renderItemBlockInv(ItemBlock* item,
         gte_ldv0(&current_verts[3]);
         gte_rtps();
         gte_stsxy(&pol4->x3);
+#define applyoffset(_idx) \
+    pol4->x##_idx += position_offset->vx;\
+    pol4->y##_idx += position_offset->vy
+        applyoffset(0);
+        applyoffset(1);
+        applyoffset(2);
+        applyoffset(3);
         // Load primitive color even though gte_ncs() doesn't use it.
         // This is so the GTE will output a color result with the
         // correct primitive code.
@@ -439,12 +434,16 @@ void renderItemBlockInv(ItemBlock* item,
 }
 
 void itemBlockRenderInventory(ItemBlock* item, RenderContext* ctx, Transforms* transforms) {
-    static VECTOR _zero_vec = {0};
+    VECTOR position = {
+        .vx = 0,
+        .vy = 0,
+        .vz = item->item.position.vz,
+    };
     // Object and light matrix for object
     MATRIX omtx, olmtx;
     // Set object rotation and position
     RotMatrix(&item->item.rotation, &omtx);
-    TransMatrix(&omtx, &item->item.position);
+    TransMatrix(&omtx, &position);
     // Multiply light matrix to object matrix
     MulMatrix0(&transforms->lighting_mtx, &omtx, &olmtx);
     // Set result to GTE light matrix
@@ -458,15 +457,15 @@ void itemBlockRenderInventory(ItemBlock* item, RenderContext* ctx, Transforms* t
     // Set matrices
     gte_SetRotMatrix(&omtx);
     gte_SetTransMatrix(&omtx);
-    static VECTOR offset = {
-        .vx = 1,
-        .vy = 1,
-        .vz = 0,
+    VECTOR screen_position = {
+        .vx = -CENTRE_X + item->item.position.vx,
+        .vy = -CENTRE_Y + item->item.position.vy,
+        .vz = 0
     };
     renderItemBlockInv(
         item,
         ctx,
-        &offset,
+        &screen_position,
         ITEM_BLOCK_INVENTORY_SIZE,
         ISOMETRIC_BLOCK_FACE_INDICES,
         ISOMETRIC_BLOCK_FACE_INDICES_COUNT

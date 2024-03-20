@@ -13,6 +13,33 @@
 
 #define ITEM_BLOCK_FACES 6
 #define ITEM_BLOCK_SIZE 10
+#define ITEM_BLOCK_INVENTORY_SIZE 3
+#define ITEM_BLOCK_INVENTORY_SCALING 120
+#define ITEM_BLOCK_BOB_ANIM_SAMPLES 37
+// Minecraft's item spin rate is 2.87675 degrees per tick
+// 2.87675 / 360 = 0.0079909722
+// (2.87675 / 360) * 4096 = 32.7310222222
+#define ITEM_ROTATION_QUANTA 32
+#define ITEM_BLOCK_BOB_ANIM_SAMPLES 37
+// Minecraft's item spin rate is 2.87675 degrees per tick
+// 2.87675 / 360 = 0.0079909722
+// (2.87675 / 360) * 4096 = 32.7310222222
+#define ITEM_ROTATION_QUANTA 32
+
+extern const VECTOR item_stack_render_offsets[5];
+
+#define FULL_BLOCK_FACE_INDICES_COUNT BLOCK_FACES
+extern const uint8_t FULL_BLOCK_FACE_INDICES[FULL_BLOCK_FACE_INDICES_COUNT];
+
+#define ISOMETRIC_BLOCK_FACE_INDICES_COUNT 3
+extern const uint8_t ISOMETRIC_BLOCK_FACE_INDICES[ISOMETRIC_BLOCK_FACE_INDICES_COUNT];
+
+extern const int32_t item_block_anim_sigmoid_lut[ITEM_BLOCK_BOB_ANIM_SAMPLES];
+extern const int32_t item_block_anim_sin_lut[ITEM_BLOCK_BOB_ANIM_SAMPLES];
+
+#ifndef ITEM_BLOCK_ANIM_LUT
+#define ITEM_BLOCK_ANIM_LUT item_block_anim_sin_lut
+#endif
 
 typedef struct {
     Item item;
