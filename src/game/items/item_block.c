@@ -77,7 +77,7 @@ const VECTOR item_stack_render_offsets[5] = {
 const uint8_t FULL_BLOCK_FACE_INDICES[FULL_BLOCK_FACE_INDICES_COUNT] = { 0, 1, 2, 3, 4, 5 };
 
 #define ISOMETRIC_BLOCK_FACE_INDICES_COUNT 3
-const uint8_t ISOMETRIC_BLOCK_FACE_INDICES[ISOMETRIC_BLOCK_FACE_INDICES_COUNT] = { 0, 1, 2 }; // TODO: Check this
+const uint8_t ISOMETRIC_BLOCK_FACE_INDICES[ISOMETRIC_BLOCK_FACE_INDICES_COUNT] = { 0,3,5 }; // TODO: Check this
 
 /**
  * Why does this work? Heres the layout of the vertices explicitly:
@@ -330,7 +330,7 @@ void itemBlockRenderWorld(ItemBlock* item, RenderContext* ctx, Transforms* trans
     PopMatrix();
 }
 
-#define ITEM_BLOCK_INVENTORY_SIZE 4
+#define ITEM_BLOCK_INVENTORY_SIZE 2
 
 void renderItemBlockInv(ItemBlock* item,
                      RenderContext* ctx,
@@ -440,16 +440,11 @@ void renderItemBlockInv(ItemBlock* item,
 
 void itemBlockRenderInventory(ItemBlock* item, RenderContext* ctx, Transforms* transforms) {
     static VECTOR _zero_vec = {0};
-    VECTOR position = (VECTOR) {
-        .vx = ctx->camera->position.vx >> FIXED_POINT_SHIFT + item->item.position.vx,
-        .vy = ctx->camera->position.vy >> FIXED_POINT_SHIFT + item->item.position.vy,
-        .vz = ctx->camera->position.vz >> FIXED_POINT_SHIFT + item->item.position.vz,
-    };
     // Object and light matrix for object
     MATRIX omtx, olmtx;
     // Set object rotation and position
     RotMatrix(&item->item.rotation, &omtx);
-    TransMatrix(&omtx, &ctx->camera->position);
+    TransMatrix(&omtx, &item->item.position);
     // Multiply light matrix to object matrix
     MulMatrix0(&transforms->lighting_mtx, &omtx, &olmtx);
     // Set result to GTE light matrix
@@ -457,7 +452,7 @@ void itemBlockRenderInventory(ItemBlock* item, RenderContext* ctx, Transforms* t
     // Composite coordinate matrix transform, so object will be rotated and
     // positioned relative to camera matrix (mtx), so it'll appear as
     // world-space relative.
-    CompMatrixLV(&transforms->geometry_mtx, &omtx, &omtx);
+    // CompMatrixLV(&transforms->geometry_mtx, &omtx, &omtx);
     // Save matrix
     PushMatrix();
     // Set matrices
