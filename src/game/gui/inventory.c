@@ -1,5 +1,11 @@
 #include "inventory.h"
 
+void inventoryRenderSlots(const Inventory* inventory) {
+    if (!inventory->ui.active) {
+        return;
+    }
+}
+
 void inventoryLoadTexture(VSelf) __attribute__((alias("Inventory_loadTexture")));
 void Inventory_loadTexture(VSelf) {
 

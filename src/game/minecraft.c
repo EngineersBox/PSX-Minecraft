@@ -2,6 +2,7 @@
 
 #include <inline_c.h>
 #include <interface99_extensions.h>
+#include <item_block_grass.h>
 #include <psxgpu.h>
 #include <psxgte.h>
 
@@ -122,6 +123,20 @@ void Minecraft_init(VSelf, void* ctx) {
     player->camera = &self->internals.camera;
     player->position = self->internals.camera.position;
     player->position.vy += BLOCK_SIZE << FIXED_POINT_SHIFT;
+    // TESTING
+    Hotbar* hotbar = VCAST(Hotbar*, player->hotbar);
+    cvector_push_back(hotbar->slots, (Slot) {});
+    Slot* slot = &hotbar->slots[cvector_size(hotbar->slots) - 1];
+    IItem* item = itemCreate();
+    GrassItemBlock* grass_item_block = grassItemBlockCreate();
+    DYN_PTR(item, GrassItemBlock, IItem, grass_item_block);
+    VCALL(*item, init);
+    slot->item = item;
+    grass_item_block->item_block.item.position = (VECTOR) {
+        .vx = CENTRE_X,
+        .vy = CENTRE_Y,
+        .vz = 0
+    };
 }
 
 void minecraftCleanup(VSelf) __attribute__((alias("Minecraft_cleanup")));

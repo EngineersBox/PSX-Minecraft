@@ -111,6 +111,7 @@ const uint8_t ISOMETRIC_BLOCK_FACE_INDICES[ISOMETRIC_BLOCK_FACE_INDICES_COUNT] =
 void renderItemBlock(ItemBlock* item,
                      RenderContext* ctx,
                      const VECTOR* position_offset,
+                     const int size,
                      const uint8_t* face_indices,
                      const uint8_t face_indices_count) {
     int p;
@@ -135,9 +136,9 @@ void renderItemBlock(ItemBlock* item,
 //             0 \
 //         }
 #define createVert(_v) (SVECTOR) { \
-            convertToVertex(CUBE_INDICES[i]._v, 0b001, 0, ITEM_BLOCK_SIZE) + position_offset->vx, \
-            convertToVertex(CUBE_INDICES[i]._v, 0b010, 1, ITEM_BLOCK_SIZE) + position_offset->vy, \
-            convertToVertex(CUBE_INDICES[i]._v, 0b100, 2, ITEM_BLOCK_SIZE) + position_offset->vz, \
+            convertToVertex(CUBE_INDICES[i]._v, 0b001, 0, size) + position_offset->vx, \
+            convertToVertex(CUBE_INDICES[i]._v, 0b010, 1, size) + position_offset->vy, \
+            convertToVertex(CUBE_INDICES[i]._v, 0b100, 2, size) + position_offset->vz, \
             0 \
         }
         SVECTOR current_verts[4] = {
@@ -276,6 +277,7 @@ void itemBlockRenderWorld(ItemBlock* item, RenderContext* ctx, Transforms* trans
                 item,
                 ctx,
                 &item_stack_render_offsets[i],
+                ITEM_BLOCK_SIZE,
                 FULL_BLOCK_FACE_INDICES,
                 FULL_BLOCK_FACE_INDICES_COUNT
             );
@@ -287,6 +289,7 @@ void itemBlockRenderWorld(ItemBlock* item, RenderContext* ctx, Transforms* trans
                 item,
                 ctx,
                 &item_stack_render_offsets[i],
+                ITEM_BLOCK_SIZE,
                 FULL_BLOCK_FACE_INDICES,
                 FULL_BLOCK_FACE_INDICES_COUNT
             );
@@ -298,6 +301,7 @@ void itemBlockRenderWorld(ItemBlock* item, RenderContext* ctx, Transforms* trans
                 item,
                 ctx,
                 &item_stack_render_offsets[i],
+                ITEM_BLOCK_SIZE,
                 FULL_BLOCK_FACE_INDICES,
                 FULL_BLOCK_FACE_INDICES_COUNT
             );
@@ -309,6 +313,7 @@ void itemBlockRenderWorld(ItemBlock* item, RenderContext* ctx, Transforms* trans
                 item,
                 ctx,
                 &item_stack_render_offsets[i],
+                ITEM_BLOCK_SIZE,
                 FULL_BLOCK_FACE_INDICES,
                 FULL_BLOCK_FACE_INDICES_COUNT
             );
@@ -324,8 +329,38 @@ void itemBlockRenderWorld(ItemBlock* item, RenderContext* ctx, Transforms* trans
     PopMatrix();
 }
 
-void itemBlockRenderInventory(ItemBlock* item, RenderContext* ctx, Transforms* transforms) {
+#define ITEM_BLOCK_INVENTORY_SIZE 4
 
+void itemBlockRenderInventory(ItemBlock* item, RenderContext* ctx, Transforms* transforms) {
+    static VECTOR _zero_vec = {0};
+    // Object and light matrix for object
+    MATRIX omtx, olmtx;
+    // Set object rotation and position
+    RotMatrix(&item->item.rotation, &omtx);
+    ApplyMatrixLV(&omtx, &transforms->translation_position, &transforms->translation_position);
+    TransMatrix(&omtx, &item->item.position);
+    // Multiply light matrix to object matrix
+    MulMatrix0(&transforms->lighting_mtx, &omtx, &olmtx);
+    // Set result to GTE light matrix
+    gte_SetLightMatrix(&olmtx);
+    // Composite coordinate matrix transform, so object will be rotated and
+    // positioned relative to camera matrix (mtx), so it'll appear as
+    // world-space relative.
+    CompMatrixLV(&transforms->geometry_mtx, &omtx, &omtx);
+    // Save matrix
+    PushMatrix();
+    // Set matrices
+    gte_SetRotMatrix(&omtx);
+    gte_SetTransMatrix(&omtx);
+    renderItemBlock(
+        item,
+        ctx,
+        &_zero_vec,
+        ITEM_BLOCK_INVENTORY_SIZE,
+        ISOMETRIC_BLOCK_FACE_INDICES,
+        ISOMETRIC_BLOCK_FACE_INDICES_COUNT
+    );
+    PopMatrix();
 }
 
 void itemBlockRenderHand(ItemBlock* item, RenderContext* ctx, Transforms* transforms) {

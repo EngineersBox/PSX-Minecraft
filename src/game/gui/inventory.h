@@ -20,6 +20,8 @@ DEFN_UI(Inventory,
     Hotbar* hotbar;
 );
 
+void inventoryRenderSlots(const Inventory* inventory);
+
 void inventoryLoadTexture(VSelf);
 void Inventory_loadTexture(VSelf);
 

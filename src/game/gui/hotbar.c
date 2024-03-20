@@ -1,5 +1,6 @@
 #include "hotbar.h"
 
+#include <cvector_utils.h>
 #include <interface99_extensions.h>
 
 #include "../../ui/components/background.h"
@@ -30,6 +31,16 @@ void hotbarInit(Hotbar* hotbar) {
         .vy = HOTBAR_HEIGHT
     };
     DYN_PTR(component, UIBackground, IUIComponent, background);
+}
+
+void hotbarRenderSlots(const Hotbar* hotbar, RenderContext* ctx, Transforms* transforms) {
+    Slot* slot;
+    cvector_for_each_in(slot, hotbar->slots) {
+        if (slot->item == NULL) {
+            continue;
+        }
+        VCALL_SUPER(*slot->item, Renderable, renderInventory, ctx, transforms);
+    }
 }
 
 void hotbarLoadTexture(VSelf) __attribute__((alias("Hotbar_loadTexture")));

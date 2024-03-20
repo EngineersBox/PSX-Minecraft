@@ -20,6 +20,8 @@ DEFN_UI(
 
 void hotbarInit(Hotbar* hotbar);
 
+void hotbarRenderSlots(const Hotbar* hotbar, RenderContext* ctx, Transforms* transforms);
+
 void hotbarLoadTexture(VSelf);
 void Hotbar_loadTexture(VSelf);
 
