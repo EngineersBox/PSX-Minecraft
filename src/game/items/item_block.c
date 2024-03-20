@@ -458,10 +458,15 @@ void itemBlockRenderInventory(ItemBlock* item, RenderContext* ctx, Transforms* t
     // Set matrices
     gte_SetRotMatrix(&omtx);
     gte_SetTransMatrix(&omtx);
+    static VECTOR offset = {
+        .vx = 1,
+        .vy = 1,
+        .vz = 0,
+    };
     renderItemBlockInv(
         item,
         ctx,
-        &_zero_vec,
+        &offset,
         ITEM_BLOCK_INVENTORY_SIZE,
         ISOMETRIC_BLOCK_FACE_INDICES,
         ISOMETRIC_BLOCK_FACE_INDICES_COUNT
