@@ -98,17 +98,12 @@ const uint8_t ISOMETRIC_BLOCK_FACE_INDICES[ISOMETRIC_BLOCK_FACE_INDICES_COUNT] =
 
 void renderItemBlock(ItemBlock* item,
                      RenderContext* ctx,
-                     const VECTOR* position_offset,
-                     const int size,
-                     const uint8_t* face_indices,
-                     const uint8_t face_indices_count) {
+                     const VECTOR* position_offset) {
     int p;
     TextureAttributes* face_attribute;
     const Texture* texture = &textures[ASSET_TEXTURES_TERRAIN_INDEX];
     RECT tex_window;
-    int i;
-    for (int idx = 0; idx < face_indices_count; idx++) {
-        i = face_indices[idx];
+    for (int i = 0; i < BLOCK_FACES; i++) {
         face_attribute = &item->face_attributes[i];
         tex_window = (RECT) {
             face_attribute->u >> 3,
@@ -124,9 +119,9 @@ void renderItemBlock(ItemBlock* item,
 //             0 \
 //         }
 #define createVert(_v) (SVECTOR) { \
-            convertToVertex(CUBE_INDICES[i]._v, 0b001, 0, size) + position_offset->vx, \
-            convertToVertex(CUBE_INDICES[i]._v, 0b010, 1, size) + position_offset->vy, \
-            convertToVertex(CUBE_INDICES[i]._v, 0b100, 2, size) + position_offset->vz, \
+            convertToVertex(CUBE_INDICES[i]._v, 0b001, 0, ITEM_BLOCK_SIZE) + position_offset->vx, \
+            convertToVertex(CUBE_INDICES[i]._v, 0b010, 1, ITEM_BLOCK_SIZE) + position_offset->vy, \
+            convertToVertex(CUBE_INDICES[i]._v, 0b100, 2, ITEM_BLOCK_SIZE) + position_offset->vz, \
             0 \
         }
         SVECTOR current_verts[4] = {
@@ -255,10 +250,7 @@ void itemBlockRenderWorld(ItemBlock* item, RenderContext* ctx, Transforms* trans
         renderItemBlock(
             item,
             ctx,
-            &item_stack_render_offsets[0],
-            ITEM_BLOCK_SIZE,
-            FULL_BLOCK_FACE_INDICES,
-            FULL_BLOCK_FACE_INDICES_COUNT
+            &item_stack_render_offsets[0]
         );
     } else if (item->item.stack_size <= 16) {
         #pragma GCC unroll 2
@@ -266,10 +258,7 @@ void itemBlockRenderWorld(ItemBlock* item, RenderContext* ctx, Transforms* trans
             renderItemBlock(
                 item,
                 ctx,
-                &item_stack_render_offsets[i],
-                ITEM_BLOCK_SIZE,
-                FULL_BLOCK_FACE_INDICES,
-                FULL_BLOCK_FACE_INDICES_COUNT
+                &item_stack_render_offsets[i]
             );
         }
     } else if (item->item.stack_size <= 32) {
@@ -278,10 +267,7 @@ void itemBlockRenderWorld(ItemBlock* item, RenderContext* ctx, Transforms* trans
             renderItemBlock(
                 item,
                 ctx,
-                &item_stack_render_offsets[i],
-                ITEM_BLOCK_SIZE,
-                FULL_BLOCK_FACE_INDICES,
-                FULL_BLOCK_FACE_INDICES_COUNT
+                &item_stack_render_offsets[i]
             );
         }
     } else if (item->item.stack_size <= 48) {
@@ -290,10 +276,7 @@ void itemBlockRenderWorld(ItemBlock* item, RenderContext* ctx, Transforms* trans
             renderItemBlock(
                 item,
                 ctx,
-                &item_stack_render_offsets[i],
-                ITEM_BLOCK_SIZE,
-                FULL_BLOCK_FACE_INDICES,
-                FULL_BLOCK_FACE_INDICES_COUNT
+                &item_stack_render_offsets[i]
             );
         }
     } else {
@@ -302,10 +285,7 @@ void itemBlockRenderWorld(ItemBlock* item, RenderContext* ctx, Transforms* trans
             renderItemBlock(
                 item,
                 ctx,
-                &item_stack_render_offsets[i],
-                ITEM_BLOCK_SIZE,
-                FULL_BLOCK_FACE_INDICES,
-                FULL_BLOCK_FACE_INDICES_COUNT
+                &item_stack_render_offsets[i]
             );
         }
     }
@@ -319,15 +299,17 @@ void itemBlockRenderWorld(ItemBlock* item, RenderContext* ctx, Transforms* trans
     PopMatrix();
 }
 
-void renderItemBlockInv(ItemBlock* item,
-                     RenderContext* ctx,
-                     const VECTOR* position_offset,
-                     const int size,
-                     const uint8_t* face_indices,
-                     const uint8_t face_indices_count) {
+void renderItemBlockInventory(ItemBlock* item,
+                              RenderContext* ctx,
+                              const VECTOR* screen_position,
+                              const int size,
+                              const uint8_t* face_indices,
+                              const uint8_t face_indices_count) {
     int p;
     TextureAttributes* face_attribute;
     const Texture* texture = &textures[ASSET_TEXTURES_TERRAIN_INDEX];
+    const int16_t offset_screen_x = -CENTRE_X + screen_position->vx;
+    const int16_t offset_screen_y = -CENTRE_Y + screen_position->vy;
     RECT tex_window;
     int i;
     for (int idx = 0; idx < face_indices_count; idx++) {
@@ -379,8 +361,8 @@ void renderItemBlockInv(ItemBlock* item,
         gte_rtps();
         gte_stsxy(&pol4->x3);
 #define applyoffset(_idx) \
-    pol4->x##_idx += position_offset->vx;\
-    pol4->y##_idx += position_offset->vy
+    pol4->x##_idx += offset_screen_x;\
+    pol4->y##_idx += offset_screen_y
         applyoffset(0);
         applyoffset(1);
         applyoffset(2);
@@ -431,6 +413,20 @@ void renderItemBlockInv(ItemBlock* item,
         ot_object = allocateOrderingTable(ctx, 1);
         addPrim(ot_object, ptwin);
     }
+    if (item->item.stack_size < 2) {
+        // Don't draw the amount of items if there is less than 2
+        return;
+    }
+    char stack_count_text[3];
+    sprintf(stack_count_text, "%2d\n", item->item.stack_size);
+    ctx->primitive = FntSort(
+        allocateOrderingTable(ctx, 0),
+        ctx->primitive,
+        screen_position->vx - 8,
+        screen_position->vy,
+        stack_count_text
+    );
+    renderClearConstraints(ctx);
 }
 
 void itemBlockRenderInventory(ItemBlock* item, RenderContext* ctx, Transforms* transforms) {
@@ -458,11 +454,11 @@ void itemBlockRenderInventory(ItemBlock* item, RenderContext* ctx, Transforms* t
     gte_SetRotMatrix(&omtx);
     gte_SetTransMatrix(&omtx);
     VECTOR screen_position = {
-        .vx = -CENTRE_X + item->item.position.vx,
-        .vy = -CENTRE_Y + item->item.position.vy,
+        .vx = item->item.position.vx,
+        .vy = item->item.position.vy,
         .vz = 0
     };
-    renderItemBlockInv(
+    renderItemBlockInventory(
         item,
         ctx,
         &screen_position,

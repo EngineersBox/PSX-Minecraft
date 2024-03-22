@@ -132,6 +132,7 @@ void Minecraft_init(VSelf, void* ctx) {
     GrassItemBlock* grass_item_block = grassItemBlockCreate();
     DYN_PTR(item, GrassItemBlock, IItem, grass_item_block);
     VCALL(*item, init);
+    grass_item_block->item_block.item.stack_size = 26;
     slot->item = item;
     grass_item_block->item_block.item.position = (VECTOR) {
         .vx = 81,  // Screen X
