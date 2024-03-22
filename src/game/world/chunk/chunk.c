@@ -641,20 +641,8 @@ void chunkUpdate(Chunk* chunk, Player* player) {
         }
         Item* item = VCAST(Item*, **iitem);
         if (itemUpdate(item, &pos, itemPickupValidator)) {
+            // TODO: refactor to use playerStoreItem(...)
             printf("[ITEM] Picked up: %s x%d\n", item->name, item->stack_size);
-            // TODO: Need to check the following to add item to inventory:
-            // 1. Does the item already exist in the inventory?
-            //   a. [1:TRUE] Does the existing have space?
-            //     i. [a:TRUE] Add the item quantity to the existing stack (up to max)
-            //     ii. [a:TRUE] Is there some items left over?
-            //       1_1. [ii:TRUE] Duplicate this item instance and go to 1
-            //       1_2: [ii:FALSE] Done
-            //     iii. [a:FALSE] Go to 2
-            //   b. [1:FALSE] Go to 2
-            // 2. Is there space in the inventory
-            //   a. [2:TRUE] Add the item stack into the next free slot
-            //   b. [2:FALSE] Add item back into array at the same index (make sure item world position is correct)
-
             // BUG: Something here causes an invalid instruction error
             //      in dynarec (probably bad pointer stuff)
             VCALL(**iitem, destroy);

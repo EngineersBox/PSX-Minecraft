@@ -14,6 +14,10 @@
 // * 9-35: storage
 // * [36-44] -> [0-8]: hotbar (via pointer, not included in count)
 #define INVENTORY_SLOT_COUNT 36
+#define INVENTORY_SLOT_ARMOR_OFFSET 0
+#define INVENTORY_SLOT_CRAFTING_OFFSET 4
+#define INVENTORY_SLOT_STORAGE_OFFSET 9
+#define INVENTORY_SLOT_HOTBAR_OFFSET 36
 
 DEFN_UI(Inventory,
     cvector(Slot) slots;
@@ -21,6 +25,9 @@ DEFN_UI(Inventory,
 );
 
 void inventoryRenderSlots(const Inventory* inventory);
+
+Slot* inventorySearchItem(const Inventory* inventory, const ItemID id, const uint8_t from_slot);
+Slot* inventoryFindFreeSlot(const Inventory* inventory, const uint8_t from_slot);
 
 void inventoryLoadTexture(VSelf);
 void Inventory_loadTexture(VSelf);

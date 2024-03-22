@@ -12,6 +12,7 @@ typedef struct {
     IItem* item;
     DVECTOR position;
     DVECTOR dimensions;
+    uint8_t index;
     bool blocked;
 } Slot;
 

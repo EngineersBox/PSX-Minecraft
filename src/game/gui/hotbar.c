@@ -16,6 +16,7 @@ void hotbarInit(Hotbar* hotbar) {
         Slot* slot = &hotbar->slots[i];
         slot->dimensions = HOTBAR_SLOT_DIMS;
         slot->position = hotbarSlotPos(i, 0);
+        slot->index = i;
     }
     cvector_push_back(hotbar->ui.components, (IUIComponent) {});
     IUIComponent* component = &hotbar->ui.components[cvector_size(hotbar->ui.components) - 1];
