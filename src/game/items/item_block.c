@@ -8,6 +8,7 @@
 #include "../../math/math_utils.h"
 #include "../../structure/primitive/cube.h"
 #include "../../resources/asset_indices.h"
+#include "../gui/slot.h"
 
 #define VERTICES_COUNT 8
 SVECTOR item_block_verts[VERTICES_COUNT] = {
@@ -454,8 +455,8 @@ void itemBlockRenderInventory(ItemBlock* item, RenderContext* ctx, Transforms* t
     gte_SetRotMatrix(&omtx);
     gte_SetTransMatrix(&omtx);
     VECTOR screen_position = {
-        .vx = item->item.position.vx,
-        .vy = item->item.position.vy,
+        .vx = item->item.position.vx + HOTBAR_SLOT_BLOCK_OFFSET_X,
+        .vy = item->item.position.vy + HOTBAR_SLOT_BLOCK_OFFSET_Y,
         .vz = 0
     };
     renderItemBlockInventory(

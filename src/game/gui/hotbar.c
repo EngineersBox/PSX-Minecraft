@@ -11,6 +11,12 @@ void hotbarInit(Hotbar* hotbar) {
     hotbar->ui.title = "hotbar";
     hotbar->slots = NULL;
     cvector_init(hotbar->slots, HOTBAR_SLOT_COUNT, NULL);
+    for (uint8_t i = 0; i < 9; i++) {
+        cvector_push_back(hotbar->slots, (Slot) {});
+        Slot* slot = &hotbar->slots[i];
+        slot->dimensions = HOTBAR_SLOT_DIMS;
+        slot->position = hotbarSlotPos(i, 0);
+    }
     cvector_push_back(hotbar->ui.components, (IUIComponent) {});
     IUIComponent* component = &hotbar->ui.components[cvector_size(hotbar->ui.components) - 1];
     UIBackground* background = (UIBackground*) malloc(sizeof(UIBackground));
@@ -39,6 +45,9 @@ void hotbarRenderSlots(const Hotbar* hotbar,  RenderContext* ctx, Transforms* tr
         if (slot->item == NULL) {
             continue;
         }
+        Item* item = VCAST(Item*, *slot->item);
+        item->position.vx = slot->position.vx;
+        item->position.vy = slot->position.vy;
         VCALL_SUPER(*slot->item, Renderable, renderInventory, ctx, transforms);
     }
 }

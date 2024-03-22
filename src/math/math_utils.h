@@ -49,6 +49,8 @@
  */
 #define pow2(v) ((v) * (v))
 
+#define ceilDiv(a, b) ((int32_t)(((a) + (b) - 1) / (b)))
+
 #define squareDistance(v1, v2) (pow2((v2)->vx - (v1)->vx) + pow2((v2)->vy - (v1)->vy) + pow2((v2)->vz - (v1)->vz))
 
 /**
