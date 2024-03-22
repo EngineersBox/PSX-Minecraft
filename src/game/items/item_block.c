@@ -113,13 +113,7 @@ void renderItemBlock(ItemBlock* item,
             face_attribute->h >> 3
         };
         POLY_FT4* pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
-// #define createVert(_v) (SVECTOR) { \
-//             item_block_verts[CUBE_INDICES[i]._v].vx + position_offset->vx, \
-//             item_block_verts[CUBE_INDICES[i]._v].vy + position_offset->vy, \
-//             item_block_verts[CUBE_INDICES[i]._v].vz + position_offset->vz, \
-//             0 \
-//         }
-#define createVert(_v) (SVECTOR) { \
+        #define createVert(_v) (SVECTOR) { \
             convertToVertex(CUBE_INDICES[i]._v, 0b001, 0, ITEM_BLOCK_SIZE) + position_offset->vx, \
             convertToVertex(CUBE_INDICES[i]._v, 0b010, 1, ITEM_BLOCK_SIZE) + position_offset->vy, \
             convertToVertex(CUBE_INDICES[i]._v, 0b100, 2, ITEM_BLOCK_SIZE) + position_offset->vz, \
@@ -131,7 +125,7 @@ void renderItemBlock(ItemBlock* item,
             createVert(v2),
             createVert(v3)
         };
-#undef createVert
+        #undef createVert
         gte_ldv3(
             &current_verts[0],
             &current_verts[1],
@@ -323,13 +317,7 @@ void renderItemBlockInventory(ItemBlock* item,
             face_attribute->h >> 3
         };
         POLY_FT4* pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
-// #define createVert(_v) (SVECTOR) { \
-//             item_block_verts[CUBE_INDICES[i]._v].vx + position_offset->vx, \
-//             item_block_verts[CUBE_INDICES[i]._v].vy + position_offset->vy, \
-//             item_block_verts[CUBE_INDICES[i]._v].vz + position_offset->vz, \
-//             0 \
-//         }
-#define createVert(_v) (SVECTOR) { \
+        #define createVert(_v) (SVECTOR) { \
             convertToVertex(CUBE_INDICES[i]._v, 0b001, 0, size), \
             convertToVertex(CUBE_INDICES[i]._v, 0b010, 1, size), \
             convertToVertex(CUBE_INDICES[i]._v, 0b100, 2, size), \
@@ -341,7 +329,7 @@ void renderItemBlockInventory(ItemBlock* item,
             createVert(v2),
             createVert(v3)
         };
-#undef createVert
+        #undef createVert
         gte_ldv3(
             &current_verts[0],
             &current_verts[1],
