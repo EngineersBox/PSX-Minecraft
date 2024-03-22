@@ -35,8 +35,6 @@ typedef struct {
 // Player Inventory [START]
 // TODO: Figure out these values
 
-#ifndef
-
 // = Player Inventory - Armor [START]
 // +-+
 // | |
@@ -145,7 +143,7 @@ typedef struct {
     .vy = PLAYER_INV_CRAFTING_BOTTOM_RIGHT_POS_Y \
 }
 
-// = Player Inventory - Crafint [END]
+// = Player Inventory - Crafing [END]
 
 // Player Inventory [END]
 
