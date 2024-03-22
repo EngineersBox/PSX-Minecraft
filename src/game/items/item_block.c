@@ -445,10 +445,6 @@ void itemBlockRenderInventory(ItemBlock* item, RenderContext* ctx, Transforms* t
     MulMatrix0(&transforms->lighting_mtx, &omtx, &olmtx);
     // Set result to GTE light matrix
     gte_SetLightMatrix(&olmtx);
-    // Composite coordinate matrix transform, so object will be rotated and
-    // positioned relative to camera matrix (mtx), so it'll appear as
-    // world-space relative.
-    // CompMatrixLV(&transforms->geometry_mtx, &omtx, &omtx);
     // Save matrix
     PushMatrix();
     // Set matrices
