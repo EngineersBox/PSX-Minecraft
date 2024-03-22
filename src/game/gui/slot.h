@@ -143,7 +143,34 @@ typedef struct {
     .vy = PLAYER_INV_CRAFTING_BOTTOM_RIGHT_POS_Y \
 }
 
+#ifndef PLAYER_INV_CRAFTING_RESULT_POS_X
+#define PLAYER_INV_CRAFTING_RESULT_POS_X 0
+#endif
+#ifndef PLAYER_INV_CRAFTING_RESULT_POS_Y
+#define PLAYER_INV_CRAFTING_RESULT_POS_Y 0
+#endif
+#define PLAYER_INV_CRAFTING_RESULT_POS (DEVECTOR) { \
+    .vx = PLAYER_INV_CRAFTING_RESULT_POS_X, \
+    .vy = PLAYER_INV_CRAFTING_RESULT_POS_Y \
+}
+
 // = Player Inventory - Crafing [END]
+
+// = Player Inventory - Storage [START]
+
+#ifndef PLAYER_INV_STORAGE_BASE_POS_X
+#define PLAYER_INV_STORAGE_BASE_POS_X 0
+#endif
+#ifndef PLAYER_INV_STORAGE_BASE_POS_Y
+#define PLAYER_INV_STORAGE_BASE_POS_Y 0
+#endif
+
+#define playerInvStoragePos(x, y) (DVECTOR) { \
+    .vx = PLAYER_INV_STORAGE_BASE_POS_X + ((x) * INV_SLOT_POS_DIFF), \
+    .vy = PLAYER_INV_STORAGE_BASE_POS_Y + ((y) * INV_SLOT_POS_DIFF), \
+}
+
+// = Player Inventory - Storage [END]
 
 // Player Inventory [END]
 
