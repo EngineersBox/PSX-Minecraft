@@ -138,7 +138,7 @@ void initCraftingSlots(Inventory* inventory) {
 }
 
 void initStorageSlots(Inventory* inventory) {
-    for (int i = INVENTORY_SLOT_STORAGE_OFFSET; i < INVENTORY_SLOT_COUNT; i++) {
+    for (int i = INVENTORY_SLOT_STORAGE_OFFSET; i < INVENTORY_SLOT_HOTBAR_OFFSET; i++) {
         const uint8_t local_index = i - INVENTORY_SLOT_STORAGE_OFFSET;
         cvector_push_back(inventory->slots, (Slot) {});
         Slot* slot = &inventory->slots[i];
@@ -152,6 +152,17 @@ void initStorageSlots(Inventory* inventory) {
     }
 }
 
+void initHotbarSlots(Inventory* inventory) {
+    for (int i = INVENTORY_SLOT_HOTBAR_OFFSET; i < INVENTORY_SLOT_COUNT; i++) {
+        cvector_push_back(inventory->slots, (Slot) {});
+        Slot* slot = &inventory->slots[i];
+        slot->item = NULL;
+        slot->index = i;
+        slot->dimensions = INV_SLOT_DIMS;
+        slot->position = playerInvHotbarPos(i - INVENTORY_SLOT_HOTBAR_OFFSET);
+    }
+}
+
 void inventoryInit(Inventory* inventory, Hotbar* hotbar) {
     uiInit(&inventory->ui);
     inventory->hotbar = hotbar;
@@ -160,4 +171,5 @@ void inventoryInit(Inventory* inventory, Hotbar* hotbar) {
     initArmorSlots(inventory);
     initCraftingSlots(inventory);
     initArmorSlots(inventory);
+    initHotbarSlots(inventory);
 }

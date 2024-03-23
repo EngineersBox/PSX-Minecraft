@@ -14,7 +14,7 @@
 // * 8: crafting output
 // * 9-35: storage
 // * [36-44] -> [0-8]: hotbar (via pointer, not included in count)
-#define INVENTORY_SLOT_COUNT 36
+#define INVENTORY_SLOT_COUNT 44
 #define INVENTORY_SLOT_ARMOR_OFFSET 0
 #define INVENTORY_SLOT_CRAFTING_OFFSET 4
 #define INVENTORY_SLOT_STORAGE_OFFSET 9

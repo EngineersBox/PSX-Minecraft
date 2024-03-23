@@ -35,7 +35,9 @@ typedef enum {
     // Redstone, rails, door, trapdoor
     BLOCKTYPE_PLATE,
     // Torches
-    BLOCKTYPE_ROD
+    BLOCKTYPE_ROD,
+    // Water, lava
+    BLOCKTYPE_LIQUID
 } BlockType;
 
 typedef enum {

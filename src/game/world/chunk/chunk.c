@@ -621,7 +621,9 @@ bool itemPickupValidator(const Item* item) {
     uint8_t from_slot = 0;
     uint8_t next_free = INVENTORY_NO_FREE_SLOT;;
 item_pickup_validator_start:
+    printf("Before search\n");
     const Slot* slot = inventorySearchItem(_current_inventory, item->id, from_slot, &next_free);
+    printf("After search\n");
     if (slot == NULL) {
         if (next_free == INVENTORY_NO_FREE_SLOT) {
             return false;
@@ -654,6 +656,7 @@ void chunkUpdate(Chunk* chunk, Player* player) {
         Item* item = VCAST(Item*, **iitem);
         if (itemUpdate(item, &pos, itemPickupValidator)) {
             const InventoryStoreResult result = inventoryStoreItem(_current_inventory, *iitem);
+            printf("[ITEM] Result: %s\n", inventoryStoreResultStringify(result));
             switch (result) {
                 case INVENTORY_STORE_RESULT_ADDED_SOME:
                     // Do nothing, already updated iitem that was picked up as dropped.
