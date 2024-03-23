@@ -122,14 +122,14 @@ void Inventory_freeTexture(VSelf) {
     slot->dimensions = INV_SLOT_DIMS; \
 })
 
-void initArmorSlots(Inventory* inventory) {
+inline void initArmorSlots(Inventory* inventory) {
     createSlot(INVENTORY_SLOT_ARMOR_OFFSET, 0, ARMOR_HELMET);
     createSlot(INVENTORY_SLOT_ARMOR_OFFSET, 1, ARMOR_CHESTPLATE);
     createSlot(INVENTORY_SLOT_ARMOR_OFFSET, 2, ARMOR_LEGGINGS);
     createSlot(INVENTORY_SLOT_ARMOR_OFFSET, 3, ARMOR_BOOTS);
 }
 
-void initCraftingSlots(Inventory* inventory) {
+inline void initCraftingSlots(Inventory* inventory) {
     createSlot(INVENTORY_SLOT_CRAFTING_OFFSET, 0, CRAFTING_TOP_LEFT);
     createSlot(INVENTORY_SLOT_CRAFTING_OFFSET, 1, CRAFTING_TOP_RIGHT);
     createSlot(INVENTORY_SLOT_CRAFTING_OFFSET, 2, CRAFTING_BOTTOM_LEFT);
@@ -137,7 +137,7 @@ void initCraftingSlots(Inventory* inventory) {
     createSlot(INVENTORY_SLOT_CRAFTING_OFFSET, 4, CRAFTING_RESULT);
 }
 
-void initStorageSlots(Inventory* inventory) {
+inline void initStorageSlots(Inventory* inventory) {
     for (int i = INVENTORY_SLOT_STORAGE_OFFSET; i < INVENTORY_SLOT_HOTBAR_OFFSET; i++) {
         const uint8_t local_index = i - INVENTORY_SLOT_STORAGE_OFFSET;
         cvector_push_back(inventory->slots, (Slot) {});
@@ -152,7 +152,7 @@ void initStorageSlots(Inventory* inventory) {
     }
 }
 
-void initHotbarSlots(Inventory* inventory) {
+inline void initHotbarSlots(Inventory* inventory) {
     for (int i = INVENTORY_SLOT_HOTBAR_OFFSET; i < INVENTORY_SLOT_COUNT; i++) {
         cvector_push_back(inventory->slots, (Slot) {});
         Slot* slot = &inventory->slots[i];
