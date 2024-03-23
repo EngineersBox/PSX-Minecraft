@@ -44,7 +44,6 @@ typedef struct {
 )
 
 void chunkInit(Chunk* chunk) {
-    // TODO: Do we want a generic free handler for the items?
     chunk->dropped_items = NULL;
     cvector_init(chunk->dropped_items, 0, NULL);
     printf("[CHUNK: %d,%d,%d] Initialising mesh\n", inlineVec(chunk->position));
@@ -608,13 +607,9 @@ bool chunkModifyVoxel(Chunk* chunk, const VECTOR* position, IBlock* block, IItem
 }
 
 // This only works because PS1 games are single threaded (mostly)
-Player* _current_player = NULL;
+Inventory* _current_inventory = NULL;
 
 bool itemPickupValidator(const Item* item) {
-    if (_current_player->next_free_slot == PLAYER_INV_NO_SLOT_AVAILABLE) {
-        return false;
-    }
-    // TODO: Need to check the following:
     // 1. Does the item already exist in the inventory?
     //   a. [1:TRUE] Does the existing have space?
     //     i. [a:TRUE] Return true
@@ -623,11 +618,28 @@ bool itemPickupValidator(const Item* item) {
     // 2. Is there space in the inventory
     //   a. [2:TRUE] Return true
     //   b. [2:FALSE] Return false
-    return true;
+    uint8_t from_slot = 0;
+    uint8_t next_free = INVENTORY_NO_FREE_SLOT;;
+item_pickup_validator_start:
+    const Slot* slot = inventorySearchItem(_current_inventory, item->id, from_slot, &next_free);
+    if (slot == NULL) {
+        if (next_free == INVENTORY_NO_FREE_SLOT) {
+            return false;
+        }
+        slot = &_current_inventory->slots[next_free];
+    }
+    const Item* slot_item = VCAST(Item*, *slot->item);
+    const int stack_left = slot_item->max_stack_size - slot_item->stack_size;
+    if (stack_left == 0) {
+        from_slot = slot->index + 1;
+        next_free = INVENTORY_NO_FREE_SLOT;
+        goto item_pickup_validator_start;
+    }
+    return stack_left >= item->stack_size;
 }
 
 void chunkUpdate(Chunk* chunk, Player* player) {
-    _current_player = player;
+    _current_inventory = VCAST(Inventory*, player->inventory);
     const VECTOR pos = (VECTOR) {
         .vx = player->position.vx >> FIXED_POINT_SHIFT,
         .vy = player->position.vy >> FIXED_POINT_SHIFT,
@@ -641,13 +653,30 @@ void chunkUpdate(Chunk* chunk, Player* player) {
         }
         Item* item = VCAST(Item*, **iitem);
         if (itemUpdate(item, &pos, itemPickupValidator)) {
-            // TODO: refactor to use playerStoreItem(...)
+            const InventoryStoreResult result = inventoryStoreItem(_current_inventory, *iitem);
+            switch (result) {
+                case INVENTORY_STORE_RESULT_ADDED_SOME:
+                    // Do nothing, already updated iitem that was picked up as dropped.
+                case INVENTORY_STORE_RESULT_NO_SPACE:
+                    // Do nothing since we can't pick it up (don't think this will ever
+                    // actually occur since we already check in itemPickupValidator for
+                    // this case when determining which to items to consider.
+                    break;
+                case INVENTORY_STORE_RESULT_ADDED_ALL:
+                    // Nuke it, added all so this item instance is not needed any more.
+                    // Break is not used here since we still need to erase this array
+                    // entry.
+                    VCALL(**iitem, destroy);
+                    itemDestroy(*iitem);
+                case INVENTORY_STORE_RESULT_ADDED_NEW_SLOT:
+                    // We reuse this item instance as the inventory instance now so don't
+                    // free it.
+                    cvector_erase(chunk->dropped_items, i);
+                    break;
+            }
             printf("[ITEM] Picked up: %s x%d\n", item->name, item->stack_size);
             // BUG: Something here causes an invalid instruction error
             //      in dynarec (probably bad pointer stuff)
-            VCALL(**iitem, destroy);
-            itemDestroy(*iitem);
-            cvector_erase(chunk->dropped_items, i);
             continue;
         }
         i++;

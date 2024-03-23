@@ -4,11 +4,13 @@
 #include <stdbool.h>
 
 bool itemUpdate(Item* item, const VECTOR* player_position, const ItemPickupValidator validator) {
+    const int32_t sq_dist = squareDistance(player_position, &item->position);
+    if (sq_dist > PICKUP_DISTANCE_SQUARED) {
+        return false;
+    }
+    // TODO: Can we cache validator results by using the item address as an identifier?
     if (validator(item)) {
-        const int32_t sq_dist = squareDistance(player_position, &item->position);
-        if (sq_dist > PICKUP_DISTANCE_SQUARED) {
-            return false;
-        } else if (!item->picked_up) {
+        if (!item->picked_up) {
             item->picked_up = true;
             return false;
         } else if (sq_dist <= PICKUP_TO_INV_DISTANCE_SQUARED) {
