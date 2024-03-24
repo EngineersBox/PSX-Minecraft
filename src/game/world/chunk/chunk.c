@@ -618,26 +618,31 @@ bool itemPickupValidator(const Item* item) {
     // 2. Is there space in the inventory
     //   a. [2:TRUE] Return true
     //   b. [2:FALSE] Return false
-    uint8_t from_slot = 0;
+    uint8_t from_slot = INVENTORY_SLOT_STORAGE_OFFSET;
     uint8_t next_free = INVENTORY_NO_FREE_SLOT;;
 item_pickup_validator_start:
     printf("Before search\n");
     const Slot* slot = inventorySearchItem(_current_inventory, item->id, from_slot, &next_free);
-    printf("After search\n");
+    printf("After search: %p %d\n", slot, next_free);
     if (slot == NULL) {
         if (next_free == INVENTORY_NO_FREE_SLOT) {
             return false;
         }
         slot = &_current_inventory->slots[next_free];
+        if (inventorySlotGetItem(slot) == NULL) {
+            printf("No existing but has empty slot\n");
+            return true;
+        }
     }
-    const Item* slot_item = VCAST(Item*, *slot->item);
+    const Item* slot_item = VCAST(Item*, *inventorySlotGetItem(slot));
     const int stack_left = slot_item->max_stack_size - slot_item->stack_size;
+    printf("Stack left: %d\n", stack_left);
     if (stack_left == 0) {
         from_slot = slot->index + 1;
         next_free = INVENTORY_NO_FREE_SLOT;
         goto item_pickup_validator_start;
     }
-    return stack_left >= item->stack_size;
+    return true;
 }
 
 void chunkUpdate(Chunk* chunk, Player* player) {

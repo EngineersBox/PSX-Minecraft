@@ -132,7 +132,7 @@ void Minecraft_init(VSelf, void* ctx) {
     DYN_PTR(item, GrassItemBlock, IItem, grass_item_block);
     VCALL(*item, init);
     grass_item_block->item_block.item.stack_size = 26;
-    slot->item = item;
+    slot->data.item = item;
     grass_item_block->item_block.item.position.vz = ITEM_BLOCK_INVENTORY_SCALING;
     grass_item_block->item_block.item.rotation = (SVECTOR) {
         .vx = ONE >> 4,

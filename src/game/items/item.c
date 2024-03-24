@@ -9,13 +9,14 @@ bool itemUpdate(Item* item, const VECTOR* player_position, const ItemPickupValid
         return false;
     }
     // TODO: Can we cache validator results by using the item address as an identifier?
-    if (validator(item)) {
-        if (!item->picked_up) {
-            item->picked_up = true;
-            return false;
-        } else if (sq_dist <= PICKUP_TO_INV_DISTANCE_SQUARED) {
-            return true;
-        }
+    if (!validator(item)) {
+        return false;
+    }
+    if (!item->picked_up) {
+        item->picked_up = true;
+        return false;
+    } else if (sq_dist <= PICKUP_TO_INV_DISTANCE_SQUARED) {
+        return true;
     }
     const int32_t sign_x = sign(player_position->vx - item->position.vx);
     const int32_t sign_y = sign(player_position->vy - item->position.vy);

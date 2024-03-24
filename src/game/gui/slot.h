@@ -8,8 +8,14 @@
 
 #include "../items/item.h"
 
-typedef struct {
-    IItem* item;
+typedef struct Slot {
+    union {
+        // Actual data
+        IItem* item;
+        // Reference to slot elsewhere, i.e. inventory
+        // hotbar slots mapping to actual hotbar slots
+        struct Slot* ref;
+    } data;
     DVECTOR position;
     DVECTOR dimensions;
     uint8_t index;

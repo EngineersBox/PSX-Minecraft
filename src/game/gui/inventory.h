@@ -13,13 +13,16 @@
 // * 4-7: crafting input
 // * 8: crafting output
 // * 9-35: storage
-// * [36-44] -> [0-8]: hotbar (via pointer, not included in count)
-#define INVENTORY_SLOT_COUNT 44
+// * [36-44] -> [0-8]: hotbar (via pointer ref)
+#define INVENTORY_SLOT_COUNT 45
 #define INVENTORY_SLOT_ARMOR_OFFSET 0
 #define INVENTORY_SLOT_CRAFTING_OFFSET 4
 #define INVENTORY_SLOT_STORAGE_OFFSET 9
 #define INVENTORY_SLOT_HOTBAR_OFFSET 36
 #define INVENTORY_NO_FREE_SLOT __UINT8_MAX__
+
+#define inventorySlotIsRef(slot) ((slot)->index >= INVENTORY_SLOT_HOTBAR_OFFSET)
+#define inventorySlotGetItem(slot) (inventorySlotIsRef(slot) ? (slot)->data.ref->data.item : (slot)->data.item)
 
 #define MK_INVENTORY_STORE_RESULT_LSIT(f) \
     f(INVENTORY_STORE_RESULT_ADDED_ALL) \

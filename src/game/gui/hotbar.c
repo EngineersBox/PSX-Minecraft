@@ -43,13 +43,13 @@ void hotbarInit(Hotbar* hotbar) {
 void hotbarRenderSlots(const Hotbar* hotbar,  RenderContext* ctx, Transforms* transforms) {
     Slot* slot;
     cvector_for_each_in(slot, hotbar->slots) {
-        if (slot->item == NULL) {
+        if (slot->data.item == NULL) {
             continue;
         }
-        Item* item = VCAST(Item*, *slot->item);
+        Item* item = VCAST(Item*, *slot->data.item);
         item->position.vx = slot->position.vx;
         item->position.vy = slot->position.vy;
-        VCALL_SUPER(*slot->item, Renderable, renderInventory, ctx, transforms);
+        VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
     }
 }
 
