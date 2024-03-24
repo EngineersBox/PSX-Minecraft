@@ -13,9 +13,13 @@
 #define HOTBAR_WIDTH 182
 #define HOTBAR_HEIGHT 22
 
+#define HOTBAR_SELECTOR_WIDTH 22
+#define HOTBAR_SELECTOR_HEIGHT 22
+
 DEFN_UI(
     Hotbar,
     cvector(Slot) slots;
+    uint8_t selected_slot;
 );
 
 void hotbarInit(Hotbar* hotbar);
