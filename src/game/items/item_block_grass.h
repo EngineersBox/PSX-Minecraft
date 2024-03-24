@@ -20,6 +20,15 @@ void GrassItemBlock_renderInventory(VSelf, RenderContext* ctx, Transforms* trans
 void grassItemBlockRenderHand(VSelf, RenderContext* ctx, Transforms* transforms);
 void GrassItemBlock_renderHand(VSelf, RenderContext* ctx, Transforms* transforms);
 
+void grassItemBlockApplyWorldRenderAttributes(VSelf);
+void GrassItemBlock_applyWorldRenderAttributes(VSelf);
+
+void grassItemBlockApplyInventoryRenderAttributes(VSelf);
+void GrassItemBlock_applyInventoryRenderAttributes(VSelf);
+
+void grassItemBlockApplyHandRenderAttributes(VSelf);
+void GrassItemBlock_applyHandRenderAttributes(VSelf);
+
 impl(Renderable, GrassItemBlock);
 
 void grassItemBlockInit(VSelf);

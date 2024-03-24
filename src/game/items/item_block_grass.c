@@ -32,6 +32,22 @@ void GrassItemBlock_renderHand(VSelf, RenderContext* ctx, Transforms* transforms
     itemBlockRenderHand(&self->item_block, ctx, transforms);
 }
 
+void grassItemBlockApplyWorldRenderAttributes(VSelf) __attribute__((alias("GrassItemBlock_applyWorldRenderAttributes")));
+void GrassItemBlock_applyWorldRenderAttributes(VSelf) {
+
+}
+
+void grassItemBlockApplyInventoryRenderAttributes(VSelf) __attribute__((alias("GrassItemBlock_applyInventoryRenderAttributes")));
+void GrassItemBlock_applyInventoryRenderAttributes(VSelf) {
+    VSELF(GrassItemBlock);
+    itemBlockApplyInventoryRenderAttributes(&self->item_block);
+}
+
+void grassItemBlockApplyHandRenderAttributes(VSelf) __attribute__((alias("GrassItemBlock_applyHandRenderAttributes")));
+void GrassItemBlock_applyHandRenderAttributes(VSelf) {
+
+}
+
 void grassItemBlockInit(VSelf) __attribute__((alias("GrassItemBlock_init")));
 void GrassItemBlock_init(VSelf) {
     VSELF(GrassItemBlock);

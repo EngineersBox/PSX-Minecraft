@@ -13,9 +13,19 @@
 
 #define ITEM_BLOCK_FACES 6
 #define ITEM_BLOCK_SIZE 10
-#define ITEM_BLOCK_INVENTORY_SIZE 3
+#define ITEM_BLOCK_INVENTORY_SIZE 4
 // TODO: Adjust this so it's within the entire slot of 16x16
-#define ITEM_BLOCK_INVENTORY_SCALING 120
+#define ITEM_BLOCK_INVENTORY_SCALING 110
+#define ITEM_BLOCK_INVENTORY_POSITION_RENDER_ATTRIBUTE (VECTOR) { \
+    .vx = 0, \
+    .vy = 0, \
+    .vz = ITEM_BLOCK_INVENTORY_SCALING \
+}
+#define ITEM_BLOCK_INVENTORY_ROTATION_RENDER_ATTRIBUTE (SVECTOR) { \
+    .vx = ONE >> 4, \
+    .vy = ONE >> 3, \
+    .vz = 0 \
+}
 #define ITEM_BLOCK_BOB_ANIM_SAMPLES 37
 // Minecraft's item spin rate is 2.87675 degrees per tick
 // 2.87675 / 360 = 0.0079909722
@@ -64,5 +74,7 @@ typedef struct {
 void itemBlockRenderWorld(ItemBlock* item, RenderContext* ctx, Transforms* transforms);
 void itemBlockRenderInventory(ItemBlock* item, RenderContext* ctx, Transforms* transforms);
 void itemBlockRenderHand(ItemBlock* item, RenderContext* ctx, Transforms* transforms);
+
+void itemBlockApplyInventoryRenderAttributes(ItemBlock* item);
 
 #endif // PSX_MINECRAFT_ITEM_BLOCK_H

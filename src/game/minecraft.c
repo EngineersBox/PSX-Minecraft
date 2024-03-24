@@ -126,19 +126,14 @@ void Minecraft_init(VSelf, void* ctx) {
     player->position.vy += BLOCK_SIZE << FIXED_POINT_SHIFT;
     // TESTING
     Hotbar* hotbar = VCAST(Hotbar*, player->hotbar);
-    Slot* slot = &hotbar->slots[1];
+    Slot* slot = &hotbar->slots[0];
     IItem* item = itemCreate();
     GrassItemBlock* grass_item_block = grassItemBlockCreate();
     DYN_PTR(item, GrassItemBlock, IItem, grass_item_block);
     VCALL(*item, init);
     grass_item_block->item_block.item.stack_size = 26;
     slot->data.item = item;
-    grass_item_block->item_block.item.position.vz = ITEM_BLOCK_INVENTORY_SCALING;
-    grass_item_block->item_block.item.rotation = (SVECTOR) {
-        .vx = ONE >> 4,
-        .vy = ONE >> 3,
-        .vz = 0
-    };
+    VCALL_SUPER(*item, Renderable, applyInventoryRenderAttributes);
 }
 
 void minecraftCleanup(VSelf) __attribute__((alias("Minecraft_cleanup")));

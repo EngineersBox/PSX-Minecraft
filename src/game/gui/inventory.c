@@ -127,6 +127,7 @@ InventoryStoreResult inventoryStoreItem(Inventory* inventory, IItem* iitem) {
             return exit_code;
         }
     }
+    VCALL_SUPER(*iitem_to_add, Renderable, applyInventoryRenderAttributes);
     if (inventorySlotIsRef(slot)) {
         slot->data.ref->data.item = iitem_to_add;
     } else {

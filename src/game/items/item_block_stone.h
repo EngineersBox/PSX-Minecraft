@@ -21,6 +21,15 @@ void StoneItemBlock_renderInventory(VSelf, RenderContext* ctx, Transforms* trans
 void stoneItemBlockRenderHand(VSelf, RenderContext* ctx, Transforms* transforms);
 void StoneItemBlock_renderHand(VSelf, RenderContext* ctx, Transforms* transforms);
 
+void stoneItemBlockApplyWorldRenderAttributes(VSelf);
+void StoneItemBlock_applyWorldRenderAttributes(VSelf);
+
+void stoneItemBlockApplyInventoryRenderAttributes(VSelf);
+void StoneItemBlock_applyInventoryRenderAttributes(VSelf);
+
+void stoneItemBlockApplyHandRenderAttributes(VSelf);
+void StoneItemBlock_applyHandRenderAttributes(VSelf);
+
 impl(Renderable, StoneItemBlock);
 
 void stoneItemBlockInit(VSelf);

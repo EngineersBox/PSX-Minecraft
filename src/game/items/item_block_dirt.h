@@ -22,6 +22,15 @@ void DirtItemBlock_renderInventory(VSelf, RenderContext* ctx, Transforms* transf
 void dirtItemBlockRenderHand(VSelf, RenderContext* ctx, Transforms* transforms);
 void DirtItemBlock_renderHand(VSelf, RenderContext* ctx, Transforms* transforms);
 
+void dirtItemBlockApplyWorldRenderAttributes(VSelf);
+void DirtItemBlock_applyWorldRenderAttributes(VSelf);
+
+void dirtItemBlockApplyInventoryRenderAttributes(VSelf);
+void DirtItemBlock_applyInventoryRenderAttributes(VSelf);
+
+void dirtItemBlockApplyHandRenderAttributes(VSelf);
+void DirtItemBlock_applyHandRenderAttributes(VSelf);
+
 impl(Renderable, DirtItemBlock);
 
 void dirtItemBlockInit(VSelf);

@@ -32,6 +32,22 @@ void StoneItemBlock_renderHand(VSelf, RenderContext* ctx, Transforms* transforms
     itemBlockRenderHand(&self->item_block, ctx, transforms);
 }
 
+void stoneItemBlockApplyWorldRenderAttributes(VSelf) __attribute__((alias("StoneItemBlock_applyWorldRenderAttributes")));
+void StoneItemBlock_applyWorldRenderAttributes(VSelf) {
+
+}
+
+void stoneItemBlockApplyInventoryRenderAttributes(VSelf) __attribute__((alias("StoneItemBlock_applyInventoryRenderAttributes")));
+void StoneItemBlock_applyInventoryRenderAttributes(VSelf) {
+    VSELF(StoneItemBlock);
+    itemBlockApplyInventoryRenderAttributes(&self->item_block);
+}
+
+void stoneItemBlockApplyHandRenderAttributes(VSelf) __attribute__((alias("StoneItemBlock_applyHandRenderAttributes")));
+void StoneItemBlock_applyHandRenderAttributes(VSelf) {
+
+}
+
 void stoneItemBlockInit(VSelf) __attribute__((alias("StoneItemBlock_init")));
 void StoneItemBlock_init(VSelf) {
     VSELF(StoneItemBlock);

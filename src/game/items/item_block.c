@@ -457,3 +457,8 @@ void itemBlockRenderInventory(ItemBlock* item, RenderContext* ctx, Transforms* t
 void itemBlockRenderHand(ItemBlock* item, RenderContext* ctx, Transforms* transforms) {
 
 }
+
+void itemBlockApplyInventoryRenderAttributes(ItemBlock* item) {
+    item->item.position = ITEM_BLOCK_INVENTORY_POSITION_RENDER_ATTRIBUTE;
+    item->item.rotation = ITEM_BLOCK_INVENTORY_ROTATION_RENDER_ATTRIBUTE;
+}
