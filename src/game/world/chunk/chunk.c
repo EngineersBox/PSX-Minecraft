@@ -619,28 +619,25 @@ bool itemPickupValidator(const Item* item) {
     //   a. [2:TRUE] Return true
     //   b. [2:FALSE] Return false
     uint8_t from_slot = INVENTORY_SLOT_STORAGE_OFFSET;
-    uint8_t next_free = INVENTORY_NO_FREE_SLOT;;
-item_pickup_validator_start:
-    printf("Before search\n");
-    const Slot* slot = inventorySearchItem(_current_inventory, item->id, from_slot, &next_free);
-    printf("After search: %p %d\n", slot, next_free);
-    if (slot == NULL) {
-        if (next_free == INVENTORY_NO_FREE_SLOT) {
-            return false;
+    uint8_t next_free = INVENTORY_NO_FREE_SLOT;
+    while (1) {
+        const Slot* slot = inventorySearchItem(_current_inventory, item->id, from_slot, &next_free);
+        if (slot == NULL) {
+            if (next_free == INVENTORY_NO_FREE_SLOT) {
+                return false;
+            }
+            slot = &_current_inventory->slots[next_free];
+            if (inventorySlotGetItem(slot) == NULL) {
+                break;
+            }
         }
-        slot = &_current_inventory->slots[next_free];
-        if (inventorySlotGetItem(slot) == NULL) {
-            printf("No existing but has empty slot\n");
-            return true;
+        const Item* slot_item = VCAST(Item*, *inventorySlotGetItem(slot));
+        const int stack_left = slot_item->max_stack_size - slot_item->stack_size;
+        if (stack_left != 0) {
+            break;
         }
-    }
-    const Item* slot_item = VCAST(Item*, *inventorySlotGetItem(slot));
-    const int stack_left = slot_item->max_stack_size - slot_item->stack_size;
-    printf("Stack left: %d\n", stack_left);
-    if (stack_left == 0) {
         from_slot = slot->index + 1;
         next_free = INVENTORY_NO_FREE_SLOT;
-        goto item_pickup_validator_start;
     }
     return true;
 }
@@ -660,6 +657,7 @@ void chunkUpdate(Chunk* chunk, Player* player) {
         }
         Item* item = VCAST(Item*, **iitem);
         if (itemUpdate(item, &pos, itemPickupValidator)) {
+            printf("[ITEM] Picked up: %s x%d\n", item->name, item->stack_size);
             const InventoryStoreResult result = inventoryStoreItem(_current_inventory, *iitem);
             printf("[ITEM] Result: %s\n", inventoryStoreResultStringify(result));
             switch (result) {
@@ -682,7 +680,6 @@ void chunkUpdate(Chunk* chunk, Player* player) {
                     cvector_erase(chunk->dropped_items, i);
                     break;
             }
-            printf("[ITEM] Picked up: %s x%d\n", item->name, item->stack_size);
             // BUG: Something here causes an invalid instruction error
             //      in dynarec (probably bad pointer stuff)
             continue;

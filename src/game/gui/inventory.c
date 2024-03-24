@@ -84,37 +84,41 @@ InventoryStoreResult inventoryStoreItem(Inventory* inventory, IItem* iitem) {
     uint8_t from_slot = INVENTORY_SLOT_STORAGE_OFFSET;
     uint8_t next_free = INVENTORY_NO_FREE_SLOT;
     uint8_t persisted_next_free = INVENTORY_NO_FREE_SLOT;
-inventory_store_item_start:
-    Item* item = VCAST(Item*, *iitem_to_add);
-    Slot* slot = inventorySearchItem(inventory, item->id, from_slot, &next_free);
-    if (slot == NULL) {
-        goto inventory_store_item_check_free_space;
-    }
-    IItem* slot_iitem = inventorySlotGetItem(slot);
-    Item* slot_item = VCAST(Item*, *slot_iitem);
-    // Has space?
-    if (slot_item->stack_size < slot_item->max_stack_size) {
-        const int stack_left = slot_item->max_stack_size - slot_item->stack_size;
-        // Can fit into stack?
-        if (stack_left >= item->stack_size) {
-            slot_item->stack_size += item->stack_size;
-            VCALL(*slot_iitem, destroy);
-            itemDestroy(slot_iitem);
-            return INVENTORY_STORE_RESULT_ADDED_ALL;
+    Slot* slot = NULL;
+    while (1) {
+        Item* item = VCAST(Item*, *iitem_to_add);
+        slot = inventorySearchItem(inventory, item->id, from_slot, &next_free);
+        if (slot == NULL) {
+            break;
         }
-        slot_item->stack_size = slot_item->max_stack_size;
-        item->stack_size = item->stack_size - stack_left;
-        exit_code = INVENTORY_STORE_RESULT_ADDED_SOME;
-    } else {
-        exit_code = INVENTORY_STORE_RESULT_NO_SPACE;
+        IItem* slot_iitem = inventorySlotGetItem(slot);
+        Item* slot_item = VCAST(Item*, *slot_iitem);
+        // Has space?
+        if (slot_item->stack_size < slot_item->max_stack_size) {
+            const int stack_left = slot_item->max_stack_size - slot_item->stack_size;
+            // Can fit into stack?
+            if (stack_left >= item->stack_size) {
+                slot_item->stack_size += item->stack_size;
+                VCALL(*slot_iitem, destroy);
+                itemDestroy(slot_iitem);
+                return INVENTORY_STORE_RESULT_ADDED_ALL;
+            }
+            slot_item->stack_size = slot_item->max_stack_size;
+            item->stack_size = item->stack_size - stack_left;
+            exit_code = INVENTORY_STORE_RESULT_ADDED_SOME;
+        } else {
+            exit_code = INVENTORY_STORE_RESULT_NO_SPACE;
+        }
+        from_slot = slot->index + 1;
+        if (persisted_next_free == INVENTORY_NO_FREE_SLOT) {
+            // Keep the first free slot we found and don't update
+            // it later since we will have stated searching from
+            // a different offset and thus will not be the first
+            // free slot
+            persisted_next_free = next_free;
+        }
+        next_free = INVENTORY_NO_FREE_SLOT;
     }
-    from_slot = slot->index + 1;
-    if (persisted_next_free == INVENTORY_NO_FREE_SLOT) {
-        persisted_next_free = next_free;
-    }
-    next_free = INVENTORY_NO_FREE_SLOT;
-    goto inventory_store_item_start;
-inventory_store_item_check_free_space:
     if (persisted_next_free != INVENTORY_NO_FREE_SLOT) {
         slot = &inventory->slots[persisted_next_free];
     } else {
