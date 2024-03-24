@@ -1,8 +1,7 @@
 #include "hotbar.h"
 
-#include <cvector_utils.h>
-#include <interface99_extensions.h>
-
+#include "../../structure/cvector_utils.h"
+#include "../../util/interface99_extensions.h"
 #include "../../ui/components/background.h"
 #include "../../structure/primitive/primitive.h"
 
@@ -14,7 +13,6 @@ void hotbarInit(Hotbar* hotbar) {
     hotbar->selected_slot = 1;
     cvector_init(hotbar->slots, HOTBAR_SLOT_COUNT, NULL);
     for (uint8_t i = 0; i < 9; i++) {
-        cvector_push_back(hotbar->slots, (Slot) {});
         Slot* slot = &hotbar->slots[i];
         slot->dimensions = HOTBAR_SLOT_DIMS;
         slot->position = hotbarSlotPos(i, 0);
