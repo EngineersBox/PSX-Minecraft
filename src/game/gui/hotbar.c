@@ -18,8 +18,7 @@ void hotbarInit(Hotbar* hotbar) {
         slot->position = hotbarSlotPos(i, 0);
         slot->index = i;
     }
-    cvector_push_back(hotbar->ui.components, (IUIComponent) {});
-    IUIComponent* component = &hotbar->ui.components[cvector_size(hotbar->ui.components) - 1];
+    IUIComponent* component = uiAddComponent(&hotbar->ui);
     UIBackground* background = (UIBackground*) malloc(sizeof(UIBackground));
     background->component.position = (DVECTOR) {
         .vx = CENTRE_X - (HOTBAR_WIDTH / 2),
@@ -37,6 +36,7 @@ void hotbarInit(Hotbar* hotbar) {
         .vx = HOTBAR_WIDTH,
         .vy = HOTBAR_HEIGHT
     };
+    background->texture = &textures[ASSET_TEXTURES_GUI_INDEX];
     DYN_PTR(component, UIBackground, IUIComponent, background);
 }
 
@@ -54,15 +54,15 @@ void hotbarRenderSlots(const Hotbar* hotbar,  RenderContext* ctx, Transforms* tr
     POLY_FT4* pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
     setXYWH(
         pol4,
-        CENTRE_X - (HOTBAR_WIDTH / 2) + (hotbar->selected_slot * (HOTBAR_SELECTOR_WIDTH - 2)),
-        SCREEN_YRES - HOTBAR_HEIGHT - 1,
+        CENTRE_X - (HOTBAR_WIDTH / 2) + (hotbar->selected_slot * 19),
+        SCREEN_YRES - HOTBAR_HEIGHT - 2,
         HOTBAR_SELECTOR_WIDTH,
         HOTBAR_SELECTOR_HEIGHT
     );
     setUVWH(
         pol4,
-        1,
-        23,
+        HOTBAR_WIDTH,
+        0,
         HOTBAR_SELECTOR_WIDTH,
         HOTBAR_SELECTOR_HEIGHT
     );

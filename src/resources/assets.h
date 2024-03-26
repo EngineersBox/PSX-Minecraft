@@ -13,9 +13,12 @@ extern uint8_t _lz_resources[];
 
 extern Texture* textures;
 
-void assetsLoad();
-void assetLoadImage(const TIM_IMAGE* tim, int index);
+void assetLoadImage(const TIM_IMAGE* tim, Texture* texture);
+// 1: Failed, 0: Success
+int assetLoadTextureDirect(const char* bundle, const char* filename, Texture* texture);
 void assetLoadModel(const SMD* smd);
+
+void assetsLoad();
 void assetsFree();
 
 #endif // PSX_MINECRAFT_ASSETS_H

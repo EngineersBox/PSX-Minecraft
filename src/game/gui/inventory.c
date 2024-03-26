@@ -1,16 +1,111 @@
 #include "inventory.h"
 
+#include <cvector_utils.h>
 #include <interface99.h>
+#include <components/background.h>
+
 #include "../../util/interface99_extensions.h"
 
 const char* INVENTORY_STORE_RESULT_NAMES[] = {
     MK_INVENTORY_STORE_RESULT_LSIT(P99_STRING_ARRAY_INDEX)
 };
 
-void inventoryRenderSlots(const Inventory* inventory) {
+#define createSlot(offset, _index, name) ({ \
+    Slot* slot = &inventory->slots[offset + _index]; \
+    slot->index = offset + _index; \
+    slot->data.item = NULL; \
+    slot->position = PLAYER_INV_##name##_POS; \
+    slot->dimensions = INV_SLOT_DIMS; \
+    slot->blocked = false; \
+})
+
+void initArmorSlots(Inventory* inventory) {
+    createSlot(INVENTORY_SLOT_ARMOR_OFFSET, 0, ARMOR_HELMET);
+    createSlot(INVENTORY_SLOT_ARMOR_OFFSET, 1, ARMOR_CHESTPLATE);
+    createSlot(INVENTORY_SLOT_ARMOR_OFFSET, 2, ARMOR_LEGGINGS);
+    createSlot(INVENTORY_SLOT_ARMOR_OFFSET, 3, ARMOR_BOOTS);
+}
+
+void initCraftingSlots(Inventory* inventory) {
+    createSlot(INVENTORY_SLOT_CRAFTING_OFFSET, 0, CRAFTING_TOP_LEFT);
+    createSlot(INVENTORY_SLOT_CRAFTING_OFFSET, 1, CRAFTING_TOP_RIGHT);
+    createSlot(INVENTORY_SLOT_CRAFTING_OFFSET, 2, CRAFTING_BOTTOM_LEFT);
+    createSlot(INVENTORY_SLOT_CRAFTING_OFFSET, 3, CRAFTING_BOTTOM_RIGHT);
+    createSlot(INVENTORY_SLOT_CRAFTING_OFFSET, 4, CRAFTING_RESULT);
+}
+
+void initStorageSlots(Inventory* inventory) {
+    for (int i = INVENTORY_SLOT_STORAGE_OFFSET; i < INVENTORY_SLOT_HOTBAR_OFFSET; i++) {
+        Slot* slot = &inventory->slots[i];
+        slot->data.item = NULL;
+        slot->index = i;
+        slot->dimensions = INV_SLOT_DIMS;
+        slot->blocked = false;
+        const uint8_t local_index = i - INVENTORY_SLOT_STORAGE_OFFSET;
+        slot->position = playerInvStoragePos(
+            local_index % PLAYER_INV_STORAGE_SLOTS_WIDTH,
+            local_index / PLAYER_INV_STORAGE_SLOTS_WIDTH
+        );
+    }
+}
+
+void initHotbarSlots(Inventory* inventory) {
+    const Hotbar* hotbar = inventory->hotbar;
+    for (int i = INVENTORY_SLOT_HOTBAR_OFFSET; i < INVENTORY_SLOT_COUNT; i++) {
+        Slot* slot = &inventory->slots[i];
+        const uint8_t hotbar_index = i - INVENTORY_SLOT_HOTBAR_OFFSET;
+        slot->data.ref = &hotbar->slots[hotbar_index];
+        slot->index = i;
+        slot->blocked = false;
+        slot->dimensions = INV_SLOT_DIMS;
+        slot->position = playerInvHotbarPos(i - INVENTORY_SLOT_HOTBAR_OFFSET);
+    }
+}
+
+void inventoryInit(Inventory* inventory, Hotbar* hotbar) {
+    uiInit(&inventory->ui);
+    IUIComponent* component = uiAddComponent(&inventory->ui);
+    UIBackground* background = (UIBackground*) malloc(sizeof(UIBackground));
+    background->component.position = (DVECTOR) {
+        .vx = CENTRE_X - (INVENTORY_WIDTH / 2),
+        .vy = CENTRE_Y - (INVENTORY_HEIGHT / 2)
+    };
+    background->component.dimensions = (DVECTOR) {
+        .vx = INVENTORY_WIDTH,
+        .vy = INVENTORY_HEIGHT
+    };
+    background->texture_coords = (DVECTOR) {
+        .vx = 0,
+        .vy = 82
+    };
+    background->texture_width = (DVECTOR) {
+        .vx = INVENTORY_WIDTH,
+        .vy = INVENTORY_HEIGHT
+    };
+    DYN_PTR(component, UIBackground, IUIComponent, background);
+    inventory->hotbar = hotbar;
+    inventory->slots = NULL;
+    cvector_init(inventory->slots, INVENTORY_SLOT_COUNT, NULL);
+    initArmorSlots(inventory);
+    initCraftingSlots(inventory);
+    initStorageSlots(inventory);
+    initHotbarSlots(inventory);
+}
+
+void inventoryRenderSlots(const Inventory* inventory, RenderContext* ctx, Transforms* transforms) {
     if (!inventory->ui.active) {
         return;
     }
+    // Slot* slot;
+    // cvector_for_each_in(slot, inventory->slots) {
+    //     if (slot->data.item == NULL) {
+    //         continue;
+    //     }
+    //     Item* item = VCAST(Item*, *slot->data.item);
+    //     item->position.vx = slot->position.vx,
+    //     item->position.vy = slot->position.vy;
+    //     VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
+    // }
 }
 
 Slot* inventorySearchItem(const Inventory* inventory, const ItemID id, const uint8_t from_slot, uint8_t* next_free) {
@@ -136,75 +231,21 @@ InventoryStoreResult inventoryStoreItem(Inventory* inventory, IItem* iitem) {
     return INVENTORY_STORE_RESULT_ADDED_NEW_SLOT;
 }
 
+#define GUI_BUNDLE_NAME "gui"
+#define INVENTORY_TEXTURE_NAME "inventory"
+
 void inventoryLoadTexture(VSelf) __attribute__((alias("Inventory_loadTexture")));
 void Inventory_loadTexture(VSelf) {
-
+    VSELF(Inventory);
+    UIBackground* background = VCAST(UIBackground*, self->ui.components[0]);
+    if (assetLoadTextureDirect(GUI_BUNDLE_NAME, INVENTORY_TEXTURE_NAME, background->texture)) {
+        printf("[INVENTORY] Failed to load texture\n");
+    }
 }
 
 void inventoryFreeTexture(VSelf) __attribute__((alias("Inventory_freeTexture")));
 void Inventory_freeTexture(VSelf) {
-
-}
-
-#define createSlot(offset, _index, name) ({ \
-    Slot* slot = &inventory->slots[offset + _index]; \
-    slot->index = offset + _index; \
-    slot->data.item = NULL; \
-    slot->position = PLAYER_INV_##name##_POS; \
-    slot->dimensions = INV_SLOT_DIMS; \
-    slot->blocked = false; \
-})
-
-void initArmorSlots(Inventory* inventory) {
-    createSlot(INVENTORY_SLOT_ARMOR_OFFSET, 0, ARMOR_HELMET);
-    createSlot(INVENTORY_SLOT_ARMOR_OFFSET, 1, ARMOR_CHESTPLATE);
-    createSlot(INVENTORY_SLOT_ARMOR_OFFSET, 2, ARMOR_LEGGINGS);
-    createSlot(INVENTORY_SLOT_ARMOR_OFFSET, 3, ARMOR_BOOTS);
-}
-
-void initCraftingSlots(Inventory* inventory) {
-    createSlot(INVENTORY_SLOT_CRAFTING_OFFSET, 0, CRAFTING_TOP_LEFT);
-    createSlot(INVENTORY_SLOT_CRAFTING_OFFSET, 1, CRAFTING_TOP_RIGHT);
-    createSlot(INVENTORY_SLOT_CRAFTING_OFFSET, 2, CRAFTING_BOTTOM_LEFT);
-    createSlot(INVENTORY_SLOT_CRAFTING_OFFSET, 3, CRAFTING_BOTTOM_RIGHT);
-    createSlot(INVENTORY_SLOT_CRAFTING_OFFSET, 4, CRAFTING_RESULT);
-}
-
-void initStorageSlots(Inventory* inventory) {
-    for (int i = INVENTORY_SLOT_STORAGE_OFFSET; i < INVENTORY_SLOT_HOTBAR_OFFSET; i++) {
-        Slot* slot = &inventory->slots[i];
-        slot->data.item = NULL;
-        slot->index = i;
-        slot->dimensions = INV_SLOT_DIMS;
-        slot->blocked = false;
-        const uint8_t local_index = i - INVENTORY_SLOT_STORAGE_OFFSET;
-        slot->position = playerInvStoragePos(
-            local_index % PLAYER_INV_STORAGE_SLOTS_WIDTH,
-            local_index / PLAYER_INV_STORAGE_SLOTS_WIDTH
-        );
-    }
-}
-
-void initHotbarSlots(Inventory* inventory) {
-    const Hotbar* hotbar = inventory->hotbar;
-    for (int i = INVENTORY_SLOT_HOTBAR_OFFSET; i < INVENTORY_SLOT_COUNT; i++) {
-        Slot* slot = &inventory->slots[i];
-        const uint8_t hotbar_index = i - INVENTORY_SLOT_HOTBAR_OFFSET;
-        slot->data.ref = &hotbar->slots[hotbar_index];
-        slot->index = i;
-        slot->blocked = false;
-        slot->dimensions = INV_SLOT_DIMS;
-        slot->position = playerInvHotbarPos(i - INVENTORY_SLOT_HOTBAR_OFFSET);
-    }
-}
-
-void inventoryInit(Inventory* inventory, Hotbar* hotbar) {
-    uiInit(&inventory->ui);
-    inventory->hotbar = hotbar;
-    inventory->slots = NULL;
-    cvector_init(inventory->slots, INVENTORY_SLOT_COUNT, NULL);
-    initArmorSlots(inventory);
-    initCraftingSlots(inventory);
-    initStorageSlots(inventory);
-    initHotbarSlots(inventory);
+    VSELF(Inventory);
+    UIBackground* background = VCAST(UIBackground*, self->ui.components[0]);
+    background->texture = NULL;
 }

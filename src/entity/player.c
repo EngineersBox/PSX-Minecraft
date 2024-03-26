@@ -21,5 +21,6 @@ void playerDestroy(const Player* player) {
 void playerRender(const Player* player, RenderContext* ctx, Transforms* transforms) {
     hotbarRenderSlots(VCAST(const Hotbar*, player->hotbar), ctx, transforms);
     uiRender(VCAST(const UI*, player->hotbar), ctx, transforms);
+    inventoryRenderSlots(VCAST(const Inventory*, player->inventory), ctx, transforms);
     uiRender(VCAST(const UI*, player->inventory), ctx, transforms);
 }

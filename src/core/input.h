@@ -14,4 +14,6 @@ typedef struct {
 
 void initInput(Input* input);
 
+#define isPressed(pad_button) (!(input->pad->btn & (pad_button)))
+
 #endif //INPUT_H

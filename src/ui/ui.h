@@ -18,7 +18,6 @@
     vfunc(void, render, VSelf, RenderContext* ctx, Transforms* transforms)
 
 interface(IUIComponent);
-
 typedef struct UIComponent {
     DVECTOR position;
     DVECTOR dimensions;
@@ -54,6 +53,8 @@ typedef struct {
 
 void uiInit(UI* ui);
 void uiRender(const UI* ui, RenderContext* ctx, Transforms* transforms);
+
+IUIComponent* uiAddComponent(UI* ui);
 
 // #define _TYPE_AS_UI_COMPONENT_PTR(x) IUIComponent* x
 //

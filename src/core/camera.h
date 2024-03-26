@@ -13,13 +13,11 @@
 
 struct Camera;
 
-typedef void(*StartHandler)(struct Camera*);
 
 typedef struct Camera {
     VECTOR position;
     VECTOR rotation;
     int mode;
-    StartHandler start_handler;
 } Camera;
 
 void cameraUpdate(Camera* camera, const Input* input, Transforms* transforms, const VECTOR* look_pos);

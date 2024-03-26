@@ -4,6 +4,7 @@
 
 void uiInit(UI* ui) {
     ui->components = NULL;
+    ui->active = false;
     cvector_init(ui->components, 0, NULL);
 }
 
@@ -15,4 +16,9 @@ void uiRender(const UI* ui, RenderContext* ctx, Transforms* transforms) {
     cvector_for_each_in(component, ui->components) {
         VCALL(*component, render, ctx, transforms);
     }
+}
+
+IUIComponent* uiAddComponent(UI* ui) {
+    cvector_push_back(ui->components, (IUIComponent) {});
+    return &ui->components[cvector_size(ui->components) - 1];
 }

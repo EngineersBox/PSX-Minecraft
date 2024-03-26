@@ -7,8 +7,6 @@
 #include "../math/math_utils.h"
 #include "../hardware/counters.h"
 
-#define isPressed(pad_button) (!(input->pad->btn & (pad_button)))
-
 void handleDigitalPadAndDualAnalogShock(Camera* camera, const Input* input, const Transforms* transforms) {
     // For digital input->pad, dual-analog and dual-shock
     if (input->pad->type != 0x4
@@ -73,13 +71,6 @@ void handleDigitalPadAndDualAnalogShock(Camera* camera, const Input* input, cons
         camera->position.vy += icos(transforms->translation_rotation.vx) << CAMERA_MOVE_SPEED;
         camera->position.vz -= ((icos(transforms->translation_rotation.vy)
                                  * isin(transforms->translation_rotation.vx)) >> FIXED_POINT_SHIFT) << CAMERA_MOVE_SPEED;
-    }
-    // DEBUG: Look at cube
-    if (isPressed(PAD_L1)) {
-        camera->mode = 1;
-    }
-    if (isPressed(PAD_START)) {
-        camera->start_handler(camera);
     }
     if (isPressed(PAD_SELECT)) {
         _boot();

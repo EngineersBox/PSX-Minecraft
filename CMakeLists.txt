@@ -24,7 +24,7 @@ if (NOT (asset_count EQUAL 0))
 	add_custom_command(
 		COMMAND    ${LZPACK} -y _assets.xml
 		OUTPUT     assets.lzp
-		BYPRODUCTS textures.qlp
+		BYPRODUCTS textures.qlp gui.qlp
 		DEPENDS    ${_assets}
 		COMMENT    "Building LZP archive"
 	)

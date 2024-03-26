@@ -21,6 +21,9 @@
 #define INVENTORY_SLOT_HOTBAR_OFFSET 36
 #define INVENTORY_NO_FREE_SLOT __UINT8_MAX__
 
+#define INVENTORY_WIDTH 176
+#define INVENTORY_HEIGHT 166
+
 #define inventorySlotIsRef(slot) ((slot)->index >= INVENTORY_SLOT_HOTBAR_OFFSET)
 #define inventorySlotGetItem(slot) (inventorySlotIsRef(slot) ? (slot)->data.ref->data.item : (slot)->data.item)
 
@@ -51,7 +54,9 @@ DEFN_UI(Inventory,
     Hotbar* hotbar;
 );
 
-void inventoryRenderSlots(const Inventory* inventory);
+void inventoryInit(Inventory* inventory, Hotbar* hotbar);
+
+void inventoryRenderSlots(const Inventory* inventory, RenderContext* ctx, Transforms* transforms);
 
 Slot* inventorySearchItem(const Inventory* inventory, const ItemID id, const uint8_t from_slot, uint8_t* next_free);
 Slot* inventoryFindFreeSlot(const Inventory* inventory, const uint8_t from_slot);
@@ -63,8 +68,6 @@ void Inventory_loadTexture(VSelf);
 
 void inventoryFreeTexture(VSelf);
 void Inventory_freeTexture(VSelf);
-
-void inventoryInit(Inventory* inventory, Hotbar* hotbar);
 
 impl(IUI, Inventory);
 

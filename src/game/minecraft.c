@@ -70,9 +70,6 @@ SVECTOR direction_pos = {0};
 World* world;
 Player* player;
 
-// Forward declaration
-void cameraStartHandler(Camera* camera);
-
 void minecraftInit(VSelf, void* ctx) __attribute__((alias("Minecraft_init")));
 void Minecraft_init(VSelf, void* ctx) {
     VSELF(Minecraft);
@@ -90,9 +87,7 @@ void Minecraft_init(VSelf, void* ctx) {
             .lighting_mtx = light_mtx
         },
         .input = (Input) {},
-        .camera = (Camera) {
-            .start_handler = &cameraStartHandler
-        }
+        .camera = (Camera) {}
     };
     self->internals.ctx.camera = &self->internals.camera;
     // Set light ambient color and light color matrix
@@ -146,6 +141,8 @@ void Minecraft_cleanup(VSelf) {
     assetsFree();
 }
 
+void startHandler(Camera* camera);
+
 void minecraftInput(VSelf, const Stats* stats) __attribute__((alias("Minecraft_input")));
 void Minecraft_input(VSelf, const Stats* stats) {
     VSELF(Minecraft);
@@ -159,6 +156,19 @@ void Minecraft_input(VSelf, const Stats* stats) {
     player->position = self->internals.camera.position;
     // Player is 2 blocks high, with position caluclated at the feet
     player->position.vy += BLOCK_SIZE << FIXED_POINT_SHIFT;
+    Input* input = &self->internals.input;
+    if (isPressed(PAD_START)) {
+        startHandler(&self->internals.camera);
+    }
+    if (isPressed(PAD_L1)) {
+        printf("Pressed: L1\n");
+        Inventory* inventory = VCAST(Inventory*, player->inventory);
+        if ((inventory->ui.active = !inventory->ui.active)) {
+            VCALL(player->inventory, loadTexture);
+        } else {
+            VCALL(player->inventory, freeTexture);
+        }
+    }
 }
 
 void minecraftUpdate(VSelf, const Stats* stats) __attribute__((alias("Minecraft_update")));
@@ -169,7 +179,7 @@ void Minecraft_update(VSelf, const Stats* stats) {
     gte_SetTransMatrix(&self->internals.transforms.geometry_mtx);
 }
 
-void cameraStartHandler(Camera* camera) {
+void startHandler(Camera* camera) {
     cvector_clear(markers);
     result = worldRayCastIntersection(world, camera, 6 * ONE, &markers);
     printf("Marker count: %d\n", cvector_size(markers));
