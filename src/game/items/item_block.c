@@ -412,7 +412,7 @@ void renderItemBlockInventory(ItemBlock* item,
         allocateOrderingTable(ctx, 0),
         ctx->primitive,
         screen_position->vx - 8,
-        screen_position->vy - 1,
+        screen_position->vy - 1, // -1 Offset accounts for shadow on text
         stack_count_text
     );
     renderClearConstraints(ctx);
