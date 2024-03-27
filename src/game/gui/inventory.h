@@ -63,11 +63,11 @@ Slot* inventoryFindFreeSlot(const Inventory* inventory, const uint8_t from_slot)
 
 InventoryStoreResult inventoryStoreItem(Inventory* inventory, IItem* iitem);
 
-void inventoryLoadTexture(VSelf);
-void Inventory_loadTexture(VSelf);
+void inventoryOpen(VSelf);
+void Inventory_open(VSelf);
 
-void inventoryFreeTexture(VSelf);
-void Inventory_freeTexture(VSelf);
+void inventoryClose(VSelf);
+void Inventory_close(VSelf);
 
 impl(IUI, Inventory);
 

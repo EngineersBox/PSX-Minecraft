@@ -31,11 +31,12 @@ typedef struct UIComponent {
 // TODO: Texture for UI will be loaded in a fixed position in the VRAM
 //       buffer, since only one UI view can be active at any given time.
 //       When the UI is opened, the texture is loaded and when it is closed,
-//       the texture is unloaded.
+//       the texture is unloaded or just ignored until next opening overwriting
+//       it in place.
 
 #define IUI_IFACE \
-    vfunc(void, loadTexture, VSelf) \
-    vfunc(void, freeTexture, VSelf)
+    vfunc(void, open, VSelf) \
+    vfunc(void, close, VSelf)
 
 interface(IUI);
 

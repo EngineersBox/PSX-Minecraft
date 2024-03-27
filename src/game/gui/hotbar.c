@@ -11,12 +11,14 @@ void hotbarInit(Hotbar* hotbar) {
     hotbar->ui.title = "hotbar";
     hotbar->slots = NULL;
     hotbar->selected_slot = 1;
-    cvector_init(hotbar->slots, HOTBAR_SLOT_COUNT, NULL);
-    for (uint8_t i = 0; i < 9; i++) {
+    cvector_init(hotbar->slots, 0, NULL);
+    for (uint8_t i = 0; i < HOTBAR_SLOT_COUNT; i++) {
+        cvector_push_back(hotbar->slots, (Slot){});
         Slot* slot = &hotbar->slots[i];
         slot->dimensions = HOTBAR_SLOT_DIMS;
         slot->position = hotbarSlotPos(i, 0);
         slot->index = i;
+        slot->data.item = NULL;
     }
     IUIComponent* component = uiAddComponent(&hotbar->ui);
     UIBackground* background = (UIBackground*) malloc(sizeof(UIBackground));
@@ -75,8 +77,12 @@ void hotbarRenderSlots(const Hotbar* hotbar,  RenderContext* ctx, Transforms* tr
     renderClearConstraintsIndex(ctx, 0);
 }
 
-void hotbarLoadTexture(VSelf) __attribute__((alias("Hotbar_loadTexture")));
-void Hotbar_loadTexture(VSelf) {}
+void hotbarOpen(VSelf) __attribute__((alias("Hotbar_open")));
+void Hotbar_open(VSelf) {
+    // Always open
+}
 
-void hotbarFreeTexture(VSelf) __attribute__((alias("Hotbar_freeTexture")));
-void Hotbar_freeTexture(VSelf) {}
+void hotbarClose(VSelf) __attribute__((alias("Hotbar_close")));
+void Hotbar_close(VSelf) {
+    // Always open
+}

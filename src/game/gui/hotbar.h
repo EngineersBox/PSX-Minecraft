@@ -26,11 +26,11 @@ void hotbarInit(Hotbar* hotbar);
 
 void hotbarRenderSlots(const Hotbar* hotbar, RenderContext* ctx, Transforms* transforms);
 
-void hotbarLoadTexture(VSelf);
-void Hotbar_loadTexture(VSelf);
+void hotbarOpen(VSelf);
+void Hotbar_open(VSelf);
 
-void hotbarFreeTexture(VSelf);
-void Hotbar_freeTexture(VSelf);
+void hotbarClose(VSelf);
+void Hotbar_close(VSelf);
 
 impl(IUI, Hotbar);
 

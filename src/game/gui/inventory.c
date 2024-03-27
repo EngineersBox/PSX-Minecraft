@@ -11,6 +11,7 @@ const char* INVENTORY_STORE_RESULT_NAMES[] = {
 };
 
 #define createSlot(offset, _index, name) ({ \
+    cvector_push_back(inventory->slots, (Slot) {}); \
     Slot* slot = &inventory->slots[offset + _index]; \
     slot->index = offset + _index; \
     slot->data.item = NULL; \
@@ -36,6 +37,7 @@ void initCraftingSlots(Inventory* inventory) {
 
 void initStorageSlots(Inventory* inventory) {
     for (int i = INVENTORY_SLOT_STORAGE_OFFSET; i < INVENTORY_SLOT_HOTBAR_OFFSET; i++) {
+        cvector_push_back(inventory->slots, (Slot) {});
         Slot* slot = &inventory->slots[i];
         slot->data.item = NULL;
         slot->index = i;
@@ -52,6 +54,7 @@ void initStorageSlots(Inventory* inventory) {
 void initHotbarSlots(Inventory* inventory) {
     const Hotbar* hotbar = inventory->hotbar;
     for (int i = INVENTORY_SLOT_HOTBAR_OFFSET; i < INVENTORY_SLOT_COUNT; i++) {
+        cvector_push_back(inventory->slots, (Slot) {});
         Slot* slot = &inventory->slots[i];
         const uint8_t hotbar_index = i - INVENTORY_SLOT_HOTBAR_OFFSET;
         slot->data.ref = &hotbar->slots[hotbar_index];
@@ -82,10 +85,11 @@ void inventoryInit(Inventory* inventory, Hotbar* hotbar) {
         .vx = INVENTORY_WIDTH,
         .vy = INVENTORY_HEIGHT
     };
+    background->texture = NULL;
     DYN_PTR(component, UIBackground, IUIComponent, background);
     inventory->hotbar = hotbar;
     inventory->slots = NULL;
-    cvector_init(inventory->slots, INVENTORY_SLOT_COUNT, NULL);
+    cvector_init(inventory->slots, 0, NULL);
     initArmorSlots(inventory);
     initCraftingSlots(inventory);
     initStorageSlots(inventory);
@@ -96,8 +100,21 @@ void inventoryRenderSlots(const Inventory* inventory, RenderContext* ctx, Transf
     if (!inventory->ui.active) {
         return;
     }
-    // Slot* slot;
-    // cvector_for_each_in(slot, inventory->slots) {
+    for (int i = 0; i < INVENTORY_SLOT_HOTBAR_OFFSET; i++) {
+        const Slot* slot = &inventory->slots[i];
+        printf("Slot: %d\n", slot->index);
+        if (slot->data.item == NULL) {
+            continue;
+        }
+        Item* item = VCAST(Item*, *slot->data.item);
+        item->position.vx = slot->position.vx,
+        item->position.vy = slot->position.vy;
+        VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
+    }
+    // TODO: Handle union behaviour, adding type indicator field in slot and add rendering code
+    // for (int i = INVENTORY_SLOT_HOTBAR_OFFSET; i < INVENTORY_SLOT_COUNT; i++) {
+    //     const Slot* slot = &inventory->slots[i];
+    //     printf("Slot: %d\n", slot->index);
     //     if (slot->data.item == NULL) {
     //         continue;
     //     }
@@ -113,9 +130,10 @@ Slot* inventorySearchItem(const Inventory* inventory, const ItemID id, const uin
     if (from_slot >= INVENTORY_SLOT_COUNT) {
         return NULL;
     }
+    // Hotbar first
     for (uint8_t i = max(from_slot, INVENTORY_SLOT_HOTBAR_OFFSET); i < INVENTORY_SLOT_COUNT; i++) {
         Slot* slot = &inventory->slots[i];
-        Slot* slot_ref = slot->data.ref;
+        const Slot* slot_ref = slot->data.ref;
         if (slot_ref->data.item == NULL) {
             if (*next_free == INVENTORY_NO_FREE_SLOT) {
                 *next_free = i;
@@ -127,6 +145,7 @@ Slot* inventorySearchItem(const Inventory* inventory, const ItemID id, const uin
             return slot;
         }
     }
+    // Inventory storage second
     for (uint8_t i = from_slot; i < INVENTORY_SLOT_HOTBAR_OFFSET; i++) {
         Slot* slot = &inventory->slots[i];
         if (slot->data.item == NULL) {
@@ -147,12 +166,14 @@ Slot* inventoryFindFreeSlot(const Inventory* inventory, const uint8_t from_slot)
     if (from_slot >= INVENTORY_SLOT_COUNT) {
         return NULL;
     }
+    // Hotbar first
     for (uint8_t i = max(from_slot, INVENTORY_SLOT_HOTBAR_OFFSET); i < INVENTORY_SLOT_COUNT; i++) {
         Slot* slot = &inventory->slots[i];
         if (slot->data.ref->data.item == NULL) {
             return slot;
         }
     }
+    // Inventory storage second
     for (uint8_t i = from_slot; i < INVENTORY_SLOT_HOTBAR_OFFSET; i++) {
         Slot* slot = &inventory->slots[i];
         if (slot->data.item == NULL) {
@@ -234,18 +255,28 @@ InventoryStoreResult inventoryStoreItem(Inventory* inventory, IItem* iitem) {
 #define GUI_BUNDLE_NAME "gui"
 #define INVENTORY_TEXTURE_NAME "inventory"
 
-void inventoryLoadTexture(VSelf) __attribute__((alias("Inventory_loadTexture")));
-void Inventory_loadTexture(VSelf) {
+void inventoryOpen(VSelf) __attribute__((alias("Inventory_open")));
+void Inventory_open(VSelf) {
     VSELF(Inventory);
+    if (self->ui.active) {
+        return;
+    }
+    self->ui.active = true;
     UIBackground* background = VCAST(UIBackground*, self->ui.components[0]);
     if (assetLoadTextureDirect(GUI_BUNDLE_NAME, INVENTORY_TEXTURE_NAME, background->texture)) {
         printf("[INVENTORY] Failed to load texture\n");
     }
+    printf("Loaded inventory texture\n");
 }
 
-void inventoryFreeTexture(VSelf) __attribute__((alias("Inventory_freeTexture")));
-void Inventory_freeTexture(VSelf) {
+void inventoryClose(VSelf) __attribute__((alias("Inventory_close")));
+void Inventory_close(VSelf) {
     VSELF(Inventory);
+    if (!self->ui.active) {
+        return;
+    }
+    self->ui.active = false;
     UIBackground* background = VCAST(UIBackground*, self->ui.components[0]);
     background->texture = NULL;
 }
+

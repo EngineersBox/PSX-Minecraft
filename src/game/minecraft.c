@@ -3,6 +3,7 @@
 #include <inline_c.h>
 #include <interface99_extensions.h>
 #include <item_block_grass.h>
+#include <item_block_stone.h>
 #include <psxgpu.h>
 #include <psxgte.h>
 
@@ -129,6 +130,16 @@ void Minecraft_init(VSelf, void* ctx) {
     grass_item_block->item_block.item.stack_size = 26;
     slot->data.item = item;
     VCALL_SUPER(*item, Renderable, applyInventoryRenderAttributes);
+
+    Inventory* inventory = VCAST(Inventory*, player->inventory);
+    slot = &inventory->slots[INVENTORY_SLOT_STORAGE_OFFSET];
+    item = itemCreate();
+    grass_item_block = grassItemBlockCreate();
+    DYN_PTR(item, GrassItemBlock, IItem, grass_item_block);
+    VCALL(*item, init);
+    grass_item_block->item_block.item.stack_size = 13;
+    slot->data.item = item;
+    VCALL_SUPER(*item, Renderable, applyInventoryRenderAttributes);
 }
 
 void minecraftCleanup(VSelf) __attribute__((alias("Minecraft_cleanup")));
@@ -161,12 +172,11 @@ void Minecraft_input(VSelf, const Stats* stats) {
         startHandler(&self->internals.camera);
     }
     if (isPressed(PAD_L1)) {
-        printf("Pressed: L1\n");
         Inventory* inventory = VCAST(Inventory*, player->inventory);
-        if ((inventory->ui.active = !inventory->ui.active)) {
-            VCALL(player->inventory, loadTexture);
+        if (!inventory->ui.active) {
+            VCALL(player->inventory, open);
         } else {
-            VCALL(player->inventory, freeTexture);
+            VCALL(player->inventory, close);
         }
     }
 }

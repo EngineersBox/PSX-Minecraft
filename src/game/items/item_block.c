@@ -412,7 +412,7 @@ void renderItemBlockInventory(ItemBlock* item,
         allocateOrderingTable(ctx, 0),
         ctx->primitive,
         screen_position->vx - 8,
-        screen_position->vy,
+        screen_position->vy - 1,
         stack_count_text
     );
     renderClearConstraints(ctx);
@@ -439,8 +439,8 @@ void itemBlockRenderInventory(ItemBlock* item, RenderContext* ctx, Transforms* t
     gte_SetRotMatrix(&omtx);
     gte_SetTransMatrix(&omtx);
     VECTOR screen_position = {
-        .vx = item->item.position.vx + HOTBAR_SLOT_BLOCK_OFFSET_X,
-        .vy = item->item.position.vy + HOTBAR_SLOT_BLOCK_OFFSET_Y,
+        .vx = item->item.position.vx + (INV_SLOT_POS_DELTA / 2),
+        .vy = item->item.position.vy + (INV_SLOT_POS_DELTA / 2),
         .vz = 0
     };
     renderItemBlockInventory(
