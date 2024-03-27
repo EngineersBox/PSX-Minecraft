@@ -102,7 +102,6 @@ void inventoryRenderSlots(const Inventory* inventory, RenderContext* ctx, Transf
     }
     for (int i = 0; i < INVENTORY_SLOT_HOTBAR_OFFSET; i++) {
         const Slot* slot = &inventory->slots[i];
-        printf("Slot: %d\n", slot->index);
         if (slot->data.item == NULL) {
             continue;
         }
@@ -111,18 +110,18 @@ void inventoryRenderSlots(const Inventory* inventory, RenderContext* ctx, Transf
         item->position.vy = slot->position.vy;
         VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
     }
-    // TODO: Handle union behaviour, adding type indicator field in slot and add rendering code
-    // for (int i = INVENTORY_SLOT_HOTBAR_OFFSET; i < INVENTORY_SLOT_COUNT; i++) {
-    //     const Slot* slot = &inventory->slots[i];
-    //     printf("Slot: %d\n", slot->index);
-    //     if (slot->data.item == NULL) {
-    //         continue;
-    //     }
-    //     Item* item = VCAST(Item*, *slot->data.item);
-    //     item->position.vx = slot->position.vx,
-    //     item->position.vy = slot->position.vy;
-    //     VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
-    // }
+    for (int i = INVENTORY_SLOT_HOTBAR_OFFSET; i < INVENTORY_SLOT_COUNT; i++) {
+        const Slot* slot = &inventory->slots[i];
+        if (slot->data.ref == NULL || slot->data.ref->data.item == NULL) {
+            continue;
+        }
+        Item* item = VCAST(Item*, *slot->data.ref->data.item);
+        VECTOR prev_position = item->position;
+        item->position.vx = slot->position.vx,
+        item->position.vy = slot->position.vy;
+        VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
+        item->position = prev_position;
+    }
 }
 
 Slot* inventorySearchItem(const Inventory* inventory, const ItemID id, const uint8_t from_slot, uint8_t* next_free) {

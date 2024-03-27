@@ -120,7 +120,7 @@ void Minecraft_init(VSelf, void* ctx) {
     player->camera = &self->internals.camera;
     player->position = self->internals.camera.position;
     player->position.vy += BLOCK_SIZE << FIXED_POINT_SHIFT;
-    // TESTING
+    // ==== TESTING: Hotbar ====
     Hotbar* hotbar = VCAST(Hotbar*, player->hotbar);
     Slot* slot = &hotbar->slots[0];
     IItem* item = itemCreate();
@@ -130,7 +130,7 @@ void Minecraft_init(VSelf, void* ctx) {
     grass_item_block->item_block.item.stack_size = 26;
     slot->data.item = item;
     VCALL_SUPER(*item, Renderable, applyInventoryRenderAttributes);
-
+    // ==== TESTING: Inventory ====
     Inventory* inventory = VCAST(Inventory*, player->inventory);
     slot = &inventory->slots[INVENTORY_SLOT_STORAGE_OFFSET];
     item = itemCreate();
