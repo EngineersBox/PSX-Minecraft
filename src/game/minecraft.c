@@ -122,7 +122,7 @@ void Minecraft_init(VSelf, void* ctx) {
     player->position.vy += BLOCK_SIZE << FIXED_POINT_SHIFT;
     // ==== TESTING: Hotbar ====
     Hotbar* hotbar = VCAST(Hotbar*, player->hotbar);
-    Slot* slot = &hotbar->slots[0];
+    Slot* slot = &hotbar->slots[1];
     IItem* item = itemCreate();
     GrassItemBlock* grass_item_block = grassItemBlockCreate();
     DYN_PTR(item, GrassItemBlock, IItem, grass_item_block);
@@ -132,7 +132,7 @@ void Minecraft_init(VSelf, void* ctx) {
     VCALL_SUPER(*item, Renderable, applyInventoryRenderAttributes);
     // ==== TESTING: Inventory ====
     Inventory* inventory = VCAST(Inventory*, player->inventory);
-    slot = &inventory->slots[INVENTORY_SLOT_STORAGE_OFFSET];
+    slot = &inventory->slots[INVENTORY_SLOT_STORAGE_OFFSET + 2];
     item = itemCreate();
     grass_item_block = grassItemBlockCreate();
     DYN_PTR(item, GrassItemBlock, IItem, grass_item_block);

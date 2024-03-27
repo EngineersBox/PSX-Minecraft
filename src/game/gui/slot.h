@@ -178,8 +178,8 @@ typedef struct Slot {
 #define PLAYER_INV_STORAGE_SLOTS_HEIGHT 3
 #endif
 #define playerInvStoragePos(x, y) (DVECTOR) { \
-    .vx = PLAYER_INV_STORAGE_BASE_POS_X + ((x) * (INV_SLOT_POS_DELTA + 1)), \
-    .vy = PLAYER_INV_STORAGE_BASE_POS_Y + ((y) * (INV_SLOT_POS_DELTA + 1)) \
+    .vx = PLAYER_INV_STORAGE_BASE_POS_X + ((x) * INV_SLOT_POS_DELTA), \
+    .vy = PLAYER_INV_STORAGE_BASE_POS_Y + ((y) * INV_SLOT_POS_DELTA) \
 }
 
 // = Player Inventory - Storage [END]
@@ -190,7 +190,7 @@ typedef struct Slot {
 #define PLAYER_INV_HOTBAR_BASE_POS_X 80
 #endif
 #ifndef PLAYER_INV_HOTBAR_BASE_POS_Y
-#define PLAYER_INV_HOTBAR_BASE_POS_Y 178
+#define PLAYER_INV_HOTBAR_BASE_POS_Y 179
 #endif
 #define playerInvHotbarPos(x) (DVECTOR) { \
     .vx = PLAYER_INV_HOTBAR_BASE_POS_X + ((x) * INV_SLOT_POS_DELTA), \

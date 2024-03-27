@@ -119,7 +119,7 @@ void inventoryRenderSlots(const Inventory* inventory, RenderContext* ctx, Transf
         VECTOR prev_position = item->position;
         item->position.vx = slot->position.vx,
         item->position.vy = slot->position.vy;
-        VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
+        VCALL_SUPER(*slot->data.ref->data.item, Renderable, renderInventory, ctx, transforms);
         item->position = prev_position;
     }
 }
