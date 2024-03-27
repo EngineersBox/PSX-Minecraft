@@ -1,9 +1,8 @@
 #include "inventory.h"
 
-#include <cvector_utils.h>
 #include <interface99.h>
-#include <components/background.h>
 
+#include "../../ui/components/background.h"
 #include "../../util/interface99_extensions.h"
 
 const char* INVENTORY_STORE_RESULT_NAMES[] = {
@@ -261,11 +260,10 @@ void Inventory_open(VSelf) {
         return;
     }
     self->ui.active = true;
-    UIBackground* background = VCAST(UIBackground*, self->ui.components[0]);
+    const UIBackground* background = VCAST(UIBackground*, self->ui.components[0]);
     if (assetLoadTextureDirect(GUI_BUNDLE_NAME, INVENTORY_TEXTURE_NAME, background->texture)) {
         printf("[INVENTORY] Failed to load texture\n");
     }
-    printf("Loaded inventory texture\n");
 }
 
 void inventoryClose(VSelf) __attribute__((alias("Inventory_close")));
