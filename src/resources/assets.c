@@ -9,6 +9,8 @@
 #include <string.h>
 #include <sys/types.h>
 
+#include "../debug/debug.h"
+
 typedef void (*AssetLoader)(int lzp_index);
 
 typedef void (*AssetFreer)(void);
@@ -48,17 +50,18 @@ void _loadTextures(const int lzp_index) {
     QLP_HEAD* tex_buff = (QLP_HEAD*) malloc(lzpFileSize(lz_resources, lzp_index));
     lzpUnpackFile(tex_buff, lz_resources, lzp_index);
     const int file_count = qlpFileCount(tex_buff);
-    printf("[TEXTURE] Loading %d texture(s)\n", file_count);
+    DEBUG_LOG("[TEXTURE] Loading %d texture(s)\n", file_count);
     if (file_count > 0) {
         textures = (Texture*) calloc(file_count, sizeof(Texture));
     }
     for (int i = 0; i < file_count; i++) {
         const QLP_FILE* file = qlpFileEntry(i, tex_buff);
         if (!GetTimInfo((uint32_t*) qlpFileAddr(i, tex_buff), &tim)) {
-            printf(
-                "[TEXTURE: %d] Loading: [Name: %s] [Addr: %p] [Mode: 0x%x]\n",
-                i,
+            DEBUG_LOG(
+                "[TEXTURE] Loading: [Name: %s] [Position: (%d,%d)] [Addr: %p] [Mode: 0x%x]\n",
                 file->name,
+                tim.prect->x,
+                tim.prect->y,
                 tim.caddr,
                 tim.mode
             );
@@ -130,10 +133,12 @@ int assetLoadTextureDirect(const char* bundle, const char* filename, Texture* te
         const QLP_FILE* file = qlpFileEntry(i, tex_buff);
         if (!strcmp(file->name, filename)
             && !GetTimInfo((uint32_t*) qlpFileAddr(i, tex_buff), &tim)) {
-            printf(
-                "[TEXTURE] Loading: [Bundle: %s] [Name: %s] [Addr: %p] [Mode: 0x%x]\n",
+            DEBUG_LOG(
+                "[TEXTURE] Loading: [Bundle: %s] [Name: %s] [Position: (%d,%d)] [Addr: %p] [Mode: 0x%x]\n",
                 bundle,
                 file->name,
+                tim.prect->x,
+                tim.prect->y,
                 tim.caddr,
                 tim.mode
             );

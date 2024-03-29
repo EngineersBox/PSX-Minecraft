@@ -80,6 +80,7 @@ elseif(CMAKE_C_COMPILER_ID STREQUAL "GNU")
 endif()
 
 target_compile_definitions(PSXMC PUBLIC -DFPT_BITS=32 -DFPT_WBITS=20)
+target_compile_definitions(PSXMC PUBLIC -DPSXMC_DEBUG=1)
 
 # Include assets in binary
 if (NOT (asset_count EQUAL 0))

@@ -10,6 +10,7 @@
 
 #include "../../render/renderable.h"
 #include "../../math/math_utils.h"
+#include "../../physics/physics_object.h"
 
 #define PICKUP_DISTANCE 154
 #define PICKUP_DISTANCE_SQUARED pow2(PICKUP_DISTANCE)
@@ -36,6 +37,7 @@ typedef struct {
     // World position or screen position
     VECTOR position;
     SVECTOR rotation;
+    PhysicsObject physobj;
     char* name;
 } Item;
 
