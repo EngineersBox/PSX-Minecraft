@@ -6,13 +6,18 @@
 #include <psxgte.h>
 #include <psxgpu.h>
 
+#include "aabb.h"
+
+#ifndef GRAVITY
 // 9.81 * 4096 (ONE)
 #define GRAVITY 40182
+#endif
 
 typedef struct {
     VECTOR position;
     VECTOR direction;
     VECTOR momentum;
+    AABB aabb;
 } PhysicsObject;
 
 void physicsUpdate(PhysicsObject* physobj);
