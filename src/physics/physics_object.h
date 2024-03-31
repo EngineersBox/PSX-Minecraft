@@ -15,8 +15,10 @@
 
 typedef struct {
     VECTOR position;
-    VECTOR direction;
-    VECTOR momentum;
+    VECTOR acceleration;
+    VECTOR velocity;
+    uint16_t ticks_passed;
+    uint16_t mass;
     AABB aabb;
 } PhysicsObject;
 

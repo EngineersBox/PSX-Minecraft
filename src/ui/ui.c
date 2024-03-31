@@ -3,8 +3,10 @@
 #include "../structure/cvector_utils.h"
 
 void uiInit(UI* ui) {
-    ui->components = NULL;
     ui->active = false;
+    ui->cursor = (DVECTOR) {0};
+    ui->texture = NULL;
+    ui->components = NULL;
     cvector_init(ui->components, 0, NULL);
 }
 

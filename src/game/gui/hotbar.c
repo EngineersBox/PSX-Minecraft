@@ -48,7 +48,7 @@ void hotbarRenderSlots(const Hotbar* hotbar,  RenderContext* ctx, Transforms* tr
         if (slot->data.item == NULL) {
             continue;
         }
-        Item* item = VCAST(Item*, *slot->data.item);
+        Item* item = VCAST_PTR(Item*, slot->data.item);
         item->position.vx = slot->position.vx;
         item->position.vy = slot->position.vy;
         VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);

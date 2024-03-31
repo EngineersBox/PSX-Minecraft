@@ -18,6 +18,11 @@ void crossProduct(const SVECTOR *v0, const SVECTOR *v1, VECTOR *out) {
     out->vx = ((v0->vy * v1->vz) - (v0->vz * v1->vy)) >> 12;
     out->vy = ((v0->vz * v1->vx) - (v0->vx * v1->vz)) >> 12;
     out->vz = ((v0->vx * v1->vy) - (v0->vy * v1->vx)) >> 12;
+    VECTOR test = ({
+        VECTOR _a = (VECTOR) {};
+        _a.vx = 2;
+        _a;
+    });
 }
 
 // 4096 / ((((a & 0xffff) << 12) / (b & 0xffff)) >> 12)

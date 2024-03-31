@@ -22,6 +22,8 @@
 
 #define VCAST(type, obj) VCAST99(type, obj)
 #define VCAST99(type, obj) ((type)(obj).self)
+#define VCAST_PTR(type, ptr) VCAST_PTR99(type, ptr)
+#define VCAST_PTR99(type, ptr) ((type)(ptr)->self)
 
 #define DYN_PTR(ptr, implementer, iface, ...) DYN_PTR99(ptr, implementer, iface, __VA_ARGS__)
 #define DYN_LIT_PTR(ptr, implementer, iface, ...) DYN_LIT_PTR99(ptr, implementer, iface, __VA_ARGS__)
@@ -30,5 +32,10 @@
     (ptr)->vptr = &VTABLE99(implementer, iface); \
 })
 #define DYN_LIT_PTR99(ptr, implementer, iface, ...) DYN_PTR99(ptr, implementer, iface, &(implementer)__VA_ARGS__)
+
+#define INSTANCEOF(obj, implementer, iface) INSTANCEOF99(obj, implementer, iface)
+#define INSTANCEOF99(obj, implementer, iface) ((type).vptr == &VTABLE99(implementer, iface))
+#define INSTANCEOF_PTR(ptr, implementer, iface) INSTANCEOF_PTR99(ptr, implementer, iface)
+#define INSTANCEOF_PTR99(ptr, implementer, iface) ((type)->vptr == &VTABLE99(implementer, iface))
 
 #endif // PSX_MINECRAFT_INTERFACE99_EXTENSIONS_H

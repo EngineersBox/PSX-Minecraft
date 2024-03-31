@@ -173,16 +173,23 @@ typedef struct _BVECTOR {
  * @param op - Operation to perform piece-wise
  * @return A new vetor with the results of piece-wise operation
  */
-#define vector_op(v0, v1, op) (VECTOR) { \
-    _vector_op_mm(vx, v0, v1, op), \
-    _vector_op_mm(vy, v0, v1, op), \
-    _vector_op_mm(vz, v0, v1, op) \
-}
-#define vector_c_op(v0, c, op) (VECTOR) { \
-    _vector_op_mc(vx, v0, c, op), \
-    _vector_op_mc(vy, v0, c, op), \
-    _vector_op_mc(vz, v0, c, op) \
-}
+#define vector_op(v0, v1, op) ({ \
+    const VECTOR _v0 = (v0); \
+    const VECTOR _v1 = (v1); \
+    (VECTOR) { \
+        _vector_op_mm(vx, _v0, _v1, op), \
+        _vector_op_mm(vy, _v0, _v1, op), \
+        _vector_op_mm(vz, _v0, _v1, op) \
+    }; \
+})
+#define vector_c_op(v0, c, op) ({ \
+    const VECTOR _v0 = (v0); \
+    (VECTOR) { \
+        _vector_op_mc(vx, _v0, c, op), \
+        _vector_op_mc(vy, _v0, c, op), \
+        _vector_op_mc(vz, _v0, c, op) \
+    }; \
+})
 
 /**
  * @brief vector_p_op - Apply a given op piece-wise between two VECTOR* pointers, returning
@@ -192,16 +199,23 @@ typedef struct _BVECTOR {
  * @param op - Operation to perform piece-wise
  * @return A new vetor with the results of piece-wise operation
  */
-#define vector_p_op(v0, v1, op) (VECTOR) { \
-    _vector_p_op_mm(vx, v0, v1, op), \
-    _vector_p_op_mm(vy, v0, v1, op), \
-    _vector_p_op_mm(vz, v0, v1, op) \
-}
-#define vector_c_p_op(v0, c, op) (VECTOR) { \
-    _vector_p_op_mc(vx, v0, c, op), \
-    _vector_p_op_mc(vy, v0, c, op), \
-    _vector_p_op_mc(vz, v0, c, op) \
-}
+#define vector_p_op(v0, v1, op) ({ \
+    const VECTOR* _v0 = (v0); \
+    const VECTOR* _v1 = (v1); \
+    (VECTOR) { \
+        _vector_p_op_mm(vx, _v0, _v1, op), \
+        _vector_p_op_mm(vy, _v0, _v1, op), \
+        _vector_p_op_mm(vz, _v0, _v1, op) \
+    }; \
+})
+#define vector_c_p_op(v0, c, op) ({ \
+    cosnt VECTOR* _v0 = (v0); \
+    (VECTOR) { \
+        _vector_p_op_mc(vx, _v0, c, op), \
+        _vector_p_op_mc(vy, _v0, c, op), \
+        _vector_p_op_mc(vz, _v0, c, op) \
+    }; \
+})
 
 /**
  * @brief vector_add - Add VECTORs v0 and v1 together piece-wise to form
@@ -348,30 +362,44 @@ VECTOR rotationToDirection(const VECTOR* rotation);
 
 // SVECTOR - New instance
 
-#define svector_op(v0, v1, op) (SVECTOR) { \
-    _vector_op_mm(vx, v0, v1, op), \
-    _vector_op_mm(vy, v0, v1, op), \
-    _vector_op_mm(vz, v0, v1, op), \
-    _vector_op_mm(pad, v0, v1, op) \
-}
-#define svector_p_op(v0, v1, op) (SVECTOR) { \
-    _vector_p_op_mm(vx, v0, v1, op), \
-    _vector_p_op_mm(vy, v0, v1, op), \
-    _vector_p_op_mm(vz, v0, v1, op), \
-    _vector_p_op_mm(pad, v0, v1, op) \
-}
-#define svector_c_op(v0, c, op) (SVECTOR) { \
-    _vector_op_mc(vx, v0, c, op), \
-    _vector_op_mc(vy, v0, c, op), \
-    _vector_op_mc(vz, v0, c, op), \
-    _vector_op_mc(pad, v0, c, op) \
-}
-#define svector_c_p_op(v0, c, op) (SVECTOR) { \
-    _vector_p_op_mc(vx, v0, c, op), \
-    _vector_p_op_mc(vy, v0, c, op), \
-    _vector_p_op_mc(vz, v0, c, op), \
-    _vector_p_op_mc(pad, v0, c, op) \
-}
+#define svector_op(v0, v1, op) ({ \
+    const SVECTOR _v0 = (v0); \
+    const SVECTOR _v1 = (v1); \
+    (SVECTOR) { \
+        _vector_op_mm(vx, _v0, _v1, op), \
+        _vector_op_mm(vy, _v0, _v1, op), \
+        _vector_op_mm(vz, _v0, _v1, op), \
+        _vector_op_mm(pad, _v0, _v1, op) \
+    }; \
+})
+#define svector_p_op(v0, v1, op) ({ \
+    const VECTOR* _v0 = (v0); \
+    const VECTOR* _v1 = (v1); \
+    (SVECTOR) { \
+        _vector_p_op_mm(vx, _v0, _v1, op), \
+        _vector_p_op_mm(vy, _v0, _v1, op), \
+        _vector_p_op_mm(vz, _v0, _v1, op), \
+        _vector_p_op_mm(pad, _v0, _v1, op) \
+    }; \
+})
+#define svector_c_op(v0, c, op) ({ \
+    const SVECTOR _v0 = (v0); \
+    (SVECTOR) { \
+        _vector_op_mc(vx, _v0, c, op), \
+        _vector_op_mc(vy, _v0, c, op), \
+        _vector_op_mc(vz, _v0, c, op), \
+        _vector_op_mc(pad, _v0, c, op) \
+    }; \
+})
+#define svector_c_p_op(v0, c, op) ({ \
+    const SVECTOR _v0 = (v0); \
+    (SVECTOR) { \
+        _vector_p_op_mc(vx, _v0, c, op), \
+        _vector_p_op_mc(vy, _v0, c, op), \
+        _vector_p_op_mc(vz, _v0, c, op), \
+        _vector_p_op_mc(pad, _v0, c, op) \
+    }; \
+})
 
 #define svector_add(v0, v1) svector_op(v0, v1, +)
 #define svector_sub(v0, v1) svector_op(v0, v1, -)
@@ -450,30 +478,44 @@ VECTOR rotationToDirection(const VECTOR* rotation);
 
 // CVECTOR - New instance
 
-#define cvector_op(v0, v1, op) (CVECTOR) { \
-    _vector_op_mm(r, v0, v1, op), \
-    _vector_op_mm(g, v0, v1, op), \
-    _vector_op_mm(g, v0, v1, op), \
-    _vector_op_mm(cd, v0, v1, op) \
-}
-#define cvector_p_op(v0, v1, op) (CVECTOR) { \
-    _vector_p_op_mm(r, v0, v1, op), \
-    _vector_p_op_mm(g, v0, v1, op), \
-    _vector_p_op_mm(g, v0, v1, op), \
-    _vector_p_op_mm(cd, v0, v1, op) \
-}
-#define cvector_c_op(v0, c, op) (CVECTOR) { \
-    _vector_op_mc(r, v0, c, op), \
-    _vector_op_mc(g, v0, c, op), \
-    _vector_op_mc(g, v0, c, op), \
-    _vector_op_mc(cd, v0, c, op) \
-}
-#define cvector_c_p_op(v0, c, op) (CVECTOR) { \
-    _vector_p_op_mc(r, v0, c, op), \
-    _vector_p_op_mc(g, v0, c, op), \
-    _vector_p_op_mc(g, v0, c, op), \
-    _vector_p_op_mc(cd, v0, c, op) \
-}
+#define cvector_op(v0, v1, op) ({ \
+    const CVECTOR _v0 = (v0); \
+    const CVECTOR _v1 = (v1); \
+    (CVECTOR) { \
+        _vector_op_mm(r, _v0, _v1, op), \
+        _vector_op_mm(g, _v0, _v1, op), \
+        _vector_op_mm(g, _v0, _v1, op), \
+        _vector_op_mm(cd, _v0, _v1, op) \
+    };\
+})
+#define cvector_p_op(v0, v1, op) ({ \
+    const CVECTOR* _v0 = (v0); \
+    const CVECTOR* _v1 = (v1); \
+    (CVECTOR) { \
+        _vector_p_op_mm(r, _v0, _v1, op), \
+        _vector_p_op_mm(g, _v0, _v1, op), \
+        _vector_p_op_mm(g, _v0, _v1, op), \
+        _vector_p_op_mm(cd, _v0, _v1, op) \
+    }; \
+})
+#define cvector_c_op(v0, c, op) ({ \
+    const CVECTOR _v0 = (v0); \
+    (CVECTOR) { \
+        _vector_op_mc(r, _v0, c, op), \
+        _vector_op_mc(g, _v0, c, op), \
+        _vector_op_mc(g, _v0, c, op), \
+        _vector_op_mc(cd, _v0, c, op) \
+    }; \
+})
+#define cvector_c_p_op(v0, c, op) ({ \
+    const CVECTOR _v0 = (v0); \
+    (CVECTOR) { \
+        _vector_p_op_mc(r, _v0, c, op), \
+        _vector_p_op_mc(g, _v0, c, op), \
+        _vector_p_op_mc(g, _v0, c, op), \
+        _vector_p_op_mc(cd, _v0, c, op) \
+    }; \
+})
 
 #define cvector_add(v0, v1) cvector_op(v0, v1, +)
 #define cvector_sub(v0, v1) cvector_op(v0, v1, -)
@@ -552,22 +594,36 @@ VECTOR rotationToDirection(const VECTOR* rotation);
 
 // DVECTOR - New instance
 
-#define dvector_op(v0, v1, op) (DVECTOR) { \
-    _vector_op_mm(r, v0, v1, op), \
-    _vector_op_mm(g, v0, v1, op), \
-}
-#define dvector_p_op(v0, v1, op) (DVECTOR) { \
-    _vector_p_op_mm(r, v0, v1, op), \
-    _vector_p_op_mm(g, v0, v1, op), \
-}
-#define dvector_c_op(v0, c, op) (DVECTOR) { \
-    _vector_op_mc(r, v0, c, op), \
-    _vector_op_mc(g, v0, c, op), \
-}
-#define dvector_c_p_op(v0, c, op) (DVECTOR) { \
-    _vector_p_op_mc(r, v0, c, op), \
-    _vector_p_op_mc(g, v0, c, op), \
-}
+#define dvector_op(v0, v1, op) ({ \
+    const DVECTOR _v0 = (v0); \
+    const DVECTOR _v1 = (v1); \
+    (DVECTOR) { \
+        _vector_op_mm(r, _v0, _v1, op), \
+        _vector_op_mm(g, _v0, _v1, op), \
+    }; \
+})
+#define dvector_p_op(v0, v1, op) ({ \
+    const DVECTOR* _v0 = (v0); \
+    const DVECTOR* _v1 = (v1); \
+    (DVECTOR) { \
+        _vector_p_op_mm(r, _v0, _v1, op), \
+        _vector_p_op_mm(g, _v0, _v1, op), \
+    }; \
+})
+#define dvector_c_op(v0, c, op) ({ \
+    const DVECTOR _v0 = (v0); \
+    (DVECTOR) { \
+        _vector_op_mc(r, _v0, c, op), \
+        _vector_op_mc(g, _v0, c, op), \
+    }; \
+})
+#define dvector_c_p_op(v0, c, op) ({ \
+    const DVECTOR* _v0 = (v0); \
+    (DVECTOR) { \
+        _vector_p_op_mc(r, _v0, c, op), \
+        _vector_p_op_mc(g, _v0, c, op), \
+    }; \
+})
 
 #define dvector_add(v0, v1) dvector_op(v0, v1, +)
 #define dvector_sub(v0, v1) dvector_op(v0, v1, -)

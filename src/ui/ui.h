@@ -44,6 +44,7 @@ typedef struct {
     char* title;
     Texture* texture;
     bool active;
+    DVECTOR cursor;
     cvector(IUIComponent) components;
 } UI;
 

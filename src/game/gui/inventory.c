@@ -104,7 +104,7 @@ void inventoryRenderSlots(const Inventory* inventory, RenderContext* ctx, Transf
         if (slot->data.item == NULL) {
             continue;
         }
-        Item* item = VCAST(Item*, *slot->data.item);
+        Item* item = VCAST_PTR(Item*,slot->data.item);
         item->position.vx = slot->position.vx,
         item->position.vy = slot->position.vy;
         VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
@@ -114,7 +114,7 @@ void inventoryRenderSlots(const Inventory* inventory, RenderContext* ctx, Transf
         if (slot->data.ref == NULL || slot->data.ref->data.item == NULL) {
             continue;
         }
-        Item* item = VCAST(Item*, *slot->data.ref->data.item);
+        Item* item = VCAST_PTR(Item*, slot->data.ref->data.item);
         VECTOR prev_position = item->position;
         item->position.vx = slot->position.vx,
         item->position.vy = slot->position.vy;
@@ -138,7 +138,7 @@ Slot* inventorySearchItem(const Inventory* inventory, const ItemID id, const uin
             }
             continue;
         }
-        const Item* item = VCAST(Item*, *slot_ref->data.item);
+        const Item* item = VCAST_PTR(Item*, slot_ref->data.item);
         if (item->id == id) {
             return slot;
         }
@@ -152,7 +152,7 @@ Slot* inventorySearchItem(const Inventory* inventory, const ItemID id, const uin
             }
             continue;
         }
-        const Item* item = VCAST(Item*, *slot->data.item);
+        const Item* item = VCAST_PTR(Item*, slot->data.item);
         if (item->id == id) {
             return slot;
         }
@@ -200,13 +200,13 @@ InventoryStoreResult inventoryStoreItem(Inventory* inventory, IItem* iitem) {
     uint8_t persisted_next_free = INVENTORY_NO_FREE_SLOT;
     Slot* slot = NULL;
     while (1) {
-        Item* item = VCAST(Item*, *iitem_to_add);
+        Item* item = VCAST_PTR(Item*, iitem_to_add);
         slot = inventorySearchItem(inventory, item->id, from_slot, &next_free);
         if (slot == NULL) {
             break;
         }
         IItem* slot_iitem = inventorySlotGetItem(slot);
-        Item* slot_item = VCAST(Item*, *slot_iitem);
+        Item* slot_item = VCAST_PTR(Item*, slot_iitem);
         // Has space?
         if (slot_item->stack_size < slot_item->max_stack_size) {
             const int stack_left = slot_item->max_stack_size - slot_item->stack_size;
