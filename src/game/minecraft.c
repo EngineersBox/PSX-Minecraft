@@ -128,6 +128,11 @@ void Minecraft_init(VSelf, void* ctx) {
     player->camera = &self->internals.camera;
     player->position = camera.position;
     player->position.vy += BLOCK_SIZE << FIXED_POINT_SHIFT;
+    // Register handlers
+    VCALL(*player->camera, registerInputHandler, &self->internals.input);
+    VCALL_SUPER(player->inventory, IInputHandler, registerInputHandler, &self->internals.input);
+    VCALL_SUPER(player->hotbar, IInputHandler, registerInputHandler, &self->internals.input);
+
     // ==== TESTING: Hotbar ====
     Hotbar* hotbar = VCAST(Hotbar*, player->hotbar);
     Slot* slot = &hotbar->slots[1];
@@ -148,10 +153,6 @@ void Minecraft_init(VSelf, void* ctx) {
     grass_item_block->item_block.item.stack_size = 13;
     slot->data.item = item;
     VCALL_SUPER(*item, Renderable, applyInventoryRenderAttributes);
-    // Register handlers
-    VCALL(*player->camera, registerInputHandler, &self->internals.input);
-    VCALL_SUPER(player->inventory, IInputHandler, registerInputHandler, &self->internals.input);
-    VCALL_SUPER(player->hotbar, IInputHandler, registerInputHandler, &self->internals.input);
 }
 
 void minecraftCleanup(VSelf) __attribute__((alias("Minecraft_cleanup")));
