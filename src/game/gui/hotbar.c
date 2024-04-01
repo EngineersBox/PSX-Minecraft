@@ -86,3 +86,8 @@ void hotbarClose(VSelf) __attribute__((alias("Hotbar_close")));
 void Hotbar_close(VSelf) {
     // Always open
 }
+
+void hotbarRegisterHandler(VSelf, Input* input) __attribute__((alias("Hotbar_registerHandler")));
+void Hotbar_registerHandler(VSelf, Input* input) {
+    // Nothing to register
+}

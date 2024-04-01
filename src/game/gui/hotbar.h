@@ -32,6 +32,9 @@ void Hotbar_open(VSelf);
 void hotbarClose(VSelf);
 void Hotbar_close(VSelf);
 
+void hotbarRegisterHandler(VSelf, Input* input);
+void Hotbar_registerHandler(VSelf, Input* input);
+
 impl(IUI, Hotbar);
 
 #endif // PSX_MINECRAFT_HOTBAR_H

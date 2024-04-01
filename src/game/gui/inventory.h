@@ -69,6 +69,9 @@ void Inventory_open(VSelf);
 void inventoryClose(VSelf);
 void Inventory_close(VSelf);
 
+void inventoryRegisterHandler(VSelf, Input* input);
+void Inventory_registerHandler(VSelf, Input* input);
+
 impl(IUI, Inventory);
 
 #endif // PSX_MINECRAFT_INVENTORY_H

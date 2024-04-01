@@ -12,6 +12,7 @@
 #include "../render/render_context.h"
 #include "../render/transforms.h"
 #include "../resources/texture.h"
+#include "../core/input/input.h"
 
 #define IUIComponent_IFACE \
     vfunc(void, action, VSelf, const DVECTOR* cursor_position, const bool pressed) \
@@ -36,7 +37,8 @@ typedef struct UIComponent {
 
 #define IUI_IFACE \
     vfunc(void, open, VSelf) \
-    vfunc(void, close, VSelf)
+    vfunc(void, close, VSelf) \
+    vfunc(void, registerHandler, VSelf, Input* input)
 
 interface(IUI);
 

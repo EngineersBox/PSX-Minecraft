@@ -277,3 +277,28 @@ void Inventory_close(VSelf) {
     background->texture = NULL;
 }
 
+bool inventoryInputHandler(const PADTYPE* pad, void* ctx) {
+    Inventory* inventory = (Inventory*) ctx;
+    if (isPressed(pad, PAD_L1)) {
+        if (inventory->ui.active) {
+            inventoryClose(inventory);
+            return false;
+        }
+        inventoryOpen(inventory);
+        return true;
+    }
+    return false;
+}
+
+void inventoryRegisterHandler(VSelf, Input* input) __attribute__((alias("Inventory_registerHandler")));
+void Inventory_registerHandler(VSelf, Input* input) {
+    VSELF(Inventory);
+    const ContextualInputHandler handler = (ContextualInputHandler) {
+        .ctx = self,
+        .input_handler = inventoryInputHandler
+    };
+    inputAddHandler(
+        input,
+        handler
+    );
+}

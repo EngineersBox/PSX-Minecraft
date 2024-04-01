@@ -98,7 +98,7 @@ void Minecraft_init(VSelf, void* ctx) {
     // FOV?
     gte_SetGeomScreen(100);
     initRenderContext(&self->internals.ctx);
-    initInput(&self->internals.input);
+    inputInit(&self->internals.input);
     // Load font and open a text stream
     FntLoad(960, 0);
     FntOpen(0, 8, 320, 216, 0, 150);
@@ -140,6 +140,8 @@ void Minecraft_init(VSelf, void* ctx) {
     grass_item_block->item_block.item.stack_size = 13;
     slot->data.item = item;
     VCALL_SUPER(*item, Renderable, applyInventoryRenderAttributes);
+    // Register handlers
+    VCALL(player->inventory, registerHandler, &self->internals.input);
 }
 
 void minecraftCleanup(VSelf) __attribute__((alias("Minecraft_cleanup")));
@@ -168,16 +170,9 @@ void Minecraft_input(VSelf, const Stats* stats) {
     // Player is 2 blocks high, with position caluclated at the feet
     player->position.vy += BLOCK_SIZE << FIXED_POINT_SHIFT;
     Input* input = &self->internals.input;
-    if (isPressed(PAD_START)) {
+    inputUpdate(input);
+    if (isPressed(input->pad, PAD_START)) {
         startHandler(&self->internals.camera);
-    }
-    if (isPressed(PAD_L1)) {
-        Inventory* inventory = VCAST(Inventory*, player->inventory);
-        if (!inventory->ui.active) {
-            VCALL(player->inventory, open);
-        } else {
-            VCALL(player->inventory, close);
-        }
     }
 }
 

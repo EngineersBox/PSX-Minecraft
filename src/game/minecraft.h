@@ -6,9 +6,8 @@
 #include <interface99.h>
 
 #include "../core/app_logic.h"
-#include "../core/engine.h"
 #include "../core/camera.h"
-#include "../core/input.h"
+#include "../core/input/input.h"
 #include "../render/render_context.h"
 #include "../render/transforms.h"
 #include "world/world.h"

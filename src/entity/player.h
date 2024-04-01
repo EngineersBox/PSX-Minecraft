@@ -3,7 +3,6 @@
 #ifndef PSX_MINECRAFT_PLAYER_H
 #define PSX_MINECRAFT_PLAYER_H
 
-#include <stdint.h>
 #include <psxgte.h>
 
 #include "../core/camera.h"

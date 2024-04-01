@@ -9,11 +9,11 @@
 
 DEFN_UI_COMPONENT(
     UICursor,
-    void* held_data
+    void* held_data;
 );
 
-void uiCursorAction(VSelf, const DVECTOR* cursor_position, const bool pressed);
-void UICursor_action(VSelf, const DVECTOR* cursor_position, const bool pressed);
+void uiCursorAction(VSelf, const DVECTOR* cursor_position, bool pressed);
+void UICursor_action(VSelf, const DVECTOR* cursor_position, bool pressed);
 
 void uiCursorRender(VSelf, RenderContext* ctx, Transforms* transforms);
 void UICursor_render(VSelf, RenderContext* ctx, Transforms* transforms);
