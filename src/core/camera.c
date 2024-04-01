@@ -186,3 +186,55 @@ void lookAt(const VECTOR* eye, const VECTOR* at, const SVECTOR* up, MATRIX* mtx)
     ApplyMatrixLV(mtx, &pos, &vec);
     TransMatrix(mtx, &vec);
 }
+
+bool cameraInputHandler(const Input* input, void* ctx) {
+    Camera* camera = (Camera*) ctx;
+    Transforms* transforms = camera->transforms;
+    // Divide out fractions of camera rotation
+    transforms->translation_rotation.vx = camera->rotation.vx >> FIXED_POINT_SHIFT;
+    transforms->translation_rotation.vy = camera->rotation.vy >> FIXED_POINT_SHIFT;
+    transforms->translation_rotation.vz = camera->rotation.vz >> FIXED_POINT_SHIFT;
+    if (input->pad->stat == 0) {
+        handleDigitalPadAndDualAnalogShock(camera, input, transforms);
+        handleDualAnalogShock(camera, input, transforms);
+    }
+    // First-person camera mode
+    if (camera->mode == 0) {
+        // Set rotation to the matrix
+        RotMatrix(&transforms->translation_rotation, &transforms->geometry_mtx);
+        // Divide out the fractions of camera coordinates and invert
+        // the sign, so camera coordinates will line up to world
+        // (or geometry) coordinates
+        transforms->translation_position.vx = -camera->position.vx >> FIXED_POINT_SHIFT;
+        transforms->translation_position.vy = -camera->position.vy >> FIXED_POINT_SHIFT;
+        transforms->translation_position.vz = -camera->position.vz >> FIXED_POINT_SHIFT;
+        // Apply rotation of matrix to translation value to achieve a
+        // first person perspective
+        ApplyMatrixLV(
+            &transforms->geometry_mtx,
+            &transforms->translation_position,
+            &transforms->translation_position
+        );
+        // Set translation matrix
+        TransMatrix(
+            &transforms->geometry_mtx,
+            &transforms->translation_position
+        );
+    }
+    // Camera is the base level input handler, we should always give up
+    // control to a layer added on top of base movement
+    return false;
+}
+
+void cameraRegisterInputHandler(VSelf, Input* input) __attribute__((alias("Camera_registerInputHandler")));
+void Camera_registerInputHandler(VSelf, Input* input) {
+    VSELF(Camera);
+    const ContextualInputHandler handler = (ContextualInputHandler) {
+        .ctx = self,
+        .input_handler = cameraInputHandler
+    };
+    inputAddHandler(
+        input,
+        handler
+    );
+}

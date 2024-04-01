@@ -10,7 +10,7 @@
 #include "../game/gui/hotbar.h"
 
 typedef struct {
-    Camera* camera;
+    ICamera* camera;
     VECTOR position;
     IUI inventory;
     IUI hotbar;

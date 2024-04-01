@@ -7,6 +7,7 @@
 #include "../../structure/cvector.h"
 #include "../../render/render_context.h"
 #include "../../render/transforms.h"
+#include "../../core/input/input.h"
 #include "slot.h"
 
 #define HOTBAR_SLOT_COUNT 9
@@ -32,9 +33,10 @@ void Hotbar_open(VSelf);
 void hotbarClose(VSelf);
 void Hotbar_close(VSelf);
 
-void hotbarRegisterHandler(VSelf, Input* input);
-void Hotbar_registerHandler(VSelf, Input* input);
+void hotbarRegisterInputHandler(VSelf, Input* input);
+void Hotbar_registerInputHandler(VSelf, Input* input);
 
+impl(IInputHandler, Hotbar);
 impl(IUI, Hotbar);
 
 #endif // PSX_MINECRAFT_HOTBAR_H

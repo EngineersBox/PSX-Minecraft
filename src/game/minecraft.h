@@ -16,7 +16,7 @@ typedef struct {
     RenderContext ctx;
     Transforms transforms;
     Input input;
-    Camera camera;
+    ICamera camera;
 } Internals;
 
 typedef struct {

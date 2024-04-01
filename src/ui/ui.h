@@ -37,9 +37,9 @@ typedef struct UIComponent {
 
 #define IUI_IFACE \
     vfunc(void, open, VSelf) \
-    vfunc(void, close, VSelf) \
-    vfunc(void, registerHandler, VSelf, Input* input)
+    vfunc(void, close, VSelf)
 
+#define IUI_EXTENDS (IInputHandler)
 interface(IUI);
 
 typedef struct {

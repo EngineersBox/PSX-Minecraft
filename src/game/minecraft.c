@@ -69,6 +69,7 @@ SVECTOR marker_rot = {0};
 SVECTOR direction_pos = {0};
 
 World* world;
+Camera camera;
 Player* player;
 
 void minecraftInit(VSelf, void* ctx) __attribute__((alias("Minecraft_init")));
@@ -88,9 +89,16 @@ void Minecraft_init(VSelf, void* ctx) {
             .lighting_mtx = light_mtx
         },
         .input = (Input) {},
-        .camera = (Camera) {}
+        .camera = {}
     };
-    self->internals.ctx.camera = &self->internals.camera;
+    camera = (Camera) {
+        .transforms = &self->internals.transforms,
+        .position = (VECTOR) {0},
+        .rotation = (VECTOR) {0},
+        .mode = 0
+    };
+    DYN_PTR(&self->internals.camera, Camera, IInputHandler, &camera);
+    self->internals.ctx.camera = VCAST(Camera*, self->internals.camera);
     // Set light ambient color and light color matrix
     gte_SetBackColor(128, 128, 128);
     gte_SetFarColor(1, 1, 1);
@@ -118,7 +126,7 @@ void Minecraft_init(VSelf, void* ctx) {
     player = (Player*) malloc(sizeof(Player));
     playerInit(player);
     player->camera = &self->internals.camera;
-    player->position = self->internals.camera.position;
+    player->position = camera.position;
     player->position.vy += BLOCK_SIZE << FIXED_POINT_SHIFT;
     // ==== TESTING: Hotbar ====
     Hotbar* hotbar = VCAST(Hotbar*, player->hotbar);
@@ -141,7 +149,9 @@ void Minecraft_init(VSelf, void* ctx) {
     slot->data.item = item;
     VCALL_SUPER(*item, Renderable, applyInventoryRenderAttributes);
     // Register handlers
-    VCALL(player->inventory, registerHandler, &self->internals.input);
+    VCALL(*player->camera, registerInputHandler, &self->internals.input);
+    VCALL_SUPER(player->inventory, IInputHandler, registerInputHandler, &self->internals.input);
+    VCALL_SUPER(player->hotbar, IInputHandler, registerInputHandler, &self->internals.input);
 }
 
 void minecraftCleanup(VSelf) __attribute__((alias("Minecraft_cleanup")));
@@ -159,20 +169,15 @@ void startHandler(Camera* camera);
 void minecraftInput(VSelf, const Stats* stats) __attribute__((alias("Minecraft_input")));
 void Minecraft_input(VSelf, const Stats* stats) {
     VSELF(Minecraft);
-    self->internals.camera.mode = 0;
-    cameraUpdate(
-        &self->internals.camera,
-        &self->internals.input,
-        &self->internals.transforms,
-        &result.pos
-    );
-    player->position = self->internals.camera.position;
+    Camera* camera = VCAST(Camera*, self->internals.camera);
+    camera->mode = 0;
+    player->position = camera->position;
     // Player is 2 blocks high, with position caluclated at the feet
     player->position.vy += BLOCK_SIZE << FIXED_POINT_SHIFT;
     Input* input = &self->internals.input;
     inputUpdate(input);
     if (isPressed(input->pad, PAD_START)) {
-        startHandler(&self->internals.camera);
+        startHandler(camera);
     }
 }
 
@@ -422,11 +427,10 @@ void drawMarker(Minecraft* minecraft) {
 
 void drawDebugText(const Minecraft* minecraft, const Stats* stats) {
     FntPrint(0, "FPS=%d TPS=%d\n", stats->fps, stats->tps);
-    const Camera* camera = &minecraft->internals.camera;
-    const int32_t x = camera->position.vx / BLOCK_SIZE;
-    const int32_t y_down = camera->position.vy / BLOCK_SIZE;
-    const int32_t y_up = -camera->position.vy / BLOCK_SIZE;
-    const int32_t z = camera->position.vz / BLOCK_SIZE;
+    const int32_t x = camera.position.vx / BLOCK_SIZE;
+    const int32_t y_down = camera.position.vy / BLOCK_SIZE;
+    const int32_t y_up = -camera.position.vy / BLOCK_SIZE;
+    const int32_t z = camera.position.vz / BLOCK_SIZE;
     FntPrint(
         0,
         ""
@@ -442,10 +446,10 @@ void drawDebugText(const Minecraft* minecraft, const Stats* stats) {
     FntPrint(
         0,
         "RX=%d RY=%d\n",
-        camera->rotation.vx >> FIXED_POINT_SHIFT,
-        camera->rotation.vy >> FIXED_POINT_SHIFT
+        camera.rotation.vx >> FIXED_POINT_SHIFT,
+        camera.rotation.vy >> FIXED_POINT_SHIFT
     );
-    const VECTOR direction = rotationToDirection(&camera->rotation);
+    const VECTOR direction = rotationToDirection(&camera.rotation);
     FntPrint(
         0,
         "DX=%d DY=%d DZ=%d\n",
@@ -470,7 +474,7 @@ void Minecraft_render(VSelf, const Stats* stats) {
     playerRender(player, &self->internals.ctx, &self->internals.transforms);
     // crosshairDraw(&render_context);
     drawDebugText(self, stats);
-    axisDraw(&self->internals.ctx, &self->internals.transforms, &self->internals.camera);
+    axisDraw(&self->internals.ctx, &self->internals.transforms, &camera);
     debugDrawPBUsageGraph(&self->internals.ctx, 0, SCREEN_YRES);
     // Flush font to screen
     FntFlush(0);

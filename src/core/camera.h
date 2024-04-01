@@ -11,10 +11,10 @@
 #define CAMERA_ROTATE_SPEED 15
 #define CAMERA_MOVE_SPEED 3
 
-struct Camera;
+typedef IInputHandler ICamera;
 
-
-typedef struct Camera {
+typedef struct {
+    Transforms* transforms;
     VECTOR position;
     VECTOR rotation;
     int mode;
@@ -22,5 +22,10 @@ typedef struct Camera {
 
 void cameraUpdate(Camera* camera, const Input* input, Transforms* transforms, const VECTOR* look_pos);
 void lookAt(const VECTOR* eye, const VECTOR* at, const SVECTOR* up, MATRIX* mtx);
+
+void cameraRegisterInputHandler(VSelf, Input* input);
+void Camera_registerInputHandler(VSelf, Input* input);
+
+impl(IInputHandler, Camera);
 
 #endif //CAMERA_H
