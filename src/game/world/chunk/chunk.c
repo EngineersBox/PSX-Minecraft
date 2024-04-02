@@ -692,8 +692,6 @@ void chunkUpdate(Chunk* chunk, Player* player) {
                     cvector_erase(chunk->dropped_items, i);
                     break;
             }
-            // BUG: Something here causes an invalid instruction error
-            //      in dynarec (probably bad pointer stuff)
             continue;
         }
         i++;

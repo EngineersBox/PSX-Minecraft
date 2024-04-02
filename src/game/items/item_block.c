@@ -472,7 +472,6 @@ void itemBlockRenderInventory(ItemBlock* item, RenderContext* ctx, Transforms* t
         far_colour.g,
         far_colour.b
     );
-    // gte_SetColorMatrix(&lighting_colour);
 }
 
 void itemBlockRenderHand(ItemBlock* item, RenderContext* ctx, Transforms* transforms) {
