@@ -26,6 +26,8 @@
 extern CVECTOR clear_colour;
 extern CVECTOR back_colour;
 extern CVECTOR far_colour;
+extern MATRIX lighting_colour;
+extern MATRIX lighting_direction;
 
 // Double buffer structure
 typedef struct {

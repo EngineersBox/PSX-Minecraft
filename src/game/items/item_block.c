@@ -418,6 +418,14 @@ void renderItemBlockInventory(ItemBlock* item,
     renderClearConstraints(ctx);
 }
 
+MATRIX inventory_item_block_lighting_direction = {
+    /* X,  Y,  Z */
+    .m = {
+        {FIXED_1_2, -FIXED_1_2, -FIXED_1_2},
+        {0, 0, 0},
+        {0, 0, 0}
+    }
+};
 void itemBlockRenderInventory(ItemBlock* item, RenderContext* ctx, Transforms* transforms) {
     VECTOR position = {
         .vx = 0,
@@ -430,7 +438,7 @@ void itemBlockRenderInventory(ItemBlock* item, RenderContext* ctx, Transforms* t
     RotMatrix(&item->item.rotation, &omtx);
     TransMatrix(&omtx, &position);
     // Multiply light matrix to object matrix
-    MulMatrix0(&transforms->lighting_mtx, &omtx, &olmtx);
+    MulMatrix0(&inventory_item_block_lighting_direction, &omtx, &olmtx);
     // Set result to GTE light matrix
     gte_SetLightMatrix(&olmtx);
     // Save matrix
@@ -464,6 +472,7 @@ void itemBlockRenderInventory(ItemBlock* item, RenderContext* ctx, Transforms* t
         far_colour.g,
         far_colour.b
     );
+    // gte_SetColorMatrix(&lighting_colour);
 }
 
 void itemBlockRenderHand(ItemBlock* item, RenderContext* ctx, Transforms* transforms) {

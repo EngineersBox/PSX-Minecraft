@@ -1,12 +1,13 @@
+#include "render_context.h"
+
 #include <stdio.h>
 #include <psxgpu.h>
 #include <psxgte.h>
 #include <inline_c.h>
 #include <smd/smd.h>
-
-#include "render_context.h"
-
 #include <stdlib.h>
+
+#include "../math/math_utils.h"
 
 CVECTOR clear_colour = {
     .r = 63,
@@ -25,6 +26,30 @@ CVECTOR far_colour = {
     .g = 63,
     .b = 63,
     .cd = 0
+};
+// Light color matrix
+// Each column represents the color matrix of each light source and is
+// used as material color when using gte_ncs() or multiplied by a
+// source color when using gte_nccs(). 4096 is 1.0 in this matrix
+// A column of zeroes effectively disables the light source.
+MATRIX lighting_colour = {
+    .m = {
+        {FIXED_1_4 * 3, 0, 0}, /* Red */
+        {FIXED_1_4 * 3, 0, 0}, /* Green */
+        {FIXED_1_4 * 3, 0, 0}  /* Blue */
+    }
+};
+
+// Light matrix
+// Each row represents a vector direction of each light source.
+// An entire row of zeroes effectively disables the light source.
+MATRIX lighting_direction = {
+    /* X,  Y,  Z */
+    .m = {
+        {-FIXED_1_2, -FIXED_1_2, FIXED_1_2},
+        {0, 0, 0},
+        {0, 0, 0}
+    }
 };
 
 void initRenderContext(RenderContext* ctx) {

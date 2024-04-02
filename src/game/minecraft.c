@@ -20,31 +20,6 @@
 extern const uint32_t tim_texture[];
 RayCastResult result = {};
 
-// Light color matrix
-// Each column represents the color matrix of each light source and is
-// used as material color when using gte_ncs() or multiplied by a
-// source color when using gte_nccs(). 4096 is 1.0 in this matrix
-// A column of zeroes effectively disables the light source.
-MATRIX color_mtx = {
-    .m = {
-        {ONE * 3 / 4, 0, 0}, /* Red   */
-        {ONE * 3 / 4, 0, 0}, /* Green */
-        {ONE * 3 / 4, 0, 0} /* Blue  */
-    }
-};
-
-// Light matrix
-// Each row represents a vector direction of each light source.
-// An entire row of zeroes effectively disables the light source.
-MATRIX light_mtx = {
-    /* X,  Y,  Z */
-    .m = {
-        {-FIXED_1_2, -FIXED_1_2, FIXED_1_2},
-        {0, 0, 0},
-        {0, 0, 0}
-    }
-};
-
 #define MARKER_SIZE 20
 SVECTOR verts[8] = {
     { -MARKER_SIZE, -MARKER_SIZE, -MARKER_SIZE, 0 },
@@ -86,7 +61,7 @@ void Minecraft_init(VSelf, void* ctx) {
             .translation_rotation = {0},
             .translation_position = {0, 0, 0},
             .geometry_mtx = {},
-            .lighting_mtx = light_mtx
+            .lighting_mtx = lighting_direction
         },
         .input = (Input) {},
         .camera = {}
@@ -110,7 +85,7 @@ void Minecraft_init(VSelf, void* ctx) {
         far_colour.g,
         far_colour.b
     );
-    gte_SetColorMatrix(&color_mtx);
+    gte_SetColorMatrix(&lighting_colour);
     // FOV?
     gte_SetGeomScreen(100);
     initRenderContext(&self->internals.ctx);
