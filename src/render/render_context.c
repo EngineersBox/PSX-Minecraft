@@ -14,6 +14,18 @@ CVECTOR clear_colour = {
     .b = 63,//127,
     .cd = 0
 };
+CVECTOR back_colour = {
+    .r = 63,
+    .g = 63,
+    .b = 63,
+    .cd = 0
+};
+CVECTOR far_colour = {
+    .r = 63,
+    .g = 63,
+    .b = 63,
+    .cd = 0
+};
 
 void initRenderContext(RenderContext* ctx) {
     // Reset GPU and install VSync event handler

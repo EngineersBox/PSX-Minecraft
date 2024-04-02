@@ -24,30 +24,23 @@ void inputInit(Input *input) {
 }
 
 void inputUpdate(Input* input) {
-    static int i = 0;
     if (input->in_focus == NULL) {
-        i = 0;
         ContextualInputHandler* handler = NULL;
         cvector_for_each_in(handler, input->handlers) {
-            printf("Update: %d\n", i);
             if (handler->input_handler(input, handler->ctx)) {
-                printf("In focus: %d\n", i);
                 // If the input handler acquires focus (returning true)
                 // we set it as the focused handler and return since all
                 // subsequent handlers should not attempt anything
                 input->in_focus = handler;
                 return;
             }
-            i++;
         }
         return;
     }
-    printf("Currently in focus: %d\n", i);
     if (!input->in_focus->input_handler(input, input->in_focus->ctx)) {
         // If the focused handler relinquishes focus (returning false)
         // we reset the focused handler to avoid re-attempting an invocation
         // so we can try all other handlers.
         input->in_focus = NULL;
-        printf("Dropped focus: %d\n", i);
     }
 }

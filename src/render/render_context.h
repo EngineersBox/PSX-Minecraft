@@ -24,6 +24,8 @@
 #define CENTRE_Y (SCREEN_YRES >> 1)
 
 extern CVECTOR clear_colour;
+extern CVECTOR back_colour;
+extern CVECTOR far_colour;
 
 // Double buffer structure
 typedef struct {

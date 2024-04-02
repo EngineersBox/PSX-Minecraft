@@ -438,6 +438,8 @@ void itemBlockRenderInventory(ItemBlock* item, RenderContext* ctx, Transforms* t
     // Set matrices
     gte_SetRotMatrix(&omtx);
     gte_SetTransMatrix(&omtx);
+    gte_SetBackColor(128, 128, 128);
+    gte_SetFarColor(1, 1, 1);
     VECTOR screen_position = {
         .vx = item->item.position.vx + (INV_SLOT_POS_DELTA / 2),
         .vy = item->item.position.vy + (INV_SLOT_POS_DELTA / 2),
@@ -452,6 +454,16 @@ void itemBlockRenderInventory(ItemBlock* item, RenderContext* ctx, Transforms* t
         ISOMETRIC_BLOCK_FACE_INDICES_COUNT
     );
     PopMatrix();
+    gte_SetBackColor(
+        back_colour.r,
+        back_colour.g,
+        back_colour.b
+    );
+    gte_SetFarColor(
+        far_colour.r,
+        far_colour.g,
+        far_colour.b
+    );
 }
 
 void itemBlockRenderHand(ItemBlock* item, RenderContext* ctx, Transforms* transforms) {
