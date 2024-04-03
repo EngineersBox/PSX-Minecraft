@@ -4,6 +4,7 @@
 #include <stdbool.h>
 
 bool itemUpdate(Item* item, const VECTOR* player_position, const ItemPickupValidator validator) {
+    printf("Update\n");
     const int32_t sq_dist = squareDistance(player_position, &item->position);
     if (sq_dist > PICKUP_DISTANCE_SQUARED) {
         return false;

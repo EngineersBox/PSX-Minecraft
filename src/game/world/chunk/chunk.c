@@ -583,22 +583,19 @@ bool chunkModifyVoxel(Chunk* chunk, const VECTOR* position, IBlock* block, IItem
         return false;
     }
     const IBlock* old_block = chunk->blocks[chunkBlockIndex(x, y, z)];
-    cvector_push_back(
-        chunk->dropped_items,
-        NULL
-    );
-    IItem* iitem = chunk->dropped_items[cvector_size(chunk->dropped_items) - 1] = VCALL(*old_block, destroy);
+    IItem* iitem = VCALL(*old_block, destroy);
     if (iitem != NULL && iitem->self != NULL) {
+        cvector_push_back(
+            chunk->dropped_items,
+            iitem
+        );
         Item* item = VCAST(Item*, *iitem);
         constructItemPosition(chunk, position, &item->position);
         if (item_result != NULL) {
             *item_result = iitem;
         }
-    } else {
-        cvector_erase(chunk->dropped_items, cvector_size(chunk->dropped_items) - 1);
-        if (item_result != NULL) {
-            *item_result = NULL;;
-        }
+    } else if (item_result != NULL) {
+        *item_result = NULL;
     }
     chunk->blocks[chunkBlockIndex(x, y, z)] = block;
     chunkClearMesh(chunk);
@@ -610,6 +607,7 @@ bool chunkModifyVoxel(Chunk* chunk, const VECTOR* position, IBlock* block, IItem
 Inventory* _current_inventory = NULL;
 
 bool itemPickupValidator(const Item* item) {
+    printf("Validator\n");
     // 1. Does the item already exist in the inventory?
     //   a. [1:TRUE] Does the existing have space?
     //     i. [a:TRUE] Return true
@@ -649,13 +647,17 @@ void chunkUpdate(Chunk* chunk, Player* player) {
         .vy = player->position.vy >> FIXED_POINT_SHIFT,
         .vz = player->position.vz >> FIXED_POINT_SHIFT,
     };
-    IItem** iitem;
-    uint32_t i = 0;
-    cvector_for_each_in(iitem, chunk->dropped_items) {
-        if (*iitem == NULL) {
+    for (uint32_t i = 0; i < cvector_size(chunk->dropped_items);) {
+        printf("Index: %d\n", i);
+        IItem* iitem = chunk->dropped_items[i];
+        printf("IItem: %p\n", iitem);
+        if (iitem == NULL) {
+            i++;
             continue;
         }
-        Item* item = VCAST(Item*, **iitem);
+        printf("VCAST IItem to Item\n");
+        Item* item = VCAST(Item*, *iitem);
+        printf("Item update\n");
         if (itemUpdate(item, &pos, itemPickupValidator)) {
             // BUG: Something causes invalid address read when picking up new blocks.
             //      Hotbar:
@@ -670,7 +672,7 @@ void chunkUpdate(Chunk* chunk, Player* player) {
             //      to the cvector_erase(...) in the INVENTORY_STORE_RESULT_ADDED_NEW_SLOT
             //      case block.
             printf("[ITEM] Picked up: %s x%d\n", item->name, item->stack_size);
-            const InventoryStoreResult result = inventoryStoreItem(_current_inventory, *iitem);
+            const InventoryStoreResult result = inventoryStoreItem(_current_inventory, iitem);
             printf("[ITEM] Result: %s\n", inventoryStoreResultStringify(result));
             switch (result) {
                 case INVENTORY_STORE_RESULT_ADDED_SOME:
@@ -679,21 +681,27 @@ void chunkUpdate(Chunk* chunk, Player* player) {
                     // Do nothing since we can't pick it up (don't think this will ever
                     // actually occur since we already check in itemPickupValidator for
                     // this case when determining which to items to consider.
+                    i++;
                     break;
                 case INVENTORY_STORE_RESULT_ADDED_ALL:
                     // Nuke it, added all so this item instance is not needed any more.
                     // Break is not used here since we still need to erase this array
                     // entry.
-                    VCALL(**iitem, destroy);
-                    itemDestroy(*iitem);
+                    printf("Vcall to iitem_destroy\n");
+                    VCALL(*iitem, destroy);
+                    printf("Invocation to itemDestroy\n");
+                    itemDestroy(iitem);
                 case INVENTORY_STORE_RESULT_ADDED_NEW_SLOT:
                     // We reuse this item instance as the inventory instance now so don't
                     // free it.
+                    printf("cvector_erase @ %d, Size: %d\n", i, cvector_size(chunk->dropped_items));
                     cvector_erase(chunk->dropped_items, i);
+                    printf("Done: %d\n", cvector_size(chunk->dropped_items));
                     break;
             }
             continue;
         }
         i++;
     }
+    printf("After update\n");
 }
