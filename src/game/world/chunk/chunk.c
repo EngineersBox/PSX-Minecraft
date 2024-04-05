@@ -55,6 +55,13 @@ void chunkInit(Chunk* chunk) {
 
 void chunkDestroy(const Chunk* chunk) {
     chunkMeshDestroy(&chunk->mesh);
+    IItem** iitem;
+    cvector_for_each_in(iitem, chunk->dropped_items) {
+        if (*iitem != NULL) {
+            VCALL(**iitem, destroy);
+            itemDestroy(*iitem);
+        }
+    }
     cvector_clear(chunk->dropped_items);
     free(chunk->dropped_items);
 }
@@ -77,42 +84,17 @@ void chunkGenerate2DHeightMap(Chunk* chunk, const VECTOR* position) {
             //     0,
             //     CHUNK_SIZE
             // );
-            // printf("[CHUNK: %d,%d,%d] Height: %d\n", inlineVec(chunk->position), height);
             for (int32_t y = CHUNK_SIZE; y > 0; y--) {
                 const int32_t worldY = (position->vy * CHUNK_SIZE) + (CHUNK_SIZE - y)
                                        + (CHUNK_SIZE * 6); // !IMPORTANT: TESTING OFFSET
                 if (worldY < height - 3) {
                     chunk->blocks[chunkBlockIndex(x, y - 1, z)] = stoneBlockCreate();
-                    // printf(
-                    //     "[CHUNK: %d,%d,%d] Stone %p @ %d,%d,%d\n",
-                    //     inlineVec(chunk->position),
-                    //     chunk->blocks[chunkBlockIndex(x, y - 1, z)],
-                    //     x, y - 1, z
-                    // );
                 } else if (worldY < height - 1) {
                     chunk->blocks[chunkBlockIndex(x, y - 1, z)] = dirtBlockCreate();
-                    // printf(
-                    //     "[CHUNK: %d,%d,%d] Dirt %p @ %d,%d,%d\n",
-                    //     inlineVec(chunk->position),
-                    //     chunk->blocks[chunkBlockIndex(x, y - 1, z)],
-                    //     x, y - 1, z
-                    // );
                 } else if (worldY == height - 1) {
                     chunk->blocks[chunkBlockIndex(x, y - 1, z)] = grassBlockCreate();
-                    // printf(
-                    //     "[CHUNK: %d,%d,%d] Grass %p @ %d,%d,%d\n",
-                    //     inlineVec(chunk->position),
-                    //     chunk->blocks[chunkBlockIndex(x, y - 1, z)],
-                    //     x, y - 1, z
-                    // );
                 } else {
                     chunk->blocks[chunkBlockIndex(x, y - 1, z)] = airBlockCreate();
-                    // printf(
-                    //     "[CHUNK: %d,%d,%d] Air %p @ %d,%d,%d\n",
-                    //     inlineVec(chunk->position),
-                    //     chunk->blocks[chunkBlockIndex(x, y - 1, z)],
-                    //     x, y - 1, z
-                    // );
                 }
             }
         }
@@ -157,7 +139,6 @@ SMD_PRIM* createQuadPrimitive(ChunkMesh* mesh,
                               const int16_t axisMask[CHUNK_DIRECTIONS],
                               const int index) {
     // Construct a new POLY_FT4 (textured quad) primtive for this face
-    // printf("Primitive %d\n", smd->n_prims);
     SMD_PRIM* p_prims = (SMD_PRIM*) mesh->p_prims;
     cvector_push_back(p_prims, (SMD_PRIM) {});
     // The SMD.p_prims field has been cast to an lvalue of SMD_PRIM*
@@ -361,9 +342,6 @@ void computeMeshMask(const Chunk* chunk,
             if (currentBlock == NULL) {
                 currentBlock = airBlockCreate();
             }
-            // Block* curBlock = VCAST(Block*, *currentBlock);
-            // const BlockID currentBlock = worldGetBlock(chunk->world, &query_position);
-            // const bool currentOpaque = VCALL(*currentBlock, isOpaque);
             query_position.vx += axisMask[0];
             query_position.vy += axisMask[1];
             query_position.vz += axisMask[2];
@@ -376,24 +354,7 @@ void computeMeshMask(const Chunk* chunk,
             if (compareBlock == NULL) {
                 compareBlock = airBlockCreate();
             }
-            // Block* comBlock = VCAST(Block*, *compareBlock);
-            // const BlockID compareBlock = worldGetBlock(chunk->world, &query_position);
-            // const bool compareOpaque = VCALL(*compareBlock, isOpaque);
             mask[n++] = createMask(currentBlock, compareBlock);
-            // if (currentOpaque == compareOpaque) {
-            //     // if (curBlock->id != BLOCKID_AIR) {
-            //     //     mask[n++] = (Mask){ currentBlock, 1 };
-            //     // } else if (comBlock->id != BLOCKID_AIR) {
-            //     //     mask[n++] = (Mask){ compareBlock, -1 };
-            //     // } else {
-            //     //     mask[n++] = (Mask){ airBlockCreate(), 0 };
-            //     // }
-            //     mask[n++] = (Mask){ airBlockCreate(), 0 };
-            // } else if (currentOpaque || curBlock->id != BLOCKID_AIR) {
-            //     mask[n++] = (Mask){ currentBlock, 1 };
-            // } else {
-            //     mask[n++] = (Mask){ compareBlock, -1 };
-            // }
         }
     }
 }
@@ -607,7 +568,6 @@ bool chunkModifyVoxel(Chunk* chunk, const VECTOR* position, IBlock* block, IItem
 Inventory* _current_inventory = NULL;
 
 bool itemPickupValidator(const Item* item) {
-    printf("Validator\n");
     // 1. Does the item already exist in the inventory?
     //   a. [1:TRUE] Does the existing have space?
     //     i. [a:TRUE] Return true
@@ -647,17 +607,14 @@ void chunkUpdate(Chunk* chunk, Player* player) {
         .vy = player->position.vy >> FIXED_POINT_SHIFT,
         .vz = player->position.vz >> FIXED_POINT_SHIFT,
     };
+    printf("[CHUNK: (%d,%d,%d)] Dropped items: %p\n", inlineVec(chunk->position), chunk->dropped_items);
     for (uint32_t i = 0; i < cvector_size(chunk->dropped_items);) {
-        printf("Index: %d\n", i);
         IItem* iitem = chunk->dropped_items[i];
-        printf("IItem: %p\n", iitem);
         if (iitem == NULL) {
             i++;
             continue;
         }
-        printf("VCAST IItem to Item\n");
         Item* item = VCAST(Item*, *iitem);
-        printf("Item update\n");
         if (itemUpdate(item, &pos, itemPickupValidator)) {
             // BUG: Something causes invalid address read when picking up new blocks.
             //      Hotbar:
@@ -687,21 +644,16 @@ void chunkUpdate(Chunk* chunk, Player* player) {
                     // Nuke it, added all so this item instance is not needed any more.
                     // Break is not used here since we still need to erase this array
                     // entry.
-                    printf("Vcall to iitem_destroy\n");
                     VCALL(*iitem, destroy);
-                    printf("Invocation to itemDestroy\n");
                     itemDestroy(iitem);
                 case INVENTORY_STORE_RESULT_ADDED_NEW_SLOT:
                     // We reuse this item instance as the inventory instance now so don't
                     // free it.
-                    printf("cvector_erase @ %d, Size: %d\n", i, cvector_size(chunk->dropped_items));
                     cvector_erase(chunk->dropped_items, i);
-                    printf("Done: %d\n", cvector_size(chunk->dropped_items));
                     break;
             }
             continue;
         }
         i++;
     }
-    printf("After update\n");
 }

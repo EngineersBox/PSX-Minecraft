@@ -205,7 +205,7 @@ InventoryStoreResult inventoryStoreItem(Inventory* inventory, IItem* iitem) {
         if (slot == NULL) {
             break;
         }
-        IItem* slot_iitem = inventorySlotGetItem(slot);
+        const IItem* slot_iitem = inventorySlotGetItem(slot);
         Item* slot_item = VCAST_PTR(Item*, slot_iitem);
         // Has space?
         if (slot_item->stack_size < slot_item->max_stack_size) {
@@ -213,8 +213,9 @@ InventoryStoreResult inventoryStoreItem(Inventory* inventory, IItem* iitem) {
             // Can fit into stack?
             if (stack_left >= item->stack_size) {
                 slot_item->stack_size += item->stack_size;
-                VCALL(*slot_iitem, destroy);
-                itemDestroy(slot_iitem);
+                // Don't free or destroy the iitem_to_add as it was passed
+                // as context to this function. It's up to the caller to
+                // handle it depending on the state enum returned.
                 return INVENTORY_STORE_RESULT_ADDED_ALL;
             }
             slot_item->stack_size = slot_item->max_stack_size;
@@ -228,12 +229,15 @@ InventoryStoreResult inventoryStoreItem(Inventory* inventory, IItem* iitem) {
             // Keep the first free slot we found and don't update
             // it later since we will have stated searching from
             // a different offset and thus will not be the first
-            // free slot
+            // free slot.
             persisted_next_free = next_free;
         }
         next_free = INVENTORY_NO_FREE_SLOT;
     }
     if (persisted_next_free != INVENTORY_NO_FREE_SLOT) {
+        // If we have already found a free spot during the search
+        // invocations from before, we can use that to avoid
+        // unnecessary search operations.
         slot = &inventory->slots[persisted_next_free];
     } else {
         slot = inventoryFindFreeSlot(inventory, 0);
@@ -242,11 +246,7 @@ InventoryStoreResult inventoryStoreItem(Inventory* inventory, IItem* iitem) {
         }
     }
     VCALL_SUPER(*iitem_to_add, Renderable, applyInventoryRenderAttributes);
-    if (inventorySlotIsRef(slot)) {
-        slot->data.ref->data.item = iitem_to_add;
-    } else {
-        slot->data.item = iitem_to_add;
-    }
+    inventorySlotSetItem(slot, iitem_to_add);
     return INVENTORY_STORE_RESULT_ADDED_NEW_SLOT;
 }
 

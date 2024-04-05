@@ -74,12 +74,12 @@ interface(IBlock);
     typedef struct {\
         Block block; \
         __VA_ARGS__ \
-    } name;
+    } name
 
 #define DEFN_BLOCK_STATELESS(extern_name, name, ...) \
-    DEFN_BLOCK_STATEFUL(name, P99_PROTECT(__VA_ARGS__)) \
+    DEFN_BLOCK_STATEFUL(name, P99_PROTECT(__VA_ARGS__)); \
     extern IBlock extern_name##_IBLOCK_SINGLETON; \
-    extern name extern_name##_BLOCK_SINGLETON;
+    extern name extern_name##_BLOCK_SINGLETON
 
 #define declareBlock(_id, _name, _type, _orientation, _face_attributes) (Block) {\
     .id = (BlockID) _id,\

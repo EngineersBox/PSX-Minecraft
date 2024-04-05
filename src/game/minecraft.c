@@ -117,24 +117,23 @@ void Minecraft_init(VSelf, void* ctx) {
     VCALL_SUPER(player->hotbar, IInputHandler, registerInputHandler, &self->internals.input);
 
     // ==== TESTING: Hotbar ====
-    Hotbar* hotbar = VCAST(Hotbar*, player->hotbar);
-    Slot* slot = &hotbar->slots[1];
+    Inventory* inventory = VCAST(Inventory*, player->inventory);
+    Slot* slot = inventoryFindFreeSlot(inventory, 0);
     IItem* item = itemCreate();
     GrassItemBlock* grass_item_block = grassItemBlockCreate();
     DYN_PTR(item, GrassItemBlock, IItem, grass_item_block);
     VCALL(*item, init);
     grass_item_block->item_block.item.stack_size = 26;
-    slot->data.item = item;
+    inventorySlotSetItem(slot, item);
     VCALL_SUPER(*item, Renderable, applyInventoryRenderAttributes);
     // ==== TESTING: Inventory ====
-    Inventory* inventory = VCAST(Inventory*, player->inventory);
     slot = &inventory->slots[INVENTORY_SLOT_STORAGE_OFFSET + 2];
     item = itemCreate();
     grass_item_block = grassItemBlockCreate();
     DYN_PTR(item, GrassItemBlock, IItem, grass_item_block);
     VCALL(*item, init);
     grass_item_block->item_block.item.stack_size = 13;
-    slot->data.item = item;
+    inventorySlotSetItem(slot, item);
     VCALL_SUPER(*item, Renderable, applyInventoryRenderAttributes);
 }
 
@@ -168,9 +167,15 @@ void Minecraft_input(VSelf, const Stats* stats) {
 void minecraftUpdate(VSelf, const Stats* stats) __attribute__((alias("Minecraft_update")));
 void Minecraft_update(VSelf, const Stats* stats) {
     VSELF(Minecraft);
+    printf("[MINECRAFT] Update\n");
     worldUpdate(self->world, player);
+    printf("[MINECRAFT] After update\n");
+    // BUG: Something happens in the above worldUpdate
+    //      that means the that last printf in this
+    //      function doesn't get invoked.
     gte_SetRotMatrix(&self->internals.transforms.geometry_mtx);
     gte_SetTransMatrix(&self->internals.transforms.geometry_mtx);
+    printf("[MINECRAFT] End update\n");
 }
 
 void startHandler(Camera* camera) {
@@ -444,12 +449,14 @@ void drawDebugText(const Minecraft* minecraft, const Stats* stats) {
 void minecraftRender(VSelf, const Stats* stats) __attribute__((alias("Minecraft_render")));
 void Minecraft_render(VSelf, const Stats* stats) {
     VSELF(Minecraft);
+    printf("[MINECRAFT] Invoking render\n");
     // Draw the world
     worldRender(
         self->world,
         &self->internals.ctx,
         &self->internals.transforms
     );
+    printf("[MINECRAFT] After world render\n");
     // Clear window constraints
     renderClearConstraints(&self->internals.ctx);
     // Draw marker
@@ -459,7 +466,11 @@ void Minecraft_render(VSelf, const Stats* stats) {
     // crosshairDraw(&render_context);
     drawDebugText(self, stats);
     axisDraw(&self->internals.ctx, &self->internals.transforms, &camera);
-    debugDrawPBUsageGraph(&self->internals.ctx, 0, SCREEN_YRES);
+    debugDrawPBUsageGraph(
+        &self->internals.ctx,
+        0,
+        SCREEN_YRES - HOTBAR_HEIGHT - 2
+    );
     // Flush font to screen
     FntFlush(0);
     // Swap buffers and draw the primitives

@@ -25,7 +25,16 @@
 #define INVENTORY_HEIGHT 166
 
 #define inventorySlotIsRef(slot) ((slot)->index >= INVENTORY_SLOT_HOTBAR_OFFSET)
-#define inventorySlotGetItem(slot) (inventorySlotIsRef(slot) ? (slot)->data.ref->data.item : (slot)->data.item)
+#define inventorySlotGetItem(slot) ((inventorySlotIsRef(slot) ? (slot)->data.ref->data : (slot)->data).item)
+#define inventorySlotSetItem(slot, _item) ({ \
+    do { \
+        if (inventorySlotIsRef(slot)) { \
+            (slot)->data.ref->data.item = (_item); \
+        } else { \
+            (slot)->data.item = (_item); \
+        }\
+    } while (0); \
+})
 
 #define MK_INVENTORY_STORE_RESULT_LSIT(f) \
     f(INVENTORY_STORE_RESULT_ADDED_ALL) \

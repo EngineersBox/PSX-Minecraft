@@ -12,6 +12,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # For more detailed warnings use -Wextra
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
+#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fanalyzer -Wpedantic")
 set(ASSETS_DIR ${PROJECT_SOURCE_DIR}/assets)
 configure_file(assets.xml _assets.xml)
 

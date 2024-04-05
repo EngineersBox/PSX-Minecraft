@@ -481,7 +481,7 @@ RayCastResult worldRayCastIntersection_new1(const World* world,
                                        const Camera* camera,
                                        const int32_t radius,
                                        cvector(SVECTOR*) markers) {
-    VECTOR position = (VECTOR) {
+    const VECTOR position = (VECTOR) {
         .vx = camera->position.vx,
         .vy = -camera->position.vy,
         .vz = camera->position.vz
@@ -625,18 +625,18 @@ RayCastResult worldRayCastIntersection_new(const World* world,
     int32_t x;
     int32_t y;
     int32_t z;
-    int32_t x1 = x = camera->position.vx;
-    int32_t y1 = y = -camera->position.vy;
-    int32_t z1 = z = camera->position.vz;
-    int32_t x2 = x1 + (dir_x * radius);
-    int32_t y2 = y1 + (dir_y * radius);
-    int32_t z2 = z1 + (dir_z * radius);
-    int dx = absv(x1 - x2);
-    int dy = absv(y1 - y2);
-    int dz = absv(z1 - z2);
-    int32_t sx = x1 ? 1 : -1;
-    int32_t sy = y1 ? 1 : -1;
-    int32_t sz = z1 ? 1 : -1;
+    const int32_t x1 = x = camera->position.vx;
+    const int32_t y1 = y = -camera->position.vy;
+    const int32_t z1 = z = camera->position.vz;
+    const int32_t x2 = x1 + (dir_x * radius);
+    const int32_t y2 = y1 + (dir_y * radius);
+    const int32_t z2 = z1 + (dir_z * radius);
+    const int dx = absv(x1 - x2);
+    const int dy = absv(y1 - y2);
+    const int dz = absv(z1 - z2);
+    const int32_t sx = x1 ? 1 : -1;
+    const int32_t sy = y1 ? 1 : -1;
+    const int32_t sz = z1 ? 1 : -1;
     if (dx >= dy && dx >= dz) {
         int32_t ey = (3 * dy) - dz;
         int32_t ez = (3 * dz) - dx;
