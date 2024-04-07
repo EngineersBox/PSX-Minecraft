@@ -17,14 +17,14 @@ void DirtBlock_init(VSelf);
 void dirtBlockAccess(VSelf);
 void DirtBlock_access(VSelf);
 
-IItem* dirtBlockDestroy(VSelf);
-IItem* DirtBlock_destroy(VSelf);
+ALLOC_CALL(itemDestroy, 1) IItem* dirtBlockDestroy(VSelf);
+ALLOC_CALL(itemDestroy, 1) IItem* DirtBlock_destroy(VSelf);
 
 void dirtBlockUpdate(VSelf);
 void DirtBlock_update(VSelf);
 
-IItem* dirtBlockProvideItem(VSelf);
-IItem* DirtBlock_provideItem(VSelf);
+ALLOC_CALL(itemDestroy, 1) IItem* dirtBlockProvideItem(VSelf);
+ALLOC_CALL(itemDestroy, 1) IItem* DirtBlock_provideItem(VSelf);
 
 impl(IBlock, DirtBlock);
 

@@ -10,8 +10,6 @@
 
 DEFN_ITEM_BLOCK(StoneItemBlock);
 
-StoneItemBlock* stoneItemBlockCreate();
-
 void stoneItemBlockRenderWorld(VSelf, RenderContext* ctx, Transforms* transforms);
 void StoneItemBlock_renderWorld(VSelf, RenderContext* ctx, Transforms* transforms);
 
@@ -48,5 +46,7 @@ void stoneItemBlockAttackAction(VSelf);
 void StoneItemBlock_attackAction(VSelf);
 
 impl(IItem, StoneItemBlock);
+
+ALLOC_CALL(StoneItemBlock_destroy, 1) StoneItemBlock* stoneItemBlockCreate();
 
 #endif // PSX_MINECRAFT_ITEM_BLOCK_STONE_H

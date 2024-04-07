@@ -9,8 +9,6 @@
 
 DEFN_ITEM_BLOCK(GrassItemBlock);
 
-GrassItemBlock* grassItemBlockCreate();
-
 void grassItemBlockRenderWorld(VSelf, RenderContext* ctx, Transforms* transforms);
 void GrassItemBlock_renderWorld(VSelf, RenderContext* ctx, Transforms* transforms);
 
@@ -47,5 +45,7 @@ void grassItemBlockAttackAction(VSelf);
 void GrassItemBlock_attackAction(VSelf);
 
 impl(IItem, GrassItemBlock);
+
+ALLOC_CALL(GrassItemBlock_destroy, 1) GrassItemBlock* grassItemBlockCreate();
 
 #endif // PSX_MINECRAFT_ITEM_BLOCK_GRASS_H

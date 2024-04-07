@@ -29,12 +29,6 @@ typedef struct UIComponent {
         __VA_ARGS__ \
     } name
 
-// TODO: Texture for UI will be loaded in a fixed position in the VRAM
-//       buffer, since only one UI view can be active at any given time.
-//       When the UI is opened, the texture is loaded and when it is closed,
-//       the texture is unloaded or just ignored until next opening overwriting
-//       it in place.
-
 #define IUI_IFACE \
     vfunc(void, open, VSelf) \
     vfunc(void, close, VSelf)
@@ -59,29 +53,5 @@ void uiInit(UI* ui);
 void uiRender(const UI* ui, RenderContext* ctx, Transforms* transforms);
 
 IUIComponent* uiAddComponent(UI* ui);
-
-// #define _TYPE_AS_UI_COMPONENT_PTR(x) IUIComponent* x
-//
-// #define DEFN_COMPONENTS(...) struct { \
-//         ML99_EVAL(ML99_variadicsForEach( \
-//             ML99_compose(v(ML99_semicoloned), ML99_reify(v(_TYPE_AS_UI_COMPONENT_PTR))), \
-//             v(__VA_ARGS__) \
-//         )) \
-//     } components
-//
-// #define DEFN_UI(name, components) struct { \
-//         UI ui; \
-//         components \
-//     } name
-//
-// #define TYPE_DEFN_UI(name, components) typedef DEFN_UI(name, components)
-
-// Example
-// TYPE_DEFN_UI(
-//     test_ui,
-//     DEFN_COMPONENTS(
-//         test, test2
-//     );
-// );
 
 #endif // PSX_MINECRAFT_UI_H

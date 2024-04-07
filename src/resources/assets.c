@@ -46,7 +46,7 @@ AssetBundle ASSET_BUNDLES[] = {
 Texture* textures;
 
 void _loadTextures(const int lzp_index) {
-    TIM_IMAGE tim;
+    TIM_IMAGE tim = {};
     QLP_HEAD* tex_buff = (QLP_HEAD*) malloc(lzpFileSize(lz_resources, lzp_index));
     lzpUnpackFile(tex_buff, lz_resources, lzp_index);
     const int file_count = qlpFileCount(tex_buff);
@@ -125,10 +125,13 @@ int assetLoadTextureDirect(const char* bundle, const char* filename, Texture* te
         printf("[ERROR] No such asset bundle: %s\n", bundle);
         return 1;
     }
-    TIM_IMAGE tim;
+    TIM_IMAGE tim = {};
     QLP_HEAD* tex_buff = (QLP_HEAD*) malloc(lzpFileSize(lz_resources, lzp_index));
     lzpUnpackFile(tex_buff, lz_resources, lzp_index);
     const int file_count = qlpFileCount(tex_buff);
+    // TODO: Can we just pre-load the indices of each texture for a given
+    //       bundle? That way we can avoid needing to do strcmp lots of times
+    //       for no reason.
     for (int i = 0; i < file_count; i++) {
         const QLP_FILE* file = qlpFileEntry(i, tex_buff);
         if (!strcmp(file->name, filename)

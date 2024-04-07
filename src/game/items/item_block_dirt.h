@@ -11,8 +11,6 @@
 
 DEFN_ITEM_BLOCK(DirtItemBlock);
 
-DirtItemBlock* dirtItemBlockCreate();
-
 void dirtItemBlockRenderWorld(VSelf, RenderContext* ctx, Transforms* transforms);
 void DirtItemBlock_renderWorld(VSelf, RenderContext* ctx, Transforms* transforms);
 
@@ -48,7 +46,8 @@ void DirtItemBlock_useAction(VSelf);
 void dirtItemBlockAttackAction(VSelf);
 void DirtItemBlock_attackAction(VSelf);
 
-
 impl(IItem, DirtItemBlock);
+
+ALLOC_CALL(DirtItemBlock_destroy, 1) DirtItemBlock* dirtItemBlockCreate();
 
 #endif // PSX_MINECRAFT_ITEM_BLOCK_DIRT_H

@@ -1,11 +1,12 @@
 #include "chunk.h"
 
-#include <clip.h>
-#include <cvector_utils.h>
 #include <inline_c.h>
 #include <stdbool.h>
 #include <smd/smd.h>
 
+#include "../../structure/primitive/clip.h"
+#include "../../structure/cvector_utils.h"
+#include "../../debug/debug.h"
 #include "../../structure/cvector.h"
 #include "../../structure/primitive/primitive.h"
 #include "../generation/noise.h"
@@ -43,27 +44,30 @@ typedef struct {
     ) \
 )
 
+void chunkDestroyDroppedItem(void* elem) {
+    IItem** iitem = (IItem**) elem;
+    if (iitem == NULL || *iitem == NULL) {
+        return;
+    }
+    VCALL(**iitem, destroy);
+    itemDestroy(*iitem);
+}
+
 void chunkInit(Chunk* chunk) {
     chunk->dropped_items = NULL;
-    cvector_init(chunk->dropped_items, 0, NULL);
-    printf("[CHUNK: %d,%d,%d] Initialising mesh\n", inlineVec(chunk->position));
+    cvector_init(chunk->dropped_items, 0, chunkDestroyDroppedItem);
+    // DEBUG_LOG("[CHUNK: %d,%d,%d] Initialising mesh\n", inlineVec(chunk->position));
     chunkMeshInit(&chunk->mesh);
     chunkClearMesh(chunk);
-    printf("[CHUNK: %d,%d,%d] Generating 2D height map\n", inlineVec(chunk->position));
+    // DEBUG_LOG("[CHUNK: %d,%d,%d] Generating 2D height map\n", inlineVec(chunk->position));
     chunkGenerate2DHeightMap(chunk, &chunk->position);
 }
 
 void chunkDestroy(const Chunk* chunk) {
+    // DEBUG_LOG("[CHUNK: %d,%d,%d] Destroy mesh\n", inlineVec(chunk->position));
     chunkMeshDestroy(&chunk->mesh);
-    IItem** iitem;
-    cvector_for_each_in(iitem, chunk->dropped_items) {
-        if (*iitem != NULL) {
-            VCALL(**iitem, destroy);
-            itemDestroy(*iitem);
-        }
-    }
-    cvector_clear(chunk->dropped_items);
-    free(chunk->dropped_items);
+    // DEBUG_LOG("[CHUNK: %d,%d,%d] Destroy dropped items: %d\n", inlineVec(chunk->position), cvector_size(chunk->dropped_items));
+    cvector_free(chunk->dropped_items);
 }
 
 void chunkGenerate2DHeightMap(Chunk* chunk, const VECTOR* position) {
@@ -607,7 +611,6 @@ void chunkUpdate(Chunk* chunk, Player* player) {
         .vy = player->position.vy >> FIXED_POINT_SHIFT,
         .vz = player->position.vz >> FIXED_POINT_SHIFT,
     };
-    printf("[CHUNK: (%d,%d,%d)] Dropped items: %p\n", inlineVec(chunk->position), chunk->dropped_items);
     for (uint32_t i = 0; i < cvector_size(chunk->dropped_items);) {
         IItem* iitem = chunk->dropped_items[i];
         if (iitem == NULL) {

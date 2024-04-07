@@ -12,7 +12,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # For more detailed warnings use -Wextra
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
-#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fanalyzer -Wpedantic")
+#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fanalyzer")
 set(ASSETS_DIR ${PROJECT_SOURCE_DIR}/assets)
 configure_file(assets.xml _assets.xml)
 
@@ -30,7 +30,11 @@ if (NOT (asset_count EQUAL 0))
 		COMMENT    "Building LZP archive"
 	)
 endif()
-message("Globbed assets: ${asset_count} => [${_assets}]")
+
+message("Globbed ${asset_count} assets:")
+foreach (_asset ${_assets})
+	message("- ${_asset}")
+endforeach()
 
 # Include source content
 file(GLOB_RECURSE PSXMC_SOURCES CONFIGURE_DEPENDS "src/*.c")
@@ -42,7 +46,10 @@ foreach (_headerFile ${PSXMC_HEADERS})
 	list(APPEND PSXMC_INCLUDE_DIRS ${_dir})
 endforeach()
 list(REMOVE_DUPLICATES PSXMC_INCLUDE_DIRS)
-message("Include dirs: [${PSXMC_INCLUDE_DIRS}]")
+message("Include dirs:")
+foreach (_include_dir ${PSXMC_INCLUDE_DIRS})
+	message("- ${_include_dir}")
+endforeach()
 
 # Mark executable
 psn00bsdk_add_executable(PSXMC GPREL ${PSXMC_SOURCES})
@@ -74,11 +81,11 @@ target_link_libraries(PSXMC PRIVATE metalang99)
 target_link_libraries(PSXMC PRIVATE interface99)
 
 # Disable full macro expansion backtraces for Metalang99.
-if(CMAKE_C_COMPILER_ID STREQUAL "Clang")
-	target_compile_options(PSXMC PRIVATE -fmacro-backtrace-limit=1)
-elseif(CMAKE_C_COMPILER_ID STREQUAL "GNU")
-	target_compile_options(PSXMC PRIVATE -ftrack-macro-expansion=0)
-endif()
+#if(CMAKE_C_COMPILER_ID STREQUAL "Clang")
+#	target_compile_options(PSXMC PRIVATE -fmacro-backtrace-limit=1)
+#elseif(CMAKE_C_COMPILER_ID STREQUAL "GNU")
+#	target_compile_options(PSXMC PRIVATE -ftrack-macro-expansion=0)
+#endif()
 
 target_compile_definitions(PSXMC PUBLIC -DFPT_BITS=32 -DFPT_WBITS=20)
 target_compile_definitions(PSXMC PUBLIC -DPSXMC_DEBUG=1)

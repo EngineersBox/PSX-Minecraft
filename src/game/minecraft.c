@@ -167,15 +167,7 @@ void Minecraft_input(VSelf, const Stats* stats) {
 void minecraftUpdate(VSelf, const Stats* stats) __attribute__((alias("Minecraft_update")));
 void Minecraft_update(VSelf, const Stats* stats) {
     VSELF(Minecraft);
-    printf("[MINECRAFT] Update\n");
     worldUpdate(self->world, player);
-    printf("[MINECRAFT] After update\n");
-    // BUG: Something happens in the above worldUpdate
-    //      that means the that last printf in this
-    //      function doesn't get invoked.
-    gte_SetRotMatrix(&self->internals.transforms.geometry_mtx);
-    gte_SetTransMatrix(&self->internals.transforms.geometry_mtx);
-    printf("[MINECRAFT] End update\n");
 }
 
 void startHandler(Camera* camera) {
@@ -449,14 +441,12 @@ void drawDebugText(const Minecraft* minecraft, const Stats* stats) {
 void minecraftRender(VSelf, const Stats* stats) __attribute__((alias("Minecraft_render")));
 void Minecraft_render(VSelf, const Stats* stats) {
     VSELF(Minecraft);
-    printf("[MINECRAFT] Invoking render\n");
     // Draw the world
     worldRender(
         self->world,
         &self->internals.ctx,
         &self->internals.transforms
     );
-    printf("[MINECRAFT] After world render\n");
     // Clear window constraints
     renderClearConstraints(&self->internals.ctx);
     // Draw marker

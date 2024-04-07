@@ -1,15 +1,16 @@
 #include "world.h"
 
 #include <assert.h>
-#include <interface99_extensions.h>
 #include <psxapi.h>
 #include <psxgpu.h>
 #include <psxgte.h>
 
+#include "../../util/interface99_extensions.h"
 #include "../render/font.h"
 #include "../math/math_utils.h"
 #include "../ui/progress_bar.h"
 #include "../ui/background.h"
+#include "../../debug/debug.h"
 
 #define wrapCoord(world, axis, coord) positiveModulo(((world)->head.axis + (coord)), AXIS_CHUNKS)
 #define arrayCoord(world, axis, value) wrapCoord(\
@@ -47,7 +48,7 @@ void worldInit(World* world, RenderContext* ctx) {
         .value = 0,
         .maximum = ((x_end + 1) - x_start) * ((z_end + 1) - z_start) * WORLD_CHUNKS_HEIGHT * 2
     };
-    printf("[WORLD] Loading chunks\n");
+    DEBUG_LOG("[WORLD] Loading chunks\n");
     for (int x = x_start; x <= x_end; x++) {
         for (int z = z_start; z <= z_end; z++) {
             for (int y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
@@ -86,14 +87,14 @@ void worldInit(World* world, RenderContext* ctx) {
             }
         }
     }
-    printf("[WORLD] Building chunk meshes\n");
+    DEBUG_LOG("[WORLD] Building chunk meshes\n");
     for (int x = x_start; x <= x_end; x++) {
         for (int z = z_start; z <= z_end; z++) {
             for (int y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
                 printf("[CHUNK: %d,%d,%d] Generating mesh\n", x, 0, z);
                 Chunk* chunk = world->chunks[arrayCoord(world, vz, z)][arrayCoord(world, vx, x)][y];
                 chunkGenerateMesh(chunk);
-                printf(
+                DEBUG_LOG(
                     "[CHUNK: %d,%d,%d, INDEX: %d,%d,%d] Mesh { Primitives: %d, Vertices: %d, Normals: %d }\n",
                     x, y, z,
                     arrayCoord(world, vx, x),
@@ -133,7 +134,7 @@ void worldInit(World* world, RenderContext* ctx) {
             }
         }
     }
-    printf("[WORLD] Finished loading\n");
+    DEBUG_LOG("[WORLD] Finished loading\n");
 }
 
 void worldDestroy(World* world) {
@@ -144,7 +145,7 @@ void worldDestroy(World* world) {
     for (int x = x_start; x <= x_end; x++) {
         for (int z = z_start; z <= z_end; z++) {
             for (int y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
-                printf(
+                DEBUG_LOG(
                     "[CHUNK: %d,%d,%d, INDEX: %d,%d,%d] Destroying chunk\n",
                     x, y, z,
                     arrayCoord(world, vx, x),
@@ -187,7 +188,7 @@ void worldRender(const World* world, RenderContext* ctx, Transforms* transforms)
 Chunk* worldLoadChunk(World* world, const VECTOR chunk_position) {
     Chunk* chunk = malloc(sizeof(Chunk));
     assert(chunk != NULL);
-    printf(
+    DEBUG_LOG(
         "[CHUNK: %d,%d,%d, INDEX: %d,%d,%d] Generating heightmap and terrain\n",
         chunk_position.vx,
         chunk_position.vy,
@@ -205,7 +206,7 @@ Chunk* worldLoadChunk(World* world, const VECTOR chunk_position) {
 }
 
 void worldUnloadChunk(const World* world, Chunk* chunk) {
-    printf(
+    DEBUG_LOG(
         "[CHUNK: %d,%d,%d, INDEX: %d,%d,%d] Unloading chunk\n",
         chunk->position.vx,
         chunk->position.vy,
@@ -324,9 +325,11 @@ void worldLoadChunksXZ(World* world, const int8_t x_direction, const int8_t z_di
 }
 
 void worldShiftChunks(World* world, const int8_t x_direction, const int8_t z_direction) {
+    DEBUG_LOG("[WORLD] Shift: set head\n");
     world->head.vx = wrapCoord(world, vx, x_direction);
     world->head.vz = wrapCoord(world, vz, z_direction);
     // Move centre towards player position by 1 increment
+    DEBUG_LOG("[WORLD] Shift: set centre\n");
     world->centre.vx += x_direction;
     world->centre.vz += z_direction;
 }
@@ -374,18 +377,18 @@ void worldUpdate(World* world, Player* player) {
         prevx = player_chunk_pos.vx;
         prevy = player_chunk_pos.vy;
         prevz = player_chunk_pos.vz;
-        printf("Player chunk pos: %d,%d,%d\n", inlineVec(player_chunk_pos));
+        DEBUG_LOG("Player chunk pos: %d,%d,%d\n", inlineVec(player_chunk_pos));
         worldLoadChunks(world, &player_chunk_pos);
-        printf(
+        DEBUG_LOG(
             "[WORLD] Head { x: %d, z: %d } Centre { x: %d, z: %d}\n",
             world->head.vx, world->head.vz,
             world->centre.vx, world->centre.vz
         );
         for (int z = 0; z < AXIS_CHUNKS; z++) {
             for (int x = 0; x < AXIS_CHUNKS; x++) {
-                printf("%d ", world->chunks[z][x][0] != NULL);
+                DEBUG_LOG("%d ", world->chunks[z][x][0] != NULL);
             }
-            printf("\n");
+            DEBUG_LOG("\n");
         }
     }
     const int x_start = world->centre.vx - LOADED_CHUNKS_RADIUS;
@@ -456,7 +459,7 @@ bool worldModifyVoxel(const World* world, const VECTOR* position, IBlock* block,
         return false;
     }
     const ChunkBlockPosition chunk_block_position = worldToChunkBlockPosition(position, CHUNK_SIZE);
-    printf(
+    DEBUG_LOG(
         "Chunk: (%d,%d,%d) Block: (%d,%d,%d)\n",
         chunk_block_position.chunk.vx,
         chunk_block_position.chunk.vy,

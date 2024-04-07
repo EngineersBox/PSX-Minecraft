@@ -17,14 +17,14 @@ void StoneBlock_init(VSelf);
 void stoneBlockAccess(VSelf);
 void StoneBlock_access(VSelf);
 
-IItem* stoneBlockDestroy(VSelf);
-IItem* StoneBlock_destroy(VSelf);
+ALLOC_CALL(itemDestroy, 1) IItem* stoneBlockDestroy(VSelf);
+ALLOC_CALL(itemDestroy, 1) IItem* StoneBlock_destroy(VSelf);
 
 void stoneBlockUpdate(VSelf);
 void StoneBlock_update(VSelf);
 
-IItem* stoneBlockProvideItem(VSelf);
-IItem* StoneBlock_provideItem(VSelf);
+ALLOC_CALL(itemDestroy, 1) IItem* stoneBlockProvideItem(VSelf);
+ALLOC_CALL(itemDestroy, 1) IItem* StoneBlock_provideItem(VSelf);
 
 impl(IBlock, StoneBlock);
 

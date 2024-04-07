@@ -11,6 +11,7 @@
 #include "../../render/renderable.h"
 #include "../../math/math_utils.h"
 #include "../../physics/physics_object.h"
+#include "../../util/preprocessor.h"
 
 #define PICKUP_DISTANCE 154
 #define PICKUP_DISTANCE_SQUARED pow2(PICKUP_DISTANCE)
@@ -61,8 +62,8 @@ bool itemUpdate(Item* item, const VECTOR* player_position, const ItemPickupValid
 #define IItem_EXTENDS (Renderable)
 interface(IItem);
 
-IItem* itemCreate();
 void itemDestroy(IItem* item);
+ALLOC_CALL(itemDestroy, 1) IItem* itemCreate();
 
 #define DEFN_ITEM(name, ...) \
     typedef struct { \

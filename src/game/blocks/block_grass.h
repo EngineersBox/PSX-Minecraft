@@ -17,8 +17,8 @@ void GrassBlock_init(VSelf);
 void grassBlockAccess(VSelf);
 void GrassBlock_access(VSelf);
 
-IItem* grassBlockDestroy(VSelf);
-IItem* GrassBlock_destroy(VSelf);
+ALLOC_CALL(itemDestroy, 1) IItem* grassBlockDestroy(VSelf);
+ALLOC_CALL(itemDestroy, 1) IItem* GrassBlock_destroy(VSelf);
 
 void grassBlockUpdate(VSelf);
 void GrassBlock_update(VSelf);
@@ -26,8 +26,8 @@ void GrassBlock_update(VSelf);
 bool grassBlockIsOpaque(VSelf);
 bool GrassBlock_isOpaque(VSelf);
 
-IItem* grassBlockProvideItem(VSelf);
-IItem* GrassBlock_provideItem(VSelf);
+ALLOC_CALL(itemDestroy, 1) IItem* grassBlockProvideItem(VSelf);
+ALLOC_CALL(itemDestroy, 1) IItem* GrassBlock_provideItem(VSelf);
 
 // TODO: REVERT THIS isOpaque IMPLEMENTATION WHEN DONE TESTING GLASS-LIKE TRANSPARENCY IN CHUNK MESH
 #define GrassBlock_isOpaque_CUSTOM ()

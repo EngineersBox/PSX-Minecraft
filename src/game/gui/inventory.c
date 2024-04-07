@@ -10,7 +10,7 @@ const char* INVENTORY_STORE_RESULT_NAMES[] = {
 };
 
 #define createSlot(offset, _index, name) ({ \
-    cvector_push_back(inventory->slots, (Slot) {}); \
+    cvector_push_back(inventory->slots, (Slot){}); \
     Slot* slot = &inventory->slots[offset + _index]; \
     slot->index = offset + _index; \
     slot->data.item = NULL; \
@@ -36,7 +36,7 @@ void initCraftingSlots(Inventory* inventory) {
 
 void initStorageSlots(Inventory* inventory) {
     for (int i = INVENTORY_SLOT_STORAGE_OFFSET; i < INVENTORY_SLOT_HOTBAR_OFFSET; i++) {
-        cvector_push_back(inventory->slots, (Slot) {});
+        cvector_push_back(inventory->slots, (Slot){});
         Slot* slot = &inventory->slots[i];
         slot->data.item = NULL;
         slot->index = i;
@@ -53,7 +53,7 @@ void initStorageSlots(Inventory* inventory) {
 void initHotbarSlots(Inventory* inventory) {
     const Hotbar* hotbar = inventory->hotbar;
     for (int i = INVENTORY_SLOT_HOTBAR_OFFSET; i < INVENTORY_SLOT_COUNT; i++) {
-        cvector_push_back(inventory->slots, (Slot) {});
+        cvector_push_back(inventory->slots, (Slot){});
         Slot* slot = &inventory->slots[i];
         const uint8_t hotbar_index = i - INVENTORY_SLOT_HOTBAR_OFFSET;
         slot->data.ref = &hotbar->slots[hotbar_index];
@@ -105,7 +105,7 @@ void inventoryRenderSlots(const Inventory* inventory, RenderContext* ctx, Transf
             continue;
         }
         Item* item = VCAST_PTR(Item*,slot->data.item);
-        item->position.vx = slot->position.vx,
+        item->position.vx = slot->position.vx;
         item->position.vy = slot->position.vy;
         VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
     }
@@ -116,7 +116,7 @@ void inventoryRenderSlots(const Inventory* inventory, RenderContext* ctx, Transf
         }
         Item* item = VCAST_PTR(Item*, slot->data.ref->data.item);
         VECTOR prev_position = item->position;
-        item->position.vx = slot->position.vx,
+        item->position.vx = slot->position.vx;
         item->position.vy = slot->position.vy;
         VCALL_SUPER(*slot->data.ref->data.item, Renderable, renderInventory, ctx, transforms);
         item->position = prev_position;
@@ -186,7 +186,7 @@ InventoryStoreResult inventoryStoreItem(Inventory* inventory, IItem* iitem) {
     //   a. [1:TRUE] Does the existing have space?
     //     i. [a:TRUE] Add the item quantity to the existing stack (up to max)
     //     ii. [a:TRUE] Is there some items left over?
-    //       1_1. [ii:TRUE] Duplicate this item instance and go to 1
+    //       1_1. [ii:TRUE] Decrement stack size to residual and go to 1
     //       1_2: [ii:FALSE] Done
     //     iii. [a:FALSE] Go to 2
     //   b. [1:FALSE] Go to 2
@@ -194,13 +194,12 @@ InventoryStoreResult inventoryStoreItem(Inventory* inventory, IItem* iitem) {
     //   a. [2:TRUE] Add the item stack into the next free slot
     //   b. [2:FALSE] Add item back into array at the same index (make sure item world position is correct)
     InventoryStoreResult exit_code = INVENTORY_STORE_RESULT_ADDED_ALL;
-    IItem* iitem_to_add = iitem;
     uint8_t from_slot = INVENTORY_SLOT_STORAGE_OFFSET;
     uint8_t next_free = INVENTORY_NO_FREE_SLOT;
     uint8_t persisted_next_free = INVENTORY_NO_FREE_SLOT;
     Slot* slot = NULL;
     while (1) {
-        Item* item = VCAST_PTR(Item*, iitem_to_add);
+        Item* item = VCAST_PTR(Item*, iitem);
         slot = inventorySearchItem(inventory, item->id, from_slot, &next_free);
         if (slot == NULL) {
             break;
@@ -227,7 +226,7 @@ InventoryStoreResult inventoryStoreItem(Inventory* inventory, IItem* iitem) {
         from_slot = slot->index + 1;
         if (persisted_next_free == INVENTORY_NO_FREE_SLOT) {
             // Keep the first free slot we found and don't update
-            // it later since we will have stated searching from
+            // it later since we will have started searching from
             // a different offset and thus will not be the first
             // free slot.
             persisted_next_free = next_free;
@@ -245,8 +244,8 @@ InventoryStoreResult inventoryStoreItem(Inventory* inventory, IItem* iitem) {
             return exit_code;
         }
     }
-    VCALL_SUPER(*iitem_to_add, Renderable, applyInventoryRenderAttributes);
-    inventorySlotSetItem(slot, iitem_to_add);
+    VCALL_SUPER(*iitem, Renderable, applyInventoryRenderAttributes);
+    inventorySlotSetItem(slot, iitem);
     return INVENTORY_STORE_RESULT_ADDED_NEW_SLOT;
 }
 

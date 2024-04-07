@@ -43,8 +43,8 @@ void worldDestroy(World* world);
 
 void worldRender(const World* world, RenderContext* ctx, Transforms* transforms);
 
-Chunk* worldLoadChunk(World* world, VECTOR chunk_position);
 void worldUnloadChunk(const World* world, Chunk* chunk);
+ALLOC_CALL(worldUnloadChunk, 2) Chunk* worldLoadChunk(World* world, VECTOR chunk_position);
 void worldLoadChunksX(World* world, int8_t x_direction, int8_t z_direction);
 void worldLoadChunksZ(World* world, int8_t x_direction, int8_t z_direction);
 void worldLoadChunksXZ(World* world, int8_t x_direction, int8_t z_direction);
