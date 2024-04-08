@@ -8,9 +8,11 @@
 #include "../core/camera.h"
 #include "../game/gui/inventory.h"
 #include "../game/gui/hotbar.h"
+#include "../physics/physics_object.h"
 
 typedef struct {
     ICamera* camera;
+    // PhysicsObject physics_object;
     VECTOR position;
     IUI inventory;
     IUI hotbar;
