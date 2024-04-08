@@ -25,6 +25,8 @@
 * [x] Inheritable Block interface with concrete implementations
 * [x] 2D array indexed terrain texture specification in face attributes
 * [ ] Breaking overlays for a block, enabled with a marker variable and a target resolved by ray cast and a texture reference
+* [ ] D-pad or analogue stick controlled cursor in UIs with item movement between slots being held by cursor
+* [ ] TooManyItems-like overlay in inventory GUI
 
 ## Refactor
 
@@ -37,13 +39,14 @@
 * [x] Block world coords should start at 0 from bottom of chunk and go up positively.
 * [x] Move crosshair render handler to UI directory with dependent structure
 * [x] Move axis render handler to UI directory with dependent structure
-* [ ] Create loading screen structure with update/render methods and move content in world to there
+* [x] Create loading screen structure with update/render methods and move content in world to there
 * [ ] Turn these TODO list sections into tables instead of checkmark lists 
 * [x] Ray cast should check distance walked is less than radius instead of out of world check
 * [ ] Support other resolutions that aren't 320x240
-* [ ] Use geometry matrix to centre loading screen text and loading bar instead of manual positioning
+* [x] Use geometry matrix to centre loading screen text and loading bar instead of manual positioning
 * [x] Refactor `World` and `Chunk` to support interface based blocks with dynamic dispatch handlers
 * [ ] Move static values like block/item names and max stack sizes to global constants accessed by ID
+* [ ] Refactor vector operations to use `_Generic` C11 macro to perform type specific operations between any kind of two vector types or constant
 
 ## Fix
 
