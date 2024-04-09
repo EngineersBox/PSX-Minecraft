@@ -8,3 +8,12 @@ bool aabbIntersect(const AABB* a, const AABB* b) {
         && a->min_z <= b->max_z
         && a->max_z >= b->min_z;
 }
+
+void aabbOffset(AABB* aabb, i32 x, i32 y, i32 z) {
+    aabb->min_x += x;
+    aabb->max_x += x;
+    aabb->min_y += y;
+    aabb->max_y += y;
+    aabb->min_z += z;
+    aabb->max_z += z;
+}
