@@ -7,6 +7,7 @@
 
 #include "position.h"
 #include "chunk/chunk.h"
+#include "generation/chunk_provider.h"
 #include "../render/render_context.h"
 #include "../render/transforms.h"
 #include "../core/camera.h"
@@ -16,8 +17,10 @@
 #define WORLD_CHUNKS_HEIGHT 2
 #define WORLD_HEIGHT (CHUNK_SIZE * WORLD_CHUNKS_HEIGHT)
 
+#ifndef LOADED_CHUNKS_RADIUS
 // Must be positive
-#define LOADED_CHUNKS_RADIUS 1
+#define LOADED_CHUNKS_RADIUS 2
+#endif
 #define SHIFT_ZONE 1
 #define CENTER 1
 #define WORLD_CHUNKS_RADIUS (LOADED_CHUNKS_RADIUS + CENTER)
@@ -33,6 +36,7 @@ typedef struct World {
         uint32_t vx;
         uint32_t vz;
     } head; // Top left, effective (0,0) of 2D array of chunks
+    IChunkProvider chunk_provider;
     // TODO: Refactor chunks array from 3D -> 1D for better locality
     // X, Z, Y
     Chunk* chunks[AXIS_CHUNKS][AXIS_CHUNKS][WORLD_CHUNKS_HEIGHT];

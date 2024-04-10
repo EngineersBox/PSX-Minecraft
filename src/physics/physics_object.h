@@ -23,21 +23,21 @@ typedef struct {
 
 /* Note that the following are booleans an note a single
  * enum field since it is possible to be in a combination
- * of these states at once if the AABB is bigger than a
+ * of these states at once if the AABB is larger than a
  * single block.
  */
 typedef struct {
     bool on_ground: 1;
-    bool in_water: 1;
-    bool in_lava: 1;
-    bool in_web: 1;
+    // bool in_water: 1;
+    // bool in_lava: 1;
+    // bool in_web: 1;
     struct {
         bool horizontally: 1;
         bool vertically: 1;
         bool active: 1;
     } collision;
-    bool no_clip;
-    bool _pad: 24;
+    bool no_clip: 1;
+    u32 _pad: 27;
 } PhysicsObjectFlags;
 
 typedef struct {
@@ -63,11 +63,11 @@ typedef struct {
 void iPhysicsObjectUpdate(VSelf);
 void IPhysicsObject_update(VSelf);
 
-void iPhysicsObjectMove(VSelf, u32 x, u32 y, u32 z);
-void IPhysicsObject_move(VSelf, u32 x, u32 y, u32 z);
-
 void iPhysicsObjectMoveWithHeading(VSelf);
 void IPhysicsObject_moveWithHeading(VSelf);
+
+void iPhysicsObjectMove(VSelf, u32 x, u32 y, u32 z);
+void IPhysicsObject_move(VSelf, u32 x, u32 y, u32 z);
 
 interface(IPhysicsObject);
 

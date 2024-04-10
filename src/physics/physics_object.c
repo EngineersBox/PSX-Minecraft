@@ -2,6 +2,12 @@
 
 #include "../math/math_utils.h"
 
+/* Order:
+ * update(...) { ... moveWithHeading(...) ... }
+ * moveWithHeading(...) { ... move(...) ... }
+ * move(...) { ... }
+ */
+
 void iPhysicsObjectUpdate(VSelf) __attribute__((alias("IPhysicsObject_update")));
 void IPhysicsObject_update(VSelf) {
 
@@ -17,7 +23,7 @@ void IPhysicsObject_move(VSelf, u32 x, u32 y, u32 z) {
         self->position.vz = (self->aabb.min_z + self->aabb.max_z) >> 1;
         return;
     }
-    
+
 }
 
 void iPhysicsObjectMoveWithHeading(VSelf) __attribute__((alias("IPhysicsObject_moveWithHeading")));

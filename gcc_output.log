@@ -1,35 +1,0 @@
-Assets bundled manually, ignoring.
-[0/2] Re-checking globbed directories...[K
-[0/3] Building C object CMakeFiles/PSXMC.dir/src/game/world/chunk/chunk.c.obj[K[1/3] Building C object CMakeFiles/PSXMC.dir/src/game/world/chunk/chunk.c.obj[K[1/3] Linking CXX executable PSXMC.elf[K[2/3] Linking CXX executable PSXMC.elf[K[2/3] Building CD image PSXMC[K[3/3] Building CD image PSXMC[K
-MKPSXISO 2.04 - PlayStation ISO Image Maker
-2017-2022 Meido-Tek Productions (John "Lameguy" Wilbert Villamor/Lameguy64)
-2021-2022 Silent, Chromaryu, G4Vi, and spicyjpeg
-
-Building ISO Image: PSXMC.bin + PSXMC.cue
-Scanning tracks...
-
-  Track #1 data:
-    Identifiers:
-      System       : PLAYSTATION
-      Application  : PLAYSTATION
-      Volume       : PSXMC
-      Volume Set   : PSXMC
-      Publisher    : ENGINEERSBOX
-      Data Preparer: PSN00BSDK 0.24
-      Copyright    : LICENSE
-
-    Parsing directory tree...
-      Files Total: 2
-      Directories: 0
-      Total file system size: 2615424 bytes (1112 sectors)
-
-Writing ISO
-    Writing files...
-      Packing /tmp/PSX-Minecraft/system.cnf... Done.
-      Packing /tmp/PSX-Minecraft/build/PSXMC.exe... Done.
-
-    Writing CDDA tracks...
-
-    Writing directories... Ok.
-ISO image generated successfully.
-Total image size: 2615424 bytes (1112 sectors)
