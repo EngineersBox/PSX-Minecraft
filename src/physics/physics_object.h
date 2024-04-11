@@ -54,7 +54,7 @@ typedef struct {
 
 #define IPhysicsObject_IFACE \
     vfuncDefault(void, update, VSelf, World* world) \
-    vfuncDefault(void, move, VSelf, World* world, u32 x, u32 y, u32 z) \
+    vfuncDefault(void, move, VSelf, World* world, i32 x, i32 y, i32 z) \
     vfuncDefault(void, moveWithHeading, VSelf, World* world)
 
 void iPhysicsObjectUpdate(VSelf, World* world);
@@ -63,8 +63,8 @@ void IPhysicsObject_update(VSelf, World* world);
 void iPhysicsObjectMoveWithHeading(VSelf, World* world);
 void IPhysicsObject_moveWithHeading(VSelf, World* world);
 
-void iPhysicsObjectMove(VSelf, World* world, u32 x, u32 y, u32 z);
-void IPhysicsObject_move(VSelf, World* world, u32 x, u32 y, u32 z);
+void iPhysicsObjectMove(VSelf, World* world, i32 x, i32 y, i32 z);
+void IPhysicsObject_move(VSelf, World* world, i32 x, i32 y, i32 z);
 
 interface(IPhysicsObject);
 

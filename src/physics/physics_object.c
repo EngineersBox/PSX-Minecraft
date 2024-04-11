@@ -18,12 +18,7 @@ void IPhysicsObject_update(VSelf, World* world) {
 void iPhysicsObjectMoveWithHeading(VSelf, World* world) __attribute__((alias("IPhysicsObject_moveWithHeading")));
 void IPhysicsObject_moveWithHeading(VSelf, World* world) {
     VSELF(PhysicsObject);
-    u32 scaling = 3727; // ONE * 0.91
     iPhysicsObjectMove(self, world, self->motion.vx, self->motion.vy, self->motion.vz);
-    self->motion.vy -= 327; // ONE * 0.08
-    self->motion.vy *= 4014; // ONE * 0.98
-    self->motion.vx *= scaling;
-    self->motion.vz *= scaling;
 }
 
 #define ONE_BLOCK (BLOCK_SIZE << FIXED_POINT_SHIFT)
@@ -154,8 +149,8 @@ bool collideWithWorld(PhysicsObject* physics_object, World* world, i32 motion_x,
     return collision_detected;
 }
 
-void iPhysicsObjectMove(VSelf, World* world, u32 x, u32 y, u32 z) __attribute__((alias("IPhysicsObject_move")));
-void IPhysicsObject_move(VSelf, World* world, u32 x, u32 y, u32 z) {
+void iPhysicsObjectMove(VSelf, World* world, i32 x, i32 y, i32 z) __attribute__((alias("IPhysicsObject_move")));
+void IPhysicsObject_move(VSelf, World* world, i32 x, i32 y, i32 z) {
     VSELF(PhysicsObject);
     if (self->flags.no_clip) {
         aabbOffset(&self->aabb, x, y, z);
