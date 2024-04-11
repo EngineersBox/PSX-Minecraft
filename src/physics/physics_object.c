@@ -131,6 +131,26 @@ bool collideWithWorld(PhysicsObject* physics_object, World* world, i32 motion_x,
         }
     }
     aabbOffset(aabb, new_position.vx, new_position.vy, new_position.vz);
+    physics_object->position = vector_add(
+        physics_object->position,
+        new_position
+    );
+//     if (physics_object->flags.on_ground) {
+//         const VECTOR below_position = (VECTOR) {
+//             .vx = physics_object->position.vx / ONE_BLOCK,
+//             .vy = (physics_object->position.vy - ONE) / ONE_BLOCK,
+//             .vz = physics_object->position.vz / ONE_BLOCK
+//         };
+//         const IBlock* iblock = worldGetBlock(world, &below_position);
+//         if (iblock == NULL) {
+//             goto return_collision_state;
+//         }
+//         const Block* block = VCAST_PTR(Block*, iblock);
+//         if (block->type != BLOCKTYPE_EMPTY) {
+//             physics_object->flags.on_ground = true;
+//         }
+//     }
+// return_collision_state:
     return collision_detected;
 }
 
