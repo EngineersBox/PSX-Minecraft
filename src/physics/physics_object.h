@@ -11,6 +11,7 @@
 #include "aabb.h"
 #include "../util/inttypes.h"
 #include "../util/preprocessor.h"
+#include "../game/world/world.h"
 
 typedef struct {
     // Fixed point block size (ONE * BLOCK_SIZE == single block)
@@ -42,32 +43,28 @@ typedef struct {
 
 typedef struct {
     VECTOR position;
-    VECTOR prev_position;
     VECTOR motion;
     VECTOR velocity;
     u32 y_size;
     u32 y_offset;
-    u32 width;
-    u32 height;
-    u32 fall_distance;
     AABB aabb;
     PhysicsObjectConfig* config;
     PhysicsObjectFlags flags;
 } PhysicsObject;
 
 #define IPhysicsObject_IFACE \
-    vfuncDefault(void, update, VSelf) \
-    vfuncDefault(void, move, VSelf, u32 x, u32 y, u32 z) \
-    vfuncDefault(void, moveWithHeading, VSelf)
+    vfuncDefault(void, update, VSelf, World* world) \
+    vfuncDefault(void, move, VSelf, World* world, u32 x, u32 y, u32 z) \
+    vfuncDefault(void, moveWithHeading, VSelf, World* world)
 
-void iPhysicsObjectUpdate(VSelf);
-void IPhysicsObject_update(VSelf);
+void iPhysicsObjectUpdate(VSelf, World* world);
+void IPhysicsObject_update(VSelf, World* world);
 
-void iPhysicsObjectMoveWithHeading(VSelf);
-void IPhysicsObject_moveWithHeading(VSelf);
+void iPhysicsObjectMoveWithHeading(VSelf, World* world);
+void IPhysicsObject_moveWithHeading(VSelf, World* world);
 
-void iPhysicsObjectMove(VSelf, u32 x, u32 y, u32 z);
-void IPhysicsObject_move(VSelf, u32 x, u32 y, u32 z);
+void iPhysicsObjectMove(VSelf, World* world, u32 x, u32 y, u32 z);
+void IPhysicsObject_move(VSelf, World* world, u32 x, u32 y, u32 z);
 
 interface(IPhysicsObject);
 
