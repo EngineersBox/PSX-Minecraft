@@ -58,23 +58,29 @@ bool playerInputHandler(const Input* input, void* ctx) {
         return false;
     }
     const PADTYPE* pad = input->pad;
-    i16 move_amount = ONE_BLOCK;
+    i32 move_amount = ONE_BLOCK;
     if (isPressed(pad, binding_jump)) {
         player->physics_object.flags.jumping = true;
+        printf("[PLAYER] Set jump = true\n");
     }
     if (isPressed(pad, binding_sneak)) {
         move_amount = 86016; // ONE_BLOCK * 0.3 = 86016
         player->physics_object.flags.sneaking = true;
+        printf("[PLAYER] Set sneaking = true\n");
     }
     if (isPressed(pad, binding_move_forward)) {
         player->physics_object.move_forward += move_amount;
+        printf("[PLAYER] Move forward\n");
     } else if (isPressed(pad, binding_move_backward)) {
         player->physics_object.move_forward -= move_amount;
+        printf("[PLAYER] Move backward]\n");
     }
     if (isPressed(pad, binding_move_left)) {
         player->physics_object.move_strafe -= move_amount;
+        printf("[PLAYER] Move left\n");
     } else if (isPressed(pad, binding_move_right)) {
         player->physics_object.move_strafe += move_amount;
+        printf("[PLAYER] Move right\n");
     }
     return false;
 }

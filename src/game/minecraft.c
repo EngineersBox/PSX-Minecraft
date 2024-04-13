@@ -110,8 +110,7 @@ void Minecraft_init(VSelf, void* ctx) {
     player = (Player*) malloc(sizeof(Player));
     playerInit(player);
     player->camera = &self->internals.camera;
-    player->position = camera.position;
-    player->position.vy += ONE_BLOCK * 5;
+    player->physics_object.position.vy += ONE_BLOCK * 10;
     player_handler = DYN(Player, IInputHandler, player);
     VCALL(player_handler, registerInputHandler, &self->internals.input);
     // Register handlers
@@ -164,6 +163,9 @@ void Minecraft_input(VSelf, const Stats* stats) {
     }
 }
 
+// ONE_BLOCK * 1.7
+#define CAMERA_OFFSET 487424
+
 void minecraftUpdate(VSelf, const Stats* stats) __attribute__((alias("Minecraft_update")));
 void Minecraft_update(VSelf, const Stats* stats) {
     VSELF(Minecraft);
@@ -171,7 +173,7 @@ void Minecraft_update(VSelf, const Stats* stats) {
     iPhysicsObjectUpdate(&player->physics_object, world);
     Camera* camera = VCAST(Camera*, self->internals.camera);
     camera->position.vx = player->physics_object.position.vx;
-    camera->position.vy = -player->physics_object.position.vy - ONE_BLOCK;
+    camera->position.vy = -player->physics_object.position.vy - CAMERA_OFFSET;
     camera->position.vz = player->physics_object.position.vz;
 }
 
