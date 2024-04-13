@@ -156,7 +156,7 @@ void Minecraft_input(VSelf, const Stats* stats) {
     camera->mode = 0;
     player->position = camera->position;
     // Player is 2 blocks high, with position caluclated at the feet
-    player->position.vy += BLOCK_SIZE << FIXED_POINT_SHIFT;
+    player->position.vy += ONE_BLOCK;
     Input* input = &self->internals.input;
     inputUpdate(input);
     if (isPressed(input->pad, PAD_START)) {

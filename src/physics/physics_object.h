@@ -20,6 +20,8 @@ typedef struct {
     u32 gravity;
     // Fixed point block size (ONE * BLOCK_SIZE == single block)
     u32 step_height;
+    i16 height;
+    i16 radius;
 } PhysicsObjectConfig;
 
 /* Note that the following are booleans an note a single
@@ -29,32 +31,30 @@ typedef struct {
  */
 typedef struct {
     bool on_ground: 1;
-    // bool in_water: 1;
-    // bool in_lava: 1;
-    // bool in_web: 1;
-    struct {
-        bool horizontally: 1;
-        bool vertically: 1;
-        bool active: 1;
-    } collision;
+    bool in_water: 1;
+    bool in_lava: 1;
+    bool in_web: 1;
+    bool collided_horizontal: 1;
+    bool collided_vertical: 1;
+    bool collided: 1;
+    bool jumping: 1;
     bool no_clip: 1;
-    u32 _pad: 27;
+    u32 _pad: 23;
 } PhysicsObjectFlags;
 
 typedef struct {
     VECTOR position;
     VECTOR motion;
     VECTOR velocity;
-    u32 y_size;
-    u32 y_offset;
-    AABB aabb;
+    // AABB aabb;
     PhysicsObjectConfig* config;
     PhysicsObjectFlags flags;
 } PhysicsObject;
 
 #define IPhysicsObject_IFACE \
+    vfuncDefault(void, setPosition, VSelf, i32 x, i32 y, i32 z) \
     vfuncDefault(void, update, VSelf, World* world) \
-    vfuncDefault(void, move, VSelf, World* world, i32 x, i32 y, i32 z) \
+    vfuncDefault(void, move, VSelf, World* world, i32 motion_x, i32 motion_y, i32 motion_z) \
     vfuncDefault(void, moveWithHeading, VSelf, World* world)
 
 void iPhysicsObjectUpdate(VSelf, World* world);
@@ -63,8 +63,8 @@ void IPhysicsObject_update(VSelf, World* world);
 void iPhysicsObjectMoveWithHeading(VSelf, World* world);
 void IPhysicsObject_moveWithHeading(VSelf, World* world);
 
-void iPhysicsObjectMove(VSelf, World* world, i32 x, i32 y, i32 z);
-void IPhysicsObject_move(VSelf, World* world, i32 x, i32 y, i32 z);
+void iPhysicsObjectMove(VSelf, World* world, i32 motion_x, i32 motion_y, i32 motion_z);
+void IPhysicsObject_move(VSelf, World* world, i32 motion_x, i32 motion_y, i32 motion_z);
 
 interface(IPhysicsObject);
 

@@ -17,6 +17,7 @@
 #define BLOCK_SIZE 70
 #define BLOCK_FACES 6
 #define BLOCK_TEXTURE_SIZE 16
+#define ONE_BLOCK (BLOCK_SIZE << FIXED_POINT_SHIFT)
 
 typedef uint8_t BlockID;
 

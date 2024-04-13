@@ -12,7 +12,7 @@
 
 typedef struct {
     ICamera* camera;
-    // PhysicsObject physics_object;
+    PhysicsObject physics_object;
     VECTOR position;
     IUI inventory;
     IUI hotbar;

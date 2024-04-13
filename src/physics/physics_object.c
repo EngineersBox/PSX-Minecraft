@@ -12,19 +12,37 @@
 
 void iPhysicsObjectUpdate(VSelf, World* world) __attribute__((alias("IPhysicsObject_update")));
 void IPhysicsObject_update(VSelf, World* world) {
-
+    VSELF(PhysicsObject);
+    const PhysicsObjectFlags* flags = &self->flags;
+    if(flags->jumping) {
+        if(flags->in_water || flags->in_lava) {
+            self->motion.vy += 163; // ONE_BLOCK * 0.04 = 163
+        } else if(flags->on_ground) {
+            self->motion.vy += self->config->jump_height;
+        }
+    }
+    iPhysicsObjectMoveWithHeading(self, world);
 }
 
 void iPhysicsObjectMoveWithHeading(VSelf, World* world) __attribute__((alias("IPhysicsObject_moveWithHeading")));
 void IPhysicsObject_moveWithHeading(VSelf, World* world) {
     VSELF(PhysicsObject);
+    i32 horizontal_shift = 260915; // ONE_BLOCK * 0.91 = 260915
     iPhysicsObjectMove(self, world, self->motion.vx, self->motion.vy, self->motion.vz);
+    self->motion.vy -= 22937; // ONE_BLOCK * 0.08 = 22937
+    self->motion.vy = fixedMulFrac(self->motion.vy, 4014); // ONE * 0.98 = 4014
+    self->motion.vx = fixedMulFrac(self->motion.vx, horizontal_shift);
+    self->motion.vz = fixedMulFrac(self->motion.vx, horizontal_shift);
 }
 
-#define ONE_BLOCK (BLOCK_SIZE << FIXED_POINT_SHIFT)
-
 bool collideWithWorld(PhysicsObject* physics_object, World* world, i32 motion_x, i32 motion_y, i32 motion_z) {
-    AABB* aabb = &physics_object->aabb;
+    const PhysicsObjectConfig* config = physics_object->config;
+    const i32 min_x = physics_object->position.vx - config->radius;
+    const i32 min_y = physics_object->position.vy;
+    const i32 min_z = physics_object->position.vz - config->radius;
+    const i32 max_x = physics_object->position.vx + config->radius;
+    const i32 max_y = physics_object->position.vy + config->height;
+    const i32 max_z = physics_object->position.vz + config->radius;
     // https://github.com/camthesaxman/cubecraft/blob/1dd4f9f25069bfaba0ac659c845c5eccbea4c08a/source/field.c#L318
     bool test_x = false;
     bool test_y = false;
@@ -33,13 +51,13 @@ bool collideWithWorld(PhysicsObject* physics_object, World* world, i32 motion_x,
     i32 y = 0;
     i32 z = 0;
     bool collision_detected = false;
-#define applyMotion(v) \
-    if (motion_##v < 0) { \
-        v = aabb->min_##v + motion_##v; \
-        test_##v = true; \
-    } else if (motion_##v > 0) { \
-        v = aabb->max_##v + motion_##v; \
-        test_##v = true; \
+#define applyMotion(_v) \
+    if (motion_##_v < 0) { \
+        _v = min_##_v + motion_##_v; \
+        test_##_v = true; \
+    } else if (motion_##_v > 0) { \
+        _v = max_##_v + motion_##_v; \
+        test_##_v = true; \
     }
     applyMotion(x);
     applyMotion(y);
@@ -47,8 +65,8 @@ bool collideWithWorld(PhysicsObject* physics_object, World* world, i32 motion_x,
     VECTOR new_position = {};
     if (test_x) {
         bool x_collision = false;
-        for (i32 aabb_y = aabb->min_y; aabb_y <= aabb->max_y && !x_collision; aabb_y += ONE) {
-            for (i32 aabb_z = aabb->min_z; aabb_z <= aabb->max_z && !x_collision; aabb_z += ONE) {
+        for (i32 aabb_y = min_y; aabb_y <= max_y && !x_collision; aabb_y += ONE) {
+            for (i32 aabb_z = min_z; aabb_z <= max_z && !x_collision; aabb_z += ONE) {
                 const VECTOR position = (VECTOR) {
                     .vx = x / ONE_BLOCK,
                     .vy = aabb_y / ONE_BLOCK,
@@ -65,6 +83,7 @@ bool collideWithWorld(PhysicsObject* physics_object, World* world, i32 motion_x,
             }
         }
         if (x_collision) {
+            physics_object->flags.collided_horizontal = true;
             collision_detected = true;
         } else {
             new_position.vx = motion_x;
@@ -72,8 +91,8 @@ bool collideWithWorld(PhysicsObject* physics_object, World* world, i32 motion_x,
     }
     if (test_z) {
         bool z_collision = false;
-        for (i32 aabb_y = aabb->min_y; aabb_y <= aabb->max_y && !z_collision; aabb_y += ONE) {
-            for (i32 aabb_x = aabb->min_x; aabb_x <= aabb->max_x && !z_collision; aabb_x += ONE) {
+        for (i32 aabb_y = min_y; aabb_y <= max_y && !z_collision; aabb_y += ONE) {
+            for (i32 aabb_x = min_x; aabb_x <= max_x && !z_collision; aabb_x += ONE) {
                 const VECTOR position = (VECTOR) {
                     .vx = aabb_x / ONE_BLOCK,
                     .vy = aabb_y / ONE_BLOCK,
@@ -90,6 +109,7 @@ bool collideWithWorld(PhysicsObject* physics_object, World* world, i32 motion_x,
             }
         }
         if (z_collision) {
+            physics_object->flags.collided_horizontal = true;
             collision_detected = true;
         } else {
             new_position.vz = motion_z;
@@ -97,8 +117,8 @@ bool collideWithWorld(PhysicsObject* physics_object, World* world, i32 motion_x,
     }
     if (test_y) {
         bool y_collision = false;
-        for (i32 aabb_x = aabb->min_x; aabb_x <= aabb->max_x && !y_collision; aabb_x += ONE) {
-            for (i32 aabb_z = aabb->min_z; aabb_z <= aabb->max_z && !y_collision; aabb_z += ONE) {
+        for (i32 aabb_x = min_x; aabb_x <= max_x && !y_collision; aabb_x += ONE) {
+            for (i32 aabb_z = min_z; aabb_z <= max_z && !y_collision; aabb_z += ONE) {
                 const VECTOR position = (VECTOR) {
                     .vx = aabb_x / ONE_BLOCK,
                     .vy = y / ONE_BLOCK,
@@ -125,7 +145,6 @@ bool collideWithWorld(PhysicsObject* physics_object, World* world, i32 motion_x,
             new_position.vy = motion_y;
         }
     }
-    aabbOffset(aabb, new_position.vx, new_position.vy, new_position.vz);
     physics_object->position = vector_add(
         physics_object->position,
         new_position
@@ -145,25 +164,24 @@ bool collideWithWorld(PhysicsObject* physics_object, World* world, i32 motion_x,
 //             physics_object->flags.on_ground = true;
 //         }
 //     }
-// return_collision_state:
     return collision_detected;
 }
 
-void iPhysicsObjectMove(VSelf, World* world, i32 x, i32 y, i32 z) __attribute__((alias("IPhysicsObject_move")));
-void IPhysicsObject_move(VSelf, World* world, i32 x, i32 y, i32 z) {
+void iPhysicsObjectMove(VSelf, World* world, const i32 motion_x, const i32 motion_y, const i32 motion_z) __attribute__((alias("IPhysicsObject_move")));
+void IPhysicsObject_move(VSelf, World* world, const i32 motion_x, const i32 motion_y, const i32 motion_z) {
     VSELF(PhysicsObject);
     if (self->flags.no_clip) {
-        aabbOffset(&self->aabb, x, y, z);
-        self->position.vx = (self->aabb.min_x + self->aabb.max_x) >> 1;
-        self->position.vy = self->aabb.min_y + self->y_offset - self->y_size;
-        self->position.vz = (self->aabb.min_z + self->aabb.max_z) >> 1;
+        // aabbOffset(&self->aabb, motion_x, motion_y, motion_z);
+        self->position.vx += motion_x;
+        self->position.vy += motion_y;
+        self->position.vz += motion_z;
         return;
     }
     collideWithWorld(
         self,
         world,
-        self->motion.vx,
-        self->motion.vy,
-        self->motion.vz
+        motion_x,
+        motion_y,
+        motion_z
     );
 }

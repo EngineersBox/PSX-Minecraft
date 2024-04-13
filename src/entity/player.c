@@ -26,3 +26,8 @@ void playerRender(const Player* player, RenderContext* ctx, Transforms* transfor
     inventoryRenderSlots(inventory, ctx, transforms);
     uiRender(&inventory->ui, ctx, transforms);
 }
+
+void playerUpdate(Player* player) {
+    const Camera* camera = VCAST_PTR(Camera*, player->camera);
+
+}
