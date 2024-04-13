@@ -32,17 +32,17 @@ void IPhysicsObject_update(VSelf, World* world) {
 void iPhysicsObjectMoveWithHeading(VSelf, World* world) __attribute__((alias("IPhysicsObject_moveWithHeading")));
 void IPhysicsObject_moveWithHeading(VSelf, World* world) {
     VSELF(PhysicsObject);
-    i32 horizontal_shift = 3727; // ONE * 0.91 = 3727
+    i32 horizontal_acceleration = 3727; // ONE * 0.91 = 3727
 
-    iPhysicsObjectMoveFlying(self, horizontal_shift);
+    iPhysicsObjectMoveFlying(self, horizontal_acceleration);
 
     iPhysicsObjectMove(self, world, self->motion.vx, self->motion.vy, self->motion.vz);
     if (!self->flags.on_ground) {
-        self->motion.vy -= 22937; // ONE_BLOCK * 0.08 = 22937
+        self->motion.vy -= self->config->gravity;
         self->motion.vy = fixedMulFrac(self->motion.vy, 4014); // ONE * 0.98 = 4014
     }
-    self->motion.vx = fixedMulFrac(self->motion.vx, horizontal_shift);
-    self->motion.vz = fixedMulFrac(self->motion.vz, horizontal_shift);
+    self->motion.vx = fixedMulFrac(self->motion.vx, horizontal_acceleration);
+    self->motion.vz = fixedMulFrac(self->motion.vz, horizontal_acceleration);
 }
 
 bool collideWithWorld(PhysicsObject* physics_object, World* world, i32 motion_x, i32 motion_y, i32 motion_z) {
@@ -202,15 +202,11 @@ void IPhysicsObject_moveFlying(VSelf, i32 horizontal_shift) {
     } else if (dist < ONE) {
         dist = ONE;
     }
-    printf("[PHYSICS] Dist before: %d\n", dist);
     dist = (horizontal_shift << 12) / dist;
-    printf("[PHYSICS] Dist after: %d, move: (%d,%d)\n", dist, self->move_strafe, self->move_forward);
     self->move_strafe = fixedMulFrac(self->move_strafe, dist);
     self->move_forward = fixedMulFrac(self->move_forward, dist);
     const i32 sin_yaw = isin(self->rotation.yaw);
     const i32 cos_yaw = icos(self->rotation.yaw);
-    printf("[PHYSICS] yaw: (%d,%d), move: (%d,%d)\n", sin_yaw, cos_yaw, self->move_forward, self->move_strafe);
     self->motion.vx += fixedMulFrac(self->move_strafe, cos_yaw) - fixedMulFrac(self->move_forward, sin_yaw);
     self->motion.vz += fixedMulFrac(self->move_forward, cos_yaw) + fixedMulFrac(self->move_strafe, sin_yaw);
-    printf("[PHYSICS] Motion: (%d,%d)\n", self->motion.vx, self->motion.vz);
 }

@@ -9,7 +9,7 @@ const PhysicsObjectConfig player_physics_object_config = (PhysicsObjectConfig) {
     .radius = 86016, // Width: 0.6 => Radius: ONE_BLOCK * 0.3 = 86016
     .height = 516096, // ONE_BLOCK * 1.8 = 516096
     .step_height = 0, // TODO
-    .gravity = 0 // TODO
+    .gravity = 22937 // ONE_BLOCK * 0.08 = 22937
 };
 
 void playerInit(Player* player) {
