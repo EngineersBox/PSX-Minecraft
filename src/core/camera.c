@@ -17,59 +17,49 @@ void handleDigitalPadAndDualAnalogShock(Camera* camera, const Input* input, cons
     // so 0 means pressed in this case
 
     // Look controls
-    if (isPressed(input->pad, PAD_UP)) {
+    if (isPressed(input->pad, binding_look_up)) {
         // Look up
         camera->rotation.vx = positiveModulo(camera->rotation.vx - (ONE * CAMERA_ROTATE_SPEED), ONE << FIXED_POINT_SHIFT);
-    } else if (isPressed(input->pad, PAD_DOWN)) {
+    } else if (isPressed(input->pad, binding_look_down)) {
         // Look down
         camera->rotation.vx = positiveModulo(camera->rotation.vx + (ONE * CAMERA_ROTATE_SPEED), ONE << FIXED_POINT_SHIFT);
     }
-    if (isPressed(input->pad, PAD_LEFT)) {
+    if (isPressed(input->pad, binding_look_left)) {
         // Look left
         camera->rotation.vy = positiveModulo(camera->rotation.vy + (ONE * CAMERA_ROTATE_SPEED), ONE << FIXED_POINT_SHIFT);
-    } else if (isPressed(input->pad, PAD_RIGHT)) {
+    } else if (isPressed(input->pad, binding_look_right)) {
         // Look right
         camera->rotation.vy = positiveModulo(camera->rotation.vy - (ONE * CAMERA_ROTATE_SPEED), ONE << FIXED_POINT_SHIFT);
     }
     // Movement controls
-    if (isPressed(input->pad, PAD_TRIANGLE)) {
+    if (isPressed(input->pad, binding_move_forward)) {
         // Move forward
         camera->position.vx -= ((isin(transforms->translation_rotation.vy)
                                  * icos(transforms->translation_rotation.vx)) >> FIXED_POINT_SHIFT) << CAMERA_MOVE_SPEED;
-        camera->position.vy += isin(transforms->translation_rotation.vx) << CAMERA_MOVE_SPEED;
         camera->position.vz += ((icos(transforms->translation_rotation.vy)
                                  * icos(transforms->translation_rotation.vx)) >> FIXED_POINT_SHIFT) << CAMERA_MOVE_SPEED;
-    } else if (isPressed(input->pad, PAD_CROSS)) {
+    } else if (isPressed(input->pad, binding_move_backward)) {
         // Move backward
         camera->position.vx += ((isin(transforms->translation_rotation.vy)
                                  * icos(transforms->translation_rotation.vx)) >> FIXED_POINT_SHIFT) << CAMERA_MOVE_SPEED;
-        camera->position.vy -= isin(transforms->translation_rotation.vx) << CAMERA_MOVE_SPEED;
         camera->position.vz -= ((icos(transforms->translation_rotation.vy)
                                  * icos(transforms->translation_rotation.vx)) >> FIXED_POINT_SHIFT) << CAMERA_MOVE_SPEED;
     }
-    if (isPressed(input->pad, PAD_SQUARE)) {
+    if (isPressed(input->pad, binding_move_left)) {
         // Slide left
         camera->position.vx -= icos(transforms->translation_rotation.vy) << CAMERA_MOVE_SPEED;
         camera->position.vz -= isin(transforms->translation_rotation.vy) << CAMERA_MOVE_SPEED;
-    } else if (isPressed(input->pad, PAD_CIRCLE)) {
+    } else if (isPressed(input->pad, binding_move_right)) {
         // Slide right
         camera->position.vx += icos(transforms->translation_rotation.vy) << CAMERA_MOVE_SPEED;
         camera->position.vz += isin(transforms->translation_rotation.vy) << CAMERA_MOVE_SPEED;
     }
-    if (isPressed(input->pad, PAD_R1)) {
+    if (isPressed(input->pad, binding_jump)) {
         // Slide up
-        camera->position.vx -= ((isin(transforms->translation_rotation.vy)
-                                 * isin(transforms->translation_rotation.vx)) >> FIXED_POINT_SHIFT) << CAMERA_MOVE_SPEED;
         camera->position.vy -= icos(transforms->translation_rotation.vx) << CAMERA_MOVE_SPEED;
-        camera->position.vz += ((icos(transforms->translation_rotation.vy)
-                                 * isin(transforms->translation_rotation.vx)) >> FIXED_POINT_SHIFT) << CAMERA_MOVE_SPEED;
-    } else if (isPressed(input->pad, PAD_R2)) {
+    } else if (isPressed(input->pad, binding_sneak)) {
         // Slide down
-        camera->position.vx += ((isin(transforms->translation_rotation.vy)
-                                 * isin(transforms->translation_rotation.vx)) >> FIXED_POINT_SHIFT) << CAMERA_MOVE_SPEED;
         camera->position.vy += icos(transforms->translation_rotation.vx) << CAMERA_MOVE_SPEED;
-        camera->position.vz -= ((icos(transforms->translation_rotation.vy)
-                                 * isin(transforms->translation_rotation.vx)) >> FIXED_POINT_SHIFT) << CAMERA_MOVE_SPEED;
     }
     if (isPressed(input->pad, PAD_SELECT)) {
         _boot();

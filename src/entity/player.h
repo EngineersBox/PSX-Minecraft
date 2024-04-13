@@ -9,6 +9,7 @@
 #include "../game/gui/inventory.h"
 #include "../game/gui/hotbar.h"
 #include "../physics/physics_object.h"
+#include "../core/input/input.h"
 
 typedef struct {
     ICamera* camera;
@@ -23,5 +24,10 @@ void playerDestroy(const Player* player);
 
 void playerUpdate(Player* player);
 void playerRender(const Player* player, RenderContext* ctx, Transforms* transforms);
+
+void playerRegisterInputHandler(VSelf, Input* input);
+void Player_registerInputHandler(VSelf, Input* input);
+
+impl(IInputHandler, Player);
 
 #endif // PSX_MINECRAFT_PLAYER_H

@@ -45,6 +45,7 @@ SVECTOR direction_pos = {0};
 
 World* world;
 Camera camera;
+IInputHandler player_handler;
 Player* player;
 
 void minecraftInit(VSelf, void* ctx) __attribute__((alias("Minecraft_init")));
@@ -111,6 +112,8 @@ void Minecraft_init(VSelf, void* ctx) {
     player->camera = &self->internals.camera;
     player->position = camera.position;
     player->position.vy += BLOCK_SIZE << FIXED_POINT_SHIFT;
+    player_handler = DYN_LIT(Player, IInputHandler, *player);
+    VCALL(player_handler, registerInputHandler, &self->internals.input);
     // Register handlers
     VCALL(*player->camera, registerInputHandler, &self->internals.input);
     VCALL_SUPER(player->inventory, IInputHandler, registerInputHandler, &self->internals.input);
@@ -154,9 +157,6 @@ void Minecraft_input(VSelf, const Stats* stats) {
     VSELF(Minecraft);
     Camera* camera = VCAST(Camera*, self->internals.camera);
     camera->mode = 0;
-    player->position = camera->position;
-    // Player is 2 blocks high, with position caluclated at the feet
-    player->position.vy += ONE_BLOCK;
     Input* input = &self->internals.input;
     inputUpdate(input);
     if (isPressed(input->pad, PAD_START)) {

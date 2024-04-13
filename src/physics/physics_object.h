@@ -38,15 +38,17 @@ typedef struct {
     bool collided_vertical: 1;
     bool collided: 1;
     bool jumping: 1;
+    bool sneaking: 1;
     bool no_clip: 1;
-    u32 _pad: 23;
+    u32 _pad: 22;
 } PhysicsObjectFlags;
 
 typedef struct {
     VECTOR position;
     VECTOR motion;
     VECTOR velocity;
-    // AABB aabb;
+    i16 move_forward;
+    i16 move_strafe;
     PhysicsObjectConfig* config;
     PhysicsObjectFlags flags;
 } PhysicsObject;

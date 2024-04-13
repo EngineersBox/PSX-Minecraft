@@ -6,6 +6,7 @@
 #include <psxgte.h>
 
 #include "input/input.h"
+#include "input/bindings.h"
 #include "../render/transforms.h"
 
 #define CAMERA_ROTATE_SPEED 15
