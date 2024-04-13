@@ -111,8 +111,8 @@ void Minecraft_init(VSelf, void* ctx) {
     playerInit(player);
     player->camera = &self->internals.camera;
     player->position = camera.position;
-    player->position.vy += BLOCK_SIZE << FIXED_POINT_SHIFT;
-    player_handler = DYN_LIT(Player, IInputHandler, *player);
+    player->position.vy += ONE_BLOCK * 5;
+    player_handler = DYN(Player, IInputHandler, player);
     VCALL(player_handler, registerInputHandler, &self->internals.input);
     // Register handlers
     VCALL(*player->camera, registerInputHandler, &self->internals.input);
@@ -168,6 +168,11 @@ void minecraftUpdate(VSelf, const Stats* stats) __attribute__((alias("Minecraft_
 void Minecraft_update(VSelf, const Stats* stats) {
     VSELF(Minecraft);
     worldUpdate(self->world, player);
+    iPhysicsObjectUpdate(&player->physics_object, world);
+    Camera* camera = VCAST(Camera*, self->internals.camera);
+    camera->position.vx = player->physics_object.position.vx;
+    camera->position.vy = -player->physics_object.position.vy - ONE_BLOCK;
+    camera->position.vz = player->physics_object.position.vz;
 }
 
 void startHandler(Camera* camera) {

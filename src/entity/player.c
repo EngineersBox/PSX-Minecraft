@@ -1,6 +1,16 @@
 #include "player.h"
 
+#include <block.h>
+
 #include "../util/interface99_extensions.h"
+
+const PhysicsObjectConfig player_physics_object_config = (PhysicsObjectConfig) {
+    .jump_height = 120422, // ONE_BLOCK * 0.42 = 120422
+    .radius = 86016, // Width: 0.6 => Radius: ONE_BLOCK * 0.3 = 86016
+    .height = 516096, // ONE_BLOCK * 1.8 = 516096
+    .step_height = 0, // TODO
+    .gravity = 0 // TODO
+};
 
 void playerInit(Player* player) {
     Inventory* inventory = (Inventory*) malloc(sizeof(Inventory));
@@ -9,6 +19,19 @@ void playerInit(Player* player) {
     inventoryInit(inventory, hotbar);
     DYN_PTR(&player->hotbar, Hotbar, IUI, hotbar);
     DYN_PTR(&player->inventory, Inventory, IUI, inventory);
+    player->physics_object = (PhysicsObject) {
+        .position = (VECTOR) {0},
+        .rotation = {
+            .pitch = 0,
+            .yaw = 0
+        },
+        .motion = (VECTOR) {0},
+        .velocity = (VECTOR) {0},
+        .move_forward = 0,
+        .move_strafe = 0,
+        .flags = {0},
+        .config = &player_physics_object_config
+    };
 }
 
 void playerDestroy(const Player* player) {
@@ -27,11 +50,6 @@ void playerRender(const Player* player, RenderContext* ctx, Transforms* transfor
     uiRender(&inventory->ui, ctx, transforms);
 }
 
-void playerUpdate(Player* player) {
-    const Camera* camera = VCAST_PTR(Camera*, player->camera);
-
-}
-
 bool playerInputHandler(const Input* input, void* ctx) {
     Player* player = (Player*) ctx;
     player->physics_object.move_forward = 0;
@@ -40,12 +58,12 @@ bool playerInputHandler(const Input* input, void* ctx) {
         return false;
     }
     const PADTYPE* pad = input->pad;
-    i16 move_amount = ONE;
+    i16 move_amount = ONE_BLOCK;
     if (isPressed(pad, binding_jump)) {
         player->physics_object.flags.jumping = true;
     }
     if (isPressed(pad, binding_sneak)) {
-        move_amount = 1228;
+        move_amount = 86016; // ONE_BLOCK * 0.3 = 86016
         player->physics_object.flags.sneaking = true;
     }
     if (isPressed(pad, binding_move_forward)) {

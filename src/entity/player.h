@@ -11,6 +11,8 @@
 #include "../physics/physics_object.h"
 #include "../core/input/input.h"
 
+extern const PhysicsObjectConfig player_physics_object_config;
+
 typedef struct {
     ICamera* camera;
     PhysicsObject physics_object;
@@ -22,7 +24,6 @@ typedef struct {
 void playerInit(Player* player);
 void playerDestroy(const Player* player);
 
-void playerUpdate(Player* player);
 void playerRender(const Player* player, RenderContext* ctx, Transforms* transforms);
 
 void playerRegisterInputHandler(VSelf, Input* input);

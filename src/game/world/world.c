@@ -411,11 +411,11 @@ IBlock* worldGetChunkBlock(const World* world, const ChunkBlockPosition* positio
     // World is void below 0 on y-axis and nothing above height limit
     if ((position->chunk.vy <= 0 && position->block.vy < 0)
         || position->chunk.vy >= WORLD_CHUNKS_HEIGHT) {
-        printf(
-            "[ERROR] Invalid Y [Chunk: %d] [Block: %d]\n",
-            position->chunk.vy,
-            position->block.vy
-        );
+        // printf(
+        //     "[ERROR] Invalid Y [Chunk: %d] [Block: %d]\n",
+        //     position->chunk.vy,
+        //     position->block.vy
+        // );
         return airBlockCreate();
     }
     const Chunk* chunk = world->chunks[arrayCoord(world, vz, position->chunk.vz)]
@@ -430,7 +430,7 @@ IBlock* worldGetChunkBlock(const World* world, const ChunkBlockPosition* positio
 IBlock* worldGetBlock(const World* world, const VECTOR* position) {
     // World is void below 0 and above world-height on y-axis
     if (position->vy < 0 || position->vy >= WORLD_HEIGHT) {
-        printf("[ERROR] Invalid Y: %d\n", position->vy);
+        // printf("[ERROR] Invalid Y: %d\n", position->vy);
         return airBlockCreate();
     }
     const ChunkBlockPosition chunk_block_position = worldToChunkBlockPosition(position, CHUNK_SIZE);

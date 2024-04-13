@@ -4,6 +4,9 @@
 #include "../util/interface99_extensions.h"
 #include "../game/blocks/block.h"
 
+// Forward declaration
+IBlock* worldGetBlock(const World* world, const VECTOR* position);
+
 /* Order:
  * update(...) { ... moveWithHeading(...) ... }
  * moveWithHeading(...) { ... move(...) ... }
@@ -16,11 +19,13 @@ void IPhysicsObject_update(VSelf, World* world) {
     const PhysicsObjectFlags* flags = &self->flags;
     if(flags->jumping) {
         if(flags->in_water || flags->in_lava) {
-            self->motion.vy += 163; // ONE_BLOCK * 0.04 = 163
+            self->motion.vy += 11468; // ONE_BLOCK * 0.04 = 11468
         } else if(flags->on_ground) {
             self->motion.vy += self->config->jump_height;
         }
     }
+    self->move_strafe = fixedMulFrac(self->move_strafe, 280985); // ONE * 0.98 = 280985
+    self->move_forward = fixedMulFrac(self->move_forward, 280985); // ONE * 0.98 = 280985
     iPhysicsObjectMoveWithHeading(self, world);
 }
 
@@ -28,9 +33,12 @@ void iPhysicsObjectMoveWithHeading(VSelf, World* world) __attribute__((alias("IP
 void IPhysicsObject_moveWithHeading(VSelf, World* world) {
     VSELF(PhysicsObject);
     i32 horizontal_shift = 260915; // ONE_BLOCK * 0.91 = 260915
+
+    iPhysicsObjectMoveFlying(self, horizontal_shift);
+
     iPhysicsObjectMove(self, world, self->motion.vx, self->motion.vy, self->motion.vz);
-    self->motion.vy -= 22937; // ONE_BLOCK * 0.08 = 22937
-    self->motion.vy = fixedMulFrac(self->motion.vy, 4014); // ONE * 0.98 = 4014
+    self->motion.vy -= 22937; // ONE * 0.08 = 2937
+    self->motion.vy = fixedMulFrac(self->motion.vy, 280985); // ONE_BLOCK * 0.98 = 280985
     self->motion.vx = fixedMulFrac(self->motion.vx, horizontal_shift);
     self->motion.vz = fixedMulFrac(self->motion.vx, horizontal_shift);
 }
@@ -136,8 +144,9 @@ bool collideWithWorld(PhysicsObject* physics_object, World* world, i32 motion_x,
         }
         if (y_collision) {
             if (motion_y < 0) {
-                new_position.vy = ONE;
+                new_position.vy = ONE_BLOCK;
                 physics_object->flags.on_ground = true;
+                physics_object->flags.jumping = false;
             }
             physics_object->velocity.vy = 0;
             collision_detected = true;
@@ -149,21 +158,21 @@ bool collideWithWorld(PhysicsObject* physics_object, World* world, i32 motion_x,
         physics_object->position,
         new_position
     );
-//     if (physics_object->flags.on_ground) {
-//         const VECTOR below_position = (VECTOR) {
-//             .vx = physics_object->position.vx / ONE_BLOCK,
-//             .vy = (physics_object->position.vy - ONE) / ONE_BLOCK,
-//             .vz = physics_object->position.vz / ONE_BLOCK
-//         };
-//         const IBlock* iblock = worldGetBlock(world, &below_position);
-//         if (iblock == NULL) {
-//             goto return_collision_state;
-//         }
-//         const Block* block = VCAST_PTR(Block*, iblock);
-//         if (block->type != BLOCKTYPE_EMPTY) {
-//             physics_object->flags.on_ground = true;
-//         }
-//     }
+    if (physics_object->flags.on_ground) {
+        const VECTOR below_position = (VECTOR) {
+            .vx = physics_object->position.vx / ONE_BLOCK,
+            .vy = (physics_object->position.vy - ONE) / ONE_BLOCK,
+            .vz = physics_object->position.vz / ONE_BLOCK
+        };
+        const IBlock* iblock = worldGetBlock(world, &below_position);
+        if (iblock == NULL) {
+            return collision_detected;
+        }
+        const Block* block = VCAST_PTR(Block*, iblock);
+        if (block->type != BLOCKTYPE_EMPTY) {
+            physics_object->flags.on_ground = true;
+        }
+    }
     return collision_detected;
 }
 
@@ -184,4 +193,26 @@ void IPhysicsObject_move(VSelf, World* world, const i32 motion_x, const i32 moti
         motion_y,
         motion_z
     );
+}
+
+void iPhysicsObjectMoveFlying(VSelf, i32 horizontal_shift) __attribute__((alias("IPhysicsObject_moveFlying")));
+void IPhysicsObject_moveFlying(VSelf, i32 horizontal_shift) {
+    VSELF(PhysicsObject);
+    i32 dist = SquareRoot12(self->move_forward * self->move_forward + self->move_strafe * self->move_strafe);
+    if (dist < 40) {
+        return;
+    } else if (dist < ONE) {
+        dist = ONE_BLOCK;
+    }
+    dist = fixedDiv(horizontal_shift, dist);
+    self->move_strafe = fixedMulFrac(self->move_strafe, dist);
+    self->move_forward = fixedMulFrac(self->move_forward, dist);
+    const i32 sin_yaw = isin(self->rotation.yaw);
+    const i32 cos_yaw = icos(self->rotation.yaw);
+    self->motion.vx += fixedMulFrac(self->move_strafe, cos_yaw) - fixedMulFrac(self->move_forward, sin_yaw);
+    self->motion.vz += fixedMulFrac(self->move_forward, cos_yaw) + fixedMulFrac(self->move_strafe, sin_yaw);
+    // float var5 = MathHelper.sin(this.rotationYaw * (float)Math.PI / 180.0F);
+    // float var6 = MathHelper.cos(this.rotationYaw * (float)Math.PI / 180.0F);
+    // this.motionX += var1 * var6 - var2 * var5;
+    // this.motionZ += var2 * var6 + var1 * var5;
 }

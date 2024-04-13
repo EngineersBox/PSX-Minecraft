@@ -8,10 +8,8 @@
 #include <stdbool.h>
 #include <interface99.h>
 
-#include "aabb.h"
 #include "../util/inttypes.h"
 #include "../util/preprocessor.h"
-#include "../game/world/world.h"
 
 typedef struct {
     // Fixed point block size (ONE * BLOCK_SIZE == single block)
@@ -20,8 +18,8 @@ typedef struct {
     u32 gravity;
     // Fixed point block size (ONE * BLOCK_SIZE == single block)
     u32 step_height;
-    i16 height;
-    i16 radius;
+    u32 height;
+    u32 radius;
 } PhysicsObjectConfig;
 
 /* Note that the following are booleans an note a single
@@ -45,19 +43,26 @@ typedef struct {
 
 typedef struct {
     VECTOR position;
+    struct {
+        i32 pitch;
+        i32 yaw;
+    } rotation;
     VECTOR motion;
     VECTOR velocity;
     i16 move_forward;
     i16 move_strafe;
-    PhysicsObjectConfig* config;
+    const PhysicsObjectConfig* config;
     PhysicsObjectFlags flags;
 } PhysicsObject;
 
+// Forward declaration
+typedef struct World World;
+
 #define IPhysicsObject_IFACE \
-    vfuncDefault(void, setPosition, VSelf, i32 x, i32 y, i32 z) \
     vfuncDefault(void, update, VSelf, World* world) \
     vfuncDefault(void, move, VSelf, World* world, i32 motion_x, i32 motion_y, i32 motion_z) \
-    vfuncDefault(void, moveWithHeading, VSelf, World* world)
+    vfuncDefault(void, moveWithHeading, VSelf, World* world) \
+    vfuncDefault(void, moveFlying, VSelf, i32 horitzonal_shift)
 
 void iPhysicsObjectUpdate(VSelf, World* world);
 void IPhysicsObject_update(VSelf, World* world);
@@ -67,6 +72,9 @@ void IPhysicsObject_moveWithHeading(VSelf, World* world);
 
 void iPhysicsObjectMove(VSelf, World* world, i32 motion_x, i32 motion_y, i32 motion_z);
 void IPhysicsObject_move(VSelf, World* world, i32 motion_x, i32 motion_y, i32 motion_z);
+
+void iPhysicsObjectMoveFlying(VSelf, i32 horizontal_shift);
+void IPhysicsObject_moveFlying(VSelf, i32 horizontal_shift);
 
 interface(IPhysicsObject);
 

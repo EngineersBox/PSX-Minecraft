@@ -53,6 +53,25 @@ void chunkDestroyDroppedItem(void* elem) {
     itemDestroy(*iitem);
 }
 
+void chunkGenerateTestFlatMap(Chunk* chunk, const VECTOR* position) {
+    const i32 height = 5;
+    for (i32 x = 0; x < CHUNK_SIZE; x++) {
+        for (i32 z = 0; z < CHUNK_SIZE; z++) {
+            for (i32 y = CHUNK_SIZE; y > 0; y--) {
+                if (y < height - 3) {
+                    chunk->blocks[chunkBlockIndex(x, y - 1, z)] = stoneBlockCreate();
+                } else if (y < height - 1) {
+                    chunk->blocks[chunkBlockIndex(x, y - 1, z)] = dirtBlockCreate();
+                } else if (y == height - 1) {
+                    chunk->blocks[chunkBlockIndex(x, y - 1, z)] = grassBlockCreate();
+                } else {
+                    chunk->blocks[chunkBlockIndex(x, y - 1, z)] = airBlockCreate();
+                }
+            }
+        }
+    }
+}
+
 void chunkInit(Chunk* chunk) {
     chunk->dropped_items = NULL;
     cvector_init(chunk->dropped_items, 0, chunkDestroyDroppedItem);
@@ -60,7 +79,8 @@ void chunkInit(Chunk* chunk) {
     chunkMeshInit(&chunk->mesh);
     chunkClearMesh(chunk);
     // DEBUG_LOG("[CHUNK: %d,%d,%d] Generating 2D height map\n", inlineVec(chunk->position));
-    chunkGenerate2DHeightMap(chunk, &chunk->position);
+    // chunkGenerate2DHeightMap(chunk, &chunk->position);
+    chunkGenerateTestFlatMap(chunk, &chunk->position);
 }
 
 void chunkDestroy(const Chunk* chunk) {

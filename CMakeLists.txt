@@ -81,11 +81,11 @@ target_link_libraries(PSXMC PRIVATE metalang99)
 target_link_libraries(PSXMC PRIVATE interface99)
 
 # Disable full macro expansion backtraces for Metalang99.
-#if(CMAKE_C_COMPILER_ID STREQUAL "Clang")
-#	target_compile_options(PSXMC PRIVATE -fmacro-backtrace-limit=1)
-#elseif(CMAKE_C_COMPILER_ID STREQUAL "GNU")
-#	target_compile_options(PSXMC PRIVATE -ftrack-macro-expansion=0)
-#endif()
+if(CMAKE_C_COMPILER_ID STREQUAL "Clang")
+	target_compile_options(PSXMC PRIVATE -fmacro-backtrace-limit=1)
+elseif(CMAKE_C_COMPILER_ID STREQUAL "GNU")
+	target_compile_options(PSXMC PRIVATE -ftrack-macro-expansion=0)
+endif()
 
 target_compile_definitions(PSXMC PUBLIC -DFPT_BITS=32 -DFPT_WBITS=20)
 target_compile_definitions(PSXMC PUBLIC -DPSXMC_DEBUG=1)

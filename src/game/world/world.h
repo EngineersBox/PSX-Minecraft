@@ -14,12 +14,12 @@
 #include "../structure/cvector.h"
 #include "../entity/player.h"
 
-#define WORLD_CHUNKS_HEIGHT 2
+#define WORLD_CHUNKS_HEIGHT 1
 #define WORLD_HEIGHT (CHUNK_SIZE * WORLD_CHUNKS_HEIGHT)
 
 #ifndef LOADED_CHUNKS_RADIUS
 // Must be positive
-#define LOADED_CHUNKS_RADIUS 2
+#define LOADED_CHUNKS_RADIUS 1
 #endif
 #define SHIFT_ZONE 1
 #define CENTER 1
