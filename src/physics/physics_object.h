@@ -11,6 +11,8 @@
 #include "../util/inttypes.h"
 #include "../util/preprocessor.h"
 
+#define ROTATION_SPEED 15
+
 typedef struct {
     // Fixed point block size (ONE * BLOCK_SIZE == single block)
     u32 jump_height;
@@ -43,12 +45,13 @@ typedef struct {
 
 typedef struct {
     VECTOR position;
+    VECTOR motion;
     struct {
+        // X-axis
         i32 pitch;
+        // Y-axis
         i32 yaw;
     } rotation;
-    VECTOR motion;
-    VECTOR velocity;
     i16 move_forward;
     i16 move_strafe;
     const PhysicsObjectConfig* config;

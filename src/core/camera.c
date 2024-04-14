@@ -16,21 +16,21 @@ void handleDigitalPadAndDualAnalogShock(Camera* camera, const Input* input, cons
     // The button status bits are inverted,
     // so 0 means pressed in this case
 
-    // Look controls
-    if (isPressed(input->pad, binding_look_up)) {
-        // Look up
-        camera->rotation.vx = positiveModulo(camera->rotation.vx - (ONE * CAMERA_ROTATE_SPEED), ONE << FIXED_POINT_SHIFT);
-    } else if (isPressed(input->pad, binding_look_down)) {
-        // Look down
-        camera->rotation.vx = positiveModulo(camera->rotation.vx + (ONE * CAMERA_ROTATE_SPEED), ONE << FIXED_POINT_SHIFT);
-    }
-    if (isPressed(input->pad, binding_look_left)) {
-        // Look left
-        camera->rotation.vy = positiveModulo(camera->rotation.vy + (ONE * CAMERA_ROTATE_SPEED), ONE << FIXED_POINT_SHIFT);
-    } else if (isPressed(input->pad, binding_look_right)) {
-        // Look right
-        camera->rotation.vy = positiveModulo(camera->rotation.vy - (ONE * CAMERA_ROTATE_SPEED), ONE << FIXED_POINT_SHIFT);
-    }
+    // // Look controls
+    // if (isPressed(input->pad, binding_look_up)) {
+    //     // Look up
+    //     camera->rotation.vx = positiveModulo(camera->rotation.vx - (ONE * CAMERA_ROTATE_SPEED), ONE << FIXED_POINT_SHIFT);
+    // } else if (isPressed(input->pad, binding_look_down)) {
+    //     // Look down
+    //     camera->rotation.vx = positiveModulo(camera->rotation.vx + (ONE * CAMERA_ROTATE_SPEED), ONE << FIXED_POINT_SHIFT);
+    // }
+    // if (isPressed(input->pad, binding_look_left)) {
+    //     // Look left
+    //     camera->rotation.vy = positiveModulo(camera->rotation.vy + (ONE * CAMERA_ROTATE_SPEED), ONE << FIXED_POINT_SHIFT);
+    // } else if (isPressed(input->pad, binding_look_right)) {
+    //     // Look right
+    //     camera->rotation.vy = positiveModulo(camera->rotation.vy - (ONE * CAMERA_ROTATE_SPEED), ONE << FIXED_POINT_SHIFT);
+    // }
     // // Movement controls
     // if (isPressed(input->pad, binding_move_forward)) {
     //     // Move forward

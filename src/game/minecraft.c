@@ -173,6 +173,8 @@ void Minecraft_update(VSelf, const Stats* stats) {
     worldUpdate(self->world, player);
     iPhysicsObjectUpdate(&player->physics_object, world);
     Camera* camera = VCAST(Camera*, self->internals.camera);
+    camera->rotation.vx = player->physics_object.rotation.pitch;
+    camera->rotation.vy = player->physics_object.rotation.yaw;
     camera->position.vx = player->physics_object.position.vx;
     camera->position.vy = -player->physics_object.position.vy - CAMERA_OFFSET;
     camera->position.vz = player->physics_object.position.vz;

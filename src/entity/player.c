@@ -1,8 +1,8 @@
 #include "player.h"
 
-#include <block.h>
-
+#include "../game/blocks/block.h"
 #include "../util/interface99_extensions.h"
+#include "../debug/debug.h"
 
 const PhysicsObjectConfig player_physics_object_config = (PhysicsObjectConfig) {
     .jump_height = 120422, // ONE_BLOCK * 0.42 = 120422
@@ -26,7 +26,6 @@ void playerInit(Player* player) {
             .yaw = 0
         },
         .motion = (VECTOR) {0},
-        .velocity = (VECTOR) {0},
         .move_forward = 0,
         .move_strafe = 0,
         .flags = {0},
@@ -52,35 +51,63 @@ void playerRender(const Player* player, RenderContext* ctx, Transforms* transfor
 
 bool playerInputHandler(const Input* input, void* ctx) {
     Player* player = (Player*) ctx;
-    player->physics_object.move_forward = 0;
-    player->physics_object.move_strafe = 0;
+    PhysicsObject* physics_object = &player->physics_object;
+    physics_object->move_forward = 0;
+    physics_object->move_strafe = 0;
     if (input->pad->stat != 0) {
         return false;
     }
     const PADTYPE* pad = input->pad;
+    // Look controls
+    if (isPressed(pad, binding_look_up)) {
+        // Look up
+        physics_object->rotation.pitch = positiveModulo(
+            physics_object->rotation.pitch - (ONE * ROTATION_SPEED),
+            ONE << FIXED_POINT_SHIFT
+        );
+        // DEBUG_LOG("[PLAYER] Look up: %d\n", physics_object->rotation.pitch);
+    } else if (isPressed(pad, binding_look_down)) {
+        // Look down
+        physics_object->rotation.pitch = positiveModulo(
+            physics_object->rotation.pitch + (ONE * ROTATION_SPEED),
+            ONE << FIXED_POINT_SHIFT
+        );
+        // DEBUG_LOG("[PLAYER] Look dowm: %d\n", physics_object->rotation.pitch);
+    }
+    if (isPressed(pad, binding_look_left)) {
+        // Look left
+        physics_object->rotation.yaw = positiveModulo(
+            physics_object->rotation.yaw + (ONE * ROTATION_SPEED),
+            ONE << FIXED_POINT_SHIFT
+        );
+        // DEBUG_LOG("[PLAYER] Look left: %d\n", physics_object->rotation.yaw);
+    } else if (isPressed(pad, binding_look_right)) {
+        // Look right
+        physics_object->rotation.yaw = positiveModulo(
+            physics_object->rotation.yaw - (ONE * ROTATION_SPEED),
+            ONE << FIXED_POINT_SHIFT
+        );
+        // DEBUG_LOG("[PLAYER] Look right: %d\n", physics_object->rotation.yaw);
+    }
     i32 move_amount = ONE_BLOCK;
     if (isPressed(pad, binding_jump)) {
         player->physics_object.flags.jumping = true;
-        printf("[PLAYER] Set jump = true\n");
+        // DEBUG_LOG("[PLAYER] Set jump = true\n");
     }
     if (isPressed(pad, binding_sneak)) {
         move_amount = 86016; // ONE_BLOCK * 0.3 = 86016
         player->physics_object.flags.sneaking = true;
-        printf("[PLAYER] Set sneaking = true\n");
+        // DEBUG_LOG("[PLAYER] Set sneaking = true\n");
     }
     if (isPressed(pad, binding_move_forward)) {
         player->physics_object.move_forward += move_amount;
-        printf("[PLAYER] Move forward\n");
     } else if (isPressed(pad, binding_move_backward)) {
         player->physics_object.move_forward -= move_amount;
-        printf("[PLAYER] Move backward]\n");
     }
     if (isPressed(pad, binding_move_left)) {
         player->physics_object.move_strafe -= move_amount;
-        printf("[PLAYER] Move left\n");
     } else if (isPressed(pad, binding_move_right)) {
         player->physics_object.move_strafe += move_amount;
-        printf("[PLAYER] Move right\n");
     }
     return false;
 }

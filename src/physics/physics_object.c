@@ -3,6 +3,7 @@
 #include "../math/math_utils.h"
 #include "../util/interface99_extensions.h"
 #include "../game/blocks/blocks.h"
+#include "../debug/debug.h"
 
 // Forward declaration
 IBlock* worldGetBlock(const World* world, const VECTOR* position);
@@ -35,7 +36,7 @@ i32 resolveGroundAcceleration(const PhysicsObject* physics_object,
     if (!physics_object->flags.on_ground) {
         return horizontal_acceleration;
     }
-    horizontal_acceleration = 2236; // 546.0F * 0.1F * 0.1F * 0.1F;
+    horizontal_acceleration = 1867; // ONE_BLOCK * 546.0F * 0.1F * 0.1F * 0.1F;
     const VECTOR position = (VECTOR) {
         .vx = physics_object->position.vx / ONE_BLOCK,
         .vy = (physics_object->position.vy - ONE_BLOCK) / ONE_BLOCK,
@@ -58,16 +59,32 @@ void IPhysicsObject_moveWithHeading(VSelf, World* world) {
     i32 horizontal_acceleration = resolveGroundAcceleration(
         self,
         world,
-        3727
+        143360
+    );
+    // ONE_BLOCK * 0.91 = 143360
+    // ONE_BLOCK * 0.16277136 = 46669
+    // ONE_BLOCK * 0.1 = 28672
+    const i32 shift = fixedMulFrac(
+        28672,
+        fixedMulFrac(
+            46669,
+            fixedMulFrac(
+                horizontal_acceleration,
+                fixedMulFrac(
+                    horizontal_acceleration,
+                    horizontal_acceleration
+                )
+            )
+        )
     );
     iPhysicsObjectMoveFlying(
         self,
-        horizontal_acceleration
+        shift
     );
     horizontal_acceleration = resolveGroundAcceleration(
         self,
         world,
-        3727
+        143360
     );
     iPhysicsObjectMove(self, world, self->motion.vx, self->motion.vy, self->motion.vz);
     if (!self->flags.on_ground) {
@@ -79,7 +96,7 @@ void IPhysicsObject_moveWithHeading(VSelf, World* world) {
 }
 
 bool collideWithWorld(PhysicsObject* physics_object, World* world, i32 motion_x, i32 motion_y, i32 motion_z) {
-    printf("[PHYSICS] Motion: (%d,%d,%d)\n", motion_x, motion_y, motion_z);
+    // DEBUG_LOG("[PHYSICS] Motion: (%d,%d,%d)\n", motion_x, motion_y, motion_z);
     const PhysicsObjectConfig* config = physics_object->config;
     const i32 min_x = physics_object->position.vx - config->radius;
     const i32 min_y = physics_object->position.vy;
@@ -104,11 +121,11 @@ bool collideWithWorld(PhysicsObject* physics_object, World* world, i32 motion_x,
         test_##_v = true; \
     }
     applyMotion(x);
-    printf("[PHYSICS] Test x: %s\n", test_x ? "true" : "false");
+    // DEBUG_LOG("[PHYSICS] Test x: %s\n", test_x ? "true" : "false");
     applyMotion(y);
-    printf("[PHYSICS] Test y: %s\n", test_y ? "true" : "false");
+    // DEBUG_LOG("[PHYSICS] Test y: %s\n", test_y ? "true" : "false");
     applyMotion(z);
-    printf("[PHYSICS] Test z: %s\n", test_z ? "true" : "false");
+    // DEBUG_LOG("[PHYSICS] Test z: %s\n", test_z ? "true" : "false");
     VECTOR new_position = {0};
     if (test_x) {
         bool x_collision = false;
@@ -129,7 +146,7 @@ bool collideWithWorld(PhysicsObject* physics_object, World* world, i32 motion_x,
                 }
             }
         }
-        printf("[PHYSICS] Collision x: %s\n", x_collision ? "true" : "false");
+        // DEBUG_LOG("[PHYSICS] Collision x: %s\n", x_collision ? "true" : "false");
         if (x_collision) {
             physics_object->flags.collided_horizontal = true;
             collision_detected = true;
@@ -157,7 +174,7 @@ bool collideWithWorld(PhysicsObject* physics_object, World* world, i32 motion_x,
                 }
             }
         }
-        printf("[PHYSICS] Collision z: %s\n", z_collision ? "true" : "false");
+        // DEBUG_LOG("[PHYSICS] Collision z: %s\n", z_collision ? "true" : "false");
         if (z_collision) {
             physics_object->flags.collided_horizontal = true;
             collision_detected = true;
@@ -185,7 +202,7 @@ bool collideWithWorld(PhysicsObject* physics_object, World* world, i32 motion_x,
                 }
             }
         }
-        printf("[PHYSICS] Collision y: %s\n", y_collision ? "true" : "false");
+        // DEBUG_LOG("[PHYSICS] Collision y: %s\n", y_collision ? "true" : "false");
         if (y_collision) {
             if (motion_y < 0) {
                 new_position.vy = ONE_BLOCK;
@@ -238,8 +255,8 @@ void IPhysicsObject_moveFlying(VSelf, i32 horizontal_shift) {
     dist = (horizontal_shift << 12) / dist;
     self->move_strafe = fixedMulFrac(self->move_strafe, dist);
     self->move_forward = fixedMulFrac(self->move_forward, dist);
-    const i32 sin_yaw = isin(self->rotation.yaw);
-    const i32 cos_yaw = icos(self->rotation.yaw);
+    const i32 sin_yaw = isin(self->rotation.yaw >> FIXED_POINT_SHIFT);
+    const i32 cos_yaw = icos(self->rotation.yaw >> FIXED_POINT_SHIFT);
     self->motion.vx += fixedMulFrac(self->move_strafe, cos_yaw) - fixedMulFrac(self->move_forward, sin_yaw);
     self->motion.vz += fixedMulFrac(self->move_forward, cos_yaw) + fixedMulFrac(self->move_strafe, sin_yaw);
 }
