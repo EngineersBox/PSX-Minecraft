@@ -2,7 +2,7 @@
 
 #include "../math/math_utils.h"
 #include "../util/interface99_extensions.h"
-#include "../game/blocks/block.h"
+#include "../game/blocks/blocks.h"
 
 // Forward declaration
 IBlock* worldGetBlock(const World* world, const VECTOR* position);
@@ -29,13 +29,46 @@ void IPhysicsObject_update(VSelf, World* world) {
     iPhysicsObjectMoveWithHeading(self, world);
 }
 
+i32 resolveGroundAcceleration(const PhysicsObject* physics_object,
+                              const World* world,
+                              i32 horizontal_acceleration) {
+    if (!physics_object->flags.on_ground) {
+        return horizontal_acceleration;
+    }
+    horizontal_acceleration = 2236; // 546.0F * 0.1F * 0.1F * 0.1F;
+    const VECTOR position = (VECTOR) {
+        .vx = physics_object->position.vx / ONE_BLOCK,
+        .vy = (physics_object->position.vy - ONE_BLOCK) / ONE_BLOCK,
+        .vz = physics_object->position.vz / ONE_BLOCK,
+    };
+    const IBlock* iblock = worldGetBlock(world, &position);
+    if (iblock == NULL) {
+        return horizontal_acceleration;
+    }
+    const Block* block = VCAST_PTR(Block*, iblock);
+    if (block->id != BLOCKID_AIR || block->type != BLOCKTYPE_EMPTY) {
+        horizontal_acceleration = block_attributes[block->id].slipperiness;
+    }
+    return horizontal_acceleration;
+}
+
 void iPhysicsObjectMoveWithHeading(VSelf, World* world) __attribute__((alias("IPhysicsObject_moveWithHeading")));
 void IPhysicsObject_moveWithHeading(VSelf, World* world) {
     VSELF(PhysicsObject);
-    i32 horizontal_acceleration = 3727; // ONE * 0.91 = 3727
-
-    iPhysicsObjectMoveFlying(self, horizontal_acceleration);
-
+    i32 horizontal_acceleration = resolveGroundAcceleration(
+        self,
+        world,
+        3727
+    );
+    iPhysicsObjectMoveFlying(
+        self,
+        horizontal_acceleration
+    );
+    horizontal_acceleration = resolveGroundAcceleration(
+        self,
+        world,
+        3727
+    );
     iPhysicsObjectMove(self, world, self->motion.vx, self->motion.vy, self->motion.vz);
     if (!self->flags.on_ground) {
         self->motion.vy -= self->config->gravity;

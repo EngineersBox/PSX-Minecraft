@@ -184,10 +184,10 @@ bool cameraInputHandler(const Input* input, void* ctx) {
     transforms->translation_rotation.vx = camera->rotation.vx >> FIXED_POINT_SHIFT;
     transforms->translation_rotation.vy = camera->rotation.vy >> FIXED_POINT_SHIFT;
     transforms->translation_rotation.vz = camera->rotation.vz >> FIXED_POINT_SHIFT;
-    // if (input->pad->stat == 0) {
-    //     handleDigitalPadAndDualAnalogShock(camera, input, transforms);
-    //     handleDualAnalogShock(camera, input, transforms);
-    // }
+    if (input->pad->stat == 0) {
+        handleDigitalPadAndDualAnalogShock(camera, input, transforms);
+        handleDualAnalogShock(camera, input, transforms);
+    }
     // First-person camera mode
     if (camera->mode == 0) {
         // Set rotation to the matrix

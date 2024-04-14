@@ -8,6 +8,7 @@
 #include <stdbool.h>
 #include <interface99.h>
 
+#include "../../util/inttypes.h"
 #include "../../render/render_context.h"
 #include "../../render/transforms.h"
 #include "../../resources/assets.h"
@@ -49,6 +50,12 @@ typedef enum {
     ORIENTATION_POS_Z,
     ORIENTATION_NEG_Z
 } Orientation;
+
+typedef struct {
+    u16 slipperiness;
+    u16 hardness;
+    u16 resistance;
+} BlockAttributes;
 
 typedef struct {
     BlockID id;
