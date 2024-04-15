@@ -23,6 +23,11 @@ _STATELESS_BLOCK(GrassBlock, GRASS);
     block_attributes[id] = P99_PROTECT(__VA_ARGS__); \
 })
 
+// NOTE: Slipperiness calculation:
+// <value> = slipperiness in float format
+// var = <value> * 0.91
+// (0.16277136 / (var * var * var)) * (1 << 12)
+
 void blocksInitialiseBuiltin() {
     initBlockSingleton(AirBlock, AIR);
     initBlockAttributes(
@@ -38,7 +43,7 @@ void blocksInitialiseBuiltin() {
     initBlockAttributes(
         BLOCKID_STONE,
         (BlockAttributes) {
-            .slipperiness = 2457, // ONE * 0.6
+            .slipperiness = 4096, // (0.16277136 / ((0.6 * 0.91) * (0.6 * 0.91) * (0.6 * 0.91))) * ONE
             .hardness = 6144, // ONE * 1.5
             .resistance = 40960 // ONE * 10
         }
@@ -48,7 +53,7 @@ void blocksInitialiseBuiltin() {
     initBlockAttributes(
         BLOCKID_DIRT,
         (BlockAttributes) {
-            .slipperiness = 2457, // ONE * 0.6
+            .slipperiness = 4096, // (0.16277136 / ((0.6 * 0.91) * (0.6 * 0.91) * (0.6 * 0.91))) * ONE
             .hardness = 2048, // ONE * 0.5
             .resistance = 10240 // ONE * 0.5 * 5.0 (default)
         }
@@ -58,7 +63,7 @@ void blocksInitialiseBuiltin() {
     initBlockAttributes(
         BLOCKID_GRASS,
         (BlockAttributes) {
-            .slipperiness = 2457, // ONE * 0.6
+            .slipperiness = 4096, // (0.16277136 / ((0.6 * 0.91) * (0.6 * 0.91) * (0.6 * 0.91))) * ONE
             .hardness = 2457, // ONE * 0.6
             .resistance = 12288 // ONE * 0.6 * 5.0 (default)
         }

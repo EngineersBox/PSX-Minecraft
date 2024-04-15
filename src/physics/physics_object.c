@@ -36,7 +36,7 @@ i32 resolveGroundAcceleration(const PhysicsObject* physics_object,
     if (!physics_object->flags.on_ground) {
         return horizontal_acceleration;
     }
-    horizontal_acceleration = 1867; // ONE_BLOCK * 546.0F * 0.1F * 0.1F * 0.1F;
+    horizontal_acceleration = 2236; // ONE * 546.0 * 0.1 * 0.1 * 0.1
     const VECTOR position = (VECTOR) {
         .vx = physics_object->position.vx / ONE_BLOCK,
         .vy = (physics_object->position.vy - ONE_BLOCK) / ONE_BLOCK,
@@ -56,35 +56,33 @@ i32 resolveGroundAcceleration(const PhysicsObject* physics_object,
 void iPhysicsObjectMoveWithHeading(VSelf, World* world) __attribute__((alias("IPhysicsObject_moveWithHeading")));
 void IPhysicsObject_moveWithHeading(VSelf, World* world) {
     VSELF(PhysicsObject);
-    i32 horizontal_acceleration = resolveGroundAcceleration(
-        self,
-        world,
-        143360
-    );
-    // ONE_BLOCK * 0.91 = 143360
-    // ONE_BLOCK * 0.16277136 = 46669
-    // ONE_BLOCK * 0.1 = 28672
-    const i32 shift = fixedMulFrac(
-        28672,
-        fixedMulFrac(
-            46669,
-            fixedMulFrac(
-                horizontal_acceleration,
-                fixedMulFrac(
-                    horizontal_acceleration,
-                    horizontal_acceleration
-                )
-            )
-        )
-    );
+    // ONE * 0.91 =  3727
+    // ONE * 0.16277136 = 666
+    // ONE * 0.1 = 409
+    // ONE * 0.02 = 81
+    // 0.16277136 / (0.1 * 0.1 * 0.1) = 162.77136
+    // ((666 << 12) / ((((409 * 409) >> 12) * 409) >> 12)) / (1 << 12) = 222 (incaIPhysicsObject_moveFlying(ccuracy here)
+    i32 shift;
+    if (self->flags.on_ground) {
+        shift = fixedMulFrac(
+            resolveGroundAcceleration(
+                self,
+                world,
+                3727
+            ),
+            409
+        );
+    } else {
+        shift = 81;
+    }
     iPhysicsObjectMoveFlying(
         self,
         shift
     );
-    horizontal_acceleration = resolveGroundAcceleration(
+    const i32 horizontal_acceleration = resolveGroundAcceleration(
         self,
         world,
-        143360
+        3727
     );
     iPhysicsObjectMove(self, world, self->motion.vx, self->motion.vy, self->motion.vz);
     if (!self->flags.on_ground) {
@@ -247,11 +245,12 @@ void IPhysicsObject_moveFlying(VSelf, i32 horizontal_shift) {
         fixedMulFrac(self->move_forward, self->move_forward)
         + fixedMulFrac(self->move_strafe, self->move_strafe)
     );
-    if (dist < 40) {
+    if (dist < 40) { // ONE * 0.01
         return;
     } else if (dist < ONE) {
         dist = ONE;
     }
+    dist >>= 12;
     dist = (horizontal_shift << 12) / dist;
     self->move_strafe = fixedMulFrac(self->move_strafe, dist);
     self->move_forward = fixedMulFrac(self->move_forward, dist);

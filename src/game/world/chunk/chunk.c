@@ -627,9 +627,9 @@ bool itemPickupValidator(const Item* item) {
 void chunkUpdate(Chunk* chunk, Player* player) {
     _current_inventory = VCAST(Inventory*, player->inventory);
     const VECTOR pos = (VECTOR) {
-        .vx = player->position.vx >> FIXED_POINT_SHIFT,
-        .vy = player->position.vy >> FIXED_POINT_SHIFT,
-        .vz = player->position.vz >> FIXED_POINT_SHIFT,
+        .vx = player->physics_object.position.vx >> FIXED_POINT_SHIFT,
+        .vy = player->physics_object.position.vy >> FIXED_POINT_SHIFT,
+        .vz = player->physics_object.position.vz >> FIXED_POINT_SHIFT,
     };
     for (uint32_t i = 0; i < cvector_size(chunk->dropped_items);) {
         IItem* iitem = chunk->dropped_items[i];
