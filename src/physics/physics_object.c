@@ -25,8 +25,8 @@ void IPhysicsObject_update(VSelf, World* world) {
             self->motion.vy += self->config->jump_height;
         }
     }
-    self->move_strafe = fixedMulFrac(self->move_strafe, 4014); // ONE * 0.98 = 4014
-    self->move_forward = fixedMulFrac(self->move_forward, 4014); // ONE * 0.98 = 4014
+    self->move_strafe = fixedMul(self->move_strafe, 4014); // ONE * 0.98 = 4014
+    self->move_forward = fixedMul(self->move_forward, 4014); // ONE * 0.98 = 4014
     iPhysicsObjectMoveWithHeading(self, world);
 }
 
@@ -61,10 +61,10 @@ void IPhysicsObject_moveWithHeading(VSelf, World* world) {
     // ONE * 0.1 = 409
     // ONE * 0.02 = 81
     // 0.16277136 / (0.1 * 0.1 * 0.1) = 162.77136
-    // ((666 << 12) / ((((409 * 409) >> 12) * 409) >> 12)) / (1 << 12) = 222 (incaIPhysicsObject_moveFlying(ccuracy here)
+    // ((666 << 12) / ((((409 * 409) >> 12) * 409) >> 12)) / (1 << 12) = 222 (inaccuracy here)
     i32 shift;
     if (self->flags.on_ground) {
-        shift = fixedMulFrac(
+        shift = fixedMul(
             resolveGroundAcceleration(
                 self,
                 world,
@@ -84,13 +84,19 @@ void IPhysicsObject_moveWithHeading(VSelf, World* world) {
         world,
         3727
     );
-    iPhysicsObjectMove(self, world, self->motion.vx, self->motion.vy, self->motion.vz);
+    iPhysicsObjectMove(
+        self,
+        world,
+        self->motion.vx,
+        self->motion.vy,
+        self->motion.vz
+    );
     if (!self->flags.on_ground) {
         self->motion.vy -= self->config->gravity;
-        self->motion.vy = fixedMulFrac(self->motion.vy, 4014); // ONE * 0.98 = 4014
+        self->motion.vy = fixedMul(self->motion.vy, 4014); // ONE * 0.98 = 4014
     }
-    self->motion.vx = fixedMulFrac(self->motion.vx, horizontal_acceleration);
-    self->motion.vz = fixedMulFrac(self->motion.vz, horizontal_acceleration);
+    self->motion.vx = fixedMul(self->motion.vx, horizontal_acceleration);
+    self->motion.vz = fixedMul(self->motion.vz, horizontal_acceleration);
 }
 
 bool collideWithWorld(PhysicsObject* physics_object, World* world, i32 motion_x, i32 motion_y, i32 motion_z) {
@@ -242,20 +248,19 @@ void iPhysicsObjectMoveFlying(VSelf, i32 horizontal_shift) __attribute__((alias(
 void IPhysicsObject_moveFlying(VSelf, i32 horizontal_shift) {
     VSELF(PhysicsObject);
     i32 dist = SquareRoot12(
-        fixedMulFrac(self->move_forward, self->move_forward)
-        + fixedMulFrac(self->move_strafe, self->move_strafe)
+        fixedMul(self->move_forward, self->move_forward)
+        + fixedMul(self->move_strafe, self->move_strafe)
     );
     if (dist < 40) { // ONE * 0.01
         return;
     } else if (dist < ONE) {
         dist = ONE;
     }
-    dist >>= 12;
-    dist = (horizontal_shift << 12) / dist;
-    self->move_strafe = fixedMulFrac(self->move_strafe, dist);
-    self->move_forward = fixedMulFrac(self->move_forward, dist);
+    dist = (horizontal_shift << 12) / (dist >> 12);
+    self->move_strafe = fixedMul(self->move_strafe, dist);
+    self->move_forward = fixedMul(self->move_forward, dist);
     const i32 sin_yaw = isin(self->rotation.yaw >> FIXED_POINT_SHIFT);
     const i32 cos_yaw = icos(self->rotation.yaw >> FIXED_POINT_SHIFT);
-    self->motion.vx += fixedMulFrac(self->move_strafe, cos_yaw) - fixedMulFrac(self->move_forward, sin_yaw);
-    self->motion.vz += fixedMulFrac(self->move_forward, cos_yaw) + fixedMulFrac(self->move_strafe, sin_yaw);
+    self->motion.vx += fixedMul(self->move_strafe, cos_yaw) - fixedMul(self->move_forward, sin_yaw);
+    self->motion.vz += fixedMul(self->move_forward, cos_yaw) + fixedMul(self->move_strafe, sin_yaw);
 }

@@ -13,6 +13,7 @@
 #include "../core/camera.h"
 #include "../structure/cvector.h"
 #include "../entity/player.h"
+#include "../util/inttypes.h"
 
 #define WORLD_CHUNKS_HEIGHT 1
 #define WORLD_HEIGHT (CHUNK_SIZE * WORLD_CHUNKS_HEIGHT)
@@ -49,10 +50,10 @@ void worldRender(const World* world, RenderContext* ctx, Transforms* transforms)
 
 void worldUnloadChunk(const World* world, Chunk* chunk);
 ALLOC_CALL(worldUnloadChunk, 2) Chunk* worldLoadChunk(World* world, VECTOR chunk_position);
-void worldLoadChunksX(World* world, int8_t x_direction, int8_t z_direction);
-void worldLoadChunksZ(World* world, int8_t x_direction, int8_t z_direction);
-void worldLoadChunksXZ(World* world, int8_t x_direction, int8_t z_direction);
-void worldShiftChunks(World* world, int8_t x_direction, int8_t z_direction);
+void worldLoadChunksX(World* world, i8 x_direction, i8 z_direction);
+void worldLoadChunksZ(World* world, i8 x_direction, i8 z_direction);
+void worldLoadChunksXZ(World* world, i8 x_direction, i8 z_direction);
+void worldShiftChunks(World* world, i8 x_direction, i8 z_direction);
 void worldLoadChunks(World* world, const VECTOR* player_chunk_pos);
 
 void worldUpdate(World* world, Player* player);
@@ -69,6 +70,6 @@ typedef struct {
     VECTOR face;
 } RayCastResult;
 
-RayCastResult worldRayCastIntersection(const World* world, const Camera* camera, int32_t radius, cvector(SVECTOR)* markers);
+RayCastResult worldRayCastIntersection(const World* world, const Camera* camera, i32 radius, cvector(SVECTOR)* markers);
 
 #endif // PSX_MINECRAFT_WORLD_H

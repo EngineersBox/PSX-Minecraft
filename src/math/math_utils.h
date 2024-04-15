@@ -109,20 +109,20 @@ typedef struct _BVECTOR {
 
 /**
  * @brief Divides two fixed point int16_t numbers as x / y
- * @param x int16_t dividend (number being divided)
- * @param y int16_t divisor (number performing division)
+ * @param x dividend (number being divided)
+ * @param y divisor (number performing division)
  * @return Result of division x / y
  */
-#define fixedDiv(x, y) (int16_t)((((int32_t)(x) << FIXED_POINT_SHIFT) / (y)) >> FIXED_POINT_SHIFT)
+#define fixedDiv(x, y) ((((x) << FIXED_POINT_SHIFT) / (y)) >> FIXED_POINT_SHIFT)
 
 /**
- * @brief Multiply the fractional components of two fixed point numbers as 0.x * 0.y:
+ * @brief Multiply two fixed point numbers as x_w.x_f * y_w.w_f:
  *        For example 0.7 * 0.2 = 0.14 <=> (2867 * 819) >> FIXED_POINT_SHIFT = 573
- * @param x int16_t fractional number
- * @param y int16_t fractional number
- * @return Result of fractional multiplication (x * y) >> FIXED_POINT_SHIFT
+ * @param x fractional number
+ * @param y fractional number
+ * @return Result of multiplication
  */
-#define fixedMulFrac(x, y) (((x) * (y)) >> FIXED_POINT_SHIFT)
+#define fixedMul(x, y) (((x) * (y)) >> FIXED_POINT_SHIFT)
 
 #define FIXED_1_2 (fixedDiv(ONE, 2))
 #define FIXED_1_4 (fixedDiv(ONE, 4))
@@ -136,14 +136,6 @@ typedef struct _BVECTOR {
 #define FIXED_1_1024 (fixedDiv(ONE, 1024))
 #define FIXED_1_2048 (fixedDiv(ONE, 2048))
 #define FIXED_1_4096 (fixedDiv(ONE, ONE))
-
-/**
- * @brief Multiplies two fixed point int16_t numbers as x * y
- * @param x - int16_t left side of multiplication
- * @param y - in16_t right side of multiplication
- * @return Result of multiplication x * y
- */
-#define fixedMul(x, y) (int16_t)(((int32_t)x * (int32_t)y) / ONE)
 
 // TODO: Add vec+const variations
 

@@ -47,7 +47,7 @@ bool chunkModifyVoxel(Chunk* chunk, const VECTOR* position, IBlock* block, IItem
 
 void chunkRender(Chunk* chunk, RenderContext* ctx, Transforms* transforms);
 
-IBlock* chunkGetBlock(const Chunk* chunk, int x, int y, int z);
+IBlock* chunkGetBlock(const Chunk* chunk, i32 x, i32 y, i32 z);
 IBlock* chunkGetBlockVec(const Chunk* chunk, const VECTOR* position);
 
 void chunkUpdate(Chunk* chunk, Player* player);

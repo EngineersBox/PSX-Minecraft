@@ -22,5 +22,6 @@ extern PadButton binding_attack;
 extern PadButton binding_use;
 
 extern PadButton binding_open_inventory;
+extern PadButton binding_pause;
 
 #endif // PSX_MINECRAFT_BINDINGS_H

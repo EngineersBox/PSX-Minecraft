@@ -19,7 +19,7 @@ IBlock* worldGetBlock(const World* world, const VECTOR* position);
 
 typedef struct {
     IBlock* block;
-    int8_t normal;
+    i8 normal;
 } Mask;
 
 // bool compareMask2(Mask m1, Mask m2) {
@@ -91,10 +91,10 @@ void chunkDestroy(const Chunk* chunk) {
 }
 
 void chunkGenerate2DHeightMap(Chunk* chunk, const VECTOR* position) {
-    for (int32_t x = 0; x < CHUNK_SIZE; x++) {
-        for (int32_t z = 0; z < CHUNK_SIZE; z++) {
-            const int32_t xPos = x + (position->vx * CHUNK_SIZE);
-            const int32_t zPos = z + (position->vz * CHUNK_SIZE);
+    for (i32 x = 0; x < CHUNK_SIZE; x++) {
+        for (i32 z = 0; z < CHUNK_SIZE; z++) {
+            const i32 xPos = x + (position->vx * CHUNK_SIZE);
+            const i32 zPos = z + (position->vz * CHUNK_SIZE);
             // FMath::Clamp(
             //     FMath::RoundToInt(
             //         (Noise->GetNoise(Xpos, Ypos) + 1) * Size / 2
@@ -108,8 +108,8 @@ void chunkGenerate2DHeightMap(Chunk* chunk, const VECTOR* position) {
             //     0,
             //     CHUNK_SIZE
             // );
-            for (int32_t y = CHUNK_SIZE; y > 0; y--) {
-                const int32_t worldY = (position->vy * CHUNK_SIZE) + (CHUNK_SIZE - y)
+            for (i32 y = CHUNK_SIZE; y > 0; y--) {
+                const i32 worldY = (position->vy * CHUNK_SIZE) + (CHUNK_SIZE - y)
                                        + (CHUNK_SIZE * 6); // !IMPORTANT: TESTING OFFSET
                 if (worldY < height - 3) {
                     chunk->blocks[chunkBlockIndex(x, y - 1, z)] = stoneBlockCreate();
@@ -126,9 +126,9 @@ void chunkGenerate2DHeightMap(Chunk* chunk, const VECTOR* position) {
 }
 
 void chunkGenerate3DHeightMap(Chunk* chunk, const VECTOR* position) {
-    for (int32_t x = 0; x < CHUNK_SIZE; x++) {
-        for (int32_t y = 0; y < CHUNK_SIZE; y++) {
-            for (int32_t z = 0; z < CHUNK_SIZE; z++) {
+    for (i32 x = 0; x < CHUNK_SIZE; x++) {
+        for (i32 y = 0; y < CHUNK_SIZE; y++) {
+            for (i32 z = 0; z < CHUNK_SIZE; z++) {
                 const int height = noise3d(
                     x + position->vx,
                     y + position->vy,
@@ -160,7 +160,7 @@ SMD_PRIM* createQuadPrimitive(ChunkMesh* mesh,
                               const int width,
                               const int height,
                               const Mask* mask,
-                              const int16_t axisMask[CHUNK_DIRECTIONS],
+                              const i16 axisMask[CHUNK_DIRECTIONS],
                               const int index) {
     // Construct a new POLY_FT4 (textured quad) primtive for this face
     SMD_PRIM* p_prims = (SMD_PRIM*) mesh->p_prims;
@@ -206,17 +206,17 @@ SMD_PRIM* createQuadPrimitive(ChunkMesh* mesh,
         instance = &cvector_begin(mesh->attribute_field)[mesh->count_field++]
 
 void createQuadVertices(Chunk* chunk,
-                        const int16_t origin[CHUNK_DIRECTIONS],
-                        const int16_t delta_axis_1[CHUNK_DIRECTIONS],
-                        const int16_t delta_axis_2[CHUNK_DIRECTIONS],
+                        const i16 origin[CHUNK_DIRECTIONS],
+                        const i16 delta_axis_1[CHUNK_DIRECTIONS],
+                        const i16 delta_axis_2[CHUNK_DIRECTIONS],
                         SMD_PRIM* primitive,
                         const int index) {
     ChunkMesh* mesh = &chunk->mesh;
     // Construct vertices relative to chunk mesh bottom left origin
-    const int16_t chunk_origin_x = chunk->position.vx * CHUNK_SIZE;
+    const i16 chunk_origin_x = chunk->position.vx * CHUNK_SIZE;
     // Offset by 1 to ensure bottom block of bottom chunk starts at Y = 0
-    const int16_t chunk_origin_y = (-chunk->position.vy - 1) * CHUNK_SIZE;
-    const int16_t chunk_origin_z = chunk->position.vz * CHUNK_SIZE;
+    const i16 chunk_origin_y = (-chunk->position.vy - 1) * CHUNK_SIZE;
+    const i16 chunk_origin_z = chunk->position.vz * CHUNK_SIZE;
     const SVECTOR vertices[4] = {
         [0] = {
             (chunk_origin_x + origin[0]) * BLOCK_SIZE,
@@ -256,7 +256,7 @@ void createQuadVertices(Chunk* chunk,
 void createQuadNormal(ChunkMesh* mesh,
                       SMD_PRIM* primitive,
                       const Mask* mask,
-                      const int16_t axisMask[CHUNK_DIRECTIONS]) {
+                      const i16 axisMask[CHUNK_DIRECTIONS]) {
     // Create normal for this quad
     SVECTOR* norm = NULL;
     nextRenderAttribute(p_norms, n0, n_norms, norm);
@@ -267,14 +267,14 @@ void createQuadNormal(ChunkMesh* mesh,
 
 void createQuad(Chunk* chunk,
                 const Mask* mask,
-                const int16_t width,
-                const int16_t height,
-                const int16_t axisMask[CHUNK_DIRECTIONS],
-                const int16_t origin[CHUNK_DIRECTIONS],
-                const int16_t delta_axis_1[CHUNK_DIRECTIONS],
-                const int16_t delta_axis_2[CHUNK_DIRECTIONS]) {
+                const i16 width,
+                const i16 height,
+                const i16 axisMask[CHUNK_DIRECTIONS],
+                const i16 origin[CHUNK_DIRECTIONS],
+                const i16 delta_axis_1[CHUNK_DIRECTIONS],
+                const i16 delta_axis_2[CHUNK_DIRECTIONS]) {
     // Calculate face index
-    const int8_t shiftedNormal = (mask->normal + 2) / 2; // {-1,1} => {0, 1}
+    const i8 shiftedNormal = (mask->normal + 2) / 2; // {-1,1} => {0, 1}
     const int index = (axisMask[0] * (1 - shiftedNormal)) // 0: -X, 1: +X
                       + (axisMask[1] * (3 - shiftedNormal)) // 2: -Y, 3: +Y
                       + (axisMask[2] * (5 - shiftedNormal)); // 4: -Z, 5: +Z
@@ -338,14 +338,14 @@ Mask createMask(IBlock* currentIBlock, IBlock* compareIBlock) {
 }
 
 void computeMeshMask(const Chunk* chunk,
-                     const int axis,
-                     const int axis1,
-                     const int axis2,
-                     int16_t chunkIter[CHUNK_DIRECTIONS],
-                     int16_t axisMask[CHUNK_DIRECTIONS],
+                     const i32 axis,
+                     const i32 axis1,
+                     const i32 axis2,
+                     i16 chunkIter[CHUNK_DIRECTIONS],
+                     i16 axisMask[CHUNK_DIRECTIONS],
                      Mask mask[CHUNK_SIZE * CHUNK_SIZE]) {
     VECTOR query_position = {};
-    uint16_t n = 0;
+    u16 n = 0;
     for (chunkIter[axis2] = 0; chunkIter[axis2] < CHUNK_SIZE; chunkIter[axis2]++) {
         for (chunkIter[axis1] = 0; chunkIter[axis1] < CHUNK_SIZE; chunkIter[axis1]++) {
             query_position.vx = chunkIter[0] + (chunk->position.vx * CHUNK_SIZE);
@@ -384,18 +384,18 @@ void computeMeshMask(const Chunk* chunk,
 }
 
 void generateMeshLexicographically(Chunk* chunk,
-                                   const int axis1,
-                                   const int axis2,
-                                   int16_t deltaAxis1[CHUNK_DIRECTIONS],
-                                   int16_t deltaAxis2[CHUNK_DIRECTIONS],
-                                   int16_t chunkIter[CHUNK_DIRECTIONS],
-                                   int16_t axisMask[CHUNK_DIRECTIONS],
+                                   const i32 axis1,
+                                   const i32 axis2,
+                                   i16 deltaAxis1[CHUNK_DIRECTIONS],
+                                   i16 deltaAxis2[CHUNK_DIRECTIONS],
+                                   i16 chunkIter[CHUNK_DIRECTIONS],
+                                   i16 axisMask[CHUNK_DIRECTIONS],
                                    Mask mask[CHUNK_SIZE * CHUNK_SIZE]) {
-    uint16_t n = 0;
+    u16 n = 0;
     // Generate a mesh from mask using lexicographic ordering
     // looping over each block in this slice of the chunk
-    for (int j = 0; j < CHUNK_SIZE; j++) {
-        for (int i = 0; i < CHUNK_SIZE;) {
+    for (i32 j = 0; j < CHUNK_SIZE; j++) {
+        for (i32 i = 0; i < CHUNK_SIZE;) {
             if (mask[n].normal == 0) {
                 i++;
                 n++;
@@ -406,7 +406,7 @@ void generateMeshLexicographically(Chunk* chunk,
             chunkIter[axis2] = j;
             // Compute the width of this quad and store it in w
             // This is done by searching along the current axis until mask[n + w] is false
-            int width;
+            i32 width;
             for (width = 1; i + width < CHUNK_SIZE && compareMask(mask[n + width], currentMask); width++) {
             }
             // Compute the height of this quad and store it in h
@@ -440,8 +440,8 @@ void generateMeshLexicographically(Chunk* chunk,
                 deltaAxis1,
                 deltaAxis2
             );
-            memset(deltaAxis1, 0, sizeof(int16_t) * CHUNK_DIRECTIONS);
-            memset(deltaAxis2, 0, sizeof(int16_t) * CHUNK_DIRECTIONS);
+            memset(deltaAxis1, 0, sizeof(i16) * CHUNK_DIRECTIONS);
+            memset(deltaAxis2, 0, sizeof(i16) * CHUNK_DIRECTIONS);
             for (int h = 0; h < height; h++) {
                 for (int w = 0; w < width; w++) {
                     mask[n + w + (h * CHUNK_SIZE)] = (Mask){
@@ -461,10 +461,10 @@ void chunkGenerateMesh(Chunk* chunk) {
     for (int axis = 0; axis < CHUNK_DIRECTIONS; axis++) {
         const int axis1 = (axis + 1) % CHUNK_DIRECTIONS;
         const int axis2 = (axis + 2) % CHUNK_DIRECTIONS;
-        int16_t deltaAxis1[CHUNK_DIRECTIONS] = {0};
-        int16_t deltaAxis2[CHUNK_DIRECTIONS] = {0};
-        int16_t chunkIter[CHUNK_DIRECTIONS] = {0};
-        int16_t axisMask[CHUNK_DIRECTIONS] = {0};
+        i16 deltaAxis1[CHUNK_DIRECTIONS] = {0};
+        i16 deltaAxis2[CHUNK_DIRECTIONS] = {0};
+        i16 chunkIter[CHUNK_DIRECTIONS] = {0};
+        i16 axisMask[CHUNK_DIRECTIONS] = {0};
         axisMask[axis] = 1;
         Mask mask[CHUNK_SIZE * CHUNK_SIZE] = {0};
         for (chunkIter[axis] = -1; chunkIter[axis] < CHUNK_SIZE;) {
@@ -535,7 +535,7 @@ void chunkRender(Chunk* chunk, RenderContext* ctx, Transforms* transforms) {
 	|| (y) >= CHUNK_SIZE || (y) < 0 \
 	|| (z) >= CHUNK_SIZE || (z) < 0)
 
-IBlock* chunkGetBlock(const Chunk* chunk, const int x, const int y, const int z) {
+IBlock* chunkGetBlock(const Chunk* chunk, const i32 x, const i32 y, const i32 z) {
     if (checkIndexOOB(x, y, z)) {
         return airBlockCreate();
     }
@@ -551,19 +551,19 @@ IBlock* chunkGetBlockVec(const Chunk* chunk, const VECTOR* position) {
 
 void constructItemPosition(const Chunk* chunk, const VECTOR* block_position, VECTOR* item_position) {
     // Construct vertices relative to chunk mesh bottom left origin
-    const int16_t chunk_origin_x = chunk->position.vx * CHUNK_SIZE;
+    const i16 chunk_origin_x = chunk->position.vx * CHUNK_SIZE;
     // Offset by 1 to ensure bottom block of bottom chunk starts at Y = 0
-    const int16_t chunk_origin_y = -chunk->position.vy * CHUNK_SIZE;
-    const int16_t chunk_origin_z = chunk->position.vz * CHUNK_SIZE;
+    const i16 chunk_origin_y = -chunk->position.vy * CHUNK_SIZE;
+    const i16 chunk_origin_z = chunk->position.vz * CHUNK_SIZE;
     item_position->vx = (chunk_origin_x + block_position->vx) * BLOCK_SIZE + (BLOCK_SIZE / 2);
     item_position->vy = (chunk_origin_y - block_position->vy) * BLOCK_SIZE - (BLOCK_SIZE / 2);
     item_position->vz = (chunk_origin_z + block_position->vz) * BLOCK_SIZE + (BLOCK_SIZE / 2);
 }
 
 bool chunkModifyVoxel(Chunk* chunk, const VECTOR* position, IBlock* block, IItem** item_result) {
-    const int32_t x = position->vx;
-    const int32_t y = positiveModulo(-position->vy - 1, CHUNK_SIZE);
-    const int32_t z = position->vz;
+    const i32 x = position->vx;
+    const i32 y = positiveModulo(-position->vy - 1, CHUNK_SIZE);
+    const i32 z = position->vz;
     if (checkIndexOOB(x, y, z)) {
         return false;
     }
@@ -600,8 +600,8 @@ bool itemPickupValidator(const Item* item) {
     // 2. Is there space in the inventory
     //   a. [2:TRUE] Return true
     //   b. [2:FALSE] Return false
-    uint8_t from_slot = INVENTORY_SLOT_STORAGE_OFFSET;
-    uint8_t next_free = INVENTORY_NO_FREE_SLOT;
+    u8 from_slot = INVENTORY_SLOT_STORAGE_OFFSET;
+    u8 next_free = INVENTORY_NO_FREE_SLOT;
     while (1) {
         const Slot* slot = inventorySearchItem(_current_inventory, item->id, from_slot, &next_free);
         if (slot == NULL) {
@@ -631,7 +631,7 @@ void chunkUpdate(Chunk* chunk, Player* player) {
         .vy = player->physics_object.position.vy >> FIXED_POINT_SHIFT,
         .vz = player->physics_object.position.vz >> FIXED_POINT_SHIFT,
     };
-    for (uint32_t i = 0; i < cvector_size(chunk->dropped_items);) {
+    for (u32 i = 0; i < cvector_size(chunk->dropped_items);) {
         IItem* iitem = chunk->dropped_items[i];
         if (iitem == NULL) {
             i++;

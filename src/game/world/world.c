@@ -22,17 +22,17 @@
 // World should be loaded before invoking this method
 void worldInit(World* world, RenderContext* ctx) {
     // Clear the chunks first to ensure they are all NULL upon initialisation
-    for (int x = 0; x < AXIS_CHUNKS; x++) {
-        for (int z = 0; z < AXIS_CHUNKS; z++) {
-            for (int y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
+    for (i32 x = 0; x < AXIS_CHUNKS; x++) {
+        for (i32 z = 0; z < AXIS_CHUNKS; z++) {
+            for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
                 world->chunks[z][x][y] = NULL;
             }
         }
     }
-    const int x_start = world->centre.vx - LOADED_CHUNKS_RADIUS;
-    const int x_end = world->centre.vx + LOADED_CHUNKS_RADIUS;
-    const int z_start = world->centre.vz - LOADED_CHUNKS_RADIUS;
-    const int z_end = world->centre.vz + LOADED_CHUNKS_RADIUS;
+    const i32 x_start = world->centre.vx - LOADED_CHUNKS_RADIUS;
+    const i32 x_end = world->centre.vx + LOADED_CHUNKS_RADIUS;
+    const i32 z_start = world->centre.vz - LOADED_CHUNKS_RADIUS;
+    const i32 z_end = world->centre.vz + LOADED_CHUNKS_RADIUS;
     // TODO: Move text and progress bar to (0,0) and move to
     //       (CENTRE_X,CENTRE_Y) using translation vector and
     //       geometry matrix
@@ -49,9 +49,9 @@ void worldInit(World* world, RenderContext* ctx) {
         .maximum = ((x_end + 1) - x_start) * ((z_end + 1) - z_start) * WORLD_CHUNKS_HEIGHT * 2
     };
     DEBUG_LOG("[WORLD] Loading chunks\n");
-    for (int x = x_start; x <= x_end; x++) {
-        for (int z = z_start; z <= z_end; z++) {
-            for (int y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
+    for (i32 x = x_start; x <= x_end; x++) {
+        for (i32 z = z_start; z <= z_end; z++) {
+            for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
                 Chunk* chunk = worldLoadChunk(world, (VECTOR){
                                                   .vx = x,
                                                   .vy = y,
@@ -88,9 +88,9 @@ void worldInit(World* world, RenderContext* ctx) {
         }
     }
     DEBUG_LOG("[WORLD] Building chunk meshes\n");
-    for (int x = x_start; x <= x_end; x++) {
-        for (int z = z_start; z <= z_end; z++) {
-            for (int y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
+    for (i32 x = x_start; x <= x_end; x++) {
+        for (i32 z = z_start; z <= z_end; z++) {
+            for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
                 printf("[CHUNK: %d,%d,%d] Generating mesh\n", x, 0, z);
                 Chunk* chunk = world->chunks[arrayCoord(world, vz, z)][arrayCoord(world, vx, x)][y];
                 chunkGenerateMesh(chunk);
@@ -138,13 +138,13 @@ void worldInit(World* world, RenderContext* ctx) {
 }
 
 void worldDestroy(World* world) {
-    const int x_start = world->centre.vx - LOADED_CHUNKS_RADIUS;
-    const int x_end = world->centre.vz + LOADED_CHUNKS_RADIUS;
-    const int z_start = world->centre.vz - LOADED_CHUNKS_RADIUS;
-    const int z_end = world->centre.vz + LOADED_CHUNKS_RADIUS;
-    for (int x = x_start; x <= x_end; x++) {
-        for (int z = z_start; z <= z_end; z++) {
-            for (int y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
+    const i32 x_start = world->centre.vx - LOADED_CHUNKS_RADIUS;
+    const i32 x_end = world->centre.vz + LOADED_CHUNKS_RADIUS;
+    const i32 z_start = world->centre.vz - LOADED_CHUNKS_RADIUS;
+    const i32 z_end = world->centre.vz + LOADED_CHUNKS_RADIUS;
+    for (i32 x = x_start; x <= x_end; x++) {
+        for (i32 z = z_start; z <= z_end; z++) {
+            for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
                 DEBUG_LOG(
                     "[CHUNK: %d,%d,%d, INDEX: %d,%d,%d] Destroying chunk\n",
                     x, y, z,
@@ -162,17 +162,17 @@ void worldDestroy(World* world) {
 
 void worldRender(const World* world, RenderContext* ctx, Transforms* transforms) {
     // PERF: Revamp with BFS for visible chunks occlusion (use frustum culling too?)
-    const int x_start = world->centre.vx - LOADED_CHUNKS_RADIUS;
-    const int x_end = world->centre.vx + LOADED_CHUNKS_RADIUS;
-    const int z_start = world->centre.vz - LOADED_CHUNKS_RADIUS;
-    const int z_end = world->centre.vz + LOADED_CHUNKS_RADIUS;
+    const i32 x_start = world->centre.vx - LOADED_CHUNKS_RADIUS;
+    const i32 x_end = world->centre.vx + LOADED_CHUNKS_RADIUS;
+    const i32 z_start = world->centre.vz - LOADED_CHUNKS_RADIUS;
+    const i32 z_end = world->centre.vz + LOADED_CHUNKS_RADIUS;
     // TODO: Render current chunk and track how much of the screen has been drawn (somehow?)
     //       if there are still bits that are missing traverse to next chunks in the direction
     //       the player is facing and render them. Stop drawing if screen is full and/or there
     //       are no more loaded chunks to traverse to.
-    for (int x = x_start; x <= x_end; x++) {
-        for (int z = z_start; z <= z_end; z++) {
-            for (int y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
+    for (i32 x = x_start; x <= x_end; x++) {
+        for (i32 z = z_start; z <= z_end; z++) {
+            for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
                 chunkRender(
                     world->chunks[arrayCoord(world, vz, z)][arrayCoord(world, vx, x)][y],
                     ctx,
@@ -183,7 +183,7 @@ void worldRender(const World* world, RenderContext* ctx, Transforms* transforms)
     }
 }
 
-// NOTE: Should this just take int32_t x,y,z params instead of a
+// NOTE: Should this just take i32 x,y,z params instead of a
 //       a VECTOR struct to avoid creating needless stack objects?
 Chunk* worldLoadChunk(World* world, const VECTOR chunk_position) {
     Chunk* chunk = malloc(sizeof(Chunk));
@@ -219,18 +219,18 @@ void worldUnloadChunk(const World* world, Chunk* chunk) {
     free(chunk);
 }
 
-void worldLoadChunksX(World* world, const int8_t x_direction, const int8_t z_direction) {
+void worldLoadChunksX(World* world, const i8 x_direction, const i8 z_direction) {
     // Load x_direction chunks
-    int32_t x_shift_zone = world->centre.vx + ((LOADED_CHUNKS_RADIUS + SHIFT_ZONE) * x_direction);
-    int32_t z_start = world->centre.vz - LOADED_CHUNKS_RADIUS;
-    int32_t z_end = world->centre.vz + LOADED_CHUNKS_RADIUS;
+    i32 x_shift_zone = world->centre.vx + ((LOADED_CHUNKS_RADIUS + SHIFT_ZONE) * x_direction);
+    i32 z_start = world->centre.vz - LOADED_CHUNKS_RADIUS;
+    i32 z_end = world->centre.vz + LOADED_CHUNKS_RADIUS;
     if (z_direction == -1) {
         z_end -= SHIFT_ZONE;
     } else if (z_direction == 1) {
         z_start += SHIFT_ZONE;
     }
-    for (int z_coord = z_start; z_coord <= z_end; z_coord++) {
-        for (int y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
+    for (i32 z_coord = z_start; z_coord <= z_end; z_coord++) {
+        for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
             Chunk* chunk = worldLoadChunk(world, (VECTOR){
                                               .vx = x_shift_zone,
                                               .vy = y,
@@ -240,16 +240,16 @@ void worldLoadChunksX(World* world, const int8_t x_direction, const int8_t z_dir
             world->chunks[arrayCoord(world, vz, z_coord)][arrayCoord(world, vx, x_shift_zone)][y] = chunk;
         }
     }
-    for (int z_coord = z_start; z_coord <= z_end; z_coord++) {
-        for (int y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
+    for (i32 z_coord = z_start; z_coord <= z_end; z_coord++) {
+        for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
             Chunk* chunk = world->chunks[arrayCoord(world, vz, z_coord)][arrayCoord(world, vx, x_shift_zone)][y];
             chunkGenerateMesh(chunk);
         }
     }
     // Unload -x_direction chunks
     x_shift_zone = world->centre.vx + (LOADED_CHUNKS_RADIUS * -x_direction);
-    for (int z_coord = z_start; z_coord <= z_end; z_coord++) {
-        for (int y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
+    for (i32 z_coord = z_start; z_coord <= z_end; z_coord++) {
+        for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
             Chunk** chunk = world->chunks[arrayCoord(world, vz, z_coord)][arrayCoord(world, vx, x_shift_zone)];
             worldUnloadChunk(world, chunk[y]);
             chunk[y] = NULL;
@@ -257,22 +257,22 @@ void worldLoadChunksX(World* world, const int8_t x_direction, const int8_t z_dir
     }
 }
 
-void worldLoadChunksZ(World* world, const int8_t x_direction, const int8_t z_direction) {
+void worldLoadChunksZ(World* world, const i8 x_direction, const i8 z_direction) {
     // Load z_direction chunks
-    int32_t z_shift_zone = world->centre.vz + ((LOADED_CHUNKS_RADIUS + SHIFT_ZONE) * z_direction);
-    int32_t x_start = world->centre.vx - LOADED_CHUNKS_RADIUS;;
-    int32_t x_end = world->centre.vx + LOADED_CHUNKS_RADIUS;
+    i32 z_shift_zone = world->centre.vz + ((LOADED_CHUNKS_RADIUS + SHIFT_ZONE) * z_direction);
+    i32 x_start = world->centre.vx - LOADED_CHUNKS_RADIUS;;
+    i32 x_end = world->centre.vx + LOADED_CHUNKS_RADIUS;
     /* Can be simplified to:
-     * int32_t x_start = world->centre.vx - LOADED_CHUNKS_RADIUS + ((x_direction == -1) * SHIFT_ZONE);
-     * int32_t x_end = world->centre.vz + LOADED_CHUNKS_RADIUS - ((x_direction == 1) * SHIFT_ZONE);
+     * i32 x_start = world->centre.vx - LOADED_CHUNKS_RADIUS + ((x_direction == -1) * SHIFT_ZONE);
+     * i32 x_end = world->centre.vz + LOADED_CHUNKS_RADIUS - ((x_direction == 1) * SHIFT_ZONE);
      */
     if (x_direction == -1) {
         x_end -= SHIFT_ZONE;
     } else if (x_direction == 1) {
         x_start += SHIFT_ZONE;
     }
-    for (int x_coord = x_start; x_coord <= x_end; x_coord++) {
-        for (int y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
+    for (i32 x_coord = x_start; x_coord <= x_end; x_coord++) {
+        for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
             Chunk* chunk = worldLoadChunk(world, (VECTOR){
                                               .vx = x_coord,
                                               .vy = y,
@@ -281,16 +281,16 @@ void worldLoadChunksZ(World* world, const int8_t x_direction, const int8_t z_dir
             world->chunks[arrayCoord(world, vz, z_shift_zone)][arrayCoord(world, vx, x_coord)][y] = chunk;
         }
     }
-    for (int x_coord = x_start; x_coord <= x_end; x_coord++) {
-        for (int y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
+    for (i32 x_coord = x_start; x_coord <= x_end; x_coord++) {
+        for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
             Chunk* chunk = world->chunks[arrayCoord(world, vz, z_shift_zone)][arrayCoord(world, vx, x_coord)][y];
             chunkGenerateMesh(chunk);
         }
     }
     // Unload -z_direction chunks
     z_shift_zone = world->centre.vz + (LOADED_CHUNKS_RADIUS * -z_direction);
-    for (int x_coord = x_start; x_coord <= x_end; x_coord++) {
-        for (int y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
+    for (i32 x_coord = x_start; x_coord <= x_end; x_coord++) {
+        for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
             Chunk** chunk = world->chunks[arrayCoord(world, vz, z_shift_zone)][arrayCoord(world, vx, x_coord)];
             worldUnloadChunk(world, chunk[y]);
             chunk[y] = NULL;
@@ -298,11 +298,11 @@ void worldLoadChunksZ(World* world, const int8_t x_direction, const int8_t z_dir
     }
 }
 
-void worldLoadChunksXZ(World* world, const int8_t x_direction, const int8_t z_direction) {
+void worldLoadChunksXZ(World* world, const i8 x_direction, const i8 z_direction) {
     // Load (x_direction,z_direction) chunk
-    int32_t x_coord = world->centre.vx + ((LOADED_CHUNKS_RADIUS + SHIFT_ZONE) * x_direction);
-    int32_t z_coord = world->centre.vz + ((LOADED_CHUNKS_RADIUS + SHIFT_ZONE) * z_direction);
-    for (int y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
+    i32 x_coord = world->centre.vx + ((LOADED_CHUNKS_RADIUS + SHIFT_ZONE) * x_direction);
+    i32 z_coord = world->centre.vz + ((LOADED_CHUNKS_RADIUS + SHIFT_ZONE) * z_direction);
+    for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
         Chunk* loaded_chunk = worldLoadChunk(world, (VECTOR){
                                                  .vx = x_coord,
                                                  .vy = y,
@@ -310,21 +310,21 @@ void worldLoadChunksXZ(World* world, const int8_t x_direction, const int8_t z_di
                                              });
         world->chunks[arrayCoord(world, vz, z_coord)][arrayCoord(world, vx, x_coord)][y] = loaded_chunk;
     }
-    for (int y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
+    for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
         Chunk* loaded_chunk = world->chunks[arrayCoord(world, vz, z_coord)][arrayCoord(world, vx, x_coord)][y];
         chunkGenerateMesh(loaded_chunk);
     }
     // Unload (-x_direction,-z_direction) chunk
     x_coord = world->centre.vx + (LOADED_CHUNKS_RADIUS * -x_direction);
     z_coord = world->centre.vz + (LOADED_CHUNKS_RADIUS * -z_direction);
-    for (int y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
+    for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
         Chunk** unloaded_chunk = world->chunks[arrayCoord(world, vz, z_coord)][arrayCoord(world, vx, x_coord)];
         worldUnloadChunk(world, unloaded_chunk[y]);
         unloaded_chunk[y] = NULL;
     }
 }
 
-void worldShiftChunks(World* world, const int8_t x_direction, const int8_t z_direction) {
+void worldShiftChunks(World* world, const i8 x_direction, const i8 z_direction) {
     DEBUG_LOG("[WORLD] Shift: set head\n");
     world->head.vx = wrapCoord(world, vx, x_direction);
     world->head.vz = wrapCoord(world, vz, z_direction);
@@ -335,7 +335,7 @@ void worldShiftChunks(World* world, const int8_t x_direction, const int8_t z_dir
 }
 
 __attribute__((always_inline))
-inline int worldWithinLoadRadius(const World* world, const VECTOR* player_chunk_pos) {
+inline i32 worldWithinLoadRadius(const World* world, const VECTOR* player_chunk_pos) {
     return absv(world->centre.vx - player_chunk_pos->vx) < LOADED_CHUNKS_RADIUS - 1
            && absv(world->centre.vz - player_chunk_pos->vz) < LOADED_CHUNKS_RADIUS - 1;
 }
@@ -346,8 +346,8 @@ void worldLoadChunks(World* world, const VECTOR* player_chunk_pos) {
         return;
     }
     // Calculate direction shifts
-    const int8_t x_direction = cmp(world->centre.vx, player_chunk_pos->vx);
-    const int8_t z_direction = cmp(world->centre.vz, player_chunk_pos->vz);
+    const i8 x_direction = cmp(world->centre.vx, player_chunk_pos->vx);
+    const i8 z_direction = cmp(world->centre.vz, player_chunk_pos->vz);
     // Load chunks
     if (x_direction != 0) {
         worldLoadChunksX(world, x_direction, z_direction);
@@ -363,9 +363,9 @@ void worldLoadChunks(World* world, const VECTOR* player_chunk_pos) {
 }
 
 void worldUpdate(World* world, Player* player) {
-    static int32_t prevx = 0;
-    static int32_t prevy = 0;
-    static int32_t prevz = 0;
+    static i32 prevx = 0;
+    static i32 prevy = 0;
+    static i32 prevz = 0;
     const VECTOR player_chunk_pos = (VECTOR){
         .vx = (player->physics_object.position.vx >> FIXED_POINT_SHIFT) / CHUNK_BLOCK_SIZE,
         .vy = (player->physics_object.position.vy >> FIXED_POINT_SHIFT) / CHUNK_BLOCK_SIZE,
@@ -384,20 +384,20 @@ void worldUpdate(World* world, Player* player) {
             world->head.vx, world->head.vz,
             world->centre.vx, world->centre.vz
         );
-        for (int z = 0; z < AXIS_CHUNKS; z++) {
-            for (int x = 0; x < AXIS_CHUNKS; x++) {
+        for (i32 z = 0; z < AXIS_CHUNKS; z++) {
+            for (i32 x = 0; x < AXIS_CHUNKS; x++) {
                 DEBUG_LOG("%d ", world->chunks[z][x][0] != NULL);
             }
             DEBUG_LOG("\n");
         }
     }
-    const int x_start = world->centre.vx - LOADED_CHUNKS_RADIUS;
-    const int x_end = world->centre.vx + LOADED_CHUNKS_RADIUS;
-    const int z_start = world->centre.vz - LOADED_CHUNKS_RADIUS;
-    const int z_end = world->centre.vz + LOADED_CHUNKS_RADIUS;
-    for (int x = x_start; x <= x_end; x++) {
-        for (int z = z_start; z <= z_end; z++) {
-            for (int y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
+    const i32 x_start = world->centre.vx - LOADED_CHUNKS_RADIUS;
+    const i32 x_end = world->centre.vx + LOADED_CHUNKS_RADIUS;
+    const i32 z_start = world->centre.vz - LOADED_CHUNKS_RADIUS;
+    const i32 z_end = world->centre.vz + LOADED_CHUNKS_RADIUS;
+    for (i32 x = x_start; x <= x_end; x++) {
+        for (i32 z = z_start; z <= z_end; z++) {
+            for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
                 chunkUpdate(
                     world->chunks[arrayCoord(world, vz, z)][arrayCoord(world, vx, x)][y],
                     player
@@ -471,7 +471,7 @@ bool worldModifyVoxel(const World* world, const VECTOR* position, IBlock* block,
     return worldModifyVoxelChunkBlock(world, &chunk_block_position, block, item_result);
 }
 
-int32_t intbound(const int32_t s, const int32_t ds) {
+i32 intbound(const i32 s, const i32 ds) {
     printf("[intbound] s: %d, ds: %d\n", s, ds);
     if (ds < 0) {
         return intbound(-s, -ds);
@@ -482,7 +482,7 @@ int32_t intbound(const int32_t s, const int32_t ds) {
 
 RayCastResult worldRayCastIntersection_new1(const World* world,
                                        const Camera* camera,
-                                       const int32_t radius,
+                                       const i32 radius,
                                        cvector(SVECTOR*) markers) {
     const VECTOR position = (VECTOR) {
         .vx = camera->position.vx,
@@ -490,9 +490,9 @@ RayCastResult worldRayCastIntersection_new1(const World* world,
         .vz = camera->position.vz
     };
     const VECTOR direction = rotationToDirection(&camera->rotation);
-    const int32_t dx = direction.vx;
-    const int32_t dy = direction.vy;
-    const int32_t dz = direction.vz;
+    const i32 dx = direction.vx;
+    const i32 dy = direction.vy;
+    const i32 dz = direction.vz;
     printf("Direction: (%d,%d,%d)\n", inlineVec(direction));
     if (dx == 0 && dy == 0 && dz == 0) {
         printf("Zero delta\n");
@@ -502,36 +502,36 @@ RayCastResult worldRayCastIntersection_new1(const World* world,
             .face = {0}
         };
     }
-    int32_t ix = (position.vx / BLOCK_SIZE) >> FIXED_POINT_SHIFT;
-    int32_t iy = (position.vy / BLOCK_SIZE) >> FIXED_POINT_SHIFT;
-    int32_t iz = (position.vz / BLOCK_SIZE) >> FIXED_POINT_SHIFT;
+    i32 ix = (position.vx / BLOCK_SIZE) >> FIXED_POINT_SHIFT;
+    i32 iy = (position.vy / BLOCK_SIZE) >> FIXED_POINT_SHIFT;
+    i32 iz = (position.vz / BLOCK_SIZE) >> FIXED_POINT_SHIFT;
     printf("Index position: (%d,%d,%d)\n", ix, iy, iz);
-    const int32_t step_x = sign(dx);
-    const int32_t step_y = sign(dy);
-    const int32_t step_z = sign(dz);
+    const i32 step_x = sign(dx);
+    const i32 step_y = sign(dy);
+    const i32 step_z = sign(dz);
     printf("Step: (%d,%d,%d)\n", step_x, step_y, step_z);
-    const int32_t tx_delta = absv((ONE << FIXED_POINT_SHIFT) / dx);
-    const int32_t ty_delta = absv((ONE << FIXED_POINT_SHIFT) / dy);
-    const int32_t tz_delta = absv((ONE << FIXED_POINT_SHIFT) / dz);
+    const i32 tx_delta = absv((ONE << FIXED_POINT_SHIFT) / dx);
+    const i32 ty_delta = absv((ONE << FIXED_POINT_SHIFT) / dy);
+    const i32 tz_delta = absv((ONE << FIXED_POINT_SHIFT) / dz);
     printf("Delta: (%d,%d,%d)\n", tx_delta, ty_delta, tz_delta);
-    const int32_t x_dist = step_x > 0 ? (((ix + 1) * BLOCK_SIZE) << FIXED_POINT_SHIFT) - position.vx : position.vx - ((ix * BLOCK_SIZE) << FIXED_POINT_SHIFT);
-    const int32_t y_dist = step_y > 0 ? (((iy + 1) * BLOCK_SIZE) << FIXED_POINT_SHIFT) - position.vy : position.vy - ((iy * BLOCK_SIZE) << FIXED_POINT_SHIFT);
-    const int32_t z_dist = step_z > 0 ? (((iz + 1) * BLOCK_SIZE) << FIXED_POINT_SHIFT) - position.vz : position.vz - ((iz * BLOCK_SIZE) << FIXED_POINT_SHIFT);
+    const i32 x_dist = step_x > 0 ? (((ix + 1) * BLOCK_SIZE) << FIXED_POINT_SHIFT) - position.vx : position.vx - ((ix * BLOCK_SIZE) << FIXED_POINT_SHIFT);
+    const i32 y_dist = step_y > 0 ? (((iy + 1) * BLOCK_SIZE) << FIXED_POINT_SHIFT) - position.vy : position.vy - ((iy * BLOCK_SIZE) << FIXED_POINT_SHIFT);
+    const i32 z_dist = step_z > 0 ? (((iz + 1) * BLOCK_SIZE) << FIXED_POINT_SHIFT) - position.vz : position.vz - ((iz * BLOCK_SIZE) << FIXED_POINT_SHIFT);
     printf("Dist: (%d,%d,%d)\n", x_dist, y_dist, z_dist);
-    int32_t tx_max = fixedMulFrac(tx_delta, x_dist);
-    int32_t ty_max = fixedMulFrac(ty_delta, y_dist);
-    int32_t tz_max = fixedMulFrac(tz_delta, z_dist);
+    i32 tx_max = fixedMul(tx_delta, x_dist);
+    i32 ty_max = fixedMul(ty_delta, y_dist);
+    i32 tz_max = fixedMul(tz_delta, z_dist);
     printf("Max: (%d,%d,%d)\n", tx_max, ty_max, tz_max);
-    int32_t stepped_index = -1;
-    int32_t t = 0;
-    const int32_t world_min_x = (world->centre.vx - WORLD_CHUNKS_RADIUS) * CHUNK_SIZE * BLOCK_SIZE;
-    const int32_t world_max_x = (world->centre.vx + WORLD_CHUNKS_RADIUS) * CHUNK_SIZE * BLOCK_SIZE;
+    i32 stepped_index = -1;
+    i32 t = 0;
+    const i32 world_min_x = (world->centre.vx - WORLD_CHUNKS_RADIUS) * CHUNK_SIZE * BLOCK_SIZE;
+    const i32 world_max_x = (world->centre.vx + WORLD_CHUNKS_RADIUS) * CHUNK_SIZE * BLOCK_SIZE;
     printf("World X [Min: %d] [Max: %d]\n", world_min_x, world_max_x);
-    const int32_t world_min_y = 0;
-    const int32_t world_max_y = WORLD_HEIGHT * BLOCK_SIZE;
+    const i32 world_min_y = 0;
+    const i32 world_max_y = WORLD_HEIGHT * BLOCK_SIZE;
     printf("World Y [Min: %d] [Max: %d]\n", world_min_y, world_max_y);
-    const int32_t world_min_z = (world->centre.vz - WORLD_CHUNKS_RADIUS) * CHUNK_SIZE * BLOCK_SIZE;
-    const int32_t world_max_z = (world->centre.vz + WORLD_CHUNKS_RADIUS) * CHUNK_SIZE * BLOCK_SIZE;
+    const i32 world_min_z = (world->centre.vz - WORLD_CHUNKS_RADIUS) * CHUNK_SIZE * BLOCK_SIZE;
+    const i32 world_max_z = (world->centre.vz + WORLD_CHUNKS_RADIUS) * CHUNK_SIZE * BLOCK_SIZE;
     printf("World Z [Min: %d] [Max: %d]\n", world_min_z, world_max_z);
     VECTOR hit_position = (VECTOR) {0};
     VECTOR hit_norm = (VECTOR) {0};
@@ -610,12 +610,12 @@ RayCastResult worldRayCastIntersection_new1(const World* world,
 
 RayCastResult worldRayCastIntersection_new(const World* world,
                                        const Camera* camera,
-                                       const int32_t radius,
+                                       const i32 radius,
                                        cvector(SVECTOR*) markers) {
     const VECTOR direction = rotationToDirection(&camera->rotation);
-    const int32_t dir_x = direction.vx;
-    const int32_t dir_y = direction.vy;
-    const int32_t dir_z = direction.vz;
+    const i32 dir_x = direction.vx;
+    const i32 dir_y = direction.vy;
+    const i32 dir_z = direction.vz;
     printf("Direction: (%d,%d,%d)\n", inlineVec(direction));
     if (dir_x == 0 && dir_y == 0 && dir_z == 0) {
         printf("Zero delta\n");
@@ -625,24 +625,24 @@ RayCastResult worldRayCastIntersection_new(const World* world,
             .face = {0}
         };
     }
-    int32_t x;
-    int32_t y;
-    int32_t z;
-    const int32_t x1 = x = camera->position.vx;
-    const int32_t y1 = y = -camera->position.vy;
-    const int32_t z1 = z = camera->position.vz;
-    const int32_t x2 = x1 + (dir_x * radius);
-    const int32_t y2 = y1 + (dir_y * radius);
-    const int32_t z2 = z1 + (dir_z * radius);
+    i32 x;
+    i32 y;
+    i32 z;
+    const i32 x1 = x = camera->position.vx;
+    const i32 y1 = y = -camera->position.vy;
+    const i32 z1 = z = camera->position.vz;
+    const i32 x2 = x1 + (dir_x * radius);
+    const i32 y2 = y1 + (dir_y * radius);
+    const i32 z2 = z1 + (dir_z * radius);
     const int dx = absv(x1 - x2);
     const int dy = absv(y1 - y2);
     const int dz = absv(z1 - z2);
-    const int32_t sx = x1 ? 1 : -1;
-    const int32_t sy = y1 ? 1 : -1;
-    const int32_t sz = z1 ? 1 : -1;
+    const i32 sx = x1 ? 1 : -1;
+    const i32 sy = y1 ? 1 : -1;
+    const i32 sz = z1 ? 1 : -1;
     if (dx >= dy && dx >= dz) {
-        int32_t ey = (3 * dy) - dz;
-        int32_t ez = (3 * dz) - dx;
+        i32 ey = (3 * dy) - dz;
+        i32 ez = (3 * dz) - dx;
         for (int i = 0; i < dx; i++) {
             x += sx;
             // TODO: Check intersection (x,y,z)
@@ -688,7 +688,7 @@ RayCastResult worldRayCastIntersection_new(const World* world,
 
 RayCastResult worldRayCastIntersection(const World* world,
                                        const Camera* camera,
-                                       int32_t radius,
+                                       i32 radius,
                                        cvector(SVECTOR)* markers) {
     // See: https://github.com/kpreid/cubes/blob/c5e61fa22cb7f9ba03cd9f22e5327d738ec93969/world.js#L307
     // See: http://www.cse.yorku.ca/~amana/research/grid.pdf
@@ -700,9 +700,9 @@ RayCastResult worldRayCastIntersection(const World* world,
     printf("Origin: (%d,%d,%d)\n", inlineVec(position));
     printf("Before rotation to direction\n");
     const VECTOR direction = rotationToDirection(&camera->rotation);
-    const int32_t dx = direction.vx;
-    const int32_t dy = direction.vy;
-    const int32_t dz = direction.vz;
+    const i32 dx = direction.vx;
+    const i32 dy = direction.vy;
+    const i32 dz = direction.vz;
     printf("dx: %d, dy: %d, dz: %d\n", dx, dy, dz);
     if (dx == 0 && dy == 0 && dz == 0) {
         printf("Zero delta\n");
@@ -712,30 +712,30 @@ RayCastResult worldRayCastIntersection(const World* world,
             .face = {0}
         };
     }
-    const int32_t step_x = (sign(dx) << FIXED_POINT_SHIFT) * BLOCK_SIZE;
-    const int32_t step_y = (sign(dy) << FIXED_POINT_SHIFT) * BLOCK_SIZE;
-    const int32_t step_z = (sign(dz) << FIXED_POINT_SHIFT) * BLOCK_SIZE;
+    const i32 step_x = (sign(dx) << FIXED_POINT_SHIFT) * BLOCK_SIZE;
+    const i32 step_y = (sign(dy) << FIXED_POINT_SHIFT) * BLOCK_SIZE;
+    const i32 step_z = (sign(dz) << FIXED_POINT_SHIFT) * BLOCK_SIZE;
     printf("step: (%d,%d,%d)\n", step_x, step_y, step_z);
     printf("Before intbound\n");
-    int32_t t_max_x = intbound(position.vx, dx);
-    int32_t t_max_y = intbound(position.vy, dy);
-    int32_t t_max_z = intbound(position.vz, dz);
+    i32 t_max_x = intbound(position.vx, dx);
+    i32 t_max_y = intbound(position.vy, dy);
+    i32 t_max_z = intbound(position.vz, dz);
     printf("After intbound: (%d,%d,%d)\n", t_max_x, t_max_y, t_max_z);
-    const int32_t t_delta_x = (step_x << FIXED_POINT_SHIFT) / dx;
-    const int32_t t_delta_y = (step_y << FIXED_POINT_SHIFT) / dy;
-    const int32_t t_delta_z = (step_z << FIXED_POINT_SHIFT) / dz;
+    const i32 t_delta_x = (step_x << FIXED_POINT_SHIFT) / dx;
+    const i32 t_delta_y = (step_y << FIXED_POINT_SHIFT) / dy;
+    const i32 t_delta_z = (step_z << FIXED_POINT_SHIFT) / dz;
     printf("t_delta: (%d,%d,%d)\n", t_delta_x, t_delta_y, t_delta_z);
     VECTOR face = (VECTOR) { .vx = 0, .vy = 0, .vz = 0 };
     // Rescale from units of 1 cube-edge to units of 'direction' so we can
     // compare with 't'.
-    const int32_t world_min_x = (world->centre.vx - WORLD_CHUNKS_RADIUS) * CHUNK_SIZE * BLOCK_SIZE;
-    const int32_t world_max_x = (world->centre.vx + WORLD_CHUNKS_RADIUS) * CHUNK_SIZE * BLOCK_SIZE;
+    const i32 world_min_x = (world->centre.vx - WORLD_CHUNKS_RADIUS) * CHUNK_SIZE * BLOCK_SIZE;
+    const i32 world_max_x = (world->centre.vx + WORLD_CHUNKS_RADIUS) * CHUNK_SIZE * BLOCK_SIZE;
     printf("World X [Min: %d] [Max: %d]\n", world_min_x, world_max_x);
-    const int32_t world_min_y = 0;
-    const int32_t world_max_y = WORLD_HEIGHT * BLOCK_SIZE;
+    const i32 world_min_y = 0;
+    const i32 world_max_y = WORLD_HEIGHT * BLOCK_SIZE;
     printf("World Y [Min: %d] [Max: %d]\n", world_min_y, world_max_y);
-    const int32_t world_min_z = (world->centre.vz - WORLD_CHUNKS_RADIUS) * CHUNK_SIZE * BLOCK_SIZE;
-    const int32_t world_max_z = (world->centre.vz + WORLD_CHUNKS_RADIUS) * CHUNK_SIZE * BLOCK_SIZE;
+    const i32 world_min_z = (world->centre.vz - WORLD_CHUNKS_RADIUS) * CHUNK_SIZE * BLOCK_SIZE;
+    const i32 world_max_z = (world->centre.vz + WORLD_CHUNKS_RADIUS) * CHUNK_SIZE * BLOCK_SIZE;
     printf("World Z [Min: %d] [Max: %d]\n", world_min_z, world_max_z);
     printf("X: %d, Y: %d, Z: %d\n", position.vx >> FIXED_POINT_SHIFT, position.vy >> FIXED_POINT_SHIFT, position.vz >> FIXED_POINT_SHIFT);
     radius *= BLOCK_SIZE;

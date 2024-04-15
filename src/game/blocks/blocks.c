@@ -1,6 +1,7 @@
 #include "blocks.h"
 
-#include <interface99_extensions.h>
+#include "../../util/interface99_extensions.h"
+#include "../../debug/debug.h"
 
 BlockAttributes block_attributes[BLOCK_COUNT] = {0};
 
@@ -29,23 +30,23 @@ void blocksInitialiseBuiltin() {
         BLOCKID_AIR,
         airBlockCreateAttributes()
     );
-    printf("Air: %d\n", VCAST(Block*, *airBlockCreate())->id);
+    DEBUG_LOG("Air: %d\n", VCAST_PTR(Block*, airBlockCreate())->id);
     initBlockSingleton(StoneBlock, STONE);
     initBlockAttributes(
         BLOCKID_STONE,
         stoneBlockCreateAttributes()
     );
-    printf("Stone: %d\n", VCAST(Block*, *stoneBlockCreate())->id);
+    DEBUG_LOG("Stone: %d\n", VCAST_PTR(Block*, stoneBlockCreate())->id);
     initBlockSingleton(DirtBlock, DIRT);
     initBlockAttributes(
         BLOCKID_DIRT,
         dirtBlockCreateAttributes()
     );
-    printf("Dirt: %d\n", VCAST(Block*, *dirtBlockCreate())->id);
+    DEBUG_LOG("Dirt: %d\n", VCAST_PTR(Block*, dirtBlockCreate())->id);
     initBlockSingleton(GrassBlock, GRASS);
     initBlockAttributes(
         BLOCKID_GRASS,
         grassBlockCreateAttributes()
     );
-    printf("Grass: %d\n", VCAST(Block*, *grassBlockCreate())->id);
+    DEBUG_LOG("Grass: %d\n", VCAST_PTR(Block*, grassBlockCreate())->id);
 }

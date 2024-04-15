@@ -17,3 +17,4 @@ __attribute__((weak)) PadButton binding_attack = PAD_R2;
 __attribute__((weak)) PadButton binding_use = PAD_L2;
 
 __attribute__((weak)) PadButton binding_open_inventory = PAD_START;
+__attribute__((weak)) PadButton binding_pause = PAD_SELECT;
