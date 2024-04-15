@@ -14,7 +14,6 @@ void StoneBlock_init(VSelf) {
     VSELF(StoneBlock);
     self->block = declareSolidBlock(
         BLOCKID_STONE,
-        "stone",
         defaultFaceAttributes(1)
     );
 }

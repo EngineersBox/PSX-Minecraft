@@ -1,4 +1,3 @@
-#pragma once
 
 #ifndef PSX_MINECRAFT_BLOCK_H
 #define PSX_MINECRAFT_BLOCK_H
@@ -19,6 +18,22 @@
 #define BLOCK_FACES 6
 #define BLOCK_TEXTURE_SIZE 16
 #define ONE_BLOCK (BLOCK_SIZE << FIXED_POINT_SHIFT)
+
+typedef struct {
+    // NOTE: Slipperiness calculation:
+    // <value> = slipperiness in float format
+    // var = <value> * 0.91
+    // (0.16277136 / (var * var * var)) * (1 << 12)
+    u16 slipperiness;
+    u16 hardness;
+    u16 resistance;
+    char* name;
+} BlockAttributes;
+
+// ONE * 0.91
+#define BLOCK_DEFAULT_SLIPPERINESS 3727
+// ONE * 0.5 * 5.0
+#define BLOCK_DEFAULT_RESISTANCE 10240
 
 typedef uint8_t BlockID;
 
@@ -52,17 +67,10 @@ typedef enum {
 } Orientation;
 
 typedef struct {
-    u16 slipperiness;
-    u16 hardness;
-    u16 resistance;
-} BlockAttributes;
-
-typedef struct {
     BlockID id;
-    BlockType type;
+    BlockType type; // TODO: Move this to attributes
     Orientation orientation;
     TextureAttributes face_attributes[BLOCK_FACES];
-    char* name;
 } Block;
 
 #define IBlock_IFACE \
@@ -89,23 +97,20 @@ interface(IBlock);
     extern IBlock extern_name##_IBLOCK_SINGLETON; \
     extern name extern_name##_BLOCK_SINGLETON
 
-#define declareBlock(_id, _name, _type, _orientation, _face_attributes) (Block) {\
+#define declareBlock(_id, _type, _orientation, _face_attributes) (Block) {\
     .id = (BlockID) _id,\
     .type = (BlockType) _type,\
     .orientation = (Orientation) _orientation,\
-    .face_attributes = _face_attributes,\
-    .name = _name\
+    .face_attributes = _face_attributes\
 }
-#define declareFixedBlock(_id, _name, _type, face_attributes) declareBlock( \
+#define declareFixedBlock(_id, _type, face_attributes) declareBlock( \
     _id, \
-    _name, \
     _type, \
     ORIENTATION_POS_X, \
     P99_PROTECT(face_attributes) \
 )
-#define declareSolidBlock(_id, _name, face_attributes) declareFixedBlock( \
+#define declareSolidBlock(_id, face_attributes) declareFixedBlock( \
     _id, \
-    _name, \
     BLOCKTYPE_SOLID, \
     P99_PROTECT(face_attributes) \
 )

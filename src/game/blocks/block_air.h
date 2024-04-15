@@ -11,6 +11,12 @@
 DEFN_BLOCK_STATELESS(AIR, AirBlock);
 
 IBlock* airBlockCreate();
+#define airBlockCreateAttributes() ((BlockAttributes) { \
+    .slipperiness = 0, \
+    .hardness = 0, \
+    .resistance = 0, \
+    .name = "air" \
+})
 
 void airBlockInit(VSelf);
 void AirBlock_init(VSelf);

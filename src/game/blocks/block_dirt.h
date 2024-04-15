@@ -11,6 +11,14 @@ DEFN_BLOCK_STATELESS(DIRT, DirtBlock);
 
 IBlock* dirtBlockCreate();
 
+// (0.16277136 / ((0.6 * 0.91) * (0.6 * 0.91) * (0.6 * 0.91))) * ONE = 4096
+// ONE * 0.5 = 2048
+#define dirtBlockCreateAttributes() ((BlockAttributes) { \
+    .slipperiness = 4096, \
+    .hardness = 2048, \
+    .resistance = BLOCK_DEFAULT_RESISTANCE \
+})
+
 void dirtBlockInit(VSelf);
 void DirtBlock_init(VSelf);
 

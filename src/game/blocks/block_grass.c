@@ -14,7 +14,6 @@ void GrassBlock_init(VSelf) {
     VSELF(GrassBlock);
     self->block = declareSolidBlock(
         BLOCKID_GRASS,
-        "grass",
         declareTintedFaceAttributes(
             3 /*49*/, NO_TINT,
             3 /*49*/, NO_TINT,

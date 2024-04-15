@@ -15,7 +15,6 @@ void AirBlock_init(VSelf) {
     VSELF(AirBlock);
     self->block = declareBlock(
         BLOCKID_AIR,
-        "air",
         BLOCKTYPE_EMPTY,
         ORIENTATION_POS_X,
         {}

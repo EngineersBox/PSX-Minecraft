@@ -14,7 +14,6 @@ void DirtBlock_init(VSelf) {
     VSELF(DirtBlock);
     self->block = declareSolidBlock(
         BLOCKID_DIRT,
-        "dirt",
         defaultFaceAttributes(2)
     );
 }
