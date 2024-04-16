@@ -22,6 +22,18 @@ typedef struct {
     u32 step_height;
     u32 height;
     u32 radius;
+    // Provide a set of descrete intervals to use when determining
+    // collision with this physics object. The count is the length
+    // of the two arrays. The arrays contain descrete intervals from
+    // the inclusive ranges:
+    // - [0, PhysicsObjectConfig::height]
+    // - [0, PhysicsObjectConfig::radius]
+    struct {
+        u8 height_count;
+        u8 radius_count;
+        const u32* height;
+        const u32* radius;
+    } collision_intervals;
 } PhysicsObjectConfig;
 
 /* Note that the following are booleans an note a single

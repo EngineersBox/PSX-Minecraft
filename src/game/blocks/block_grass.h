@@ -16,7 +16,8 @@ IBlock* grassBlockCreate();
 #define grassBlockCreateAttributes() ((BlockAttributes) { \
     .slipperiness = 4096, \
     .hardness = 2457, \
-    .resistance = 12288 \
+    .resistance = 12288, \
+    .name = "grass" \
 })
 
 void grassBlockInit(VSelf);

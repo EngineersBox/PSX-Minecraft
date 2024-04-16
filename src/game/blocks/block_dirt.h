@@ -16,7 +16,8 @@ IBlock* dirtBlockCreate();
 #define dirtBlockCreateAttributes() ((BlockAttributes) { \
     .slipperiness = 4096, \
     .hardness = 2048, \
-    .resistance = BLOCK_DEFAULT_RESISTANCE \
+    .resistance = BLOCK_DEFAULT_RESISTANCE, \
+    .name = "dirt" \
 })
 
 void dirtBlockInit(VSelf);

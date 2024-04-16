@@ -4,12 +4,22 @@
 #include "../util/interface99_extensions.h"
 #include "../debug/debug.h"
 
+#define HEIGHT_INTERVALS 3
+#define RADIUS_INTERVALS 2
+const u32 player_collision_intervals_height[HEIGHT_INTERVALS] = { 0, 258048, 516096 };
+const u32 player_collision_intervals_radius[RADIUS_INTERVALS] = { 0, 86016 };
 const PhysicsObjectConfig player_physics_object_config = (PhysicsObjectConfig) {
     .jump_height = 120422, // ONE_BLOCK * 0.42 = 120422
     .radius = 86016, // Width: 0.6 => Radius: ONE_BLOCK * 0.3 = 86016
     .height = 516096, // ONE_BLOCK * 1.8 = 516096
     .step_height = 0, // TODO
-    .gravity = 22937 // ONE_BLOCK * 0.08 = 22937
+    .gravity = 22937, // ONE_BLOCK * 0.08 = 22937
+    .collision_intervals = {
+        .height_count = HEIGHT_INTERVALS,
+        .radius_count = RADIUS_INTERVALS,
+        .height = player_collision_intervals_height,
+        .radius = player_collision_intervals_radius
+    }
 };
 
 void playerInit(Player* player) {

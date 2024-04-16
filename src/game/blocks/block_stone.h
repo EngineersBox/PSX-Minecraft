@@ -17,7 +17,8 @@ IBlock* stoneBlockCreate();
 #define stoneBlockCreateAttributes() ((BlockAttributes) { \
     .slipperiness = 4096, \
     .hardness = 6144, \
-    .resistance = 40960 \
+    .resistance = 40960, \
+    .name = "stone" \
 })
 
 void stoneBlockInit(VSelf);

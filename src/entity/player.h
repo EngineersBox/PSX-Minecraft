@@ -11,6 +11,8 @@
 #include "../physics/physics_object.h"
 #include "../core/input/input.h"
 
+extern const u32 player_collision_intervals_height[];
+extern const u32 player_collision_intervals_radius[];
 extern const PhysicsObjectConfig player_physics_object_config;
 
 typedef struct {
