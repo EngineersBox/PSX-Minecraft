@@ -164,8 +164,8 @@ void Minecraft_input(VSelf, const Stats* stats) {
 }
 
 // ONE_BLOCK * 1.7
-//#define CAMERA_OFFSET 487424
-#define CAMERA_OFFSET ONE_BLOCK
+#define CAMERA_OFFSET 487424
+// #define CAMERA_OFFSET ONE_BLOCK
 
 void minecraftUpdate(VSelf, const Stats* stats) __attribute__((alias("Minecraft_update")));
 void Minecraft_update(VSelf, const Stats* stats) {

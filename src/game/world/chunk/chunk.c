@@ -54,18 +54,22 @@ void chunkDestroyDroppedItem(void* elem) {
 }
 
 void chunkGenerateTestFlatMap(Chunk* chunk, const VECTOR* position) {
-    const i32 height = 5;
     for (i32 x = 0; x < CHUNK_SIZE; x++) {
         for (i32 z = 0; z < CHUNK_SIZE; z++) {
             for (i32 y = 0; y < CHUNK_SIZE; y++) {
-                if (y < height - 3) {
+                if (y < 2) {
                     chunk->blocks[chunkBlockIndex(x, CHUNK_SIZE - 1 - y, z)] = stoneBlockCreate();
-                } else if (y < height - 1) {
+                } else if (y < 4) {
                     chunk->blocks[chunkBlockIndex(x, CHUNK_SIZE - 1 - y, z)] = dirtBlockCreate();
-                } else if (y == height - 1) {
+                } else if (y == 4) {
                     chunk->blocks[chunkBlockIndex(x, CHUNK_SIZE - 1 - y, z)] = grassBlockCreate();
                 } else {
-                    chunk->blocks[chunkBlockIndex(x, CHUNK_SIZE - 1 - y, z)] = airBlockCreate();
+                    if (y == 5 && x % 3 == 0 && z % 3 == 0) {
+                        chunk->blocks[chunkBlockIndex(x, CHUNK_SIZE - 1 - y, z)] = stoneBlockCreate();
+                    } else {
+                        chunk->blocks[chunkBlockIndex(x, CHUNK_SIZE - 1 - y, z)] = airBlockCreate();
+
+                    }
                 }
             }
         }
@@ -357,11 +361,9 @@ void computeMeshMask(const Chunk* chunk,
             //      bottom segements of the mesh created amd also a ghost segement at
             //      the top of the world mirroring the bottom face of the bottom of
             //      the world.
-            IBlock* currentBlock;
+            IBlock* currentBlock = NULL;
             if (0 <= chunkIter[axis]) {
                 currentBlock = worldGetBlock(chunk->world, &query_position);
-            } else {
-                currentBlock = airBlockCreate();
             }
             if (currentBlock == NULL) {
                 currentBlock = airBlockCreate();
@@ -369,11 +371,9 @@ void computeMeshMask(const Chunk* chunk,
             query_position.vx += axisMask[0];
             query_position.vy += axisMask[1];
             query_position.vz += axisMask[2];
-            IBlock* compareBlock;
+            IBlock* compareBlock = NULL;
             if (chunkIter[axis] < CHUNK_SIZE - 1) {
                 compareBlock = worldGetBlock(chunk->world, &query_position);
-            } else {
-                compareBlock = airBlockCreate();
             }
             if (compareBlock == NULL) {
                 compareBlock = airBlockCreate();
@@ -458,9 +458,9 @@ void generateMeshLexicographically(Chunk* chunk,
 
 void chunkGenerateMesh(Chunk* chunk) {
     // 0: X, 1: Y, 2: Z
-    for (int axis = 0; axis < CHUNK_DIRECTIONS; axis++) {
-        const int axis1 = (axis + 1) % CHUNK_DIRECTIONS;
-        const int axis2 = (axis + 2) % CHUNK_DIRECTIONS;
+    for (u8 axis = 0; axis < CHUNK_DIRECTIONS; axis++) {
+        const u8 axis1 = (axis + 1) % CHUNK_DIRECTIONS;
+        const u8 axis2 = (axis + 2) % CHUNK_DIRECTIONS;
         i16 deltaAxis1[CHUNK_DIRECTIONS] = {0};
         i16 deltaAxis2[CHUNK_DIRECTIONS] = {0};
         i16 chunkIter[CHUNK_DIRECTIONS] = {0};

@@ -20,7 +20,7 @@ void IPhysicsObject_update(VSelf, World* world) {
     const PhysicsObjectFlags* flags = &self->flags;
     if (flags->jumping) {
         if(flags->in_water || flags->in_lava) {
-            self->motion.vy += 11468; // ONE_BLOCK * 0.04 = 11468
+            self->motion.vy += 2867; // ONE_BLOCK * 0.04 = 2867
         } else if(flags->on_ground) {
             self->motion.vy += self->config->jump_height;
         }
@@ -39,7 +39,7 @@ i32 resolveGroundAcceleration(const PhysicsObject* physics_object,
     horizontal_acceleration = 2236; // ONE * 546.0 * 0.1 * 0.1 * 0.1
     const VECTOR position = (VECTOR) {
         .vx = physics_object->position.vx / ONE_BLOCK,
-        .vy = (physics_object->position.vy - ONE_BLOCK) / ONE_BLOCK,
+        .vy = (physics_object->position.vy / ONE_BLOCK) - 1,
         .vz = physics_object->position.vz / ONE_BLOCK,
     };
     const IBlock* iblock = worldGetBlock(world, &position);
@@ -118,10 +118,10 @@ bool collideWithWorld(PhysicsObject* physics_object, World* world, i32 motion_x,
     bool collision_detected = false;
 #define applyMotion(_v) \
     if (motion_##_v < 0) { \
-        _v = min_##_v + motion_##_v; \
+        _v = (min_##_v + motion_##_v) / ONE_BLOCK; \
         test_##_v = true; \
     } else if (motion_##_v > 0) { \
-        _v = max_##_v + motion_##_v; \
+        _v = (max_##_v + motion_##_v) / ONE_BLOCK; \
         test_##_v = true; \
     }
     applyMotion(x);
@@ -136,7 +136,7 @@ bool collideWithWorld(PhysicsObject* physics_object, World* world, i32 motion_x,
         for (i32 aabb_y = min_y; aabb_y <= max_y && !x_collision; aabb_y += ONE) {
             for (i32 aabb_z = min_z; aabb_z <= max_z && !x_collision; aabb_z += ONE) {
                 const VECTOR position = (VECTOR) {
-                    .vx = x / ONE_BLOCK,
+                    .vx = x,
                     .vy = aabb_y / ONE_BLOCK,
                     .vz = aabb_z / ONE_BLOCK
                 };
@@ -166,7 +166,7 @@ bool collideWithWorld(PhysicsObject* physics_object, World* world, i32 motion_x,
                 const VECTOR position = (VECTOR) {
                     .vx = aabb_x / ONE_BLOCK,
                     .vy = aabb_y / ONE_BLOCK,
-                    .vz = z / ONE_BLOCK
+                    .vz = z
                 };
                 const IBlock* iblock = worldGetBlock(world, &position);
                 if (iblock == NULL) {
@@ -193,7 +193,7 @@ bool collideWithWorld(PhysicsObject* physics_object, World* world, i32 motion_x,
             for (i32 aabb_z = min_z; aabb_z <= max_z && !y_collision; aabb_z += ONE) {
                 const VECTOR position = (VECTOR) {
                     .vx = aabb_x / ONE_BLOCK,
-                    .vy = y / ONE_BLOCK,
+                    .vy = y,
                     .vz = aabb_z / ONE_BLOCK
                 };
                 const IBlock* iblock = worldGetBlock(world, &position);

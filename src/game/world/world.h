@@ -34,8 +34,8 @@
 typedef struct World {
     VECTOR centre;
     struct {
-        uint32_t vx;
-        uint32_t vz;
+        u32 vx;
+        u32 vz;
     } head; // Top left, effective (0,0) of 2D array of chunks
     IChunkProvider chunk_provider;
     // TODO: Refactor chunks array from 3D -> 1D for better locality
