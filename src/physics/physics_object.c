@@ -81,22 +81,100 @@ void IPhysicsObject_moveWithHeading(VSelf, World* world) {
         world,
         3727
     );
+    VECTOR* velocity = &self->velocity;
     iPhysicsObjectMove(
         self,
         world,
-        self->velocity.vx,
-        self->velocity.vy,
-        self->velocity.vz
+        velocity->vx,
+        velocity->vy,
+        velocity->vz
     );
     if (!self->flags.on_ground) {
-        self->velocity.vy -= self->config->gravity;
-        self->velocity.vy = fixedMul(self->velocity.vy, 4014); // ONE * 0.98 = 4014
+        velocity->vy -= self->config->gravity;
+        velocity->vy = fixedMul(velocity->vy, 4014); // ONE * 0.98 = 4014
     }
-    self->velocity.vx = fixedMul(self->velocity.vx, horizontal_acceleration);
-    self->velocity.vz = fixedMul(self->velocity.vz, horizontal_acceleration);
+    velocity->vx = fixedMul(velocity->vx, horizontal_acceleration);
+    velocity->vz = fixedMul(velocity->vz, horizontal_acceleration);
 }
 
-bool collideWithWorld(PhysicsObject* physics_object, World* world, i32 velocity_x, i32 velocity_y, i32 velocity_z) {
+/* NOTE: The aabb_v values used in each collide<axis> call can be transformed
+ *       into units (i.e. div by ONE_BLOCK) before being passed to these methods.
+ *       To do this, the min_<axis> values should be precomputed (div by ONE_BLOCK)
+ *       and the collision_intervals in the same way. The problem is that we then
+ *       loose precision with the checks for AABBs that are smaller than a block.
+ *       Not sure if we really want to do this or not because of that.
+ */
+
+static bool collideX(const World* world, const PhysicsObjectConfig* config, const i32 x, const i32 min_y, const i32 min_z) {
+    for (u8 yi = 0; yi < config->collision_intervals.height_count; yi++) {
+        for (u8 zi = 0; zi <= config->collision_intervals.radius_count; zi++) {
+            const i32 aabb_y = min_y + config->collision_intervals.height[yi];
+            const i32 aabb_z = min_z + config->collision_intervals.radius[zi];
+            const VECTOR position = (VECTOR) {
+                .vx = x,
+                .vy = aabb_y / ONE_BLOCK,
+                .vz = aabb_z / ONE_BLOCK
+            };
+            const IBlock* iblock = worldGetBlock(world, &position);
+            if (iblock == NULL) {
+                continue;
+            }
+            const Block* block = VCAST_PTR(Block*, iblock);
+            if (block->type != BLOCKTYPE_EMPTY) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+static bool collideZ(const World* world, const PhysicsObjectConfig* config, const i32 min_x, const i32 min_y, const i32 z) {
+    for (u8 yi = 0; yi < config->collision_intervals.height_count; yi++) {
+        for (u8 xi = 0; xi <= config->collision_intervals.radius_count; xi++) {
+            const i32 aabb_y = min_y + config->collision_intervals.height[yi];
+            const i32 aabb_x = min_x + config->collision_intervals.radius[xi];
+            const VECTOR position = (VECTOR) {
+                .vx = aabb_x / ONE_BLOCK,
+                .vy = aabb_y / ONE_BLOCK,
+                .vz = z
+            };
+            const IBlock* iblock = worldGetBlock(world, &position);
+            if (iblock == NULL) {
+                continue;
+            }
+            const Block* block = VCAST_PTR(Block*, iblock);
+            if (block->type != BLOCKTYPE_EMPTY) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+static bool collideY(const World* world, const PhysicsObjectConfig* config, const i32 min_x, const i32 y, const i32 min_z) {
+    for (u8 xi = 0; xi < config->collision_intervals.radius_count; xi++) {
+        for (u8 zi = 0; zi <= config->collision_intervals.radius_count; zi++) {
+            const i32 aabb_x = min_x + config->collision_intervals.radius[xi];
+            const i32 aabb_z = min_z + config->collision_intervals.radius[zi];
+            const VECTOR position = (VECTOR) {
+                .vx = aabb_x / ONE_BLOCK,
+                .vy = y,
+                .vz = aabb_z / ONE_BLOCK
+            };
+            const IBlock* iblock = worldGetBlock(world, &position);
+            if (iblock == NULL) {
+                continue;
+            }
+            const Block* block = VCAST_PTR(Block*, iblock);
+            if (block->type != BLOCKTYPE_EMPTY) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+bool collideWithWorld(PhysicsObject* physics_object, const World* world, i32 velocity_x, i32 velocity_y, i32 velocity_z) {
     // DEBUG_LOG("[PHYSICS] Motion: (%d,%d,%d)\n", velocity_x, velocity_y, velocity_z);
     const PhysicsObjectConfig* config = physics_object->config;
     const i32 min_x = physics_object->position.vx - config->radius;
@@ -122,33 +200,17 @@ bool collideWithWorld(PhysicsObject* physics_object, World* world, i32 velocity_
         test_##_v = true; \
     }
     applyMotion(x);
-    // DEBUG_LOG("[PHYSICS] Test x: %s\n", test_x ? "true" : "false");
     applyMotion(y);
-    // DEBUG_LOG("[PHYSICS] Test y: %s\n", test_y ? "true" : "false");
     applyMotion(z);
-    // DEBUG_LOG("[PHYSICS] Test z: %s\n", test_z ? "true" : "false");
     VECTOR new_position = {0};
     if (test_x) {
-        bool x_collision = false;
-        for (u8 yi = 0; yi < config->collision_intervals.height_count && !x_collision; yi++) {
-            for (u8 zi = 0; zi <= config->collision_intervals.radius_count && !x_collision; zi++) {
-                const i32 aabb_y = min_y + config->collision_intervals.height[yi];
-                const i32 aabb_z = min_z + config->collision_intervals.radius[zi];
-                const VECTOR position = (VECTOR) {
-                    .vx = x,
-                    .vy = aabb_y / ONE_BLOCK,
-                    .vz = aabb_z / ONE_BLOCK
-                };
-                const IBlock* iblock = worldGetBlock(world, &position);
-                if (iblock == NULL) {
-                    continue;
-                }
-                const Block* block = VCAST_PTR(Block*, iblock);
-                if (block->type != BLOCKTYPE_EMPTY) {
-                    x_collision = true;
-                }
-            }
-        }
+        const bool x_collision = collideX(
+            world,
+            config,
+            x,
+            min_y,
+            min_z
+        );
         DEBUG_LOG("[PHYSICS] Collision x: %s\n", x_collision ? "true" : "false");
         if (x_collision) {
             physics_object->flags.collided_horizontal = true;
@@ -159,26 +221,13 @@ bool collideWithWorld(PhysicsObject* physics_object, World* world, i32 velocity_
         }
     }
     if (test_z) {
-        bool z_collision = false;
-        for (u8 yi = 0; yi < config->collision_intervals.height_count && !z_collision; yi++) {
-            for (u8 xi = 0; xi <= config->collision_intervals.radius_count && !z_collision; xi++) {
-                const i32 aabb_y = min_y + config->collision_intervals.height[yi];
-                const i32 aabb_x = min_x + config->collision_intervals.radius[xi];
-                const VECTOR position = (VECTOR) {
-                    .vx = aabb_x / ONE_BLOCK,
-                    .vy = aabb_y / ONE_BLOCK,
-                    .vz = z
-                };
-                const IBlock* iblock = worldGetBlock(world, &position);
-                if (iblock == NULL) {
-                    continue;
-                }
-                const Block* block = VCAST_PTR(Block*, iblock);
-                if (block->type != BLOCKTYPE_EMPTY) {
-                    z_collision = true;
-                }
-            }
-        }
+        const bool z_collision = collideZ(
+            world,
+            config,
+            min_x,
+            min_y,
+            z
+        );
         DEBUG_LOG("[PHYSICS] Collision z: %s\n", z_collision ? "true" : "false");
         if (z_collision) {
             physics_object->flags.collided_horizontal = true;
@@ -189,32 +238,14 @@ bool collideWithWorld(PhysicsObject* physics_object, World* world, i32 velocity_
         }
     }
     if (test_y) {
-        bool y_collision = false;
-        for (u8 xi = 0; xi < config->collision_intervals.radius_count && !y_collision; xi++) {
-            for (u8 zi = 0; zi <= config->collision_intervals.radius_count && !y_collision; zi++) {
-                const i32 aabb_x = min_x + config->collision_intervals.radius[xi];
-                const i32 aabb_z = min_z + config->collision_intervals.radius[zi];
-                const VECTOR position = (VECTOR) {
-                    .vx = aabb_x / ONE_BLOCK,
-                    .vy = y,
-                    .vz = aabb_z / ONE_BLOCK
-                };
-                const IBlock* iblock = worldGetBlock(world, &position);
-                if (iblock == NULL) {
-                    continue;
-                }
-                const Block* block = VCAST_PTR(Block*, iblock);
-                // DEBUG_LOG(
-                //     "[PHYSICS] Block: %s, (%d,%d,%d)\n",
-                //     block_attributes[block->id].name,
-                //     inlineVec(position)
-                // );
-                if (block->type != BLOCKTYPE_EMPTY) {
-                    y_collision = true;
-                }
-            }
-        }
-        // DEBUG_LOG("[PHYSICS] Collision y: %s\n", y_collision ? "true" : "false");
+        const bool y_collision = collideY(
+            world,
+            config,
+            min_x,
+            y,
+            min_z
+        );
+        DEBUG_LOG("[PHYSICS] Collision y: %s\n", y_collision ? "true" : "false");
         if (y_collision) {
             if (velocity_y < 0) {
                 new_position.vy = ONE_BLOCK;
@@ -235,6 +266,7 @@ bool collideWithWorld(PhysicsObject* physics_object, World* world, i32 velocity_
     // then we need to update the on_ground flag so that we apply gravity to
     // the object after this call returns
     if (physics_object->flags.on_ground) {
+        // TODO: Check why this block is causing jumping up and down
         VECTOR position = vector_const_div(physics_object->position, ONE_BLOCK);
         position.vy--;
         const IBlock* iblock = worldGetBlock(world, &position);
@@ -242,7 +274,7 @@ bool collideWithWorld(PhysicsObject* physics_object, World* world, i32 velocity_
             return collision_detected;
         }
         const Block* block = VCAST_PTR(Block*, iblock);
-        if (block->type != BLOCKTYPE_EMPTY) {
+        if (block->type == BLOCKTYPE_EMPTY) {
             physics_object->flags.on_ground = false;
         }
     }
