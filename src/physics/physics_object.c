@@ -20,9 +20,9 @@ void IPhysicsObject_update(VSelf, World* world) {
     const PhysicsObjectFlags* flags = &self->flags;
     if (flags->jumping) {
         if(flags->in_water || flags->in_lava) {
-            self->motion.vy += 2867; // ONE_BLOCK * 0.04 = 2867
+            self->velocity.vy += 2867; // ONE_BLOCK * 0.04 = 2867
         } else if(flags->on_ground) {
-            self->motion.vy += self->config->jump_height;
+            self->velocity.vy += self->config->jump_height;
         }
     }
     self->move_strafe = fixedMul(self->move_strafe, 4014); // ONE * 0.98 = 4014
@@ -84,20 +84,20 @@ void IPhysicsObject_moveWithHeading(VSelf, World* world) {
     iPhysicsObjectMove(
         self,
         world,
-        self->motion.vx,
-        self->motion.vy,
-        self->motion.vz
+        self->velocity.vx,
+        self->velocity.vy,
+        self->velocity.vz
     );
     if (!self->flags.on_ground) {
-        self->motion.vy -= self->config->gravity;
-        self->motion.vy = fixedMul(self->motion.vy, 4014); // ONE * 0.98 = 4014
+        self->velocity.vy -= self->config->gravity;
+        self->velocity.vy = fixedMul(self->velocity.vy, 4014); // ONE * 0.98 = 4014
     }
-    self->motion.vx = fixedMul(self->motion.vx, horizontal_acceleration);
-    self->motion.vz = fixedMul(self->motion.vz, horizontal_acceleration);
+    self->velocity.vx = fixedMul(self->velocity.vx, horizontal_acceleration);
+    self->velocity.vz = fixedMul(self->velocity.vz, horizontal_acceleration);
 }
 
-bool collideWithWorld(PhysicsObject* physics_object, World* world, i32 motion_x, i32 motion_y, i32 motion_z) {
-    // DEBUG_LOG("[PHYSICS] Motion: (%d,%d,%d)\n", motion_x, motion_y, motion_z);
+bool collideWithWorld(PhysicsObject* physics_object, World* world, i32 velocity_x, i32 velocity_y, i32 velocity_z) {
+    // DEBUG_LOG("[PHYSICS] Motion: (%d,%d,%d)\n", velocity_x, velocity_y, velocity_z);
     const PhysicsObjectConfig* config = physics_object->config;
     const i32 min_x = physics_object->position.vx - config->radius;
     const i32 min_y = physics_object->position.vy;
@@ -114,11 +114,11 @@ bool collideWithWorld(PhysicsObject* physics_object, World* world, i32 motion_x,
     i32 z = 0;
     bool collision_detected = false;
 #define applyMotion(_v) \
-    if (motion_##_v < 0) { \
-        _v = (min_##_v + motion_##_v) / ONE_BLOCK; \
+    if (velocity_##_v < 0) { \
+        _v = (min_##_v + velocity_##_v) / ONE_BLOCK; \
         test_##_v = true; \
-    } else if (motion_##_v > 0) { \
-        _v = (max_##_v + motion_##_v) / ONE_BLOCK; \
+    } else if (velocity_##_v > 0) { \
+        _v = (max_##_v + velocity_##_v) / ONE_BLOCK; \
         test_##_v = true; \
     }
     applyMotion(x);
@@ -153,9 +153,9 @@ bool collideWithWorld(PhysicsObject* physics_object, World* world, i32 motion_x,
         if (x_collision) {
             physics_object->flags.collided_horizontal = true;
             collision_detected = true;
-            physics_object->motion.vx = 0;
+            physics_object->velocity.vx = 0;
         } else {
-            new_position.vx = motion_x;
+            new_position.vx = velocity_x;
         }
     }
     if (test_z) {
@@ -183,9 +183,9 @@ bool collideWithWorld(PhysicsObject* physics_object, World* world, i32 motion_x,
         if (z_collision) {
             physics_object->flags.collided_horizontal = true;
             collision_detected = true;
-            physics_object->motion.vz = 0;
+            physics_object->velocity.vz = 0;
         } else {
-            new_position.vz = motion_z;
+            new_position.vz = velocity_z;
         }
     }
     if (test_y) {
@@ -216,15 +216,15 @@ bool collideWithWorld(PhysicsObject* physics_object, World* world, i32 motion_x,
         }
         // DEBUG_LOG("[PHYSICS] Collision y: %s\n", y_collision ? "true" : "false");
         if (y_collision) {
-            if (motion_y < 0) {
+            if (velocity_y < 0) {
                 new_position.vy = ONE_BLOCK;
                 physics_object->flags.on_ground = true;
                 physics_object->flags.jumping = false;
             }
-            physics_object->motion.vy = 0;
+            physics_object->velocity.vy = 0;
             collision_detected = true;
         } else {
-            new_position.vy = motion_y;
+            new_position.vy = velocity_y;
         }
     }
     physics_object->position = vector_add(
@@ -249,21 +249,21 @@ bool collideWithWorld(PhysicsObject* physics_object, World* world, i32 motion_x,
     return collision_detected;
 }
 
-void iPhysicsObjectMove(VSelf, World* world, const i32 motion_x, const i32 motion_y, const i32 motion_z) __attribute__((alias("IPhysicsObject_move")));
-void IPhysicsObject_move(VSelf, World* world, const i32 motion_x, const i32 motion_y, const i32 motion_z) {
+void iPhysicsObjectMove(VSelf, World* world, const i32 velocity_x, const i32 velocity_y, const i32 velocity_z) __attribute__((alias("IPhysicsObject_move")));
+void IPhysicsObject_move(VSelf, World* world, const i32 velocity_x, const i32 velocity_y, const i32 velocity_z) {
     VSELF(PhysicsObject);
     if (self->flags.no_clip) {
-        self->position.vx += motion_x;
-        self->position.vy += motion_y;
-        self->position.vz += motion_z;
+        self->position.vx += velocity_x;
+        self->position.vy += velocity_y;
+        self->position.vz += velocity_z;
         return;
     }
     collideWithWorld(
         self,
         world,
-        motion_x,
-        motion_y,
-        motion_z
+        velocity_x,
+        velocity_y,
+        velocity_z
     );
 }
 
@@ -284,6 +284,6 @@ void IPhysicsObject_moveFlying(VSelf, i32 horizontal_shift) {
     self->move_forward = fixedMul(self->move_forward, dist);
     const i32 sin_yaw = isin(self->rotation.yaw >> FIXED_POINT_SHIFT);
     const i32 cos_yaw = icos(self->rotation.yaw >> FIXED_POINT_SHIFT);
-    self->motion.vx += fixedMul(self->move_strafe, cos_yaw) - fixedMul(self->move_forward, sin_yaw);
-    self->motion.vz += fixedMul(self->move_forward, cos_yaw) + fixedMul(self->move_strafe, sin_yaw);
+    self->velocity.vx += fixedMul(self->move_strafe, cos_yaw) - fixedMul(self->move_forward, sin_yaw);
+    self->velocity.vz += fixedMul(self->move_forward, cos_yaw) + fixedMul(self->move_strafe, sin_yaw);
 }

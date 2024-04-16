@@ -20,7 +20,10 @@ typedef struct {
     u32 gravity;
     // Fixed point block size (ONE * BLOCK_SIZE == single block)
     u32 step_height;
+    // Height of the bounding box extending from the position Y
     u32 height;
+    // Radius of the bounding box extending from the position X
+    // and Z
     u32 radius;
     // Provide a set of descrete intervals to use when determining
     // collision with this physics object. The count is the length
@@ -36,8 +39,8 @@ typedef struct {
     } collision_intervals;
 } PhysicsObjectConfig;
 
-/* Note that the following are booleans an note a single
- * enum field since it is possible to be in a combination
+/* Note that the following are booleans and not enum
+ * entries since it is possible to be in a combination
  * of these states at once if the AABB is larger than a
  * single block.
  */
@@ -57,7 +60,7 @@ typedef struct {
 
 typedef struct {
     VECTOR position;
-    VECTOR motion;
+    VECTOR velocity;
     struct {
         // X-axis
         i32 pitch;
@@ -75,7 +78,7 @@ typedef struct World World;
 
 #define IPhysicsObject_IFACE \
     vfuncDefault(void, update, VSelf, World* world) \
-    vfuncDefault(void, move, VSelf, World* world, i32 motion_x, i32 motion_y, i32 motion_z) \
+    vfuncDefault(void, move, VSelf, World* world, i32 velocity_x, i32 velocity_y, i32 velocity_z) \
     vfuncDefault(void, moveWithHeading, VSelf, World* world) \
     vfuncDefault(void, moveFlying, VSelf, i32 horitzonal_shift)
 
@@ -85,8 +88,8 @@ void IPhysicsObject_update(VSelf, World* world);
 void iPhysicsObjectMoveWithHeading(VSelf, World* world);
 void IPhysicsObject_moveWithHeading(VSelf, World* world);
 
-void iPhysicsObjectMove(VSelf, World* world, i32 motion_x, i32 motion_y, i32 motion_z);
-void IPhysicsObject_move(VSelf, World* world, i32 motion_x, i32 motion_y, i32 motion_z);
+void iPhysicsObjectMove(VSelf, World* world, i32 velocity_x, i32 velocity_y, i32 velocity_z);
+void IPhysicsObject_move(VSelf, World* world, i32 velocity_x, i32 velocity_y, i32 velocity_z);
 
 void iPhysicsObjectMoveFlying(VSelf, i32 horizontal_shift);
 void IPhysicsObject_moveFlying(VSelf, i32 horizontal_shift);

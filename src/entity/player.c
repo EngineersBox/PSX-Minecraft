@@ -12,7 +12,7 @@ const PhysicsObjectConfig player_physics_object_config = (PhysicsObjectConfig) {
     .jump_height = 120422, // ONE_BLOCK * 0.42 = 120422
     .radius = 86016, // Width: 0.6 => Radius: ONE_BLOCK * 0.3 = 86016
     .height = 516096, // ONE_BLOCK * 1.8 = 516096
-    .step_height = 0, // TODO
+    .step_height = 0, // TODO: Implement this
     .gravity = 22937, // ONE_BLOCK * 0.08 = 22937
     .collision_intervals = {
         .height_count = HEIGHT_INTERVALS,
@@ -35,7 +35,7 @@ void playerInit(Player* player) {
             .pitch = 0,
             .yaw = 0
         },
-        .motion = (VECTOR) {0},
+        .velocity = (VECTOR) {0},
         .move_forward = 0,
         .move_strafe = 0,
         .flags = {0},
