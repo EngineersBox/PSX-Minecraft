@@ -65,7 +65,7 @@ void chunkGenerateTestFlatMap(Chunk* chunk, const VECTOR* position) {
                     chunk->blocks[chunkBlockIndex(x, y, z)] = grassBlockCreate();
                 } else {
                     if (y == 5 && x % 3 == 0 && z % 3 == 0) {
-                        chunk->blocks[chunkBlockIndex(x, y, z)] = stoneBlockCreate();
+                        chunk->blocks[chunkBlockIndex(x, y, z)] = grassBlockCreate();
                     } else {
                         chunk->blocks[chunkBlockIndex(x, y, z)] = airBlockCreate();
                     }
@@ -151,12 +151,18 @@ void chunkClearMesh(Chunk* chunk) {
 }
 
 const INDEX INDICES[6] = {
-    {0, 2, 1, 3},
+    // {1,3,0,2},
+    // {3,1,2,0},
+    // {3,2,1,0},
+    // {2,3,0,1},
+    // {3,2,1,0},
+    // {2,3,0,1}
     {2, 0, 3, 1},
-    {1, 0, 3, 2},
+    {0, 2, 1, 3},
     {0, 1, 2, 3},
     {1, 0, 3, 2},
     {0, 1, 2, 3},
+    {1, 0, 3, 2},
 };
 
 SMD_PRIM* createQuadPrimitive(ChunkMesh* mesh,
@@ -220,7 +226,7 @@ void createQuadVertices(Chunk* chunk,
     // Offset by 1 to ensure bottom block of bottom chunk starts at Y = 0
     const i16 chunk_origin_y = (-chunk->position.vy - 1) * CHUNK_SIZE;
     const i16 chunk_origin_z = chunk->position.vz * CHUNK_SIZE;
-    const SVECTOR vertices[4] = { // positiveModulo(-y - 1, CHUNK_SIZE),
+    const SVECTOR vertices[4] = {
         [0] = {
             (chunk_origin_x + origin[0]) * BLOCK_SIZE,
             (chunk_origin_y + origin[1]) * BLOCK_SIZE,
@@ -248,7 +254,7 @@ void createQuadVertices(Chunk* chunk,
     #define bindVertex(v) nextRenderAttribute(p_verts, v, n_verts, vertex); \
         currentVert = &vertices[indices.v]; \
         vertex->vx = currentVert->vx; \
-        vertex->vy = -currentVert->vy; \
+        vertex->vy = currentVert->vy; \
         vertex->vz = currentVert->vz
     bindVertex(v0);
     bindVertex(v1);

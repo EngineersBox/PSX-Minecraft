@@ -17,8 +17,8 @@ void GrassBlock_init(VSelf) {
         declareTintedFaceAttributes(
             3 /*49*/, NO_TINT,
             3 /*49*/, NO_TINT,
-            2 /*49*/, NO_TINT,
             0 /*49*/, /*NO_TINT,*/ faceTint(91, 139, 50, 1),
+            2 /*49*/, NO_TINT,
             3 /*49*/, NO_TINT,
             3 /*49*/, NO_TINT
         )
