@@ -67,8 +67,10 @@ typedef struct {
         // Y-axis
         i32 yaw;
     } rotation;
-    i16 move_forward;
-    i16 move_strafe;
+    struct {
+        i16 forward;
+        i16 strafe;
+    } move;
     const PhysicsObjectConfig* config;
     PhysicsObjectFlags flags;
 } PhysicsObject;

@@ -36,8 +36,10 @@ void playerInit(Player* player) {
             .yaw = 0
         },
         .velocity = (VECTOR) {0},
-        .move_forward = 0,
-        .move_strafe = 0,
+        .move = {
+            .forward = 0,
+            .strafe = 0
+        },
         .flags = {0},
         .config = &player_physics_object_config
     };
@@ -62,8 +64,8 @@ void playerRender(const Player* player, RenderContext* ctx, Transforms* transfor
 bool playerInputHandler(const Input* input, void* ctx) {
     Player* player = (Player*) ctx;
     PhysicsObject* physics_object = &player->physics_object;
-    physics_object->move_forward = 0;
-    physics_object->move_strafe = 0;
+    physics_object->move.forward = 0;
+    physics_object->move.strafe = 0;
     if (input->pad->stat != 0) {
         return false;
     }
@@ -101,23 +103,23 @@ bool playerInputHandler(const Input* input, void* ctx) {
     }
     i32 move_amount = ONE_BLOCK;
     if (isPressed(pad, binding_jump)) {
-        player->physics_object.flags.jumping = true;
+        physics_object->flags.jumping = true;
         // DEBUG_LOG("[PLAYER] Set jump = true\n");
     }
     if (isPressed(pad, binding_sneak)) {
         move_amount = 86016; // ONE_BLOCK * 0.3 = 86016
-        player->physics_object.flags.sneaking = true;
+        physics_object->flags.sneaking = true;
         // DEBUG_LOG("[PLAYER] Set sneaking = true\n");
     }
     if (isPressed(pad, binding_move_forward)) {
-        player->physics_object.move_forward += move_amount;
+        physics_object->move.forward += move_amount;
     } else if (isPressed(pad, binding_move_backward)) {
-        player->physics_object.move_forward -= move_amount;
+        physics_object->move.forward -= move_amount;
     }
     if (isPressed(pad, binding_move_left)) {
-        player->physics_object.move_strafe -= move_amount;
+        physics_object->move.strafe -= move_amount;
     } else if (isPressed(pad, binding_move_right)) {
-        player->physics_object.move_strafe += move_amount;
+        physics_object->move.strafe += move_amount;
     }
     return false;
 }

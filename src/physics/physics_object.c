@@ -25,8 +25,8 @@ void IPhysicsObject_update(VSelf, World* world) {
             self->velocity.vy += self->config->jump_height;
         }
     }
-    self->move_strafe = fixedMul(self->move_strafe, 4014); // ONE * 0.98 = 4014
-    self->move_forward = fixedMul(self->move_forward, 4014); // ONE * 0.98 = 4014
+    self->move.strafe = fixedMul(self->move.strafe, 4014); // ONE * 0.98 = 4014
+    self->move.forward = fixedMul(self->move.forward, 4014); // ONE * 0.98 = 4014
     iPhysicsObjectMoveWithHeading(self, world);
 }
 
@@ -72,6 +72,7 @@ void IPhysicsObject_moveWithHeading(VSelf, World* world) {
     } else {
         shift = 81;
     }
+    // Doesn't update position, only modifies velocity
     iPhysicsObjectMoveFlying(
         self,
         shift
@@ -268,8 +269,6 @@ bool collideWithWorld(PhysicsObject* physics_object, const World* world, i32 vel
     // then we need to update the on_ground flag so that we apply gravity to
     // the object after this call returns
     if (physics_object->flags.on_ground) {
-        // TODO: Block is always stone when checked for some reason which causes
-        //       fall to never occur when moving off the edge of a block
         VECTOR position = vector_const_div(physics_object->position, ONE_BLOCK);
         position.vy--;
         const IBlock* iblock = worldGetBlock(world, &position);
@@ -307,8 +306,8 @@ void iPhysicsObjectMoveFlying(VSelf, i32 horizontal_shift) __attribute__((alias(
 void IPhysicsObject_moveFlying(VSelf, i32 horizontal_shift) {
     VSELF(PhysicsObject);
     i32 dist = SquareRoot12(
-        fixedMul(self->move_forward, self->move_forward)
-        + fixedMul(self->move_strafe, self->move_strafe)
+        fixedMul(self->move.forward, self->move.forward)
+        + fixedMul(self->move.strafe, self->move.strafe)
     );
     if (dist < 40) { // ONE * 0.01
         return;
@@ -316,10 +315,10 @@ void IPhysicsObject_moveFlying(VSelf, i32 horizontal_shift) {
         dist = ONE;
     }
     dist = (horizontal_shift << 12) / (dist >> 12);
-    self->move_strafe = fixedMul(self->move_strafe, dist);
-    self->move_forward = fixedMul(self->move_forward, dist);
+    self->move.strafe = fixedMul(self->move.strafe, dist);
+    self->move.forward = fixedMul(self->move.forward, dist);
     const i32 sin_yaw = isin(self->rotation.yaw >> FIXED_POINT_SHIFT);
     const i32 cos_yaw = icos(self->rotation.yaw >> FIXED_POINT_SHIFT);
-    self->velocity.vx += fixedMul(self->move_strafe, cos_yaw) - fixedMul(self->move_forward, sin_yaw);
-    self->velocity.vz += fixedMul(self->move_forward, cos_yaw) + fixedMul(self->move_strafe, sin_yaw);
+    self->velocity.vx += fixedMul(self->move.strafe, cos_yaw) - fixedMul(self->move.forward, sin_yaw);
+    self->velocity.vz += fixedMul(self->move.forward, cos_yaw) + fixedMul(self->move.strafe, sin_yaw);
 }

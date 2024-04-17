@@ -39,7 +39,7 @@ typedef struct {
     || ( \
         m1.block != NULL \
         && m2.block != NULL \
-        && VCAST(Block*, *m1.block)->id == VCAST(Block*, *m2.block)->id \
+        && VCAST_PTR(Block*, m1.block)->id == VCAST_PTR(Block*, m2.block)->id \
         && m1.normal == m2.normal \
     ) \
 )
@@ -58,17 +58,16 @@ void chunkGenerateTestFlatMap(Chunk* chunk, const VECTOR* position) {
         for (i32 z = 0; z < CHUNK_SIZE; z++) {
             for (i32 y = 0; y < CHUNK_SIZE; y++) {
                 if (y < 2) {
-                    chunk->blocks[chunkBlockIndex(x, CHUNK_SIZE - 1 - y, z)] = stoneBlockCreate();
+                    chunk->blocks[chunkBlockIndex(x, y, z)] = stoneBlockCreate();
                 } else if (y < 4) {
-                    chunk->blocks[chunkBlockIndex(x, CHUNK_SIZE - 1 - y, z)] = dirtBlockCreate();
+                    chunk->blocks[chunkBlockIndex(x, y, z)] = dirtBlockCreate();
                 } else if (y == 4) {
-                    chunk->blocks[chunkBlockIndex(x, CHUNK_SIZE - 1 - y, z)] = grassBlockCreate();
+                    chunk->blocks[chunkBlockIndex(x, y, z)] = grassBlockCreate();
                 } else {
                     if (y == 5 && x % 3 == 0 && z % 3 == 0) {
-                        chunk->blocks[chunkBlockIndex(x, CHUNK_SIZE - 1 - y, z)] = stoneBlockCreate();
+                        chunk->blocks[chunkBlockIndex(x, y, z)] = stoneBlockCreate();
                     } else {
-                        chunk->blocks[chunkBlockIndex(x, CHUNK_SIZE - 1 - y, z)] = airBlockCreate();
-
+                        chunk->blocks[chunkBlockIndex(x, y, z)] = airBlockCreate();
                     }
                 }
             }
@@ -221,7 +220,7 @@ void createQuadVertices(Chunk* chunk,
     // Offset by 1 to ensure bottom block of bottom chunk starts at Y = 0
     const i16 chunk_origin_y = (-chunk->position.vy - 1) * CHUNK_SIZE;
     const i16 chunk_origin_z = chunk->position.vz * CHUNK_SIZE;
-    const SVECTOR vertices[4] = {
+    const SVECTOR vertices[4] = { // positiveModulo(-y - 1, CHUNK_SIZE),
         [0] = {
             (chunk_origin_x + origin[0]) * BLOCK_SIZE,
             (chunk_origin_y + origin[1]) * BLOCK_SIZE,
@@ -249,7 +248,7 @@ void createQuadVertices(Chunk* chunk,
     #define bindVertex(v) nextRenderAttribute(p_verts, v, n_verts, vertex); \
         currentVert = &vertices[indices.v]; \
         vertex->vx = currentVert->vx; \
-        vertex->vy = currentVert->vy; \
+        vertex->vy = -currentVert->vy; \
         vertex->vz = currentVert->vz
     bindVertex(v0);
     bindVertex(v1);
@@ -308,8 +307,8 @@ void createQuad(Chunk* chunk,
 }
 
 Mask createMask(IBlock* currentIBlock, IBlock* compareIBlock) {
-    const Block* currentBlock = VCAST(Block*, *currentIBlock);
-    const Block* compareBlock = VCAST(Block*, *compareIBlock);
+    const Block* currentBlock = VCAST_PTR(Block*, currentIBlock);
+    const Block* compareBlock = VCAST_PTR(Block*, compareIBlock);
     if (currentBlock->id == BLOCKID_AIR && compareBlock->id == BLOCKID_AIR) {
         return (Mask) { airBlockCreate(), 0 };
     }
@@ -539,14 +538,22 @@ IBlock* chunkGetBlock(const Chunk* chunk, const i32 x, const i32 y, const i32 z)
     if (checkIndexOOB(x, y, z)) {
         return airBlockCreate();
     }
-    return chunk->blocks[chunkBlockIndex(x, y, z)];
+    return chunk->blocks[chunkBlockIndex(
+        x,
+        y, //positiveModulo(-y - 1, CHUNK_SIZE),
+        z
+    )];
 }
 
 IBlock* chunkGetBlockVec(const Chunk* chunk, const VECTOR* position) {
     if (checkIndexOOB(position->vx, position->vy, position->vz)) {
         return airBlockCreate();
     }
-    return chunk->blocks[chunkBlockIndex(position->vx, position->vy, position->vz)];
+    return chunk->blocks[chunkBlockIndex(
+        position->vx,
+        position->vy,//positiveModulo(-position->vy - 1, CHUNK_SIZE),
+        position->vz
+    )];
 }
 
 void constructItemPosition(const Chunk* chunk, const VECTOR* block_position, VECTOR* item_position) {
