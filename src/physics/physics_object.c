@@ -90,8 +90,10 @@ void IPhysicsObject_moveWithHeading(VSelf, World* world) {
         velocity->vz
     );
     if (!self->flags.on_ground) {
+        DEBUG_LOG("[PHYSICS] Velocity before: (%d,%d,%d)\n", inlineVecPtr(velocity));
         velocity->vy -= self->config->gravity;
         velocity->vy = fixedMul(velocity->vy, 4014); // ONE * 0.98 = 4014
+        DEBUG_LOG("[PHYSICS] Velocity after: (%d,%d,%d)\n", inlineVecPtr(velocity));
     }
     velocity->vx = fixedMul(velocity->vx, horizontal_acceleration);
     velocity->vz = fixedMul(velocity->vz, horizontal_acceleration);
@@ -248,7 +250,7 @@ bool collideWithWorld(PhysicsObject* physics_object, const World* world, i32 vel
         DEBUG_LOG("[PHYSICS] Collision y: %s\n", y_collision ? "true" : "false");
         if (y_collision) {
             if (velocity_y < 0) {
-                new_position.vy = ONE_BLOCK;
+                // new_position.vy = -ONE_BLOCK;
                 physics_object->flags.on_ground = true;
                 physics_object->flags.jumping = false;
             }
@@ -266,7 +268,8 @@ bool collideWithWorld(PhysicsObject* physics_object, const World* world, i32 vel
     // then we need to update the on_ground flag so that we apply gravity to
     // the object after this call returns
     if (physics_object->flags.on_ground) {
-        // TODO: Check why this block is causing jumping up and down
+        // TODO: Block is always stone when checked for some reason which causes
+        //       fall to never occur when moving off the edge of a block
         VECTOR position = vector_const_div(physics_object->position, ONE_BLOCK);
         position.vy--;
         const IBlock* iblock = worldGetBlock(world, &position);
@@ -274,6 +277,7 @@ bool collideWithWorld(PhysicsObject* physics_object, const World* world, i32 vel
             return collision_detected;
         }
         const Block* block = VCAST_PTR(Block*, iblock);
+        DEBUG_LOG("[PHYSICS] Block below: (%d,%d,%d) => %s\n", inlineVec(position), blockGetName(block->id));
         if (block->type == BLOCKTYPE_EMPTY) {
             physics_object->flags.on_ground = false;
         }

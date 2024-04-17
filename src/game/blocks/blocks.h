@@ -17,6 +17,12 @@
 
 extern BlockAttributes block_attributes[BLOCK_COUNT];
 
+#define blockGetAttribute(id, attr) (block_attributes[(id)].attr)
+#define blockGetName(id) blockGetAttribute(id, name)
+#define blockGetSlipperiness(id) blockGetAttribute(id, slipperiness)
+#define blockGetHardness(id) blockGetAttribute(id, hardness)
+#define blockGetResistance(id) blockGetAttribute(id, resistance)
+
 void blocksInitialiseBuiltin();
 
 #endif // PSX_MINECRAFT_BLOCKS_H
