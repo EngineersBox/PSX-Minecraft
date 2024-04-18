@@ -422,14 +422,14 @@ void drawDebugText(const Minecraft* minecraft, const Stats* stats) {
     const int32_t y_down = camera.position.vy / BLOCK_SIZE;
     const int32_t y_up = -camera.position.vy / BLOCK_SIZE;
     const int32_t z = camera.position.vz / BLOCK_SIZE;
-#define fracToFloat(frac) ((u32)(10000.0 * ((frac) / 4096.0)))
+#define fracToFloat(frac) ((u32)(100000 * ((frac) / 4096.0)))
     FntPrint(
         0,
         ""
-        "X=%d.%04d\n"
-        "Y=%d.%04d (DOWN)\n"
-        "Y=%d.%04d (UP)\n"
-        "Z=%d.%04d\n",
+        "X=%d.%05d\n"
+        "Y=%d.%05d (DOWN)\n"
+        "Y=%d.%05d (UP)\n"
+        "Z=%d.%05d\n",
         fixedGetWhole(x), fracToFloat(fixedGetFractional(x)),
         fixedGetWhole(y_down), fracToFloat(fixedGetFractional(y_down)),
         fixedGetWhole(y_up), fracToFloat(fixedGetFractional(y_up)),
