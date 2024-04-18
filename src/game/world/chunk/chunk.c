@@ -228,22 +228,22 @@ static void createQuadVertices(Chunk* chunk,
     const i16 chunk_origin_z = chunk->position.vz * CHUNK_SIZE;
     const SVECTOR vertices[4] = {
         [0] = {
-            (chunk_origin_x + origin[0]) * BLOCK_SIZE,
+            (chunk_origin_x + origin[0] - 1) * BLOCK_SIZE,
             (chunk_origin_y - origin[1]) * BLOCK_SIZE,
             (chunk_origin_z + origin[2]) * BLOCK_SIZE
         },
         [1] = {
-            (chunk_origin_x + origin[0] + delta_axis_1[0]) * BLOCK_SIZE,
+            (chunk_origin_x + origin[0] + delta_axis_1[0] - 1) * BLOCK_SIZE,
             (chunk_origin_y - origin[1] - delta_axis_1[1]) * BLOCK_SIZE,
             (chunk_origin_z + origin[2] + delta_axis_1[2]) * BLOCK_SIZE
         },
         [2] = {
-            (chunk_origin_x + origin[0] + delta_axis_2[0]) * BLOCK_SIZE,
+            (chunk_origin_x + origin[0] + delta_axis_2[0] - 1) * BLOCK_SIZE,
             (chunk_origin_y - origin[1] - delta_axis_2[1]) * BLOCK_SIZE,
             (chunk_origin_z + origin[2] + delta_axis_2[2]) * BLOCK_SIZE
         },
         [3] = {
-            (chunk_origin_x + origin[0] + delta_axis_1[0] + delta_axis_2[0]) * BLOCK_SIZE,
+            (chunk_origin_x + origin[0] + delta_axis_1[0] + delta_axis_2[0] - 1) * BLOCK_SIZE,
             (chunk_origin_y - origin[1] - delta_axis_1[1] - delta_axis_2[1]) * BLOCK_SIZE,
             (chunk_origin_z + origin[2] + delta_axis_1[2] + delta_axis_2[2]) * BLOCK_SIZE
         }
