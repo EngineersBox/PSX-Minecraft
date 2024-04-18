@@ -14,7 +14,7 @@ IBlock* grassBlockCreate();
 // (0.16277136 / ((0.6 * 0.91) * (0.6 * 0.91) * (0.6 * 0.91))) * ONE = 4096
 // ONE * 0.6 = 2457
 #define grassBlockCreateAttributes() ((BlockAttributes) { \
-    .slipperiness = 4096, \
+    .slipperiness = 3727, \
     .hardness = 2457, \
     .resistance = 12288, \
     .name = "grass" \

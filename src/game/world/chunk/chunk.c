@@ -151,21 +151,21 @@ void chunkClearMesh(Chunk* chunk) {
 }
 
 const INDEX INDICES[6] = {
-    // {1,3,0,2},
-    // {3,1,2,0},
-    // {3,2,1,0},
-    // {2,3,0,1},
-    // {3,2,1,0},
-    // {2,3,0,1}
-    {2, 0, 3, 1},
-    {0, 2, 1, 3},
-    {0, 1, 2, 3},
-    {1, 0, 3, 2},
-    {0, 1, 2, 3},
-    {1, 0, 3, 2},
+    {1,3,0,2},
+    {3,1,2,0},
+    {3,2,1,0},
+    {2,3,0,1},
+    {3,2,1,0},
+    {2,3,0,1}
+    // {2, 0, 3, 1},
+    // {0, 2, 1, 3},
+    // {0, 1, 2, 3},
+    // {1, 0, 3, 2},
+    // {0, 1, 2, 3},
+    // {1, 0, 3, 2},
 };
 
-SMD_PRIM* createQuadPrimitive(ChunkMesh* mesh,
+static SMD_PRIM* createQuadPrimitive(ChunkMesh* mesh,
                               const int width,
                               const int height,
                               const Mask* mask,
@@ -214,7 +214,7 @@ SMD_PRIM* createQuadPrimitive(ChunkMesh* mesh,
         primitive->index_field = mesh->count_field; \
         instance = &cvector_begin(mesh->attribute_field)[mesh->count_field++]
 
-void createQuadVertices(Chunk* chunk,
+static void createQuadVertices(Chunk* chunk,
                         const i16 origin[CHUNK_DIRECTIONS],
                         const i16 delta_axis_1[CHUNK_DIRECTIONS],
                         const i16 delta_axis_2[CHUNK_DIRECTIONS],
@@ -224,27 +224,27 @@ void createQuadVertices(Chunk* chunk,
     // Construct vertices relative to chunk mesh bottom left origin
     const i16 chunk_origin_x = chunk->position.vx * CHUNK_SIZE;
     // Offset by 1 to ensure bottom block of bottom chunk starts at Y = 0
-    const i16 chunk_origin_y = (-chunk->position.vy - 1) * CHUNK_SIZE;
+    const i16 chunk_origin_y = (-chunk->position.vy) * CHUNK_SIZE;
     const i16 chunk_origin_z = chunk->position.vz * CHUNK_SIZE;
     const SVECTOR vertices[4] = {
         [0] = {
             (chunk_origin_x + origin[0]) * BLOCK_SIZE,
-            (chunk_origin_y + origin[1]) * BLOCK_SIZE,
+            (chunk_origin_y - origin[1]) * BLOCK_SIZE,
             (chunk_origin_z + origin[2]) * BLOCK_SIZE
         },
         [1] = {
             (chunk_origin_x + origin[0] + delta_axis_1[0]) * BLOCK_SIZE,
-            (chunk_origin_y + origin[1] + delta_axis_1[1]) * BLOCK_SIZE,
+            (chunk_origin_y - origin[1] - delta_axis_1[1]) * BLOCK_SIZE,
             (chunk_origin_z + origin[2] + delta_axis_1[2]) * BLOCK_SIZE
         },
         [2] = {
             (chunk_origin_x + origin[0] + delta_axis_2[0]) * BLOCK_SIZE,
-            (chunk_origin_y + origin[1] + delta_axis_2[1]) * BLOCK_SIZE,
+            (chunk_origin_y - origin[1] - delta_axis_2[1]) * BLOCK_SIZE,
             (chunk_origin_z + origin[2] + delta_axis_2[2]) * BLOCK_SIZE
         },
         [3] = {
             (chunk_origin_x + origin[0] + delta_axis_1[0] + delta_axis_2[0]) * BLOCK_SIZE,
-            (chunk_origin_y + origin[1] + delta_axis_1[1] + delta_axis_2[1]) * BLOCK_SIZE,
+            (chunk_origin_y - origin[1] - delta_axis_1[1] - delta_axis_2[1]) * BLOCK_SIZE,
             (chunk_origin_z + origin[2] + delta_axis_1[2] + delta_axis_2[2]) * BLOCK_SIZE
         }
     };
@@ -312,7 +312,7 @@ void createQuad(Chunk* chunk,
     );
 }
 
-Mask createMask(IBlock* currentIBlock, IBlock* compareIBlock) {
+static Mask createMask(IBlock* currentIBlock, IBlock* compareIBlock) {
     const Block* currentBlock = VCAST_PTR(Block*, currentIBlock);
     const Block* compareBlock = VCAST_PTR(Block*, compareIBlock);
     if (currentBlock->id == BLOCKID_AIR && compareBlock->id == BLOCKID_AIR) {
@@ -346,7 +346,7 @@ Mask createMask(IBlock* currentIBlock, IBlock* compareIBlock) {
 
 }
 
-void computeMeshMask(const Chunk* chunk,
+static void computeMeshMask(const Chunk* chunk,
                      const i32 axis,
                      const i32 axis1,
                      const i32 axis2,
@@ -388,7 +388,7 @@ void computeMeshMask(const Chunk* chunk,
     }
 }
 
-void generateMeshLexicographically(Chunk* chunk,
+static void generateMeshLexicographically(Chunk* chunk,
                                    const i32 axis1,
                                    const i32 axis2,
                                    i16 deltaAxis1[CHUNK_DIRECTIONS],

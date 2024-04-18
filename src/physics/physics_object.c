@@ -16,7 +16,7 @@ void iPhysicsObjectInit(PhysicsObject* physics_object, const PhysicsObjectConfig
     physics_object->move.forward = 0;
     physics_object->move.strafe = 0;
     physics_object->fall_distance = 0;
-    physics_object->flags = {0};
+    physics_object->flags = (PhysicsObjectFlags) {0};
     physics_object->config = config;
 }
 

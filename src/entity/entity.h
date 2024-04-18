@@ -5,6 +5,8 @@
 
 #include <interface99.h>
 
+#include "../util/inttypes.h"
+
 typedef struct {
     i16 health;
     u16 on_fire;
