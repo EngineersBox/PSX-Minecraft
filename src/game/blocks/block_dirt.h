@@ -14,7 +14,7 @@ IBlock* dirtBlockCreate();
 // (0.16277136 / ((0.6 * 0.91) * (0.6 * 0.91) * (0.6 * 0.91))) * ONE = 4096
 // ONE * 0.5 = 2048
 #define dirtBlockCreateAttributes() ((BlockAttributes) { \
-    .slipperiness = 4096, \
+    .slipperiness = BLOCK_DEFAULT_SLIPPERINESS, \
     .hardness = 2048, \
     .resistance = BLOCK_DEFAULT_RESISTANCE, \
     .name = "dirt" \

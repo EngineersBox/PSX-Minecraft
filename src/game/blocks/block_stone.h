@@ -15,7 +15,7 @@ IBlock* stoneBlockCreate();
 // ONE * 1.5 = 6144
 // ONE * 10 = 40960
 #define stoneBlockCreateAttributes() ((BlockAttributes) { \
-    .slipperiness = 4096, \
+    .slipperiness = BLOCK_DEFAULT_SLIPPERINESS, \
     .hardness = 6144, \
     .resistance = 40960, \
     .name = "stone" \

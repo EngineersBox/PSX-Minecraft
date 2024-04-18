@@ -189,6 +189,9 @@ static bool collideY(const World* world, const PhysicsObjectConfig* config, cons
     return false;
 }
 
+#define deltaToBlockPos(pos, delta) ((delta) - positiveModulo(((pos) + (delta)), ONE_BLOCK))
+#define deltaToBlockNeg(pos, delta) ((delta) + (ONE_BLOCK - positiveModulo(((pos) + (delta)), ONE_BLOCK)))
+
 bool collideWithWorld(PhysicsObject* physics_object, const World* world, i32 velocity_x, i32 velocity_y, i32 velocity_z) {
     // DEBUG_LOG("[PHYSICS] Motion: (%d,%d,%d)\n", velocity_x, velocity_y, velocity_z);
     const PhysicsObjectConfig* config = physics_object->config;
@@ -205,12 +208,17 @@ bool collideWithWorld(PhysicsObject* physics_object, const World* world, i32 vel
     i32 x = 0;
     i32 y = 0;
     i32 z = 0;
+    i32 x_diff_to_block = 0;
+    i32 y_diff_to_block = 0;
+    i32 z_diff_to_block = 0;
     bool collision_detected = false;
 #define applyMotion(_v) \
     if (velocity_##_v < 0) { \
+        _v##_diff_to_block = deltaToBlockNeg(min_##_v, velocity_##_v);  \
         _v = (min_##_v + velocity_##_v) / ONE_BLOCK; \
         test_##_v = true; \
     } else if (velocity_##_v > 0) { \
+        _v##_diff_to_block = deltaToBlockPos(max_##_v, velocity_##_v); \
         _v = (max_##_v + velocity_##_v) / ONE_BLOCK; \
         test_##_v = true; \
     }
@@ -231,6 +239,7 @@ bool collideWithWorld(PhysicsObject* physics_object, const World* world, i32 vel
             physics_object->flags.collided_horizontal = true;
             collision_detected = true;
             physics_object->velocity.vx = 0;
+            // new_position.vx = x_diff_to_block;
         } else {
             new_position.vx = velocity_x;
         }
@@ -248,6 +257,7 @@ bool collideWithWorld(PhysicsObject* physics_object, const World* world, i32 vel
             physics_object->flags.collided_horizontal = true;
             collision_detected = true;
             physics_object->velocity.vz = 0;
+            // new_position.vz = z_diff_to_block;
         } else {
             new_position.vz = velocity_z;
         }
@@ -263,13 +273,13 @@ bool collideWithWorld(PhysicsObject* physics_object, const World* world, i32 vel
         DEBUG_LOG("[PHYSICS] Collision y: %s\n", y_collision ? "true" : "false");
         if (y_collision) {
             if (velocity_y < 0) {
-                // new_position.vy = -ONE_BLOCK;
                 physics_object->flags.on_ground = true;
                 physics_object->flags.jumping = false;
                 physics_object->fall_distance = 0;
             }
             physics_object->velocity.vy = 0;
             collision_detected = true;
+            // new_position.vy = y_diff_to_block;
         } else {
             new_position.vy = velocity_y;
         }

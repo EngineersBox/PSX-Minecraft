@@ -111,17 +111,16 @@ void chunkGenerate2DHeightMap(Chunk* chunk, const VECTOR* position) {
             //     0,
             //     CHUNK_SIZE
             // );
-            for (i32 y = CHUNK_SIZE; y > 0; y--) {
-                const i32 worldY = (position->vy * CHUNK_SIZE) + (CHUNK_SIZE - y)
-                                       + (CHUNK_SIZE * 6); // !IMPORTANT: TESTING OFFSET
+            for (i32 y = 0; y < CHUNK_SIZE; y++) {
+                const i32 worldY = (position->vy * CHUNK_SIZE) + y + (CHUNK_SIZE * 6); // !IMPORTANT: TESTING OFFSET
                 if (worldY < height - 3) {
-                    chunk->blocks[chunkBlockIndex(x, y - 1, z)] = stoneBlockCreate();
+                    chunk->blocks[chunkBlockIndex(x, y, z)] = stoneBlockCreate();
                 } else if (worldY < height - 1) {
-                    chunk->blocks[chunkBlockIndex(x, y - 1, z)] = dirtBlockCreate();
+                    chunk->blocks[chunkBlockIndex(x, y, z)] = dirtBlockCreate();
                 } else if (worldY == height - 1) {
-                    chunk->blocks[chunkBlockIndex(x, y - 1, z)] = grassBlockCreate();
+                    chunk->blocks[chunkBlockIndex(x, y, z)] = grassBlockCreate();
                 } else {
-                    chunk->blocks[chunkBlockIndex(x, y - 1, z)] = airBlockCreate();
+                    chunk->blocks[chunkBlockIndex(x, y, z)] = airBlockCreate();
                 }
             }
         }
