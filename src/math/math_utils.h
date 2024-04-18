@@ -35,6 +35,11 @@
     _a < _b ? _a : _b; \
 })
 
+#define absMinBound(value, bound, minimum) ({ \
+    __typeof__(value) _value = (value); \
+    (absv(_value) <= (bound) ? (minimum) : _value); \
+})
+
 #define quadIntersect(cursor, base, dim) ( \
     (cursor)->vx >= (base)->vx \
     && (cursor)->vy >= (base)->vy \

@@ -77,7 +77,7 @@ void IPhysicsObject_moveWithHeading(VSelf, World* world) {
             resolveGroundAcceleration(
                 self,
                 world,
-                3727
+                BLOCK_DEFAULT_SLIPPERINESS
             ),
             409
         );
@@ -92,7 +92,7 @@ void IPhysicsObject_moveWithHeading(VSelf, World* world) {
     scaling = resolveGroundAcceleration(
         self,
         world,
-        3727
+        BLOCK_DEFAULT_SLIPPERINESS
     );
     VECTOR* velocity = &self->velocity;
     iPhysicsObjectMove(
@@ -108,8 +108,8 @@ void IPhysicsObject_moveWithHeading(VSelf, World* world) {
         velocity->vy = fixedMul(velocity->vy, 4014); // ONE * 0.98 = 4014
         DEBUG_LOG("[PHYSICS] Velocity after: (%d,%d,%d)\n", inlineVecPtr(velocity));
     }
-    velocity->vx = fixedMul(velocity->vx, scaling);
-    velocity->vz = fixedMul(velocity->vz, scaling);
+    velocity->vx = absMinBound(fixedMul(velocity->vx, scaling), MINIMUM_VELOCITY, 0);
+    velocity->vz = absMinBound(fixedMul(velocity->vz, scaling), MINIMUM_VELOCITY, 0);
 }
 
 /* NOTE: The aabb_v values used in each collide<axis> call can be transformed

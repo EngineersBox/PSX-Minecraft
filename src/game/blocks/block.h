@@ -20,18 +20,17 @@
 #define ONE_BLOCK (BLOCK_SIZE << FIXED_POINT_SHIFT)
 
 typedef struct {
-    // NOTE: Slipperiness calculation:
-    // <value> = slipperiness in float format
-    // var = <value> * 0.91
-    // (0.16277136 / (var * var * var)) * (1 << 12)
+    // Higher = more slip
     u16 slipperiness;
+    // Higher = harder to destroy with a tool
     u16 hardness;
+    // Higher = harder to destroy with TNT
     u16 resistance;
     char* name;
 } BlockAttributes;
 
-// ONE * 0.91
-#define BLOCK_DEFAULT_SLIPPERINESS 3727
+// ONE * 0.09
+#define BLOCK_DEFAULT_SLIPPERINESS 368
 // ONE * 0.5 * 5.0
 #define BLOCK_DEFAULT_RESISTANCE 10240
 

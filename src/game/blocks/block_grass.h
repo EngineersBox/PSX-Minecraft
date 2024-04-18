@@ -11,10 +11,9 @@ DEFN_BLOCK_STATELESS(GRASS, GrassBlock);
 
 IBlock* grassBlockCreate();
 
-// (0.16277136 / ((0.6 * 0.91) * (0.6 * 0.91) * (0.6 * 0.91))) * ONE = 4096
 // ONE * 0.6 = 2457
 #define grassBlockCreateAttributes() ((BlockAttributes) { \
-    .slipperiness = 3727, \
+    .slipperiness = 368, \
     .hardness = 2457, \
     .resistance = 12288, \
     .name = "grass" \

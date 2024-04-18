@@ -12,6 +12,7 @@
 #include "../util/preprocessor.h"
 
 #define ROTATION_SPEED 15
+#define MINIMUM_VELOCITY 40
 
 typedef struct {
     // Fixed point block size (ONE * BLOCK_SIZE == single block)
