@@ -29,20 +29,7 @@ void playerInit(Player* player) {
     inventoryInit(inventory, hotbar);
     DYN_PTR(&player->hotbar, Hotbar, IUI, hotbar);
     DYN_PTR(&player->inventory, Inventory, IUI, inventory);
-    player->physics_object = (PhysicsObject) {
-        .position = (VECTOR) {0},
-        .rotation = {
-            .pitch = 0,
-            .yaw = 0
-        },
-        .velocity = (VECTOR) {0},
-        .move = {
-            .forward = 0,
-            .strafe = 0
-        },
-        .flags = {0},
-        .config = &player_physics_object_config
-    };
+    iPhysicsObjectInit(&player->physics_object, &player_physics_object_config);
 }
 
 void playerDestroy(const Player* player) {
@@ -50,6 +37,10 @@ void playerDestroy(const Player* player) {
     Hotbar* hotbar = VCAST(Hotbar*, player->hotbar);
     free(inventory);
     free(hotbar);
+}
+
+void playerUpdate(Player* player, World* world) {
+    iPhysicsObjectUpdate(&player->physics_object, world);
 }
 
 void playerRender(const Player* player, RenderContext* ctx, Transforms* transforms) {
@@ -77,14 +68,12 @@ bool playerInputHandler(const Input* input, void* ctx) {
             physics_object->rotation.pitch - (ONE * ROTATION_SPEED),
             ONE << FIXED_POINT_SHIFT
         );
-        // DEBUG_LOG("[PLAYER] Look up: %d\n", physics_object->rotation.pitch);
     } else if (isPressed(pad, binding_look_down)) {
         // Look down
         physics_object->rotation.pitch = positiveModulo(
             physics_object->rotation.pitch + (ONE * ROTATION_SPEED),
             ONE << FIXED_POINT_SHIFT
         );
-        // DEBUG_LOG("[PLAYER] Look dowm: %d\n", physics_object->rotation.pitch);
     }
     if (isPressed(pad, binding_look_left)) {
         // Look left
@@ -92,24 +81,20 @@ bool playerInputHandler(const Input* input, void* ctx) {
             physics_object->rotation.yaw + (ONE * ROTATION_SPEED),
             ONE << FIXED_POINT_SHIFT
         );
-        // DEBUG_LOG("[PLAYER] Look left: %d\n", physics_object->rotation.yaw);
     } else if (isPressed(pad, binding_look_right)) {
         // Look right
         physics_object->rotation.yaw = positiveModulo(
             physics_object->rotation.yaw - (ONE * ROTATION_SPEED),
             ONE << FIXED_POINT_SHIFT
         );
-        // DEBUG_LOG("[PLAYER] Look right: %d\n", physics_object->rotation.yaw);
     }
     i32 move_amount = ONE_BLOCK;
     if (isPressed(pad, binding_jump)) {
         physics_object->flags.jumping = true;
-        // DEBUG_LOG("[PLAYER] Set jump = true\n");
     }
     if (isPressed(pad, binding_sneak)) {
         move_amount = 86016; // ONE_BLOCK * 0.3 = 86016
         physics_object->flags.sneaking = true;
-        // DEBUG_LOG("[PLAYER] Set sneaking = true\n");
     }
     if (isPressed(pad, binding_move_forward)) {
         physics_object->move.forward += move_amount;

@@ -8,6 +8,18 @@
 // Forward declaration
 IBlock* worldGetBlock(const World* world, const VECTOR* position);
 
+void iPhysicsObjectInit(PhysicsObject* physics_object, const PhysicsObjectConfig* config) {
+    physics_object->position = (VECTOR) {0},
+    physics_object->rotation.pitch = 0;
+    physics_object->rotation.yaw = 0;
+    physics_object->velocity = (VECTOR) {0};
+    physics_object->move.forward = 0;
+    physics_object->move.strafe = 0;
+    physics_object->fall_distance = 0;
+    physics_object->flags = {0};
+    physics_object->config = config;
+}
+
 /* Order:
  * update(...) { ... moveWithHeading(...) ... }
  * moveWithHeading(...) { ... move(...) ... }
@@ -32,22 +44,22 @@ void IPhysicsObject_update(VSelf, World* world) {
 
 i32 resolveGroundAcceleration(const PhysicsObject* physics_object,
                               const World* world,
-                              i32 horizontal_acceleration) {
+                              i32 scaling) {
     if (!physics_object->flags.on_ground) {
-        return horizontal_acceleration;
+        return scaling;
     }
-    horizontal_acceleration = 2236; // ONE * 546.0 * 0.1 * 0.1 * 0.1
+    scaling = 2236; // ONE * 546.0 * 0.1 * 0.1 * 0.1
     VECTOR position = vector_const_div(physics_object->position, ONE_BLOCK);
     position.vy--;
     const IBlock* iblock = worldGetBlock(world, &position);
     if (iblock == NULL) {
-        return horizontal_acceleration;
+        return scaling;
     }
     const Block* block = VCAST_PTR(Block*, iblock);
     if (block->id != BLOCKID_AIR || block->type != BLOCKTYPE_EMPTY) {
-        horizontal_acceleration = block_attributes[block->id].slipperiness;
+        scaling = block_attributes[block->id].slipperiness;
     }
-    return horizontal_acceleration;
+    return scaling;
 }
 
 void iPhysicsObjectMoveWithHeading(VSelf, World* world) __attribute__((alias("IPhysicsObject_moveWithHeading")));
@@ -59,9 +71,9 @@ void IPhysicsObject_moveWithHeading(VSelf, World* world) {
     // ONE * 0.02 = 81
     // 0.16277136 / (0.1 * 0.1 * 0.1) = 162.77136
     // ((666 << 12) / ((((409 * 409) >> 12) * 409) >> 12)) / (1 << 12) = 222 (inaccuracy here)
-    i32 shift;
+    i32 scaling;
     if (self->flags.on_ground) {
-        shift = fixedMul(
+        scaling = fixedMul(
             resolveGroundAcceleration(
                 self,
                 world,
@@ -70,14 +82,14 @@ void IPhysicsObject_moveWithHeading(VSelf, World* world) {
             409
         );
     } else {
-        shift = 81;
+        scaling = 81;
     }
     // Doesn't update position, only modifies velocity
     iPhysicsObjectMoveFlying(
         self,
-        shift
+        scaling
     );
-    const i32 horizontal_acceleration = resolveGroundAcceleration(
+    scaling = resolveGroundAcceleration(
         self,
         world,
         3727
@@ -96,8 +108,8 @@ void IPhysicsObject_moveWithHeading(VSelf, World* world) {
         velocity->vy = fixedMul(velocity->vy, 4014); // ONE * 0.98 = 4014
         DEBUG_LOG("[PHYSICS] Velocity after: (%d,%d,%d)\n", inlineVecPtr(velocity));
     }
-    velocity->vx = fixedMul(velocity->vx, horizontal_acceleration);
-    velocity->vz = fixedMul(velocity->vz, horizontal_acceleration);
+    velocity->vx = fixedMul(velocity->vx, scaling);
+    velocity->vz = fixedMul(velocity->vz, scaling);
 }
 
 /* NOTE: The aabb_v values used in each collide<axis> call can be transformed
@@ -254,6 +266,7 @@ bool collideWithWorld(PhysicsObject* physics_object, const World* world, i32 vel
                 // new_position.vy = -ONE_BLOCK;
                 physics_object->flags.on_ground = true;
                 physics_object->flags.jumping = false;
+                physics_object->fall_distance = 0;
             }
             physics_object->velocity.vy = 0;
             collision_detected = true;
@@ -300,10 +313,19 @@ void IPhysicsObject_move(VSelf, World* world, const i32 velocity_x, const i32 ve
         velocity_y,
         velocity_z
     );
+    // Update fall state
+    if (self->flags.on_ground) {
+        if (self->fall_distance > 0) {
+            iPhysicsObjectFall(self, self->fall_distance);
+            self->fall_distance = 0;
+        }
+    } else {
+        self->fall_distance -= velocity_y;
+    }
 }
 
-void iPhysicsObjectMoveFlying(VSelf, i32 horizontal_shift) __attribute__((alias("IPhysicsObject_moveFlying")));
-void IPhysicsObject_moveFlying(VSelf, i32 horizontal_shift) {
+void iPhysicsObjectMoveFlying(VSelf, const i32 scaling) __attribute__((alias("IPhysicsObject_moveFlying")));
+void IPhysicsObject_moveFlying(VSelf, const i32 scaling) {
     VSELF(PhysicsObject);
     i32 dist = SquareRoot12(
         fixedMul(self->move.forward, self->move.forward)
@@ -314,11 +336,16 @@ void IPhysicsObject_moveFlying(VSelf, i32 horizontal_shift) {
     } else if (dist < ONE) {
         dist = ONE;
     }
-    dist = (horizontal_shift << 12) / (dist >> 12);
+    dist = (scaling << 12) / (dist >> 12);
     self->move.strafe = fixedMul(self->move.strafe, dist);
     self->move.forward = fixedMul(self->move.forward, dist);
     const i32 sin_yaw = isin(self->rotation.yaw >> FIXED_POINT_SHIFT);
     const i32 cos_yaw = icos(self->rotation.yaw >> FIXED_POINT_SHIFT);
     self->velocity.vx += fixedMul(self->move.strafe, cos_yaw) - fixedMul(self->move.forward, sin_yaw);
     self->velocity.vz += fixedMul(self->move.forward, cos_yaw) + fixedMul(self->move.strafe, sin_yaw);
+}
+
+void iPhysicsObjectFall(VSelf, i32 distance) __attribute__((alias("IPhysicsObject_fall")));
+void IPhysicsObject_fall(VSelf, i32 distance) {
+    // Do nothing by default
 }

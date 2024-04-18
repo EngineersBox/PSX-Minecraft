@@ -71,6 +71,7 @@ typedef struct {
         i16 forward;
         i16 strafe;
     } move;
+    i32 fall_distance;
     const PhysicsObjectConfig* config;
     PhysicsObjectFlags flags;
 } PhysicsObject;
@@ -82,7 +83,10 @@ typedef struct World World;
     vfuncDefault(void, update, VSelf, World* world) \
     vfuncDefault(void, move, VSelf, World* world, i32 velocity_x, i32 velocity_y, i32 velocity_z) \
     vfuncDefault(void, moveWithHeading, VSelf, World* world) \
-    vfuncDefault(void, moveFlying, VSelf, i32 horitzonal_shift)
+    vfuncDefault(void, moveFlying, VSelf, i32 scaling) \
+    vfuncDefault(void, fall, VSelf, i32 distance)
+
+void iPhysicsObjectInit(PhysicsObject* physics_object, const PhysicsObjectConfig* config);
 
 void iPhysicsObjectUpdate(VSelf, World* world);
 void IPhysicsObject_update(VSelf, World* world);
@@ -93,8 +97,11 @@ void IPhysicsObject_moveWithHeading(VSelf, World* world);
 void iPhysicsObjectMove(VSelf, World* world, i32 velocity_x, i32 velocity_y, i32 velocity_z);
 void IPhysicsObject_move(VSelf, World* world, i32 velocity_x, i32 velocity_y, i32 velocity_z);
 
-void iPhysicsObjectMoveFlying(VSelf, i32 horizontal_shift);
-void IPhysicsObject_moveFlying(VSelf, i32 horizontal_shift);
+void iPhysicsObjectMoveFlying(VSelf, const i32 scaling);
+void IPhysicsObject_moveFlying(VSelf, const i32 scaling);
+
+void iPhysicsObjectFall(VSelf, i32 distance);
+void IPhysicsObject_fall(VSelf, i32 distance);
 
 interface(IPhysicsObject);
 
