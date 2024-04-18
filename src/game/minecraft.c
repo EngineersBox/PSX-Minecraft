@@ -429,10 +429,10 @@ void drawDebugText(const Minecraft* minecraft, const Stats* stats) {
         "Y=%d.%05d (DOWN)\n"
         "Y=%d.%05d (UP)\n"
         "Z=%d.%05d\n",
-        fixedGetWhole(x), fixedGetFractional(x),
-        fixedGetWhole(y_down), fixedGetFractional(y_down),
-        fixedGetWhole(y_up), fixedGetFractional(y_up),
-        fixedGetWhole(z), fixedGetFractional(z)
+        fixedGetWhole(x), 4096.0 / fixedGetFractional(x),
+        fixedGetWhole(y_down), 4096.0 / fixedGetFractional(y_down),
+        fixedGetWhole(y_up), 4096.0 / fixedGetFractional(y_up),
+        fixedGetWhole(z), 4096.0 / fixedGetFractional(z)
     );
     FntPrint(
         0,
