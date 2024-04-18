@@ -7,10 +7,10 @@
 #define HEIGHT_INTERVALS 3
 #define RADIUS_INTERVALS 2
 const u32 player_collision_intervals_height[HEIGHT_INTERVALS] = { 0, 258048, 516096 };
-const u32 player_collision_intervals_radius[RADIUS_INTERVALS] = { 0, 86016 };
+const u32 player_collision_intervals_radius[RADIUS_INTERVALS] = { 0, 57344 };
 const PhysicsObjectConfig player_physics_object_config = (PhysicsObjectConfig) {
     .jump_height = 120422, // ONE_BLOCK * 0.42 = 120422
-    .radius = 86016, // Width: 0.6 => Radius: ONE_BLOCK * 0.3 = 86016
+    .radius = 57344, // Width: 0.6 => Radius: ONE_BLOCK * 0.3 = 86016
     .height = 516096, // ONE_BLOCK * 1.8 = 516096
     .step_height = 0, // TODO: Implement this
     .gravity = 22937, // ONE_BLOCK * 0.08 = 22937
@@ -97,14 +97,14 @@ bool playerInputHandler(const Input* input, void* ctx) {
         physics_object->flags.sneaking = true;
     }
     if (isPressed(pad, binding_move_forward)) {
-        physics_object->move.forward += move_amount;
-    } else if (isPressed(pad, binding_move_backward)) {
         physics_object->move.forward -= move_amount;
+    } else if (isPressed(pad, binding_move_backward)) {
+        physics_object->move.forward += move_amount;
     }
     if (isPressed(pad, binding_move_left)) {
-        physics_object->move.strafe -= move_amount;
-    } else if (isPressed(pad, binding_move_right)) {
         physics_object->move.strafe += move_amount;
+    } else if (isPressed(pad, binding_move_right)) {
+        physics_object->move.strafe -= move_amount;
     }
     return false;
 }

@@ -255,7 +255,7 @@ static void createQuadVertices(Chunk* chunk,
         currentVert = &vertices[indices.v]; \
         vertex->vx = currentVert->vx; \
         vertex->vy = currentVert->vy; \
-        vertex->vz = currentVert->vz - ONE_BLOCK
+        vertex->vz = currentVert->vz
     bindVertex(v0);
     bindVertex(v1);
     bindVertex(v2);
