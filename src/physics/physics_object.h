@@ -10,6 +10,7 @@
 
 #include "../util/inttypes.h"
 #include "../util/preprocessor.h"
+#include "aabb.h"
 
 #define ROTATION_SPEED 15
 #define MINIMUM_VELOCITY 40
@@ -73,6 +74,7 @@ typedef struct {
         i16 strafe;
     } move;
     i32 fall_distance;
+    AABB aabb;
     const PhysicsObjectConfig* config;
     PhysicsObjectFlags flags;
 } PhysicsObject;

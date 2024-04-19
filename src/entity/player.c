@@ -19,6 +19,11 @@ const PhysicsObjectConfig player_physics_object_config = (PhysicsObjectConfig) {
         .radius_count = RADIUS_INTERVALS,
         .height = player_collision_intervals_height,
         .radius = player_collision_intervals_radius
+    },
+    .intervals = {
+        .x = ONE_BLOCK,
+        .y = ONE_BLOCK,
+        .z = ONE_BLOCK
     }
 };
 

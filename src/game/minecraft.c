@@ -423,6 +423,7 @@ void drawDebugText(const Minecraft* minecraft, const Stats* stats) {
     const int32_t y_up = -camera.position.vy / BLOCK_SIZE;
     const int32_t z = camera.position.vz / BLOCK_SIZE;
 #define fracToFloat(frac) ((u32)(100000 * ((frac) / 4096.0)))
+// #define fracToFloat(frac) (frac)
     FntPrint(
         0,
         ""

@@ -142,6 +142,11 @@ typedef struct _BVECTOR {
 #define FIXED_1_2048 (fixedDiv(ONE, 2048))
 #define FIXED_1_4096 (fixedDiv(ONE, ONE))
 
+#define fixedFloor(v, factor) ({ \
+    __typeof__(v) _v = (v);\
+    _v - positiveModulo(_v, (factor)); \
+})
+
 // TODO: Add vec+const variations
 
 #define DEF_VEC_OP()
