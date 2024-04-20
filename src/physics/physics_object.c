@@ -361,7 +361,18 @@ cvector(AABB) getCollidingAABBs(PhysicsObject* physics_object, const World* worl
     return collided_aabbs;
 }
 
-bool _collideWithWorld(PhysicsObject* physics_object, const World* world, i32 vel_x, i32 vel_y, i32 vel_z) {
+void updateFallState(PhysicsObject* physics_object, i32 velocity_y) {
+    if (physics_object->flags.on_ground) {
+        if (physics_object->fall_distance > 0) {
+            iPhysicsObjectFall(physics_object, physics_object->fall_distance);
+            physics_object->fall_distance = 0;
+        }
+    } else {
+        physics_object->fall_distance -= velocity_y;
+    }
+}
+
+void _collideWithWorld(PhysicsObject* physics_object, const World* world, i32 vel_x, i32 vel_y, i32 vel_z) {
     i32 curr_vel_x = vel_x;
     i32 curr_vel_y = vel_y;
     i32 curr_vel_z = vel_z;
@@ -386,7 +397,7 @@ bool _collideWithWorld(PhysicsObject* physics_object, const World* world, i32 ve
     physics_object->flags.collided_vertical = curr_vel_y != vel_y;
     physics_object->flags.on_ground = curr_vel_y != vel_y && curr_vel_y < 0;
     physics_object->flags.collided = physics_object->flags.collided_horizontal || physics_object->flags.collided_vertical;
-    // this.updateFallState(motion_y, this.onGround);
+    updateFallState(physics_object, vel_y);
     if(curr_vel_x != vel_x) {
         physics_object->velocity.vx = 0;
     }
@@ -413,7 +424,7 @@ void IPhysicsObject_move(VSelf, World* world, const i32 velocity_x, const i32 ve
         self->position.vz += velocity_z;
         return;
     }
-    collideWithWorld(
+    _collideWithWorld(
         self,
         world,
         velocity_x,
@@ -421,14 +432,7 @@ void IPhysicsObject_move(VSelf, World* world, const i32 velocity_x, const i32 ve
         velocity_z
     );
     // Update fall state
-    if (self->flags.on_ground) {
-        if (self->fall_distance > 0) {
-            iPhysicsObjectFall(self, self->fall_distance);
-            self->fall_distance = 0;
-        }
-    } else {
-        self->fall_distance -= velocity_y;
-    }
+    updateFallState(self, velocity_y);
 }
 
 void iPhysicsObjectMoveFlying(VSelf, const i32 scaling) __attribute__((alias("IPhysicsObject_moveFlying")));
