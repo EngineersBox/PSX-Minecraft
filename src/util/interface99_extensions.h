@@ -20,6 +20,8 @@
             __VA_ARGS__;                                                                           \
         }))
 
+#define VSelfRef(type) ((type) iface99_self)
+
 #define VCAST(type, obj) VCAST99(type, obj)
 #define VCAST99(type, obj) ((type)(obj).self)
 #define VCAST_PTR(type, ptr) VCAST_PTR99(type, ptr)

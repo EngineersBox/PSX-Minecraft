@@ -26,6 +26,9 @@ const PhysicsObjectConfig player_physics_object_config = (PhysicsObjectConfig) {
         .z = ONE_BLOCK
     }
 };
+const PhysicsObjectUpdateHandlers player_physics_object_update_handlers = (PhysicsObjectUpdateHandlers) {
+    .fall_handler = playerFallHandler
+};
 
 void playerInit(Player* player) {
     Inventory* inventory = (Inventory*) malloc(sizeof(Inventory));
@@ -34,7 +37,11 @@ void playerInit(Player* player) {
     inventoryInit(inventory, hotbar);
     DYN_PTR(&player->hotbar, Hotbar, IUI, hotbar);
     DYN_PTR(&player->inventory, Inventory, IUI, inventory);
-    iPhysicsObjectInit(&player->physics_object, &player_physics_object_config);
+    iPhysicsObjectInit(
+        &player->physics_object,
+        &player_physics_object_config,
+        &player_physics_object_update_handlers
+    );
 }
 
 void playerDestroy(const Player* player) {
@@ -45,7 +52,7 @@ void playerDestroy(const Player* player) {
 }
 
 void playerUpdate(Player* player, World* world) {
-    iPhysicsObjectUpdate(&player->physics_object, world);
+    iPhysicsObjectUpdate(&player->physics_object, world, player);
 }
 
 void playerRender(const Player* player, RenderContext* ctx, Transforms* transforms) {
@@ -55,6 +62,10 @@ void playerRender(const Player* player, RenderContext* ctx, Transforms* transfor
     const Inventory* inventory = VCAST(Inventory*, player->inventory);
     inventoryRenderSlots(inventory, ctx, transforms);
     uiRender(&inventory->ui, ctx, transforms);
+}
+
+void playerFallHandler(PhysicsObject* physics_object, i32 distance, void* ctx) {
+    Player* player = (Player*) ctx;
 }
 
 bool playerInputHandler(const Input* input, void* ctx) {

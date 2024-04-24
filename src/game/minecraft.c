@@ -176,7 +176,7 @@ void minecraftUpdate(VSelf, const Stats* stats) __attribute__((alias("Minecraft_
 void Minecraft_update(VSelf, const Stats* stats) {
     VSELF(Minecraft);
     worldUpdate(self->world, player);
-    iPhysicsObjectUpdate(&player->physics_object, world);
+    playerUpdate(player, world);
     Camera* camera = VCAST(Camera*, self->internals.camera);
     camera->rotation.vx = player->physics_object.rotation.pitch;
     camera->rotation.vy = player->physics_object.rotation.yaw;

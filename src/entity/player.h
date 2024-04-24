@@ -15,6 +15,7 @@
 extern const u32 player_collision_intervals_height[];
 extern const u32 player_collision_intervals_radius[];
 extern const PhysicsObjectConfig player_physics_object_config;
+extern const PhysicsObjectUpdateHandlers player_physics_object_update_handlers;
 
 typedef struct {
     IEntity entity;
@@ -32,6 +33,8 @@ void playerInit(Player* player);
 void playerDestroy(const Player* player);
 void playerUpdate(Player* player, World* world);
 void playerRender(const Player* player, RenderContext* ctx, Transforms* transforms);
+
+void playerFallHandler(PhysicsObject* physics_object, i32 distance, void* ctx);
 
 impl(IEntity, Player);
 
