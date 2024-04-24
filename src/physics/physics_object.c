@@ -14,6 +14,15 @@ IBlock* worldGetBlock(const World* world, const VECTOR* position);
 void iPhysicsObjectInit(PhysicsObject* physics_object,
                         const PhysicsObjectConfig* config,
                         const PhysicsObjectUpdateHandlers* update_handlers) {
+    if (config == NULL) {
+        printf("[ERROR] Physics object must have a config supplied\n");
+        abort();
+        return;
+    } else if (update_handlers == NULL) {
+        printf("[ERROR] Physics object must have update handlers supplied\n");
+        abort();
+        return;
+    }
     physics_object->position = (VECTOR) {0},
     physics_object->rotation.pitch = 0;
     physics_object->rotation.yaw = 0;
@@ -56,9 +65,9 @@ void IPhysicsObject_update(VSelf, World* world, void* ctx) {
     VSELF(PhysicsObject);
     const PhysicsObjectFlags* flags = &self->flags;
     if (flags->jumping) {
-        if(flags->in_water || flags->in_lava) {
+        if (flags->in_water || flags->in_lava) {
             self->velocity.vy += 2867; // ONE_BLOCK * 0.04 = 2867
-        } else if(flags->on_ground) {
+        } else if (flags->on_ground) {
             self->velocity.vy += self->config->jump_height;
         }
     }
@@ -129,10 +138,8 @@ void IPhysicsObject_moveWithHeading(VSelf, World* world, void* ctx) {
         ctx
     );
     if (!self->flags.on_ground) {
-        // DEBUG_LOG("[PHYSICS] Velocity before: (%d,%d,%d)\n", inlineVecPtr(velocity));
         velocity->vy -= self->config->gravity;
         velocity->vy = fixedMul(velocity->vy, 4014); // ONE * 0.98 = 4014
-        // DEBUG_LOG("[PHYSICS] Velocity after: (%d,%d,%d)\n", inlineVecPtr(velocity));
     }
     velocity->vx = absMinBound(fixedMul(velocity->vx, scaling), MINIMUM_VELOCITY, 0);
     velocity->vz = absMinBound(fixedMul(velocity->vz, scaling), MINIMUM_VELOCITY, 0);
@@ -168,15 +175,11 @@ cvector(AABB) getCollidingAABBs(const World* world, const AABB* aabb) {
                     continue;
                 }
                 const AABB block_aabb = (AABB){
-                    .min = (VECTOR) {
-                        .vx = x * ONE_BLOCK,
-                        .vy = y * ONE_BLOCK,
-                        .vz = z * ONE_BLOCK,
-                    },
+                    .min = vector_const_mul(position, ONE_BLOCK),
                     .max = (VECTOR) {
-                        .vx = (x * ONE_BLOCK) + ONE_BLOCK,
-                        .vy = (y * ONE_BLOCK) + ONE_BLOCK,
-                        .vz = (z * ONE_BLOCK) + ONE_BLOCK,
+                        .vx = (x + 1) * ONE_BLOCK,
+                        .vy = (y + 1) * ONE_BLOCK,
+                        .vz = (z + 1) * ONE_BLOCK,
                     }
                 };
                 if (!aabbIntersects(aabb, &block_aabb)) {
@@ -226,6 +229,7 @@ void collideWithWorld(PhysicsObject* physics_object, const World* world, i32 vel
         vel_z = aabbZOffset(elem, &physics_object->aabb, vel_z);
     }
     aabbOffset(&physics_object->aabb, 0, 0, vel_z);
+    // Make the new position at the bottom centre of the AABB
     physics_object->position.vx = (physics_object->aabb.min.vx + physics_object->aabb.max.vx) >> 1;
     physics_object->position.vy = physics_object->aabb.min.vy;
     physics_object->position.vz = (physics_object->aabb.min.vz + physics_object->aabb.max.vz) >> 1;
@@ -282,6 +286,7 @@ void IPhysicsObject_moveFlying(VSelf, const i32 scaling) {
     dist = (scaling << 12) / (dist >> 12);
     self->move.strafe = fixedMul(self->move.strafe, dist);
     self->move.forward = fixedMul(self->move.forward, dist);
+    // Adjust x/z contribution by yaw angle to make movement relative to facing direction
     const i32 sin_yaw = isin(self->rotation.yaw >> FIXED_POINT_SHIFT);
     const i32 cos_yaw = icos(self->rotation.yaw >> FIXED_POINT_SHIFT);
     self->velocity.vx += fixedMul(self->move.strafe, cos_yaw) - fixedMul(self->move.forward, sin_yaw);
