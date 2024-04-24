@@ -14,8 +14,8 @@
 * [x] Graphing lib to use for resource usage and debugging
 * [x] Ray cast from camera normal to block retrieving exact block coordinates in world
 * [x] Dynamic chunk loading and unloading with movement
-* [ ] Player entity with hit box
-* [ ] Basic entity-mesh interaction physics with gravity
+* [x] Player entity with hit box
+* [x] Basic entity-mesh interaction physics with gravity
 * [x] Crosshair
 * [x] Axis marker
 * [ ] Check if camera not moving then ray cast once to get block targeted and draw outline around if in reach range
@@ -47,6 +47,7 @@
 * [x] Refactor `World` and `Chunk` to support interface based blocks with dynamic dispatch handlers
 * [ ] Move static values like block/item names and max stack sizes to global constants accessed by ID
 * [ ] Refactor vector operations to use `_Generic` C11 macro to perform type specific operations between any kind of two vector types or constant
+* [ ] Move to binary greedy meshing with bitwise ops for single-pass mask creation
 
 ## Fix
 
