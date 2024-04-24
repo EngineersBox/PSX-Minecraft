@@ -39,11 +39,6 @@ typedef struct {
         const u32* height;
         const u32* radius;
     } collision_intervals;
-    struct {
-        const u32 x;
-        const u32 y;
-        const u32 z;
-    } intervals;
 } PhysicsObjectConfig;
 
 /* Note that the following are booleans and not enum

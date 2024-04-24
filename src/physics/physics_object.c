@@ -147,7 +147,10 @@ cvector(AABB) getCollidingAABBs(const World* world, const AABB* aabb) {
     const i32 max_y = fixedFloor(aabb->max.vy + ONE_BLOCK, ONE_BLOCK) / ONE_BLOCK;
     const i32 min_z = fixedFloor(aabb->min.vz, ONE_BLOCK) / ONE_BLOCK;
     const i32 max_z = fixedFloor(aabb->max.vz + ONE_BLOCK, ONE_BLOCK) / ONE_BLOCK;
-    // NOTE: ONE_BLOCK increments could be configurable in physics object config, might not be worth it though
+    // NOTE: We could use the PhysicsObjectConfig::collision_intervals struct entries
+    //       to allow for customisation of the detection points here instead of per-block
+    //       indices. I don't think it will really help though since the AABB is already
+    //       defined in terms of PhysicsObjectConfig::width & PhysicsObjectConfig::height
     for (i32 x = min_x; x < max_x; x++) {
         for (i32 z = min_z; z < max_z; z++) {
             for (i32 y = min_y - 1; y < max_y; y++) {
