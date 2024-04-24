@@ -39,6 +39,11 @@ typedef struct {
         const u32* height;
         const u32* radius;
     } collision_intervals;
+    struct {
+        const u32 x;
+        const u32 y;
+        const u32 z;
+    } intervals;
 } PhysicsObjectConfig;
 
 /* Note that the following are booleans and not enum
@@ -87,9 +92,10 @@ typedef struct World World;
     vfuncDefault(void, move, VSelf, World* world, i32 velocity_x, i32 velocity_y, i32 velocity_z) \
     vfuncDefault(void, moveWithHeading, VSelf, World* world) \
     vfuncDefault(void, moveFlying, VSelf, i32 scaling) \
-    vfuncDefault(void, fall, VSelf, i32 distance)
+    vfuncDefault(void, fall, VSelf, i32 distance) \
 
 void iPhysicsObjectInit(PhysicsObject* physics_object, const PhysicsObjectConfig* config);
+void iPhysicsObjectSetPosition(PhysicsObject* physics_object, const VECTOR* position);
 
 void iPhysicsObjectUpdate(VSelf, World* world);
 void IPhysicsObject_update(VSelf, World* world);

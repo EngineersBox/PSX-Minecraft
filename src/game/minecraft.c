@@ -110,7 +110,12 @@ void Minecraft_init(VSelf, void* ctx) {
     player = (Player*) malloc(sizeof(Player));
     playerInit(player);
     player->camera = &self->internals.camera;
-    player->physics_object.position.vy += ONE_BLOCK * 10;
+    const VECTOR player_positon = (VECTOR) {
+        .vx = 0,
+        .vy = ONE_BLOCK * 10,
+        .vz = 0
+    };
+    iPhysicsObjectSetPosition(&player->physics_object, &player_positon);
     player_handler = DYN(Player, IInputHandler, player);
     VCALL(player_handler, registerInputHandler, &self->internals.input);
     // Register handlers

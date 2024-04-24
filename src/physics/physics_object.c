@@ -22,6 +22,24 @@ void iPhysicsObjectInit(PhysicsObject* physics_object, const PhysicsObjectConfig
     physics_object->aabb = (AABB) {0};
     physics_object->flags = (PhysicsObjectFlags) {0};
     physics_object->config = config;
+    static const VECTOR _zero = {0};
+    iPhysicsObjectSetPosition(physics_object, &_zero);
+}
+
+void iPhysicsObjectSetPosition(PhysicsObject* physics_object, const VECTOR* position) {
+    physics_object->position = *position;
+    physics_object->aabb = (AABB) {
+        .min = (VECTOR) {
+            .vx = position->vx - physics_object->config->radius,
+            .vy = position->vy,
+            .vz = position->vz - physics_object->config->radius
+        },
+        .max = (VECTOR) {
+            .vx = position->vx + physics_object->config->radius,
+            .vy = position->vy + physics_object->config->height,
+            .vz = position->vz + physics_object->config->radius
+        },
+    };
 }
 
 /* Order:
@@ -107,10 +125,10 @@ void IPhysicsObject_moveWithHeading(VSelf, World* world) {
         velocity->vz
     );
     if (!self->flags.on_ground) {
-        DEBUG_LOG("[PHYSICS] Velocity before: (%d,%d,%d)\n", inlineVecPtr(velocity));
+        // DEBUG_LOG("[PHYSICS] Velocity before: (%d,%d,%d)\n", inlineVecPtr(velocity));
         velocity->vy -= self->config->gravity;
         velocity->vy = fixedMul(velocity->vy, 4014); // ONE * 0.98 = 4014
-        DEBUG_LOG("[PHYSICS] Velocity after: (%d,%d,%d)\n", inlineVecPtr(velocity));
+        // DEBUG_LOG("[PHYSICS] Velocity after: (%d,%d,%d)\n", inlineVecPtr(velocity));
     }
     velocity->vx = absMinBound(fixedMul(velocity->vx, scaling), MINIMUM_VELOCITY, 0);
     velocity->vz = absMinBound(fixedMul(velocity->vz, scaling), MINIMUM_VELOCITY, 0);
@@ -313,42 +331,42 @@ bool collideWithWorld(PhysicsObject* physics_object, const World* world, i32 vel
     return collision_detected;
 }
 
-cvector(AABB) getCollidingAABBs(PhysicsObject* physics_object, const World* world, const AABB* aabb) {
+cvector(AABB) getCollidingAABBs(const World* world, const AABB* aabb) {
     cvector(AABB) collided_aabbs = NULL;
     cvector_init(collided_aabbs, 0, NULL);
-    const i32 min_x = fixedFloor(aabb->min.vx, ONE_BLOCK);
-    const i32 min_y = fixedFloor(aabb->max.vx + ONE_BLOCK, ONE_BLOCK);
-    const i32 min_z = fixedFloor(aabb->min.vy, ONE_BLOCK);
-    const i32 max_x = fixedFloor(aabb->max.vy + ONE_BLOCK, ONE_BLOCK);
-    const i32 max_y = fixedFloor(aabb->min.vz, ONE_BLOCK);
-    const i32 max_z = fixedFloor(aabb->max.vz + ONE_BLOCK, ONE_BLOCK);
+    const i32 min_x = fixedFloor(aabb->min.vx, ONE_BLOCK) / ONE_BLOCK;
+    const i32 max_x = fixedFloor(aabb->max.vx + ONE_BLOCK, ONE_BLOCK) / ONE_BLOCK;
+    const i32 min_y = fixedFloor(aabb->min.vy, ONE_BLOCK) / ONE_BLOCK;
+    const i32 max_y = fixedFloor(aabb->max.vy + ONE_BLOCK, ONE_BLOCK) / ONE_BLOCK;
+    const i32 min_z = fixedFloor(aabb->min.vz, ONE_BLOCK) / ONE_BLOCK;
+    const i32 max_z = fixedFloor(aabb->max.vz + ONE_BLOCK, ONE_BLOCK) / ONE_BLOCK;
     // NOTE: ONE_BLOCK increments could be configurable in physics object config, might not be worth it though
-    for (i32 x = min_x; x < max_x; x += ONE_BLOCK) {
-        for (i32 z = min_z; z < max_z; z += ONE_BLOCK) {
-            for (i32 y = min_y - ONE_BLOCK; y < max_y; y += ONE_BLOCK) {
+    for (i32 x = min_x; x < max_x; x++) {
+        for (i32 z = min_z; z < max_z; z++) {
+            for (i32 y = min_y - 1; y < max_y; y++) {
                 const VECTOR position = (VECTOR) {
-                    .vx = x / ONE_BLOCK,
-                    .vy = y / ONE_BLOCK,
-                    .vz = z / ONE_BLOCK,
+                    .vx = x,
+                    .vy = y,
+                    .vz = z,
                 };
                 const IBlock* iblock = worldGetBlock(world, &position);
                 if (iblock == NULL) {
                     continue;
                 }
                 const Block* block = VCAST_PTR(const Block*, iblock);
-                if (block->type == BLOCKTYPE_EMPTY && block->id == BLOCKID_AIR) {
+                if (block->type == BLOCKTYPE_EMPTY || block->id == BLOCKID_AIR) {
                     continue;
                 }
                 const AABB block_aabb = (AABB){
                     .min = (VECTOR) {
-                        .vx = x,
-                        .vy = y,
-                        .vz = z,
+                        .vx = x * ONE_BLOCK,
+                        .vy = y * ONE_BLOCK,
+                        .vz = z * ONE_BLOCK,
                     },
                     .max = (VECTOR) {
-                        .vx = x + BLOCK_SIZE,
-                        .vy = y + BLOCK_SIZE,
-                        .vz = z + BLOCK_SIZE,
+                        .vx = (x * ONE_BLOCK) + ONE_BLOCK,
+                        .vy = (y * ONE_BLOCK) + ONE_BLOCK,
+                        .vz = (z * ONE_BLOCK) + ONE_BLOCK,
                     }
                 };
                 if (!aabbIntersects(aabb, &block_aabb)) {
@@ -358,10 +376,11 @@ cvector(AABB) getCollidingAABBs(PhysicsObject* physics_object, const World* worl
             }
         }
     }
+    DEBUG_LOG("[PHYSICS] AABB collisions: %d\n", cvector_size(collided_aabbs));
     return collided_aabbs;
 }
 
-void updateFallState(PhysicsObject* physics_object, i32 velocity_y) {
+void updateFallState(PhysicsObject* physics_object, const i32 velocity_y) {
     if (physics_object->flags.on_ground) {
         if (physics_object->fall_distance > 0) {
             iPhysicsObjectFall(physics_object, physics_object->fall_distance);
@@ -373,43 +392,43 @@ void updateFallState(PhysicsObject* physics_object, i32 velocity_y) {
 }
 
 void _collideWithWorld(PhysicsObject* physics_object, const World* world, i32 vel_x, i32 vel_y, i32 vel_z) {
-    i32 curr_vel_x = vel_x;
-    i32 curr_vel_y = vel_y;
-    i32 curr_vel_z = vel_z;
+    const i32 curr_vel_x = vel_x;
+    const i32 curr_vel_y = vel_y;
+    const i32 curr_vel_z = vel_z;
     AABB aabb = (AABB) {0};
     aabbAddCoord(&physics_object->aabb, &aabb, vel_x, vel_y, vel_z);
-    const cvector(AABB) collided_aabbs = getCollidingAABBs(physics_object, world, &aabb);
+    const cvector(AABB) collided_aabbs = getCollidingAABBs(world, &aabb);
     AABB* elem = NULL;
-    cvector_for_each_in(collided_aabbs, elem) {
+    cvector_for_each_in(elem, collided_aabbs) {
         vel_y = aabbYOffset(elem, &physics_object->aabb, vel_y);
     }
     aabbOffset(&physics_object->aabb, 0, vel_y, 0);
-    cvector_for_each_in(collided_aabbs, elem) {
+    cvector_for_each_in(elem, collided_aabbs) {
         vel_x = aabbXOffset(elem, &physics_object->aabb, vel_x);
     }
     aabbOffset(&physics_object->aabb, vel_x, 0, 0);
-    cvector_for_each_in(collided_aabbs, elem) {
+    cvector_for_each_in(elem, collided_aabbs) {
         vel_z = aabbZOffset(elem, &physics_object->aabb, vel_z);
     }
     aabbOffset(&physics_object->aabb, 0, 0, vel_z);
     // TODO: Position update here
+    physics_object->position.vx = (physics_object->aabb.min.vx + physics_object->aabb.max.vx) >> 1;
+    physics_object->position.vy = physics_object->aabb.min.vy;
+    physics_object->position.vz = (physics_object->aabb.min.vz + physics_object->aabb.max.vz) >> 1;
     physics_object->flags.collided_horizontal = curr_vel_x != vel_x || curr_vel_z != vel_z;
     physics_object->flags.collided_vertical = curr_vel_y != vel_y;
     physics_object->flags.on_ground = curr_vel_y != vel_y && curr_vel_y < 0;
     physics_object->flags.collided = physics_object->flags.collided_horizontal || physics_object->flags.collided_vertical;
     updateFallState(physics_object, vel_y);
-    if(curr_vel_x != vel_x) {
+    if (curr_vel_x != vel_x) {
         physics_object->velocity.vx = 0;
     }
-
-    if(curr_vel_y != vel_y) {
+    if (curr_vel_y != vel_y) {
         physics_object->velocity.vy = 0;
     }
-
-    if(curr_vel_z != vel_z) {
+    if (curr_vel_z != vel_z) {
         physics_object->velocity.vz = 0;
     }
-
     // current_motion_x = this.posX - pos_x;
     // current_motion_y = this.posZ - pos_z;
     cvector_free(collided_aabbs);
@@ -432,7 +451,7 @@ void IPhysicsObject_move(VSelf, World* world, const i32 velocity_x, const i32 ve
         velocity_z
     );
     // Update fall state
-    updateFallState(self, velocity_y);
+    // updateFallState(self, velocity_y);
 }
 
 void iPhysicsObjectMoveFlying(VSelf, const i32 scaling) __attribute__((alias("IPhysicsObject_moveFlying")));
