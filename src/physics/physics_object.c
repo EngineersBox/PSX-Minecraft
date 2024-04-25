@@ -261,9 +261,6 @@ void IPhysicsObject_move(VSelf, World* world, const i32 velocity_x, const i32 ve
     VSELF(PhysicsObject);
     if (self->flags.no_clip) {
         aabbOffset(& self->aabb, velocity_x, velocity_y, velocity_z);
-        self->position.vx += velocity_x;
-        self->position.vy += velocity_y;
-        self->position.vz += velocity_z;
         self->position.vx = (self->aabb.min.vx + self->aabb.max.vx) >> 1;
         self->position.vy = self->aabb.min.vy + self->config->y_offset - self->y_size;
         self->position.vz = (self->aabb.min.vz + self->aabb.max.vz) >> 1;
