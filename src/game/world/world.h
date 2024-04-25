@@ -18,6 +18,8 @@
 #define WORLD_CHUNKS_HEIGHT 1
 #define WORLD_HEIGHT (CHUNK_SIZE * WORLD_CHUNKS_HEIGHT)
 
+// TODO: Make these properties configurable as externs
+//       to be accessible via some options interface
 #ifndef LOADED_CHUNKS_RADIUS
 // Must be positive
 #define LOADED_CHUNKS_RADIUS 1

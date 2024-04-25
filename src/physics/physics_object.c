@@ -180,7 +180,7 @@ cvector(AABB) getCollidingAABBs(const World* world, const AABB* aabb) {
                 if (block->type == BLOCKTYPE_EMPTY || block->id == BLOCKID_AIR) {
                     continue;
                 }
-                const AABB block_aabb = (AABB){
+                const AABB block_aabb = (AABB) {
                     .min = vector_const_mul(position, ONE_BLOCK),
                     .max = (VECTOR) {
                         .vx = (x + 1) * ONE_BLOCK,
@@ -237,7 +237,7 @@ void collideWithWorld(PhysicsObject* physics_object, const World* world, i32 vel
     aabbOffset(&physics_object->aabb, 0, 0, vel_z);
     // Make the new position at the bottom centre of the AABB
     physics_object->position.vx = (physics_object->aabb.min.vx + physics_object->aabb.max.vx) >> 1;
-    physics_object->position.vy = physics_object->aabb.min.vy;
+    physics_object->position.vy = physics_object->aabb.min.vy + physics_object->config->y_offset - physics_object->y_size;
     physics_object->position.vz = (physics_object->aabb.min.vz + physics_object->aabb.max.vz) >> 1;
     physics_object->flags.collided_horizontal = curr_vel_x != vel_x || curr_vel_z != vel_z;
     physics_object->flags.collided_vertical = curr_vel_y != vel_y;
@@ -275,8 +275,6 @@ void IPhysicsObject_move(VSelf, World* world, const i32 velocity_x, const i32 ve
         velocity_z,
         ctx
     );
-    // Update fall state
-    // updateFallState(self, velocity_y);
 }
 
 void iPhysicsObjectMoveFlying(VSelf, const i32 scaling) __attribute__((alias("IPhysicsObject_moveFlying")));

@@ -68,3 +68,6 @@
 * [x] Background in loading screen not rendering texture
 * [ ] Vertices are distorted (in their location) when very close to the camera
 * [ ] Transparent textures rendering multiple layers of textures from different points in terrain texture
+* [ ] Movement tied to FPS
+* [ ] Cannot fall off a block edge, get pushed back
+* [ ] Jumping onto a block pushes player back, not allowing for movement up to a block (weird edge cases for certain angles still work)

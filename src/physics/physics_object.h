@@ -39,6 +39,8 @@ typedef struct {
         const u32* height;
         const u32* radius;
     } collision_intervals;
+    // Offset from the minimum y value of the AABB to use as the
+    // y position
     i32 y_offset;
 } PhysicsObjectConfig;
 

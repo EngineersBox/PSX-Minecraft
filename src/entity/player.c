@@ -23,7 +23,7 @@ const PhysicsObjectConfig player_physics_object_config = (PhysicsObjectConfig) {
     .y_offset = 6635 // ONE * 1.62
 };
 const PhysicsObjectUpdateHandlers player_physics_object_update_handlers = (PhysicsObjectUpdateHandlers) {
-    .fall_handler = playerFallHandler
+    .fall_handler = (PhysicsObjectFall) playerFallHandler
 };
 
 void playerInit(Player* player) {
