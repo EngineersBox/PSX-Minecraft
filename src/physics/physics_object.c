@@ -43,12 +43,12 @@ void iPhysicsObjectSetPosition(PhysicsObject* physics_object, const VECTOR* posi
     physics_object->aabb = (AABB) {
         .min = (VECTOR) {
             .vx = position->vx - physics_object->config->radius,
-            .vy = position->vy - physics_object->config->y_offset + physics_object->ySize,
+            .vy = position->vy - physics_object->config->y_offset + physics_object->y_size,
             .vz = position->vz - physics_object->config->radius
         },
         .max = (VECTOR) {
             .vx = position->vx + physics_object->config->radius,
-            .vy = position->vy - physics_object->config->y_offset + physics_object->ySize + physics_object->config->height,
+            .vy = position->vy - physics_object->config->y_offset + physics_object->y_size + physics_object->config->height,
             .vz = position->vz + physics_object->config->radius
         },
     };
@@ -83,7 +83,11 @@ i32 resolveGroundAcceleration(const PhysicsObject* physics_object,
         return scaling;
     }
     scaling = 2236; // ONE * 546.0 * 0.1 * 0.1 * 0.1
-    VECTOR position = vector_const_div(physics_object->position, ONE_BLOCK);
+    VECTOR position = (VECTOR) {
+        .vx = fixedFloor(physics_object->position.vx, ONE_BLOCK) / ONE_BLOCK,
+        .vy = fixedFloor(physics_object->aabb.min.vy, ONE_BLOCK) / ONE_BLOCK,
+        .vz = fixedFloor(physics_object->position.vz, ONE_BLOCK) / ONE_BLOCK,
+    };
     position.vy--;
     const IBlock* iblock = worldGetBlock(world, &position);
     if (iblock == NULL) {
@@ -137,10 +141,12 @@ void IPhysicsObject_moveWithHeading(VSelf, World* world, void* ctx) {
         velocity->vz,
         ctx
     );
-    if (!self->flags.on_ground) {
-        velocity->vy -= self->config->gravity;
-        velocity->vy = fixedMul(velocity->vy, 4014); // ONE * 0.98 = 4014
-    }
+    // if (!self->flags.on_ground) {
+    //     velocity->vy -= self->config->gravity;
+    //     velocity->vy = fixedMul(velocity->vy, 4014); // ONE * 0.98 = 4014
+    // }
+    velocity->vy -= self->config->gravity;
+    velocity->vy = fixedMul(velocity->vy, 4014); // ONE * 0.98 = 4014
     velocity->vx = absMinBound(fixedMul(velocity->vx, scaling), MINIMUM_VELOCITY, 0);
     velocity->vz = absMinBound(fixedMul(velocity->vz, scaling), MINIMUM_VELOCITY, 0);
 }
@@ -235,7 +241,6 @@ void collideWithWorld(PhysicsObject* physics_object, const World* world, i32 vel
     physics_object->position.vz = (physics_object->aabb.min.vz + physics_object->aabb.max.vz) >> 1;
     physics_object->flags.collided_horizontal = curr_vel_x != vel_x || curr_vel_z != vel_z;
     physics_object->flags.collided_vertical = curr_vel_y != vel_y;
-    DEBUG_LOG("[PHYSICS] Velocity Y [Current: %d, New: %d] Is negative: %s\n", curr_vel_y, vel_y, curr_vel_y < 0 ? "true" : "false");
     physics_object->flags.on_ground = curr_vel_y != vel_y && curr_vel_y < 0;
     physics_object->flags.collided = physics_object->flags.collided_horizontal || physics_object->flags.collided_vertical;
     updateFallState(physics_object, vel_y, ctx);
@@ -260,11 +265,11 @@ void IPhysicsObject_move(VSelf, World* world, const i32 velocity_x, const i32 ve
         self->position.vy += velocity_y;
         self->position.vz += velocity_z;
         self->position.vx = (self->aabb.min.vx + self->aabb.max.vx) >> 1;
-        self->position.vy = self->aabb.min.vy + self->config->y_offset - self->ySize;
+        self->position.vy = self->aabb.min.vy + self->config->y_offset - self->y_size;
         self->position.vz = (self->aabb.min.vz + self->aabb.max.vz) >> 1;
         return;
     }
-    self->ySize *= 1638; // ONE * 0.4
+    self->y_size *= 1638; // ONE * 0.4
     collideWithWorld(
         self,
         world,

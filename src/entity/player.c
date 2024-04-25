@@ -69,6 +69,8 @@ bool playerInputHandler(const Input* input, void* ctx) {
     PhysicsObject* physics_object = &player->physics_object;
     physics_object->move.forward = 0;
     physics_object->move.strafe = 0;
+    physics_object->flags.jumping = false;
+    physics_object->flags.sneaking = false;
     if (input->pad->stat != 0) {
         return false;
     }

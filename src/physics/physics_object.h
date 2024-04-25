@@ -81,7 +81,7 @@ typedef struct {
         i16 strafe;
     } move;
     i32 fall_distance;
-    i32 ySize;
+    i32 y_size;
     AABB aabb;
     const PhysicsObjectConfig* config;
     const PhysicsObjectUpdateHandlers* update_handlers;
