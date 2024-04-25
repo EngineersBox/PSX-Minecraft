@@ -23,7 +23,6 @@ void iPhysicsObjectInit(PhysicsObject* physics_object,
         abort();
         return;
     }
-    physics_object->position = (VECTOR) {0},
     physics_object->rotation.pitch = 0;
     physics_object->rotation.yaw = 0;
     physics_object->velocity = (VECTOR) {0};
@@ -141,10 +140,6 @@ void IPhysicsObject_moveWithHeading(VSelf, World* world, void* ctx) {
         velocity->vz,
         ctx
     );
-    // if (!self->flags.on_ground) {
-    //     velocity->vy -= self->config->gravity;
-    //     velocity->vy = fixedMul(velocity->vy, 4014); // ONE * 0.98 = 4014
-    // }
     velocity->vy -= self->config->gravity;
     velocity->vy = fixedMul(velocity->vy, 4014); // ONE * 0.98 = 4014
     velocity->vx = absMinBound(fixedMul(velocity->vx, scaling), MINIMUM_VELOCITY, 0);
