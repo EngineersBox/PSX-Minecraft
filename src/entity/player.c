@@ -19,7 +19,8 @@ const PhysicsObjectConfig player_physics_object_config = (PhysicsObjectConfig) {
         .radius_count = RADIUS_INTERVALS,
         .height = player_collision_intervals_height,
         .radius = player_collision_intervals_radius
-    }
+    },
+    .y_offset = 6635 // ONE * 1.62
 };
 const PhysicsObjectUpdateHandlers player_physics_object_update_handlers = (PhysicsObjectUpdateHandlers) {
     .fall_handler = playerFallHandler

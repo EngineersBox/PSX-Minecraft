@@ -39,6 +39,7 @@ typedef struct {
         const u32* height;
         const u32* radius;
     } collision_intervals;
+    i32 y_offset;
 } PhysicsObjectConfig;
 
 /* Note that the following are booleans and not enum
@@ -80,6 +81,7 @@ typedef struct {
         i16 strafe;
     } move;
     i32 fall_distance;
+    i32 ySize;
     AABB aabb;
     const PhysicsObjectConfig* config;
     const PhysicsObjectUpdateHandlers* update_handlers;

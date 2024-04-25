@@ -43,12 +43,12 @@ void iPhysicsObjectSetPosition(PhysicsObject* physics_object, const VECTOR* posi
     physics_object->aabb = (AABB) {
         .min = (VECTOR) {
             .vx = position->vx - physics_object->config->radius,
-            .vy = position->vy,
+            .vy = position->vy - physics_object->config->y_offset + physics_object->ySize,
             .vz = position->vz - physics_object->config->radius
         },
         .max = (VECTOR) {
             .vx = position->vx + physics_object->config->radius,
-            .vy = position->vy + physics_object->config->height,
+            .vy = position->vy - physics_object->config->y_offset + physics_object->ySize + physics_object->config->height,
             .vz = position->vz + physics_object->config->radius
         },
     };
@@ -235,6 +235,7 @@ void collideWithWorld(PhysicsObject* physics_object, const World* world, i32 vel
     physics_object->position.vz = (physics_object->aabb.min.vz + physics_object->aabb.max.vz) >> 1;
     physics_object->flags.collided_horizontal = curr_vel_x != vel_x || curr_vel_z != vel_z;
     physics_object->flags.collided_vertical = curr_vel_y != vel_y;
+    DEBUG_LOG("[PHYSICS] Velocity Y [Current: %d, New: %d] Is negative: %s\n", curr_vel_y, vel_y, curr_vel_y < 0 ? "true" : "false");
     physics_object->flags.on_ground = curr_vel_y != vel_y && curr_vel_y < 0;
     physics_object->flags.collided = physics_object->flags.collided_horizontal || physics_object->flags.collided_vertical;
     updateFallState(physics_object, vel_y, ctx);
@@ -254,11 +255,16 @@ void iPhysicsObjectMove(VSelf, World* world, const i32 velocity_x, const i32 vel
 void IPhysicsObject_move(VSelf, World* world, const i32 velocity_x, const i32 velocity_y, const i32 velocity_z, void* ctx) {
     VSELF(PhysicsObject);
     if (self->flags.no_clip) {
+        aabbOffset(& self->aabb, velocity_x, velocity_y, velocity_z);
         self->position.vx += velocity_x;
         self->position.vy += velocity_y;
         self->position.vz += velocity_z;
+        self->position.vx = (self->aabb.min.vx + self->aabb.max.vx) >> 1;
+        self->position.vy = self->aabb.min.vy + self->config->y_offset - self->ySize;
+        self->position.vz = (self->aabb.min.vz + self->aabb.max.vz) >> 1;
         return;
     }
+    self->ySize *= 1638; // ONE * 0.4
     collideWithWorld(
         self,
         world,
