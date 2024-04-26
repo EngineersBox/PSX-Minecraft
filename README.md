@@ -97,7 +97,7 @@ CMake within the Docker context attached to CLion. To the following to set this 
 
 ## Progress
 
-Current work is around physics and rewording the meshing to use binary greedy meshing with bit-ops
+Current work is around physics and reworking the meshing to use binary greedy meshing with bit-ops
 
 ![PSXMC](./docs/PSXMC.png)
 ![PSXMC](./docs/PSXMC-1.png)
