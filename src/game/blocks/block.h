@@ -29,8 +29,9 @@ typedef struct {
     char* name;
 } BlockAttributes;
 
-// ONE * 0.09
-#define BLOCK_DEFAULT_SLIPPERINESS 368
+// ONE * 0.91 = 3727 == ice
+// ONE * 0.6 = 3727 == normal block
+#define BLOCK_DEFAULT_SLIPPERINESS 2457
 // ONE * 0.5 * 5.0
 #define BLOCK_DEFAULT_RESISTANCE 10240
 

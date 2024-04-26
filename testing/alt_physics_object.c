@@ -81,8 +81,8 @@ i32 resolveGroundAcceleration(const PhysicsObject* physics_object,
     if (!physics_object->flags.on_ground) {
         return scaling;
     }
-    // scaling = 156549; // ONE_BLOCK * 546.0 * 0.1 * 0.1 * 0.1
-    scaling = 2236; // ONE * 546.0 * 0.1 * 0.1 * 0.1
+    scaling = 156549; // ONE_BLOCK * 546.0 * 0.1 * 0.1 * 0.1
+    // scaling = 2236; // ONE * 546.0 * 0.1 * 0.1 * 0.1
     VECTOR position = (VECTOR) {
         .vx = fixedFloor(physics_object->position.vx, ONE_BLOCK) / ONE_BLOCK,
         .vy = fixedFloor(physics_object->aabb.min.vy, ONE_BLOCK) / ONE_BLOCK,
@@ -94,8 +94,8 @@ i32 resolveGroundAcceleration(const PhysicsObject* physics_object,
         return scaling;
     }
     const Block* block = VCAST_PTR(Block*, iblock);
-    if (block->id != BLOCKID_AIR || block->type != BLOCKTYPE_EMPTY) {
-        scaling = block_attributes[block->id].slipperiness;
+    if (block->id != BLOCKID_AIR && block->type != BLOCKTYPE_EMPTY) {
+        scaling = fixedMul(block_attributes[block->id].slipperiness, 3727); // ONE * 0.91
     }
     return scaling;
 }
@@ -103,34 +103,41 @@ i32 resolveGroundAcceleration(const PhysicsObject* physics_object,
 void iPhysicsObjectMoveWithHeading(VSelf, World* world, i32 move_strafe, i32 move_forward, void* ctx) __attribute__((alias("IPhysicsObject_moveWithHeading")));
 void IPhysicsObject_moveWithHeading(VSelf, World* world, i32 move_strafe, i32 move_forward, void* ctx) {
     VSELF(PhysicsObject);
-    // ONE * 0.91 = 3727
+    // ONE * 0.91 =  3727
     // ONE * 0.16277136 = 666
     // ONE * 0.1 = 409
     // ONE * 0.02 = 81
     // 0.16277136 / (0.1 * 0.1 * 0.1) = 162.77136
     // ((666 << 12) / ((((409 * 409) >> 12) * 409) >> 12)) / (1 << 12) = 222 (inaccuracy here)
-
-    // This determines the amount of movement applied at this tick
-    // essentially implying movement speed
     i32 scaling = resolveGroundAcceleration(
-        self,
-        world,
-        3727 // ONE * 0.91
+            self,
+            world,
+            3727
     );
     // Doesn't update position, only modifies velocity
+    const i32 shift = fixedMul(
+        409,
+        fixedDiv(
+            666,
+            fixedMul(
+                scaling,
+                fixedMul(
+                    scaling,
+                    scaling
+                )
+            )
+        )
+    );
     iPhysicsObjectMoveFlying(
         self,
         move_strafe,
         move_forward,
-        scaling
+        self->flags.on_ground ? shift : 81
     );
-    // This determines sliding effect on blocks (e.g. ice vs grass)
-    // correlating to how much x/z velocity will be preserved into
-    // the next tick
     scaling = resolveGroundAcceleration(
-        self,
-        world,
-        2457 //ONE * 0.6
+            self,
+            world,
+            3727
     );
     VECTOR* velocity = &self->velocity;
     iPhysicsObjectMove(
@@ -215,6 +222,7 @@ void collideWithWorld(PhysicsObject* physics_object, const World* world, i32 vel
     const i32 curr_vel_y = vel_y;
     const i32 curr_vel_z = vel_z;
     AABB aabb = (AABB) {0};
+    DEBUG_LOG("[PHYSICS] Vel: (%d,%d,%d)\n", vel_x, vel_y, vel_z);
     aabbAddCoord(&physics_object->aabb, &aabb, vel_x, vel_y, vel_z);
     const cvector(AABB) collided_aabbs = getCollidingAABBs(world, &aabb);
     AABB const* elem = NULL;
@@ -233,6 +241,7 @@ void collideWithWorld(PhysicsObject* physics_object, const World* world, i32 vel
         vel_z = aabbZOffset(elem, &physics_object->aabb, vel_z);
     }
     aabbOffset(&physics_object->aabb, 0, 0, vel_z);
+    DEBUG_LOG("[PHYSICS] Vel modified: (%d,%d,%d)\n", vel_x, vel_y, vel_z);
     // Make the new position at the bottom centre of the AABB
     physics_object->position.vx = (physics_object->aabb.min.vx + physics_object->aabb.max.vx) >> 1;
     physics_object->position.vy = physics_object->aabb.min.vy + physics_object->config->y_offset - physics_object->y_size;
@@ -251,6 +260,11 @@ void collideWithWorld(PhysicsObject* physics_object, const World* world, i32 vel
     if (curr_vel_z != vel_z) {
         physics_object->velocity.vz = 0;
     }
+    DEBUG_LOG("[PHYSICS] Velocity after: (%d,%d,%d)\n",
+        physics_object->velocity.vx,
+        physics_object->velocity.vy,
+        physics_object->velocity.vz
+    );
     cvector_free(collided_aabbs);
 }
 
@@ -278,12 +292,8 @@ void IPhysicsObject_move(VSelf, World* world, const i32 velocity_x, const i32 ve
 void iPhysicsObjectMoveFlying(VSelf, i32 move_strafe, i32 move_forward, const i32 scaling) __attribute__((alias("IPhysicsObject_moveFlying")));
 void IPhysicsObject_moveFlying(VSelf, i32 move_strafe, i32 move_forward, const i32 scaling) {
     VSELF(PhysicsObject);
-    // move_strafe / BLOCK_SIZE
-    // => move_strafe * (1 / BLOCK_SIZE);
-    // => move_strafe * 0.0142857143
-    // ~> move_strafe * 58
-    const i32 shifted_move_strafe = fixedMul(move_strafe, 58);
-    const i32 shifted_move_forward = fixedMul(move_forward, 58);
+    const i32 shifted_move_strafe = move_strafe / BLOCK_SIZE;
+    const i32 shifted_move_forward = move_forward / BLOCK_SIZE;
     i32 dist = SquareRoot12(
         fixedMul(shifted_move_strafe, shifted_move_strafe)
         + fixedMul(shifted_move_forward, shifted_move_forward)
@@ -293,15 +303,17 @@ void IPhysicsObject_moveFlying(VSelf, i32 move_strafe, i32 move_forward, const i
     } else if (dist < ONE) {
         dist = ONE;
     }
-    DEBUG_LOG("Scaling: %d, Dist: %d\n", scaling, dist);
-    dist = (scaling << 12) / dist;
+    dist = (scaling << 12) / (dist >> 12);
     move_strafe = fixedMul(move_strafe, dist);
     move_forward = fixedMul(move_forward, dist);
     // Adjust x/z contribution by yaw angle to make movement relative to facing direction
     const i32 sin_yaw = isin(self->rotation.yaw >> FIXED_POINT_SHIFT);
     const i32 cos_yaw = icos(self->rotation.yaw >> FIXED_POINT_SHIFT);
+    DEBUG_LOG("[PHYSICS] sin: %d, cos: %d\n", sin_yaw, cos_yaw);
+    DEBUG_LOG("[PHYSICS] MoveFlying vel before: (%d,%d,%d)\n", inlineVec(self->velocity));
     self->velocity.vx += fixedMul(move_strafe, cos_yaw) - fixedMul(move_forward, sin_yaw);
     self->velocity.vz += fixedMul(move_forward, cos_yaw) + fixedMul(move_strafe, sin_yaw);
+    DEBUG_LOG("[PHYSICS] MoveFlying vel after: (%d,%d,%d)\n", inlineVec(self->velocity));
 }
 
 void iPhysicsObjectFall(VSelf, i32 distance) __attribute__((alias("IPhysicsObject_fall")));

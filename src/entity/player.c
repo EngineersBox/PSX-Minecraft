@@ -111,14 +111,14 @@ bool playerInputHandler(const Input* input, void* ctx) {
         physics_object->flags.sneaking = true;
     }
     if (isPressed(pad, binding_move_forward)) {
-        physics_object->move.forward -= move_amount;
-    } else if (isPressed(pad, binding_move_backward)) {
         physics_object->move.forward += move_amount;
+    } else if (isPressed(pad, binding_move_backward)) {
+        physics_object->move.forward -= move_amount;
     }
     if (isPressed(pad, binding_move_left)) {
-        physics_object->move.strafe += move_amount;
-    } else if (isPressed(pad, binding_move_right)) {
         physics_object->move.strafe -= move_amount;
+    } else if (isPressed(pad, binding_move_right)) {
+        physics_object->move.strafe += move_amount;
     }
     return false;
 }
