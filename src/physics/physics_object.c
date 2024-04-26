@@ -280,10 +280,11 @@ void IPhysicsObject_moveFlying(VSelf, i32 move_strafe, i32 move_forward, const i
     VSELF(PhysicsObject);
     // move_strafe / BLOCK_SIZE
     // => move_strafe * (1 / BLOCK_SIZE);
-    // => move_strafe * 0.0142857143
-    // ~> move_strafe * 58
-    const i32 shifted_move_strafe = fixedMul(move_strafe, 58);
-    const i32 shifted_move_forward = fixedMul(move_forward, 58);
+    // => move_strafe * (ONE * 0.0142857143)
+    // => move_strafe * 58.5142857143
+    // ~> move_strafe * 59
+    const i32 shifted_move_strafe = fixedMul(move_strafe, 59);
+    const i32 shifted_move_forward = fixedMul(move_forward, 59);
     i32 dist = SquareRoot12(
         fixedMul(shifted_move_strafe, shifted_move_strafe)
         + fixedMul(shifted_move_forward, shifted_move_forward)
