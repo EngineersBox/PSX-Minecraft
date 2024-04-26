@@ -21,7 +21,7 @@
 #ifdef GNU_VERSION_10
 #define ALLOC_CALL(destructor, idx) __ALLOC_CALL(malloc(destructor,idx))
 #else
-#define ALLOC_CALL(destructor, idx) __ALLOCATOR({})
+#define ALLOC_CALL(destructor, idx) __ALLOC_CALL({})
 #endif
 
 #endif // PSX_MINECRAFT_PREPROCESSOR_H
