@@ -97,8 +97,7 @@ CMake within the Docker context attached to CLion. To the following to set this 
 
 ## Progress
 
-Working on world-ray intersection for updating terrain data based on ray cast from camera
-orientation and item & inventories
+Current work is around physics and rewording the meshing to use binary greedy meshing with bit-ops
 
 ![PSXMC](./docs/PSXMC.png)
 ![PSXMC](./docs/PSXMC-1.png)
