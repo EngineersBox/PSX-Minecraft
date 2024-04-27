@@ -296,7 +296,7 @@ void IPhysicsObject_moveFlying(VSelf, i32 move_strafe, i32 move_forward, const i
         dist = ONE;
     }
     DEBUG_LOG("Scaling: %d, Dist: %d\n", scaling, dist);
-    dist = (scaling << 12) / dist;
+    dist = (scaling << FIXED_POINT_SHIFT) / dist;
     move_strafe = fixedMul(move_strafe, dist);
     move_forward = fixedMul(move_forward, dist);
     // Adjust x/z contribution by yaw angle to make movement relative to facing direction
