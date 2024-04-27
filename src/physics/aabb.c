@@ -4,14 +4,14 @@
 
 void aabbAddCoord(const AABB* source, AABB* target, const i32 x, const i32 y, const i32 z) {
     target->min = (VECTOR) {
-        .vx = source->min.vx + (x < 0 ? x : 0),
-        .vy = source->min.vy + (y < 0 ? y : 0),
-        .vz = source->min.vz + (z < 0 ? z : 0)
+        .vx = source->min.vx + max(x, 0),
+        .vy = source->min.vy + max(y, 0),
+        .vz = source->min.vz + max(z, 0)
     };
     target->max = (VECTOR) {
-        .vx = source->max.vx + (x > 0 ? x : 0),
-        .vy = source->max.vy + (y > 0 ? y : 0),
-        .vz = source->max.vz + (z > 0 ? z : 0)
+        .vx = source->max.vx + min(x, 0),
+        .vy = source->max.vy + min(y, 0),
+        .vz = source->max.vz + min(z, 0)
     };
 }
 
