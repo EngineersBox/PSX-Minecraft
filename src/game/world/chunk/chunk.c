@@ -561,15 +561,19 @@ IBlock* chunkGetBlockVec(const Chunk* chunk, const VECTOR* position) {
     )];
 }
 
+#define HALF_BLOCK_SIZE (BLOCK_SIZE / 2)
+
 void constructItemPosition(const Chunk* chunk, const VECTOR* block_position, VECTOR* item_position) {
     // Construct vertices relative to chunk mesh bottom left origin
     const i16 chunk_origin_x = chunk->position.vx * CHUNK_SIZE;
     // Offset by 1 to ensure bottom block of bottom chunk starts at Y = 0
     const i16 chunk_origin_y = -chunk->position.vy * CHUNK_SIZE;
     const i16 chunk_origin_z = chunk->position.vz * CHUNK_SIZE;
-    item_position->vx = (chunk_origin_x + block_position->vx) * BLOCK_SIZE + (BLOCK_SIZE / 2);
-    item_position->vy = (chunk_origin_y - block_position->vy) * BLOCK_SIZE - (BLOCK_SIZE / 2);
-    item_position->vz = (chunk_origin_z + block_position->vz) * BLOCK_SIZE + (BLOCK_SIZE / 2);
+    // Positions only need to be somewhat accurate, so we will convert the position
+    // to be in whole units, not fractional world space units. AKA just >> FIXED_POINT_SHIFT
+    item_position->vx = (chunk_origin_x + block_position->vx) * BLOCK_SIZE + HALF_BLOCK_SIZE;
+    item_position->vy = (chunk_origin_y - block_position->vy) * BLOCK_SIZE - HALF_BLOCK_SIZE;
+    item_position->vz = (chunk_origin_z + block_position->vz) * BLOCK_SIZE + HALF_BLOCK_SIZE;
 }
 
 bool chunkModifyVoxel(Chunk* chunk, const VECTOR* position, IBlock* block, IItem** item_result) {
@@ -639,6 +643,11 @@ bool itemPickupValidator(const Item* item) {
 void chunkUpdate(Chunk* chunk, Player* player) {
     _current_inventory = VCAST(Inventory*, player->inventory);
     const VECTOR pos = (VECTOR) {
+        // We are using chunk relative coords in absolute units and not in
+        // fixed point format since item positons only need to be relatively
+        // accurate not exact so we can save on the extra caclulation overhead
+        // of needing to use division for worldspace accuracy.
+        // @see itemPickupValidator
         .vx = player->physics_object.position.vx >> FIXED_POINT_SHIFT,
         .vy = player->physics_object.position.vy >> FIXED_POINT_SHIFT,
         .vz = player->physics_object.position.vz >> FIXED_POINT_SHIFT,
@@ -683,7 +692,8 @@ void chunkUpdate(Chunk* chunk, Player* player) {
                     itemDestroy(iitem);
                 case INVENTORY_STORE_RESULT_ADDED_NEW_SLOT:
                     // We reuse this item instance as the inventory instance now so don't
-                    // free it.
+                    // free it, just remove the array entry (no element destructor set
+                    // on the cvector instance)
                     cvector_erase(chunk->dropped_items, i);
                     break;
             }

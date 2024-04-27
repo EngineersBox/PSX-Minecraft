@@ -97,7 +97,7 @@ typedef struct World World;
     vfuncDefault(void, update, VSelf, World* world, void* ctx) \
     vfuncDefault(void, move, VSelf, World* world, i32 velocity_x, i32 velocity_y, i32 velocity_z, void* ctx) \
     vfuncDefault(void, moveWithHeading, VSelf, World* world, i32 move_strafe, i32 move_forward, void* ctx) \
-    vfuncDefault(void, moveFlying, VSelf, i32 move_strafe, i32 move_forward, const i32 scaling) \
+    vfuncDefault(void, moveFlying, VSelf, i32 move_strafe, i32 move_forward, const i32 scaling)
 
 void iPhysicsObjectInit(PhysicsObject* physics_object, const PhysicsObjectConfig* config, const PhysicsObjectUpdateHandlers* update_handlers);
 void iPhysicsObjectSetPosition(PhysicsObject* physics_object, const VECTOR* position);

@@ -52,7 +52,10 @@
  * @param v - Value to square
  * @return v * v
  */
-#define pow2(v) ((v) * (v))
+#define pow2(v) ({ \
+    __typeof__(v) _v = (v); \
+    _v * _v; \
+})
 
 #define ceilDiv(a, b) ((int32_t)(((a) + (b) - 1) / (b)))
 
