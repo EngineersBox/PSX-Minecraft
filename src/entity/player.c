@@ -27,6 +27,8 @@ const PhysicsObjectUpdateHandlers player_physics_object_update_handlers = (Physi
 };
 
 void playerInit(Player* player) {
+    entityInit(&player->entity);
+    player->entity.health = PLAYER_MAX_HEALTH;
     Inventory* inventory = (Inventory*) malloc(sizeof(Inventory));
     Hotbar* hotbar = (Hotbar*) malloc(sizeof(Hotbar));
     hotbarInit(hotbar);
@@ -62,6 +64,12 @@ void playerRender(const Player* player, RenderContext* ctx, Transforms* transfor
 
 void playerFallHandler(PhysicsObject* physics_object, i32 distance, void* ctx) {
     Player* player = (Player*) ctx;
+#define THREE_BLOCKS (ONE_BLOCK * 3)
+    if (distance >= THREE_BLOCKS) {
+        // NULL as the source indicates direct damage application
+        iEntityAttackFrom(&player->entity, NULL, (distance / ONE_BLOCK) - 3);
+    }
+#undef THREE_BLOCKS
 }
 
 bool playerInputHandler(const Input* input, void* ctx) {

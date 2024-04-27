@@ -57,7 +57,11 @@
     _v * _v; \
 })
 
-#define ceilDiv(a, b) ((int32_t)(((a) + (b) - 1) / (b)))
+#define ceilDiv(a, b) ({ \
+    __typeof__(a) _a = (a); \
+    __typeof__(b) _b = (b); \
+    (int32_t)((_a + _b - 1) / _b); \
+})
 
 #define squareDistance(v1, v2) (pow2((v2)->vx - (v1)->vx) + pow2((v2)->vy - (v1)->vy) + pow2((v2)->vz - (v1)->vz))
 
@@ -76,7 +80,11 @@
  * @param b - second number
  * @return 0 if a == b, 1 if b > a, -1 if b < a
  */
-#define cmp(a, b) (((b) > (a)) - ((b) < (a)))
+#define cmp(a, b) ({ \
+    __typeof__(a) _a = (a); \
+    __typeof__(b) _b = (b); \
+    (_b > _a) - (_b < _a); \
+})
 
 /**
  * @brief Retrieve the sign (1 for positive, 0 for negative) of a number
@@ -90,9 +98,15 @@
  * @param v - number to apply to
  * @return -v if v < 0, otherwise v
  */
-#define absv(v) ((v) * sign(v))
+#define absv(v) ({ \
+    __typeof__(v) _v = (v); \
+    _v * sign(_v); \
+})
 
-#define positiveModulo(i, n) (((i) % (n) + (n)) % (n))
+#define positiveModulo(i, n) ({ \
+    __typeof__(n) _n = (n); \
+    ((i) % _n + _n) % _n; \
+})
 
 void crossProduct(const SVECTOR *v0, const SVECTOR *v1, VECTOR *out);
 

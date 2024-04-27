@@ -4,6 +4,7 @@
 #define PSX_MINECRAFT_PLAYER_H
 
 #include <psxgte.h>
+#include <stdbool.h>
 
 #include "../core/camera.h"
 #include "../game/gui/inventory.h"
@@ -17,11 +18,13 @@ extern const u32 player_collision_intervals_radius[];
 extern const PhysicsObjectConfig player_physics_object_config;
 extern const PhysicsObjectUpdateHandlers player_physics_object_update_handlers;
 
+// 18 = 9 hearts with 2 points in each heart
+#define PLAYER_MAX_HEALTH 18
+
 typedef struct {
-    IEntity entity;
+    Entity entity;
     ICamera* camera;
     PhysicsObject physics_object;
-    VECTOR position;
     IUI inventory;
     IUI hotbar;
 } Player;

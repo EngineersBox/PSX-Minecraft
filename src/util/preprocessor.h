@@ -24,4 +24,6 @@
 #define ALLOC_CALL(destructor, idx) __ALLOC_CALL({})
 #endif
 
+#define UNIMPLEMENTED __attribute__((unavailable("Unimplemented function/method")))
+
 #endif // PSX_MINECRAFT_PREPROCESSOR_H

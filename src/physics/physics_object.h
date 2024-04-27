@@ -54,13 +54,14 @@ typedef struct {
     bool in_water: 1;
     bool in_lava: 1;
     bool in_web: 1;
+    bool on_ladder: 1;
     bool collided_horizontal: 1;
     bool collided_vertical: 1;
     bool collided: 1;
     bool jumping: 1;
     bool sneaking: 1;
     bool no_clip: 1;
-    u32 _pad: 22;
+    u16 _pad: 5;
 } PhysicsObjectFlags;
 
 typedef void (*PhysicsObjectFall)(VSelf, i32 distance, void* ctx);

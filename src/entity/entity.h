@@ -4,20 +4,38 @@
 #define PSX_MINECRAFT_ENTITY_H
 
 #include <interface99.h>
+#include <stdbool.h>
 
+#include "../util/preprocessor.h"
 #include "../util/inttypes.h"
 
 typedef struct {
-    i16 health;
+    bool alive: 1;
+    u16 _pad: 15;
+} EntityFlags;
+
+#define ENTITY_ABS_MAX_HEALTH UINT16_MAX
+
+typedef struct {
+    EntityFlags flags;
+    u16 health;
+    // 0 = not on fire
+    // 1+ = ticks on fire so far
     u16 on_fire;
 } Entity;
 
 #define IEntity_IFACE \
-    vfuncDefault(void, damage, VSelf, i16 amount) \
+    vfuncDefault(bool, attackFrom, VSelf, const Entity* damage_source, const i16 amount) \
+    vfuncDefault(void, damage, VSelf, const i16 amount) \
     vfuncDefault(void, kill, VSelf)
 
-void iEntityDamage(VSelf, i16 amount);
-void IEntity_damage(VSelf, i16 amount);
+void entityInit(Entity* entity);
+
+UNIMPLEMENTED bool iEntityAttackFrom(VSelf, const Entity* damage_source, const i16 amount);
+UNIMPLEMENTED bool IEntity_attackFrom(VSelf, const Entity* damage_source, const i16 amount);
+
+void iEntityDamage(VSelf, const i16 amount);
+void IEntity_damage(VSelf, const i16 amount);
 
 void iEntityKill(VSelf);
 void IEntity_kill(VSelf);
