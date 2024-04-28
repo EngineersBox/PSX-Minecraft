@@ -18,8 +18,8 @@ extern const u32 player_collision_intervals_radius[];
 extern const PhysicsObjectConfig player_physics_object_config;
 extern const PhysicsObjectUpdateHandlers player_physics_object_update_handlers;
 
-// 18 = 9 hearts with 2 points in each heart
-#define PLAYER_MAX_HEALTH 18
+// 10 = 10 hearts with 2 points in each heart
+#define PLAYER_MAX_HEALTH 20
 
 typedef struct {
     Entity entity;
