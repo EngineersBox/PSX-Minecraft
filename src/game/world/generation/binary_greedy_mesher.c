@@ -13,9 +13,9 @@ IBlock* worldGetChunkBlock(const World* world, const ChunkBlockPosition* positio
 #define CHUNK_SIZE_P (CHUNK_SIZE + 2)
 
 typedef struct {
-    u8 axis;
-    BlockID blockId;
-    u32 y;
+    const u8 axis;
+    const Block* block;
+    const u32 y;
 } PlaneMeshingDataKey;
 
 typedef struct {
@@ -27,7 +27,7 @@ int plane_meshing_data_compare(const void* a, const void* b, void* udata) {
     const PlaneMeshingData* pa = a;
     const PlaneMeshingData* pb = b;
     const int axis = cmp(pa->key.axis, pb->key.axis);
-    const int blockId = cmp(pa->key.blockId, pb->key.blockId);
+    const int blockId = cmp(pa->key.block->id, pb->key.block->id);
     const int y = cmp(pa->key.y, pb->key.y);
     if (axis != 0) {
         return axis;
@@ -137,6 +137,7 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
             }
         }
     }
+#undef addVoxelToAxisCols
     // Face culling
     for (u32 axis = 0; 0 < 3; axis++) {
         for (u32 z = 0; z < CHUNK_SIZE_P; z++) {
@@ -166,7 +167,7 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
                 u32 col = col_face_masks[axis][z + 1][x + 1];
                 // Remove right most padding value, always invalid
                 col >>= 1;
-                // Remote left most padding value, always invalid
+                // Remove left most padding value, always invalid
                 col &= !(1 << CHUNK_SIZE);
                 while (col != 0) {
                     u8 y = trailing_zeros(col);
@@ -215,7 +216,7 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
                     const PlaneMeshingData query = (PlaneMeshingData) {
                         .key = (PlaneMeshingDataKey) {
                             .axis = axis,
-                            .blockId = block->id,
+                            .block = block,
                             .y = y
                         },
                         .value = (BinaryMeshPlane) {0}
@@ -233,6 +234,7 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
         }
     }
     ChunkMesh* mesh = &chunk->mesh;
+    chunkMeshClear(mesh);
     size_t iter = 0;
     void* item;
     while(hashmap_iter(data, &iter, &item)) {
@@ -241,12 +243,83 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
             mesh,
             (FaceDirection) elem->key.axis,
             elem->key.y,
-            elem->value
+            elem->value,
+            CHUNK_SIZE
         );
     }
     hashmap_free(data);
 }
 
-void binaryGreedyMesherConstructPlane(ChunkMesh* mesh, FaceDirection face_dir, u32 axis, BinaryMeshPlane plane) {
+UNIMPLEMENTED void createQuad(ChunkMesh* mesh,
+                const FaceDirection face_dir,
+                const u32 axis,
+                const u32 x,
+                const u32 y,
+                const u32 w,
+                const u32 h) {
+    // TODO: Finish this referencing original chunk meshing code as well as TanTan's stuff
+}
 
+void binaryGreedyMesherConstructPlane(ChunkMesh* mesh,
+                                      const FaceDirection face_dir,
+                                      const u32 axis,
+                                      BinaryMeshPlane plane,
+                                      const u32 lod_size) {
+    for (u32 row = 0; row < CHUNK_SIZE; row++) {
+        u32 y = 0;
+        while (y < lod_size) {
+            y += trailing_zeros(plane[row] >> y);
+            if (y >= lod_size) {
+                // At top
+                continue;
+            }
+            const u32 h = trailing_ones(plane[row] >> y);
+            // Convert height n to positive bits repeated n times:
+            // 1 = 0b1, 2 = 0b11, 4 = 0b1111
+            u32 h_as_mask;
+            if (h < 32) {
+                h_as_mask = (1 << h) - 1;
+            } else {
+                h_as_mask = UINT32_MAX;
+            }
+            const u32 mask = h_as_mask << y;
+            // Grow horizontally
+            u32 w = 1;
+            while (row + w < lod_size) {
+                // Fetch bits spanning height in the next row
+                const u32 next_row_h = (plane[row + w] >> y) & h_as_mask;
+                if (next_row_h != h_as_mask) {
+                    // Cannot grow further horizontally
+                    break;
+                }
+                // Unset the bits we expanded into
+                plane[row + w] &= ~mask;
+                w++;
+            }
+            createQuad(
+                mesh,
+                face_dir,
+                axis,
+                y,
+                w,
+                h,
+                row
+            );
+        }
+    }
+}
+
+VECTOR faceDirectionPosition(const FaceDirection face_dir, const i32 axis, const i32 x, const i32 y) {
+    VECTOR position;
+#define vec(_x,_y,_z) position = (VECTOR) { .vx = _x, .vy = _y, .vz = _z }
+    switch (face_dir) {
+        case FACE_DIR_UP: vec(x, axis + 1, y); break;
+        case FACE_DIR_DOWN: vec(x, axis, y); break;
+        case FACE_DIR_LEFT: vec(axis, y, x); break;
+        case FACE_DIR_RIGHT: vec(axis + 1, y, x); break;
+        case FACE_DIR_FORWARD: vec(x, y, axis); break;
+        case FACE_DIR_BACK: vec(x, y, axis + 1); break;
+    }
+#undef vec
+    return position;
 }
