@@ -10,6 +10,9 @@
 #include "../../../util/preprocessor.h"
 #include "../../../math/math_utils.h"
 
+// This implementation is based on TanTan's Binary Greedy Mesher demo:
+// https://github.com/TanTanDev/binary_greedy_mesher_demo/blob/main/src/greedy_mesher_optimized.rs
+
 #if defined(CHUNK_SIZE) && CHUNK_SIZE > 0 && CHUNK_SIZE <= 32 && isPowerOf2(CHUNK_SIZE)
     #define planeType(size, name) typedef GLUE(u, size) name[size]
     planeType(CHUNK_SIZE,BinaryMeshPlane);
