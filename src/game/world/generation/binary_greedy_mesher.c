@@ -149,13 +149,9 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
             }
         }
     }
-    typedef struct {
-        void* key;
-        BinaryMeshPlane value;
-    } BGMElement;
     // BinaryMeshPlane data[6][BLOCK_COUNT][32] = {0};
     struct hashmap* data = hashmap_new(
-        sizeof(BGMElement),
+        sizeof(PlaneMeshingData),
         0, 0, 0,
         plane_meshing_data_hash,
         plane_meshing_data_compare,
