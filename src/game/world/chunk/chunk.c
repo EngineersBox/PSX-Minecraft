@@ -13,6 +13,7 @@
 #include "../../math/math_utils.h"
 #include "../../util/interface99_extensions.h"
 #include "../../resources/asset_indices.h"
+#include "../generation/binary_greedy_mesher.h"
 
 // Forward declaration
 IBlock* worldGetBlock(const World* world, const VECTOR* position);

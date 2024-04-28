@@ -108,6 +108,8 @@
     ((i) % _n + _n) % _n; \
 })
 
+#define isPowerOf2(x) (((x) & ((x) - 1)) == 0)
+
 void crossProduct(const SVECTOR *v0, const SVECTOR *v1, VECTOR *out);
 
 typedef struct _BVECTOR {

@@ -35,7 +35,7 @@ typedef struct {
 // ONE * 0.5 * 5.0
 #define BLOCK_DEFAULT_RESISTANCE 10240
 
-typedef uint8_t BlockID;
+typedef u8 BlockID;
 
 typedef enum {
     BLOCKTYPE_EMPTY = 0,

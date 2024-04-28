@@ -13,17 +13,19 @@
     && __GNUC__ >= 10    \
     && (__GNUC__ > 10 || (__GNUC__ >= 0 && __GNUC_MINOR__ >= 0)) \
     && defined(__GNUC_PATCHLEVEL__)
-#define GNU_VERSION_10
+    #define GNU_VERSION_10
 #endif
 
 #define __ALLOC_CALL(...) __attribute__((malloc, __VA_ARGS__))
 
 #ifdef GNU_VERSION_10
-#define ALLOC_CALL(destructor, idx) __ALLOC_CALL(malloc(destructor,idx))
+    #define ALLOC_CALL(destructor, idx) __ALLOC_CALL(malloc(destructor,idx))
 #else
-#define ALLOC_CALL(destructor, idx) __ALLOC_CALL({})
+    #define ALLOC_CALL(destructor, idx) __ALLOC_CALL({})
 #endif
 
 #define UNIMPLEMENTED __attribute__((unavailable("Unimplemented function/method")))
+
+#define GLUE(x,y) x##y
 
 #endif // PSX_MINECRAFT_PREPROCESSOR_H

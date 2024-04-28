@@ -6,33 +6,20 @@
 #include <psxgte.h>
 #include <stdbool.h>
 
-#include "../../../structure/cvector.h"
-#include "chunk_mesh.h"
+#include "chunk_structure.h"
 #include "../../render/render_context.h"
 #include "../../render/transforms.h"
 #include "../../blocks/blocks.h"
-#include "../position.h"
 #include "../../items/item.h"
 #include "../../entity/player.h"
 
-#define CHUNK_SIZE 8
-#define CHUNK_BLOCK_SIZE (CHUNK_SIZE * BLOCK_SIZE)
-#define CHUNK_DATA_SIZE (CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE)
-#define CHUNK_DIRECTIONS 3
-#define CHUNK_AXIS_NEIGHBOURS (CHUNK_DIRECTIONS * 2)
-
-#define chunkBlockIndex(x, y, z) ((z) + ((y) * CHUNK_SIZE) + ((x) * CHUNK_SIZE * CHUNK_SIZE))
-
-// Forward declaration
-typedef struct World World;
-
-typedef struct {
-    World* world;
-    VECTOR position;
-    ChunkMesh mesh;
-    IBlock* blocks[CHUNK_DATA_SIZE];
-    cvector(IItem*) dropped_items;
-} Chunk;
+// ==== [NOTE] ====
+// This class contains only methods and implementations
+// for chunks. The actual defintion and defines associated
+// with the chunk structure is in chunk_structure.h, the
+// reason for this is to allow for easier inclusion of the
+// structure without creating circular dependencies with
+// the methods and implementations therein.
 
 void chunkInit(Chunk* chunk);
 void chunkDestroy(const Chunk* chunk);
