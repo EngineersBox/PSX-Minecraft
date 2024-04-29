@@ -62,14 +62,12 @@ void playerRender(const Player* player, RenderContext* ctx, Transforms* transfor
     uiRender(&inventory->ui, ctx, transforms);
 }
 
-void playerFallHandler(PhysicsObject* physics_object, i32 distance, void* ctx) {
+void playerFallHandler(PhysicsObject* physics_object, const i32 distance, void* ctx) {
     Player* player = (Player*) ctx;
-#define THREE_BLOCKS (ONE_BLOCK * 3)
-    if (distance >= THREE_BLOCKS) {
+    if (distance >= ONE_BLOCK * 3) {
         // NULL as the source indicates direct damage application
         iEntityAttackFrom(&player->entity, NULL, (distance / ONE_BLOCK) - 3);
     }
-#undef THREE_BLOCKS
 }
 
 bool playerInputHandler(const Input* input, void* ctx) {

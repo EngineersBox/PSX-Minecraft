@@ -4,12 +4,23 @@
 #
 # This is based off the name of the buffer and the repository, etc. it is in, so even if we
 # don't end up attaching to a container, it will still be passed
-[ "$#" -ne 1 ] && echo "Container name required as first and only argument" >&2 && exit 1
+[ "$#" -ne 2 ] && >&2 echo "Usage: cclangd <container name> <project root path>" >&2 && exit 1
+
+CONTAINER_NAME="$1"
+PROJECT_ROOT_PATH="$2"
 
 # Verify that a contianer by this name actually exists, and is running
-if [ -z "$(docker ps -q -f name="$1" -f status=running)" ]; then
-    clangd --background-index
+if [ -z "$(docker ps -q -f name="$CONTAINER_NAME" -f status=running)" ]; then
+    echo "[cclangd] No container running, determining existance of 'start_clangd.sh' script in project root"
+    if [ -e "$PROJECT_ROOT_PATH/start_clangd.sh" ]; then
+        echo "[cclangd] Start script exists in project root, invoking it to start container"
+        exec "$PROJECT_ROOT_PATH/start_clangd.sh" "$CONTAINER_NAME" "$PROJECT_ROOT_PATH"
+    else
+        echo "[cclangd] No start script exists in project root, starting on host"
+        clangd --background-index
+    fi
 else
+    echo "[cclangd] Container running, executing inside it"
     # Important part here is both the '-i' and the redirection of STDERR
-    docker exec -i "$1" /usr/bin/clangd --compile-commands-dir="./build" --background-index 2>/dev/null
+    docker exec -i "$1" /usr/bin/clangd --background-index 2>/dev/null
 fi

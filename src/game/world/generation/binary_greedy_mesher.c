@@ -251,12 +251,13 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
 }
 
 UNIMPLEMENTED void createQuad(ChunkMesh* mesh,
-                const FaceDirection face_dir,
-                const u32 axis,
-                const u32 x,
-                const u32 y,
-                const u32 w,
-                const u32 h) {
+                              const FaceDirection face_dir,
+                              const u32 axis,
+                              const u32 x,
+                              const u32 y,
+                              const u32 w,
+                              const u32 h) {
+
     // TODO: Finish this referencing original chunk meshing code as well as TanTan's stuff
 }
 
