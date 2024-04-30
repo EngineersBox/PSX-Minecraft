@@ -41,6 +41,7 @@ RUN apt-get update \
         wget \
         gpg \
         ca-certificates \
+        ccls \
     && apt-get clean
 
 # Create clang(d) symlinks to avoid versioned binaries

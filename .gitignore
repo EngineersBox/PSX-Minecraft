@@ -1,4 +1,5 @@
 build
+.ccls-cache
 .vscode
 .idea
 *.lzp
