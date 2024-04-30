@@ -31,8 +31,8 @@ typedef struct {
 
 void entityInit(Entity* entity);
 
-UNIMPLEMENTED bool iEntityAttackFrom(VSelf, const Entity* damage_source, const i16 amount);
-UNIMPLEMENTED bool IEntity_attackFrom(VSelf, const Entity* damage_source, const i16 amount);
+bool iEntityAttackFrom(VSelf, const Entity* damage_source, const i16 amount);
+bool IEntity_attackFrom(VSelf, const Entity* damage_source, const i16 amount);
 
 void iEntityDamage(VSelf, const i16 amount);
 void IEntity_damage(VSelf, const i16 amount);

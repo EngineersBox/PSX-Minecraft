@@ -172,7 +172,7 @@ static SMD_PRIM* createQuadPrimitive(ChunkMesh* mesh,
                               const i16 axisMask[CHUNK_DIRECTIONS],
                               const int index) {
     // Construct a new POLY_FT4 (textured quad) primtive for this face
-    SMD_PRIM* p_prims = (SMD_PRIM*) mesh->p_prims;
+    cvector(SMD_PRIM) p_prims = (SMD_PRIM*) mesh->p_prims;
     cvector_push_back(p_prims, (SMD_PRIM) {});
     // The SMD.p_prims field has been cast to an lvalue of SMD_PRIM*
     // to a separate variable. Any realloc that occurs will set the
@@ -462,40 +462,41 @@ static void generateMeshLexicographically(Chunk* chunk,
 }
 
 void chunkGenerateMesh(Chunk* chunk) {
-    // 0: X, 1: Y, 2: Z
-    for (u8 axis = 0; axis < CHUNK_DIRECTIONS; axis++) {
-        const u8 axis1 = (axis + 1) % CHUNK_DIRECTIONS;
-        const u8 axis2 = (axis + 2) % CHUNK_DIRECTIONS;
-        i16 deltaAxis1[CHUNK_DIRECTIONS] = {0};
-        i16 deltaAxis2[CHUNK_DIRECTIONS] = {0};
-        i16 chunkIter[CHUNK_DIRECTIONS] = {0};
-        i16 axisMask[CHUNK_DIRECTIONS] = {0};
-        axisMask[axis] = 1;
-        Mask mask[CHUNK_SIZE * CHUNK_SIZE] = {0};
-        for (chunkIter[axis] = -1; chunkIter[axis] < CHUNK_SIZE;) {
-            // Compute mask
-            computeMeshMask(
-                chunk,
-                axis,
-                axis1,
-                axis2,
-                chunkIter,
-                axisMask,
-                mask
-            );
-            chunkIter[axis]++;
-            generateMeshLexicographically(
-                chunk,
-                axis1,
-                axis2,
-                deltaAxis1,
-                deltaAxis2,
-                chunkIter,
-                axisMask,
-                mask
-            );
-        }
-    }
+    binaryGreedyMesherBuildMesh(chunk);
+    // // 0: X, 1: Y, 2: Z
+    // for (u8 axis = 0; axis < CHUNK_DIRECTIONS; axis++) {
+    //     const u8 axis1 = (axis + 1) % CHUNK_DIRECTIONS;
+    //     const u8 axis2 = (axis + 2) % CHUNK_DIRECTIONS;
+    //     i16 deltaAxis1[CHUNK_DIRECTIONS] = {0};
+    //     i16 deltaAxis2[CHUNK_DIRECTIONS] = {0};
+    //     i16 chunkIter[CHUNK_DIRECTIONS] = {0};
+    //     i16 axisMask[CHUNK_DIRECTIONS] = {0};
+    //     axisMask[axis] = 1;
+    //     Mask mask[CHUNK_SIZE * CHUNK_SIZE] = {0};
+    //     for (chunkIter[axis] = -1; chunkIter[axis] < CHUNK_SIZE;) {
+    //         // Compute mask
+    //         computeMeshMask(
+    //             chunk,
+    //             axis,
+    //             axis1,
+    //             axis2,
+    //             chunkIter,
+    //             axisMask,
+    //             mask
+    //         );
+    //         chunkIter[axis]++;
+    //         generateMeshLexicographically(
+    //             chunk,
+    //             axis1,
+    //             axis2,
+    //             deltaAxis1,
+    //             deltaAxis2,
+    //             chunkIter,
+    //             axisMask,
+    //             mask
+    //         );
+    //     }
+    // }
 }
 
 void chunkRenderDroppedItems(Chunk* chunk, RenderContext* ctx, Transforms* transforms) {

@@ -30,11 +30,11 @@ typedef enum {
     FACE_DIR_BACK
 } FaceDirection;
 
-VECTOR faceDirectionPosition(const FaceDirection face_dir, const i32 axis, const i32 x, const i32 y);
+void faceDirectionPosition(const FaceDirection face_dir, const i32 axis, const i32 x, const i32 y, SVECTOR* position);
 
 void binaryGreedyMesherBuildMesh(Chunk* chunk);
 // lod_size here should be a value in the interval [0,CHUNK_SIZE]
 // where CHUNK_SIZE as a value indicates 1:1 with every block
-void binaryGreedyMesherConstructPlane(ChunkMesh* mesh, const FaceDirection face_dir, const u32 axis, BinaryMeshPlane plane, const u32 lod_size);
+void binaryGreedyMesherConstructPlane(Chunk* chunk, const FaceDirection face_dir, const u32 axis, const Block* block, BinaryMeshPlane plane, const u32 lod_size);
 
 #endif // _PSX_MINECRAFT__GAME_WORLD_GENERATION__BINARY_GREEDY_MESHER_H_

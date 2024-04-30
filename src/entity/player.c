@@ -66,7 +66,7 @@ void playerFallHandler(PhysicsObject* physics_object, const i32 distance, void* 
     Player* player = (Player*) ctx;
     if (distance >= ONE_BLOCK * 3) {
         // NULL as the source indicates direct damage application
-        iEntityAttackFrom(&player->entity, NULL, (distance / ONE_BLOCK) - 3);
+        // iEntityAttackFrom(&player->entity, NULL, (distance / ONE_BLOCK) - 3);
     }
 }
 

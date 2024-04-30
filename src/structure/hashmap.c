@@ -529,7 +529,6 @@ static uint64_t SIP64(const uint8_t *in, const size_t inlen, uint64_t seed0,
         v1 ^= v2;                                                              \
         v2 = ROTL(v2, 16);                                                     \
     } while (0)
-    assert((outlen == 4) || (outlen == 8));
     uint32_t v0 = 0;
     uint32_t v1 = 0;
     uint32_t v2 = UINT32_C(0x6c796765);
@@ -545,7 +544,7 @@ static uint64_t SIP64(const uint8_t *in, const size_t inlen, uint64_t seed0,
     v2 ^= k0;
     v1 ^= k1;
     v0 ^= k0;
-    if (outlen == 8) {
+    if (inlen == 8) {
         v1 ^= 0xee;
     }
     for (; in != end; in += 4) {
@@ -574,7 +573,7 @@ static uint64_t SIP64(const uint8_t *in, const size_t inlen, uint64_t seed0,
         SIPROUND;
     }
     v0 ^= b;
-    if (outlen == 8) {
+    if (inlen == 8) {
         v2 ^= 0xee;
     } else {
         v2 ^= 0xff;
@@ -583,14 +582,8 @@ static uint64_t SIP64(const uint8_t *in, const size_t inlen, uint64_t seed0,
         SIPROUND;
     }
     b = v1 ^ v3;
-    U32TO8_LE(out, b);
-    if (outlen == 4) return 0;
-    v1 ^= 0xdd;
-    for (i = 0; i < dROUNDS; ++i) {
-        SIPROUND;
-    }
-    b = v1 ^ v3;
-    U32TO8_LE(out + 4, b);
+    uint32_t out = 0;
+    U32TO8_LE(&out, b);
     return 0;
 }
 
