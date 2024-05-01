@@ -227,26 +227,26 @@ static void createQuadVertices(Chunk* chunk,
     const i16 chunk_origin_y = (-chunk->position.vy) * CHUNK_SIZE;
     const i16 chunk_origin_z = chunk->position.vz * CHUNK_SIZE;
     const SVECTOR vertices[4] = {
-        [0] = (SVECTOR) {
+        [0] = vec3_i16(
             (chunk_origin_x + origin[0]) * BLOCK_SIZE,
             (chunk_origin_y - origin[1]) * BLOCK_SIZE,
             (chunk_origin_z + origin[2]) * BLOCK_SIZE
-        },
-        [1] = (SVECTOR) {
+        ),
+        [1] = vec3_i16(
             (chunk_origin_x + origin[0] + delta_axis_1[0]) * BLOCK_SIZE,
             (chunk_origin_y - origin[1] - delta_axis_1[1]) * BLOCK_SIZE,
             (chunk_origin_z + origin[2] + delta_axis_1[2]) * BLOCK_SIZE
-        },
-        [2] = (SVECTOR) {
+        ),
+        [2] = vec3_i16(
             (chunk_origin_x + origin[0] + delta_axis_2[0]) * BLOCK_SIZE,
             (chunk_origin_y - origin[1] - delta_axis_2[1]) * BLOCK_SIZE,
             (chunk_origin_z + origin[2] + delta_axis_2[2]) * BLOCK_SIZE
-        },
-        [3] = (SVECTOR) {
+        ),
+        [3] = vec3_i16(
             (chunk_origin_x + origin[0] + delta_axis_1[0] + delta_axis_2[0]) * BLOCK_SIZE,
             (chunk_origin_y - origin[1] - delta_axis_1[1] - delta_axis_2[1]) * BLOCK_SIZE,
             (chunk_origin_z + origin[2] + delta_axis_1[2] + delta_axis_2[2]) * BLOCK_SIZE
-        }
+        )
     };
     const INDEX indices = INDICES[index];
     SVECTOR* vertex = NULL;
@@ -644,16 +644,16 @@ bool itemPickupValidator(const Item* item) {
 
 void chunkUpdate(Chunk* chunk, Player* player) {
     _current_inventory = VCAST(Inventory*, player->inventory);
-    const VECTOR pos = (VECTOR) {
-        // We are using chunk relative coords in absolute units and not in
-        // fixed point format since item positons only need to be relatively
-        // accurate not exact so we can save on the extra caclulation overhead
-        // of needing to use division for worldspace accuracy.
-        // @see itemPickupValidator
-        .vx = player->physics_object.position.vx >> FIXED_POINT_SHIFT,
-        .vy = player->physics_object.position.vy >> FIXED_POINT_SHIFT,
-        .vz = player->physics_object.position.vz >> FIXED_POINT_SHIFT,
-    };
+    // We are using chunk relative coords in absolute units and not in
+    // fixed point format since item positons only need to be relatively
+    // accurate not exact so we can save on the extra caclulation overhead
+    // of needing to use division for worldspace accuracy.
+    // @see itemPickupValidator
+    const VECTOR pos = vec3_i32(
+        player->physics_object.position.vx >> FIXED_POINT_SHIFT,
+        player->physics_object.position.vy >> FIXED_POINT_SHIFT,
+        player->physics_object.position.vz >> FIXED_POINT_SHIFT
+    );
     for (u32 i = 0; i < cvector_size(chunk->dropped_items);) {
         IItem* iitem = chunk->dropped_items[i];
         if (iitem == NULL) {

@@ -166,6 +166,12 @@ typedef struct _BVECTOR {
     _v - positiveModulo(_v, (factor)); \
 })
 
+#define _vec3_layout(x, y, z) .vx = (x), .vy = (y), .vz = (z)
+#define vec3_i32(x, y, z) ((VECTOR) { _vec3_layout(x, y, z) })
+#define vec3_i16(x, y, z) ((SVECTOR) { _vec3_layout(x, y, z) })
+#define vec3_i8(x, y, z) ((CVECTOR) { _vec3_layout(x, y, z) })
+#define vec2_i16(x, y) ((DVECTOR) { .vx = (x), .vy = (y) })
+
 // TODO: Add vec+const variations
 
 #define DEF_VEC_OP()

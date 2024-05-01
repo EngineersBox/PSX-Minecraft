@@ -4,6 +4,7 @@
 #include <psxgte.h>
 #include "../../../util/interface99_extensions.h"
 #include "../../../util/bits.h"
+#include "../../../math/math_utils.h"
 #include "../../../structure/hashmap.h"
 #include "../../../resources/asset_indices.h"
 
@@ -83,11 +84,11 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
         for (u32 y = 0; y < CHUNK_SIZE_P; y++) {
             for (u32 x = 0; x < CHUNK_SIZE_P; x++) {
                 const u32 z = axial_values[z_i];
-                const VECTOR position = (VECTOR) {
-                    .vx = (chunk->position.vx * CHUNK_SIZE) + x - 1,
-                    .vy = (chunk->position.vy * CHUNK_SIZE) + y - 1,
-                    .vz = (chunk->position.vz * CHUNK_SIZE) + z - 1,
-                };
+                const VECTOR position = vec3_i32(
+                    (chunk->position.vx * CHUNK_SIZE) + x - 1,
+                    (chunk->position.vy * CHUNK_SIZE) + y - 1,
+                    (chunk->position.vz * CHUNK_SIZE) + z - 1
+                );
                 addVoxelToAxisCols(
                     worldGetBlock(chunk->world, &position),
                     x,
@@ -103,11 +104,11 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
         for (u32 y_i = 0; y_i < 2; y_i++) {
             for (u32 x = 0; x < CHUNK_SIZE_P; x++) {
                 const u32 y = axial_values[y_i];
-                const VECTOR position = (VECTOR) {
-                    .vx = (chunk->position.vx * CHUNK_SIZE) + x - 1,
-                    .vy = (chunk->position.vy * CHUNK_SIZE) + y - 1,
-                    .vz = (chunk->position.vz * CHUNK_SIZE) + z - 1,
-                };
+                const VECTOR position = vec3_i32(
+                    (chunk->position.vx * CHUNK_SIZE) + x - 1,
+                    (chunk->position.vy * CHUNK_SIZE) + y - 1,
+                    (chunk->position.vz * CHUNK_SIZE) + z - 1
+                );
                 addVoxelToAxisCols(
                     worldGetBlock(chunk->world, &position),
                     x,
@@ -123,11 +124,11 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
         for (u32 y = 0; y < CHUNK_SIZE; y++) {
             for (u32 x_i = 0; x_i < 2; x_i++) {
                 const u32 x = axial_values[x_i];
-                const VECTOR position = (VECTOR) {
-                    .vx = (chunk->position.vx * CHUNK_SIZE) + x - 1,
-                    .vy = (chunk->position.vy * CHUNK_SIZE) + y - 1,
-                    .vz = (chunk->position.vz * CHUNK_SIZE) + z - 1,
-                };
+                const VECTOR position = vec3_i32(
+                    (chunk->position.vx * CHUNK_SIZE) + x - 1,
+                    (chunk->position.vy * CHUNK_SIZE) + y - 1,
+                    (chunk->position.vz * CHUNK_SIZE) + z - 1
+                );
                 addVoxelToAxisCols(
                     worldGetBlock(chunk->world, &position),
                     x,
@@ -183,28 +184,16 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
                         case 0:
                         case 1:
                             // Down, up
-                            voxel_pos = (VECTOR) {
-                                .vx = x,
-                                .vy = y,
-                                .vz = z,
-                            };
+                            voxel_pos = vec3_i32(x, y, z);
                             break;
                         case 2:
                         case 3:
                             // Left, Right
-                            voxel_pos = (VECTOR) {
-                                .vx = y,
-                                .vy = z,
-                                .vz = x,
-                            };
+                            voxel_pos = vec3_i32(y, z, x);
                             break;
                         default:
                             // Front, Back
-                            voxel_pos = (VECTOR) {
-                                .vx = x,
-                                .vy = z,
-                                .vz = y,
-                            };
+                            voxel_pos = vec3_i32(x, z, y);
                             break;
                     }
                     const ChunkBlockPosition chunk_block_position = (ChunkBlockPosition) {
