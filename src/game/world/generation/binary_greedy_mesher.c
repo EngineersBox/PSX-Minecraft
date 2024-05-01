@@ -218,7 +218,9 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
                     PlaneMeshingData* current = (PlaneMeshingData*) hashmap_get(data, &query);
                     if (current == NULL) {
                         current = malloc(sizeof(PlaneMeshingData));
-                        current->key = query.key;
+                        current->key.axis = query.key.axis;
+                        current->key.block = query.key.block;
+                        current->key.y = query.key.y;
                         memset(current->value, '\0', sizeof(BinaryMeshPlane));
                         hashmap_set(data, current);
                     }
@@ -233,10 +235,11 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
         }
     }
     DEBUG_LOG("[BGM] Finished masking: %d\n", hashmap_count(data));
+    // BUG: Something breaks from here on out, bad memory accesses
     chunkMeshClear(&chunk->mesh);
     size_t iter = 0;
     void* item;
-    while(hashmap_iter(data, &iter, &item)) {
+    while (hashmap_iter(data, &iter, &item)) {
         const PlaneMeshingData* elem = item;
         binaryGreedyMesherConstructPlane(
             chunk,
