@@ -39,9 +39,9 @@ int plane_meshing_data_compare(const void* a, const void* b, void* udata) {
     return y;
 };
 
-u32 plane_meshing_data_hash(const void* item, u32 seed0, u32 seed1) {
+u64 plane_meshing_data_hash(const void* item, u64 seed0, u64 seed1) {
     const PlaneMeshingData* data = item;
-    return hashmap_sip(&data->key, sizeof(data->key), seed0, seed1);
+    return hashmap_xxhash3(&data->key, sizeof(data->key), seed0, seed1);
 }
 
 void binaryGreedyMesherBuildMesh(Chunk* chunk) {
@@ -59,7 +59,7 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
         __typeof__(z) _z = (z); \
         axis_cols[0][_z][_x] |= 1 << _y; \
         axis_cols[1][_y][_z] |= 1 << _x; \
-        axis_cols[2][_y][_z] |= 1 << _z; \
+        axis_cols[2][_y][_x] |= 1 << _z; \
     }
     DEBUG_LOG("[BGM] Inner\n");
     // Inner chunk blocks
@@ -76,19 +76,18 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
         }
     }
     // Neighbouring chunk blocks
+    const u32 axial_values[2] = { 0, CHUNK_SIZE_P - 1 };
     DEBUG_LOG("[BGM] Neighbour: Z\n");
     // Z
-    for (u32 x = 0; x < CHUNK_SIZE_P; x++) {
-        for (u32 z = 0; z < CHUNK_SIZE_P - 1; z++) {
-            for (u32 y = 0; y < CHUNK_SIZE_P; y++) {
-                const VECTOR position = vector_const_sub(
-                    ((VECTOR) {
-                        .vx = x,
-                        .vy = y,
-                        .vz = z,
-                    }),
-                    1
-                );
+    for (u32 z_i = 0; z_i < 2; z_i++) {
+        for (u32 y = 0; y < CHUNK_SIZE_P; y++) {
+            for (u32 x = 0; x < CHUNK_SIZE_P; x++) {
+                const u32 z = axial_values[z_i];
+                const VECTOR position = (VECTOR) {
+                    .vx = (chunk->position.vx * CHUNK_SIZE) + x - 1,
+                    .vy = (chunk->position.vy * CHUNK_SIZE) + y - 1,
+                    .vz = (chunk->position.vz * CHUNK_SIZE) + z - 1,
+                };
                 addVoxelToAxisCols(
                     worldGetBlock(chunk->world, &position),
                     x,
@@ -100,17 +99,15 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
     }
     DEBUG_LOG("[BGM] Neighbour: Y\n");
     // Y
-    for (u32 x = 0; x < CHUNK_SIZE_P; x++) {
-        for (u32 z = 0; z < CHUNK_SIZE_P; z++) {
-            for (u32 y = 0; y < CHUNK_SIZE_P - 1; y++) {
-                const VECTOR position = vector_const_sub(
-                    ((VECTOR) {
-                        .vx = x,
-                        .vy = y,
-                        .vz = z,
-                    }),
-                    1
-                );
+    for (u32 z = 0; z < CHUNK_SIZE_P; z++) {
+        for (u32 y_i = 0; y_i < 2; y_i++) {
+            for (u32 x = 0; x < CHUNK_SIZE_P; x++) {
+                const u32 y = axial_values[y_i];
+                const VECTOR position = (VECTOR) {
+                    .vx = (chunk->position.vx * CHUNK_SIZE) + x - 1,
+                    .vy = (chunk->position.vy * CHUNK_SIZE) + y - 1,
+                    .vz = (chunk->position.vz * CHUNK_SIZE) + z - 1,
+                };
                 addVoxelToAxisCols(
                     worldGetBlock(chunk->world, &position),
                     x,
@@ -122,17 +119,15 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
     }
     DEBUG_LOG("[BGM] Neighbour: X\n");
     // X
-    for (u32 x = 0; x < CHUNK_SIZE_P - 1; x++) {
-        for (u32 z = 0; z < CHUNK_SIZE; z++) {
-            for (u32 y = 0; y < CHUNK_SIZE; y++) {
-                const VECTOR position = vector_const_sub(
-                    ((VECTOR) {
-                        .vx = x,
-                        .vy = y,
-                        .vz = z,
-                    }),
-                    1
-                );
+    for (u32 z = 0; z < CHUNK_SIZE; z++) {
+        for (u32 y = 0; y < CHUNK_SIZE; y++) {
+            for (u32 x_i = 0; x_i < 2; x_i++) {
+                const u32 x = axial_values[x_i];
+                const VECTOR position = (VECTOR) {
+                    .vx = (chunk->position.vx * CHUNK_SIZE) + x - 1,
+                    .vy = (chunk->position.vy * CHUNK_SIZE) + y - 1,
+                    .vz = (chunk->position.vz * CHUNK_SIZE) + z - 1,
+                };
                 addVoxelToAxisCols(
                     worldGetBlock(chunk->world, &position),
                     x,
@@ -150,13 +145,12 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
             for (u32 x = 0; x < CHUNK_SIZE_P; x++) {
                 const u32 col = axis_cols[axis][z][x];
                 // Sample descending axis, set bit to true when air meets solid
-                col_face_masks[2 * axis + 0][z][x] = col & ~(col << 1);
+                col_face_masks[(2 * axis) + 0][z][x] = col & ~(col << 1);
                 // Sample ascending axis, set bit to true when air meets solid
-                col_face_masks[2 * axis + 1][z][x] = col & ~(col >> 1);
+                col_face_masks[(2 * axis) + 1][z][x] = col & ~(col >> 1);
             }
         }
     }
-    abort(); // TODO: REMOVE AFTER TESTING
     // BinaryMeshPlane data[6][BLOCK_COUNT][32] = {0};
     DEBUG_LOG("[BGM] Creating hashmap\n");
     struct hashmap* data = hashmap_new(
@@ -223,7 +217,7 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
                         abort();
                         continue;
                     }
-                    const Block* block = VCAST_PTR(Block*, current_block);
+                    Block* block = VCAST_PTR(Block*, current_block);
                     const PlaneMeshingData query = (PlaneMeshingData) {
                         .key = (PlaneMeshingDataKey) {
                             .axis = axis,
