@@ -116,6 +116,7 @@ void Minecraft_init(VSelf, void* ctx) {
         .vz = 0
     };
     iPhysicsObjectSetPosition(&player->physics_object, &player_positon);
+    player->physics_object.flags.no_clip = true;
     player_handler = DYN(Player, IInputHandler, player);
     VCALL(player_handler, registerInputHandler, &self->internals.input);
     // Register handlers

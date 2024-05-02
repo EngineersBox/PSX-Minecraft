@@ -141,7 +141,7 @@ void IPhysicsObject_moveWithHeading(VSelf, World* world, i32 move_strafe, i32 mo
         velocity->vz,
         ctx
     );
-    if (!self->flags.on_ground) {
+    if (!self->flags.no_clip && !self->flags.on_ground) {
         velocity->vy -= self->config->gravity;
         velocity->vy = fixedMul(velocity->vy, 4014); // ONE * 0.98 = 4014
     }
