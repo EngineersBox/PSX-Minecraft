@@ -59,14 +59,17 @@ void chunkGenerateTestFlatMap(Chunk* chunk, const VECTOR* position) {
         for (i32 z = 0; z < CHUNK_SIZE; z++) {
             for (i32 y = 0; y < CHUNK_SIZE; y++) {
                 if (y < 2) {
-                    chunk->blocks[chunkBlockIndex(x, y, z)] = stoneBlockCreate();
+                    // chunk->blocks[chunkBlockIndex(x, y, z)] = stoneBlockCreate();
+                    chunk->blocks[chunkBlockIndex(x, y, z)] = airBlockCreate();
                 } else if (y < 4) {
-                    chunk->blocks[chunkBlockIndex(x, y, z)] = dirtBlockCreate();
+                    // chunk->blocks[chunkBlockIndex(x, y, z)] = dirtBlockCreate();
+                    chunk->blocks[chunkBlockIndex(x, y, z)] = airBlockCreate();
                 } else if (y == 4) {
                     chunk->blocks[chunkBlockIndex(x, y, z)] = grassBlockCreate();
                 } else {
                     if (y == 5 && x % 3 == 0 && z % 3 == 0) {
-                        chunk->blocks[chunkBlockIndex(x, y, z)] = grassBlockCreate();
+                        // chunk->blocks[chunkBlockIndex(x, y, z)] = grassBlockCreate();
+                        chunk->blocks[chunkBlockIndex(x, y, z)] = airBlockCreate();
                     } else {
                         chunk->blocks[chunkBlockIndex(x, y, z)] = airBlockCreate();
                     }

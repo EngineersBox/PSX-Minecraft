@@ -278,7 +278,7 @@ void Inventory_close(VSelf) {
 
 bool inventoryInputHandler(const Input* input, void* ctx) {
     Inventory* inventory = (Inventory*) ctx;
-    if (isPressed(input->pad, PAD_L1)) {
+    if (isPressed(input->pad, binding_open_inventory)) {
         if (inventory->ui.active) {
             inventoryClose(inventory);
             return false;

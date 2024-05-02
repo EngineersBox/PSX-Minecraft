@@ -77,6 +77,9 @@ bool playerInputHandler(const Input* input, void* ctx) {
     physics_object->move.strafe = 0;
     physics_object->flags.jumping = false;
     physics_object->flags.sneaking = false;
+    if (physics_object->flags.no_clip) {
+        physics_object->velocity = vec3_i32(0, 0, 0);
+    }
     if (input->pad->stat != 0) {
         return false;
     }
@@ -110,11 +113,19 @@ bool playerInputHandler(const Input* input, void* ctx) {
     }
     i32 move_amount = ONE_BLOCK;
     if (isPressed(pad, binding_jump)) {
-        physics_object->flags.jumping = true;
+        if (physics_object->flags.no_clip) {
+            physics_object->velocity.vy = move_amount;
+        } else {
+            physics_object->flags.jumping = true;
+        }
     }
     if (isPressed(pad, binding_sneak)) {
         move_amount = 86016; // ONE_BLOCK * 0.3 = 86016
-        physics_object->flags.sneaking = true;
+        if (physics_object->flags.no_clip) {
+            physics_object->velocity.vy = -move_amount;
+        } else {
+            physics_object->flags.sneaking = true;
+        }
     }
     if (isPressed(pad, binding_move_forward)) {
         physics_object->move.forward += move_amount;

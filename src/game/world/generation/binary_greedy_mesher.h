@@ -26,7 +26,7 @@ typedef enum {
     FACE_DIR_UP,
     FACE_DIR_LEFT,
     FACE_DIR_RIGHT,
-    FACE_DIR_FORWARD,
+    FACE_DIR_FRONT,
     FACE_DIR_BACK
 } FaceDirection;
 

@@ -258,7 +258,7 @@ void iPhysicsObjectMove(VSelf, World* world, const i32 velocity_x, const i32 vel
 void IPhysicsObject_move(VSelf, World* world, const i32 velocity_x, const i32 velocity_y, const i32 velocity_z, void* ctx) {
     VSELF(PhysicsObject);
     if (self->flags.no_clip) {
-        aabbOffset(& self->aabb, velocity_x, velocity_y, velocity_z);
+        aabbOffset(&self->aabb, velocity_x, velocity_y, velocity_z);
         self->position.vx = (self->aabb.min.vx + self->aabb.max.vx) >> 1;
         self->position.vy = self->aabb.min.vy + self->config->y_offset - self->y_size;
         self->position.vz = (self->aabb.min.vz + self->aabb.max.vz) >> 1;
@@ -295,7 +295,6 @@ void IPhysicsObject_moveFlying(VSelf, i32 move_strafe, i32 move_forward, const i
     } else if (dist < ONE) {
         dist = ONE;
     }
-    DEBUG_LOG("Scaling: %d, Dist: %d\n", scaling, dist);
     dist = (scaling << FIXED_POINT_SHIFT) / dist;
     move_strafe = fixedMul(move_strafe, dist);
     move_forward = fixedMul(move_forward, dist);

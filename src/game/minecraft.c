@@ -187,57 +187,57 @@ void Minecraft_update(VSelf, const Stats* stats) {
 }
 
 void startHandler(Camera* camera) {
-    cvector_clear(markers);
-    result = worldRayCastIntersection(world, camera, 6 * ONE, &markers);
-    printf("Marker count: %d\n", cvector_size(markers));
-    result.pos.vx = (result.pos.vx / BLOCK_SIZE) >> FIXED_POINT_SHIFT;
-    result.pos.vz = (result.pos.vz / BLOCK_SIZE) >> FIXED_POINT_SHIFT;
-    result.pos.vy = (result.pos.vy / BLOCK_SIZE) >> FIXED_POINT_SHIFT;
-    printf(
-        "Ray cast result: [Pos: (%d,%d,%d)] [Block: %d] [Face: (%d,%d,%d)]\n",
-        inlineVec(result.pos),
-        result.block == NULL ? -1 : VCAST(Block*, *result.block)->id,
-        inlineVec(result.face)
-    );
-    camera_pos = (SVECTOR) {
-        .vx = camera->position.vx >> FIXED_POINT_SHIFT,
-        .vy = camera->position.vy >> FIXED_POINT_SHIFT,
-        .vz = camera->position.vz >> FIXED_POINT_SHIFT,
-    };
-    origin_pos.vx = (((camera->position.vx / BLOCK_SIZE) >> FIXED_POINT_SHIFT) * BLOCK_SIZE) + (BLOCK_SIZE >> 1);
-    origin_pos.vy = (((camera->position.vy / BLOCK_SIZE) >> FIXED_POINT_SHIFT) * BLOCK_SIZE) + (BLOCK_SIZE >> 1);
-    origin_pos.vz = (((camera->position.vz / BLOCK_SIZE) >> FIXED_POINT_SHIFT) * BLOCK_SIZE) + (BLOCK_SIZE >> 1);
-    marker_pos.vx =  (result.pos.vx * BLOCK_SIZE) + (BLOCK_SIZE >> 1); // + ((result.face.vx >> FIXED_POINT_SHIFT) * (BLOCK_SIZE >> 1));
-    marker_pos.vy = (-result.pos.vy * BLOCK_SIZE) - (BLOCK_SIZE >> 1); // + ((result.face.vy >> FIXED_POINT_SHIFT) * (BLOCK_SIZE >> 1));
-    marker_pos.vz =  (result.pos.vz * BLOCK_SIZE) + (BLOCK_SIZE >> 1); // + ((result.face.vz >> FIXED_POINT_SHIFT) * (BLOCK_SIZE >> 1));
-    // TODO: When removing a block (as it takes time to break) should the camera be locked in
-    //       place as to avoid needing to continually raycast each frame until the block is broken
-    //       or the trigger/key/mouse is unpressed?
-    IItem* item = NULL;
-    worldModifyVoxel(world, &result.pos, airBlockCreate(), &item);
-    printf("Origin: (%d,%d,%d)\n", inlineVec(origin_pos));
-    printf(
-        "Marker: (%d,%d,%d) Camera: (%d,%d,%d)\n",
-        inlineVec(marker_pos),
-        inlineVec(camera->position)
-    );
-    const VECTOR direction = rotationToDirection(&camera->rotation);
-    printf("Direction: (%d,%d,%d)\n", inlineVec(direction));
-    direction_pos = (SVECTOR) {
-        .vx = (camera->position.vx + (direction.vx * BLOCK_SIZE)) >> FIXED_POINT_SHIFT,
-        .vy = (camera->position.vy - (direction.vy * BLOCK_SIZE)) >> FIXED_POINT_SHIFT,
-        .vz = (camera->position.vz + (direction.vz * BLOCK_SIZE)) >> FIXED_POINT_SHIFT
-    };
-    printf(
-        "CPOS: (%d,%d,%d) DPOS: (%d,%d,%d)\n",
-        inlineVec(origin_pos),
-        inlineVec(direction_pos)
-    );
-    render_marker = true;
-    SVECTOR* cmarker;
-    cvector_for_each_in(cmarker, markers) {
-        printf("[TRACE] MARKER: (%d,%d,%d)\n", inlineVecPtr(cmarker));
-    }
+    // cvector_clear(markers);
+    // result = worldRayCastIntersection(world, camera, 6 * ONE, &markers);
+    // printf("Marker count: %d\n", cvector_size(markers));
+    // result.pos.vx = (result.pos.vx / BLOCK_SIZE) >> FIXED_POINT_SHIFT;
+    // result.pos.vz = (result.pos.vz / BLOCK_SIZE) >> FIXED_POINT_SHIFT;
+    // result.pos.vy = (result.pos.vy / BLOCK_SIZE) >> FIXED_POINT_SHIFT;
+    // printf(
+    //     "Ray cast result: [Pos: (%d,%d,%d)] [Block: %d] [Face: (%d,%d,%d)]\n",
+    //     inlineVec(result.pos),
+    //     result.block == NULL ? -1 : VCAST(Block*, *result.block)->id,
+    //     inlineVec(result.face)
+    // );
+    // camera_pos = (SVECTOR) {
+    //     .vx = camera->position.vx >> FIXED_POINT_SHIFT,
+    //     .vy = camera->position.vy >> FIXED_POINT_SHIFT,
+    //     .vz = camera->position.vz >> FIXED_POINT_SHIFT,
+    // };
+    // origin_pos.vx = (((camera->position.vx / BLOCK_SIZE) >> FIXED_POINT_SHIFT) * BLOCK_SIZE) + (BLOCK_SIZE >> 1);
+    // origin_pos.vy = (((camera->position.vy / BLOCK_SIZE) >> FIXED_POINT_SHIFT) * BLOCK_SIZE) + (BLOCK_SIZE >> 1);
+    // origin_pos.vz = (((camera->position.vz / BLOCK_SIZE) >> FIXED_POINT_SHIFT) * BLOCK_SIZE) + (BLOCK_SIZE >> 1);
+    // marker_pos.vx =  (result.pos.vx * BLOCK_SIZE) + (BLOCK_SIZE >> 1); // + ((result.face.vx >> FIXED_POINT_SHIFT) * (BLOCK_SIZE >> 1));
+    // marker_pos.vy = (-result.pos.vy * BLOCK_SIZE) - (BLOCK_SIZE >> 1); // + ((result.face.vy >> FIXED_POINT_SHIFT) * (BLOCK_SIZE >> 1));
+    // marker_pos.vz =  (result.pos.vz * BLOCK_SIZE) + (BLOCK_SIZE >> 1); // + ((result.face.vz >> FIXED_POINT_SHIFT) * (BLOCK_SIZE >> 1));
+    // // TODO: When removing a block (as it takes time to break) should the camera be locked in
+    // //       place as to avoid needing to continually raycast each frame until the block is broken
+    // //       or the trigger/key/mouse is unpressed?
+    // IItem* item = NULL;
+    // worldModifyVoxel(world, &result.pos, airBlockCreate(), &item);
+    // printf("Origin: (%d,%d,%d)\n", inlineVec(origin_pos));
+    // printf(
+    //     "Marker: (%d,%d,%d) Camera: (%d,%d,%d)\n",
+    //     inlineVec(marker_pos),
+    //     inlineVec(camera->position)
+    // );
+    // const VECTOR direction = rotationToDirection(&camera->rotation);
+    // printf("Direction: (%d,%d,%d)\n", inlineVec(direction));
+    // direction_pos = (SVECTOR) {
+    //     .vx = (camera->position.vx + (direction.vx * BLOCK_SIZE)) >> FIXED_POINT_SHIFT,
+    //     .vy = (camera->position.vy - (direction.vy * BLOCK_SIZE)) >> FIXED_POINT_SHIFT,
+    //     .vz = (camera->position.vz + (direction.vz * BLOCK_SIZE)) >> FIXED_POINT_SHIFT
+    // };
+    // printf(
+    //     "CPOS: (%d,%d,%d) DPOS: (%d,%d,%d)\n",
+    //     inlineVec(origin_pos),
+    //     inlineVec(direction_pos)
+    // );
+    // render_marker = true;
+    // SVECTOR* cmarker;
+    // cvector_for_each_in(cmarker, markers) {
+    //     printf("[TRACE] MARKER: (%d,%d,%d)\n", inlineVecPtr(cmarker));
+    // }
 }
 
 void drawDirectionLine(Minecraft* minecraft) {

@@ -62,7 +62,6 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
         axis_cols[1][_y][_z] |= 1 << _x; \
         axis_cols[2][_y][_x] |= 1 << _z; \
     }
-    DEBUG_LOG("[BGM] Inner\n");
     // Inner chunk blocks
     for (u32 x = 0; x < CHUNK_SIZE; x++) {
         for (u32 z = 0; z < CHUNK_SIZE; z++) {
@@ -78,7 +77,6 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
     }
     // Neighbouring chunk blocks
     const u32 axial_values[2] = { 0, CHUNK_SIZE_P - 1 };
-    DEBUG_LOG("[BGM] Neighbour: Z\n");
     // Z
     for (u32 z_i = 0; z_i < 2; z_i++) {
         for (u32 y = 0; y < CHUNK_SIZE_P; y++) {
@@ -98,7 +96,6 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
             }
         }
     }
-    DEBUG_LOG("[BGM] Neighbour: Y\n");
     // Y
     for (u32 z = 0; z < CHUNK_SIZE_P; z++) {
         for (u32 y_i = 0; y_i < 2; y_i++) {
@@ -118,7 +115,6 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
             }
         }
     }
-    DEBUG_LOG("[BGM] Neighbour: X\n");
     // X
     for (u32 z = 0; z < CHUNK_SIZE; z++) {
         for (u32 y = 0; y < CHUNK_SIZE; y++) {
@@ -139,7 +135,6 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
         }
     }
 #undef addVoxelToAxisCols
-    DEBUG_LOG("[BGM] Face culling\n");
     // Face culling
     for (u32 axis = 0; axis < 3; axis++) {
         for (u32 z = 0; z < CHUNK_SIZE_P; z++) {
@@ -153,7 +148,6 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
         }
     }
     // BinaryMeshPlane data[6][BLOCK_COUNT][32] = {0};
-    DEBUG_LOG("[BGM] Creating hashmap\n");
     struct hashmap* data = hashmap_new(
         sizeof(PlaneMeshingData),
         0,
@@ -164,7 +158,6 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
         NULL,
         NULL
     );
-    DEBUG_LOG("[BGM] Created hashmap\n");
     // Find faces and build binary planes based on block types
     for (u32 axis = 0; axis < 6; axis++) {
         for (u32 z = 0; z < CHUNK_SIZE; z++) {
@@ -196,11 +189,14 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
                             voxel_pos = vec3_i32(x, z, y);
                             break;
                     }
-                    const ChunkBlockPosition chunk_block_position = (ChunkBlockPosition) {
-                        .chunk = chunk->position,
-                        .block = voxel_pos
-                    };
-                    const IBlock* current_block = worldGetChunkBlock(chunk->world, &chunk_block_position);
+                    const VECTOR block_position = vector_add(
+                        voxel_pos,
+                        vector_const_mul(
+                            chunk->position,
+                            CHUNK_SIZE
+                        )
+                    );
+                    const IBlock* current_block = worldGetBlock(chunk->world, &block_position);
                     if (current_block == NULL) {
                         printf("[BINARY GREEDY MESHER] Null block returned constructing mask\n");
                         abort();
@@ -221,16 +217,10 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
                         current = (PlaneMeshingData*) hashmap_get(data, &query);
                     }
                     current->value[x] |= 1 << z;
-                    DEBUG_LOG(
-                        "[BGM] Key: (%d,%d,%d) Value: " INT32_BIN_PATTERN "\n",
-                        axis, block->id, y,
-                        INT32_BIN_LAYOUT(current->value[x])
-                    );
                 }
             }
         }
     }
-    DEBUG_LOG("[BGM] Finished masking: %d\n", hashmap_count(data));
     // BUG: Something breaks from here on out, bad memory accesses
     chunkMeshClear(&chunk->mesh);
     size_t iter = 0;
@@ -246,9 +236,7 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
             CHUNK_SIZE
         );
     }
-    DEBUG_LOG("[BGM] Finished mash construction\n");
     hashmap_free(data);
-    DEBUG_LOG("[BGM] Freed hashmap\n");
 }
 
 u32 faceDirectionToFaceAttributeIndex(const FaceDirection face_dir) {
@@ -258,7 +246,7 @@ u32 faceDirectionToFaceAttributeIndex(const FaceDirection face_dir) {
         case FACE_DIR_UP: index = 2; break;
         case FACE_DIR_LEFT: index = 4; break;
         case FACE_DIR_RIGHT: index = 5; break;
-        case FACE_DIR_FORWARD: index = 0; break;
+        case FACE_DIR_FRONT: index = 0; break;
         case FACE_DIR_BACK: index = 1; break;
     }
     return index;
@@ -306,6 +294,25 @@ static SMD_PRIM* createPrimitive(ChunkMesh* mesh,
         (primitive)->index_field = mesh->count_field; \
         (field) = &cvector_begin(mesh->attribute_field)[mesh->count_field++];
 
+char* faceDirStr(const FaceDirection face_dir) {
+    char* str = NULL;
+    switch (face_dir) {
+        case FACE_DIR_DOWN: str = "down";
+            break;
+        case FACE_DIR_UP: str = "up";
+            break;
+        case FACE_DIR_LEFT: str = "left";
+            break;
+        case FACE_DIR_RIGHT: str = "right";
+            break;
+        case FACE_DIR_FRONT: str = "front";
+            break;
+        case FACE_DIR_BACK: str = "back";
+            break;
+    }
+    return str;
+}
+
 static void createVertices(Chunk* chunk,
                            SMD_PRIM* primitive,
                            const FaceDirection face_dir,
@@ -320,10 +327,13 @@ static void createVertices(Chunk* chunk,
     // Offset by 1 to ensure bottom block of bottom chunk starts at Y = 0
     const i16 chunk_origin_y = (-chunk->position.vy) * CHUNK_SIZE;
     const i16 chunk_origin_z = chunk->position.vz * CHUNK_SIZE;
+    int i = 0;
+    DEBUG_LOG("[MESH] Face: %s, Axis: %d Base: (%d,%d), Dims: (%d,%d)\n", faceDirStr(face_dir), axis, x, y, w, h);
 #define transformRelativeToOrigin(vertex) \
     (vertex)->vx = (chunk_origin_x + vertex->vx) * BLOCK_SIZE; \
     (vertex)->vy = (chunk_origin_y - vertex->vy) * BLOCK_SIZE; \
-    (vertex)->vz = (chunk_origin_z + vertex->vz) * BLOCK_SIZE
+    (vertex)->vz = (chunk_origin_z + vertex->vz) * BLOCK_SIZE; \
+    DEBUG_LOG("[MESH] Vertex %d => (%d,%d,%d)\n", i++, inlineVecPtr(vertex))
     SVECTOR* vertex;
     // V0
     nextRenderAttribute(vertex, p_verts, v0, n_verts);
@@ -378,7 +388,7 @@ static void createNormal(ChunkMesh* mesh,
         case FACE_DIR_UP: normal(0, -1, 0); break;
         case FACE_DIR_LEFT: normal(-1, 0, 0); break;
         case FACE_DIR_RIGHT: normal(1, 0, 0); break;
-        case FACE_DIR_FORWARD: normal(0, 0, -1); break;
+        case FACE_DIR_FRONT: normal(0, 0, -1); break;
         case FACE_DIR_BACK: normal(0, 0, 1); break;
     };
 }
@@ -424,21 +434,12 @@ void binaryGreedyMesherConstructPlane(Chunk* chunk,
     for (u32 row = 0; row < CHUNK_SIZE; row++) {
         u32 y = 0;
         while (y < lod_size) {
-            DEBUG_LOG(
-                "[BGM] Row: %d, Y: %d, Plane:" INT32_BIN_PATTERN "\n",
-                row,
-                y,
-                INT32_BIN_LAYOUT(plane[row])
-            );
             y += trailing_zeros(plane[row] >> y);
-            DEBUG_LOG("[BGM] Trailing zeros: %d\n", y);
             if (y >= lod_size) {
                 // At top
                 continue;
             }
             const u32 h = trailing_ones(plane[row] >> y);
-            DEBUG_LOG("[BGM] Trailing ones: %d\n", h);
-            // Convert height n to positive bits repeated n times:
             // 1 = 0b1, 2 = 0b11, 4 = 0b1111
             u32 h_as_mask;
             if (h < 32) {
@@ -447,11 +448,6 @@ void binaryGreedyMesherConstructPlane(Chunk* chunk,
                 h_as_mask = UINT32_MAX;
             }
             const u32 mask = h_as_mask << y;
-            DEBUG_LOG(
-                "[BGM] H mask: " INT32_BIN_PATTERN ", Mask: " INT32_BIN_PATTERN "\n",
-                INT32_BIN_LAYOUT(h_as_mask),
-                INT32_BIN_LAYOUT(mask)
-            );
             // Grow horizontally
             u32 w = 1;
             while (row + w < lod_size) {
@@ -470,10 +466,10 @@ void binaryGreedyMesherConstructPlane(Chunk* chunk,
                 face_dir,
                 axis,
                 block,
+                row,
                 y,
                 w,
-                h,
-                row
+                h
             );
             y += h;
         }
@@ -483,12 +479,13 @@ void binaryGreedyMesherConstructPlane(Chunk* chunk,
 void faceDirectionPosition(const FaceDirection face_dir, const i32 axis, const i32 x, const i32 y, SVECTOR* position) {
 #define vec(_x,_y,_z) position->vx = _x; position->vy = _y; position->vz = _z
     switch (face_dir) {
-        case FACE_DIR_UP: vec(x, axis + 1, y); break;
-        case FACE_DIR_DOWN: vec(x, axis, y); break;
+        case FACE_DIR_UP: vec(x, axis, y); break;
+        case FACE_DIR_DOWN: vec(x, axis + 1, y); break;
         case FACE_DIR_LEFT: vec(axis, y, x); break;
         case FACE_DIR_RIGHT: vec(axis + 1, y, x); break;
-        case FACE_DIR_FORWARD: vec(x, y, axis); break;
+        case FACE_DIR_FRONT: vec(x, y, axis); break;
         case FACE_DIR_BACK: vec(x, y, axis + 1); break;
     }
 #undef vec
 }
+
