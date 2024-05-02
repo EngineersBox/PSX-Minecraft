@@ -161,7 +161,7 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
         0,
         plane_meshing_data_hash,
         plane_meshing_data_compare,
-        free,
+        NULL,
         NULL
     );
     DEBUG_LOG("[BGM] Created hashmap\n");
@@ -207,7 +207,7 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
                         continue;
                     }
                     Block* block = VCAST_PTR(Block*, current_block);
-                    const PlaneMeshingData query = (PlaneMeshingData) {
+                    PlaneMeshingData query = (PlaneMeshingData) {
                         .key = (PlaneMeshingDataKey) {
                             .axis = axis,
                             .block = block,
@@ -217,18 +217,14 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
                     };
                     PlaneMeshingData* current = (PlaneMeshingData*) hashmap_get(data, &query);
                     if (current == NULL) {
-                        current = malloc(sizeof(PlaneMeshingData));
-                        current->key.axis = query.key.axis;
-                        current->key.block = query.key.block;
-                        current->key.y = query.key.y;
-                        memset(current->value, '\0', sizeof(BinaryMeshPlane));
-                        hashmap_set(data, current);
+                        hashmap_set(data, &query);
+                        current = (PlaneMeshingData*) hashmap_get(data, &query);
                     }
                     current->value[x] |= 1 << z;
                     DEBUG_LOG(
-                        "[BGM] Key: (%d,%d,%d) Value: %d\n",
+                        "[BGM] Key: (%d,%d,%d) Value: " INT32_BIN_PATTERN "\n",
                         axis, block->id, y,
-                        current->value[x]
+                        INT32_BIN_LAYOUT(current->value[x])
                     );
                 }
             }
@@ -250,7 +246,9 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
             CHUNK_SIZE
         );
     }
+    DEBUG_LOG("[BGM] Finished mash construction\n");
     hashmap_free(data);
+    DEBUG_LOG("[BGM] Freed hashmap\n");
 }
 
 u32 faceDirectionToFaceAttributeIndex(const FaceDirection face_dir) {
@@ -426,12 +424,20 @@ void binaryGreedyMesherConstructPlane(Chunk* chunk,
     for (u32 row = 0; row < CHUNK_SIZE; row++) {
         u32 y = 0;
         while (y < lod_size) {
+            DEBUG_LOG(
+                "[BGM] Row: %d, Y: %d, Plane:" INT32_BIN_PATTERN "\n",
+                row,
+                y,
+                INT32_BIN_LAYOUT(plane[row])
+            );
             y += trailing_zeros(plane[row] >> y);
+            DEBUG_LOG("[BGM] Trailing zeros: %d\n", y);
             if (y >= lod_size) {
                 // At top
                 continue;
             }
             const u32 h = trailing_ones(plane[row] >> y);
+            DEBUG_LOG("[BGM] Trailing ones: %d\n", h);
             // Convert height n to positive bits repeated n times:
             // 1 = 0b1, 2 = 0b11, 4 = 0b1111
             u32 h_as_mask;
@@ -469,6 +475,7 @@ void binaryGreedyMesherConstructPlane(Chunk* chunk,
                 h,
                 row
             );
+            y += h;
         }
     }
 }
