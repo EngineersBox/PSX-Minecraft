@@ -27,7 +27,7 @@ typedef struct {
     BinaryMeshPlane value;
 } PlaneMeshingData;
 
-int plane_meshing_data_compare(const void* a, const void* b, void* udata) {
+int plane_meshing_data_compare(const void* a, const void* b, void* ignored) {
     const PlaneMeshingData* pa = a;
     const PlaneMeshingData* pb = b;
     const int axis = cmp(pa->key.axis, pb->key.axis);
@@ -298,25 +298,6 @@ static SMD_PRIM* createPrimitive(ChunkMesh* mesh,
         (primitive)->index_field = mesh->count_field; \
         (field) = &cvector_begin(mesh->attribute_field)[mesh->count_field++];
 
-char* faceDirStr(const FaceDirection face_dir) {
-    char* str = NULL;
-    switch (face_dir) {
-        case FACE_DIR_DOWN: str = "down";
-            break;
-        case FACE_DIR_UP: str = "up";
-            break;
-        case FACE_DIR_LEFT: str = "left";
-            break;
-        case FACE_DIR_RIGHT: str = "right";
-            break;
-        case FACE_DIR_FRONT: str = "front";
-            break;
-        case FACE_DIR_BACK: str = "back";
-            break;
-    }
-    return str;
-}
-
 const INDEX _INDICES[6] = {
     // TODO: Can texture orientation for FACE_DIR_UP be
     //       fixed by adjusting the up indices here?
@@ -356,13 +337,6 @@ static void createVertices(Chunk* chunk,
         [2] = createVertex(x, y + h),
         [3] = createVertex(x + w, y + h)
     };
-    // DEBUG_LOG(
-    //     "[MESH] Face: %s, Axis: %d Base: (%d,%d), Dims: (%d,%d)\n",
-    //     faceDirStr(face_dir),
-    //     axis,
-    //     x, y,
-    //     w, h
-    // );
     const INDEX indices = _INDICES[face_dir];
     SVECTOR* vertex;
     SVECTOR* current_vertex;
