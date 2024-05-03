@@ -30,7 +30,7 @@ typedef enum {
     FACE_DIR_BACK
 } FaceDirection;
 
-void faceDirectionPosition(const FaceDirection face_dir, const i32 axis, const i32 x, const i32 y, SVECTOR* position);
+SVECTOR faceDirectionPosition(const FaceDirection face_dir, const i32 axis, const i32 x, const i32 y);
 
 void binaryGreedyMesherBuildMesh(Chunk* chunk);
 // lod_size here should be a value in the interval [0,CHUNK_SIZE]

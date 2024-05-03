@@ -7,6 +7,7 @@
 #include "../../../math/math_utils.h"
 #include "../../../structure/hashmap.h"
 #include "../../../resources/asset_indices.h"
+#include "../../../structure/primitive/primitive.h"
 
 // Forward declarations
 typedef struct World World;
@@ -221,7 +222,6 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
             }
         }
     }
-    // BUG: Something breaks from here on out, bad memory accesses
     chunkMeshClear(&chunk->mesh);
     size_t iter = 0;
     void* item;
@@ -313,6 +313,15 @@ char* faceDirStr(const FaceDirection face_dir) {
     return str;
 }
 
+const INDEX _INDICES[6] = {
+    {1,3,0,2},
+    {3,1,2,0},
+    {3,2,1,0},
+    {2,3,0,1},
+    {3,2,1,0},
+    {2,3,0,1}
+};
+
 static void createVertices(Chunk* chunk,
                            SMD_PRIM* primitive,
                            const FaceDirection face_dir,
@@ -327,55 +336,80 @@ static void createVertices(Chunk* chunk,
     // Offset by 1 to ensure bottom block of bottom chunk starts at Y = 0
     const i16 chunk_origin_y = (-chunk->position.vy) * CHUNK_SIZE;
     const i16 chunk_origin_z = chunk->position.vz * CHUNK_SIZE;
-    int i = 0;
-    DEBUG_LOG("[MESH] Face: %s, Axis: %d Base: (%d,%d), Dims: (%d,%d)\n", faceDirStr(face_dir), axis, x, y, w, h);
-#define transformRelativeToOrigin(vertex) \
-    (vertex)->vx = (chunk_origin_x + vertex->vx) * BLOCK_SIZE; \
-    (vertex)->vy = (chunk_origin_y - vertex->vy) * BLOCK_SIZE; \
-    (vertex)->vz = (chunk_origin_z + vertex->vz) * BLOCK_SIZE; \
-    DEBUG_LOG("[MESH] Vertex %d => (%d,%d,%d)\n", i++, inlineVecPtr(vertex))
+    const SVECTOR chunk_origin = vec3_i16(
+        chunk_origin_x,
+        chunk_origin_y,
+        chunk_origin_z
+    );
+    const SVECTOR vertices[4] = {
+        [0] = svector_const_mul(
+            svector_add(
+                chunk_origin,
+                faceDirectionPosition(
+                    face_dir,
+                    axis,
+                    x,
+                    y
+                )
+            ),
+            BLOCK_SIZE
+        ),
+        [1] = svector_const_mul(
+            svector_add(
+                chunk_origin,
+                faceDirectionPosition(
+                    face_dir,
+                    axis,
+                    x + w,
+                    y
+                )
+            ),
+            BLOCK_SIZE
+        ),
+        [2] = svector_const_mul(
+            svector_add(
+                chunk_origin,
+                faceDirectionPosition(
+                    face_dir,
+                    axis,
+                    x,
+                    y + h
+                )
+            ),
+            BLOCK_SIZE
+        ),
+        [3] = svector_const_mul(
+            svector_add(
+                chunk_origin,
+                faceDirectionPosition(
+                    face_dir,
+                    axis,
+                    x + w,
+                    y + h
+                )
+            ),
+            BLOCK_SIZE
+        ),
+    };
+    DEBUG_LOG(
+        "[MESH] Face: %s, Axis: %d Base: (%d,%d), Dims: (%d,%d)\n",
+        faceDirStr(face_dir),
+        axis,
+        x, y,
+        w, h
+    );
+    const INDEX indices = _INDICES[face_dir];
     SVECTOR* vertex;
-    // V0
-    nextRenderAttribute(vertex, p_verts, v0, n_verts);
-    faceDirectionPosition(
-        face_dir,
-        axis,
-        x,
-        y,
-        vertex
-    );
-    transformRelativeToOrigin(vertex);
-    // V1
-    nextRenderAttribute(vertex, p_verts, v1, n_verts);
-    faceDirectionPosition(
-        face_dir,
-        axis,
-        x + w,
-        y,
-        vertex
-    );
-    transformRelativeToOrigin(vertex);
-    // V2
-    nextRenderAttribute(vertex, p_verts, v2, n_verts);
-    faceDirectionPosition(
-        face_dir,
-        axis,
-        x,
-        y + h,
-        vertex
-    );
-    transformRelativeToOrigin(vertex);
-    // V3
-    nextRenderAttribute(vertex, p_verts, v1, n_verts);
-    faceDirectionPosition(
-        face_dir,
-        axis,
-        x + w,
-        y + h,
-        vertex
-    );
-    transformRelativeToOrigin(vertex);
-}
+    SVECTOR* current_vertex;
+    #define bindVertex(v) nextRenderAttribute(vertex, p_verts, v, n_verts); \
+        current_vertex = &vertices[indices.v]; \
+        vertex->vx = current_vertex->vx; \
+        vertex->vy = current_vertex->vy; \
+        vertex->vz = current_vertex->vz
+    bindVertex(v0);
+    bindVertex(v1);
+    bindVertex(v2);
+    bindVertex(v3);}
 
 static void createNormal(ChunkMesh* mesh,
                          SMD_PRIM* primitive,
@@ -476,16 +510,16 @@ void binaryGreedyMesherConstructPlane(Chunk* chunk,
     }
 }
 
-void faceDirectionPosition(const FaceDirection face_dir, const i32 axis, const i32 x, const i32 y, SVECTOR* position) {
-#define vec(_x,_y,_z) position->vx = _x; position->vy = _y; position->vz = _z
+SVECTOR faceDirectionPosition(const FaceDirection face_dir, const i32 axis, const i32 x, const i32 y) {
+    SVECTOR position = {0};
     switch (face_dir) {
-        case FACE_DIR_UP: vec(x, axis, y); break;
-        case FACE_DIR_DOWN: vec(x, axis + 1, y); break;
-        case FACE_DIR_LEFT: vec(axis, y, x); break;
-        case FACE_DIR_RIGHT: vec(axis + 1, y, x); break;
-        case FACE_DIR_FRONT: vec(x, y, axis); break;
-        case FACE_DIR_BACK: vec(x, y, axis + 1); break;
+        case FACE_DIR_UP: position = vec3_i16(x, axis, y); break;
+        case FACE_DIR_DOWN: position = vec3_i16(x, axis + 1, y); break;
+        case FACE_DIR_LEFT: position = vec3_i16(axis, y, x); break;
+        case FACE_DIR_RIGHT: position = vec3_i16(axis + 1, y, x); break;
+        case FACE_DIR_FRONT: position = vec3_i16(x, y, axis); break;
+        case FACE_DIR_BACK: position = vec3_i16(x, y, axis + 1); break;
     }
-#undef vec
+    return position;
 }
 
