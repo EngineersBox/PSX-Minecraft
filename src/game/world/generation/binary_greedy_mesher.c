@@ -148,7 +148,6 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
             }
         }
     }
-    // BinaryMeshPlane data[6][BLOCK_COUNT][32] = {0};
     struct hashmap* data = hashmap_new(
         sizeof(PlaneMeshingData),
         0,
@@ -280,8 +279,8 @@ static SMD_PRIM* createPrimitive(ChunkMesh* mesh,
     const TextureAttributes* attributes = &block->face_attributes[faceDirectionToFaceAttributeIndex(face_dir)];
     primitive->tu0 = attributes->u;
     primitive->tv0 = attributes->v;
-    primitive->tu1 = BLOCK_TEXTURE_SIZE * width;
-    primitive->tv1 = BLOCK_TEXTURE_SIZE * height;
+    primitive->tu1 = BLOCK_TEXTURE_SIZE * (face_dir == FACE_DIR_UP ? height : width);
+    primitive->tv1 = BLOCK_TEXTURE_SIZE * (face_dir == FACE_DIR_UP ? width : height);
     primitive->r0 = attributes->tint.r;
     primitive->g0 = attributes->tint.g;
     primitive->b0 = attributes->tint.b;
@@ -341,63 +340,27 @@ static void createVertices(Chunk* chunk,
         chunk_origin_y,
         chunk_origin_z
     );
+#define createVertex(_x, _y) ({ \
+    const SVECTOR face_dir_pos = faceDirectionPosition(face_dir, axis, (_x), (_y)); \
+    (SVECTOR) { \
+        (chunk_origin_x + face_dir_pos.vx) * BLOCK_SIZE, \
+        (chunk_origin_y - face_dir_pos.vy) * BLOCK_SIZE, \
+        (chunk_origin_z + face_dir_pos.vz) * BLOCK_SIZE, \
+    }; \
+})
     const SVECTOR vertices[4] = {
-        [0] = svector_const_mul(
-            svector_add(
-                chunk_origin,
-                faceDirectionPosition(
-                    face_dir,
-                    axis,
-                    x,
-                    y
-                )
-            ),
-            BLOCK_SIZE
-        ),
-        [1] = svector_const_mul(
-            svector_add(
-                chunk_origin,
-                faceDirectionPosition(
-                    face_dir,
-                    axis,
-                    x + w,
-                    y
-                )
-            ),
-            BLOCK_SIZE
-        ),
-        [2] = svector_const_mul(
-            svector_add(
-                chunk_origin,
-                faceDirectionPosition(
-                    face_dir,
-                    axis,
-                    x,
-                    y + h
-                )
-            ),
-            BLOCK_SIZE
-        ),
-        [3] = svector_const_mul(
-            svector_add(
-                chunk_origin,
-                faceDirectionPosition(
-                    face_dir,
-                    axis,
-                    x + w,
-                    y + h
-                )
-            ),
-            BLOCK_SIZE
-        ),
+        [0] = createVertex(x, y),
+        [1] = createVertex(x + w, y),
+        [2] = createVertex(x, y + h),
+        [3] = createVertex(x + w, y + h)
     };
-    DEBUG_LOG(
-        "[MESH] Face: %s, Axis: %d Base: (%d,%d), Dims: (%d,%d)\n",
-        faceDirStr(face_dir),
-        axis,
-        x, y,
-        w, h
-    );
+    // DEBUG_LOG(
+    //     "[MESH] Face: %s, Axis: %d Base: (%d,%d), Dims: (%d,%d)\n",
+    //     faceDirStr(face_dir),
+    //     axis,
+    //     x, y,
+    //     w, h
+    // );
     const INDEX indices = _INDICES[face_dir];
     SVECTOR* vertex;
     SVECTOR* current_vertex;
@@ -513,8 +476,8 @@ void binaryGreedyMesherConstructPlane(Chunk* chunk,
 SVECTOR faceDirectionPosition(const FaceDirection face_dir, const i32 axis, const i32 x, const i32 y) {
     SVECTOR position = {0};
     switch (face_dir) {
-        case FACE_DIR_UP: position = vec3_i16(x, axis, y); break;
         case FACE_DIR_DOWN: position = vec3_i16(x, axis + 1, y); break;
+        case FACE_DIR_UP: position = vec3_i16(x, axis, y); break;
         case FACE_DIR_LEFT: position = vec3_i16(axis, y, x); break;
         case FACE_DIR_RIGHT: position = vec3_i16(axis + 1, y, x); break;
         case FACE_DIR_FRONT: position = vec3_i16(x, y, axis); break;

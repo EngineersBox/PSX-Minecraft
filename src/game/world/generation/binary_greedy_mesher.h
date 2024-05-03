@@ -26,8 +26,8 @@ typedef enum {
     FACE_DIR_UP,
     FACE_DIR_LEFT,
     FACE_DIR_RIGHT,
-    FACE_DIR_FRONT,
-    FACE_DIR_BACK
+    FACE_DIR_BACK,
+    FACE_DIR_FRONT
 } FaceDirection;
 
 SVECTOR faceDirectionPosition(const FaceDirection face_dir, const i32 axis, const i32 x, const i32 y);
