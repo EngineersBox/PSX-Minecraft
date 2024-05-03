@@ -63,8 +63,8 @@ void Minecraft_init(VSelf, void* ctx) {
             .primitive = NULL
         },
         .transforms = (Transforms) {
-            .translation_rotation = {0},
-            .translation_position = {0, 0, 0},
+            .translation_rotation = vec3_i16_all(0),
+            .translation_position = vec3_i32_all(0),
             .geometry_mtx = {},
             .lighting_mtx = lighting_direction
         },
@@ -73,8 +73,8 @@ void Minecraft_init(VSelf, void* ctx) {
     };
     camera = (Camera) {
         .transforms = &self->internals.transforms,
-        .position = (VECTOR) {0},
-        .rotation = (VECTOR) {0},
+        .position = vec3_i32_all(0),
+        .rotation = vec3_i32_all(0),
         .mode = 0
     };
     DYN_PTR(&self->internals.camera, Camera, IInputHandler, &camera);
@@ -114,11 +114,7 @@ void Minecraft_init(VSelf, void* ctx) {
     player = (Player*) malloc(sizeof(Player));
     playerInit(player);
     player->camera = &self->internals.camera;
-    const VECTOR player_positon = (VECTOR) {
-        .vx = 0,
-        .vy = ONE_BLOCK * 10,
-        .vz = 0
-    };
+    const VECTOR player_positon = vec3_i32(0, ONE_BLOCK * 10, 0);
     iPhysicsObjectSetPosition(&player->physics_object, &player_positon);
     // player->physics_object.flags.no_clip = true;
     player_handler = DYN(Player, IInputHandler, player);

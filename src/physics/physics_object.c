@@ -25,7 +25,7 @@ void iPhysicsObjectInit(PhysicsObject* physics_object,
     }
     physics_object->rotation.pitch = 0;
     physics_object->rotation.yaw = 0;
-    physics_object->velocity = (VECTOR) {0};
+    physics_object->velocity = vec3_i32_all(0);
     physics_object->move.forward = 0;
     physics_object->move.strafe = 0;
     physics_object->fall_distance = 0;
@@ -33,22 +33,21 @@ void iPhysicsObjectInit(PhysicsObject* physics_object,
     physics_object->flags = (PhysicsObjectFlags) {0};
     physics_object->config = config;
     physics_object->update_handlers = update_handlers;
-    static const VECTOR _zero = {0};
-    iPhysicsObjectSetPosition(physics_object, &_zero);
+    iPhysicsObjectSetPosition(physics_object, NULL);
 }
 
 void iPhysicsObjectSetPosition(PhysicsObject* physics_object, const VECTOR* position) {
-    physics_object->position = *position;
+    physics_object->position = position == NULL ? vec3_i32_all(0) : *position;
     physics_object->aabb = (AABB) {
         .min = vec3_i32(
-            position->vx - physics_object->config->radius,
-            position->vy - physics_object->config->y_offset + physics_object->y_size,
-            position->vz - physics_object->config->radius
+            physics_object->position.vx - physics_object->config->radius,
+            physics_object->position.vy - physics_object->config->y_offset + physics_object->y_size,
+            physics_object->position.vz - physics_object->config->radius
         ),
         .max = vec3_i32(
-            position->vx + physics_object->config->radius,
-            position->vy - physics_object->config->y_offset + physics_object->y_size + physics_object->config->height,
-            position->vz + physics_object->config->radius
+            physics_object->position.vx + physics_object->config->radius,
+            physics_object->position.vy - physics_object->config->y_offset + physics_object->y_size + physics_object->config->height,
+            physics_object->position.vz + physics_object->config->radius
         ),
     };
 }
@@ -129,7 +128,7 @@ void IPhysicsObject_moveWithHeading(VSelf, World* world, i32 move_strafe, i32 mo
     scaling = resolveGroundAcceleration(
         self,
         world,
-        2457 // fONE * 0.6
+        2457 // ONE * 0.6
     );
     VECTOR* velocity = &self->velocity;
     iPhysicsObjectMove(

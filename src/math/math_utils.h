@@ -172,6 +172,11 @@ typedef struct _BVECTOR {
 #define vec3_i8(x, y, z) ((CVECTOR) { _vec3_layout(x, y, z) })
 #define vec2_i16(x, y) ((DVECTOR) { .vx = (x), .vy = (y) })
 
+#define vec3_i32_all(v) vec3_i32(v, v, v)
+#define vec3_i16_all(v) vec3_i16(v, v, v)
+#define vec3_i8_all(v) vec3_i8(v, v, v)
+#define vec2_i16_all(v) vec2_i16(v, v)
+
 // TODO: Add vec+const variations
 
 #define DEF_VEC_OP()

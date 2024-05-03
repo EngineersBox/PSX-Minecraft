@@ -46,9 +46,14 @@ u64 plane_meshing_data_hash(const void* item, u64 seed0, u64 seed1) {
     return hashmap_xxhash3(&data->key, sizeof(data->key), seed0, seed1);
 }
 
+#define AXIS_COUNT 3
+#define FACES_COUNT (AXIS_COUNT * 2)
+#define AXIAL_EDGES_COUNT 2
+const u32 AXIAL_EDGES[AXIAL_EDGES_COUNT] = { 0, CHUNK_SIZE_P - 1 };
+
 void binaryGreedyMesherBuildMesh(Chunk* chunk) {
-    u32 axis_cols[3][CHUNK_SIZE_P][CHUNK_SIZE_P] = {0};
-    u32 col_face_masks[6][CHUNK_SIZE_P][CHUNK_SIZE_P] = {0};
+    u32 axis_cols[AXIS_COUNT][CHUNK_SIZE_P][CHUNK_SIZE_P] = {0};
+    u32 col_face_masks[FACES_COUNT][CHUNK_SIZE_P][CHUNK_SIZE_P] = {0};
 #define addVoxelToAxisCols(_iblock, x, y, z) \
     const IBlock* iblock = (_iblock); \
     if ((iblock) == NULL) { \
@@ -77,12 +82,11 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
         }
     }
     // Neighbouring chunk blocks
-    const u32 axial_values[2] = { 0, CHUNK_SIZE_P - 1 };
     // Z
-    for (u32 z_i = 0; z_i < 2; z_i++) {
+    for (u32 z_i = 0; z_i < AXIAL_EDGES_COUNT; z_i++) {
         for (u32 y = 0; y < CHUNK_SIZE_P; y++) {
             for (u32 x = 0; x < CHUNK_SIZE_P; x++) {
-                const u32 z = axial_values[z_i];
+                const u32 z = AXIAL_EDGES[z_i];
                 const VECTOR position = vec3_i32(
                     (chunk->position.vx * CHUNK_SIZE) + x - 1,
                     (chunk->position.vy * CHUNK_SIZE) + y - 1,
@@ -99,9 +103,9 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
     }
     // Y
     for (u32 z = 0; z < CHUNK_SIZE_P; z++) {
-        for (u32 y_i = 0; y_i < 2; y_i++) {
+        for (u32 y_i = 0; y_i < AXIAL_EDGES_COUNT; y_i++) {
             for (u32 x = 0; x < CHUNK_SIZE_P; x++) {
-                const u32 y = axial_values[y_i];
+                const u32 y = AXIAL_EDGES[y_i];
                 const VECTOR position = vec3_i32(
                     (chunk->position.vx * CHUNK_SIZE) + x - 1,
                     (chunk->position.vy * CHUNK_SIZE) + y - 1,
@@ -119,8 +123,8 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
     // X
     for (u32 z = 0; z < CHUNK_SIZE; z++) {
         for (u32 y = 0; y < CHUNK_SIZE; y++) {
-            for (u32 x_i = 0; x_i < 2; x_i++) {
-                const u32 x = axial_values[x_i];
+            for (u32 x_i = 0; x_i < AXIAL_EDGES_COUNT; x_i++) {
+                const u32 x = AXIAL_EDGES[x_i];
                 const VECTOR position = vec3_i32(
                     (chunk->position.vx * CHUNK_SIZE) + x - 1,
                     (chunk->position.vy * CHUNK_SIZE) + y - 1,
@@ -137,7 +141,7 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
     }
 #undef addVoxelToAxisCols
     // Face culling
-    for (u32 axis = 0; axis < 3; axis++) {
+    for (u32 axis = 0; axis < AXIS_COUNT; axis++) {
         for (u32 z = 0; z < CHUNK_SIZE_P; z++) {
             for (u32 x = 0; x < CHUNK_SIZE_P; x++) {
                 const u32 col = axis_cols[axis][z][x];
@@ -148,7 +152,7 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
             }
         }
     }
-    struct hashmap* data = hashmap_new(
+    HashMap* data = hashmap_new(
         sizeof(PlaneMeshingData),
         0,
         0,
@@ -159,7 +163,7 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
         NULL
     );
     // Find faces and build binary planes based on block types
-    for (u32 axis = 0; axis < 6; axis++) {
+    for (u32 axis = 0; axis < FACES_COUNT; axis++) {
         for (u32 z = 0; z < CHUNK_SIZE; z++) {
             for (u32 x = 0; x < CHUNK_SIZE; x++) {
                 // Skip padding
@@ -225,7 +229,7 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
     size_t iter = 0;
     void* item;
     while (hashmap_iter(data, &iter, &item)) {
-        const PlaneMeshingData* elem = item;
+        PlaneMeshingData* elem = item;
         binaryGreedyMesherConstructPlane(
             chunk,
             (FaceDirection) elem->key.axis,
@@ -298,7 +302,7 @@ static SMD_PRIM* createPrimitive(ChunkMesh* mesh,
         (primitive)->index_field = mesh->count_field; \
         (field) = &cvector_begin(mesh->attribute_field)[mesh->count_field++];
 
-const INDEX _INDICES[6] = {
+const INDEX _INDICES[FACES_COUNT] = {
     // TODO: Can texture orientation for FACE_DIR_UP be
     //       fixed by adjusting the up indices here?
     {1,3,0,2},
@@ -320,16 +324,15 @@ static void createVertices(Chunk* chunk,
     ChunkMesh* mesh = &chunk->mesh;
     // Construct vertices relative to chunk mesh bottom left origin
     const i16 chunk_origin_x = chunk->position.vx * CHUNK_SIZE;
-    // Offset by 1 to ensure bottom block of bottom chunk starts at Y = 0
     const i16 chunk_origin_y = (-chunk->position.vy) * CHUNK_SIZE;
     const i16 chunk_origin_z = chunk->position.vz * CHUNK_SIZE;
 #define createVertex(_x, _y) ({ \
     const SVECTOR face_dir_pos = faceDirectionPosition(face_dir, axis, (_x), (_y)); \
-    (SVECTOR) { \
+    vec3_i16( \
         (chunk_origin_x + face_dir_pos.vx) * BLOCK_SIZE, \
         (chunk_origin_y - face_dir_pos.vy) * BLOCK_SIZE, \
-        (chunk_origin_z + face_dir_pos.vz) * BLOCK_SIZE, \
-    }; \
+        (chunk_origin_z + face_dir_pos.vz) * BLOCK_SIZE \
+    ); \
 })
     const SVECTOR vertices[4] = {
         [0] = createVertex(x, y),
@@ -339,7 +342,7 @@ static void createVertices(Chunk* chunk,
     };
     const INDEX indices = _INDICES[face_dir];
     SVECTOR* vertex;
-    SVECTOR* current_vertex;
+    SVECTOR const* current_vertex;
     #define bindVertex(v) nextRenderAttribute(vertex, p_verts, v, n_verts); \
         current_vertex = &vertices[indices.v]; \
         vertex->vx = current_vertex->vx; \
@@ -386,7 +389,7 @@ static void createQuad(Chunk* chunk,
         chunk,
         primitive,
         face_dir,
-        (i32) axis,
+        axis,
         x,
         y,
         w,
