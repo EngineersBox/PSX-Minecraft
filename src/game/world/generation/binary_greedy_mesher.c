@@ -238,6 +238,10 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
     hashmap_free(data);
 }
 
+// TODO: This is supremely stupid. Astronomically, superiorly,
+//       monumentally idiotic. Let's just fix the declareTintedFaceAttributes
+//       macro and the block declarations instead. So much sad.
+//       My idiocy knows no bounds sometimes.
 u32 faceDirectionToFaceAttributeIndex(const FaceDirection face_dir) {
     u32 index = 0;
     switch (face_dir) {
@@ -245,8 +249,8 @@ u32 faceDirectionToFaceAttributeIndex(const FaceDirection face_dir) {
         case FACE_DIR_UP: index = 2; break;
         case FACE_DIR_LEFT: index = 4; break;
         case FACE_DIR_RIGHT: index = 5; break;
-        case FACE_DIR_FRONT: index = 0; break;
         case FACE_DIR_BACK: index = 1; break;
+        case FACE_DIR_FRONT: index = 0; break;
     }
     return index;
 }
@@ -279,6 +283,7 @@ static SMD_PRIM* createPrimitive(ChunkMesh* mesh,
     const TextureAttributes* attributes = &block->face_attributes[faceDirectionToFaceAttributeIndex(face_dir)];
     primitive->tu0 = attributes->u;
     primitive->tv0 = attributes->v;
+    // Sad conditional :(
     primitive->tu1 = BLOCK_TEXTURE_SIZE * (face_dir == FACE_DIR_UP ? height : width);
     primitive->tv1 = BLOCK_TEXTURE_SIZE * (face_dir == FACE_DIR_UP ? width : height);
     primitive->r0 = attributes->tint.r;
@@ -313,6 +318,8 @@ char* faceDirStr(const FaceDirection face_dir) {
 }
 
 const INDEX _INDICES[6] = {
+    // TODO: Can texture orientation for FACE_DIR_UP be
+    //       fixed by adjusting the up indices here?
     {1,3,0,2},
     {3,1,2,0},
     {3,2,1,0},
@@ -335,11 +342,6 @@ static void createVertices(Chunk* chunk,
     // Offset by 1 to ensure bottom block of bottom chunk starts at Y = 0
     const i16 chunk_origin_y = (-chunk->position.vy) * CHUNK_SIZE;
     const i16 chunk_origin_z = chunk->position.vz * CHUNK_SIZE;
-    const SVECTOR chunk_origin = vec3_i16(
-        chunk_origin_x,
-        chunk_origin_y,
-        chunk_origin_z
-    );
 #define createVertex(_x, _y) ({ \
     const SVECTOR face_dir_pos = faceDirectionPosition(face_dir, axis, (_x), (_y)); \
     (SVECTOR) { \
@@ -372,7 +374,8 @@ static void createVertices(Chunk* chunk,
     bindVertex(v0);
     bindVertex(v1);
     bindVertex(v2);
-    bindVertex(v3);}
+    bindVertex(v3);
+}
 
 static void createNormal(ChunkMesh* mesh,
                          SMD_PRIM* primitive,
@@ -391,13 +394,13 @@ static void createNormal(ChunkMesh* mesh,
 }
 
 static void createQuad(Chunk* chunk,
-                              const FaceDirection face_dir,
-                              const u32 axis,
-                              const Block* block,
-                              const u32 x,
-                              const u32 y,
-                              const u32 w,
-                              const u32 h) {
+                       const FaceDirection face_dir,
+                       const u32 axis,
+                       const Block* block,
+                       const u32 x,
+                       const u32 y,
+                       const u32 w,
+                       const u32 h) {
     SMD_PRIM* primitive = createPrimitive(
         &chunk->mesh,
         block,
@@ -480,8 +483,8 @@ SVECTOR faceDirectionPosition(const FaceDirection face_dir, const i32 axis, cons
         case FACE_DIR_UP: position = vec3_i16(x, axis, y); break;
         case FACE_DIR_LEFT: position = vec3_i16(axis, y, x); break;
         case FACE_DIR_RIGHT: position = vec3_i16(axis + 1, y, x); break;
-        case FACE_DIR_FRONT: position = vec3_i16(x, y, axis); break;
         case FACE_DIR_BACK: position = vec3_i16(x, y, axis + 1); break;
+        case FACE_DIR_FRONT: position = vec3_i16(x, y, axis); break;
     }
     return position;
 }
