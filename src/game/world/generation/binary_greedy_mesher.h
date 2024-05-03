@@ -4,8 +4,6 @@
 #define _PSX_MINECRAFT__GAME_WORLD_GENERATION__BINARY_GREEDY_MESHER_H_
 
 #include "../chunk/chunk_structure.h"
-#include "../chunk/chunk_mesh.h"
-#include "../../../structure/cvector.h"
 #include "../../../util/inttypes.h"
 #include "../../../util/preprocessor.h"
 #include "../../../math/math_utils.h"

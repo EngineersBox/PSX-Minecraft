@@ -45,9 +45,8 @@ typedef struct {
 } PhysicsObjectConfig;
 
 /* Note that the following are booleans and not enum
- * entries since it is possible to be in a combination
- * of these states at once if the AABB is larger than a
- * single block.
+ * entries since they are not orthogonal in all
+ * circumstances or AABB sizes.
  */
 typedef struct {
     bool on_ground: 1;

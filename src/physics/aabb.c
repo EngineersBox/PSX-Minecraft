@@ -3,16 +3,16 @@
 #include "../math/math_utils.h"
 
 void aabbAddCoord(const AABB* source, AABB* target, const i32 x, const i32 y, const i32 z) {
-    target->min = (VECTOR) {
-        .vx = source->min.vx + max(x, 0),
-        .vy = source->min.vy + max(y, 0),
-        .vz = source->min.vz + max(z, 0)
-    };
-    target->max = (VECTOR) {
-        .vx = source->max.vx + min(x, 0),
-        .vy = source->max.vy + min(y, 0),
-        .vz = source->max.vz + min(z, 0)
-    };
+    target->min = vec3_i32(
+        source->min.vx + min(x, 0),
+        source->min.vy + min(y, 0),
+        source->min.vz + min(z, 0)
+    );
+    target->max = vec3_i32(
+        source->max.vx + max(x, 0),
+        source->max.vy + max(y, 0),
+        source->max.vz + max(z, 0)
+    );
 }
 
 void aabbOffset(AABB* aabb, const i32 x, const i32 y, const i32 z) {
@@ -51,13 +51,13 @@ i32 aabbXOffset(const AABB* source, const AABB* target, const i32 x) {
     } else if (target->max.vz <= source->min.vz || target->min.vz >= source->max.vz) {
         return x;
     }
-    if (x > 0.0 && target->max.vx <= source->min.vx) {
+    if (x > 0 && target->max.vx <= source->min.vx) {
         const i32 diff_x = source->min.vx - target->max.vx;
         if (diff_x < x) {
             return  diff_x;
         }
     }
-    if (x < 0.0 && target->min.vx >= source->max.vx) {
+    if (x < 0 && target->min.vx >= source->max.vx) {
         const i32 diff_x = source->max.vx - target->min.vx;
         if (diff_x > x) {
             return diff_x;

@@ -40,16 +40,16 @@ void iPhysicsObjectInit(PhysicsObject* physics_object,
 void iPhysicsObjectSetPosition(PhysicsObject* physics_object, const VECTOR* position) {
     physics_object->position = *position;
     physics_object->aabb = (AABB) {
-        .min = (VECTOR) {
-            .vx = position->vx - physics_object->config->radius,
-            .vy = position->vy - physics_object->config->y_offset + physics_object->y_size,
-            .vz = position->vz - physics_object->config->radius
-        },
-        .max = (VECTOR) {
-            .vx = position->vx + physics_object->config->radius,
-            .vy = position->vy - physics_object->config->y_offset + physics_object->y_size + physics_object->config->height,
-            .vz = position->vz + physics_object->config->radius
-        },
+        .min = vec3_i32(
+            position->vx - physics_object->config->radius,
+            position->vy - physics_object->config->y_offset + physics_object->y_size,
+            position->vz - physics_object->config->radius
+        ),
+        .max = vec3_i32(
+            position->vx + physics_object->config->radius,
+            position->vy - physics_object->config->y_offset + physics_object->y_size + physics_object->config->height,
+            position->vz + physics_object->config->radius
+        ),
     };
 }
 
@@ -83,11 +83,11 @@ i32 resolveGroundAcceleration(const PhysicsObject* physics_object,
     }
     // scaling = 156549; // ONE_BLOCK * 546.0 * 0.1 * 0.1 * 0.1
     scaling = 2236; // ONE * 546.0 * 0.1 * 0.1 * 0.1
-    VECTOR position = (VECTOR) {
-        .vx = fixedFloor(physics_object->position.vx, ONE_BLOCK) / ONE_BLOCK,
-        .vy = fixedFloor(physics_object->aabb.min.vy, ONE_BLOCK) / ONE_BLOCK,
-        .vz = fixedFloor(physics_object->position.vz, ONE_BLOCK) / ONE_BLOCK,
-    };
+    VECTOR position = vec3_i32(
+        fixedFloor(physics_object->position.vx, ONE_BLOCK) / ONE_BLOCK,
+        fixedFloor(physics_object->aabb.min.vy, ONE_BLOCK) / ONE_BLOCK,
+        fixedFloor(physics_object->position.vz, ONE_BLOCK) / ONE_BLOCK
+    );
     position.vy--;
     const IBlock* iblock = worldGetBlock(world, &position);
     if (iblock == NULL) {
@@ -124,13 +124,12 @@ void IPhysicsObject_moveWithHeading(VSelf, World* world, i32 move_strafe, i32 mo
         move_forward,
         scaling
     );
-    // This determines sliding effect on blocks (e.g. ice vs grass)
-    // correlating to how much x/z velocity will be preserved into
-    // the next tick
+    // This determines sliding effect on blocks (e.g. ice vs grass),
+    // or how much x/z velocity will be preserved into the next tick
     scaling = resolveGroundAcceleration(
         self,
         world,
-        2457 //ONE * 0.6
+        2457 // fONE * 0.6
     );
     VECTOR* velocity = &self->velocity;
     iPhysicsObjectMove(
@@ -165,11 +164,7 @@ cvector(AABB) getCollidingAABBs(const World* world, const AABB* aabb) {
     for (i32 x = min_x; x < max_x; x++) {
         for (i32 z = min_z; z < max_z; z++) {
             for (i32 y = min_y - 1; y < max_y; y++) {
-                const VECTOR position = (VECTOR) {
-                    .vx = x,
-                    .vy = y,
-                    .vz = z,
-                };
+                const VECTOR position = vec3_i32(x, y, z);
                 const IBlock* iblock = worldGetBlock(world, &position);
                 if (iblock == NULL) {
                     continue;
@@ -180,11 +175,11 @@ cvector(AABB) getCollidingAABBs(const World* world, const AABB* aabb) {
                 }
                 const AABB block_aabb = (AABB) {
                     .min = vector_const_mul(position, ONE_BLOCK),
-                    .max = (VECTOR) {
-                        .vx = (x + 1) * ONE_BLOCK,
-                        .vy = (y + 1) * ONE_BLOCK,
-                        .vz = (z + 1) * ONE_BLOCK,
-                    }
+                    .max = vec3_i32(
+                        (x + 1) * ONE_BLOCK,
+                        (y + 1) * ONE_BLOCK,
+                        (z + 1) * ONE_BLOCK
+                    )
                 };
                 if (!aabbIntersects(aabb, &block_aabb)) {
                     continue;

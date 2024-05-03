@@ -48,6 +48,10 @@ Camera camera;
 IInputHandler player_handler;
 Player* player;
 
+// ONE_BLOCK * 1.7
+#define CAMERA_OFFSET 487424
+// #define CAMERA_OFFSET ONE_BLOCK
+
 void minecraftInit(VSelf, void* ctx) __attribute__((alias("Minecraft_init")));
 void Minecraft_init(VSelf, void* ctx) {
     VSELF(Minecraft);
@@ -116,13 +120,21 @@ void Minecraft_init(VSelf, void* ctx) {
         .vz = 0
     };
     iPhysicsObjectSetPosition(&player->physics_object, &player_positon);
-    player->physics_object.flags.no_clip = true;
+    // player->physics_object.flags.no_clip = true;
     player_handler = DYN(Player, IInputHandler, player);
     VCALL(player_handler, registerInputHandler, &self->internals.input);
     // Register handlers
     VCALL(*player->camera, registerInputHandler, &self->internals.input);
     VCALL_SUPER(player->inventory, IInputHandler, registerInputHandler, &self->internals.input);
     VCALL_SUPER(player->hotbar, IInputHandler, registerInputHandler, &self->internals.input);
+
+    // Initialise camera
+    Camera* camera = VCAST(Camera*, self->internals.camera);
+    camera->rotation.vx = player->physics_object.rotation.pitch;
+    camera->rotation.vy = player->physics_object.rotation.yaw;
+    camera->position.vx = player->physics_object.position.vx;
+    camera->position.vy = -player->physics_object.position.vy - CAMERA_OFFSET;
+    camera->position.vz = player->physics_object.position.vz;
 
     // ==== TESTING: Hotbar ====
     Inventory* inventory = VCAST(Inventory*, player->inventory);
@@ -168,10 +180,6 @@ void Minecraft_input(VSelf, const Stats* stats) {
         startHandler(camera);
     }
 }
-
-// ONE_BLOCK * 1.7
-#define CAMERA_OFFSET 487424
-// #define CAMERA_OFFSET ONE_BLOCK
 
 void minecraftUpdate(VSelf, const Stats* stats) __attribute__((alias("Minecraft_update")));
 void Minecraft_update(VSelf, const Stats* stats) {
