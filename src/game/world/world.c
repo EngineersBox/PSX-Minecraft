@@ -757,7 +757,7 @@ RayCastResult worldRayCastIntersection(const World* world,
             };
             const Block* block = VCAST(Block*, *worldGetBlock(world, &temp_pos));
             printf("Querying block: (%d,%d,%d) = %s\n", inlineVec(temp_pos), blockIdStringify(block->id));
-            if (block->id != BLOCKID_AIR) {
+            if (block->id != BLOCKID_AIR && block->type != BLOCKTYPE_EMPTY) {
                 break;
             }
         }
