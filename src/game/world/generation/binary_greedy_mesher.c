@@ -457,7 +457,7 @@ SVECTOR faceDirectionPosition(const FaceDirection face_dir, const i32 axis, cons
     SVECTOR position = {0};
     switch (face_dir) {
         case FACE_DIR_DOWN: position = vec3_i16(x, axis + 1, y); break;
-        case FACE_DIR_UP: position = vec3_i16(x, axis, y); break;
+        case FACE_DIR_UP: position = vec3_i16(x, axis + 1, y); break;
         case FACE_DIR_LEFT: position = vec3_i16(axis, y, x); break;
         case FACE_DIR_RIGHT: position = vec3_i16(axis + 1, y, x); break;
         case FACE_DIR_BACK: position = vec3_i16(x, y, axis + 1); break;
