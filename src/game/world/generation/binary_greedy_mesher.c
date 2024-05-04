@@ -288,8 +288,8 @@ static SMD_PRIM* createPrimitive(ChunkMesh* mesh,
     primitive->tu0 = attributes->u;
     primitive->tv0 = attributes->v;
     // Sad conditional :(
-    primitive->tu1 = BLOCK_TEXTURE_SIZE * (face_dir == FACE_DIR_UP ? height : width);
-    primitive->tv1 = BLOCK_TEXTURE_SIZE * (face_dir == FACE_DIR_UP ? width : height);
+    primitive->tu1 = BLOCK_TEXTURE_SIZE * width;
+    primitive->tv1 = BLOCK_TEXTURE_SIZE * height;
     primitive->r0 = attributes->tint.r;
     primitive->g0 = attributes->tint.g;
     primitive->b0 = attributes->tint.b;
@@ -303,10 +303,8 @@ static SMD_PRIM* createPrimitive(ChunkMesh* mesh,
         (field) = &cvector_begin(mesh->attribute_field)[mesh->count_field++];
 
 const INDEX _INDICES[FACES_COUNT] = {
-    // TODO: Can texture orientation for FACE_DIR_UP be
-    //       fixed by adjusting the up indices here?
     {1,3,0,2},
-    {3,1,2,0},
+    {1,0,3,2},
     {3,2,1,0},
     {2,3,0,1},
     {3,2,1,0},
