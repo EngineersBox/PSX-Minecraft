@@ -344,13 +344,9 @@ static void createVertices(Chunk* chunk,
 #undef createVertex
     const INDEX indices = _INDICES[face_dir];
     SVECTOR* vertex;
-    SVECTOR const* current_vertex;
 #define bindVertex(v) ({ \
     vertex = nextRenderAttribute(p_verts, v, n_verts); \
-    current_vertex = &vertices[indices.v]; \
-    vertex->vx = current_vertex->vx; \
-    vertex->vy = current_vertex->vy; \
-    vertex->vz = current_vertex->vz; \
+    *vertex = vertices[indices.v]; \
 })
     bindVertex(v0);
     bindVertex(v1);
