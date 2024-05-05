@@ -56,7 +56,7 @@ u8 trailing_ones(u32 value) {
     return c - !(value & 0x1);
 }
 
-// These functions (defines as macros in gcc/include/longlong.h are
+// These functions (defined as macros in gcc/include/longlong.h are
 // used as the definition for __ctzSI2 in gcc/libgcc/libgcc2.c.
 // Specifically count_trailing_zeros. They seem to be the above
 // implementation in a more succinct form though unsure as to whether

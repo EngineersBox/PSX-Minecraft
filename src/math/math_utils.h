@@ -6,6 +6,8 @@
 #include <stdint.h>
 #include <psxgte.h>
 
+#include "../util/preprocessor.h"
+
 /**
  * @brief Factor to shift left/right to convert int to/from fixed-point format
  */
@@ -166,16 +168,31 @@ typedef struct _BVECTOR {
     _v - positiveModulo(_v, (factor)); \
 })
 
-#define _vec3_layout(x, y, z) .vx = (x), .vy = (y), .vz = (z)
+#define _vec2_layout(x, y) .vx = (x), .vy = (y)
+#define _vec3_layout(x, y, z) _vec2_layout(x, y), .vz = (z)
 #define vec3_i32(x, y, z) ((VECTOR) { _vec3_layout(x, y, z) })
 #define vec3_i16(x, y, z) ((SVECTOR) { _vec3_layout(x, y, z) })
 #define vec3_i8(x, y, z) ((CVECTOR) { _vec3_layout(x, y, z) })
-#define vec2_i16(x, y) ((DVECTOR) { .vx = (x), .vy = (y) })
+#define vec2_i16(x, y) ((DVECTOR) { _vec2_layout(x, y) })
 
 #define vec3_i32_all(v) vec3_i32(v, v, v)
 #define vec3_i16_all(v) vec3_i16(v, v, v)
 #define vec3_i8_all(v) vec3_i8(v, v, v)
 #define vec2_i16_all(v) vec2_i16(v, v)
+
+#define _vec2_layout_swizzle(_v, x, y) _vec2_layout( \
+    (_v).GLUE(v,x), \
+    (_v).GLUE(v,y), \
+)
+#define _vec3_layout_swizzle(_v, x, y, z) _vec3_layout( \
+    (_v).GLUE(v,x), \
+    (_v).GLUE(v,y), \
+    (_v).GLUE(v,z), \
+)
+#define vec3_i32_swizzle(_v, x, y, z) ((VECTOR) { _vec3_layout_swizzle(_v, x, y, z) })
+#define vec3_i16_swizzle(_v, x, y, z) ((SVECTOR) { _vec3_layout_swizzle(_v, x, y, z) })
+#define vec3_i8_swizzle(_v, x, y, z) ((CVECTOR) { _vec3_layout_swizzle(_v, x, y, z) })
+#define vec2_i16_swizzle(_v, x, y) ((DVECTOR) { _vec2_layout_swizzle(_v, x, y) })
 
 // TODO: Add vec+const variations
 

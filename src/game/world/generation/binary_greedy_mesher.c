@@ -287,7 +287,6 @@ static SMD_PRIM* createPrimitive(ChunkMesh* mesh,
     const TextureAttributes* attributes = &block->face_attributes[faceDirectionToFaceAttributeIndex(face_dir)];
     primitive->tu0 = attributes->u;
     primitive->tv0 = attributes->v;
-    // Sad conditional :(
     primitive->tu1 = BLOCK_TEXTURE_SIZE * width;
     primitive->tv1 = BLOCK_TEXTURE_SIZE * height;
     primitive->r0 = attributes->tint.r;
@@ -303,13 +302,11 @@ static SMD_PRIM* createPrimitive(ChunkMesh* mesh,
         (&cvector_begin(mesh->attribute_field)[mesh->count_field++]); \
 })
 
-const INDEX _INDICES[FACES_COUNT] = {
+static const INDEX INDICES[FACES_COUNT] = {
     {3,2,1,0},
     {1,0,3,2},
-
     {3,2,1,0},
     {2,3,0,1},
-
     {2,3,0,1},
     {3,2,1,0}
 };
@@ -342,7 +339,7 @@ static void createVertices(Chunk* chunk,
         [3] = createVertex(x + w, y + h)
     };
 #undef createVertex
-    const INDEX indices = _INDICES[face_dir];
+    const INDEX indices = INDICES[face_dir];
     SVECTOR* vertex;
 #define bindVertex(v) ({ \
     vertex = nextRenderAttribute(p_verts, v, n_verts); \
