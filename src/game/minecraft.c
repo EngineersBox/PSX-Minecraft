@@ -114,9 +114,9 @@ void Minecraft_init(VSelf, void* ctx) {
     player = (Player*) malloc(sizeof(Player));
     playerInit(player);
     player->camera = &self->internals.camera;
-    const VECTOR player_positon = vec3_i32(0, ONE_BLOCK * 10, 0);
+    const VECTOR player_positon = vec3_i32(0, ONE_BLOCK * 17, 0);
     iPhysicsObjectSetPosition(&player->physics_object, &player_positon);
-    // player->physics_object.flags.no_clip = true;
+    player->physics_object.flags.no_clip = true;
     player_handler = DYN(Player, IInputHandler, player);
     VCALL(player_handler, registerInputHandler, &self->internals.input);
     // Register handlers

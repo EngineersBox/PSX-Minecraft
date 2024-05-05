@@ -69,9 +69,9 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
         axis_cols[2][_y][_x] |= 1 << _z; \
     }
     // Inner chunk blocks
-    for (u32 x = 0; x < CHUNK_SIZE; x++) {
-        for (u32 z = 0; z < CHUNK_SIZE; z++) {
-            for (u32 y = 0; y < CHUNK_SIZE; y++) {
+    for (u32 z = 0; z < CHUNK_SIZE; z++) {
+        for (u32 y = 0; y < CHUNK_SIZE; y++) {
+            for (u32 x = 0; x < CHUNK_SIZE; x++) {
                 addVoxelToAxisCols(
                     chunk->blocks[chunkBlockIndex(x, y, z)],
                     x + 1,
@@ -122,8 +122,8 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
     }
     // X
     for (u32 z = 0; z < CHUNK_SIZE; z++) {
-        for (u32 y = 0; y < CHUNK_SIZE; y++) {
-            for (u32 x_i = 0; x_i < AXIAL_EDGES_COUNT; x_i++) {
+        for (u32 x_i = 0; x_i < AXIAL_EDGES_COUNT; x_i++) {
+            for (u32 y = 0; y < CHUNK_SIZE; y++) {
                 const u32 x = AXIAL_EDGES[x_i];
                 const VECTOR position = vec3_i32(
                     (chunk->position.vx * CHUNK_SIZE) + x - 1,
@@ -305,10 +305,12 @@ static SMD_PRIM* createPrimitive(ChunkMesh* mesh,
 const INDEX _INDICES[FACES_COUNT] = {
     {1,3,0,2},
     {1,0,3,2},
+
     {3,2,1,0},
     {2,3,0,1},
-    {3,2,1,0},
-    {2,3,0,1}
+
+    {2,3,0,1},
+    {3,2,1,0}
 };
 
 static void createVertices(Chunk* chunk,
@@ -363,8 +365,8 @@ static void createNormal(ChunkMesh* mesh,
         case FACE_DIR_UP: normal(0, -1, 0); break;
         case FACE_DIR_LEFT: normal(-1, 0, 0); break;
         case FACE_DIR_RIGHT: normal(1, 0, 0); break;
-        case FACE_DIR_FRONT: normal(0, 0, -1); break;
-        case FACE_DIR_BACK: normal(0, 0, 1); break;
+        case FACE_DIR_FRONT: normal(0, 0, 1); break;
+        case FACE_DIR_BACK: normal(0, 0, -1); break;
     };
 }
 
@@ -458,8 +460,8 @@ SVECTOR faceDirectionPosition(const FaceDirection face_dir, const i32 axis, cons
         case FACE_DIR_UP: position = vec3_i16(x, axis + 1, y); break;
         case FACE_DIR_LEFT: position = vec3_i16(axis, y, x); break;
         case FACE_DIR_RIGHT: position = vec3_i16(axis + 1, y, x); break;
-        case FACE_DIR_BACK: position = vec3_i16(x, y, axis + 1); break;
-        case FACE_DIR_FRONT: position = vec3_i16(x, y, axis); break;
+        case FACE_DIR_BACK: position = vec3_i16(x, y, axis); break;
+        case FACE_DIR_FRONT: position = vec3_i16(x, y, axis + 1); break;
     }
     return position;
 }

@@ -86,8 +86,8 @@ void chunkInit(Chunk* chunk) {
     chunkMeshInit(&chunk->mesh);
     chunkClearMesh(chunk);
     // DEBUG_LOG("[CHUNK: %d,%d,%d] Generating 2D height map\n", inlineVec(chunk->position));
-    // chunkGenerate2DHeightMap(chunk, &chunk->position);
-    chunkGenerateTestFlatMap(chunk, &chunk->position);
+    chunkGenerate2DHeightMap(chunk, &chunk->position);
+    // chunkGenerateTestFlatMap(chunk, &chunk->position);
 }
 
 void chunkDestroy(const Chunk* chunk) {
@@ -466,7 +466,7 @@ static void generateMeshLexicographically(Chunk* chunk,
 
 void chunkGenerateMesh(Chunk* chunk) {
     binaryGreedyMesherBuildMesh(chunk);
-    // // 0: X, 1: Y, 2: Z
+    // 0: X, 1: Y, 2: Z
     // for (u8 axis = 0; axis < CHUNK_DIRECTIONS; axis++) {
     //     const u8 axis1 = (axis + 1) % CHUNK_DIRECTIONS;
     //     const u8 axis2 = (axis + 2) % CHUNK_DIRECTIONS;
