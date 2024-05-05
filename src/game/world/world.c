@@ -377,6 +377,9 @@ void worldUpdate(World* world, Player* player) {
         prevx = player_chunk_pos.vx;
         prevy = player_chunk_pos.vy;
         prevz = player_chunk_pos.vz;
+        // BUG: Something weird is going on when moving between chunks and loading
+        //      + unloading them. At times you can go beyond the boundary and then
+        //      get a bad memory access error.
         DEBUG_LOG("Player chunk pos: %d,%d,%d\n", inlineVec(player_chunk_pos));
         worldLoadChunks(world, &player_chunk_pos);
         DEBUG_LOG(
