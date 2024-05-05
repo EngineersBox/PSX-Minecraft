@@ -341,24 +341,29 @@ static void createVertices(Chunk* chunk,
         [2] = createVertex(x, y + h),
         [3] = createVertex(x + w, y + h)
     };
+#undef createVertex
     const INDEX indices = _INDICES[face_dir];
     SVECTOR* vertex;
     SVECTOR const* current_vertex;
-    #define bindVertex(v) vertex = nextRenderAttribute(p_verts, v, n_verts); \
-        current_vertex = &vertices[indices.v]; \
-        vertex->vx = current_vertex->vx; \
-        vertex->vy = current_vertex->vy; \
-        vertex->vz = current_vertex->vz
+#define bindVertex(v) ({ \
+    vertex = nextRenderAttribute(p_verts, v, n_verts); \
+    current_vertex = &vertices[indices.v]; \
+    vertex->vx = current_vertex->vx; \
+    vertex->vy = current_vertex->vy; \
+    vertex->vz = current_vertex->vz; \
+})
     bindVertex(v0);
     bindVertex(v1);
     bindVertex(v2);
     bindVertex(v3);
+#undef bindVertex
 }
 
 static void createNormal(ChunkMesh* mesh,
                          SMD_PRIM* primitive,
                          const FaceDirection face_dir) {
     SVECTOR* norm = nextRenderAttribute(p_norms, n0, n_norms);
+#undef nextRenderAttribute
 #define normal(x,y,z) norm->vx = x * ONE; norm->vy = y * ONE; norm->vz = z * ONE
     switch (face_dir) {
         case FACE_DIR_DOWN: normal(0, 1, 0); break;
@@ -368,6 +373,7 @@ static void createNormal(ChunkMesh* mesh,
         case FACE_DIR_FRONT: normal(0, 0, 1); break;
         case FACE_DIR_BACK: normal(0, 0, -1); break;
     };
+#undef normal
 }
 
 static void createQuad(Chunk* chunk,
