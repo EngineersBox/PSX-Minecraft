@@ -18,8 +18,8 @@ IBlock* worldGetChunkBlock(const World* world, const ChunkBlockPosition* positio
 
 typedef struct {
     const u8 axis;
+    const u8 y;
     const Block* block;
-    const u32 y;
 } PlaneMeshingDataKey;
 
 typedef struct {
@@ -207,11 +207,11 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
                         continue;
                     }
                     const Block* block = VCAST_PTR(Block*, current_block);
-                    PlaneMeshingData query = (PlaneMeshingData) {
+                    const PlaneMeshingData query = (PlaneMeshingData) {
                         .key = (PlaneMeshingDataKey) {
                             .axis = axis,
-                            .block = block,
-                            .y = y
+                            .y = y,
+                            .block = block
                         },
                         .value = {0}
                     };
@@ -417,7 +417,7 @@ void binaryGreedyMesherConstructPlane(Chunk* chunk,
             if (h < 32) {
                 h_as_mask = (1 << h) - 1;
             } else {
-                h_as_mask = UINT32_MAX;
+                h_as_mask = UINT32_MAX;// ~0
             }
             const u32 mask = h_as_mask << y;
             // Grow horizontally

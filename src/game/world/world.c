@@ -231,15 +231,15 @@ void worldLoadChunksX(World* world, const i8 x_direction, const i8 z_direction) 
     }
     for (i32 z_coord = z_start; z_coord <= z_end; z_coord++) {
         for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
-            Chunk* chunk = worldLoadChunk(world, (VECTOR){
-                                              .vx = x_shift_zone,
-                                              .vy = y,
-                                              .vz = z_coord
-                                          });
-            chunkGenerateMesh(chunk);
+            Chunk* chunk = worldLoadChunk(world, vec3_i32(x_shift_zone, y, z_coord));
             world->chunks[arrayCoord(world, vz, z_coord)][arrayCoord(world, vx, x_shift_zone)][y] = chunk;
         }
     }
+    // We need to generate the mesh after creating all the chunks
+    // since each chunk needs to index into it's neighbours to
+    // determine if a mesh face should be created on the border.
+    // So if the neighbour doesn't exit yet we get more quads in
+    // a chunk mesh than are actually necessary.
     for (i32 z_coord = z_start; z_coord <= z_end; z_coord++) {
         for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
             Chunk* chunk = world->chunks[arrayCoord(world, vz, z_coord)][arrayCoord(world, vx, x_shift_zone)][y];
@@ -273,14 +273,15 @@ void worldLoadChunksZ(World* world, const i8 x_direction, const i8 z_direction) 
     }
     for (i32 x_coord = x_start; x_coord <= x_end; x_coord++) {
         for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
-            Chunk* chunk = worldLoadChunk(world, (VECTOR){
-                                              .vx = x_coord,
-                                              .vy = y,
-                                              .vz = z_shift_zone
-                                          });
+            Chunk* chunk = worldLoadChunk(world, vec3_i32(x_coord, y, z_shift_zone));
             world->chunks[arrayCoord(world, vz, z_shift_zone)][arrayCoord(world, vx, x_coord)][y] = chunk;
         }
     }
+    // We need to generate the mesh after creating all the chunks
+    // since each chunk needs to index into it's neighbours to
+    // determine if a mesh face should be created on the border.
+    // So if the neighbour doesn't exit yet we get more quads in
+    // a chunk mesh than are actually necessary.
     for (i32 x_coord = x_start; x_coord <= x_end; x_coord++) {
         for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
             Chunk* chunk = world->chunks[arrayCoord(world, vz, z_shift_zone)][arrayCoord(world, vx, x_coord)][y];
@@ -303,13 +304,14 @@ void worldLoadChunksXZ(World* world, const i8 x_direction, const i8 z_direction)
     i32 x_coord = world->centre.vx + ((LOADED_CHUNKS_RADIUS + SHIFT_ZONE) * x_direction);
     i32 z_coord = world->centre.vz + ((LOADED_CHUNKS_RADIUS + SHIFT_ZONE) * z_direction);
     for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
-        Chunk* loaded_chunk = worldLoadChunk(world, (VECTOR){
-                                                 .vx = x_coord,
-                                                 .vy = y,
-                                                 .vz = z_coord
-                                             });
+        Chunk* loaded_chunk = worldLoadChunk(world, vec3_i32(x_coord, y, z_coord));
         world->chunks[arrayCoord(world, vz, z_coord)][arrayCoord(world, vx, x_coord)][y] = loaded_chunk;
     }
+    // We need to generate the mesh after creating all the chunks
+    // since each chunk needs to index into it's neighbours to
+    // determine if a mesh face should be created on the border.
+    // So if the neighbour doesn't exit yet we get more quads in
+    // a chunk mesh than are actually necessary.
     for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
         Chunk* loaded_chunk = world->chunks[arrayCoord(world, vz, z_coord)][arrayCoord(world, vx, x_coord)][y];
         chunkGenerateMesh(loaded_chunk);
@@ -335,7 +337,7 @@ void worldShiftChunks(World* world, const i8 x_direction, const i8 z_direction) 
 }
 
 __attribute__((always_inline))
-inline i32 worldWithinLoadRadius(const World* world, const VECTOR* player_chunk_pos) {
+inline bool worldWithinLoadRadius(const World* world, const VECTOR* player_chunk_pos) {
     return absv(world->centre.vx - player_chunk_pos->vx) < LOADED_CHUNKS_RADIUS - 1
            && absv(world->centre.vz - player_chunk_pos->vz) < LOADED_CHUNKS_RADIUS - 1;
 }
@@ -366,11 +368,11 @@ void worldUpdate(World* world, Player* player) {
     static i32 prevx = 0;
     static i32 prevy = 0;
     static i32 prevz = 0;
-    const VECTOR player_chunk_pos = (VECTOR){
-        .vx = (player->physics_object.position.vx >> FIXED_POINT_SHIFT) / CHUNK_BLOCK_SIZE,
-        .vy = (player->physics_object.position.vy >> FIXED_POINT_SHIFT) / CHUNK_BLOCK_SIZE,
-        .vz = (player->physics_object.position.vz >> FIXED_POINT_SHIFT) / CHUNK_BLOCK_SIZE
-    };
+    const VECTOR player_chunk_pos = vec3_i32(
+        (player->physics_object.position.vx >> FIXED_POINT_SHIFT) / CHUNK_BLOCK_SIZE,
+        (player->physics_object.position.vy >> FIXED_POINT_SHIFT) / CHUNK_BLOCK_SIZE,
+        (player->physics_object.position.vz >> FIXED_POINT_SHIFT) / CHUNK_BLOCK_SIZE
+    );
     if (player_chunk_pos.vx != prevx
         || player_chunk_pos.vy != prevy
         || player_chunk_pos.vz != prevz) {
@@ -487,11 +489,11 @@ RayCastResult worldRayCastIntersection_new1(const World* world,
                                        const Camera* camera,
                                        const i32 radius,
                                        cvector(SVECTOR*) markers) {
-    const VECTOR position = (VECTOR) {
-        .vx = camera->position.vx,
-        .vy = -camera->position.vy,
-        .vz = camera->position.vz
-    };
+    const VECTOR position = vec3_i32(
+        camera->position.vx,
+        -camera->position.vy,
+        camera->position.vz
+    );
     const VECTOR direction = rotationToDirection(&camera->rotation);
     const i32 dx = direction.vx;
     const i32 dy = direction.vy;
@@ -695,11 +697,11 @@ RayCastResult worldRayCastIntersection(const World* world,
                                        cvector(SVECTOR)* markers) {
     // See: https://github.com/kpreid/cubes/blob/c5e61fa22cb7f9ba03cd9f22e5327d738ec93969/world.js#L307
     // See: http://www.cse.yorku.ca/~amana/research/grid.pdf
-    VECTOR position = (VECTOR) {
-        .vx = camera->position.vx,// / BLOCK_SIZE,
-        .vy = -camera->position.vy,// / BLOCK_SIZE,
-        .vz = camera->position.vz// / BLOCK_SIZE
-    };
+    VECTOR position = vec3_i32(
+        camera->position.vx,// / BLOCK_SIZE,
+        -camera->position.vy,// / BLOCK_SIZE,
+        camera->position.vz// / BLOCK_SIZE
+    );
     printf("Origin: (%d,%d,%d)\n", inlineVec(position));
     printf("Before rotation to direction\n");
     const VECTOR direction = rotationToDirection(&camera->rotation);
