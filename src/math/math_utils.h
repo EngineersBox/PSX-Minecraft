@@ -196,8 +196,6 @@ typedef struct _BVECTOR {
 
 // TODO: Add vec+const variations
 
-#define DEF_VEC_OP()
-
 // Field operations
 #define _vector_op(a, b, c, op) a = b op c
 #define _vector_iop(a, b, op) a op= b

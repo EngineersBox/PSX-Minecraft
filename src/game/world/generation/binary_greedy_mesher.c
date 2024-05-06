@@ -17,9 +17,9 @@ IBlock* worldGetChunkBlock(const World* world, const ChunkBlockPosition* positio
 #define CHUNK_SIZE_P (CHUNK_SIZE + 2)
 
 typedef struct {
-    u8 axis;
-    Block* block;
-    u32 y;
+    const u8 axis;
+    const Block* block;
+    const u32 y;
 } PlaneMeshingDataKey;
 
 typedef struct {
@@ -173,7 +173,7 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
                 // Remove left most padding value, always invalid
                 col &= ~(1 << CHUNK_SIZE);
                 while (col != 0) {
-                    u8 y = trailing_zeros(col);
+                    const u8 y = trailing_zeros(col);
                     // Clear least significant bit set
                     col &= col - 1;
                     VECTOR voxel_pos;
@@ -206,7 +206,7 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
                         abort();
                         continue;
                     }
-                    Block* block = VCAST_PTR(Block*, current_block);
+                    const Block* block = VCAST_PTR(Block*, current_block);
                     PlaneMeshingData query = (PlaneMeshingData) {
                         .key = (PlaneMeshingDataKey) {
                             .axis = axis,
@@ -319,7 +319,7 @@ static void createVertices(Chunk* chunk,
                            const i32 y,
                            const i32 w,
                            const i32 h) {
-    ChunkMesh* mesh = &chunk->mesh;
+    ChunkMesh* const mesh = &chunk->mesh;
     // Construct vertices relative to chunk mesh bottom left origin
     const i16 chunk_origin_x = chunk->position.vx * CHUNK_SIZE;
     const i16 chunk_origin_y = (-chunk->position.vy) * CHUNK_SIZE;
@@ -340,11 +340,7 @@ static void createVertices(Chunk* chunk,
     };
 #undef createVertex
     const INDEX indices = INDICES[face_dir];
-    SVECTOR* vertex;
-#define bindVertex(v) ({ \
-    vertex = nextRenderAttribute(p_verts, v, n_verts); \
-    *vertex = vertices[indices.v]; \
-})
+#define bindVertex(v) *nextRenderAttribute(p_verts, v, n_verts) = vertices[indices.v]
     bindVertex(v0);
     bindVertex(v1);
     bindVertex(v2);
