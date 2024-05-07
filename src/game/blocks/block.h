@@ -115,4 +115,9 @@ interface(IBlock);
     P99_PROTECT(face_attributes) \
 )
 
+// DUMMY MACRO FOR FUTURE LOGIC TO DETERMINE IF BLOCK IS TRANSPARENT OR NOT
+// (Maybe just based on id or something else)
+#define blockIsTransparent(block) false
+// #define blockIsTransparent(block) ((block)->id == BLOCKID_GRASS)
+
 #endif // PSX_MINECRAFT_BLOCK_H

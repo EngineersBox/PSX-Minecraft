@@ -14,7 +14,7 @@ typedef struct World World;
 IBlock* worldGetBlock(const World* world, const VECTOR* position);
 IBlock* worldGetChunkBlock(const World* world, const ChunkBlockPosition* position);
 
-#define CHUNK_SIZE_P (CHUNK_SIZE + 2)
+#define CHUNK_SIZE_PADDED (CHUNK_SIZE + 2)
 
 typedef struct {
     const u8 axis;
@@ -49,30 +49,60 @@ u64 plane_meshing_data_hash(const void* item, u64 seed0, u64 seed1) {
 #define AXIS_COUNT 3
 #define FACES_COUNT (AXIS_COUNT * 2)
 #define AXIAL_EDGES_COUNT 2
-const u32 AXIAL_EDGES[AXIAL_EDGES_COUNT] = { 0, CHUNK_SIZE_P - 1 };
+const u32 AXIAL_EDGES[AXIAL_EDGES_COUNT] = { 0, CHUNK_SIZE_PADDED - 1 };
+
+typedef u32 AxisCols[AXIS_COUNT][CHUNK_SIZE_PADDED][CHUNK_SIZE_PADDED];
+
+void addVoxelToAxisCols(AxisCols axis_cols,
+                        AxisCols axis_cols_transparency,
+                        const IBlock* iblock,
+                        const u32 x,
+                        const u32 y,
+                        const u32 z) {
+    if (iblock == NULL) {
+        return;
+    }
+    const Block* block = VCAST_PTR(Block*, iblock);
+    if (block->type == BLOCKTYPE_EMPTY) {
+        return;
+    }
+    axis_cols[0][z][x] |= 1 << y;
+    axis_cols[1][y][z] |= 1 << x;
+    axis_cols[2][y][x] |= 1 << z;
+    if (!blockIsTransparent(block)) {
+        axis_cols_transparency[0][z][x] |= 1 << y;
+        axis_cols_transparency[1][y][z] |= 1 << x;
+        axis_cols_transparency[2][y][x] |= 1 << z;
+    }
+}
 
 void binaryGreedyMesherBuildMesh(Chunk* chunk) {
-    u32 axis_cols[AXIS_COUNT][CHUNK_SIZE_P][CHUNK_SIZE_P] = {0};
-    u32 col_face_masks[FACES_COUNT][CHUNK_SIZE_P][CHUNK_SIZE_P] = {0};
-#define addVoxelToAxisCols(_iblock, x, y, z) \
-    const IBlock* iblock = (_iblock); \
-    if ((iblock) == NULL) { \
-        continue; \
-    } \
-    const Block* block = VCAST_PTR(Block*, (iblock)); \
-    if ((block)->type != BLOCKTYPE_EMPTY) { \
-        __typeof__(x) _x = (x); \
-        __typeof__(y) _y = (y); \
-        __typeof__(z) _z = (z); \
-        axis_cols[0][_z][_x] |= 1 << _y; \
-        axis_cols[1][_y][_z] |= 1 << _x; \
-        axis_cols[2][_y][_x] |= 1 << _z; \
-    }
+    AxisCols axis_cols = {0};
+    AxisCols axis_cols_transparency = {0};
+    // u32 axis_cols[AXIS_COUNT][CHUNK_SIZE_PADDED][CHUNK_SIZE_PADDED] = {0};
+    // u32 axis_cols_transparency[AXIS_COUNT][CHUNK_SIZE_PADDED][CHUNK_SIZE_PADDED] = {0};
+    u32 col_face_masks[FACES_COUNT][CHUNK_SIZE_PADDED][CHUNK_SIZE_PADDED] = {0};
+// #define addVoxelToAxisCols(_iblock, x, y, z) \
+//     const IBlock* iblock = (_iblock); \
+//     if ((iblock) == NULL) { \
+//         continue; \
+//     } \
+//     const Block* block = VCAST_PTR(Block*, (iblock)); \
+//     if ((block)->type != BLOCKTYPE_EMPTY) { \
+//         __typeof__(x) _x = (x); \
+//         __typeof__(y) _y = (y); \
+//         __typeof__(z) _z = (z); \
+//         axis_cols[0][_z][_x] |= 1 << _y; \
+//         axis_cols[1][_y][_z] |= 1 << _x; \
+//         axis_cols[2][_y][_x] |= 1 << _z; \
+//     }
     // Inner chunk blocks
     for (u32 z = 0; z < CHUNK_SIZE; z++) {
         for (u32 y = 0; y < CHUNK_SIZE; y++) {
             for (u32 x = 0; x < CHUNK_SIZE; x++) {
                 addVoxelToAxisCols(
+                    axis_cols,
+                    axis_cols_transparency,
                     chunk->blocks[chunkBlockIndex(x, y, z)],
                     x + 1,
                     y + 1,
@@ -84,8 +114,8 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
     // Neighbouring chunk blocks
     // Z
     for (u32 z_i = 0; z_i < AXIAL_EDGES_COUNT; z_i++) {
-        for (u32 y = 0; y < CHUNK_SIZE_P; y++) {
-            for (u32 x = 0; x < CHUNK_SIZE_P; x++) {
+        for (u32 y = 0; y < CHUNK_SIZE_PADDED; y++) {
+            for (u32 x = 0; x < CHUNK_SIZE_PADDED; x++) {
                 const u32 z = AXIAL_EDGES[z_i];
                 const VECTOR position = vec3_i32(
                     (chunk->position.vx * CHUNK_SIZE) + x - 1,
@@ -93,6 +123,8 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
                     (chunk->position.vz * CHUNK_SIZE) + z - 1
                 );
                 addVoxelToAxisCols(
+                    axis_cols,
+                    axis_cols_transparency,
                     worldGetBlock(chunk->world, &position),
                     x,
                     y,
@@ -102,9 +134,9 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
         }
     }
     // Y
-    for (u32 z = 0; z < CHUNK_SIZE_P; z++) {
+    for (u32 z = 0; z < CHUNK_SIZE_PADDED; z++) {
         for (u32 y_i = 0; y_i < AXIAL_EDGES_COUNT; y_i++) {
-            for (u32 x = 0; x < CHUNK_SIZE_P; x++) {
+            for (u32 x = 0; x < CHUNK_SIZE_PADDED; x++) {
                 const u32 y = AXIAL_EDGES[y_i];
                 const VECTOR position = vec3_i32(
                     (chunk->position.vx * CHUNK_SIZE) + x - 1,
@@ -112,6 +144,8 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
                     (chunk->position.vz * CHUNK_SIZE) + z - 1
                 );
                 addVoxelToAxisCols(
+                    axis_cols,
+                    axis_cols_transparency,
                     worldGetBlock(chunk->world, &position),
                     x,
                     y,
@@ -131,6 +165,8 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
                     (chunk->position.vz * CHUNK_SIZE) + z - 1
                 );
                 addVoxelToAxisCols(
+                    axis_cols,
+                    axis_cols_transparency,
                     worldGetBlock(chunk->world, &position),
                     x,
                     y,
@@ -142,13 +178,23 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
 #undef addVoxelToAxisCols
     // Face culling
     for (u32 axis = 0; axis < AXIS_COUNT; axis++) {
-        for (u32 z = 0; z < CHUNK_SIZE_P; z++) {
-            for (u32 x = 0; x < CHUNK_SIZE_P; x++) {
+        for (u32 z = 0; z < CHUNK_SIZE_PADDED; z++) {
+            for (u32 x = 0; x < CHUNK_SIZE_PADDED; x++) {
                 const u32 col = axis_cols[axis][z][x];
-                // Sample descending axis, set bit to true when air meets solid
-                col_face_masks[(2 * axis) + 0][z][x] = col & ~(col << 1);
-                // Sample ascending axis, set bit to true when air meets solid
-                col_face_masks[(2 * axis) + 1][z][x] = col & ~(col >> 1);
+                const u32 col_transparent = axis_cols_transparency[axis][z][x];
+                // Solid
+                const u32 solid_descending = col & ~(col << 1);
+                const u32 solid_ascending = col & ~(col >> 1);
+                // Transparent
+                const u32 transparent_descending = col_transparent & ~(col_transparent << 1);
+                const u32 transparent_ascending = col_transparent & ~(col_transparent >> 1);
+                // Combine to ensure any faces behind a transparent face are kept
+                col_face_masks[(2 * axis) + 0][z][x] = solid_descending | transparent_descending;
+                col_face_masks[(2 * axis) + 1][z][x] = solid_ascending | transparent_ascending;
+                // // Sample descending axis, set bit to true when air meets solid
+                // col_face_masks[(2 * axis) + 0][z][x] = col & ~(col << 1);
+                // // Sample ascending axis, set bit to true when air meets solid
+                // col_face_masks[(2 * axis) + 1][z][x] = col & ~(col >> 1);
             }
         }
     }
