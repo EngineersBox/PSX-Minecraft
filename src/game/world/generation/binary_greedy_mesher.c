@@ -53,7 +53,8 @@ const u32 AXIAL_EDGES[AXIAL_EDGES_COUNT] = { 0, CHUNK_SIZE_PADDED - 1 };
 
 typedef u32 AxisCols[AXIS_COUNT][CHUNK_SIZE_PADDED][CHUNK_SIZE_PADDED];
 
-void addVoxelToAxisCols(AxisCols axis_cols,
+__attribute__((always_inline))
+static void addVoxelToAxisCols(AxisCols axis_cols,
                         AxisCols axis_cols_transparency,
                         const IBlock* iblock,
                         const u32 x,
@@ -79,23 +80,7 @@ void addVoxelToAxisCols(AxisCols axis_cols,
 void binaryGreedyMesherBuildMesh(Chunk* chunk) {
     AxisCols axis_cols = {0};
     AxisCols axis_cols_transparency = {0};
-    // u32 axis_cols[AXIS_COUNT][CHUNK_SIZE_PADDED][CHUNK_SIZE_PADDED] = {0};
-    // u32 axis_cols_transparency[AXIS_COUNT][CHUNK_SIZE_PADDED][CHUNK_SIZE_PADDED] = {0};
     u32 col_face_masks[FACES_COUNT][CHUNK_SIZE_PADDED][CHUNK_SIZE_PADDED] = {0};
-// #define addVoxelToAxisCols(_iblock, x, y, z) \
-//     const IBlock* iblock = (_iblock); \
-//     if ((iblock) == NULL) { \
-//         continue; \
-//     } \
-//     const Block* block = VCAST_PTR(Block*, (iblock)); \
-//     if ((block)->type != BLOCKTYPE_EMPTY) { \
-//         __typeof__(x) _x = (x); \
-//         __typeof__(y) _y = (y); \
-//         __typeof__(z) _z = (z); \
-//         axis_cols[0][_z][_x] |= 1 << _y; \
-//         axis_cols[1][_y][_z] |= 1 << _x; \
-//         axis_cols[2][_y][_x] |= 1 << _z; \
-//     }
     // Inner chunk blocks
     for (u32 z = 0; z < CHUNK_SIZE; z++) {
         for (u32 y = 0; y < CHUNK_SIZE; y++) {
@@ -191,10 +176,6 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
                 // Combine to ensure any faces behind a transparent face are kept
                 col_face_masks[(2 * axis) + 0][z][x] = solid_descending | transparent_descending;
                 col_face_masks[(2 * axis) + 1][z][x] = solid_ascending | transparent_ascending;
-                // // Sample descending axis, set bit to true when air meets solid
-                // col_face_masks[(2 * axis) + 0][z][x] = col & ~(col << 1);
-                // // Sample ascending axis, set bit to true when air meets solid
-                // col_face_masks[(2 * axis) + 1][z][x] = col & ~(col >> 1);
             }
         }
     }
