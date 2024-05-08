@@ -385,9 +385,3 @@ Note **specifically**, that we get the trailing zeros as the y offset for this v
 ## Conclusion
 
 Now, theres an obvious caveat to this... you need to implement your mesh generation and subsequently the rendering pipeline such that transparency ordering is respected from the Z-axis (presumably through depth testing) here in order make use of this. This will however, guarantee that the absolute minimum amount of transparent faces are constructed in the mesh.
-
-You might wonder.. why is this an *issue* as opposed to a PR? Well that's because I wanted to post this here for discussion and leave it open to whether this is used by anyone (also up to repo maintainers as to whether they want to do anything with this at all). That being said, if this does indeed work as I have outlined (and I'm not a complete moron that has made an obvious mistake) then by all means I'm happy to PR a version of the mesher that has this transparency support.
-
-
-
-This was fun. ye.
