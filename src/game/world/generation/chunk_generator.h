@@ -9,7 +9,9 @@
 #include "../chunk/chunk.h"
 
 #define IChunkGenerator_IFACE \
-    vfunc(void, generator, VSelf, Chunk* chunk)
+    vfunc(void, init, VSelf) \
+    vfunc(void, destroy, VSelf) \
+    vfunc(void, generate, VSelf, Chunk* chunk)
 
 interface(IChunkGenerator);
 

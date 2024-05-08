@@ -15,6 +15,9 @@
 #include "../entity/player.h"
 #include "../util/inttypes.h"
 
+#include "type/overworld_flatland.h"
+#include "type/overworld_perlin.h"
+
 #define WORLD_CHUNKS_HEIGHT 1
 #define WORLD_HEIGHT (CHUNK_SIZE * WORLD_CHUNKS_HEIGHT)
 

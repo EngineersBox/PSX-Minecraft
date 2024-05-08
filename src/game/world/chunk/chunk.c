@@ -54,31 +54,6 @@ void chunkDestroyDroppedItem(void* elem) {
     itemDestroy(*iitem);
 }
 
-void chunkGenerateTestFlatMap(Chunk* chunk, const VECTOR* position) {
-    for (i32 x = 0; x < CHUNK_SIZE; x++) {
-        for (i32 z = 0; z < CHUNK_SIZE; z++) {
-            for (i32 y = 0; y < CHUNK_SIZE; y++) {
-                if (y < 2) {
-                    chunk->blocks[chunkBlockIndex(x, y, z)] = stoneBlockCreate();
-                    // chunk->blocks[chunkBlockIndex(x, y, z)] = airBlockCreate();
-                } else if (y < 4) {
-                    chunk->blocks[chunkBlockIndex(x, y, z)] = dirtBlockCreate();
-                    // chunk->blocks[chunkBlockIndex(x, y, z)] = airBlockCreate();
-                } else if (y == 4) {
-                    chunk->blocks[chunkBlockIndex(x, y, z)] = grassBlockCreate();
-                } else {
-                    if (y == 5 && x % 3 == 0 && z % 3 == 0) {
-                        chunk->blocks[chunkBlockIndex(x, y, z)] = grassBlockCreate();
-                        // chunk->blocks[chunkBlockIndex(x, y, z)] = airBlockCreate();
-                    } else {
-                        chunk->blocks[chunkBlockIndex(x, y, z)] = airBlockCreate();
-                    }
-                }
-            }
-        }
-    }
-}
-
 void chunkInit(Chunk* chunk) {
     chunk->dropped_items = NULL;
     cvector_init(chunk->dropped_items, 0, chunkDestroyDroppedItem);
@@ -86,8 +61,6 @@ void chunkInit(Chunk* chunk) {
     chunkMeshInit(&chunk->mesh);
     chunkClearMesh(chunk);
     // DEBUG_LOG("[CHUNK: %d,%d,%d] Generating 2D height map\n", inlineVec(chunk->position));
-    chunkGenerate2DHeightMap(chunk, &chunk->position);
-    // chunkGenerateTestFlatMap(chunk, &chunk->position);
 }
 
 void chunkDestroy(const Chunk* chunk) {
@@ -95,40 +68,6 @@ void chunkDestroy(const Chunk* chunk) {
     chunkMeshDestroy(&chunk->mesh);
     // DEBUG_LOG("[CHUNK: %d,%d,%d] Destroy dropped items: %d\n", inlineVec(chunk->position), cvector_size(chunk->dropped_items));
     cvector_free(chunk->dropped_items);
-}
-
-void chunkGenerate2DHeightMap(Chunk* chunk, const VECTOR* position) {
-    for (i32 x = 0; x < CHUNK_SIZE; x++) {
-        for (i32 z = 0; z < CHUNK_SIZE; z++) {
-            const i32 xPos = x + (position->vx * CHUNK_SIZE);
-            const i32 zPos = z + (position->vz * CHUNK_SIZE);
-            // FMath::Clamp(
-            //     FMath::RoundToInt(
-            //         (Noise->GetNoise(Xpos, Ypos) + 1) * Size / 2
-            //     ),
-            //     0,
-            //     Size
-            // );
-            const int height = noise2d(xPos * ONE, zPos * ONE) >> 1; // Div by 2
-            // clamp(
-            //     noise,
-            //     0,
-            //     CHUNK_SIZE
-            // );
-            for (i32 y = 0; y < CHUNK_SIZE; y++) {
-                const i32 worldY = (position->vy * CHUNK_SIZE) + y + (CHUNK_SIZE * 6); // !IMPORTANT: TESTING OFFSET
-                if (worldY < height - 3) {
-                    chunk->blocks[chunkBlockIndex(x, y, z)] = stoneBlockCreate();
-                } else if (worldY < height - 1) {
-                    chunk->blocks[chunkBlockIndex(x, y, z)] = dirtBlockCreate();
-                } else if (worldY == height - 1) {
-                    chunk->blocks[chunkBlockIndex(x, y, z)] = grassBlockCreate();
-                } else {
-                    chunk->blocks[chunkBlockIndex(x, y, z)] = airBlockCreate();
-                }
-            }
-        }
-    }
 }
 
 void chunkGenerate3DHeightMap(Chunk* chunk, const VECTOR* position) {

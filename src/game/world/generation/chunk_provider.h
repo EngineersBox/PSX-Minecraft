@@ -9,8 +9,10 @@
 #include "chunk_generator.h"
 
 #define IChunkProvider_IFACE \
+    vfunc(void, init, VSelf) \
+    vfunc(void, destroy, VSelf) \
     vfunc(Chunk*, provide, VSelf, const VECTOR position) \
-    vfunc(bool, saveChunk, VSelf, Chunk* chunk)
+    vfunc(bool, save, VSelf, Chunk* chunk)
 
 interface(IChunkProvider);
 

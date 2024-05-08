@@ -107,6 +107,12 @@ void Minecraft_init(VSelf, void* ctx) {
     self->world->centre.vx = 0;
     self->world->centre.vy = 0;
     self->world->centre.vz = 0;
+    DYN_PTR(
+        &self->world->chunk_provider,
+        OverworldPerlinChunkProvider,
+        IChunkProvider,
+        malloc(sizeof(OverworldPerlinChunkProvider))
+    );
     worldInit(self->world, &self->internals.ctx);
     world = self->world;
     cvector_init(markers, 1, NULL);

@@ -21,6 +21,7 @@
 
 // World should be loaded before invoking this method
 void worldInit(World* world, RenderContext* ctx) {
+    VCALL(world->chunk_provider, init);
     // Clear the chunks first to ensure they are all NULL upon initialisation
     for (i32 x = 0; x < AXIS_CHUNKS; x++) {
         for (i32 z = 0; z < AXIS_CHUNKS; z++) {
@@ -33,9 +34,6 @@ void worldInit(World* world, RenderContext* ctx) {
     const i32 x_end = world->centre.vx + LOADED_CHUNKS_RADIUS;
     const i32 z_start = world->centre.vz - LOADED_CHUNKS_RADIUS;
     const i32 z_end = world->centre.vz + LOADED_CHUNKS_RADIUS;
-    // TODO: Move text and progress bar to (0,0) and move to
-    //       (CENTRE_X,CENTRE_Y) using translation vector and
-    //       geometry matrix
     ProgressBar bar = (ProgressBar) {
         .position = {
             .x = CENTRE_X - (CENTRE_X / 3),
@@ -158,6 +156,8 @@ void worldDestroy(World* world) {
             }
         }
     }
+    VCALL(world->chunk_provider, destroy);
+    free(world->chunk_provider.self);
 }
 
 void worldRender(const World* world, RenderContext* ctx, Transforms* transforms) {
@@ -186,7 +186,7 @@ void worldRender(const World* world, RenderContext* ctx, Transforms* transforms)
 // NOTE: Should this just take i32 x,y,z params instead of a
 //       a VECTOR struct to avoid creating needless stack objects?
 Chunk* worldLoadChunk(World* world, const VECTOR chunk_position) {
-    Chunk* chunk = malloc(sizeof(Chunk));
+    Chunk* chunk = VCALL(world->chunk_provider, provide, chunk_position);
     assert(chunk != NULL);
     DEBUG_LOG(
         "[CHUNK: %d,%d,%d, INDEX: %d,%d,%d] Generating heightmap and terrain\n",
@@ -197,11 +197,7 @@ Chunk* worldLoadChunk(World* world, const VECTOR chunk_position) {
         chunk_position.vy,
         arrayCoord(world, vz, chunk_position.vz)
     );
-    chunk->position.vx = chunk_position.vx;
-    chunk->position.vy = chunk_position.vy;
-    chunk->position.vz = chunk_position.vz;
     chunk->world = world;
-    chunkInit(chunk);
     return chunk;
 }
 
@@ -215,7 +211,7 @@ void worldUnloadChunk(const World* world, Chunk* chunk) {
         chunk->position.vy,
         arrayCoord(world, vz, chunk->position.vz)
     );
-    chunkDestroy(chunk);
+    VCALL(world->chunk_provider, save, chunk);
     free(chunk);
 }
 
