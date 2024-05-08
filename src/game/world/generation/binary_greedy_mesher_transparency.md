@@ -168,14 +168,15 @@ fn add_voxel_to_axis_cols(
     axis_cols: &mut [[[u64; 34]; 34]; 3],
     axis_cols_transparent: &mut [[[u64; 34]; 34]; 3],
 ) {
-    if b.block_type.is_solid() {
-        // x,z - y axis
-        axis_cols[0][z][x] |= 1u64 << y as u64;
-        // z,y - x axis
-        axis_cols[1][y][z] |= 1u64 << x as u64;
-        // x,y - z axis
-        axis_cols[2][y][x] |= 1u64 << z as u64;
+    if !b.block_type.is_solid() {
+        return;
     }
+    // x,z - y axis
+    axis_cols[0][z][x] |= 1u64 << y as u64;
+    // z,y - x axis
+    axis_cols[1][y][z] |= 1u64 << x as u64;
+    // x,y - z axis
+    axis_cols[2][y][x] |= 1u64 << z as u64;
     if !b.block_type.is_transparent() {
         // x,z - y axis
         axis_cols_transparent[0][z][x] |= 1u64 << y as u64;
@@ -337,8 +338,8 @@ for axis in 0..3 {
             let solid_descending = col & !(col << 1);
             let solid_ascending = col & !(col >> 1);
             // Transparent
-            let transparent_descending = col & !(col << 1);
-            let transparent_ascending = col & !(col >> 1);
+            let transparent_descending = col_transparent & !(col_transparent << 1);
+            let transparent_ascending = col_transparent & !(col_transparent >> 1);
             // Combined solid + transparent faces
             col_face_masks[2 * axis + 0][z][x] = solid_descending | transparent_descending;
             col_face_masks[2 * axis + 1][z][x] = solid_ascending | transparent_ascending;

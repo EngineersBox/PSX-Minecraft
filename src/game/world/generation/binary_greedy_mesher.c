@@ -55,11 +55,11 @@ typedef u32 AxisCols[AXIS_COUNT][CHUNK_SIZE_PADDED][CHUNK_SIZE_PADDED];
 
 __attribute__((always_inline))
 static void addVoxelToAxisCols(AxisCols axis_cols,
-                        AxisCols axis_cols_transparency,
-                        const IBlock* iblock,
-                        const u32 x,
-                        const u32 y,
-                        const u32 z) {
+                               AxisCols axis_cols_transparency,
+                               const IBlock* iblock,
+                               const u32 x,
+                               const u32 y,
+                               const u32 z) {
     if (iblock == NULL) {
         return;
     }
@@ -160,7 +160,6 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
             }
         }
     }
-#undef addVoxelToAxisCols
     // Face culling
     for (u32 axis = 0; axis < AXIS_COUNT; axis++) {
         for (u32 z = 0; z < CHUNK_SIZE_PADDED; z++) {
