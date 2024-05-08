@@ -27,6 +27,7 @@
 * [ ] Breaking overlays for a block, enabled with a marker variable and a target resolved by ray cast and a texture reference
 * [ ] D-pad or analogue stick controlled cursor in UIs with item movement between slots being held by cursor
 * [ ] TooManyItems-like overlay in inventory GUI
+* [x] Support transparent textures (original and binary greedy meshing)
 
 ## Refactor
 
@@ -47,7 +48,8 @@
 * [x] Refactor `World` and `Chunk` to support interface based blocks with dynamic dispatch handlers
 * [ ] Move static values like block/item names and max stack sizes to global constants accessed by ID
 * [ ] Refactor vector operations to use `_Generic` C11 macro to perform type specific operations between any kind of two vector types or constant
-* [ ] Move to binary greedy meshing with bitwise ops for single-pass mask creation
+* [x] Move to binary greedy meshing with bitwise ops for single-pass mask creation
+* [x] Migrate to chunk providers and generators created with world for specific generation
 
 ## Fix
 
@@ -71,3 +73,4 @@
 * [ ] Movement tied to FPS
 * [x] Cannot fall off a block edge, get pushed back
 * [x] Jumping onto a block pushes player back, not allowing for movement up to a block (weird edge cases for certain angles still work)
+* [ ] Certain faces at chunk boundaries are not generated with binary greedy meshing
