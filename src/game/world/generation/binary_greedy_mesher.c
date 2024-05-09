@@ -268,23 +268,6 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
     hashmap_free(data);
 }
 
-// TODO: This is supremely stupid. Astronomically, superiorly,
-//       monumentally idiotic. Let's just fix the declareTintedFaceAttributes
-//       macro and the block declarations instead. So much sad.
-//       My idiocy knows no bounds sometimes.
-u32 faceDirectionToFaceAttributeIndex(const FaceDirection face_dir) {
-    u32 index = 0;
-    switch (face_dir) {
-        case FACE_DIR_DOWN: index = 3; break;
-        case FACE_DIR_UP: index = 2; break;
-        case FACE_DIR_LEFT: index = 4; break;
-        case FACE_DIR_RIGHT: index = 5; break;
-        case FACE_DIR_BACK: index = 1; break;
-        case FACE_DIR_FRONT: index = 0; break;
-    }
-    return index;
-}
-
 static SMD_PRIM* createPrimitive(ChunkMesh* mesh,
                                  const Block* block,
                                  const FaceDirection face_dir,
@@ -310,7 +293,7 @@ static SMD_PRIM* createPrimitive(ChunkMesh* mesh,
     const Texture* texture = &textures[ASSET_TEXTURES_TERRAIN_INDEX];
     primitive->tpage = texture->tpage;
     primitive->clut = texture->clut;
-    const TextureAttributes* attributes = &block->face_attributes[faceDirectionToFaceAttributeIndex(face_dir)];
+    const TextureAttributes* attributes = &block->face_attributes[face_dir];
     primitive->tu0 = attributes->u;
     primitive->tv0 = attributes->v;
     primitive->tu1 = BLOCK_TEXTURE_SIZE * width;
