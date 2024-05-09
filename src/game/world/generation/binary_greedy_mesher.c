@@ -149,6 +149,15 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
                     (chunk->position.vy * CHUNK_SIZE) + y - 1,
                     (chunk->position.vz * CHUNK_SIZE) + z - 1
                 );
+                if (x == 0) {
+                    const IBlock* iblock = worldGetBlock(chunk->world, &position);
+                    const Block* block = VCAST_PTR(Block*, iblock);
+                    DEBUG_LOG(
+                        "[BGM] (%d,%d,%d) => %s\n",
+                        inlineVec(position),
+                        blockGetAttribute(block->id, name)
+                    );
+                }
                 addVoxelToAxisCols(
                     axis_cols,
                     axis_cols_transparency,
@@ -160,6 +169,19 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
             }
         }
     }
+    // DEBUG_LOG("[BGM] Chunk: (%d,%d,%d)\n", inlineVec(chunk->position));
+    // DEBUG_LOG(
+    //             "[BGM] " INT16_BIN_PATTERN "\n",
+    //             INT16_BIN_LAYOUT(axis_cols[FACE_DIR_LEFT][5][0])
+    //         );
+    // for (u32 z = 0; z < CHUNK_SIZE_PADDED; z++) {
+    //     for (u32 x = 0; x < CHUNK_SIZE_PADDED; x++) {
+    //         DEBUG_LOG(
+    //             "[BGM] " INT16_BIN_PATTERN "\n",
+    //             INT16_BIN_LAYOUT(axis_cols[FACE_DIR_LEFT][z][x])
+    //         );
+    //     }
+    // }
     // Face culling
     for (u32 axis = 0; axis < AXIS_COUNT; axis++) {
         for (u32 z = 0; z < CHUNK_SIZE_PADDED; z++) {
@@ -175,6 +197,16 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
                 // Combine to ensure any faces behind a transparent face are kept
                 col_face_masks[(2 * axis) + 0][z][x] = solid_descending | transparent_descending;
                 col_face_masks[(2 * axis) + 1][z][x] = solid_ascending | transparent_ascending;
+                if (axis == 1) {
+                    // z => y
+                    // x => z
+                    // axis = x
+                    DEBUG_LOG(
+                        "[BGM] [Y: %d, Z: %d] " INT16_BIN_PATTERN "\n",
+                        z, x,
+                        INT16_BIN_LAYOUT(col_face_masks[(2 * axis) + 0][z][x])
+                    );
+                }
             }
         }
     }
@@ -204,18 +236,17 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
                     col &= col - 1;
                     VECTOR voxel_pos;
                     switch (axis) {
-                        case 0:
-                        case 1:
-                            // Down, up
+                        case FACE_DIR_DOWN:
+                        case FACE_DIR_UP:
                             voxel_pos = vec3_i32(x, y, z);
                             break;
-                        case 2:
-                        case 3:
-                            // Left, Right
+                        case FACE_DIR_LEFT:
+                        case FACE_DIR_RIGHT:
                             voxel_pos = vec3_i32(y, z, x);
                             break;
+                        case FACE_DIR_BACK:
+                        case FACE_DIR_FRONT:
                         default:
-                            // Front, Back
                             voxel_pos = vec3_i32(x, z, y);
                             break;
                     }
