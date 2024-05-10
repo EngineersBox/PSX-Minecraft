@@ -93,6 +93,7 @@ void inventoryInit(Inventory* inventory, Hotbar* hotbar) {
     initCraftingSlots(inventory);
     initStorageSlots(inventory);
     initHotbarSlots(inventory);
+    inventory->debounce = 0;
 }
 
 void inventoryRenderSlots(const Inventory* inventory, RenderContext* ctx, Transforms* transforms) {
@@ -252,10 +253,18 @@ InventoryStoreResult inventoryStoreItem(Inventory* inventory, IItem* iitem) {
 #define GUI_BUNDLE_NAME "gui"
 #define INVENTORY_TEXTURE_NAME "inventory"
 
+bool _debounce(Inventory* inventory) {
+    if (time_ms - inventory->debounce >= INVENTORY_DEBOUNCE_MS) {
+        inventory->debounce = time_ms;
+        return false;
+    }
+    return true;
+}
+
 void inventoryOpen(VSelf) __attribute__((alias("Inventory_open")));
 void Inventory_open(VSelf) {
     VSELF(Inventory);
-    if (self->ui.active) {
+    if (self->ui.active || _debounce(self)) {
         return;
     }
     self->ui.active = true;
@@ -268,7 +277,7 @@ void Inventory_open(VSelf) {
 void inventoryClose(VSelf) __attribute__((alias("Inventory_close")));
 void Inventory_close(VSelf) {
     VSELF(Inventory);
-    if (!self->ui.active) {
+    if (!self->ui.active || _debounce(self)) {
         return;
     }
     self->ui.active = false;

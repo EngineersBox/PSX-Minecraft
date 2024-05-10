@@ -8,6 +8,7 @@
 #include "../../structure/cvector.h"
 #include "../../ui/ui.h"
 #include "../../util/preprocessor.h"
+#include "../../hardware/counters.h"
 
 // * 0-3: armor
 // * 4-7: crafting input
@@ -58,9 +59,12 @@ extern const char* INVENTORY_STORE_RESULT_NAMES[];
 
 #define inventoryStoreResultStringify(id) INVENTORY_STORE_RESULT_NAMES[(id)]
 
+#define INVENTORY_DEBOUNCE_MS 500
+
 DEFN_UI(Inventory,
     cvector(Slot) slots;
     Hotbar* hotbar;
+    Timestamp debounce;
 );
 
 void inventoryInit(Inventory* inventory, Hotbar* hotbar);

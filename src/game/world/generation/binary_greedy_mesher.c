@@ -82,9 +82,9 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
     AxisCols axis_cols_transparency = {0};
     u32 col_face_masks[FACES_COUNT][CHUNK_SIZE_PADDED][CHUNK_SIZE_PADDED] = {0};
     // Inner chunk blocks
-    for (u32 z = 0; z < CHUNK_SIZE; z++) {
-        for (u32 y = 0; y < CHUNK_SIZE; y++) {
-            for (u32 x = 0; x < CHUNK_SIZE; x++) {
+    for (i32 z = 0; z < CHUNK_SIZE; z++) {
+        for (i32 y = 0; y < CHUNK_SIZE; y++) {
+            for (i32 x = 0; x < CHUNK_SIZE; x++) {
                 addVoxelToAxisCols(
                     axis_cols,
                     axis_cols_transparency,
@@ -99,9 +99,9 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
     // Neighbouring chunk blocks
     // Z
     for (u32 z_i = 0; z_i < AXIAL_EDGES_COUNT; z_i++) {
-        for (u32 y = 0; y < CHUNK_SIZE_PADDED; y++) {
-            for (u32 x = 0; x < CHUNK_SIZE_PADDED; x++) {
-                const u32 z = AXIAL_EDGES[z_i];
+        for (i32 y = 0; y < CHUNK_SIZE_PADDED; y++) {
+            for (i32 x = 0; x < CHUNK_SIZE_PADDED; x++) {
+                const i32 z = AXIAL_EDGES[z_i];
                 const VECTOR position = vec3_i32(
                     (chunk->position.vx * CHUNK_SIZE) + x - 1,
                     (chunk->position.vy * CHUNK_SIZE) + y - 1,
@@ -119,10 +119,10 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
         }
     }
     // Y
-    for (u32 z = 0; z < CHUNK_SIZE_PADDED; z++) {
+    for (i32 z = 0; z < CHUNK_SIZE_PADDED; z++) {
         for (u32 y_i = 0; y_i < AXIAL_EDGES_COUNT; y_i++) {
-            for (u32 x = 0; x < CHUNK_SIZE_PADDED; x++) {
-                const u32 y = AXIAL_EDGES[y_i];
+            for (i32 x = 0; x < CHUNK_SIZE_PADDED; x++) {
+                const i32 y = AXIAL_EDGES[y_i];
                 const VECTOR position = vec3_i32(
                     (chunk->position.vx * CHUNK_SIZE) + x - 1,
                     (chunk->position.vy * CHUNK_SIZE) + y - 1,
@@ -140,10 +140,10 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
         }
     }
     // X
-    for (u32 z = 0; z < CHUNK_SIZE; z++) {
+    for (i32 z = 0; z < CHUNK_SIZE; z++) {
         for (u32 x_i = 0; x_i < AXIAL_EDGES_COUNT; x_i++) {
-            for (u32 y = 0; y < CHUNK_SIZE; y++) {
-                const u32 x = AXIAL_EDGES[x_i];
+            for (i32 y = 0; y < CHUNK_SIZE; y++) {
+                const i32 x = AXIAL_EDGES[x_i];
                 const VECTOR position = vec3_i32(
                     (chunk->position.vx * CHUNK_SIZE) + x - 1,
                     (chunk->position.vy * CHUNK_SIZE) + y - 1,
@@ -361,9 +361,9 @@ static void createVertices(Chunk* chunk,
                            const i32 h) {
     ChunkMesh* const mesh = &chunk->mesh;
     // Construct vertices relative to chunk mesh bottom left origin
-    const i16 chunk_origin_x = chunk->position.vx * CHUNK_SIZE;
-    const i16 chunk_origin_y = (-chunk->position.vy) * CHUNK_SIZE;
-    const i16 chunk_origin_z = chunk->position.vz * CHUNK_SIZE;
+    const i32 chunk_origin_x = chunk->position.vx * CHUNK_SIZE;
+    const i32 chunk_origin_y = (-chunk->position.vy) * CHUNK_SIZE;
+    const i32 chunk_origin_z = chunk->position.vz * CHUNK_SIZE;
 #define createVertex(_x, _y) ({ \
     const SVECTOR face_dir_pos = faceDirectionPosition(face_dir, axis, (_x), (_y)); \
     vec3_i16( \
