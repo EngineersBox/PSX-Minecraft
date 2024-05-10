@@ -70,7 +70,7 @@ static void addVoxelToAxisCols(AxisCols axis_cols,
     axis_cols[0][z][x] |= 1 << y;
     axis_cols[1][y][z] |= 1 << x;
     axis_cols[2][y][x] |= 1 << z;
-    if (!blockIsTransparent(block)) {
+    if (VCALL(*iblock, isOpaque)) {
         axis_cols_transparency[0][z][x] |= 1 << y;
         axis_cols_transparency[1][y][z] |= 1 << x;
         axis_cols_transparency[2][y][x] |= 1 << z;
@@ -79,6 +79,7 @@ static void addVoxelToAxisCols(AxisCols axis_cols,
 
 void binaryGreedyMesherBuildMesh(Chunk* chunk) {
     AxisCols axis_cols = {0};
+    // See binary_greedy_mesher_transparency.md
     AxisCols axis_cols_transparency = {0};
     u32 col_face_masks[FACES_COUNT][CHUNK_SIZE_PADDED][CHUNK_SIZE_PADDED] = {0};
     // Inner chunk blocks

@@ -194,7 +194,7 @@ We can combine these two *views* in order to get a complete understanding of the
 	<tr>
 		<td>Non-Empty (NE)</td>
 		<td>Non-Empty & Non-Transparent (NET)</td>
-		<td>Non-Empty & Non-Transparent (NETC)</td>
+		<td>Non-Empty & Non-Transparent Combined (NETC)</td>
 	</tr>
 	<tr>
 		<td>

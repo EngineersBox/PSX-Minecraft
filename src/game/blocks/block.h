@@ -30,7 +30,7 @@ typedef struct {
 } BlockAttributes;
 
 // ONE * 0.91 = 3727 == ice
-// ONE * 0.6 = 3727 == normal block
+// ONE * 0.6 = 2457 == normal block
 #define BLOCK_DEFAULT_SLIPPERINESS 2457
 // ONE * 0.5 * 5.0
 #define BLOCK_DEFAULT_RESISTANCE 10240
@@ -114,10 +114,5 @@ interface(IBlock);
     BLOCKTYPE_SOLID, \
     P99_PROTECT(face_attributes) \
 )
-
-// DUMMY MACRO FOR FUTURE LOGIC TO DETERMINE IF BLOCK IS TRANSPARENT OR NOT
-// (Maybe just based on id or something else)
-#define blockIsTransparent(block) false
-// #define blockIsTransparent(block) ((block)->id == BLOCKID_GRASS)
 
 #endif // PSX_MINECRAFT_BLOCK_H
