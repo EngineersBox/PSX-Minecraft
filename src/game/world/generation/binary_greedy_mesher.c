@@ -70,7 +70,7 @@ static void addVoxelToAxisCols(AxisCols axis_cols,
     axis_cols[0][z][x] |= 1 << y;
     axis_cols[1][y][z] |= 1 << x;
     axis_cols[2][y][x] |= 1 << z;
-    if (VCALL(*iblock, isOpaque)) {
+    if (!VCALL(*iblock, isOpaque)) {
         axis_cols_transparency[0][z][x] |= 1 << y;
         axis_cols_transparency[1][y][z] |= 1 << x;
         axis_cols_transparency[2][y][x] |= 1 << z;
