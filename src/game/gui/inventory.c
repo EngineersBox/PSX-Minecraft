@@ -253,18 +253,10 @@ InventoryStoreResult inventoryStoreItem(Inventory* inventory, IItem* iitem) {
 #define GUI_BUNDLE_NAME "gui"
 #define INVENTORY_TEXTURE_NAME "inventory"
 
-bool _debounce(Inventory* inventory) {
-    if (time_ms - inventory->debounce >= INVENTORY_DEBOUNCE_MS) {
-        inventory->debounce = time_ms;
-        return false;
-    }
-    return true;
-}
-
 void inventoryOpen(VSelf) __attribute__((alias("Inventory_open")));
 void Inventory_open(VSelf) {
     VSELF(Inventory);
-    if (self->ui.active || _debounce(self)) {
+    if (self->ui.active) {
         return;
     }
     self->ui.active = true;
@@ -277,7 +269,7 @@ void Inventory_open(VSelf) {
 void inventoryClose(VSelf) __attribute__((alias("Inventory_close")));
 void Inventory_close(VSelf) {
     VSELF(Inventory);
-    if (!self->ui.active || _debounce(self)) {
+    if (!self->ui.active) {
         return;
     }
     self->ui.active = false;
@@ -285,9 +277,17 @@ void Inventory_close(VSelf) {
     background->texture = NULL;
 }
 
+bool _debounce(Inventory* inventory) {
+    if (time_ms - inventory->debounce >= INVENTORY_DEBOUNCE_MS) {
+        inventory->debounce = time_ms;
+        return true;
+    }
+    return false;
+}
+
 bool inventoryInputHandler(const Input* input, void* ctx) {
     Inventory* inventory = (Inventory*) ctx;
-    if (isPressed(input->pad, binding_open_inventory)) {
+    if (isPressed(input->pad, binding_open_inventory) && _debounce(inventory)) {
         if (inventory->ui.active) {
             inventoryClose(inventory);
             return false;

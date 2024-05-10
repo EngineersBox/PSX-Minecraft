@@ -59,7 +59,7 @@ extern const char* INVENTORY_STORE_RESULT_NAMES[];
 
 #define inventoryStoreResultStringify(id) INVENTORY_STORE_RESULT_NAMES[(id)]
 
-#define INVENTORY_DEBOUNCE_MS 500
+#define INVENTORY_DEBOUNCE_MS 200
 
 DEFN_UI(Inventory,
     cvector(Slot) slots;
