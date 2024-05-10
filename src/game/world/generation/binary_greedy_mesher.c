@@ -55,7 +55,7 @@ typedef u32 AxisCols[AXIS_COUNT][CHUNK_SIZE_PADDED][CHUNK_SIZE_PADDED];
 
 __attribute__((always_inline))
 static void addVoxelToAxisCols(AxisCols axis_cols,
-                               AxisCols axis_cols_transparency,
+                               AxisCols axis_cols_opaque,
                                const IBlock* iblock,
                                const u32 x,
                                const u32 y,
@@ -70,17 +70,17 @@ static void addVoxelToAxisCols(AxisCols axis_cols,
     axis_cols[0][z][x] |= 1 << y;
     axis_cols[1][y][z] |= 1 << x;
     axis_cols[2][y][x] |= 1 << z;
-    if (!VCALL(*iblock, isOpaque)) {
-        axis_cols_transparency[0][z][x] |= 1 << y;
-        axis_cols_transparency[1][y][z] |= 1 << x;
-        axis_cols_transparency[2][y][x] |= 1 << z;
+    if (VCALL(*iblock, isOpaque)) {
+        axis_cols_opaque[0][z][x] |= 1 << y;
+        axis_cols_opaque[1][y][z] |= 1 << x;
+        axis_cols_opaque[2][y][x] |= 1 << z;
     }
 }
 
 void binaryGreedyMesherBuildMesh(Chunk* chunk) {
     AxisCols axis_cols = {0};
     // See binary_greedy_mesher_transparency.md
-    AxisCols axis_cols_transparency = {0};
+    AxisCols axis_cols_opaque = {0};
     u32 col_face_masks[FACES_COUNT][CHUNK_SIZE_PADDED][CHUNK_SIZE_PADDED] = {0};
     // Inner chunk blocks
     for (i32 z = 0; z < CHUNK_SIZE; z++) {
@@ -88,7 +88,7 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
             for (i32 x = 0; x < CHUNK_SIZE; x++) {
                 addVoxelToAxisCols(
                     axis_cols,
-                    axis_cols_transparency,
+                    axis_cols_opaque,
                     chunk->blocks[chunkBlockIndex(x, y, z)],
                     x + 1,
                     y + 1,
@@ -110,7 +110,7 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
                 );
                 addVoxelToAxisCols(
                     axis_cols,
-                    axis_cols_transparency,
+                    axis_cols_opaque,
                     worldGetBlock(chunk->world, &position),
                     x,
                     y,
@@ -131,7 +131,7 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
                 );
                 addVoxelToAxisCols(
                     axis_cols,
-                    axis_cols_transparency,
+                    axis_cols_opaque,
                     worldGetBlock(chunk->world, &position),
                     x,
                     y,
@@ -161,7 +161,7 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
                 }
                 addVoxelToAxisCols(
                     axis_cols,
-                    axis_cols_transparency,
+                    axis_cols_opaque,
                     worldGetBlock(chunk->world, &position),
                     x,
                     y,
@@ -188,16 +188,16 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
         for (u32 z = 0; z < CHUNK_SIZE_PADDED; z++) {
             for (u32 x = 0; x < CHUNK_SIZE_PADDED; x++) {
                 const u32 col = axis_cols[axis][z][x];
-                const u32 col_transparent = axis_cols_transparency[axis][z][x];
+                const u32 col_opaque = col & axis_cols_opaque[axis][z][x];
                 // Solid
                 const u32 solid_descending = col & ~(col << 1);
                 const u32 solid_ascending = col & ~(col >> 1);
                 // Transparent
-                const u32 transparent_descending = col_transparent & ~(col_transparent << 1);
-                const u32 transparent_ascending = col_transparent & ~(col_transparent >> 1);
+                const u32 opaque_descending = col_opaque & ~(col_opaque << 1);
+                const u32 opaque_ascending = col_opaque & ~(col_opaque >> 1);
                 // Combine to ensure any faces behind a transparent face are kept
-                col_face_masks[(2 * axis) + 0][z][x] = solid_descending | transparent_descending;
-                col_face_masks[(2 * axis) + 1][z][x] = solid_ascending | transparent_ascending;
+                col_face_masks[(2 * axis) + 0][z][x] = solid_descending | opaque_descending;
+                col_face_masks[(2 * axis) + 1][z][x] = solid_ascending | opaque_ascending;
                 if (axis == 1) {
                     // z => y
                     // x => z

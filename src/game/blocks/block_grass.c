@@ -41,7 +41,7 @@ void GrassBlock_update(VSelf) {
 
 bool grassBlockIsOpaque(VSelf) __attribute__((alias("GrassBlock_isOpaque")));
 bool GrassBlock_isOpaque(VSelf) {
-    return false;
+    return true;
 }
 
 IItem* grassBlockProvideItem(VSelf) __attribute__((alias("GrassBlock_provideItem")));
