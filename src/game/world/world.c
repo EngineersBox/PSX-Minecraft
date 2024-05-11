@@ -427,7 +427,7 @@ void worldUpdate(World* world, Player* player) {
                                  [arrayCoord(world, vx, x)]
                                  [y];
                 DEBUG_LOG(
-                    "[World] array coords: (%d, %d, %d) => %p\n",
+                    "[World] array coords: (%d, %d, %d) => %p\n", // BUG: Chunk address is invalid for some reason here after loading new chunks
                     arrayCoord(world, vx, x),
                     y,
                     arrayCoord(world, vz, z),
