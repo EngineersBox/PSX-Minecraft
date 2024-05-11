@@ -1,8 +1,8 @@
 #include "overworld_perlin.h"
 
-#include <interface99_extensions.h>
 #include <stdlib.h>
 
+#include "../../../util/interface99_extensions.h"
 #include "../chunk/chunk_structure.h"
 #include "../generation/noise.h"
 #include "../../blocks/blocks.h"
@@ -84,7 +84,6 @@ Chunk* overworldPerlinProvideChunk(VSelf, const VECTOR position) __attribute__((
 Chunk* OverworldPerlinChunkProvider_provide(VSelf, const VECTOR position) {
     VSELF(OverworldPerlinChunkProvider);
     Chunk* chunk = malloc(sizeof(Chunk));
-    assert(chunk != NULL);
     chunk->position = position;
     chunkInit(chunk);
     VCALL(self->generator, generate, chunk);
