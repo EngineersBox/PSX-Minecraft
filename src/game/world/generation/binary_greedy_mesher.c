@@ -150,15 +150,15 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
                     (chunk->position.vy * CHUNK_SIZE) + y - 1,
                     (chunk->position.vz * CHUNK_SIZE) + z - 1
                 );
-                if (x == 0) {
-                    const IBlock* iblock = worldGetBlock(chunk->world, &position);
-                    const Block* block = VCAST_PTR(Block*, iblock);
-                    DEBUG_LOG(
-                        "[BGM] (%d,%d,%d) => %s\n",
-                        inlineVec(position),
-                        blockGetAttribute(block->id, name)
-                    );
-                }
+                // if (x == 0) {
+                //     const IBlock* iblock = worldGetBlock(chunk->world, &position);
+                //     const Block* block = VCAST_PTR(Block*, iblock);
+                //     DEBUG_LOG(
+                //         "[BGM] (%d,%d,%d) => %s\n",
+                //         inlineVec(position),
+                //         blockGetAttribute(block->id, name)
+                //     );
+                // }
                 addVoxelToAxisCols(
                     axis_cols,
                     axis_cols_opaque,
@@ -198,16 +198,16 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
                 // Combine to ensure any faces behind a transparent face are kept
                 col_face_masks[(2 * axis) + 0][z][x] = solid_descending | opaque_descending;
                 col_face_masks[(2 * axis) + 1][z][x] = solid_ascending | opaque_ascending;
-                if (axis == 1) {
-                    // z => y
-                    // x => z
-                    // axis = x
-                    DEBUG_LOG(
-                        "[BGM] [Y: %d, Z: %d] " INT16_BIN_PATTERN "\n",
-                        z, x,
-                        INT16_BIN_LAYOUT(col_face_masks[(2 * axis) + 0][z][x])
-                    );
-                }
+                // if (axis == 1) {
+                //     // z => y
+                //     // x => z
+                //     // axis = x
+                //     DEBUG_LOG(
+                //         "[BGM] [Y: %d, Z: %d] " INT16_BIN_PATTERN "\n",
+                //         z, x,
+                //         INT16_BIN_LAYOUT(col_face_masks[(2 * axis) + 0][z][x])
+                //     );
+                // }
             }
         }
     }
@@ -454,12 +454,9 @@ void binaryGreedyMesherConstructPlane(Chunk* chunk,
             }
             const u32 h = trailing_ones(plane[row] >> y);
             // 1 = 0b1, 2 = 0b11, 4 = 0b1111
-            u32 h_as_mask;
-            if (h < 32) {
-                h_as_mask = (1 << h) - 1;
-            } else {
-                h_as_mask = UINT32_MAX;// ~0
-            }
+            const u32 h_as_mask = h < 32
+                ? (1 << h) - 1
+                : UINT32_MAX; // ~0
             const u32 mask = h_as_mask << y;
             // Grow horizontally
             u32 w = 1;

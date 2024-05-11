@@ -579,7 +579,9 @@ bool itemPickupValidator(const Item* item) {
 }
 
 void chunkUpdate(Chunk* chunk, Player* player) {
+    DEBUG_LOG("Before inv get\n");
     _current_inventory = VCAST(Inventory*, player->inventory);
+    DEBUG_LOG("After inv get\n");
     // We are using chunk relative coords in absolute units and not in
     // fixed point format since item positons only need to be relatively
     // accurate not exact so we can save on the extra caclulation overhead
@@ -590,6 +592,8 @@ void chunkUpdate(Chunk* chunk, Player* player) {
         player->physics_object.position.vy >> FIXED_POINT_SHIFT,
         player->physics_object.position.vz >> FIXED_POINT_SHIFT
     );
+    DEBUG_LOG("[CHUNK] Dropped items @ %p\n", chunk->dropped_items);
+    DEBUG_LOG("[CHUNK] Updating items: %d\n", cvector_size(chunk->dropped_items));
     for (u32 i = 0; i < cvector_size(chunk->dropped_items);) {
         IItem* iitem = chunk->dropped_items[i];
         if (iitem == NULL) {

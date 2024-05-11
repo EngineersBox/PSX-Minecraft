@@ -55,7 +55,9 @@ void worldInit(World* world, RenderContext* ctx) {
                                                   .vy = y,
                                                   .vz = z
                                               });
-                world->chunks[arrayCoord(world, vz, z)][arrayCoord(world, vx, x)][y] = chunk;
+                world->chunks[arrayCoord(world, vz, z)]
+                             [arrayCoord(world, vx, x)]
+                             [y] = chunk;
                 fontPrintCentreOffset(
                     ctx,
                     CENTRE_X,
@@ -90,7 +92,9 @@ void worldInit(World* world, RenderContext* ctx) {
         for (i32 z = z_start; z <= z_end; z++) {
             for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
                 printf("[CHUNK: %d,%d,%d] Generating mesh\n", x, 0, z);
-                Chunk* chunk = world->chunks[arrayCoord(world, vz, z)][arrayCoord(world, vx, x)][y];
+                Chunk* chunk = world->chunks[arrayCoord(world, vz, z)]
+                                            [arrayCoord(world, vx, x)]
+                                            [y];
                 chunkGenerateMesh(chunk);
                 DEBUG_LOG(
                     "[CHUNK: %d,%d,%d, INDEX: %d,%d,%d] Mesh { Primitives: %d, Vertices: %d, Normals: %d }\n",
@@ -150,7 +154,8 @@ void worldDestroy(World* world) {
                     y,
                     arrayCoord(world, vz, z)
                 );
-                Chunk** chunk = world->chunks[arrayCoord(world, vz, z)][arrayCoord(world, vx, x)];
+                Chunk** chunk = world->chunks[arrayCoord(world, vz, z)]
+                                             [arrayCoord(world, vx, x)];
                 worldUnloadChunk(world, chunk[y]);
                 chunk[y] = NULL;
             }
@@ -174,7 +179,9 @@ void worldRender(const World* world, RenderContext* ctx, Transforms* transforms)
         for (i32 z = z_start; z <= z_end; z++) {
             for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
                 chunkRender(
-                    world->chunks[arrayCoord(world, vz, z)][arrayCoord(world, vx, x)][y],
+                    world->chunks[arrayCoord(world, vz, z)]
+                                 [arrayCoord(world, vx, x)]
+                                 [y],
                     ctx,
                     transforms
                 );
@@ -197,6 +204,7 @@ Chunk* worldLoadChunk(World* world, const VECTOR chunk_position) {
         chunk_position.vy,
         arrayCoord(world, vz, chunk_position.vz)
     );
+    DEBUG_LOG("[CHUNK] Address: %p\n", chunk);
     chunk->world = world;
     return chunk;
 }
@@ -225,10 +233,13 @@ void worldLoadChunksX(World* world, const i8 x_direction, const i8 z_direction) 
     } else if (z_direction == 1) {
         z_start += SHIFT_ZONE;
     }
+    Chunk* to_mesh[(z_end + 1 - z_start) * WORLD_CHUNKS_HEIGHT];
     for (i32 z_coord = z_start; z_coord <= z_end; z_coord++) {
         for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
             Chunk* chunk = worldLoadChunk(world, vec3_i32(x_shift_zone, y, z_coord));
-            world->chunks[arrayCoord(world, vz, z_coord)][arrayCoord(world, vx, x_shift_zone)][y] = chunk;
+            world->chunks[arrayCoord(world, vz, z_coord)]
+                         [arrayCoord(world, vx, x_shift_zone)]
+                         [y] = to_mesh[(z_coord * WORLD_CHUNKS_HEIGHT) + y] = chunk;
         }
     }
     // We need to generate the mesh after creating all the chunks
@@ -237,16 +248,16 @@ void worldLoadChunksX(World* world, const i8 x_direction, const i8 z_direction) 
     // So if the neighbour doesn't exit yet we get more quads in
     // a chunk mesh than are actually necessary.
     for (i32 z_coord = z_start; z_coord <= z_end; z_coord++) {
-        for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
-            Chunk* chunk = world->chunks[arrayCoord(world, vz, z_coord)][arrayCoord(world, vx, x_shift_zone)][y];
-            chunkGenerateMesh(chunk);
+        for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {;
+            chunkGenerateMesh(to_mesh[(z_coord * WORLD_CHUNKS_HEIGHT) + y]);
         }
     }
     // Unload -x_direction chunks
     x_shift_zone = world->centre.vx + (LOADED_CHUNKS_RADIUS * -x_direction);
     for (i32 z_coord = z_start; z_coord <= z_end; z_coord++) {
         for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
-            Chunk** chunk = world->chunks[arrayCoord(world, vz, z_coord)][arrayCoord(world, vx, x_shift_zone)];
+            Chunk** chunk = world->chunks[arrayCoord(world, vz, z_coord)]
+                                         [arrayCoord(world, vx, x_shift_zone)];
             worldUnloadChunk(world, chunk[y]);
             chunk[y] = NULL;
         }
@@ -267,10 +278,13 @@ void worldLoadChunksZ(World* world, const i8 x_direction, const i8 z_direction) 
     } else if (x_direction == 1) {
         x_start += SHIFT_ZONE;
     }
+    Chunk* to_mesh[(x_end + 1 - x_start) * WORLD_CHUNKS_HEIGHT];
     for (i32 x_coord = x_start; x_coord <= x_end; x_coord++) {
         for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
             Chunk* chunk = worldLoadChunk(world, vec3_i32(x_coord, y, z_shift_zone));
-            world->chunks[arrayCoord(world, vz, z_shift_zone)][arrayCoord(world, vx, x_coord)][y] = chunk;
+            world->chunks[arrayCoord(world, vz, z_shift_zone)]
+                         [arrayCoord(world, vx, x_coord)]
+                         [y] = to_mesh[(x_coord * WORLD_CHUNKS_HEIGHT) + y] = chunk;
         }
     }
     // We need to generate the mesh after creating all the chunks
@@ -280,15 +294,15 @@ void worldLoadChunksZ(World* world, const i8 x_direction, const i8 z_direction) 
     // a chunk mesh than are actually necessary.
     for (i32 x_coord = x_start; x_coord <= x_end; x_coord++) {
         for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
-            Chunk* chunk = world->chunks[arrayCoord(world, vz, z_shift_zone)][arrayCoord(world, vx, x_coord)][y];
-            chunkGenerateMesh(chunk);
+            chunkGenerateMesh(to_mesh[(x_coord * WORLD_CHUNKS_HEIGHT) + y]);
         }
     }
     // Unload -z_direction chunks
     z_shift_zone = world->centre.vz + (LOADED_CHUNKS_RADIUS * -z_direction);
     for (i32 x_coord = x_start; x_coord <= x_end; x_coord++) {
         for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
-            Chunk** chunk = world->chunks[arrayCoord(world, vz, z_shift_zone)][arrayCoord(world, vx, x_coord)];
+            Chunk** chunk = world->chunks[arrayCoord(world, vz, z_shift_zone)]
+                                         [arrayCoord(world, vx, x_coord)];
             worldUnloadChunk(world, chunk[y]);
             chunk[y] = NULL;
         }
@@ -299,9 +313,12 @@ void worldLoadChunksXZ(World* world, const i8 x_direction, const i8 z_direction)
     // Load (x_direction,z_direction) chunk
     i32 x_coord = world->centre.vx + ((LOADED_CHUNKS_RADIUS + SHIFT_ZONE) * x_direction);
     i32 z_coord = world->centre.vz + ((LOADED_CHUNKS_RADIUS + SHIFT_ZONE) * z_direction);
+    Chunk* to_mesh[WORLD_CHUNKS_HEIGHT] = {0};
     for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
         Chunk* loaded_chunk = worldLoadChunk(world, vec3_i32(x_coord, y, z_coord));
-        world->chunks[arrayCoord(world, vz, z_coord)][arrayCoord(world, vx, x_coord)][y] = loaded_chunk;
+        world->chunks[arrayCoord(world, vz, z_coord)]
+                     [arrayCoord(world, vx, x_coord)]
+                     [y] = to_mesh[y] = loaded_chunk;
     }
     // We need to generate the mesh after creating all the chunks
     // since each chunk needs to index into it's neighbours to
@@ -309,14 +326,14 @@ void worldLoadChunksXZ(World* world, const i8 x_direction, const i8 z_direction)
     // So if the neighbour doesn't exit yet we get more quads in
     // a chunk mesh than are actually necessary.
     for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
-        Chunk* loaded_chunk = world->chunks[arrayCoord(world, vz, z_coord)][arrayCoord(world, vx, x_coord)][y];
-        chunkGenerateMesh(loaded_chunk);
+        chunkGenerateMesh(to_mesh[y]);
     }
     // Unload (-x_direction,-z_direction) chunk
     x_coord = world->centre.vx + (LOADED_CHUNKS_RADIUS * -x_direction);
     z_coord = world->centre.vz + (LOADED_CHUNKS_RADIUS * -z_direction);
     for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
-        Chunk** unloaded_chunk = world->chunks[arrayCoord(world, vz, z_coord)][arrayCoord(world, vx, x_coord)];
+        Chunk** unloaded_chunk = world->chunks[arrayCoord(world, vz, z_coord)]
+                                              [arrayCoord(world, vx, x_coord)];
         worldUnloadChunk(world, unloaded_chunk[y]);
         unloaded_chunk[y] = NULL;
     }
@@ -365,9 +382,15 @@ void worldUpdate(World* world, Player* player) {
     static i32 prevy = 0;
     static i32 prevz = 0;
     const VECTOR player_chunk_pos = vec3_i32(
-        (player->physics_object.position.vx >> FIXED_POINT_SHIFT) / CHUNK_BLOCK_SIZE,
-        (player->physics_object.position.vy >> FIXED_POINT_SHIFT) / CHUNK_BLOCK_SIZE,
-        (player->physics_object.position.vz >> FIXED_POINT_SHIFT) / CHUNK_BLOCK_SIZE
+        ((player->physics_object.position.vx >> FIXED_POINT_SHIFT) / CHUNK_BLOCK_SIZE) - (player->physics_object.position.vx < 0),
+        ((player->physics_object.position.vy >> FIXED_POINT_SHIFT) / CHUNK_BLOCK_SIZE) - (player->physics_object.position.vy < 0),
+        ((player->physics_object.position.vz >> FIXED_POINT_SHIFT) / CHUNK_BLOCK_SIZE) - (player->physics_object.position.vz < 0)
+    );
+    DEBUG_LOG(
+        "[WORLD] Prev: (%d,%d,%d) Pos: (%d,%d,%d) = (%d,%d,%d)\n",
+        prevx, prevy, prevz,
+        inlineVec(player->physics_object.position),
+        inlineVec(player_chunk_pos)
     );
     if (player_chunk_pos.vx != prevx
         || player_chunk_pos.vy != prevy
@@ -399,8 +422,22 @@ void worldUpdate(World* world, Player* player) {
     for (i32 x = x_start; x <= x_end; x++) {
         for (i32 z = z_start; z <= z_end; z++) {
             for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
+                DEBUG_LOG("[World] Updating chunk: (%d,%d,%d)\n", z, y, x);
+                Chunk* chunk = world->chunks[arrayCoord(world, vz, z)]
+                                 [arrayCoord(world, vx, x)]
+                                 [y];
+                DEBUG_LOG(
+                    "[World] array coords: (%d, %d, %d) => %p\n",
+                    arrayCoord(world, vx, x),
+                    y,
+                    arrayCoord(world, vz, z),
+                    chunk
+                );
                 chunkUpdate(
-                    world->chunks[arrayCoord(world, vz, z)][arrayCoord(world, vx, x)][y],
+                    chunk,
+                    // world->chunks[arrayCoord(world, vz, z)]
+                    //              [arrayCoord(world, vx, x)]
+                    //              [y],
                     player
                 );
             }

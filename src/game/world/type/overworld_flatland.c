@@ -1,5 +1,6 @@
 #include "overworld_flatland.h"
 
+#include <debug.h>
 #include <interface99_extensions.h>
 #include <stdlib.h>
 
@@ -78,6 +79,7 @@ Chunk* OverworldFlatlandChunkProvider_provide(VSelf, const VECTOR position) {
     assert(chunk != NULL);
     chunk->position = position;
     chunkInit(chunk);
+    DEBUG_LOG("Chunk items @ %p\n", chunk->dropped_items);
     VCALL(self->generator, generate, chunk);
     return chunk;
 }

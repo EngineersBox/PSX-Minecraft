@@ -156,35 +156,35 @@ In terms of implementation it looks like this:
 // solid binary for each x,y,z axis
 let mut axis_cols = [[[0u64; CHUNK_SIZE_P]; CHUNK_SIZE_P]; 3];
 // solid and non-transparent binary for each x,y,z axis
-let mut axis_cols_transparent = [[[0u64; CHUNK_SIZE_P]; CHUNK_SIZE_P]; 3];
+let mut axis_cols_opaque = [[[0u64; CHUNK_SIZE_P]; CHUNK_SIZE_P]; 3];
 // the cull mask to perform greedy slicing, based on solids on previous axis_cols
 let mut col_face_masks = [[[0u64; CHUNK_SIZE_P]; CHUNK_SIZE_P]; 6];
 #[inline]
 fn add_voxel_to_axis_cols(
-    b: &crate::voxel::BlockData,
-    x: usize,
-    y: usize,
-    z: usize,
-    axis_cols: &mut [[[u64; 34]; 34]; 3],
-    axis_cols_transparent: &mut [[[u64; 34]; 34]; 3],
+	b: &crate::voxel::BlockData,
+	x: usize,
+	y: usize,
+	z: usize,
+	axis_cols: &mut [[[u64; 34]; 34]; 3],
+	axis_cols_opaque: &mut [[[u64; 34]; 34]; 3],
 ) {
-    if !b.block_type.is_solid() {
-        return;
-    }
-    // x,z - y axis
-    axis_cols[0][z][x] |= 1u64 << y as u64;
-    // z,y - x axis
-    axis_cols[1][y][z] |= 1u64 << x as u64;
-    // x,y - z axis
-    axis_cols[2][y][x] |= 1u64 << z as u64;
-    if !b.block_type.is_transparent() {
-        // x,z - y axis
-        axis_cols_transparent[0][z][x] |= 1u64 << y as u64;
-        // z,y - x axis
-        axis_cols_transparent[1][y][z] |= 1u64 << x as u64;
-        // x,y - z axis
-        axis_cols_transparent[2][y][x] |= 1u64 << z as u64;
-    }
+	if !b.block_type.is_solid() {
+		return;
+	}
+	// x,z - y axis
+	axis_cols[0][z][x] |= 1u64 << y as u64;
+	// z,y - x axis
+	axis_cols[1][y][z] |= 1u64 << x as u64;
+	// x,y - z axis
+	axis_cols[2][y][x] |= 1u64 << z as u64;
+	if !b.block_type.is_transparent() {
+		// x,z - y axis
+		axis_cols_opaque[0][z][x] |= 1u64 << y as u64;
+		// z,y - x axis
+		axis_cols_opaque[1][y][z] |= 1u64 << x as u64;
+		// x,y - z axis
+		axis_cols_opaque[2][y][x] |= 1u64 << z as u64;
+	}
 }
 ```
 
@@ -194,7 +194,7 @@ We can combine these two *views* in order to get a complete understanding of the
 	<tr>
 		<td>Non-Empty (NE)</td>
 		<td>Non-Empty & Non-Transparent (NET)</td>
-		<td>Non-Empty & Non-Transparent Combined (NETC)</td>
+		<td>Non-Empty & Non-Transparent (NETC)</td>
 	</tr>
 	<tr>
 		<td>
@@ -328,23 +328,23 @@ This finalised result can be added as the value for the current column face mask
 ```rust
 // face culling
 for axis in 0..3 {
-    for z in 0..CHUNK_SIZE_P {
-        for x in 0..CHUNK_SIZE_P {
-            // set if current is solid, and next is air
-            let col = axis_cols[axis][z][x];
-            // set if current is solid and not transparent and next is air
-            let col_transparent = axis_cols_transparent[axis][z][x];
-            // solid
-            let solid_descending = col & !(col << 1);
-            let solid_ascending = col & !(col >> 1);
-            // Transparent
-            let transparent_descending = col_transparent & !(col_transparent << 1);
-            let transparent_ascending = col_transparent & !(col_transparent >> 1);
-            // Combined solid + transparent faces
-            col_face_masks[2 * axis + 0][z][x] = solid_descending | transparent_descending;
-            col_face_masks[2 * axis + 1][z][x] = solid_ascending | transparent_ascending;
-        }
-    }
+	for z in 0..CHUNK_SIZE_P {
+		for x in 0..CHUNK_SIZE_P {
+			// set if current is solid, and next is air
+			let col = axis_cols[axis][z][x];
+			// set if current is solid and not transparent and next is air
+			let col_opaque = col & axis_cols_opaque[axis][z][x];
+			// solid
+			let solid_descending = col & !(col << 1);
+			let solid_ascending = col & !(col >> 1);
+			// Transparent
+			let opaque_descending = col_opaque & !(col_opaque << 1);
+			let opaque_ascending = col_opaque & !(col_opaque >> 1);
+			// Combined solid + transparent faces
+			col_face_masks[2 * axis + 0][z][x] = solid_descending | opaque_descending;
+			col_face_masks[2 * axis + 1][z][x] = solid_ascending | opaque_ascending;
+		}
+	}
 }
 ```
 
@@ -386,3 +386,15 @@ Note **specifically**, that we get the trailing zeros as the y offset for this v
 ## Conclusion
 
 Now, theres an obvious caveat to this... you need to implement your mesh generation and subsequently the rendering pipeline such that transparency ordering is respected from the Z-axis (presumably through depth testing) here in order make use of this. This will however, guarantee that the absolute minimum amount of transparent faces are constructed in the mesh.
+
+You might wonder.. why is this an *issue* as opposed to a PR? Well that's because I wanted to post this here for discussion and leave it open to whether this is used by anyone (also up to repo maintainers as to whether they want to do anything with this at all). That being said, if this does indeed work as I have outlined (and I'm not a complete moron that has made an obvious mistake) then by all means I'm happy to PR a version of the mesher that has this transparency support.
+
+
+
+This was fun. ye.
+
+
+---
+
+Edits:
+Fixed a bunch of stuff in the logic and naming. Works seamlessly now.
