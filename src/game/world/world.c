@@ -299,6 +299,7 @@ void worldLoadChunksZ(World* world, const i8 x_direction, const i8 z_direction) 
     // determine if a mesh face should be created on the border.
     // So if the neighbour doesn't exit yet we get more quads in
     // a chunk mesh than are actually necessary.
+    i = 0;
     for (i32 x_coord = x_start; x_coord <= x_end; x_coord++) {
         for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
             chunkGenerateMesh(to_mesh[i++]);
@@ -373,15 +374,25 @@ void worldLoadChunks(World* world, const VECTOR* player_chunk_pos) {
     const i8 z_direction = cmp(world->centre.vz, player_chunk_pos->vz);
     // Load chunks
     if (x_direction != 0) {
+        DEBUG_LOG("[WORLD] Loading X chunks\n");
         worldLoadChunksX(world, x_direction, z_direction);
+        DEBUG_LOG("[WORLD] Loading X chunks - Done\n");
+
     }
     if (z_direction != 0) {
+        DEBUG_LOG("[WORLD] Loading Z chunks\n");
         worldLoadChunksZ(world, x_direction, z_direction);
+        DEBUG_LOG("[WORLD] Loading Z chunks - Done\n");
+
     }
     if (x_direction != 0 && z_direction != 0) {
+        DEBUG_LOG("[WORLD] Loading XZ chunks\n");
         worldLoadChunksXZ(world, x_direction, z_direction);
+        DEBUG_LOG("[WORLD] Loading XZ chunks - Done\n");
+
     }
     // Shift chunks into centre of arrays
+    DEBUG_LOG("[WORLD] Shifting chunks\n");
     worldShiftChunks(world, x_direction, z_direction);
 }
 
