@@ -488,7 +488,7 @@ bool worldModifyVoxel(const World* world, const VECTOR* position, IBlock* block,
     }
     const ChunkBlockPosition chunk_block_position = worldToChunkBlockPosition(position, CHUNK_SIZE);
     DEBUG_LOG(
-        "Chunk: (%d,%d,%d) Block: (%d,%d,%d)\n",
+        "[WORLD] Modify - Chunk: (%d,%d,%d) Block: (%d,%d,%d)\n",
         chunk_block_position.chunk.vx,
         chunk_block_position.chunk.vy,
         chunk_block_position.chunk.vz,

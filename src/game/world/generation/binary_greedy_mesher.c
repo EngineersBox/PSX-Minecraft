@@ -13,6 +13,7 @@
 typedef struct World World;
 IBlock* worldGetBlock(const World* world, const VECTOR* position);
 IBlock* worldGetChunkBlock(const World* world, const ChunkBlockPosition* position);
+IBlock* chunkGetBlock(const Chunk* chunk, i32 x, i32 y, i32 z);
 
 #define CHUNK_SIZE_PADDED (CHUNK_SIZE + 2)
 
@@ -89,7 +90,7 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
                 addVoxelToAxisCols(
                     axis_cols,
                     axis_cols_opaque,
-                    chunk->blocks[chunkBlockIndex(x, y, z)],
+                    chunkGetBlock(chunk, x, y, z),
                     x + 1,
                     y + 1,
                     z + 1
@@ -100,8 +101,8 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
     // Neighbouring chunk blocks
     // Z
     for (u32 z_i = 0; z_i < AXIAL_EDGES_COUNT; z_i++) {
-        for (i32 y = 0; y < CHUNK_SIZE_PADDED; y++) {
-            for (i32 x = 0; x < CHUNK_SIZE_PADDED; x++) {
+        for (i32 x = 0; x < CHUNK_SIZE_PADDED; x++) {
+            for (i32 y = 0; y < CHUNK_SIZE_PADDED; y++) {
                 const i32 z = AXIAL_EDGES[z_i];
                 const VECTOR position = vec3_i32(
                     (chunk->position.vx * CHUNK_SIZE) + x - 1,
@@ -121,8 +122,8 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
     }
     // Y
     for (i32 z = 0; z < CHUNK_SIZE_PADDED; z++) {
-        for (u32 y_i = 0; y_i < AXIAL_EDGES_COUNT; y_i++) {
-            for (i32 x = 0; x < CHUNK_SIZE_PADDED; x++) {
+        for (i32 x = 0; x < CHUNK_SIZE_PADDED; x++) {
+            for (u32 y_i = 0; y_i < AXIAL_EDGES_COUNT; y_i++) {
                 const i32 y = AXIAL_EDGES[y_i];
                 const VECTOR position = vec3_i32(
                     (chunk->position.vx * CHUNK_SIZE) + x - 1,
@@ -271,11 +272,7 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
                     }
                     const Block* block = VCAST_PTR(Block*, current_block);
                     const PlaneMeshingData query = (PlaneMeshingData) {
-                        .key = (PlaneMeshingDataKey) {
-                            .axis = axis,
-                            .y = y,
-                            .block = block
-                        },
+                        .key = (PlaneMeshingDataKey) { axis, y, block },
                         .value = {0}
                     };
                     PlaneMeshingData* current = (PlaneMeshingData*) hashmap_get(data, &query);
