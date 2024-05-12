@@ -199,30 +199,29 @@ void worldRender(const World* world, RenderContext* ctx, Transforms* transforms)
 Chunk* worldLoadChunk(World* world, const VECTOR chunk_position) {
     Chunk* chunk = VCALL(world->chunk_provider, provide, chunk_position);
     assert(chunk != NULL);
-    DEBUG_LOG(
-        "[CHUNK: %d,%d,%d, INDEX: %d,%d,%d] Generating heightmap and terrain\n",
-        chunk_position.vx,
-        chunk_position.vy,
-        chunk_position.vz,
-        arrayCoord(world, vx, chunk_position.vx),
-        chunk_position.vy,
-        arrayCoord(world, vz, chunk_position.vz)
-    );
-    DEBUG_LOG("[CHUNK] Address: %p\n", chunk);
+    // DEBUG_LOG(
+    //     "[CHUNK: %d,%d,%d, INDEX: %d,%d,%d] Generating heightmap and terrain\n",
+    //     chunk_position.vx,
+    //     chunk_position.vy,
+    //     chunk_position.vz,
+    //     arrayCoord(world, vx, chunk_position.vx),
+    //     chunk_position.vy,
+    //     arrayCoord(world, vz, chunk_position.vz)
+    // );
     chunk->world = world;
     return chunk;
 }
 
 void worldUnloadChunk(const World* world, Chunk* chunk) {
-    DEBUG_LOG(
-        "[CHUNK: %d,%d,%d, INDEX: %d,%d,%d] Unloading chunk\n",
-        chunk->position.vx,
-        chunk->position.vy,
-        chunk->position.vz,
-        arrayCoord(world, vx, chunk->position.vx),
-        chunk->position.vy,
-        arrayCoord(world, vz, chunk->position.vz)
-    );
+    // DEBUG_LOG(
+    //     "[CHUNK: %d,%d,%d, INDEX: %d,%d,%d] Unloading chunk\n",
+    //     chunk->position.vx,
+    //     chunk->position.vy,
+    //     chunk->position.vz,
+    //     arrayCoord(world, vx, chunk->position.vx),
+    //     chunk->position.vy,
+    //     arrayCoord(world, vz, chunk->position.vz)
+    // );
     VCALL(world->chunk_provider, save, chunk);
     free(chunk);
 }
@@ -374,25 +373,18 @@ void worldLoadChunks(World* world, const VECTOR* player_chunk_pos) {
     const i8 z_direction = cmp(world->centre.vz, player_chunk_pos->vz);
     // Load chunks
     if (x_direction != 0) {
-        DEBUG_LOG("[WORLD] Loading X chunks\n");
         worldLoadChunksX(world, x_direction, z_direction);
-        DEBUG_LOG("[WORLD] Loading X chunks - Done\n");
 
     }
     if (z_direction != 0) {
-        DEBUG_LOG("[WORLD] Loading Z chunks\n");
         worldLoadChunksZ(world, x_direction, z_direction);
-        DEBUG_LOG("[WORLD] Loading Z chunks - Done\n");
 
     }
     if (x_direction != 0 && z_direction != 0) {
-        DEBUG_LOG("[WORLD] Loading XZ chunks\n");
         worldLoadChunksXZ(world, x_direction, z_direction);
-        DEBUG_LOG("[WORLD] Loading XZ chunks - Done\n");
 
     }
     // Shift chunks into centre of arrays
-    DEBUG_LOG("[WORLD] Shifting chunks\n");
     worldShiftChunks(world, x_direction, z_direction);
 }
 
@@ -411,22 +403,19 @@ void worldUpdate(World* world, Player* player) {
         prevx = player_chunk_pos.vx;
         prevy = player_chunk_pos.vy;
         prevz = player_chunk_pos.vz;
-        // BUG: Something weird is going on when moving between chunks and loading
-        //      + unloading them. At times you can go beyond the boundary and then
-        //      get a bad memory access error.
-        DEBUG_LOG("Player chunk pos: %d,%d,%d\n", inlineVec(player_chunk_pos));
+        // DEBUG_LOG("Player chunk pos: %d,%d,%d\n", inlineVec(player_chunk_pos));
         worldLoadChunks(world, &player_chunk_pos);
-        DEBUG_LOG(
-            "[WORLD] Head { x: %d, z: %d } Centre { x: %d, z: %d}\n",
-            world->head.vx, world->head.vz,
-            world->centre.vx, world->centre.vz
-        );
-        for (i32 z = 0; z < AXIS_CHUNKS; z++) {
-            for (i32 x = 0; x < AXIS_CHUNKS; x++) {
-                DEBUG_LOG("%d ", world->chunks[z][x][0] != NULL);
-            }
-            DEBUG_LOG("\n");
-        }
+        // DEBUG_LOG(
+        //     "[WORLD] Head { x: %d, z: %d } Centre { x: %d, z: %d}\n",
+        //     world->head.vx, world->head.vz,
+        //     world->centre.vx, world->centre.vz
+        // );
+        // for (i32 z = 0; z < AXIS_CHUNKS; z++) {
+        //     for (i32 x = 0; x < AXIS_CHUNKS; x++) {
+        //         DEBUG_LOG("%d ", world->chunks[z][x][0] != NULL);
+        //     }
+        //     DEBUG_LOG("\n");
+        // }
     }
     const i32 x_start = world->centre.vx - LOADED_CHUNKS_RADIUS;
     const i32 x_end = world->centre.vx + LOADED_CHUNKS_RADIUS;
@@ -435,22 +424,10 @@ void worldUpdate(World* world, Player* player) {
     for (i32 x = x_start; x <= x_end; x++) {
         for (i32 z = z_start; z <= z_end; z++) {
             for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
-                DEBUG_LOG("[World] Updating chunk: (%d,%d,%d)\n", z, y, x);
-                Chunk* chunk = world->chunks[arrayCoord(world, vz, z)]
-                                 [arrayCoord(world, vx, x)]
-                                 [y];
-                DEBUG_LOG(
-                    "[World] array coords: (%d, %d, %d) => %p\n",
-                    arrayCoord(world, vx, x),
-                    y,
-                    arrayCoord(world, vz, z),
-                    chunk
-                );
                 chunkUpdate(
-                    chunk,
-                    // world->chunks[arrayCoord(world, vz, z)]
-                    //              [arrayCoord(world, vx, x)]
-                    //              [y],
+                    world->chunks[arrayCoord(world, vz, z)]
+                                 [arrayCoord(world, vx, x)]
+                                 [y],
                     player
                 );
             }
