@@ -23,8 +23,8 @@ const u32 AXIAL_EDGES[AXIAL_EDGES_COUNT] = { 0, CHUNK_SIZE_PADDED - 1 };
 
 typedef u32 AxisCols[AXIS_COUNT][CHUNK_SIZE_PADDED][CHUNK_SIZE_PADDED];
 
-__attribute__((always_inline))
-static void addVoxelToAxisCols(AxisCols axis_cols,
+__attribute__((always_inline, gnu_inline))
+inline void addVoxelToAxisCols(AxisCols axis_cols,
                                AxisCols axis_cols_opaque,
                                const IBlock* iblock,
                                const u32 x,

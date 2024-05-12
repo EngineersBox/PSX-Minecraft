@@ -50,6 +50,7 @@
 * [ ] Refactor vector operations to use `_Generic` C11 macro to perform type specific operations between any kind of two vector types or constant
 * [x] Move to binary greedy meshing with bitwise ops for single-pass mask creation
 * [x] Migrate to chunk providers and generators created with world for specific generation
+* [ ] Move old mesh generation in `Chunk` into standalone implementation in `src/game/world/chunk/meshing`
 
 ## Fix
 

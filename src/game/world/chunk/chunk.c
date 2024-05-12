@@ -481,11 +481,7 @@ IBlock* chunkGetBlock(const Chunk* chunk, const i32 x, const i32 y, const i32 z)
     if (checkIndexOOB(x, y, z)) {
         return airBlockCreate();
     }
-    return chunk->blocks[chunkBlockIndex(
-        x,
-        y, //positiveModulo(-y - 1, CHUNK_SIZE),
-        z
-    )];
+    return chunk->blocks[chunkBlockIndex(x, y, z)];
 }
 
 IBlock* chunkGetBlockVec(const Chunk* chunk, const VECTOR* position) {
@@ -494,7 +490,7 @@ IBlock* chunkGetBlockVec(const Chunk* chunk, const VECTOR* position) {
     }
     return chunk->blocks[chunkBlockIndex(
         position->vx,
-        position->vy,//positiveModulo(-position->vy - 1, CHUNK_SIZE),
+        position->vy,
         position->vz
     )];
 }
