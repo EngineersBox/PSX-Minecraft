@@ -7,6 +7,7 @@
 #include <psxgte.h>
 
 #include "../util/preprocessor.h"
+#include "../util/inttypes.h"
 
 /**
  * @brief Factor to shift left/right to convert int to/from fixed-point format
@@ -107,7 +108,8 @@
 
 #define positiveModulo(i, n) ({ \
     __typeof__(n) _n = (n); \
-    ((i) % _n + _n) % _n; \
+    i32 m = (i) % _n; \
+    m + ((m >> 31) & _n); \
 })
 
 #define isPowerOf2(x) (((x) & ((x) - 1)) == 0)

@@ -12,7 +12,11 @@
 #include "../ui/background.h"
 #include "../../debug/debug.h"
 
-#define wrapCoord(world, axis, coord) positiveModulo(((world)->head.axis + (coord)), AXIS_CHUNKS)
+// NOTE: Cast to i32 is necessary here since computing modulo of 0 - 1
+//       is actually computing modulo over 0u32 - 1 == u32::MAX so we end
+//       up with a result of 0. This means that you can never move in a
+//       negative direction. Casting to i32 fixes this to allow for wrapping
+#define wrapCoord(world, axis, coord) positiveModulo((((i32)(world)->head.axis) + (coord)), AXIS_CHUNKS)
 #define arrayCoord(world, axis, value) wrapCoord(\
     world, \
     axis, \
@@ -234,12 +238,13 @@ void worldLoadChunksX(World* world, const i8 x_direction, const i8 z_direction) 
         z_start += SHIFT_ZONE;
     }
     Chunk* to_mesh[(z_end + 1 - z_start) * WORLD_CHUNKS_HEIGHT];
+    u32 i = 0;
     for (i32 z_coord = z_start; z_coord <= z_end; z_coord++) {
         for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
             Chunk* chunk = worldLoadChunk(world, vec3_i32(x_shift_zone, y, z_coord));
             world->chunks[arrayCoord(world, vz, z_coord)]
                          [arrayCoord(world, vx, x_shift_zone)]
-                         [y] = to_mesh[(z_coord * WORLD_CHUNKS_HEIGHT) + y] = chunk;
+                         [y] = to_mesh[i++] = chunk;
         }
     }
     // We need to generate the mesh after creating all the chunks
@@ -247,17 +252,18 @@ void worldLoadChunksX(World* world, const i8 x_direction, const i8 z_direction) 
     // determine if a mesh face should be created on the border.
     // So if the neighbour doesn't exit yet we get more quads in
     // a chunk mesh than are actually necessary.
+    i = 0;
     for (i32 z_coord = z_start; z_coord <= z_end; z_coord++) {
-        for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {;
-            chunkGenerateMesh(to_mesh[(z_coord * WORLD_CHUNKS_HEIGHT) + y]);
+        for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
+            chunkGenerateMesh(to_mesh[i++]);
         }
     }
     // Unload -x_direction chunks
     x_shift_zone = world->centre.vx + (LOADED_CHUNKS_RADIUS * -x_direction);
     for (i32 z_coord = z_start; z_coord <= z_end; z_coord++) {
+        Chunk** chunk = world->chunks[arrayCoord(world, vz, z_coord)]
+                                     [arrayCoord(world, vx, x_shift_zone)];
         for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
-            Chunk** chunk = world->chunks[arrayCoord(world, vz, z_coord)]
-                                         [arrayCoord(world, vx, x_shift_zone)];
             worldUnloadChunk(world, chunk[y]);
             chunk[y] = NULL;
         }
@@ -279,12 +285,13 @@ void worldLoadChunksZ(World* world, const i8 x_direction, const i8 z_direction) 
         x_start += SHIFT_ZONE;
     }
     Chunk* to_mesh[(x_end + 1 - x_start) * WORLD_CHUNKS_HEIGHT];
+    u32 i = 0;
     for (i32 x_coord = x_start; x_coord <= x_end; x_coord++) {
         for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
             Chunk* chunk = worldLoadChunk(world, vec3_i32(x_coord, y, z_shift_zone));
             world->chunks[arrayCoord(world, vz, z_shift_zone)]
                          [arrayCoord(world, vx, x_coord)]
-                         [y] = to_mesh[(x_coord * WORLD_CHUNKS_HEIGHT) + y] = chunk;
+                         [y] = to_mesh[i++] = chunk;
         }
     }
     // We need to generate the mesh after creating all the chunks
@@ -294,15 +301,15 @@ void worldLoadChunksZ(World* world, const i8 x_direction, const i8 z_direction) 
     // a chunk mesh than are actually necessary.
     for (i32 x_coord = x_start; x_coord <= x_end; x_coord++) {
         for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
-            chunkGenerateMesh(to_mesh[(x_coord * WORLD_CHUNKS_HEIGHT) + y]);
+            chunkGenerateMesh(to_mesh[i++]);
         }
     }
     // Unload -z_direction chunks
     z_shift_zone = world->centre.vz + (LOADED_CHUNKS_RADIUS * -z_direction);
     for (i32 x_coord = x_start; x_coord <= x_end; x_coord++) {
+        Chunk** chunk = world->chunks[arrayCoord(world, vz, z_shift_zone)]
+                                     [arrayCoord(world, vx, x_coord)];
         for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
-            Chunk** chunk = world->chunks[arrayCoord(world, vz, z_shift_zone)]
-                                         [arrayCoord(world, vx, x_coord)];
             worldUnloadChunk(world, chunk[y]);
             chunk[y] = NULL;
         }
@@ -331,20 +338,18 @@ void worldLoadChunksXZ(World* world, const i8 x_direction, const i8 z_direction)
     // Unload (-x_direction,-z_direction) chunk
     x_coord = world->centre.vx + (LOADED_CHUNKS_RADIUS * -x_direction);
     z_coord = world->centre.vz + (LOADED_CHUNKS_RADIUS * -z_direction);
+    Chunk** unloaded_chunk = world->chunks[arrayCoord(world, vz, z_coord)]
+                                          [arrayCoord(world, vx, x_coord)];
     for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
-        Chunk** unloaded_chunk = world->chunks[arrayCoord(world, vz, z_coord)]
-                                              [arrayCoord(world, vx, x_coord)];
         worldUnloadChunk(world, unloaded_chunk[y]);
         unloaded_chunk[y] = NULL;
     }
 }
 
 void worldShiftChunks(World* world, const i8 x_direction, const i8 z_direction) {
-    DEBUG_LOG("[WORLD] Shift: set head\n");
     world->head.vx = wrapCoord(world, vx, x_direction);
     world->head.vz = wrapCoord(world, vz, z_direction);
     // Move centre towards player position by 1 increment
-    DEBUG_LOG("[WORLD] Shift: set centre\n");
     world->centre.vx += x_direction;
     world->centre.vz += z_direction;
 }
@@ -386,12 +391,6 @@ void worldUpdate(World* world, Player* player) {
         ((player->physics_object.position.vy >> FIXED_POINT_SHIFT) / CHUNK_BLOCK_SIZE) - (player->physics_object.position.vy < 0),
         ((player->physics_object.position.vz >> FIXED_POINT_SHIFT) / CHUNK_BLOCK_SIZE) - (player->physics_object.position.vz < 0)
     );
-    DEBUG_LOG(
-        "[WORLD] Prev: (%d,%d,%d) Pos: (%d,%d,%d) = (%d,%d,%d)\n",
-        prevx, prevy, prevz,
-        inlineVec(player->physics_object.position),
-        inlineVec(player_chunk_pos)
-    );
     if (player_chunk_pos.vx != prevx
         || player_chunk_pos.vy != prevy
         || player_chunk_pos.vz != prevz) {
@@ -427,7 +426,7 @@ void worldUpdate(World* world, Player* player) {
                                  [arrayCoord(world, vx, x)]
                                  [y];
                 DEBUG_LOG(
-                    "[World] array coords: (%d, %d, %d) => %p\n", // BUG: Chunk address is invalid for some reason here after loading new chunks
+                    "[World] array coords: (%d, %d, %d) => %p\n",
                     arrayCoord(world, vx, x),
                     y,
                     arrayCoord(world, vz, z),
