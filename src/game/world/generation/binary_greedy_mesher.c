@@ -187,6 +187,11 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
     for (u32 axis = 0; axis < AXIS_COUNT; axis++) {
         for (u32 z = 0; z < CHUNK_SIZE_PADDED; z++) {
             for (u32 x = 0; x < CHUNK_SIZE_PADDED; x++) {
+                // TODO: For chunks that are on the edge of the render distance
+                //       we should not generate faces that face outward toward
+                //       unloaded chunks. To do this we should ensure that the
+                //       padding area in col and col_opaque are always set to 1's
+                //       for the parts that face outwards.
                 const u32 col = axis_cols[axis][z][x];
                 const u32 col_opaque = col & axis_cols_opaque[axis][z][x];
                 // Solid

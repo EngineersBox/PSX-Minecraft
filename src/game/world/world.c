@@ -333,6 +333,9 @@ void worldLoadChunksXZ(World* world, const i8 x_direction, const i8 z_direction)
     // So if the neighbour doesn't exit yet we get more quads in
     // a chunk mesh than are actually necessary.
     for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
+        // TODO: Should these mesh generations be done for all axis after we
+        //       have loaded chunks on all axis? Otherwise each axis may duplicate
+        //       faces from, the orthogonal axis.
         chunkGenerateMesh(to_mesh[y]);
     }
     // Unload (-x_direction,-z_direction) chunk
