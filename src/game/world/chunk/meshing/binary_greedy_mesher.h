@@ -3,21 +3,14 @@
 #ifndef _PSX_MINECRAFT__GAME_WORLD_GENERATION__BINARY_GREEDY_MESHER_H_
 #define _PSX_MINECRAFT__GAME_WORLD_GENERATION__BINARY_GREEDY_MESHER_H_
 
-#include "../chunk/chunk_structure.h"
-#include "../../../util/inttypes.h"
-#include "../../../util/preprocessor.h"
-#include "../../../math/math_utils.h"
+#include "../chunk_structure.h"
+#include "../../../../util/inttypes.h"
+#include "../../../../util/preprocessor.h"
+#include "../../../../math/math_utils.h"
+#include "plane_meshing_data.h"
 
 // This implementation is based on TanTan's Binary Greedy Mesher demo:
 // https://github.com/TanTanDev/binary_greedy_mesher_demo/blob/main/src/greedy_mesher_optimized.rs
-
-#if defined(CHUNK_SIZE) && CHUNK_SIZE > 0 && CHUNK_SIZE <= 32 && isPowerOf2(CHUNK_SIZE)
-    #define planeType(size, name) typedef GLUE(u, size) name[size]
-    planeType(CHUNK_SIZE,BinaryMeshPlane);
-    #undef planeType
-#else
-    #error CHUNK_SIZE must be in the interval (0, 32] and be a power of 2
-#endif
 
 typedef enum {
     FACE_DIR_DOWN = 0,

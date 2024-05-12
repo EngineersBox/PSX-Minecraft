@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef _PSX_MINECRAFT__GAME_WORLD_TYPE__OVERWORLD_PERLIN_H_
-#define _PSX_MINECRAFT__GAME_WORLD_TYPE__OVERWORLD_PERLIN_H_
+#ifndef _PSX_MINECRAFT__GAME_WORLD_LEVEL__OVERWORLD_PERLIN_H_
+#define _PSX_MINECRAFT__GAME_WORLD_LEVEL__OVERWORLD_PERLIN_H_
 
 #include <interface99.h>
 
@@ -37,4 +37,4 @@ bool OverworldPerlinChunkProvider_save(VSelf, Chunk* chunk);
 
 impl(IChunkProvider, OverworldPerlinChunkProvider);
 
-#endif // _PSX_MINECRAFT__GAME_WORLD_TYPE__OVERWORLD_PERLIN_H_
+#endif // _PSX_MINECRAFT__GAME_WORLD_LEVEL__OVERWORLD_PERLIN_H_

@@ -32,6 +32,9 @@
 
 #define UNIMPLEMENTED __attribute__((unavailable("Unimplemented function/method")))
 
+// Forward declaration
+#define FWD_DECL
+
 // ==== PRINTING ====
 
 #define INT8_BIN_PATTERN "%c%c%c%c%c%c%c%c"

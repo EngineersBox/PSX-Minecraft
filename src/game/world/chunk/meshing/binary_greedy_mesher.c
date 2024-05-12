@@ -10,43 +10,12 @@
 #include "../../../structure/primitive/primitive.h"
 
 // Forward declarations
-typedef struct World World;
-IBlock* worldGetBlock(const World* world, const VECTOR* position);
-IBlock* worldGetChunkBlock(const World* world, const ChunkBlockPosition* position);
-IBlock* chunkGetBlock(const Chunk* chunk, i32 x, i32 y, i32 z);
+FWD_DECL typedef struct World World;
+FWD_DECL IBlock* worldGetBlock(const World* world, const VECTOR* position);
+FWD_DECL IBlock* worldGetChunkBlock(const World* world, const ChunkBlockPosition* position);
+FWD_DECL IBlock* chunkGetBlock(const Chunk* chunk, i32 x, i32 y, i32 z);
 
 #define CHUNK_SIZE_PADDED (CHUNK_SIZE + 2)
-
-typedef struct {
-    const u8 axis;
-    const u8 y;
-    const Block* block;
-} PlaneMeshingDataKey;
-
-typedef struct {
-    PlaneMeshingDataKey key;
-    BinaryMeshPlane value;
-} PlaneMeshingData;
-
-int plane_meshing_data_compare(const void* a, const void* b, void* ignored) {
-    const PlaneMeshingData* pa = a;
-    const PlaneMeshingData* pb = b;
-    const int axis = cmp(pa->key.axis, pb->key.axis);
-    const int blockId = cmp(pa->key.block->id, pb->key.block->id);
-    const int y = cmp(pa->key.y, pb->key.y);
-    if (axis != 0) {
-        return axis;
-    } else if (blockId != 0) {
-        return blockId;
-    }
-    return y;
-};
-
-u64 plane_meshing_data_hash(const void* item, u64 seed0, u64 seed1) {
-    const PlaneMeshingData* data = item;
-    return hashmap_xxhash3(&data->key, sizeof(data->key), seed0, seed1);
-}
-
 #define AXIS_COUNT 3
 #define FACES_COUNT (AXIS_COUNT * 2)
 #define AXIAL_EDGES_COUNT 2
