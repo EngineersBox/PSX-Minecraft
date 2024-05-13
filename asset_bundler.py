@@ -31,7 +31,7 @@ class ColoredFormatter(coloredlogs.ColoredFormatter):
                 "bold": True,
                 "color": "red"
             },
-            "debug": {
+            "logging": {
                 "color": "magenta"
             },
             "error": {

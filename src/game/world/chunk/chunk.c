@@ -6,7 +6,7 @@
 
 #include "../../structure/primitive/clip.h"
 #include "../../structure/cvector_utils.h"
-#include "../../debug/debug.h"
+#include "../../logging/logging.h"
 #include "../../structure/cvector.h"
 #include "../../structure/primitive/primitive.h"
 #include "../generation/noise.h"

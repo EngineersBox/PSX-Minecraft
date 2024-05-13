@@ -10,7 +10,7 @@
 #include "../math/math_utils.h"
 #include "../ui/progress_bar.h"
 #include "../ui/background.h"
-#include "../../debug/debug.h"
+#include "../../logging/logging.h"
 
 // NOTE: Cast to i32 is necessary here since computing modulo of 0 - 1
 //       is actually computing modulo over 0u32 - 1 == u32::MAX so we end

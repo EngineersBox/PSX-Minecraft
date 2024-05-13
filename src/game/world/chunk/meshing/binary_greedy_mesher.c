@@ -1,7 +1,7 @@
 #include "binary_greedy_mesher.h"
 
-#include <debug.h>
 #include <psxgte.h>
+#include "../../../../logging/logging.h"
 #include "../../../util/interface99_extensions.h"
 #include "../../../util/bits.h"
 #include "../../../math/math_utils.h"
@@ -53,9 +53,9 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
     AxisCols axis_cols_opaque = {0};
     u32 col_face_masks[FACES_COUNT][CHUNK_SIZE_PADDED][CHUNK_SIZE_PADDED] = {0};
     // Inner chunk blocks
-    for (i32 z = 0; z < CHUNK_SIZE; z++) {
-        for (i32 y = 0; y < CHUNK_SIZE; y++) {
-            for (i32 x = 0; x < CHUNK_SIZE; x++) {
+    for (u32 z = 0; z < CHUNK_SIZE; z++) {
+        for (u32 x = 0; x < CHUNK_SIZE; x++) {
+            for (u32 y = 0; y < CHUNK_SIZE; y++) {
                 addVoxelToAxisCols(
                     axis_cols,
                     axis_cols_opaque,
@@ -210,36 +210,43 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
                     const u8 y = trailing_zeros(col);
                     // Clear least significant bit set
                     col &= col - 1;
-                    VECTOR voxel_pos;
+                    ChunkBlockPosition chunk_block_position = {
+                        .block = vec3_i32_all(0),
+                        .chunk = chunk->position
+                    };
                     switch (axis) {
                         case FACE_DIR_DOWN:
                         case FACE_DIR_UP:
-                            voxel_pos = vec3_i32(x, y, z);
+                            chunk_block_position.block = vec3_i32(x, y, z);
                             break;
                         case FACE_DIR_LEFT:
                         case FACE_DIR_RIGHT:
-                            voxel_pos = vec3_i32(y, z, x);
+                            chunk_block_position.block = vec3_i32(y, z, x);
                             break;
                         case FACE_DIR_BACK:
                         case FACE_DIR_FRONT:
                         default:
-                            voxel_pos = vec3_i32(x, z, y);
+                            chunk_block_position.block = vec3_i32(x, z, y);
                             break;
                     }
-                    const VECTOR block_position = vector_add(
-                        voxel_pos,
-                        vector_const_mul(
-                            chunk->position,
-                            CHUNK_SIZE
-                        )
-                    );
-                    const IBlock* current_block = worldGetBlock(chunk->world, &block_position);
+                    const IBlock* current_block = worldGetChunkBlock(chunk->world, &chunk_block_position);
                     if (current_block == NULL) {
-                        printf("[BINARY GREEDY MESHER] Null block returned constructing mask\n");
-                        abort();
+                        errorAbort(
+                            "[BINARY GREEDY MESHER] Null block returned while constructing mask [Face: 0] [Chunk: (%d,%d,%d)] [Block: (%d,%d,%d)]\n",
+                            inlineVec(chunk->position),
+                            inlineVec(chunk_block_position.block)
+                        );
                         continue;
                     }
                     const Block* block = VCAST_PTR(Block*, current_block);
+                    if (block->type == BLOCKTYPE_EMPTY) {
+                        errorAbort(
+                            "[BINARY GREEDY MESHER] Empty block encountered while constructing mask [Face: 0] [Chunk: (%d,%d,%d)] [Block: (%d,%d,%d)]\n",
+                            inlineVec(chunk->position),
+                            inlineVec(chunk_block_position.block)
+                        );
+                        continue;
+                    }
                     const PlaneMeshingData query = (PlaneMeshingData) {
                         .key = (PlaneMeshingDataKey) { axis, y, block },
                         .value = {0}

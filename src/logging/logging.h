@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef PSX_MINECRAFT_DEBUG_H
-#define PSX_MINECRAFT_DEBUG_H
+#ifndef PSX_MINECRAFT_LOGGING_H
+#define PSX_MINECRAFT_LOGGING_H
 
 #include <stdio.h>
 
@@ -11,4 +11,6 @@
 #define DEBUG_LOG(x, ...) ({})
 #endif
 
-#endif // PSX_MINECRAFT_DEBUG_H
+void errorAbort(const char* fmt, ...);
+
+#endif // PSX_MINECRAFT_LOGGING_H

@@ -9,7 +9,7 @@
 #include <string.h>
 #include <sys/types.h>
 
-#include "../debug/debug.h"
+#include "../logging/logging.h"
 
 typedef void (*AssetLoader)(int lzp_index);
 

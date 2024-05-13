@@ -63,7 +63,15 @@
 #define ceilDiv(a, b) ({ \
     __typeof__(a) _a = (a); \
     __typeof__(b) _b = (b); \
-    (int32_t)((_a + _b - 1) / _b); \
+    (i32)((_a + _b - 1) / _b); \
+})
+
+#define floorDiv(a, b) ({ \
+    __typeof__(a) _a = (a); \
+    __typeof__(b) _b = (b); \
+    const i32 d = _a / _b; \
+    const i32 r = _a % _b; \
+    (r ? (d - ((_a < 0) ^ (_b < 0))) : d); \
 })
 
 #define squareDistance(v1, v2) (pow2((v2)->vx - (v1)->vx) + pow2((v2)->vy - (v1)->vy) + pow2((v2)->vz - (v1)->vz))

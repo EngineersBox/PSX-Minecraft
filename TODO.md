@@ -77,4 +77,4 @@
 * [ ] Certain faces at chunk boundaries are not generated with binary greedy meshing
 * [ ] Move mesh generation to after all loading when updating world to avoid face generation on orthogonal axis
 * [ ] Cull faces on chunk edges that face outward on the render limit
-* [ ] Chunks with a negative component in position don't generate meshes correctly (incorrect faces and textures)
+* [x] Chunks with a negative component in position don't generate meshes correctly (incorrect faces and textures)

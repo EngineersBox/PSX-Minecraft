@@ -5,9 +5,9 @@
 ChunkBlockPosition worldToChunkBlockPosition(const VECTOR* position, const int chunk_size) {
     return (ChunkBlockPosition) {
         .chunk = (VECTOR) {
-            .vx = position->vx / chunk_size,
-            .vy = position->vy / chunk_size,
-            .vz = position->vz / chunk_size
+            .vx = floorDiv(position->vx, chunk_size),
+            .vy = floorDiv(position->vy, chunk_size),
+            .vz = floorDiv(position->vz, chunk_size)
         },
         .block = (VECTOR) {
             .vx = positiveModulo(position->vx, chunk_size),

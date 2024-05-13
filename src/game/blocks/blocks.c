@@ -1,7 +1,7 @@
 #include "blocks.h"
 
 #include "../../util/interface99_extensions.h"
-#include "../../debug/debug.h"
+#include "../../logging/logging.h"
 
 BlockAttributes block_attributes[BLOCK_COUNT] = {0};
 

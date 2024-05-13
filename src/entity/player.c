@@ -2,7 +2,7 @@
 
 #include "../game/blocks/block.h"
 #include "../util/interface99_extensions.h"
-#include "../debug/debug.h"
+#include "../logging/logging.h"
 
 #define HEIGHT_INTERVALS 3
 #define RADIUS_INTERVALS 2
