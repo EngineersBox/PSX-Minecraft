@@ -12,8 +12,6 @@
 // This implementation is based on TanTan's Binary Greedy Mesher demo:
 // https://github.com/TanTanDev/binary_greedy_mesher_demo/blob/main/src/greedy_mesher_optimized.rs
 
-SVECTOR faceDirectionPosition(const FaceDirection face_dir, const i32 axis, const i32 x, const i32 y);
-
 void binaryGreedyMesherBuildMesh(Chunk* chunk);
 // lod_size here should be a value in the interval [0,CHUNK_SIZE]
 // where CHUNK_SIZE as a value indicates 1:1 with every block

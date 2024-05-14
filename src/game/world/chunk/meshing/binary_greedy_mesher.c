@@ -23,8 +23,7 @@ static const u32 AXIAL_EDGES[AXIAL_EDGES_COUNT] = { 0, CHUNK_SIZE_PADDED - 1 };
 
 typedef u32 FacesColumns[FACES_COUNT][CHUNK_SIZE_PADDED][CHUNK_SIZE_PADDED];
 
-__attribute__((always_inline, gnu_inline))
-inline void addVoxelToFaceColumns(FacesColumns axis_cols,
+INLINE void addVoxelToFaceColumns(FacesColumns axis_cols,
                                FacesColumns axis_cols_opaque,
                                const IBlock* iblock,
                                const u32 x,
@@ -311,6 +310,31 @@ static const INDEX INDICES[FACES_COUNT] = {
     {3,2,1,0}
 };
 
+static SVECTOR createVertex(const i32 chunk_origin_x,
+                            const i32 chunk_origin_y,
+                            const u32 chunk_origin_z,
+                            const FaceDirection face_dir,
+                            const i32 axis,
+                            const i32 x,
+                            const i32 y) {
+    SVECTOR vertex = {0};
+#define pos(_x, _y, _z) vec3_i16( \
+    (chunk_origin_x + (_x)) * BLOCK_SIZE, \
+    (chunk_origin_y - (_y)) * BLOCK_SIZE, \
+    (chunk_origin_z + (_z)) * BLOCK_SIZE \
+)
+    switch (face_dir) {
+        case FACE_DIR_DOWN: vertex = pos(x, axis, y); break;
+        case FACE_DIR_UP: vertex = pos(x, axis + 1, y); break;
+        case FACE_DIR_LEFT: vertex = pos(axis, y, x); break;
+        case FACE_DIR_RIGHT: vertex = pos(axis + 1, y, x); break;
+        case FACE_DIR_BACK: vertex = pos(x, y, axis); break;
+        case FACE_DIR_FRONT: vertex = pos(x, y, axis + 1); break;
+    }
+#undef pos
+    return vertex;
+}
+
 static void createVertices(Chunk* chunk,
                            SMD_PRIM* primitive,
                            const FaceDirection face_dir,
@@ -324,21 +348,22 @@ static void createVertices(Chunk* chunk,
     const i32 chunk_origin_x = chunk->position.vx * CHUNK_SIZE;
     const i32 chunk_origin_y = -chunk->position.vy * CHUNK_SIZE;
     const i32 chunk_origin_z = chunk->position.vz * CHUNK_SIZE;
-#define createVertex(_x, _y) ({ \
-    const SVECTOR face_dir_pos = faceDirectionPosition(face_dir, axis, (_x), (_y)); \
-    vec3_i16( \
-        (chunk_origin_x + face_dir_pos.vx) * BLOCK_SIZE, \
-        (chunk_origin_y - face_dir_pos.vy) * BLOCK_SIZE, \
-        (chunk_origin_z + face_dir_pos.vz) * BLOCK_SIZE \
-    ); \
-})
+#define _createVertex(_x, _y) createVertex( \
+    chunk_origin_x, \
+    chunk_origin_y, \
+    chunk_origin_z, \
+    face_dir, \
+    axis, \
+    (_x), \
+    (_y) \
+)
     const SVECTOR vertices[4] = {
-        [0] = createVertex(x, y),
-        [1] = createVertex(x + w, y),
-        [2] = createVertex(x, y + h),
-        [3] = createVertex(x + w, y + h)
+        [0] = _createVertex(x, y),
+        [1] = _createVertex(x + w, y),
+        [2] = _createVertex(x, y + h),
+        [3] = _createVertex(x + w, y + h)
     };
-#undef createVertex
+#undef _createVertex
     const INDEX indices = INDICES[face_dir];
 #define bindVertex(v) *nextRenderAttribute(p_verts, v, n_verts) = vertices[indices.v]
     bindVertex(v0);
@@ -444,17 +469,3 @@ void binaryGreedyMesherConstructPlane(Chunk* chunk,
         }
     }
 }
-
-SVECTOR faceDirectionPosition(const FaceDirection face_dir, const i32 axis, const i32 x, const i32 y) {
-    SVECTOR position = {0};
-    switch (face_dir) {
-        case FACE_DIR_DOWN: position = vec3_i16(x, axis, y); break;
-        case FACE_DIR_UP: position = vec3_i16(x, axis + 1, y); break;
-        case FACE_DIR_LEFT: position = vec3_i16(axis, y, x); break;
-        case FACE_DIR_RIGHT: position = vec3_i16(axis + 1, y, x); break;
-        case FACE_DIR_BACK: position = vec3_i16(x, y, axis); break;
-        case FACE_DIR_FRONT: position = vec3_i16(x, y, axis + 1); break;
-    }
-    return position;
-}
-
