@@ -499,7 +499,7 @@ bool worldModifyVoxel(const World* world, const VECTOR* position, IBlock* block,
     return worldModifyVoxelChunkBlock(world, &chunk_block_position, block, item_result);
 }
 
-i32 intbound(const i32 s, const i32 ds) {
+static i32 intbound(const i32 s, const i32 ds) {
     printf("[intbound] s: %d, ds: %d\n", s, ds);
     if (ds < 0) {
         return intbound(-s, -ds);

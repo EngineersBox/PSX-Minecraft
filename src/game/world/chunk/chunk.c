@@ -435,7 +435,7 @@ void chunkGenerateMesh(Chunk* chunk) {
     // }
 }
 
-void chunkRenderDroppedItems(Chunk* chunk, RenderContext* ctx, Transforms* transforms) {
+static void chunkRenderDroppedItems(Chunk* chunk, RenderContext* ctx, Transforms* transforms) {
     IItem** item;
     cvector_for_each_in(item, chunk->dropped_items) {
         if (*item == NULL) {
@@ -497,7 +497,7 @@ IBlock* chunkGetBlockVec(const Chunk* chunk, const VECTOR* position) {
 
 #define HALF_BLOCK_SIZE (BLOCK_SIZE / 2)
 
-void constructItemPosition(const Chunk* chunk, const VECTOR* block_position, VECTOR* item_position) {
+static void constructItemPosition(const Chunk* chunk, const VECTOR* block_position, VECTOR* item_position) {
     // Construct vertices relative to chunk mesh bottom left origin
     const i16 chunk_origin_x = chunk->position.vx * CHUNK_SIZE;
     // Offset by 1 to ensure bottom block of bottom chunk starts at Y = 0

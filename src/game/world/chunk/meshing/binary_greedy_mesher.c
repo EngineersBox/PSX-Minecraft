@@ -295,10 +295,10 @@ static SMD_PRIM* createPrimitive(ChunkMesh* mesh,
     return primitive;
 }
 
-#define nextRenderAttribute(attribute_field, index_field, count_field) ({ \
-        cvector_push_back(mesh->attribute_field, (SVECTOR){}); \
-        (primitive)->index_field = mesh->count_field; \
-        (&cvector_begin(mesh->attribute_field)[mesh->count_field++]); \
+#define nextRenderAttribute(mesh, attribute_field, index_field, count_field) ({ \
+        cvector_push_back((mesh)->attribute_field, (SVECTOR){}); \
+        (primitive)->index_field = (mesh)->count_field; \
+        (&cvector_begin((mesh)->attribute_field)[(mesh)->count_field++]); \
 })
 
 static const INDEX INDICES[FACES_COUNT] = {
@@ -365,7 +365,7 @@ static void createVertices(Chunk* chunk,
     };
 #undef _createVertex
     const INDEX indices = INDICES[face_dir];
-#define bindVertex(v) *nextRenderAttribute(p_verts, v, n_verts) = vertices[indices.v]
+#define bindVertex(v) *nextRenderAttribute(mesh, p_verts, v, n_verts) = vertices[indices.v]
     bindVertex(v0);
     bindVertex(v1);
     bindVertex(v2);
@@ -376,7 +376,7 @@ static void createVertices(Chunk* chunk,
 static void createNormal(ChunkMesh* mesh,
                          SMD_PRIM* primitive,
                          const FaceDirection face_dir) {
-    SVECTOR* norm = nextRenderAttribute(p_norms, n0, n_norms);
+    SVECTOR* norm = nextRenderAttribute(mesh, p_norms, n0, n_norms);
 #undef nextRenderAttribute
 #define normal(x,y,z) norm->vx = x * ONE; norm->vy = y * ONE; norm->vz = z * ONE
     switch (face_dir) {
