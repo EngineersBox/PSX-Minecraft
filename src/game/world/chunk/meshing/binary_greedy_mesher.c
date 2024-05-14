@@ -21,11 +21,11 @@ FWD_DECL IBlock* chunkGetBlock(const Chunk* chunk, i32 x, i32 y, i32 z);
 #define AXIAL_EDGES_COUNT 2
 const u32 AXIAL_EDGES[AXIAL_EDGES_COUNT] = { 0, CHUNK_SIZE_PADDED - 1 };
 
-typedef u32 AxisCols[FACES_COUNT][CHUNK_SIZE_PADDED][CHUNK_SIZE_PADDED];
+typedef u32 FacesColumns[FACES_COUNT][CHUNK_SIZE_PADDED][CHUNK_SIZE_PADDED];
 
 __attribute__((always_inline, gnu_inline))
-inline void addVoxelToAxisCols(AxisCols axis_cols,
-                               AxisCols axis_cols_opaque,
+inline void addVoxelToFaceColumns(FacesColumns axis_cols,
+                               FacesColumns axis_cols_opaque,
                                const IBlock* iblock,
                                const u32 x,
                                const u32 y,
@@ -55,17 +55,17 @@ inline void addVoxelToAxisCols(AxisCols axis_cols,
 }
 
 void binaryGreedyMesherBuildMesh(Chunk* chunk) {
-    AxisCols axis_cols = {0};
+    FacesColumns faces_cols = {0};
     // See binary_greedy_mesher_transparency.md
-    AxisCols axis_cols_opaque = {0};
-    u32 col_face_masks[FACES_COUNT][CHUNK_SIZE_PADDED][CHUNK_SIZE_PADDED] = {0};
+    FacesColumns faces_cols_opaque = {0};
+    FacesColumns col_face_masks = {0};
     // Inner chunk blocks
     for (u32 z = 0; z < CHUNK_SIZE; z++) {
         for (u32 x = 0; x < CHUNK_SIZE; x++) {
             for (u32 y = 0; y < CHUNK_SIZE; y++) {
-                addVoxelToAxisCols(
-                    axis_cols,
-                    axis_cols_opaque,
+                addVoxelToFaceColumns(
+                    faces_cols,
+                    faces_cols_opaque,
                     chunkGetBlock(chunk, x, y, z),
                     x + 1,
                     y + 1,
@@ -85,9 +85,9 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
                     (chunk->position.vy * CHUNK_SIZE) + y - 1,
                     (chunk->position.vz * CHUNK_SIZE) + z - 1
                 );
-                addVoxelToAxisCols(
-                    axis_cols,
-                    axis_cols_opaque,
+                addVoxelToFaceColumns(
+                    faces_cols,
+                    faces_cols_opaque,
                     worldGetBlock(chunk->world, &position),
                     x,
                     y,
@@ -106,9 +106,9 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
                     (chunk->position.vy * CHUNK_SIZE) + y - 1,
                     (chunk->position.vz * CHUNK_SIZE) + z - 1
                 );
-                addVoxelToAxisCols(
-                    axis_cols,
-                    axis_cols_opaque,
+                addVoxelToFaceColumns(
+                    faces_cols,
+                    faces_cols_opaque,
                     worldGetBlock(chunk->world, &position),
                     x,
                     y,
@@ -127,18 +127,9 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
                     (chunk->position.vy * CHUNK_SIZE) + y - 1,
                     (chunk->position.vz * CHUNK_SIZE) + z - 1
                 );
-                // if (x == 0) {
-                //     const IBlock* iblock = worldGetBlock(chunk->world, &position);
-                //     const Block* block = VCAST_PTR(Block*, iblock);
-                //     DEBUG_LOG(
-                //         "[BGM] (%d,%d,%d) => %s\n",
-                //         inlineVec(position),
-                //         blockGetAttribute(block->id, name)
-                //     );
-                // }
-                addVoxelToAxisCols(
-                    axis_cols,
-                    axis_cols_opaque,
+                addVoxelToFaceColumns(
+                    faces_cols,
+                    faces_cols_opaque,
                     worldGetBlock(chunk->world, &position),
                     x,
                     y,
@@ -147,19 +138,6 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
             }
         }
     }
-    // DEBUG_LOG("[BGM] Chunk: (%d,%d,%d)\n", inlineVec(chunk->position));
-    // DEBUG_LOG(
-    //             "[BGM] " INT16_BIN_PATTERN "\n",
-    //             INT16_BIN_LAYOUT(axis_cols[FACE_DIR_LEFT][5][0])
-    //         );
-    // for (u32 z = 0; z < CHUNK_SIZE_PADDED; z++) {
-    //     for (u32 x = 0; x < CHUNK_SIZE_PADDED; x++) {
-    //         DEBUG_LOG(
-    //             "[BGM] " INT16_BIN_PATTERN "\n",
-    //             INT16_BIN_LAYOUT(axis_cols[FACE_DIR_LEFT][z][x])
-    //         );
-    //     }
-    // }
     // Face culling
     for (u32 axis = 0; axis < AXIS_COUNT; axis++) {
         for (u32 z = 0; z < CHUNK_SIZE_PADDED; z++) {
@@ -171,10 +149,10 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
                 //       for the parts that face outwards.
                 const u8 axis0 = (2 * axis) + 0;
                 const u8 axis1 = (2 * axis) + 1;
-                const u32 col_axis0 = axis_cols[axis0][z][x];
-                const u32 col_axis1 = axis_cols[axis1][z][x];
-                const u32 col_opaque_axis0 = col_axis0 & axis_cols_opaque[axis0][z][x];
-                const u32 col_opaque_axis1 = col_axis1 & axis_cols_opaque[axis1][z][x];
+                const u32 col_axis0 = faces_cols[axis0][z][x];
+                const u32 col_axis1 = faces_cols[axis1][z][x];
+                const u32 col_opaque_axis0 = col_axis0 & faces_cols_opaque[axis0][z][x];
+                const u32 col_opaque_axis1 = col_axis1 & faces_cols_opaque[axis1][z][x];
                 // Solid
                 const u32 solid_descending = col_axis0 & ~(col_axis0 << 1);
                 const u32 solid_ascending = col_axis1 & ~(col_axis1 >> 1);
@@ -184,16 +162,6 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
                 // Combine to ensure any faces behind a transparent face are kept
                 col_face_masks[axis0][z][x] = solid_descending | opaque_descending;
                 col_face_masks[axis1][z][x] = solid_ascending | opaque_ascending;
-                // if (axis == 1) {
-                //     // z => y
-                //     // x => z
-                //     // axis = x
-                //     DEBUG_LOG(
-                //         "[BGM] [Y: %d, Z: %d] " INT16_BIN_PATTERN "\n",
-                //         z, x,
-                //         INT16_BIN_LAYOUT(col_face_masks[axis0][z][x])
-                //     );
-                // }
             }
         }
     }
@@ -208,11 +176,11 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
         NULL
     );
     // Find faces and build binary planes based on block types
-    for (u32 axis = 0; axis < FACES_COUNT; axis++) {
+    for (u32 face = 0; face < FACES_COUNT; face++) {
         for (u32 z = 0; z < CHUNK_SIZE; z++) {
             for (u32 x = 0; x < CHUNK_SIZE; x++) {
                 // Skip padding
-                u32 col = col_face_masks[axis][z + 1][x + 1];
+                u32 col = col_face_masks[face][z + 1][x + 1];
                 // Remove right most padding value, always invalid
                 col >>= 1;
                 // Remove left most padding value, always invalid
@@ -225,7 +193,7 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
                         .block = vec3_i32_all(0),
                         .chunk = chunk->position
                     };
-                    switch (axis) {
+                    switch (face) {
                         case FACE_DIR_DOWN:
                         case FACE_DIR_UP:
                             chunk_block_position.block = vec3_i32(x, y, z);
@@ -244,7 +212,7 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
                     if (current_block == NULL) {
                         errorAbort(
                             "[BINARY GREEDY MESHER] Null block returned while constructing mask [Face: %d] [Chunk: (%d,%d,%d)] [Block: (%d,%d,%d)]\n",
-                            axis,
+                            face,
                             inlineVec(chunk->position),
                             inlineVec(chunk_block_position.block)
                         );
@@ -254,14 +222,14 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
                     if (block->type == BLOCKTYPE_EMPTY) {
                         errorAbort(
                             "[BINARY GREEDY MESHER] Empty block encountered while constructing mask [Face: %d] [Chunk: (%d,%d,%d)] [Block: (%d,%d,%d)]\n",
-                            axis,
+                            face,
                             inlineVec(chunk->position),
                             inlineVec(chunk_block_position.block)
                         );
                         continue;
                     }
                     const PlaneMeshingData query = (PlaneMeshingData) {
-                        .key = (PlaneMeshingDataKey) { axis, y, block },
+                        .key = (PlaneMeshingDataKey) { face, y, block },
                         .value = {0}
                     };
                     PlaneMeshingData* current = (PlaneMeshingData*) hashmap_get(data, &query);
@@ -281,8 +249,8 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
         PlaneMeshingData* elem = item;
         binaryGreedyMesherConstructPlane(
             chunk,
+            elem->key.face,
             elem->key.axis,
-            elem->key.y,
             elem->key.block,
             elem->value,
             CHUNK_SIZE

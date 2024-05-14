@@ -15,8 +15,8 @@
 #endif
 
 typedef struct {
+    const u8 face;
     const u8 axis;
-    const u8 y;
     const Block* block;
 } PlaneMeshingDataKey;
 

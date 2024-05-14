@@ -5,9 +5,9 @@
 int plane_meshing_data_compare(const void* a, const void* b, void* ignored) {
     const PlaneMeshingData* pa = a;
     const PlaneMeshingData* pb = b;
-    const int axis = cmp(pa->key.axis, pb->key.axis);
+    const int axis = cmp(pa->key.face, pb->key.face);
     const int blockId = cmp(pa->key.block->id, pb->key.block->id);
-    const int y = cmp(pa->key.y, pb->key.y);
+    const int y = cmp(pa->key.axis, pb->key.axis);
     if (axis != 0) {
         return axis;
     } else if (blockId != 0) {
