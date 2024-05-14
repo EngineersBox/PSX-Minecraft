@@ -75,7 +75,7 @@
 * [ ] Movement tied to FPS
 * [x] Cannot fall off a block edge, get pushed back
 * [x] Jumping onto a block pushes player back, not allowing for movement up to a block (weird edge cases for certain angles still work)
-* [ ] Certain faces at chunk boundaries are not generated with binary greedy meshing
+* [x] Certain faces at chunk boundaries are not generated with binary greedy meshing
 * [ ] Move mesh generation to after all loading when updating world to avoid face generation on orthogonal axis
 * [ ] Cull faces on chunk edges that face outward on the render limit
 * [x] Chunks with a negative component in position don't generate meshes correctly (incorrect faces and textures)
