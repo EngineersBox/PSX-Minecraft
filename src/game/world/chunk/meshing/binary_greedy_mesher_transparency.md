@@ -398,19 +398,19 @@ This was fun. ye.
 You could take this a step further an allow for per-face transparency controlled at a block level. To do that you refactor the definitions of `axis_cols` and `axis_cols_opaque` to be on use per-face arrays instead of per-axis:
 
 ```rust
-// solid binary for each x,y,z axis
+// solid binary for each x,y,z face
 let mut face_cols = [[[0u64; CHUNK_SIZE_P]; CHUNK_SIZE_P]; 6];
-// solid and non-transparent binary for each x,y,z axis
+// solid and non-transparent binary for each x,y,z face
 let mut face_cols_opaque = [[[0u64; CHUNK_SIZE_P]; CHUNK_SIZE_P]; 6];
 ```
 
 Then you change the implementation of `add_voxel_to_axis_cols` to create per-face array entries and add a bitset (`u8`) to the block definition that has each bit set for each face in order 0-5 of up, down, left, right, front, back (or whatever your coordinate space is):
 
 ```rust
-// solid binary for each x,y,z axis
-let mut axis_cols = [[[0u64; CHUNK_SIZE_P]; CHUNK_SIZE_P]; 3];
-// solid and non-transparent binary for each x,y,z axis
-let mut axis_cols_opaque = [[[0u64; CHUNK_SIZE_P]; CHUNK_SIZE_P]; 3];
+// solid binary for each x,y,z face
+let mut face_cols = [[[0u64; CHUNK_SIZE_P]; CHUNK_SIZE_P]; 6];
+// solid and non-transparent binary for each x,y,z face
+let mut face_cols_opaque = [[[0u64; CHUNK_SIZE_P]; CHUNK_SIZE_P]; 6];
 // the cull mask to perform greedy slicing, based on solids on previous axis_cols
 let mut col_face_masks = [[[0u64; CHUNK_SIZE_P]; CHUNK_SIZE_P]; 6];
 
@@ -442,14 +442,14 @@ fn add_voxel_to_face_cols(
 	face_cols[5][y][x] |= 1u64 << z as u64;
 	let u8 bitset = b.opaque_faces_bitset;
 	// x,z - y axis
-	face_cols_opaque[0][z][x] |= bitset_at(bitset, 0) << y as u64;
-	face_cols_opaque[1][z][x] |= bitset_at(bitset, 1) << y as u64;
+	face_cols_opaque[0][z][x] |= bitset_at(bitset, 0u8) << y as u64;
+	face_cols_opaque[1][z][x] |= bitset_at(bitset, 1u8) << y as u64;
 	// z,y - x axis
-	face_cols_opaque[2][y][z] |= bitset_at(bitset, 2) << x as u64;
-	face_cols_opaque[3][y][z] |= bitset_at(bitset, 3) << x as u64;
+	face_cols_opaque[2][y][z] |= bitset_at(bitset, 2u8) << x as u64;
+	face_cols_opaque[3][y][z] |= bitset_at(bitset, 3u8) << x as u64;
 	// x,y - z axis
-	face_cols_opaque[4][y][x] |= bitset_at(bitset, 4) << z as u64;
-	face_cols_opaque[5][y][x] |= bitset_at(bitset, 5) << z as u64;
+	face_cols_opaque[4][y][x] |= bitset_at(bitset, 4u8) << z as u64;
+	face_cols_opaque[5][y][x] |= bitset_at(bitset, 5u8) << z as u64;
 }
 ```
 
