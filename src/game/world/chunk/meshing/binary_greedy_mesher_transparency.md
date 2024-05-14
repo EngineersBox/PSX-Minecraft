@@ -393,8 +393,93 @@ You might wonder.. why is this an *issue* as opposed to a PR? Well that's becaus
 
 This was fun. ye.
 
+## Per-Face Transparency
 
----
+You could take this a step further an allow for per-face transparency controlled at a block level. To do that you refactor the definitions of `axis_cols` and `axis_cols_opaque` to be on use per-face arrays instead of per-axis:
 
-Edits:
-Fixed a bunch of stuff in the logic and naming. Works seamlessly now.
+```rust
+// solid binary for each x,y,z axis
+let mut face_cols = [[[0u64; CHUNK_SIZE_P]; CHUNK_SIZE_P]; 6];
+// solid and non-transparent binary for each x,y,z axis
+let mut face_cols_opaque = [[[0u64; CHUNK_SIZE_P]; CHUNK_SIZE_P]; 6];
+```
+
+Then you change the implementation of `add_voxel_to_axis_cols` to create per-face array entries and add a bitset (`u8`) to the block definition that has each bit set for each face in order 0-5 of up, down, left, right, front, back (or whatever your coordinate space is):
+
+```rust
+// solid binary for each x,y,z axis
+let mut axis_cols = [[[0u64; CHUNK_SIZE_P]; CHUNK_SIZE_P]; 3];
+// solid and non-transparent binary for each x,y,z axis
+let mut axis_cols_opaque = [[[0u64; CHUNK_SIZE_P]; CHUNK_SIZE_P]; 3];
+// the cull mask to perform greedy slicing, based on solids on previous axis_cols
+let mut col_face_masks = [[[0u64; CHUNK_SIZE_P]; CHUNK_SIZE_P]; 6];
+
+#[inline]
+fn bitset_at(bitset: u8, i: u8) -> u8 {
+	((bitset >> i) & 0b1)
+}
+
+#[inline]
+fn add_voxel_to_face_cols(
+	b: &crate::voxel::BlockData,
+	x: usize,
+	y: usize,
+	z: usize,
+	face_cols: &mut [[[u64; 34]; 34]; 6],
+	face_cols_opaque: &mut [[[u64; 34]; 34]; 6],
+) {
+	if !b.block_type.is_solid() {
+		return;
+	}
+	// x,z - y axis
+	face_cols[0][z][x] |= 1u64 << y as u64;
+	face_cols[1][z][x] |= 1u64 << y as u64;
+	// z,y - x axis
+	face_cols[2][y][z] |= 1u64 << x as u64;
+	face_cols[3][y][z] |= 1u64 << x as u64;
+	// x,y - z axis
+	face_cols[4][y][x] |= 1u64 << z as u64;
+	face_cols[5][y][x] |= 1u64 << z as u64;
+	let u8 bitset = b.opaque_faces_bitset;
+	// x,z - y axis
+	face_cols_opaque[0][z][x] |= bitset_at(bitset, 0) << y as u64;
+	face_cols_opaque[1][z][x] |= bitset_at(bitset, 1) << y as u64;
+	// z,y - x axis
+	face_cols_opaque[2][y][z] |= bitset_at(bitset, 2) << x as u64;
+	face_cols_opaque[3][y][z] |= bitset_at(bitset, 3) << x as u64;
+	// x,y - z axis
+	face_cols_opaque[4][y][x] |= bitset_at(bitset, 4) << z as u64;
+	face_cols_opaque[5][y][x] |= bitset_at(bitset, 5) << z as u64;
+}
+```
+
+Using the new per-face column and opaque column arrays, we can do face culling on a per-face basis, which finally allows us to have full per-face control over opacity
+
+```rust
+// face culling
+for axis in 0..3 {
+	for z in 0..CHUNK_SIZE_P {
+		for x in 0..CHUNK_SIZE_P {
+			let face_pos = (2 * axis) + 0;
+			let face_neg = (2 * axis) + 1;
+			// set if current is solid, and next is air
+			let col_pos = face_cols[face_pos][z][x];
+			let col_neg = face_cols[face_neg][z][x];
+			// set if current is solid and not transparent and next is air
+			let col_opaque_pos = col_pos & face_cols_opaque[face_pos][z][x];
+			let col_opaque_neg = col_neg & face_cols_opaque[face_neg][z][x];
+			// solid
+			let solid_descending = col_pos & !(col_pos << 1);
+			let solid_ascending = col_neg & !(col_neg >> 1);
+			// Transparent
+			let opaque_descending = col_opaque_pos & !(col_opaque_pos << 1);
+			let opaque_ascending = col_opaque_neg & !(col_opaque_neg >> 1);
+			// Combined solid + transparent faces
+			col_face_masks[face_pos][z][x] = solid_descending | opaque_descending;
+			col_face_masks[face_neg][z][x] = solid_ascending | opaque_ascending;
+		}
+	}
+}
+```
+
+It's definitely going to cost a bit more in terms of cycle time, but depending on the level of control you want, this gives you a very efficient way to have complete opacity control. Much faster than a non-binary meshing approach I would think.
