@@ -19,7 +19,7 @@ FWD_DECL IBlock* chunkGetBlock(const Chunk* chunk, i32 x, i32 y, i32 z);
 #define AXIS_COUNT 3
 #define FACES_COUNT (AXIS_COUNT * 2)
 #define AXIAL_EDGES_COUNT 2
-const u32 AXIAL_EDGES[AXIAL_EDGES_COUNT] = { 0, CHUNK_SIZE_PADDED - 1 };
+static const u32 AXIAL_EDGES[AXIAL_EDGES_COUNT] = { 0, CHUNK_SIZE_PADDED - 1 };
 
 typedef u32 FacesColumns[FACES_COUNT][CHUNK_SIZE_PADDED][CHUNK_SIZE_PADDED];
 
