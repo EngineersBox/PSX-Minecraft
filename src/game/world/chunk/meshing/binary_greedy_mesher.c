@@ -21,7 +21,7 @@ FWD_DECL IBlock* chunkGetBlock(const Chunk* chunk, i32 x, i32 y, i32 z);
 #define AXIAL_EDGES_COUNT 2
 const u32 AXIAL_EDGES[AXIAL_EDGES_COUNT] = { 0, CHUNK_SIZE_PADDED - 1 };
 
-typedef u32 AxisCols[AXIS_COUNT][CHUNK_SIZE_PADDED][CHUNK_SIZE_PADDED];
+typedef u32 AxisCols[FACES_COUNT][CHUNK_SIZE_PADDED][CHUNK_SIZE_PADDED];
 
 __attribute__((always_inline, gnu_inline))
 inline void addVoxelToAxisCols(AxisCols axis_cols,
@@ -37,14 +37,21 @@ inline void addVoxelToAxisCols(AxisCols axis_cols,
     if (block->type == BLOCKTYPE_EMPTY) {
         return;
     }
-    axis_cols[0][z][x] |= 1 << y;
-    axis_cols[1][y][z] |= 1 << x;
-    axis_cols[2][y][x] |= 1 << z;
-    if (VCALL(*iblock, isOpaque)) {
-        axis_cols_opaque[0][z][x] |= 1 << y;
-        axis_cols_opaque[1][y][z] |= 1 << x;
-        axis_cols_opaque[2][y][x] |= 1 << z;
-    }
+    axis_cols[0][z][x] |= 1 << y; // DOWN
+    axis_cols[1][z][x] |= 1 << y; // UP
+    axis_cols[2][y][z] |= 1 << x; // LEFT
+    axis_cols[3][y][z] |= 1 << x; // RIGHT
+    axis_cols[4][y][x] |= 1 << z; // BACK
+    axis_cols[5][y][x] |= 1 << z; // FRONT
+    const u8 bitset = VCALL(*iblock, opaqueBitset);
+#define bitsetAt(i) ((bitset >> (i)) & 0x1)
+    axis_cols_opaque[0][z][x] |= bitsetAt(1) << y;
+    axis_cols_opaque[1][z][x] |= bitsetAt(0) << y;
+    axis_cols_opaque[2][y][z] |= bitsetAt(3) << x;
+    axis_cols_opaque[3][y][z] |= bitsetAt(2) << x;
+    axis_cols_opaque[4][y][x] |= bitsetAt(4) << z;
+    axis_cols_opaque[5][y][x] |= bitsetAt(5) << z;
+#undef bitset
 }
 
 void binaryGreedyMesherBuildMesh(Chunk* chunk) {
@@ -162,17 +169,21 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
                 //       unloaded chunks. To do this we should ensure that the
                 //       padding area in col and col_opaque are always set to 1's
                 //       for the parts that face outwards.
-                const u32 col = axis_cols[axis][z][x];
-                const u32 col_opaque = col & axis_cols_opaque[axis][z][x];
+                const u8 axis0 = (2 * axis) + 0;
+                const u8 axis1 = (2 * axis) + 1;
+                const u32 col_axis0 = axis_cols[axis0][z][x];
+                const u32 col_axis1 = axis_cols[axis1][z][x];
+                const u32 col_opaque_axis0 = col_axis0 & axis_cols_opaque[axis0][z][x];
+                const u32 col_opaque_axis1 = col_axis1 & axis_cols_opaque[axis1][z][x];
                 // Solid
-                const u32 solid_descending = col & ~(col << 1);
-                const u32 solid_ascending = col & ~(col >> 1);
+                const u32 solid_descending = col_axis0 & ~(col_axis0 << 1);
+                const u32 solid_ascending = col_axis1 & ~(col_axis1 >> 1);
                 // Transparent
-                const u32 opaque_descending = col_opaque & ~(col_opaque << 1);
-                const u32 opaque_ascending = col_opaque & ~(col_opaque >> 1);
+                const u32 opaque_descending = col_opaque_axis0 & ~(col_opaque_axis0 << 1);
+                const u32 opaque_ascending = col_opaque_axis1 & ~(col_opaque_axis1 >> 1);
                 // Combine to ensure any faces behind a transparent face are kept
-                col_face_masks[(2 * axis) + 0][z][x] = solid_descending | opaque_descending;
-                col_face_masks[(2 * axis) + 1][z][x] = solid_ascending | opaque_ascending;
+                col_face_masks[axis0][z][x] = solid_descending | opaque_descending;
+                col_face_masks[axis1][z][x] = solid_ascending | opaque_ascending;
                 // if (axis == 1) {
                 //     // z => y
                 //     // x => z
@@ -180,7 +191,7 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
                 //     DEBUG_LOG(
                 //         "[BGM] [Y: %d, Z: %d] " INT16_BIN_PATTERN "\n",
                 //         z, x,
-                //         INT16_BIN_LAYOUT(col_face_masks[(2 * axis) + 0][z][x])
+                //         INT16_BIN_LAYOUT(col_face_masks[axis0][z][x])
                 //     );
                 // }
             }
@@ -270,7 +281,7 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
         PlaneMeshingData* elem = item;
         binaryGreedyMesherConstructPlane(
             chunk,
-            (FaceDirection) elem->key.axis,
+            elem->key.axis,
             elem->key.y,
             elem->key.block,
             elem->value,
@@ -343,7 +354,7 @@ static void createVertices(Chunk* chunk,
     ChunkMesh* const mesh = &chunk->mesh;
     // Construct vertices relative to chunk mesh bottom left origin
     const i32 chunk_origin_x = chunk->position.vx * CHUNK_SIZE;
-    const i32 chunk_origin_y = (-chunk->position.vy) * CHUNK_SIZE;
+    const i32 chunk_origin_y = -chunk->position.vy * CHUNK_SIZE;
     const i32 chunk_origin_z = chunk->position.vz * CHUNK_SIZE;
 #define createVertex(_x, _y) ({ \
     const SVECTOR face_dir_pos = faceDirectionPosition(face_dir, axis, (_x), (_y)); \
@@ -382,7 +393,7 @@ static void createNormal(ChunkMesh* mesh,
         case FACE_DIR_RIGHT: normal(1, 0, 0); break;
         case FACE_DIR_FRONT: normal(0, 0, 1); break;
         case FACE_DIR_BACK: normal(0, 0, -1); break;
-    };
+    }
 #undef normal
 }
 

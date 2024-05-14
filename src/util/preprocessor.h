@@ -31,6 +31,7 @@
 #endif
 
 #define UNIMPLEMENTED __attribute__((unavailable("Unimplemented function/method")))
+#define UNUSED __attribute__((unused))
 
 // Forward declaration
 #define FWD_DECL

@@ -35,8 +35,8 @@ void airBlockUpdate(VSelf) __attribute__((alias("AirBlock_update")));
 void AirBlock_update(VSelf) {
 }
 
-bool airBlockIsOpaque(VSelf) __attribute__((alias("AirBlock_isOpaque")));
-bool AirBlock_isOpaque(VSelf) {
+bool airBlockIsOpaque(VSelf, FaceDirection face_dir) __attribute__((alias("AirBlock_isOpaque")));
+bool AirBlock_isOpaque(VSelf, UNUSED FaceDirection face_dir) {
     return false;
 }
 

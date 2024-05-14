@@ -254,8 +254,8 @@ static Mask createMask(IBlock* currentIBlock, IBlock* compareIBlock) {
     if (currentBlock->id == BLOCKID_AIR && compareBlock->id == BLOCKID_AIR) {
         return (Mask) { airBlockCreate(), 0 };
     }
-    const bool currentOpaque = VCALL(*currentIBlock, isOpaque);
-    const bool compareOpaque = VCALL(*compareIBlock, isOpaque);
+    const bool currentOpaque = VCALL(*currentIBlock, isOpaque, 0);
+    const bool compareOpaque = VCALL(*compareIBlock, isOpaque, 0);
     if (currentOpaque && !compareOpaque) {
         // Current block is visible
         return (Mask) { currentIBlock, 1 };

@@ -12,15 +12,6 @@
 // This implementation is based on TanTan's Binary Greedy Mesher demo:
 // https://github.com/TanTanDev/binary_greedy_mesher_demo/blob/main/src/greedy_mesher_optimized.rs
 
-typedef enum {
-    FACE_DIR_DOWN = 0,
-    FACE_DIR_UP,
-    FACE_DIR_LEFT,
-    FACE_DIR_RIGHT,
-    FACE_DIR_BACK,
-    FACE_DIR_FRONT
-} FaceDirection;
-
 SVECTOR faceDirectionPosition(const FaceDirection face_dir, const i32 axis, const i32 x, const i32 y);
 
 void binaryGreedyMesherBuildMesh(Chunk* chunk);

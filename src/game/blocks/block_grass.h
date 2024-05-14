@@ -31,14 +31,18 @@ ALLOC_CALL(itemDestroy, 1) IItem* GrassBlock_destroy(VSelf);
 void grassBlockUpdate(VSelf);
 void GrassBlock_update(VSelf);
 
-bool grassBlockIsOpaque(VSelf);
-bool GrassBlock_isOpaque(VSelf);
+// TODO: REVERT THIS isOpaque IMPLEMENTATION WHEN DONE TESTING GLASS-LIKE TRANSPARENCY IN CHUNK MESH
+// #define GrassBlock_isOpaque_CUSTOM ()
+bool grassBlockIsOpaque(VSelf, FaceDirection face_dir);
+bool GrassBlock_isOpaque(VSelf, FaceDirection face_dir);
+
+// #define GrassBlock_opaqueBitset_CUSTOM ()
+u8 grassBlockOpaqueBitset(VSelf);
+u8 GrassBlock_opaqueBitset(VSelf);
 
 ALLOC_CALL(itemDestroy, 1) IItem* grassBlockProvideItem(VSelf);
 ALLOC_CALL(itemDestroy, 1) IItem* GrassBlock_provideItem(VSelf);
 
-// TODO: REVERT THIS isOpaque IMPLEMENTATION WHEN DONE TESTING GLASS-LIKE TRANSPARENCY IN CHUNK MESH
-#define GrassBlock_isOpaque_CUSTOM ()
 impl(IBlock, GrassBlock);
 
 #endif // PSX_MINECRAFT_BLOCK_GRASS_H

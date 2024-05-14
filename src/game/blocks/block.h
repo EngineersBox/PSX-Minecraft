@@ -11,6 +11,7 @@
 #include "../../render/render_context.h"
 #include "../../render/transforms.h"
 #include "../../resources/assets.h"
+#include "../../resources/texture.h"
 #include "../../util/preprocessor.h"
 #include "../items/item.h"
 
@@ -73,16 +74,29 @@ typedef struct {
     TextureAttributes face_attributes[BLOCK_FACES];
 } Block;
 
+#define opaqueFacesBitset(down, up, left, right, back, front) (\
+      ((down) << 0) \
+    | ((up) << 1) \
+    | ((left) << 2) \
+    | ((right) << 3) \
+    | ((back) << 4) \
+    | ((front) << 5) \
+)
+
 #define IBlock_IFACE \
     vfunc(void, init, VSelf) \
     vfunc(void, access, VSelf) \
     vfunc(IItem*, destroy, VSelf) \
     vfunc(void, update, VSelf) \
-    vfuncDefault(bool, isOpaque, VSelf) \
+    vfuncDefault(bool, isOpaque, VSelf, FaceDirection face_dir) \
+    vfuncDefault(u8, opaqueBitset, VSelf) \
     vfunc(IItem*, provideItem, VSelf)
 
-bool iBlockIsOpaque(VSelf);
-bool IBlock_isOpaque(VSelf);
+bool iBlockIsOpaque(VSelf, FaceDirection face_dir);
+bool IBlock_isOpaque(VSelf, FaceDirection face_dir);
+
+u8 iBlockOpaqueBitset(VSelf);
+u8 IBlock_opaqueBitset(VSelf);
 
 interface(IBlock);
 

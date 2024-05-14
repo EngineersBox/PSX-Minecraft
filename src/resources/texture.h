@@ -6,6 +6,15 @@
 #include <psxgte.h>
 #include <stdint.h>
 
+typedef enum {
+    FACE_DIR_DOWN = 0,
+    FACE_DIR_UP,
+    FACE_DIR_LEFT,
+    FACE_DIR_RIGHT,
+    FACE_DIR_BACK,
+    FACE_DIR_FRONT
+} FaceDirection;
+
 typedef struct {
     uint16_t tpage;
     uint16_t clut;
