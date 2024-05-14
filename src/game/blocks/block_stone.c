@@ -8,7 +8,7 @@ IBlock* stoneBlockCreate() {
     return &STONE_IBLOCK_SINGLETON;
 }
 
-void stoneBlockInit(VSelf) __attribute__((alias("StoneBlock_init")));
+void stoneBlockInit(VSelf) ALIAS("StoneBlock_init");
 void StoneBlock_init(VSelf) {
     // TODO: Can make this VSELF(Block) since StoneBlock composes Block as the first struct element
     VSELF(StoneBlock);
@@ -18,21 +18,21 @@ void StoneBlock_init(VSelf) {
     );
 }
 
-void stoneBlockAccess(VSelf) __attribute__((alias("StoneBlock_access")));
+void stoneBlockAccess(VSelf) ALIAS("StoneBlock_access");
 void StoneBlock_access(VSelf) {
 }
 
-IItem* stoneBlockDestroy(VSelf) __attribute__((alias("StoneBlock_destroy")));
+IItem* stoneBlockDestroy(VSelf) ALIAS("StoneBlock_destroy");
 IItem* StoneBlock_destroy(VSelf) {
     VSELF(StoneBlock);
     return stoneBlockProvideItem(self);
 }
 
-void stoneBlockUpdate(VSelf) __attribute__((alias("StoneBlock_update")));
+void stoneBlockUpdate(VSelf) ALIAS("StoneBlock_update");
 void StoneBlock_update(VSelf) {
 }
 
-IItem* stoneBlockProvideItem(VSelf) __attribute__((alias("StoneBlock_provideItem")));
+IItem* stoneBlockProvideItem(VSelf) ALIAS("StoneBlock_provideItem");
 IItem* StoneBlock_provideItem(VSelf) {
     VSELF(StoneBlock);
     IItem* item = itemCreate();

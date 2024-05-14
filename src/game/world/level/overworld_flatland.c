@@ -14,17 +14,17 @@
 void chunkInit(Chunk *chunk);
 void chunkDestroy(const Chunk* chunk);
 
-void overworldFlatlandChunkGeneratorInit(VSelf) __attribute__((alias("OverworldFlatlandChunkGenerator_init")));
+void overworldFlatlandChunkGeneratorInit(VSelf) ALIAS("OverworldFlatlandChunkGenerator_init");
 void OverworldFlatlandChunkGenerator_init(VSelf) {
     // Do nothing
 }
 
-void overworldFlatlandChunkGeneratorDestroy(VSelf) __attribute__((alias("OverworldFlatlandChunkGenerator_destroy")));
+void overworldFlatlandChunkGeneratorDestroy(VSelf) ALIAS("OverworldFlatlandChunkGenerator_destroy");
 void OverworldFlatlandChunkGenerator_destroy(VSelf) {
     // Do nothing
 }
 
-void overworldFlatlandGeneneratorGenerate(VSelf, Chunk* chunk) __attribute__((alias("OverworldFlatlandChunkGenerator_generate")));
+void overworldFlatlandGeneneratorGenerate(VSelf, Chunk* chunk) ALIAS("OverworldFlatlandChunkGenerator_generate");
 void OverworldFlatlandChunkGenerator_generate(VSelf, Chunk* chunk) {
     const VECTOR* position = &chunk->position;
     for (i32 x = 0; x < CHUNK_SIZE; x++) {
@@ -53,7 +53,7 @@ void OverworldFlatlandChunkGenerator_generate(VSelf, Chunk* chunk) {
 
 // ==== PROVIDER ====
 
-void overworldFlatlandChunkProviderInit(VSelf) __attribute__((alias("OverworldFlatlandChunkProvider_init")));
+void overworldFlatlandChunkProviderInit(VSelf) ALIAS("OverworldFlatlandChunkProvider_init");
 void OverworldFlatlandChunkProvider_init(VSelf) {
     VSELF(OverworldFlatlandChunkProvider);
     DYN_PTR(
@@ -72,7 +72,7 @@ void OverworldFlatlandChunkProvider_destroy(VSelf) {
     free(self->generator.self);
 }
 
-Chunk* overworldFlatlandProvideChunk(VSelf, const VECTOR position) __attribute__((alias("OverworldFlatlandChunkProvider_provide")));
+Chunk* overworldFlatlandProvideChunk(VSelf, const VECTOR position) ALIAS("OverworldFlatlandChunkProvider_provide");
 Chunk* OverworldFlatlandChunkProvider_provide(VSelf, const VECTOR position) {
     VSELF(OverworldFlatlandChunkProvider);
     Chunk* chunk = malloc(sizeof(Chunk));
@@ -83,7 +83,7 @@ Chunk* OverworldFlatlandChunkProvider_provide(VSelf, const VECTOR position) {
     return chunk;
 }
 
-bool overworldFlatlandSaveChunk(VSelf, Chunk* chunk) __attribute__((alias("OverworldFlatlandChunkProvider_save")));
+bool overworldFlatlandSaveChunk(VSelf, Chunk* chunk) ALIAS("OverworldFlatlandChunkProvider_save");
 bool OverworldFlatlandChunkProvider_save(VSelf, Chunk* chunk) {
     // TODO: Implement this when world saving is possible
     chunkDestroy(chunk);

@@ -9,7 +9,7 @@ IBlock* airBlockCreate() {
     return &AIR_IBLOCK_SINGLETON;
 }
 
-void airBlockInit(VSelf) __attribute__((alias("AirBlock_init")));
+void airBlockInit(VSelf) ALIAS("AirBlock_init");
 void AirBlock_init(VSelf) {
     // TODO: Can make this VSELF(Block) since AirBlock composes Block as the first struct element
     VSELF(AirBlock);
@@ -21,26 +21,26 @@ void AirBlock_init(VSelf) {
     );
 }
 
-void airBlockAccess(VSelf) __attribute__((alias("AirBlock_access")));
+void airBlockAccess(VSelf) ALIAS("AirBlock_access");
 void AirBlock_access(VSelf) {
 }
 
-IItem* airBlockDestroy(VSelf) __attribute__((alias("AirBlock_destroy")));
+IItem* airBlockDestroy(VSelf) ALIAS("AirBlock_destroy");
 IItem* AirBlock_destroy(VSelf) {
     VSELF(AirBlock);
     return airBlockProvideItem(self);
 }
 
-void airBlockUpdate(VSelf) __attribute__((alias("AirBlock_update")));
+void airBlockUpdate(VSelf) ALIAS("AirBlock_update");
 void AirBlock_update(VSelf) {
 }
 
-bool airBlockIsOpaque(VSelf, FaceDirection face_dir) __attribute__((alias("AirBlock_isOpaque")));
+bool airBlockIsOpaque(VSelf, FaceDirection face_dir) ALIAS("AirBlock_isOpaque");
 bool AirBlock_isOpaque(VSelf, UNUSED FaceDirection face_dir) {
     return false;
 }
 
-IItem* airBlockProvideItem(VSelf) __attribute__((alias("AirBlock_provideItem")));
+IItem* airBlockProvideItem(VSelf) ALIAS("AirBlock_provideItem");
 IItem* AirBlock_provideItem(VSelf) {
     return NULL;
 }

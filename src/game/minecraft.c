@@ -52,7 +52,7 @@ Player* player;
 #define CAMERA_OFFSET 487424
 // #define CAMERA_OFFSET ONE_BLOCK
 
-void minecraftInit(VSelf, void* ctx) __attribute__((alias("Minecraft_init")));
+void minecraftInit(VSelf, void* ctx) ALIAS("Minecraft_init");
 void Minecraft_init(VSelf, void* ctx) {
     VSELF(Minecraft);
     blocksInitialiseBuiltin();
@@ -159,7 +159,7 @@ void Minecraft_init(VSelf, void* ctx) {
     VCALL_SUPER(*item, Renderable, applyInventoryRenderAttributes);
 }
 
-void minecraftCleanup(VSelf) __attribute__((alias("Minecraft_cleanup")));
+void minecraftCleanup(VSelf) ALIAS("Minecraft_cleanup");
 void Minecraft_cleanup(VSelf) {
     VSELF(Minecraft);
     worldDestroy(self->world);
@@ -171,7 +171,7 @@ void Minecraft_cleanup(VSelf) {
 
 void startHandler(Camera* camera);
 
-void minecraftInput(VSelf, const Stats* stats) __attribute__((alias("Minecraft_input")));
+void minecraftInput(VSelf, const Stats* stats) ALIAS("Minecraft_input");
 void Minecraft_input(VSelf, const Stats* stats) {
     VSELF(Minecraft);
     Camera* camera = VCAST(Camera*, self->internals.camera);
@@ -183,7 +183,7 @@ void Minecraft_input(VSelf, const Stats* stats) {
     }
 }
 
-void minecraftUpdate(VSelf, const Stats* stats) __attribute__((alias("Minecraft_update")));
+void minecraftUpdate(VSelf, const Stats* stats) ALIAS("Minecraft_update");
 void Minecraft_update(VSelf, const Stats* stats) {
     VSELF(Minecraft);
     worldUpdate(self->world, player);
@@ -466,7 +466,7 @@ void drawDebugText(const Minecraft* minecraft, const Stats* stats) {
     );
 }
 
-void minecraftRender(VSelf, const Stats* stats) __attribute__((alias("Minecraft_render")));
+void minecraftRender(VSelf, const Stats* stats) ALIAS("Minecraft_render");
 void Minecraft_render(VSelf, const Stats* stats) {
     VSELF(Minecraft);
     // Draw the world

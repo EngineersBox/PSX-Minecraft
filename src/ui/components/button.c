@@ -2,7 +2,7 @@
 
 #include "../../math/math_utils.h"
 
-void uiButtonAction(VSelf, const DVECTOR* cursor_position, const bool pressed) __attribute__((alias("UIButton_action")));
+void uiButtonAction(VSelf, const DVECTOR* cursor_position, const bool pressed) ALIAS("UIButton_action");
 void UIButton_action(VSelf, const DVECTOR* cursor_position, const bool pressed) {
     VSELF(UIButton);
     if (!quadIntersect(cursor_position, &self->component.position, &self->component.dimensions)) {
@@ -12,7 +12,7 @@ void UIButton_action(VSelf, const DVECTOR* cursor_position, const bool pressed) 
     self->pressed = pressed;
 }
 
-void uiButtonRender(VSelf, RenderContext* ctx, Transforms* transforms) __attribute__((alias("UIButton_render")));
+void uiButtonRender(VSelf, RenderContext* ctx, Transforms* transforms) ALIAS("UIButton_render");
 void UIButton_render(VSelf, RenderContext* ctx, Transforms* transforms) {
 
 }

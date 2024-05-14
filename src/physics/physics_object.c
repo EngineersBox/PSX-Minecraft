@@ -58,7 +58,7 @@ void iPhysicsObjectSetPosition(PhysicsObject* physics_object, const VECTOR* posi
  * move(...) { ... }
  */
 
-void iPhysicsObjectUpdate(VSelf, World* world, void* ctx) __attribute__((alias("IPhysicsObject_update")));
+void iPhysicsObjectUpdate(VSelf, World* world, void* ctx) ALIAS("IPhysicsObject_update");
 void IPhysicsObject_update(VSelf, World* world, void* ctx) {
     VSELF(PhysicsObject);
     const PhysicsObjectFlags* flags = &self->flags;
@@ -99,7 +99,7 @@ i32 resolveGroundAcceleration(const PhysicsObject* physics_object,
     return scaling;
 }
 
-void iPhysicsObjectMoveWithHeading(VSelf, World* world, i32 move_strafe, i32 move_forward, void* ctx) __attribute__((alias("IPhysicsObject_moveWithHeading")));
+void iPhysicsObjectMoveWithHeading(VSelf, World* world, i32 move_strafe, i32 move_forward, void* ctx) ALIAS("IPhysicsObject_moveWithHeading");
 void IPhysicsObject_moveWithHeading(VSelf, World* world, i32 move_strafe, i32 move_forward, void* ctx) {
     VSELF(PhysicsObject);
     // ONE * 0.91 = 3727
@@ -248,7 +248,7 @@ void collideWithWorld(PhysicsObject* physics_object, const World* world, i32 vel
     cvector_free(collided_aabbs);
 }
 
-void iPhysicsObjectMove(VSelf, World* world, const i32 velocity_x, const i32 velocity_y, const i32 velocity_z, void* ctx) __attribute__((alias("IPhysicsObject_move")));
+void iPhysicsObjectMove(VSelf, World* world, const i32 velocity_x, const i32 velocity_y, const i32 velocity_z, void* ctx) ALIAS("IPhysicsObject_move");
 void IPhysicsObject_move(VSelf, World* world, const i32 velocity_x, const i32 velocity_y, const i32 velocity_z, void* ctx) {
     VSELF(PhysicsObject);
     if (self->flags.no_clip) {
@@ -269,7 +269,7 @@ void IPhysicsObject_move(VSelf, World* world, const i32 velocity_x, const i32 ve
     );
 }
 
-void iPhysicsObjectMoveFlying(VSelf, i32 move_strafe, i32 move_forward, const i32 scaling) __attribute__((alias("IPhysicsObject_moveFlying")));
+void iPhysicsObjectMoveFlying(VSelf, i32 move_strafe, i32 move_forward, const i32 scaling) ALIAS("IPhysicsObject_moveFlying");
 void IPhysicsObject_moveFlying(VSelf, i32 move_strafe, i32 move_forward, const i32 scaling) {
     VSELF(PhysicsObject);
     // move_strafe / BLOCK_SIZE
@@ -299,7 +299,7 @@ void IPhysicsObject_moveFlying(VSelf, i32 move_strafe, i32 move_forward, const i
     self->velocity.vz += fixedMul(move_forward, cos_yaw) + fixedMul(move_strafe, sin_yaw);
 }
 
-void iPhysicsObjectFall(VSelf, i32 distance) __attribute__((alias("IPhysicsObject_fall")));
+void iPhysicsObjectFall(VSelf, i32 distance) ALIAS("IPhysicsObject_fall");
 void IPhysicsObject_fall(VSelf, i32 distance) {
     // Do nothing by default
 }

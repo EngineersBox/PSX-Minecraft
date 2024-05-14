@@ -77,17 +77,17 @@ void hotbarRenderSlots(const Hotbar* hotbar,  RenderContext* ctx, Transforms* tr
     renderClearConstraintsIndex(ctx, 0);
 }
 
-void hotbarOpen(VSelf) __attribute__((alias("Hotbar_open")));
+void hotbarOpen(VSelf) ALIAS("Hotbar_open");
 void Hotbar_open(VSelf) {
     // Always open
 }
 
-void hotbarClose(VSelf) __attribute__((alias("Hotbar_close")));
+void hotbarClose(VSelf) ALIAS("Hotbar_close");
 void Hotbar_close(VSelf) {
     // Always open
 }
 
-void hotbarRegisterInputHandler(VSelf, Input* input) __attribute__((alias("Hotbar_registerInputHandler")));
+void hotbarRegisterInputHandler(VSelf, Input* input) ALIAS("Hotbar_registerInputHandler");
 void Hotbar_registerInputHandler(VSelf, Input* input) {
     // Nothing to register
 }

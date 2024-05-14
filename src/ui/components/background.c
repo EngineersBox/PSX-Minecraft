@@ -3,13 +3,14 @@
 #include <psxgpu.h>
 
 #include "../../structure/primitive/primitive.h"
+#include "../../util/preprocessor.h"
 
-void uiBackgroundAction(VSelf, const DVECTOR* cursor_position, const bool pressed) __attribute__((alias("UIBackground_action")));
+void uiBackgroundAction(VSelf, const DVECTOR* cursor_position, const bool pressed) ALIAS("UIBackground_action");
 void UIBackground_action(VSelf, const DVECTOR* cursor_position, const bool pressed) {
     // Does nothing
 }
 
-void uiBackgroundRender(VSelf, RenderContext* ctx, Transforms* transforms) __attribute__((alias("UIBackground_render")));
+void uiBackgroundRender(VSelf, RenderContext* ctx, Transforms* transforms) ALIAS("UIBackground_render");
 void UIBackground_render(VSelf, RenderContext* ctx, Transforms* transforms) {
     VSELF(UIBackground);
     POLY_FT4* pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));

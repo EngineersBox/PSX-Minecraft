@@ -140,7 +140,7 @@ bool playerInputHandler(const Input* input, void* ctx) {
     return false;
 }
 
-void playerRegisterInputHandler(VSelf, Input* input) __attribute__((alias("Player_registerInputHandler")));
+void playerRegisterInputHandler(VSelf, Input* input) ALIAS("Player_registerInputHandler");
 void Player_registerInputHandler(VSelf, Input* input) {
     VSELF(Player);
     ContextualInputHandler handler = (ContextualInputHandler) {

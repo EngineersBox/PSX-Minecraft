@@ -8,7 +8,7 @@ IBlock* dirtBlockCreate() {
     return &DIRT_IBLOCK_SINGLETON;
 }
 
-void dirtBlockInit(VSelf) __attribute__((alias("DirtBlock_init")));
+void dirtBlockInit(VSelf) ALIAS("DirtBlock_init");
 void DirtBlock_init(VSelf) {
     // TODO: Can make this VSELF(Block) since DirtBlock composes Block as the first struct element
     VSELF(DirtBlock);
@@ -18,21 +18,21 @@ void DirtBlock_init(VSelf) {
     );
 }
 
-void dirtBlockAccess(VSelf) __attribute__((alias("DirtBlock_access")));
+void dirtBlockAccess(VSelf) ALIAS("DirtBlock_access");
 void DirtBlock_access(VSelf) {
 }
 
-IItem* dirtBlockDestroy(VSelf) __attribute__((alias("DirtBlock_destroy")));
+IItem* dirtBlockDestroy(VSelf) ALIAS("DirtBlock_destroy");
 IItem* DirtBlock_destroy(VSelf) {
     VSELF(DirtBlock);
     return dirtBlockProvideItem(self);
 }
 
-void dirtBlockUpdate(VSelf) __attribute__((alias("DirtBlock_update")));
+void dirtBlockUpdate(VSelf) ALIAS("DirtBlock_update");
 void DirtBlock_update(VSelf) {
 }
 
-IItem* dirtBlockProvideItem(VSelf) __attribute__((alias("DirtBlock_provideItem")));
+IItem* dirtBlockProvideItem(VSelf) ALIAS("DirtBlock_provideItem");
 IItem* DirtBlock_provideItem(VSelf) {
     VSELF(DirtBlock);
     IItem* item = itemCreate();

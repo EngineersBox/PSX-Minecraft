@@ -253,7 +253,7 @@ InventoryStoreResult inventoryStoreItem(Inventory* inventory, IItem* iitem) {
 #define GUI_BUNDLE_NAME "gui"
 #define INVENTORY_TEXTURE_NAME "inventory"
 
-void inventoryOpen(VSelf) __attribute__((alias("Inventory_open")));
+void inventoryOpen(VSelf) ALIAS("Inventory_open");
 void Inventory_open(VSelf) {
     VSELF(Inventory);
     if (self->ui.active) {
@@ -266,7 +266,7 @@ void Inventory_open(VSelf) {
     }
 }
 
-void inventoryClose(VSelf) __attribute__((alias("Inventory_close")));
+void inventoryClose(VSelf) ALIAS("Inventory_close");
 void Inventory_close(VSelf) {
     VSELF(Inventory);
     if (!self->ui.active) {
@@ -298,7 +298,7 @@ bool inventoryInputHandler(const Input* input, void* ctx) {
     return inventory->ui.active;
 }
 
-void inventoryRegisterInputHandler(VSelf, Input* input) __attribute__((alias("Inventory_registerInputHandler")));
+void inventoryRegisterInputHandler(VSelf, Input* input) ALIAS("Inventory_registerInputHandler");
 void Inventory_registerInputHandler(VSelf, Input* input) {
     VSELF(Inventory);
     const ContextualInputHandler handler = (ContextualInputHandler) {

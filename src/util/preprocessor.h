@@ -14,9 +14,11 @@
 #define P99_STRING_ARRAY_INDEX(x) [x] = #x,
 
 #if defined(__GNUC__) \
-    && __GNUC__ >= 10    \
-    && (__GNUC__ > 10 || (__GNUC__ >= 0 && __GNUC_MINOR__ >= 0)) \
-    && defined(__GNUC_PATCHLEVEL__)
+    && __GNUC__ >= 10 \
+    || ( \
+        defined(__GNUC_PATCHLEVEL__) \
+        && (__GNUC__ > 10 || (__GNUC__ >= 0 && __GNUC_MINOR__ >= 0)) \
+    ) \
     #define GNU_VERSION_10
 #endif
 
@@ -32,6 +34,7 @@
 
 #define UNIMPLEMENTED __attribute__((unavailable("Unimplemented function/method")))
 #define UNUSED __attribute__((unused))
+#define ALIAS(name) __attribute__((alias(name)))
 
 // Forward declaration
 #define FWD_DECL

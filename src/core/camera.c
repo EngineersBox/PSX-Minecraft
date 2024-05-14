@@ -216,7 +216,7 @@ bool cameraInputHandler(const Input* input, void* ctx) {
     return false;
 }
 
-void cameraRegisterInputHandler(VSelf, Input* input) __attribute__((alias("Camera_registerInputHandler")));
+void cameraRegisterInputHandler(VSelf, Input* input) ALIAS("Camera_registerInputHandler");
 void Camera_registerInputHandler(VSelf, Input* input) {
     VSELF(Camera);
     const ContextualInputHandler handler = (ContextualInputHandler) {

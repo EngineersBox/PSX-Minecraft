@@ -13,17 +13,17 @@
 void chunkInit(Chunk *chunk);
 void chunkDestroy(const Chunk* chunk);
 
-void overworldPerlinChunkGeneratorInit(VSelf) __attribute__((alias("OverworldPerlinChunkGenerator_init")));
+void overworldPerlinChunkGeneratorInit(VSelf) ALIAS("OverworldPerlinChunkGenerator_init");
 void OverworldPerlinChunkGenerator_init(VSelf) {
     // Do nothing
 }
 
-void overworldPerlinChunkGeneratorDestroy(VSelf) __attribute__((alias("OverworldPerlinChunkGenerator_destroy")));
+void overworldPerlinChunkGeneratorDestroy(VSelf) ALIAS("OverworldPerlinChunkGenerator_destroy");
 void OverworldPerlinChunkGenerator_destroy(VSelf) {
     // Do nothing
 }
 
-void overworldPerlinGeneneratorGenerate(VSelf, Chunk* chunk) __attribute__((alias("OverworldPerlinChunkGenerator_generate")));
+void overworldPerlinGeneneratorGenerate(VSelf, Chunk* chunk) ALIAS("OverworldPerlinChunkGenerator_generate");
 void OverworldPerlinChunkGenerator_generate(VSelf, Chunk* chunk) {
     const VECTOR* position = &chunk->position;
     for (i32 x = 0; x < CHUNK_SIZE; x++) {
@@ -61,7 +61,7 @@ void OverworldPerlinChunkGenerator_generate(VSelf, Chunk* chunk) {
 
 // ==== PROVIDER ====
 
-void overworldPerlinChunkProviderInit(VSelf) __attribute__((alias("OverworldPerlinChunkProvider_init")));
+void overworldPerlinChunkProviderInit(VSelf) ALIAS("OverworldPerlinChunkProvider_init");
 void OverworldPerlinChunkProvider_init(VSelf) {
     VSELF(OverworldPerlinChunkProvider);
     DYN_PTR(
@@ -73,14 +73,14 @@ void OverworldPerlinChunkProvider_init(VSelf) {
     VCALL(self->generator, init);
 }
 
-void overworldPerlinChunkProviderDestroy(VSelf) __attribute__((alias("OverworldPerlinChunkProvider_destroy")));
+void overworldPerlinChunkProviderDestroy(VSelf) ALIAS("OverworldPerlinChunkProvider_destroy");
 void OverworldPerlinChunkProvider_destroy(VSelf) {
     VSELF(OverworldPerlinChunkProvider);
     VCALL(self->generator, destroy);
     free(self->generator.self);
 }
 
-Chunk* overworldPerlinProvideChunk(VSelf, const VECTOR position) __attribute__((alias("OverworldPerlinChunkProvider_provide")));
+Chunk* overworldPerlinProvideChunk(VSelf, const VECTOR position) ALIAS("OverworldPerlinChunkProvider_provide");
 Chunk* OverworldPerlinChunkProvider_provide(VSelf, const VECTOR position) {
     VSELF(OverworldPerlinChunkProvider);
     Chunk* chunk = malloc(sizeof(Chunk));
@@ -90,7 +90,7 @@ Chunk* OverworldPerlinChunkProvider_provide(VSelf, const VECTOR position) {
     return chunk;
 }
 
-bool overworldPerlinSaveChunk(VSelf, Chunk* chunk) __attribute__((alias("OverworldPerlinChunkProvider_save")));
+bool overworldPerlinSaveChunk(VSelf, Chunk* chunk) ALIAS("OverworldPerlinChunkProvider_save");
 bool OverworldPerlinChunkProvider_save(VSelf, Chunk* chunk) {
     // TODO: Implement this when world saving is possible
     chunkDestroy(chunk);

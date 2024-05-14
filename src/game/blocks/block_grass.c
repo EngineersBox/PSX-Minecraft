@@ -8,7 +8,7 @@ IBlock* grassBlockCreate() {
     return &GRASS_IBLOCK_SINGLETON;
 }
 
-void grassBlockInit(VSelf) __attribute__((alias("GrassBlock_init")));
+void grassBlockInit(VSelf) ALIAS("GrassBlock_init");
 void GrassBlock_init(VSelf) {
     // TODO: Can make this VSELF(Block) since GrassBlock composes Block as the first struct element
     VSELF(GrassBlock);
@@ -25,36 +25,36 @@ void GrassBlock_init(VSelf) {
     );
 }
 
-void grassBlockAccess(VSelf) __attribute__((alias("GrassBlock_access")));
+void grassBlockAccess(VSelf) ALIAS("GrassBlock_access");
 void GrassBlock_access(VSelf) {
 }
 
-IItem* grassBlockDestroy(VSelf) __attribute__((alias("GrassBlock_destroy")));
+IItem* grassBlockDestroy(VSelf) ALIAS("GrassBlock_destroy");
 IItem* GrassBlock_destroy(VSelf) {
     VSELF(GrassBlock);
     return grassBlockProvideItem(self);
 }
 
-void grassBlockUpdate(VSelf) __attribute__((alias("GrassBlock_update")));
+void grassBlockUpdate(VSelf) ALIAS("GrassBlock_update");
 void GrassBlock_update(VSelf) {
 }
 
 // TODO: EXAMPLE/TESTING ONLY, REMOVE LATER
 // static const u8 FARMLAND_OPAQUE_BITSET = opaqueFacesBitset(1,0,1,0,1,0);
 
-bool grassBlockIsOpaque(VSelf, FaceDirection face_dir) __attribute__((alias("GrassBlock_isOpaque")));
+bool grassBlockIsOpaque(VSelf, FaceDirection face_dir) ALIAS("GrassBlock_isOpaque");
 bool GrassBlock_isOpaque(VSelf, UNUSED const FaceDirection face_dir) {
     // return (FARMLAND_OPAQUE_BITSET >> face_dir) & 0x1;
     return true;
 }
 
-u8 grassBlockOpaqueBitset(VSelf) __attribute__((alias("GrassBlock_opaqueBitset")));
+u8 grassBlockOpaqueBitset(VSelf) ALIAS("GrassBlock_opaqueBitset");
 u8 GrassBlock_opaqueBitset(VSelf) {
     // return FARMLAND_OPAQUE_BITSET;
     return 63; // 0b00111111
 }
 
-IItem* grassBlockProvideItem(VSelf) __attribute__((alias("GrassBlock_provideItem")));
+IItem* grassBlockProvideItem(VSelf) ALIAS("GrassBlock_provideItem");
 IItem* GrassBlock_provideItem(VSelf) {
     VSELF(GrassBlock);
     IItem* item = itemCreate();

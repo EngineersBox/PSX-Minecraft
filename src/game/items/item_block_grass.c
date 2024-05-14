@@ -8,47 +8,47 @@ GrassItemBlock* grassItemBlockCreate() {
     return (GrassItemBlock*) malloc(sizeof(GrassItemBlock));
 }
 
-void grassItemBlockDestroy(VSelf) __attribute__((alias("GrassItemBlock_destroy")));
+void grassItemBlockDestroy(VSelf) ALIAS("GrassItemBlock_destroy");
 void GrassItemBlock_destroy(VSelf) {
     VSELF(GrassItemBlock);
     free(self);
 }
 
-void grassItemBlockRenderWorld(VSelf, RenderContext* ctx, Transforms* transforms) __attribute__((alias("GrassItemBlock_renderWorld")));
+void grassItemBlockRenderWorld(VSelf, RenderContext* ctx, Transforms* transforms) ALIAS("GrassItemBlock_renderWorld");
 void GrassItemBlock_renderWorld(VSelf, RenderContext* ctx, Transforms* transforms) {
     VSELF(GrassItemBlock);
     itemBlockRenderWorld(&self->item_block, ctx, transforms);
 }
 
-void grassItemBlockRenderInventory(VSelf, RenderContext* ctx, Transforms* transforms) __attribute__((alias("GrassItemBlock_renderInventory")));
+void grassItemBlockRenderInventory(VSelf, RenderContext* ctx, Transforms* transforms) ALIAS("GrassItemBlock_renderInventory");
 void GrassItemBlock_renderInventory(VSelf, RenderContext* ctx, Transforms* transforms) {
     VSELF(GrassItemBlock);
     itemBlockRenderInventory(&self->item_block, ctx, transforms);
 }
 
-void grassItemBlockRenderHand(VSelf, RenderContext* ctx, Transforms* transforms) __attribute__((alias("GrassItemBlock_renderHand")));
+void grassItemBlockRenderHand(VSelf, RenderContext* ctx, Transforms* transforms) ALIAS("GrassItemBlock_renderHand");
 void GrassItemBlock_renderHand(VSelf, RenderContext* ctx, Transforms* transforms) {
     VSELF(GrassItemBlock);
     itemBlockRenderHand(&self->item_block, ctx, transforms);
 }
 
-void grassItemBlockApplyWorldRenderAttributes(VSelf) __attribute__((alias("GrassItemBlock_applyWorldRenderAttributes")));
+void grassItemBlockApplyWorldRenderAttributes(VSelf) ALIAS("GrassItemBlock_applyWorldRenderAttributes");
 void GrassItemBlock_applyWorldRenderAttributes(VSelf) {
 
 }
 
-void grassItemBlockApplyInventoryRenderAttributes(VSelf) __attribute__((alias("GrassItemBlock_applyInventoryRenderAttributes")));
+void grassItemBlockApplyInventoryRenderAttributes(VSelf) ALIAS("GrassItemBlock_applyInventoryRenderAttributes");
 void GrassItemBlock_applyInventoryRenderAttributes(VSelf) {
     VSELF(GrassItemBlock);
     itemBlockApplyInventoryRenderAttributes(&self->item_block);
 }
 
-void grassItemBlockApplyHandRenderAttributes(VSelf) __attribute__((alias("GrassItemBlock_applyHandRenderAttributes")));
+void grassItemBlockApplyHandRenderAttributes(VSelf) ALIAS("GrassItemBlock_applyHandRenderAttributes");
 void GrassItemBlock_applyHandRenderAttributes(VSelf) {
 
 }
 
-void grassItemBlockInit(VSelf) __attribute__((alias("GrassItemBlock_init")));
+void grassItemBlockInit(VSelf) ALIAS("GrassItemBlock_init");
 void GrassItemBlock_init(VSelf) {
     VSELF(GrassItemBlock);
     self->item_block = (ItemBlock) {
@@ -73,17 +73,17 @@ void GrassItemBlock_init(VSelf) {
     };
 }
 
-void grassItemBlockApplyDamage(VSelf) __attribute__((alias("GrassItemBlock_applyDamage")));
+void grassItemBlockApplyDamage(VSelf) ALIAS("GrassItemBlock_applyDamage");
 void GrassItemBlock_applyDamage(VSelf) {
 
 }
 
-void grassItemBlockUseAction(VSelf) __attribute__((alias("GrassItemBlock_useAction")));
+void grassItemBlockUseAction(VSelf) ALIAS("GrassItemBlock_useAction");
 void GrassItemBlock_useAction(VSelf) {
 
 }
 
-void grassItemBlockAttackAction(VSelf) __attribute__((alias("GrassItemBlock_attackAction")));
+void grassItemBlockAttackAction(VSelf) ALIAS("GrassItemBlock_attackAction");
 void GrassItemBlock_attackAction(VSelf) {
 
 }

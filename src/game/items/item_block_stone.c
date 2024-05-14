@@ -8,47 +8,47 @@ StoneItemBlock* stoneItemBlockCreate() {
     return (StoneItemBlock*) malloc(sizeof(StoneItemBlock));
 }
 
-void stoneItemBlockDestroy(VSelf) __attribute__((alias("StoneItemBlock_destroy")));
+void stoneItemBlockDestroy(VSelf) ALIAS("StoneItemBlock_destroy");
 void StoneItemBlock_destroy(VSelf) {
     VSELF(StoneItemBlock);
     free(self);
 }
 
-void stoneItemBlockRenderWorld(VSelf, RenderContext* ctx, Transforms* transforms) __attribute__((alias("StoneItemBlock_renderWorld")));
+void stoneItemBlockRenderWorld(VSelf, RenderContext* ctx, Transforms* transforms) ALIAS("StoneItemBlock_renderWorld");
 void StoneItemBlock_renderWorld(VSelf, RenderContext* ctx, Transforms* transforms) {
     VSELF(StoneItemBlock);
     itemBlockRenderWorld(&self->item_block, ctx, transforms);
 }
 
-void stoneItemBlockRenderInventory(VSelf, RenderContext* ctx, Transforms* transforms) __attribute__((alias("StoneItemBlock_renderInventory")));
+void stoneItemBlockRenderInventory(VSelf, RenderContext* ctx, Transforms* transforms) ALIAS("StoneItemBlock_renderInventory");
 void StoneItemBlock_renderInventory(VSelf, RenderContext* ctx, Transforms* transforms) {
     VSELF(StoneItemBlock);
     itemBlockRenderInventory(&self->item_block, ctx, transforms);
 }
 
-void stoneItemBlockRenderHand(VSelf, RenderContext* ctx, Transforms* transforms) __attribute__((alias("StoneItemBlock_renderHand")));
+void stoneItemBlockRenderHand(VSelf, RenderContext* ctx, Transforms* transforms) ALIAS("StoneItemBlock_renderHand");
 void StoneItemBlock_renderHand(VSelf, RenderContext* ctx, Transforms* transforms) {
     VSELF(StoneItemBlock);
     itemBlockRenderHand(&self->item_block, ctx, transforms);
 }
 
-void stoneItemBlockApplyWorldRenderAttributes(VSelf) __attribute__((alias("StoneItemBlock_applyWorldRenderAttributes")));
+void stoneItemBlockApplyWorldRenderAttributes(VSelf) ALIAS("StoneItemBlock_applyWorldRenderAttributes");
 void StoneItemBlock_applyWorldRenderAttributes(VSelf) {
 
 }
 
-void stoneItemBlockApplyInventoryRenderAttributes(VSelf) __attribute__((alias("StoneItemBlock_applyInventoryRenderAttributes")));
+void stoneItemBlockApplyInventoryRenderAttributes(VSelf) ALIAS("StoneItemBlock_applyInventoryRenderAttributes");
 void StoneItemBlock_applyInventoryRenderAttributes(VSelf) {
     VSELF(StoneItemBlock);
     itemBlockApplyInventoryRenderAttributes(&self->item_block);
 }
 
-void stoneItemBlockApplyHandRenderAttributes(VSelf) __attribute__((alias("StoneItemBlock_applyHandRenderAttributes")));
+void stoneItemBlockApplyHandRenderAttributes(VSelf) ALIAS("StoneItemBlock_applyHandRenderAttributes");
 void StoneItemBlock_applyHandRenderAttributes(VSelf) {
 
 }
 
-void stoneItemBlockInit(VSelf) __attribute__((alias("StoneItemBlock_init")));
+void stoneItemBlockInit(VSelf) ALIAS("StoneItemBlock_init");
 void StoneItemBlock_init(VSelf) {
     VSELF(StoneItemBlock);
     self->item_block = (ItemBlock) {
@@ -66,17 +66,17 @@ void StoneItemBlock_init(VSelf) {
     };
 }
 
-void stoneItemBlockApplyDamage(VSelf) __attribute__((alias("StoneItemBlock_applyDamage")));
+void stoneItemBlockApplyDamage(VSelf) ALIAS("StoneItemBlock_applyDamage");
 void StoneItemBlock_applyDamage(VSelf) {
 
 }
 
-void stoneItemBlockUseAction(VSelf) __attribute__((alias("StoneItemBlock_useAction")));
+void stoneItemBlockUseAction(VSelf) ALIAS("StoneItemBlock_useAction");
 void StoneItemBlock_useAction(VSelf) {
 
 }
 
-void stoneItemBlockAttackAction(VSelf) __attribute__((alias("StoneItemBlock_attackAction")));
+void stoneItemBlockAttackAction(VSelf) ALIAS("StoneItemBlock_attackAction");
 void StoneItemBlock_attackAction(VSelf) {
 
 }
