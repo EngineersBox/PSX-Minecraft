@@ -5,14 +5,14 @@
 
 #include "../../util/preprocessor.h"
 
-#define MK_BLOCK_LIST(f) \
-    f(BLOCKID_AIR) \
-    f(BLOCKID_STONE) \
-    f(BLOCKID_GRASS) \
-    f(BLOCKID_DIRT)
+#define BLOCK_LIST \
+    ENUM_ENTRY_ORD(BLOCKID_AIR, 0), \
+    ENUM_ENTRY_ORD(BLOCKID_STONE, 1), \
+    ENUM_ENTRY_ORD(BLOCKID_GRASS, 2), \
+    ENUM_ENTRY_ORD(BLOCKID_DIRT, 3)
 
 typedef enum {
-    MK_BLOCK_LIST(P99_ENUM_ENTRY)
+    ENUM_ENTRIES(BLOCK_LIST)
 } EBlockID;
 
 extern const char* EBLOCKID_NAMES[];

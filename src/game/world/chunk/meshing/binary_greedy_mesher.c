@@ -8,6 +8,7 @@
 #include "../../../structure/hashmap.h"
 #include "../../../resources/asset_indices.h"
 #include "../../../structure/primitive/primitive.h"
+#include "../../../resources/assets.h"
 
 // Forward declarations
 FWD_DECL typedef struct World World;

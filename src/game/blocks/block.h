@@ -2,15 +2,10 @@
 #ifndef PSX_MINECRAFT_BLOCK_H
 #define PSX_MINECRAFT_BLOCK_H
 
-#include <stdlib.h>
-#include <stdio.h>
 #include <stdbool.h>
 #include <interface99.h>
 
 #include "../../util/inttypes.h"
-#include "../../render/render_context.h"
-#include "../../render/transforms.h"
-#include "../../resources/assets.h"
 #include "../../resources/texture.h"
 #include "../../util/preprocessor.h"
 #include "../items/item.h"

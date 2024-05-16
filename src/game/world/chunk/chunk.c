@@ -13,6 +13,7 @@
 #include "../../math/math_utils.h"
 #include "../../util/interface99_extensions.h"
 #include "../../resources/asset_indices.h"
+#include "../../resources/assets.h"
 #include "meshing/binary_greedy_mesher.h"
 
 // Forward declaration
@@ -22,18 +23,6 @@ typedef struct {
     IBlock* block;
     i8 normal;
 } Mask;
-
-// bool compareMask2(Mask m1, Mask m2) {
-//     if (m1.block == NULL && m2.block == NULL) {
-//         return true;
-//     }
-//     if (m1.block == NULL || m2.block == NULL) {
-//         return false;
-//     }
-//     const Block* block1 = VCAST(Block*, *m1.block);
-//     const Block* block2 = VCAST(Block*, *m2.block);
-//     return block1->id == block2->id && m1.normal == m2.normal;
-// }
 
 #define compareMask(m1, m2) (\
     (m1.block == NULL && m2.block == NULL) \

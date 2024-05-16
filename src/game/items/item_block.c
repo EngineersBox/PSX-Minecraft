@@ -8,6 +8,7 @@
 #include "../../math/math_utils.h"
 #include "../../structure/primitive/cube.h"
 #include "../../resources/asset_indices.h"
+#include "../../resources/assets.h"
 #include "../gui/slot.h"
 
 #define VERTICES_COUNT 8
