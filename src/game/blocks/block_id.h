@@ -8,8 +8,8 @@
 #define MK_BLOCK_LIST(f) \
     f(BLOCKID_AIR) \
     f(BLOCKID_STONE) \
-    f(BLOCKID_DIRT) \
-    f(BLOCKID_GRASS)
+    f(BLOCKID_GRASS) \
+    f(BLOCKID_DIRT)
 
 typedef enum {
     MK_BLOCK_LIST(P99_ENUM_ENTRY)

@@ -3,6 +3,8 @@
 #ifndef PSX_MINECRAFT_PREPROCESSOR_H
 #define PSX_MINECRAFT_PREPROCESSOR_H
 
+#include <metalang99.h>
+
 // ==== META MACROS ====
 
 #define GLUE(x,y) x##y
@@ -57,5 +59,45 @@
 #define INT32_BIN_PATTERN INT16_BIN_PATTERN INT16_BIN_PATTERN
 #define INT16_BIN_LAYOUT(i) INT8_BIN_LAYOUT((i) >> 8), INT8_BIN_LAYOUT(i)
 #define INT32_BIN_LAYOUT(i) INT16_BIN_LAYOUT((i) >> 16), INT16_BIN_LAYOUT(i)
+
+// ==== ENUM CONSTRUCTORS ====
+#define ENUM_ENTRY(name) ML99_choice(v(ENUM_ENTRY), v(name))
+#define EUNM_ENTRY_ORD(name, id) ML99_choice(v(EUNM_ENTRY_ORD), v(name), v(id))
+
+#define createEnumEntry_ENUM_ENTRY_IMPL(name) v(name)
+#define createEnumEntry_EUNM_ENTRY_ORD_IMPL(name, id) v(name = id)
+#define createEnumEntry(entry) ML99_match(entry, v(createEnumEntry_))
+#define enumEntryExtractName(choice) ML99_stringify(ML99_tupleGet(0)(ML99_tuple(ML99_choiceData(choice))))
+
+#define ENUM_ENTRIES(...) ML99_LIST_EVAL_COMMA_SEP( \
+    ML99_listMap( \
+        ML99_reify(v(createEnumEntry)), \
+        ML99_list(__VA_ARGS__) \
+    ) \
+)
+#define ENUM_ENTRY_NAMES(...) ML99_LIST_EVAL_COMMA_SEP( \
+    ML99_listMap( \
+        ML99_reify(v(enumEntryExtractName)), \
+        ML99_list(__VA_ARGS__) \
+    ) \
+)
+
+#define testEnumEntries \
+    ENUM_ENTRY(entryA), \
+    EUNM_ENTRY_ORD(entryB, 3)
+
+typedef enum {
+    // ML99_LIST_EVAL_COMMA_SEP(ML99_list(
+    //     // createEnumEntry(EUNM_ENTRY_ORD(entryB, 3)),
+    //     ML99_EVAL(ML99_appl(ML99_reify(v(createEnumEntry)), EUNM_ENTRY_ORD(entryB, 3)))
+    // ))
+    // ML99_EVAL(ML99_match(ENUM_ENTRY(entryA), v(createEnumEntry_))),
+    ML99_EVAL(ENUM_ENTRIES(testEnumEntries))
+    // testEnumEntries(createEnumEntry)
+} test_enum;
+
+const char* test_enum_names[2] = {
+    ENUM_ENTRY_NAMES(testEnumEntries)
+};
 
 #endif // PSX_MINECRAFT_PREPROCESSOR_H
