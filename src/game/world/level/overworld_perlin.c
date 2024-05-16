@@ -48,7 +48,7 @@ void OverworldPerlinChunkGenerator_generate(VSelf, Chunk* chunk) {
                 if (worldY < height - 3) {
                     chunk->blocks[chunkBlockIndex(x, y, z)] = stoneBlockCreate();
                 } else if (worldY < height - 1) {
-                    chunk->blocks[chunkBlockIndex(x, y, z)] = dirtBlockCreate();
+                    chunk->blocks[chunkBlockIndex(x, y, z)] = cobblestoneBlockCreate();
                 } else if (worldY == height - 1) {
                     chunk->blocks[chunkBlockIndex(x, y, z)] = grassBlockCreate();
                 } else {

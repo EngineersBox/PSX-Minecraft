@@ -10,10 +10,11 @@
 // and getting access to all blocks instantly
 #include "block_air.h"
 #include "block_stone.h"
-#include "block_dirt.h"
 #include "block_grass.h"
+#include "block_dirt.h"
+#include "block_cobblestone.h"
 
-#define BLOCK_COUNT 5
+#define BLOCK_COUNT 6
 
 extern BlockAttributes block_attributes[BLOCK_COUNT];
 

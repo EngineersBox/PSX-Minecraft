@@ -12,8 +12,9 @@ BlockAttributes block_attributes[BLOCK_COUNT] = {0};
 
 DECL_STATELESS_BLOCK(AirBlock, AIR);
 DECL_STATELESS_BLOCK(StoneBlock, STONE);
-DECL_STATELESS_BLOCK(DirtBlock, DIRT);
 DECL_STATELESS_BLOCK(GrassBlock, GRASS);
+DECL_STATELESS_BLOCK(DirtBlock, DIRT);
+DECL_STATELESS_BLOCK(CobblestoneBlock, COBBLESTONE);
 
 #define initBlockSingleton(type, name) ({ \
     name##_IBLOCK_SINGLETON = DYN(type, IBlock, &name##_BLOCK_SINGLETON); \
@@ -37,16 +38,22 @@ void blocksInitialiseBuiltin() {
         stoneBlockCreateAttributes()
     );
     DEBUG_LOG("Stone: %d\n", VCAST_PTR(Block*, stoneBlockCreate())->id);
-    initBlockSingleton(DirtBlock, DIRT);
-    initBlockAttributes(
-        BLOCKID_DIRT,
-        dirtBlockCreateAttributes()
-    );
-    DEBUG_LOG("Dirt: %d\n", VCAST_PTR(Block*, dirtBlockCreate())->id);
     initBlockSingleton(GrassBlock, GRASS);
     initBlockAttributes(
         BLOCKID_GRASS,
         grassBlockCreateAttributes()
     );
     DEBUG_LOG("Grass: %d\n", VCAST_PTR(Block*, grassBlockCreate())->id);
+    initBlockSingleton(DirtBlock, DIRT);
+    initBlockAttributes(
+        BLOCKID_DIRT,
+        dirtBlockCreateAttributes()
+    );
+    DEBUG_LOG("Dirt: %d\n", VCAST_PTR(Block*, dirtBlockCreate())->id);
+    initBlockSingleton(CobblestoneBlock, COBBLESTONE);
+    initBlockAttributes(
+        BLOCKID_COBBLESTONE,
+        cobblestoneBlockCreateAttributes()
+    );
+    DEBUG_LOG("Dirt: %d\n", VCAST_PTR(Block*, cobblestoneBlockCreate())->id);
 }

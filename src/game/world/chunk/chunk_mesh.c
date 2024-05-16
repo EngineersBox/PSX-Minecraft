@@ -67,10 +67,10 @@ void renderQuad(const ChunkMesh* mesh, SMD_PRIM* primitive, RenderContext* ctx, 
     cvector_iterator(SVECTOR) verticesIter = cvector_begin(mesh->p_verts);
     cvector_iterator(SVECTOR) normalsIter = cvector_begin(mesh->p_norms);
     const RECT tex_window = (RECT){
-        primitive->tu0 >> 3,
-        primitive->tv0 >> 3,
-        BLOCK_TEXTURE_SIZE >> 3,
-        BLOCK_TEXTURE_SIZE >> 3
+        .w = BLOCK_TEXTURE_SIZE >> 3,
+        .h = BLOCK_TEXTURE_SIZE >> 3,
+        .x = primitive->tu0 >> 3,
+        .y = primitive->tv0 >> 3,
     };
     POLY_FT4* pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
 #if QUAD_DUAL_TRI_NCLIP
