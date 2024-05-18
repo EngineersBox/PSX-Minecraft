@@ -122,7 +122,10 @@
 
 #define isPowerOf2(x) (((x) & ((x) - 1)) == 0)
 
-void crossProduct(const SVECTOR *v0, const SVECTOR *v1, VECTOR *out);
+void _crossProduct(const SVECTOR *v0, const SVECTOR *v1, VECTOR *out);
+
+VECTOR cross(const VECTOR* v0, const VECTOR* v1);
+i32 dot(const VECTOR* v0, const VECTOR* v1);
 
 typedef struct _BVECTOR {
     uint8_t x;
@@ -177,6 +180,24 @@ typedef struct _BVECTOR {
     __typeof__(v) _v = (v);\
     _v - positiveModulo(_v, (factor)); \
 })
+
+// #define cross(v0, v1) ({ \
+//     __typeof__(v0) _v0 = (v0); \
+//     __typeof__(v1) _v1 = (v1); \
+//     vec3_i32( \
+//         fixedMul(_v0.vy * _v1.vz) - fixedMul(_v0.vz, _v1.vy), \
+//         fixedMul(_v0.vz * _v1.vx) - fixedMul(_v0.vx, _v1.vz), \
+//         fixedMul(_v0.vx * _v1.vy) - fixedMul(_v0.vy, _v1.vx) \
+//     ); \
+// })
+//
+// #define dot(v0, v1) ({ \
+//     __typeof__(v0) _v0 = (v0); \
+//     __typeof__(v1) _v1 = (v1); \
+//     fixedMul(_v0.vx, _v1.vx) \
+//     + fixedMul(_v0.vy, _v1.vy) \
+//     + fixedMul(_v0.vz, _v1.vz); \
+// })
 
 #define _vec2_layout(x, y) .vx = (x), .vy = (y)
 #define _vec3_layout(x, y, z) _vec2_layout(x, y), .vz = (z)

@@ -18,11 +18,10 @@ FWD_DECL IBlock* chunkGetBlock(const Chunk* chunk, i32 x, i32 y, i32 z);
 
 #define CHUNK_SIZE_PADDED (CHUNK_SIZE + 2)
 #define AXIS_COUNT 3
-#define FACES_COUNT (AXIS_COUNT * 2)
 #define AXIAL_EDGES_COUNT 2
 static const u32 AXIAL_EDGES[AXIAL_EDGES_COUNT] = { 0, CHUNK_SIZE_PADDED - 1 };
 
-typedef u32 FacesColumns[FACES_COUNT][CHUNK_SIZE_PADDED][CHUNK_SIZE_PADDED];
+typedef u32 FacesColumns[FACE_DIRECTION_COUNT][CHUNK_SIZE_PADDED][CHUNK_SIZE_PADDED];
 
 INLINE void addVoxelToFaceColumns(FacesColumns axis_cols,
                                FacesColumns axis_cols_opaque,
@@ -177,7 +176,7 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
     );
     // Find faces and build binary planes based on block types
     u32 primitive_index = 0;
-    for (u32 face = 0; face < FACES_COUNT; face++) {
+    for (u32 face = 0; face < FACE_DIRECTION_COUNT; face++) {
         for (u32 z = 0; z < CHUNK_SIZE; z++) {
             for (u32 x = 0; x < CHUNK_SIZE; x++) {
                 // Skip padding
@@ -305,7 +304,7 @@ static SMD_PRIM* createPrimitive(ChunkMesh* mesh,
         (&cvector_begin((mesh)->attribute_field)[(mesh)->count_field++]); \
 })
 
-static const INDEX INDICES[FACES_COUNT] = {
+static const INDEX INDICES[FACE_DIRECTION_COUNT] = {
     {3,2,1,0},
     {1,0,3,2},
     {3,2,1,0},
@@ -382,16 +381,10 @@ static void createNormal(ChunkMesh* mesh,
                          const FaceDirection face_dir) {
     SVECTOR* norm = nextRenderAttribute(&mesh->face_meshes[face_dir], p_norms, n0, n_norms);
 #undef nextRenderAttribute
-#define normal(x,y,z) norm->vx = x * ONE; norm->vy = y * ONE; norm->vz = z * ONE
-    switch (face_dir) {
-        case FACE_DIR_DOWN: normal(0, 1, 0); break;
-        case FACE_DIR_UP: normal(0, -1, 0); break;
-        case FACE_DIR_LEFT: normal(-1, 0, 0); break;
-        case FACE_DIR_RIGHT: normal(1, 0, 0); break;
-        case FACE_DIR_FRONT: normal(0, 0, 1); break;
-        case FACE_DIR_BACK: normal(0, 0, -1); break;
-    }
-#undef normal
+    *norm = svector_const_mul(
+        FACE_DIRECTION_NORMALS[face_dir],
+        ONE
+    );
 }
 
 static void createQuad(Chunk* chunk,

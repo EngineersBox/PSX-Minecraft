@@ -17,4 +17,6 @@ typedef int32_t i32;
 typedef uint64_t u64;
 typedef int64_t i64;
 
+typedef i32 fixedi32;
+
 #endif // PSX_MINECRAFT_INTTYPES_H

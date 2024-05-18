@@ -148,15 +148,14 @@ void cameraUpdate(Camera* camera, const Input* input, Transforms* transforms, co
 }
 
 void lookAt(const VECTOR* eye, const VECTOR* at, const SVECTOR* up, MATRIX* mtx) {
-    VECTOR taxis;
+    VECTOR taxis = vector_sub(*at, *eye);
     SVECTOR zaxis;
     SVECTOR xaxis;
     SVECTOR yaxis;
-    setVector(&taxis, at->vx-eye->vx, at->vy-eye->vy, at->vz-eye->vz);
     VectorNormalS(&taxis, &zaxis);
-    crossProduct(&zaxis, up, &taxis);
+    _crossProduct(&zaxis, up, &taxis);
     VectorNormalS(&taxis, &xaxis);
-    crossProduct(&zaxis, &xaxis, &taxis);
+    _crossProduct(&zaxis, &xaxis, &taxis);
     VectorNormalS(&taxis, &yaxis);
     mtx->m[0][0] = xaxis.vx;
     mtx->m[1][0] = yaxis.vx;

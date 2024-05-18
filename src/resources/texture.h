@@ -15,6 +15,10 @@ typedef enum {
     FACE_DIR_FRONT
 } FaceDirection;
 
+#define FACE_DIRECTION_COUNT 6
+
+extern const SVECTOR FACE_DIRECTION_NORMALS[FACE_DIRECTION_COUNT];
+
 typedef struct {
     uint16_t tpage;
     uint16_t clut;

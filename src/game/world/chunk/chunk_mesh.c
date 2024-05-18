@@ -23,7 +23,7 @@ void __svectorDestructor(void* elem) {
 
 void chunkMeshInit(ChunkMesh* mesh) {
     #pragma GCC unroll 6
-    for (int i = 0; i < 6; i++) {
+    for (int i = 0; i < FACE_DIRECTION_COUNT; i++) {
         // NOTE: This null init is important for cvector to ensure allocation is done initially
         SMD* smd = &mesh->face_meshes[i];
         cvector(SMD_PRIM) p_prims = NULL;
@@ -38,7 +38,7 @@ void chunkMeshInit(ChunkMesh* mesh) {
 
 void chunkMeshDestroy(const ChunkMesh* mesh) {
     #pragma GCC unroll 6
-    for (int i = 0; i < 6; i++) {
+    for (int i = 0; i < FACE_DIRECTION_COUNT; i++) {
         const SMD* smd = &mesh->face_meshes[i];
         cvector_free((SMD_PRIM*) smd->p_prims);
         cvector_free(smd->p_verts);
@@ -48,7 +48,7 @@ void chunkMeshDestroy(const ChunkMesh* mesh) {
 
 void chunkMeshClear(ChunkMesh* mesh) {
     #pragma GCC unroll 6
-    for (int i = 0; i < 6; i++) {
+    for (int i = 0; i < FACE_DIRECTION_COUNT; i++) {
         SMD* smd = &mesh->face_meshes[i];
         cvector_clear((cvector(SMD_PRIM)) smd->p_prims);
         cvector_clear(smd->p_verts);
@@ -226,9 +226,21 @@ void chunkMeshRenderFaceDirection(const SMD* mesh, RenderContext* ctx, Transform
     }
 }
 
+bool faceDirectionHidden(RenderContext* ctx) {
+    return true;
+}
+
 void chunkMeshRender(const ChunkMesh* mesh, RenderContext* ctx, Transforms* transforms) {
+    bool skip_check[6] = {false};
     #pragma GCC unroll 6
-    for (int i = 0; i < 6; i++) {
+    for (int i = 0; i < FACE_DIRECTION_COUNT; i++) {
+        if (skip_check[i] || faceDirectionHidden(ctx)) {
+            continue;
+        }
+        switch (i) {
+            case FACE_DIR_DOWN: skip_check[1] = true; break;
+            case FACE_DIR_UP: skip_check[0] = true; break;
+        }
         chunkMeshRenderFaceDirection(
             &mesh->face_meshes[i],
             ctx,
