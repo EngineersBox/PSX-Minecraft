@@ -21,34 +21,46 @@ void __svectorDestructor(void* elem) {
 }
 
 void chunkMeshInit(ChunkMesh* mesh) {
-    // NOTE: This null init is important for cvector to ensure allocation is done initially
-    SMD_PRIM* p_prims = NULL;
-    mesh->p_verts = NULL;
-    mesh->p_norms = NULL;
-    cvector_init(p_prims, MESH_PRIMITIVE_VEC_INITIAL_CAPCITY, __primtiveDestructor);
-    mesh->p_prims = p_prims;
-    cvector_init(mesh->p_verts, MESH_VERTEX_VEC_INITIAL_CAPCITY, __svectorDestructor);
-    cvector_init(mesh->p_norms, MESH_NORMAL_VEC_INITIAL_CAPCITY, __svectorDestructor);
+    #pragma GCC unroll 6
+    for (int i = 0; i < 6; i++) {
+        // NOTE: This null init is important for cvector to ensure allocation is done initially
+        SMD_PRIM* p_prims = NULL;
+        SMD* smd = &mesh->face_meshes[i];
+        smd->p_verts = NULL;
+        smd->p_norms = NULL;
+        cvector_init(p_prims, MESH_PRIMITIVE_VEC_INITIAL_CAPCITY, __primtiveDestructor);
+        smd->p_prims = p_prims;
+        cvector_init(smd->p_verts, MESH_VERTEX_VEC_INITIAL_CAPCITY, __svectorDestructor);
+        cvector_init(smd->p_norms, MESH_NORMAL_VEC_INITIAL_CAPCITY, __svectorDestructor);
+    }
 }
 
 void chunkMeshDestroy(const ChunkMesh* mesh) {
-    cvector_free((SMD_PRIM*) mesh->p_prims);
-    cvector_free(mesh->p_verts);
-    cvector_free(mesh->p_norms);
+    #pragma GCC unroll 6
+    for (int i = 0; i < 6; i++) {
+        const SMD* smd = &mesh->face_meshes[6];
+        cvector_free((SMD_PRIM*) smd->p_prims);
+        cvector_free(smd->p_verts);
+        cvector_free(smd->p_norms);
+    }
 }
 
 void chunkMeshClear(ChunkMesh* mesh) {
-    cvector_clear((SMD_PRIM*) mesh->p_prims);
-    cvector_clear(mesh->p_verts);
-    cvector_clear(mesh->p_norms);
-    mesh->id[0] = 'S';
-    mesh->id[1] = 'M';
-    mesh->id[2] = 'D';
-    mesh->version = 0x01;
-    mesh->flags = 0x0;
-    mesh->n_verts = 0;
-    mesh->n_norms = 0;
-    mesh->n_prims = 0;
+    #pragma GCC unroll 6
+    for (int i = 0; i < 6; i++) {
+        SMD* smd = &mesh->face_meshes[i];
+        cvector_clear((SMD_PRIM*) smd->p_prims);
+        cvector_clear(smd->p_verts);
+        cvector_clear(smd->p_norms);
+        smd->id[0] = 'S';
+        smd->id[1] = 'M';
+        smd->id[2] = 'D';
+        smd->version = 0x01;
+        smd->flags = 0x0;
+        smd->n_verts = 0;
+        smd->n_norms = 0;
+        smd->n_prims = 0;
+    }
 }
 
 // TODO: Move these to SMD renderer file as general methods
@@ -60,17 +72,18 @@ void renderTriangle(SMD_PRIM* primitive, RenderContext* ctx, Transforms* transfo
     // TODO
 }
 
-void renderQuad(const ChunkMesh* mesh, SMD_PRIM* primitive, RenderContext* ctx, Transforms* transforms) {
+void renderQuad(const SMD* mesh, SMD_PRIM* primitive, RenderContext* ctx, Transforms* transforms) {
     // TODO: Generalise for textured and non-textured
     int p;
     // int dp;
     cvector_iterator(SVECTOR) verticesIter = cvector_begin(mesh->p_verts);
     cvector_iterator(SVECTOR) normalsIter = cvector_begin(mesh->p_norms);
     const RECT tex_window = (RECT){
+        // All in units of 8 pixels, hence right shift by 3
         .w = BLOCK_TEXTURE_SIZE >> 3,
         .h = BLOCK_TEXTURE_SIZE >> 3,
         .x = primitive->tu0 >> 3,
-        .y = primitive->tv0 >> 3,
+        .y = primitive->tv0 >> 3
     };
     POLY_FT4* pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
 #if QUAD_DUAL_TRI_NCLIP
@@ -188,26 +201,37 @@ void renderQuad(const ChunkMesh* mesh, SMD_PRIM* primitive, RenderContext* ctx, 
     addPrim(ot_object, ptwin);
 }
 
-void chunkMeshRender(const ChunkMesh* mesh, RenderContext* ctx, Transforms* transforms) {
+void chunkMeshRenderFaceDirection(const SMD* mesh, RenderContext* ctx, Transforms* transforms) {
     SMD_PRIM* p_prims = (SMD_PRIM*) mesh->p_prims;
     cvector_iterator(SMD_PRIM) primitive;
     cvector_for_each_in(primitive, p_prims) {
         switch (primitive->prim_id.type) {
             case SMD_PRI_TYPE_LINE:
                 renderLine(primitive, ctx, transforms);
-                break;
+            break;
             case SMD_PRI_TYPE_TRIANGLE:
                 renderTriangle(primitive, ctx, transforms);
-                break;
+            break;
             case SMD_PRI_TYPE_QUAD:
                 renderQuad(mesh, primitive, ctx, transforms);
-                break;
+            break;
             default:
                 printf(
                     "[ERROR] ChunkMesh - Unknown primitive type: %d\n",
                     primitive->prim_id.type
                 );
-                return;
+            return;
         }
+    }
+}
+
+void chunkMeshRender(const ChunkMesh* mesh, RenderContext* ctx, Transforms* transforms) {
+    #pragma GCC unroll 6
+    for (int i = 0; i < 6; i++) {
+        chunkMeshRenderFaceDirection(
+            &mesh->face_meshes[i],
+            ctx,
+            transforms
+        );
     }
 }

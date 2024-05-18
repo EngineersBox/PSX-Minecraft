@@ -81,310 +81,310 @@ void chunkClearMesh(Chunk* chunk) {
     chunkMeshClear(&chunk->mesh);
 }
 
-static const INDEX INDICES[6] = {
-    {1,3,0,2},
-    {3,1,2,0},
-    {3,2,1,0},
-    {2,3,0,1},
-    {3,2,1,0},
-    {2,3,0,1}
-};
-
-static SMD_PRIM* createQuadPrimitive(ChunkMesh* mesh,
-                              const int width,
-                              const int height,
-                              const Mask* mask,
-                              const i16 axisMask[CHUNK_DIRECTIONS],
-                              const int index) {
-    // Construct a new POLY_FT4 (textured quad) primtive for this face
-    cvector(SMD_PRIM) p_prims = (SMD_PRIM*) mesh->p_prims;
-    cvector_push_back(p_prims, (SMD_PRIM) {});
-    // The SMD.p_prims field has been cast to an lvalue of SMD_PRIM*
-    // to a separate variable. Any realloc that occurs will set the
-    // new address to the local variable, we should propagate that
-    // change to the SMD field.
-    mesh->p_prims = p_prims;
-    SMD_PRIM* primitive = &cvector_begin(p_prims)[mesh->n_prims++];
-    primitive->prim_id = (SMD_PRI_TYPE){};
-    primitive->prim_id.type = SMD_PRI_TYPE_QUAD;
-    primitive->prim_id.l_type = SMD_PRI_TYPE_LIGHTING_FLAT;
-    primitive->prim_id.c_type = SMD_PRI_TYPE_COLORING_GOURAUD;
-    primitive->prim_id.texture = 1;
-    primitive->prim_id.blend = 0; // TODO: Check this
-    primitive->prim_id.zoff = 0; // TODO: Check this
-    primitive->prim_id.nocull = 0;
-    primitive->prim_id.mask = 0;
-    primitive->prim_id.texwin = 0;
-    primitive->prim_id.texoff = 0;
-    primitive->prim_id.reserved = 0;
-    primitive->prim_id.len = 4 + 8 + 4 + 8 + 4; // Some wizardry based on PSn00bSDK/tools/smxlink/main.cpp lines 518-644
-    const Texture* texture = &textures[ASSET_TEXTURES_TERRAIN_INDEX];
-    primitive->tpage = texture->tpage;
-    primitive->clut = texture->clut;
-    const Block* block = VCAST(Block*, *mask->block);
-    const TextureAttributes* attributes = &block->face_attributes[index];
-    primitive->tu0 = attributes->u;
-    primitive->tv0 = attributes->v;
-    primitive->tu1 = BLOCK_TEXTURE_SIZE * (axisMask[0] != 0 ? height : width);
-    primitive->tv1 = BLOCK_TEXTURE_SIZE * (axisMask[0] != 0 ? width : height);
-    primitive->r0 = attributes->tint.r;
-    primitive->g0 = attributes->tint.g;
-    primitive->b0 = attributes->tint.b;
-    primitive->code = attributes->tint.cd;
-    return primitive;
-}
-
-#define nextRenderAttribute(attribute_field, index_field, count_field, instance) \
-        cvector_push_back(mesh->attribute_field, (SVECTOR){}); \
-        primitive->index_field = mesh->count_field; \
-        instance = &cvector_begin(mesh->attribute_field)[mesh->count_field++]
-
-static void createQuadVertices(Chunk* chunk,
-                        const i16 origin[CHUNK_DIRECTIONS],
-                        const i16 delta_axis_1[CHUNK_DIRECTIONS],
-                        const i16 delta_axis_2[CHUNK_DIRECTIONS],
-                        SMD_PRIM* primitive,
-                        const int index) {
-    ChunkMesh* mesh = &chunk->mesh;
-    // Construct vertices relative to chunk mesh bottom left origin
-    const i16 chunk_origin_x = chunk->position.vx * CHUNK_SIZE;
-    // Offset by 1 to ensure bottom block of bottom chunk starts at Y = 0
-    const i16 chunk_origin_y = (-chunk->position.vy) * CHUNK_SIZE;
-    const i16 chunk_origin_z = chunk->position.vz * CHUNK_SIZE;
-    const SVECTOR vertices[4] = {
-        [0] = vec3_i16(
-            (chunk_origin_x + origin[0]) * BLOCK_SIZE,
-            (chunk_origin_y - origin[1]) * BLOCK_SIZE,
-            (chunk_origin_z + origin[2]) * BLOCK_SIZE
-        ),
-        [1] = vec3_i16(
-            (chunk_origin_x + origin[0] + delta_axis_1[0]) * BLOCK_SIZE,
-            (chunk_origin_y - origin[1] - delta_axis_1[1]) * BLOCK_SIZE,
-            (chunk_origin_z + origin[2] + delta_axis_1[2]) * BLOCK_SIZE
-        ),
-        [2] = vec3_i16(
-            (chunk_origin_x + origin[0] + delta_axis_2[0]) * BLOCK_SIZE,
-            (chunk_origin_y - origin[1] - delta_axis_2[1]) * BLOCK_SIZE,
-            (chunk_origin_z + origin[2] + delta_axis_2[2]) * BLOCK_SIZE
-        ),
-        [3] = vec3_i16(
-            (chunk_origin_x + origin[0] + delta_axis_1[0] + delta_axis_2[0]) * BLOCK_SIZE,
-            (chunk_origin_y - origin[1] - delta_axis_1[1] - delta_axis_2[1]) * BLOCK_SIZE,
-            (chunk_origin_z + origin[2] + delta_axis_1[2] + delta_axis_2[2]) * BLOCK_SIZE
-        )
-    };
-    const INDEX indices = INDICES[index];
-    SVECTOR* vertex = NULL;
-    const SVECTOR* currentVert;
-    #define bindVertex(v) nextRenderAttribute(p_verts, v, n_verts, vertex); \
-        currentVert = &vertices[indices.v]; \
-        vertex->vx = currentVert->vx; \
-        vertex->vy = currentVert->vy; \
-        vertex->vz = currentVert->vz
-    bindVertex(v0);
-    bindVertex(v1);
-    bindVertex(v2);
-    bindVertex(v3);
-}
-
-void createQuadNormal(ChunkMesh* mesh,
-                      SMD_PRIM* primitive,
-                      const Mask* mask,
-                      const i16 axisMask[CHUNK_DIRECTIONS]) {
-    // Create normal for this quad
-    SVECTOR* norm = NULL;
-    nextRenderAttribute(p_norms, n0, n_norms, norm);
-    norm->vx = (axisMask[0] * mask->normal) * ONE;
-    norm->vy = (axisMask[1] * mask->normal) * ONE;
-    norm->vz = (axisMask[2] * mask->normal) * ONE;
-}
-
-void createQuad(Chunk* chunk,
-                const Mask* mask,
-                const i16 width,
-                const i16 height,
-                const i16 axisMask[CHUNK_DIRECTIONS],
-                const i16 origin[CHUNK_DIRECTIONS],
-                const i16 delta_axis_1[CHUNK_DIRECTIONS],
-                const i16 delta_axis_2[CHUNK_DIRECTIONS]) {
-    // Calculate face index
-    const i8 shiftedNormal = (mask->normal + 2) / 2; // {-1,1} => {0, 1}
-    const int index = (axisMask[0] * (1 - shiftedNormal)) // 0: -X, 1: +X
-                      + (axisMask[1] * (3 - shiftedNormal)) // 2: -Y, 3: +Y
-                      + (axisMask[2] * (5 - shiftedNormal)); // 4: -Z, 5: +Z
-    ChunkMesh* mesh = &chunk->mesh;
-    SMD_PRIM* primitive = createQuadPrimitive(
-        mesh,
-        width,
-        height,
-        mask,
-        axisMask,
-        index
-    );
-    createQuadVertices(
-        chunk,
-        origin,
-        delta_axis_1,
-        delta_axis_2,
-        primitive,
-        index
-    );
-    createQuadNormal(
-        mesh,
-        primitive,
-        mask,
-        axisMask
-    );
-}
-
-static Mask createMask(IBlock* currentIBlock, IBlock* compareIBlock) {
-    const Block* currentBlock = VCAST_PTR(Block*, currentIBlock);
-    const Block* compareBlock = VCAST_PTR(Block*, compareIBlock);
-    if (currentBlock->id == BLOCKID_AIR && compareBlock->id == BLOCKID_AIR) {
-        return (Mask) { airBlockCreate(), 0 };
-    }
-    const bool currentOpaque = VCALL(*currentIBlock, isOpaque, 0);
-    const bool compareOpaque = VCALL(*compareIBlock, isOpaque, 0);
-    if (currentOpaque && !compareOpaque) {
-        // Current block is visible
-        return (Mask) { currentIBlock, 1 };
-    }
-    if (!currentOpaque && compareOpaque) {
-        // Comparing block is visible
-        return (Mask) { compareIBlock, -1 };
-    }
-    if (currentOpaque) {
-        // Both blocks are opaque
-        return (Mask) { airBlockCreate(), 0 };
-    }
-    // Both blocks are transparent
-    // NOTE: Temp use of GRASS to mimic GLASS with transparency
-    // if (currentBlock->id == BLOCKID_GRASS && compareBlock->id == BLOCKID_GRASS) {
-    //     // Glass should not replicate faces between blocks
-    //     return (Mask) { airBlockCreate(), 0 };
-    // }
-    // Both transparent but different types
-    return (Mask) {
-        currentBlock->id != BLOCKID_AIR ? currentIBlock : compareIBlock,
-        currentBlock->id != BLOCKID_AIR ? 1 : -1
-    };
-
-}
-
-static void computeMeshMask(const Chunk* chunk,
-                     const i32 axis,
-                     const i32 axis1,
-                     const i32 axis2,
-                     i16 chunkIter[CHUNK_DIRECTIONS],
-                     i16 axisMask[CHUNK_DIRECTIONS],
-                     Mask mask[CHUNK_SIZE * CHUNK_SIZE]) {
-    VECTOR query_position = {};
-    u16 n = 0;
-    for (chunkIter[axis2] = 0; chunkIter[axis2] < CHUNK_SIZE; chunkIter[axis2]++) {
-        for (chunkIter[axis1] = 0; chunkIter[axis1] < CHUNK_SIZE; chunkIter[axis1]++) {
-            query_position.vx = chunkIter[0] + (chunk->position.vx * CHUNK_SIZE);
-            query_position.vy = chunkIter[1] + (chunk->position.vy * CHUNK_SIZE);
-            query_position.vz = chunkIter[2] + (chunk->position.vz * CHUNK_SIZE);
-            // BUG: The conditions on block retrieval causes extra mesh segments to
-            //      be created at the top and bottom of each chunk regardless of the
-            //      neighbouring chunk blocks. Without the condition there are still
-            //      bottom segements of the mesh created amd also a ghost segement at
-            //      the top of the world mirroring the bottom face of the bottom of
-            //      the world.
-            IBlock* currentBlock = NULL;
-            if (0 <= chunkIter[axis]) {
-                currentBlock = worldGetBlock(chunk->world, &query_position);
-            }
-            if (currentBlock == NULL) {
-                currentBlock = airBlockCreate();
-            }
-            query_position.vx += axisMask[0];
-            query_position.vy += axisMask[1];
-            query_position.vz += axisMask[2];
-            IBlock* compareBlock = NULL;
-            if (chunkIter[axis] < CHUNK_SIZE - 1) {
-                compareBlock = worldGetBlock(chunk->world, &query_position);
-            }
-            if (compareBlock == NULL) {
-                compareBlock = airBlockCreate();
-            }
-            mask[n++] = createMask(currentBlock, compareBlock);
-        }
-    }
-}
-
-static void generateMeshLexicographically(Chunk* chunk,
-                                   const i32 axis1,
-                                   const i32 axis2,
-                                   i16 deltaAxis1[CHUNK_DIRECTIONS],
-                                   i16 deltaAxis2[CHUNK_DIRECTIONS],
-                                   i16 chunkIter[CHUNK_DIRECTIONS],
-                                   i16 axisMask[CHUNK_DIRECTIONS],
-                                   Mask mask[CHUNK_SIZE * CHUNK_SIZE]) {
-    u16 n = 0;
-    // Generate a mesh from mask using lexicographic ordering
-    // looping over each block in this slice of the chunk
-    for (i32 j = 0; j < CHUNK_SIZE; j++) {
-        for (i32 i = 0; i < CHUNK_SIZE;) {
-            if (mask[n].normal == 0) {
-                i++;
-                n++;
-                continue;
-            }
-            const Mask currentMask = mask[n];
-            chunkIter[axis1] = i;
-            chunkIter[axis2] = j;
-            // Compute the width of this quad and store it in w
-            // This is done by searching along the current axis until mask[n + w] is false
-            i32 width;
-            for (width = 1; i + width < CHUNK_SIZE && compareMask(mask[n + width], currentMask); width++) {
-            }
-            // Compute the height of this quad and store it in h
-            // This is done by checking if every block next to this row (range 0 to w) is also part of the mask.
-            // For example, if w is 5 we currently have a quad of dimensions 1 x 5. To reduce triangle count,
-            // greedy meshing will attempt to expand this quad out to CHUNK_SIZE x 5, but will stop if it reaches a hole in the mask
-            bool done = false;
-            int height;
-            for (height = 1; j + height < CHUNK_SIZE; height++) {
-                // Check each block next to this quad
-                for (int w = 0; w < width; w++) {
-                    // If there's a hole in the mask, exit
-                    if (!compareMask(mask[n + w + (height * CHUNK_SIZE)], currentMask)) {
-                        done = true;
-                        break;
-                    }
-                }
-                if (done) {
-                    break;
-                }
-            }
-            deltaAxis1[axis1] = width;
-            deltaAxis2[axis2] = height;
-            createQuad(
-                chunk,
-                &currentMask,
-                width,
-                height,
-                axisMask,
-                chunkIter,
-                deltaAxis1,
-                deltaAxis2
-            );
-            memset(deltaAxis1, 0, sizeof(i16) * CHUNK_DIRECTIONS);
-            memset(deltaAxis2, 0, sizeof(i16) * CHUNK_DIRECTIONS);
-            for (int h = 0; h < height; h++) {
-                for (int w = 0; w < width; w++) {
-                    mask[n + w + (h * CHUNK_SIZE)] = (Mask){
-                        .block = airBlockCreate(),
-                        .normal = 0
-                    };
-                }
-            }
-            i += width;
-            n += width;
-        }
-    }
-}
+// static const INDEX INDICES[6] = {
+//     {1,3,0,2},
+//     {3,1,2,0},
+//     {3,2,1,0},
+//     {2,3,0,1},
+//     {3,2,1,0},
+//     {2,3,0,1}
+// };
+//
+// static SMD_PRIM* createQuadPrimitive(ChunkMesh* mesh,
+//                               const int width,
+//                               const int height,
+//                               const Mask* mask,
+//                               const i16 axisMask[CHUNK_DIRECTIONS],
+//                               const int index) {
+//     // Construct a new POLY_FT4 (textured quad) primtive for this face
+//     cvector(SMD_PRIM) p_prims = (SMD_PRIM*) mesh->p_prims;
+//     cvector_push_back(p_prims, (SMD_PRIM) {});
+//     // The SMD.p_prims field has been cast to an lvalue of SMD_PRIM*
+//     // to a separate variable. Any realloc that occurs will set the
+//     // new address to the local variable, we should propagate that
+//     // change to the SMD field.
+//     mesh->p_prims = p_prims;
+//     SMD_PRIM* primitive = &cvector_begin(p_prims)[mesh->n_prims++];
+//     primitive->prim_id = (SMD_PRI_TYPE){};
+//     primitive->prim_id.type = SMD_PRI_TYPE_QUAD;
+//     primitive->prim_id.l_type = SMD_PRI_TYPE_LIGHTING_FLAT;
+//     primitive->prim_id.c_type = SMD_PRI_TYPE_COLORING_GOURAUD;
+//     primitive->prim_id.texture = 1;
+//     primitive->prim_id.blend = 0; // TODO: Check this
+//     primitive->prim_id.zoff = 0; // TODO: Check this
+//     primitive->prim_id.nocull = 0;
+//     primitive->prim_id.mask = 0;
+//     primitive->prim_id.texwin = 0;
+//     primitive->prim_id.texoff = 0;
+//     primitive->prim_id.reserved = 0;
+//     primitive->prim_id.len = 4 + 8 + 4 + 8 + 4; // Some wizardry based on PSn00bSDK/tools/smxlink/main.cpp lines 518-644
+//     const Texture* texture = &textures[ASSET_TEXTURES_TERRAIN_INDEX];
+//     primitive->tpage = texture->tpage;
+//     primitive->clut = texture->clut;
+//     const Block* block = VCAST(Block*, *mask->block);
+//     const TextureAttributes* attributes = &block->face_attributes[index];
+//     primitive->tu0 = attributes->u;
+//     primitive->tv0 = attributes->v;
+//     primitive->tu1 = BLOCK_TEXTURE_SIZE * (axisMask[0] != 0 ? height : width);
+//     primitive->tv1 = BLOCK_TEXTURE_SIZE * (axisMask[0] != 0 ? width : height);
+//     primitive->r0 = attributes->tint.r;
+//     primitive->g0 = attributes->tint.g;
+//     primitive->b0 = attributes->tint.b;
+//     primitive->code = attributes->tint.cd;
+//     return primitive;
+// }
+//
+// #define nextRenderAttribute(attribute_field, index_field, count_field, instance) \
+//         cvector_push_back(mesh->attribute_field, (SVECTOR){}); \
+//         primitive->index_field = mesh->count_field; \
+//         instance = &cvector_begin(mesh->attribute_field)[mesh->count_field++]
+//
+// static void createQuadVertices(Chunk* chunk,
+//                         const i16 origin[CHUNK_DIRECTIONS],
+//                         const i16 delta_axis_1[CHUNK_DIRECTIONS],
+//                         const i16 delta_axis_2[CHUNK_DIRECTIONS],
+//                         SMD_PRIM* primitive,
+//                         const int index) {
+//     ChunkMesh* mesh = &chunk->mesh;
+//     // Construct vertices relative to chunk mesh bottom left origin
+//     const i16 chunk_origin_x = chunk->position.vx * CHUNK_SIZE;
+//     // Offset by 1 to ensure bottom block of bottom chunk starts at Y = 0
+//     const i16 chunk_origin_y = (-chunk->position.vy) * CHUNK_SIZE;
+//     const i16 chunk_origin_z = chunk->position.vz * CHUNK_SIZE;
+//     const SVECTOR vertices[4] = {
+//         [0] = vec3_i16(
+//             (chunk_origin_x + origin[0]) * BLOCK_SIZE,
+//             (chunk_origin_y - origin[1]) * BLOCK_SIZE,
+//             (chunk_origin_z + origin[2]) * BLOCK_SIZE
+//         ),
+//         [1] = vec3_i16(
+//             (chunk_origin_x + origin[0] + delta_axis_1[0]) * BLOCK_SIZE,
+//             (chunk_origin_y - origin[1] - delta_axis_1[1]) * BLOCK_SIZE,
+//             (chunk_origin_z + origin[2] + delta_axis_1[2]) * BLOCK_SIZE
+//         ),
+//         [2] = vec3_i16(
+//             (chunk_origin_x + origin[0] + delta_axis_2[0]) * BLOCK_SIZE,
+//             (chunk_origin_y - origin[1] - delta_axis_2[1]) * BLOCK_SIZE,
+//             (chunk_origin_z + origin[2] + delta_axis_2[2]) * BLOCK_SIZE
+//         ),
+//         [3] = vec3_i16(
+//             (chunk_origin_x + origin[0] + delta_axis_1[0] + delta_axis_2[0]) * BLOCK_SIZE,
+//             (chunk_origin_y - origin[1] - delta_axis_1[1] - delta_axis_2[1]) * BLOCK_SIZE,
+//             (chunk_origin_z + origin[2] + delta_axis_1[2] + delta_axis_2[2]) * BLOCK_SIZE
+//         )
+//     };
+//     const INDEX indices = INDICES[index];
+//     SVECTOR* vertex = NULL;
+//     const SVECTOR* currentVert;
+//     #define bindVertex(v) nextRenderAttribute(p_verts, v, n_verts, vertex); \
+//         currentVert = &vertices[indices.v]; \
+//         vertex->vx = currentVert->vx; \
+//         vertex->vy = currentVert->vy; \
+//         vertex->vz = currentVert->vz
+//     bindVertex(v0);
+//     bindVertex(v1);
+//     bindVertex(v2);
+//     bindVertex(v3);
+// }
+//
+// void createQuadNormal(ChunkMesh* mesh,
+//                       SMD_PRIM* primitive,
+//                       const Mask* mask,
+//                       const i16 axisMask[CHUNK_DIRECTIONS]) {
+//     // Create normal for this quad
+//     SVECTOR* norm = NULL;
+//     nextRenderAttribute(p_norms, n0, n_norms, norm);
+//     norm->vx = (axisMask[0] * mask->normal) * ONE;
+//     norm->vy = (axisMask[1] * mask->normal) * ONE;
+//     norm->vz = (axisMask[2] * mask->normal) * ONE;
+// }
+//
+// void createQuad(Chunk* chunk,
+//                 const Mask* mask,
+//                 const i16 width,
+//                 const i16 height,
+//                 const i16 axisMask[CHUNK_DIRECTIONS],
+//                 const i16 origin[CHUNK_DIRECTIONS],
+//                 const i16 delta_axis_1[CHUNK_DIRECTIONS],
+//                 const i16 delta_axis_2[CHUNK_DIRECTIONS]) {
+//     // Calculate face index
+//     const i8 shiftedNormal = (mask->normal + 2) / 2; // {-1,1} => {0, 1}
+//     const int index = (axisMask[0] * (1 - shiftedNormal)) // 0: -X, 1: +X
+//                       + (axisMask[1] * (3 - shiftedNormal)) // 2: -Y, 3: +Y
+//                       + (axisMask[2] * (5 - shiftedNormal)); // 4: -Z, 5: +Z
+//     ChunkMesh* mesh = &chunk->mesh;
+//     SMD_PRIM* primitive = createQuadPrimitive(
+//         mesh,
+//         width,
+//         height,
+//         mask,
+//         axisMask,
+//         index
+//     );
+//     createQuadVertices(
+//         chunk,
+//         origin,
+//         delta_axis_1,
+//         delta_axis_2,
+//         primitive,
+//         index
+//     );
+//     createQuadNormal(
+//         mesh,
+//         primitive,
+//         mask,
+//         axisMask
+//     );
+// }
+//
+// static Mask createMask(IBlock* currentIBlock, IBlock* compareIBlock) {
+//     const Block* currentBlock = VCAST_PTR(Block*, currentIBlock);
+//     const Block* compareBlock = VCAST_PTR(Block*, compareIBlock);
+//     if (currentBlock->id == BLOCKID_AIR && compareBlock->id == BLOCKID_AIR) {
+//         return (Mask) { airBlockCreate(), 0 };
+//     }
+//     const bool currentOpaque = VCALL(*currentIBlock, isOpaque, 0);
+//     const bool compareOpaque = VCALL(*compareIBlock, isOpaque, 0);
+//     if (currentOpaque && !compareOpaque) {
+//         // Current block is visible
+//         return (Mask) { currentIBlock, 1 };
+//     }
+//     if (!currentOpaque && compareOpaque) {
+//         // Comparing block is visible
+//         return (Mask) { compareIBlock, -1 };
+//     }
+//     if (currentOpaque) {
+//         // Both blocks are opaque
+//         return (Mask) { airBlockCreate(), 0 };
+//     }
+//     // Both blocks are transparent
+//     // NOTE: Temp use of GRASS to mimic GLASS with transparency
+//     // if (currentBlock->id == BLOCKID_GRASS && compareBlock->id == BLOCKID_GRASS) {
+//     //     // Glass should not replicate faces between blocks
+//     //     return (Mask) { airBlockCreate(), 0 };
+//     // }
+//     // Both transparent but different types
+//     return (Mask) {
+//         currentBlock->id != BLOCKID_AIR ? currentIBlock : compareIBlock,
+//         currentBlock->id != BLOCKID_AIR ? 1 : -1
+//     };
+//
+// }
+//
+// static void computeMeshMask(const Chunk* chunk,
+//                      const i32 axis,
+//                      const i32 axis1,
+//                      const i32 axis2,
+//                      i16 chunkIter[CHUNK_DIRECTIONS],
+//                      i16 axisMask[CHUNK_DIRECTIONS],
+//                      Mask mask[CHUNK_SIZE * CHUNK_SIZE]) {
+//     VECTOR query_position = {};
+//     u16 n = 0;
+//     for (chunkIter[axis2] = 0; chunkIter[axis2] < CHUNK_SIZE; chunkIter[axis2]++) {
+//         for (chunkIter[axis1] = 0; chunkIter[axis1] < CHUNK_SIZE; chunkIter[axis1]++) {
+//             query_position.vx = chunkIter[0] + (chunk->position.vx * CHUNK_SIZE);
+//             query_position.vy = chunkIter[1] + (chunk->position.vy * CHUNK_SIZE);
+//             query_position.vz = chunkIter[2] + (chunk->position.vz * CHUNK_SIZE);
+//             // BUG: The conditions on block retrieval causes extra mesh segments to
+//             //      be created at the top and bottom of each chunk regardless of the
+//             //      neighbouring chunk blocks. Without the condition there are still
+//             //      bottom segements of the mesh created amd also a ghost segement at
+//             //      the top of the world mirroring the bottom face of the bottom of
+//             //      the world.
+//             IBlock* currentBlock = NULL;
+//             if (0 <= chunkIter[axis]) {
+//                 currentBlock = worldGetBlock(chunk->world, &query_position);
+//             }
+//             if (currentBlock == NULL) {
+//                 currentBlock = airBlockCreate();
+//             }
+//             query_position.vx += axisMask[0];
+//             query_position.vy += axisMask[1];
+//             query_position.vz += axisMask[2];
+//             IBlock* compareBlock = NULL;
+//             if (chunkIter[axis] < CHUNK_SIZE - 1) {
+//                 compareBlock = worldGetBlock(chunk->world, &query_position);
+//             }
+//             if (compareBlock == NULL) {
+//                 compareBlock = airBlockCreate();
+//             }
+//             mask[n++] = createMask(currentBlock, compareBlock);
+//         }
+//     }
+// }
+//
+// static void generateMeshLexicographically(Chunk* chunk,
+//                                    const i32 axis1,
+//                                    const i32 axis2,
+//                                    i16 deltaAxis1[CHUNK_DIRECTIONS],
+//                                    i16 deltaAxis2[CHUNK_DIRECTIONS],
+//                                    i16 chunkIter[CHUNK_DIRECTIONS],
+//                                    i16 axisMask[CHUNK_DIRECTIONS],
+//                                    Mask mask[CHUNK_SIZE * CHUNK_SIZE]) {
+//     u16 n = 0;
+//     // Generate a mesh from mask using lexicographic ordering
+//     // looping over each block in this slice of the chunk
+//     for (i32 j = 0; j < CHUNK_SIZE; j++) {
+//         for (i32 i = 0; i < CHUNK_SIZE;) {
+//             if (mask[n].normal == 0) {
+//                 i++;
+//                 n++;
+//                 continue;
+//             }
+//             const Mask currentMask = mask[n];
+//             chunkIter[axis1] = i;
+//             chunkIter[axis2] = j;
+//             // Compute the width of this quad and store it in w
+//             // This is done by searching along the current axis until mask[n + w] is false
+//             i32 width;
+//             for (width = 1; i + width < CHUNK_SIZE && compareMask(mask[n + width], currentMask); width++) {
+//             }
+//             // Compute the height of this quad and store it in h
+//             // This is done by checking if every block next to this row (range 0 to w) is also part of the mask.
+//             // For example, if w is 5 we currently have a quad of dimensions 1 x 5. To reduce triangle count,
+//             // greedy meshing will attempt to expand this quad out to CHUNK_SIZE x 5, but will stop if it reaches a hole in the mask
+//             bool done = false;
+//             int height;
+//             for (height = 1; j + height < CHUNK_SIZE; height++) {
+//                 // Check each block next to this quad
+//                 for (int w = 0; w < width; w++) {
+//                     // If there's a hole in the mask, exit
+//                     if (!compareMask(mask[n + w + (height * CHUNK_SIZE)], currentMask)) {
+//                         done = true;
+//                         break;
+//                     }
+//                 }
+//                 if (done) {
+//                     break;
+//                 }
+//             }
+//             deltaAxis1[axis1] = width;
+//             deltaAxis2[axis2] = height;
+//             createQuad(
+//                 chunk,
+//                 &currentMask,
+//                 width,
+//                 height,
+//                 axisMask,
+//                 chunkIter,
+//                 deltaAxis1,
+//                 deltaAxis2
+//             );
+//             memset(deltaAxis1, 0, sizeof(i16) * CHUNK_DIRECTIONS);
+//             memset(deltaAxis2, 0, sizeof(i16) * CHUNK_DIRECTIONS);
+//             for (int h = 0; h < height; h++) {
+//                 for (int w = 0; w < width; w++) {
+//                     mask[n + w + (h * CHUNK_SIZE)] = (Mask){
+//                         .block = airBlockCreate(),
+//                         .normal = 0
+//                     };
+//                 }
+//             }
+//             i += width;
+//             n += width;
+//         }
+//     }
+// }
 
 void chunkGenerateMesh(Chunk* chunk) {
     binaryGreedyMesherBuildMesh(chunk);

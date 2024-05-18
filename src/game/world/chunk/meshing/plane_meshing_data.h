@@ -22,7 +22,7 @@ typedef struct {
 
 typedef struct {
     PlaneMeshingDataKey key;
-    BinaryMeshPlane value;
+    BinaryMeshPlane plane;
 } PlaneMeshingData;
 
 int plane_meshing_data_compare(const void* a, const void* b, void* ignored);

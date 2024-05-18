@@ -15,6 +15,11 @@
 void binaryGreedyMesherBuildMesh(Chunk* chunk);
 // lod_size here should be a value in the interval [0,CHUNK_SIZE]
 // where CHUNK_SIZE as a value indicates 1:1 with every block
-void binaryGreedyMesherConstructPlane(Chunk* chunk, const FaceDirection face_dir, const u32 axis, const Block* block, BinaryMeshPlane plane, const u32 lod_size);
+void binaryGreedyMesherConstructPlane(Chunk* chunk,
+                                      const FaceDirection face_dir,
+                                      const u32 axis,
+                                      const Block* block,
+                                      BinaryMeshPlane plane,
+                                      const u32 lod_size);
 
 #endif // _PSX_MINECRAFT__GAME_WORLD_GENERATION__BINARY_GREEDY_MESHER_H_

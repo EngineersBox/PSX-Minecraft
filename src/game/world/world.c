@@ -100,16 +100,28 @@ void worldInit(World* world, RenderContext* ctx) {
                                             [arrayCoord(world, vx, x)]
                                             [y];
                 chunkGenerateMesh(chunk);
+#define layoutMeshAttrs(attribute) \
+    chunk->mesh.face_meshes[0].attribute, \
+    chunk->mesh.face_meshes[1].attribute, \
+    chunk->mesh.face_meshes[2].attribute, \
+    chunk->mesh.face_meshes[3].attribute, \
+    chunk->mesh.face_meshes[4].attribute, \
+    chunk->mesh.face_meshes[5].attribute
                 DEBUG_LOG(
-                    "[CHUNK: %d,%d,%d, INDEX: %d,%d,%d] Mesh { Primitives: %d, Vertices: %d, Normals: %d }\n",
+                    "[CHUNK: %d,%d,%d, INDEX: %d,%d,%d] Mesh {\n"
+                    "   Primitives: [%d,%d,%d,%d,%d,%d]\n"
+                    "   Vertices: [%d,%d,%d,%d,%d,%d]\n"
+                    "   Normals: [%d,%d,%d,%d,%d,%d]\n"
+                    "}\n",
                     x, y, z,
                     arrayCoord(world, vx, x),
                     y,
                     arrayCoord(world, vz, z),
-                    chunk->mesh.n_prims,
-                    chunk->mesh.n_verts,
-                    chunk->mesh.n_norms
+                    layoutMeshAttrs(n_prims),
+                    layoutMeshAttrs(n_verts),
+                    layoutMeshAttrs(n_norms)
                 );
+#undef layoutMeshAttrs
                 fontPrintCentreOffset(
                     ctx,
                     CENTRE_X,

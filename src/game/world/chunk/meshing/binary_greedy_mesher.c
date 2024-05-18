@@ -176,6 +176,7 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
         NULL
     );
     // Find faces and build binary planes based on block types
+    u32 primitive_index = 0;
     for (u32 face = 0; face < FACES_COUNT; face++) {
         for (u32 z = 0; z < CHUNK_SIZE; z++) {
             for (u32 x = 0; x < CHUNK_SIZE; x++) {
@@ -230,14 +231,15 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
                     }
                     const PlaneMeshingData query = (PlaneMeshingData) {
                         .key = (PlaneMeshingDataKey) { face, y, block },
-                        .value = {0}
+                        .plane = {0},
                     };
                     PlaneMeshingData* current = (PlaneMeshingData*) hashmap_get(data, &query);
                     if (current == NULL) {
                         hashmap_set(data, &query);
                         current = (PlaneMeshingData*) hashmap_get(data, &query);
                     }
-                    current->value[x] |= 1 << z;
+                    current->plane[x] |= 1 << z;
+                    primitive_index++;
                 }
             }
         }
@@ -252,7 +254,7 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
             elem->key.face,
             elem->key.axis,
             elem->key.block,
-            elem->value,
+            elem->plane,
             CHUNK_SIZE
         );
     }
@@ -264,10 +266,11 @@ static SMD_PRIM* createPrimitive(ChunkMesh* mesh,
                                  const FaceDirection face_dir,
                                  const u32 width,
                                  const u32 height) {
-    cvector(SMD_PRIM) prims = mesh->p_prims;
-    cvector_push_back(prims, (SMD_PRIM) {});
-    mesh->p_prims = prims;
-    SMD_PRIM* primitive = &prims[mesh->n_prims++];
+    SMD* face_dir_mesh = &mesh->face_meshes[face_dir];
+    cvector(SMD_PRIM) prims = face_dir_mesh->p_prims;
+    cvector_push_back(prims, (SMD_PRIM){});
+    face_dir_mesh->p_prims = prims;
+    SMD_PRIM* primitive = &prims[face_dir_mesh->n_prims++];
     primitive->prim_id = (SMD_PRI_TYPE){};
     primitive->prim_id.type = SMD_PRI_TYPE_QUAD;
     primitive->prim_id.l_type = SMD_PRI_TYPE_LIGHTING_FLAT;
@@ -313,7 +316,7 @@ static const INDEX INDICES[FACES_COUNT] = {
 
 static SVECTOR createVertex(const i32 chunk_origin_x,
                             const i32 chunk_origin_y,
-                            const u32 chunk_origin_z,
+                            const i32 chunk_origin_z,
                             const FaceDirection face_dir,
                             const i32 axis,
                             const i32 x,
@@ -344,7 +347,7 @@ static void createVertices(Chunk* chunk,
                            const i32 y,
                            const i32 w,
                            const i32 h) {
-    ChunkMesh* const mesh = &chunk->mesh;
+    SMD* const mesh = &chunk->mesh.face_meshes[face_dir];
     // Construct vertices relative to chunk mesh bottom left origin
     const i32 chunk_origin_x = chunk->position.vx * CHUNK_SIZE;
     const i32 chunk_origin_y = -chunk->position.vy * CHUNK_SIZE;
@@ -377,7 +380,7 @@ static void createVertices(Chunk* chunk,
 static void createNormal(ChunkMesh* mesh,
                          SMD_PRIM* primitive,
                          const FaceDirection face_dir) {
-    SVECTOR* norm = nextRenderAttribute(mesh, p_norms, n0, n_norms);
+    SVECTOR* norm = nextRenderAttribute(&mesh->face_meshes[face_dir], p_norms, n0, n_norms);
 #undef nextRenderAttribute
 #define normal(x,y,z) norm->vx = x * ONE; norm->vy = y * ONE; norm->vz = z * ONE
     switch (face_dir) {

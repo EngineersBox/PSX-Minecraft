@@ -20,7 +20,11 @@
 #define MESH_NORMAL_VEC_INITIAL_CAPCITY 0
 #endif
 
-typedef SMD ChunkMesh;
+// typedef SMD ChunkMesh;
+
+typedef struct {
+    SMD face_meshes[6];
+} ChunkMesh;
 
 void chunkMeshInit(ChunkMesh* mesh);
 void chunkMeshDestroy(const ChunkMesh* mesh);
