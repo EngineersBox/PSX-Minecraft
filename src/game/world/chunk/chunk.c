@@ -435,6 +435,7 @@ static void chunkRenderDroppedItems(Chunk* chunk, RenderContext* ctx, Transforms
 }
 
 void chunkRender(Chunk* chunk, RenderContext* ctx, Transforms* transforms) {
+    // TODO: Check culling in frustum and skip render if not in frustum
     static SVECTOR rotation = {0, 0, 0};
     // Object and light matrix for object
     MATRIX omtx, olmtx;
