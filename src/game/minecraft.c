@@ -15,6 +15,7 @@
 #include "../math/math_utils.h"
 #include "../ui/ui.h"
 #include "../entity/player.h"
+#include "../resources/assets.h"
 
 // Reference texture data
 extern const uint32_t tim_texture[];

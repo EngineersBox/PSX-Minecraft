@@ -2,6 +2,7 @@
 
 #include <clip.h>
 #include <inline_c.h>
+#include <logging.h>
 #include <stdlib.h>
 
 #include "../../structure/cvector.h"
@@ -24,13 +25,13 @@ void chunkMeshInit(ChunkMesh* mesh) {
     #pragma GCC unroll 6
     for (int i = 0; i < 6; i++) {
         // NOTE: This null init is important for cvector to ensure allocation is done initially
-        SMD_PRIM* p_prims = NULL;
         SMD* smd = &mesh->face_meshes[i];
-        smd->p_verts = NULL;
-        smd->p_norms = NULL;
+        cvector(SMD_PRIM) p_prims = NULL;
         cvector_init(p_prims, MESH_PRIMITIVE_VEC_INITIAL_CAPCITY, __primtiveDestructor);
         smd->p_prims = p_prims;
+        smd->p_verts = NULL;
         cvector_init(smd->p_verts, MESH_VERTEX_VEC_INITIAL_CAPCITY, __svectorDestructor);
+        smd->p_norms = NULL;
         cvector_init(smd->p_norms, MESH_NORMAL_VEC_INITIAL_CAPCITY, __svectorDestructor);
     }
 }
@@ -38,7 +39,7 @@ void chunkMeshInit(ChunkMesh* mesh) {
 void chunkMeshDestroy(const ChunkMesh* mesh) {
     #pragma GCC unroll 6
     for (int i = 0; i < 6; i++) {
-        const SMD* smd = &mesh->face_meshes[6];
+        const SMD* smd = &mesh->face_meshes[i];
         cvector_free((SMD_PRIM*) smd->p_prims);
         cvector_free(smd->p_verts);
         cvector_free(smd->p_norms);
@@ -49,7 +50,7 @@ void chunkMeshClear(ChunkMesh* mesh) {
     #pragma GCC unroll 6
     for (int i = 0; i < 6; i++) {
         SMD* smd = &mesh->face_meshes[i];
-        cvector_clear((SMD_PRIM*) smd->p_prims);
+        cvector_clear((cvector(SMD_PRIM)) smd->p_prims);
         cvector_clear(smd->p_verts);
         cvector_clear(smd->p_norms);
         smd->id[0] = 'S';

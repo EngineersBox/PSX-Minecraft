@@ -29,6 +29,8 @@ typedef struct {
 void chunkMeshInit(ChunkMesh* mesh);
 void chunkMeshDestroy(const ChunkMesh* mesh);
 void chunkMeshClear(ChunkMesh* mesh);
+
+void chunkMeshRenderFaceDirection(const SMD* mesh, RenderContext* ctx, Transforms* transforms);
 void chunkMeshRender(const ChunkMesh* mesh, RenderContext* ctx, Transforms* transforms);
 
 #endif // PSX_MINECRAFT_CHUNK_MESH_H

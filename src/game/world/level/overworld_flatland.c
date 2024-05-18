@@ -26,7 +26,6 @@ void OverworldFlatlandChunkGenerator_destroy(VSelf) {
 
 void overworldFlatlandGeneneratorGenerate(VSelf, Chunk* chunk) ALIAS("OverworldFlatlandChunkGenerator_generate");
 void OverworldFlatlandChunkGenerator_generate(VSelf, Chunk* chunk) {
-    const VECTOR* position = &chunk->position;
     for (i32 x = 0; x < CHUNK_SIZE; x++) {
         for (i32 z = 0; z < CHUNK_SIZE; z++) {
             for (i32 y = 0; y < CHUNK_SIZE; y++) {
