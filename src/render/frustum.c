@@ -1,5 +1,7 @@
 #include "frustum.h"
 
+#include <logging.h>
+
 #include "../math/math_utils.h"
 
 // void frustumInit(Frustum* frustum,
@@ -118,7 +120,9 @@ void frustumInit(Frustum* frustum,
     );
 }
 
-bool testAABBPlane(const AABB* aabb, const Plane* plane) {
+bool testAABBPlane(const AABB* aabb,
+                   const MATRIX* omtx,
+                   const Plane* plane) {
     // Convert AABB to centre-extents representation
     const VECTOR c = vec3_i32(
         (aabb->max.vx + aabb->min.vx) >> 1,
@@ -127,23 +131,27 @@ bool testAABBPlane(const AABB* aabb, const Plane* plane) {
     );
     // Compute positive extents
     const VECTOR e = vector_sub(aabb->max, c);
+    VECTOR normal = {0};
+    ApplyMatrixLV(omtx, &plane->normal, &normal);
     // Compute the projection interval radius of b onto
     // L(t) = aabb->centre + t * plane->normal
-    const fixedi32 r = fixedMul(e.vx, absv(plane->normal.vx))
-        + fixedMul(e.vy, absv(plane->normal.vy))
-        + fixedMul(e.vz, absv(plane->normal.vz));
+    const fixedi32 r = fixedMul(e.vx, absv(normal.vx))
+        + fixedMul(e.vy, absv(normal.vy))
+        + fixedMul(e.vz, absv(normal.vz));
     // Compute distance of box centre from plane
-    const fixedi32 s = dot(&plane->normal, &c) - plane->distance;
+    const fixedi32 s = dot(&normal, &c) - plane->distance;
     // Intersection ocurs when distance s falls within [-r,+r] interval
     return absv(s) <= r;
 }
 
 bool frustumContainsAABB(const Frustum* frustum,
+                         const MATRIX* omtx,
                          const AABB* aabb) {
-    return testAABBPlane(aabb, &frustum->left)
-        && testAABBPlane(aabb, &frustum->right)
-        && testAABBPlane(aabb, &frustum->top)
-        && testAABBPlane(aabb, &frustum->bottom)
-        && testAABBPlane(aabb, &frustum->near)
-        && testAABBPlane(aabb, &frustum->far);
+    DEBUG_LOG("[FRUSTUM] Chunk AABB [Min: (%d,%d,%d)] [Max: (%d,%d,%d)]\n", inlineVec(aabb->min), inlineVec(aabb->max));
+    return testAABBPlane(aabb, omtx, &frustum->left)
+        && testAABBPlane(aabb, omtx, &frustum->right)
+        && testAABBPlane(aabb, omtx, &frustum->top)
+        && testAABBPlane(aabb, omtx, &frustum->bottom)
+        && testAABBPlane(aabb, omtx, &frustum->near)
+        && testAABBPlane(aabb, omtx, &frustum->far);
 }

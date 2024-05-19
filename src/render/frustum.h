@@ -30,6 +30,8 @@ void frustumInit(Frustum* frustum,
                  fixedi32 z_near,
                  fixedi32 z_far);
 
-bool frustumContainsAABB(const Frustum* frustum, const AABB* aabb);
+bool frustumContainsAABB(const Frustum* frustum,
+                         const MATRIX* omtx,
+                         const AABB* aabb);
 
 #endif // _PSX_MINECRAFT__RENDER__FRUSTUM_H_

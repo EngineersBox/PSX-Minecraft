@@ -14,4 +14,5 @@ typedef struct {
 
 Plane planeCreate(VECTOR p1, VECTOR normal);
 
+
 #endif // _PSX_MINECRAFT__STRUCTURE_PRIMITIVE__PLANE_H_
