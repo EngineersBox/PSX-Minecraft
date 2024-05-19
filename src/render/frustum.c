@@ -1,6 +1,6 @@
 #include "frustum.h"
 
-#include <math_utils.h>
+#include "../math/math_utils.h"
 
 // void frustumInit(Frustum* frustum,
 //                  const fixedi32 fov,
@@ -50,7 +50,8 @@ void frustumInit(Frustum* frustum,
                  const fixedi32 aspect,
                  const fixedi32 z_near,
                  const fixedi32 z_far) {
-    const fixedi32 half_v_side = z_far * itan(fov >> 1);
+    const fixedi32 tan_fov = fixedDiv(isin(fov >> 1), icos(fov >> 1));
+    const fixedi32 half_v_side = z_far * tan_fov;
     const fixedi32 half_h_side = fixedMul(half_v_side, aspect);
     const VECTOR front_mul_far = vector_const_mul(front, z_far);
     frustum->near = planeCreate(
@@ -66,24 +67,26 @@ void frustumInit(Frustum* frustum,
         fixedMul(right.vy, half_h_side),
         fixedMul(right.vz, half_h_side)
     );
+    VECTOR temp = vector_sub(
+        front_mul_far,
+        right_half_h_side
+    );
     frustum->right = planeCreate(
         vec3_i32_all(0),
         cross(
-            &vector_sub(
-                front_mul_far,
-                right_half_h_side
-            ),
+            &temp,
             &up
         )
+    );
+    temp = vector_add(
+        front_mul_far,
+        right_half_h_side
     );
     frustum->left = planeCreate(
         vec3_i32_all(0),
         cross(
             &up,
-            &vector_add(
-                front_mul_far,
-                right_half_h_side
-            )
+            &temp
         )
     );
     const VECTOR up_half_v_side = vec3_i32(
@@ -91,31 +94,56 @@ void frustumInit(Frustum* frustum,
         fixedMul(up.vy, half_v_side),
         fixedMul(up.vz, half_v_side)
     );
+    temp = vector_sub(
+        front_mul_far,
+        up_half_v_side
+    );
     frustum->top = planeCreate(
         vec3_i32_all(0),
         cross(
             &right,
-            &vector_sub(
-                front_mul_far,
-                up_half_v_side
-            )
+            &temp
         )
+    );
+    temp = vector_add(
+        front_mul_far,
+        up_half_v_side
     );
     frustum->bottom = planeCreate(
         vec3_i32_all(0),
         cross(
-            &vector_add(
-                front_mul_far,
-                up_half_v_side
-            ),
+            &temp,
             &right
         )
     );
 }
 
+bool testAABBPlane(const AABB* aabb, const Plane* plane) {
+    // Convert AABB to centre-extents representation
+    const VECTOR c = vec3_i32(
+        (aabb->max.vx + aabb->min.vx) >> 1,
+        (aabb->max.vy + aabb->min.vy) >> 1,
+        (aabb->max.vz + aabb->min.vz) >> 1
+    );
+    // Compute positive extents
+    const VECTOR e = vector_sub(aabb->max, c);
+    // Compute the projection interval radius of b onto
+    // L(t) = aabb->centre + t * plane->normal
+    const fixedi32 r = fixedMul(e.vx, absv(plane->normal.vx))
+        + fixedMul(e.vy, absv(plane->normal.vy))
+        + fixedMul(e.vz, absv(plane->normal.vz));
+    // Compute distance of box centre from plane
+    const fixedi32 s = dot(&plane->normal, &c) - plane->distance;
+    // Intersection ocurs when distance s falls within [-r,+r] interval
+    return absv(s) <= r;
+}
+
 bool frustumContainsAABB(const Frustum* frustum,
-                         const AABB* aabb,
-                         const Transforms* transforms) {
-    // TODO: Implement this
-    return true;
+                         const AABB* aabb) {
+    return testAABBPlane(aabb, &frustum->left)
+        && testAABBPlane(aabb, &frustum->right)
+        && testAABBPlane(aabb, &frustum->top)
+        && testAABBPlane(aabb, &frustum->bottom)
+        && testAABBPlane(aabb, &frustum->near)
+        && testAABBPlane(aabb, &frustum->far);
 }

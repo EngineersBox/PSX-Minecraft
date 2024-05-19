@@ -20,19 +20,19 @@ void _crossProduct(const SVECTOR *v0, const SVECTOR *v1, VECTOR *out) {
     out->vz = ((v0->vx * v1->vy) - (v0->vy * v1->vx)) >> FIXED_POINT_SHIFT;
 }
 
-// VECTOR cross(const VECTOR* v0, const VECTOR* v1) {
-//     return vec3_i32(
-//         ((v0->vy * v1->vz) - (v0->vz * v1->vy)) >> FIXED_POINT_SHIFT,
-//         ((v0->vz * v1->vx) - (v0->vx * v1->vz)) >> FIXED_POINT_SHIFT,
-//         ((v0->vx * v1->vy) - (v0->vy * v1->vx)) >> FIXED_POINT_SHIFT
-//     );
-// }
-//
-// i32 dot(const VECTOR* v0, const VECTOR* v1) {
-//     return fixedMul(v0->vx, v1->vx)
-//         + fixedMul(v0->vy, v1->vy)
-//         + fixedMul(v0->vz, v1->vz);
-// }
+VECTOR cross(const VECTOR* v0, const VECTOR* v1) {
+    return vec3_i32(
+        ((v0->vy * v1->vz) - (v0->vz * v1->vy)) >> FIXED_POINT_SHIFT,
+        ((v0->vz * v1->vx) - (v0->vx * v1->vz)) >> FIXED_POINT_SHIFT,
+        ((v0->vx * v1->vy) - (v0->vy * v1->vx)) >> FIXED_POINT_SHIFT
+    );
+}
+
+i32 dot(const VECTOR* v0, const VECTOR* v1) {
+    return fixedMul(v0->vx, v1->vx)
+        + fixedMul(v0->vy, v1->vy)
+        + fixedMul(v0->vz, v1->vz);
+}
 
 // 4096 / ((((a & 0xffff) << 12) / (b & 0xffff)) >> 12)
 // ((a & 0xffff) * (b & 0xffff)) >> 12

@@ -80,7 +80,20 @@ void Minecraft_init(VSelf, void* ctx) {
     };
     DYN_PTR(&self->internals.camera, Camera, IInputHandler, &camera);
     self->internals.ctx.camera = VCAST(Camera*, self->internals.camera);
-    // Set light ambient color and light color matrix
+    // self->internals.ctx.camera->frustum = {0};
+#define intoVec(svec) vec3_i32(svec.vx, svec.vy, svec.vz)
+    frustumInit(
+        &self->internals.ctx.camera->frustum,
+        intoVec(FACE_DIRECTION_NORMALS[FACE_DIR_FRONT]),
+        intoVec(FACE_DIRECTION_NORMALS[FACE_DIR_RIGHT]),
+        intoVec(FACE_DIRECTION_NORMALS[FACE_DIR_UP]),
+        90 << FIXED_POINT_SHIFT,
+        5461, // (4/3) * ONE
+        409, // 0.1 * ONE
+        4096000 // 1000 * ONE
+    );
+#undef intoVec
+    // Set light ambient color and light color ma trix
     gte_SetBackColor(
         back_colour.r,
         back_colour.g,

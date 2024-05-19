@@ -435,7 +435,6 @@ static void chunkRenderDroppedItems(Chunk* chunk, RenderContext* ctx, Transforms
 }
 
 void chunkRender(Chunk* chunk, RenderContext* ctx, Transforms* transforms) {
-    // TODO: Check culling in frustum and skip render if not in frustum
     static SVECTOR rotation = {0, 0, 0};
     // Object and light matrix for object
     MATRIX omtx, olmtx;
@@ -453,6 +452,25 @@ void chunkRender(Chunk* chunk, RenderContext* ctx, Transforms* transforms) {
     CompMatrixLV(&transforms->geometry_mtx, &omtx, &omtx);
     // Save matrix
     PushMatrix();
+    AABB aabb = (AABB) {0};
+    VECTOR min = vec3_i32(
+        (chunk->position.vx * CHUNK_BLOCK_SIZE) << FIXED_POINT_SHIFT,
+        (-chunk->position.vy * CHUNK_BLOCK_SIZE) << FIXED_POINT_SHIFT,
+        (chunk->position.vz * CHUNK_BLOCK_SIZE) << FIXED_POINT_SHIFT
+    );
+    VECTOR max = vec3_i32(
+        ((chunk->position.vx + CHUNK_SIZE - 1) * BLOCK_SIZE) << FIXED_POINT_SHIFT,
+        (-(chunk->position.vx + CHUNK_SIZE - 1) * BLOCK_SIZE) << FIXED_POINT_SHIFT,
+        ((chunk->position.vx + CHUNK_SIZE - 1) * BLOCK_SIZE) << FIXED_POINT_SHIFT
+    );
+    // These set the rot/trans matrices in GTE, so we need to set
+    // those afterward to ensure rendering works correctly
+    ApplyMatrixLV(&omtx, &min, &aabb.min);
+    ApplyMatrixLV(&omtx, &max, &aabb.max);
+    if (!frustumContainsAABB(&ctx->camera->frustum, &aabb)) {
+        PopMatrix();
+        return;
+    }
     // Set matrices
     gte_SetRotMatrix(&omtx);
     gte_SetTransMatrix(&omtx);
