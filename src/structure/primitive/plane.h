@@ -5,14 +5,14 @@
 
 #include <psxgte.h>
 
+#include "../../render/transforms.h"
 #include "../../util/inttypes.h"
 
 typedef struct {
     VECTOR normal;
-    fixedi32 distance;
+    i64 distance;
 } Plane;
 
-Plane planeCreate(VECTOR p1, VECTOR normal);
-
+Plane planeCreate(VECTOR point, VECTOR normal);
 
 #endif // _PSX_MINECRAFT__STRUCTURE_PRIMITIVE__PLANE_H_

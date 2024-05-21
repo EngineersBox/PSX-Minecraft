@@ -122,10 +122,16 @@
 
 #define isPowerOf2(x) (((x) & ((x) - 1)) == 0)
 
+// Convert degrees to unit range accepted by trig functions
+// E.g. degToUnitRange(45) = 512
+#define degToUnitRange(deg) (((deg) << 12) / 360)
+
 void _crossProduct(const SVECTOR *v0, const SVECTOR *v1, VECTOR *out);
 
 VECTOR cross(const VECTOR* v0, const VECTOR* v1);
+VECTOR _cross(const VECTOR v0, const VECTOR v1);
 i32 dot(const VECTOR* v0, const VECTOR* v1);
+i64 _dot(const VECTOR v0, const VECTOR v1);
 
 typedef struct _BVECTOR {
     uint8_t x;
@@ -199,6 +205,8 @@ typedef struct _BVECTOR {
 //     + fixedMul(_v0.vz, _v1.vz); \
 // })
 
+// Vector init
+
 #define _vec2_layout(x, y) .vx = (x), .vy = (y)
 #define _vec3_layout(x, y, z) _vec2_layout(x, y), .vz = (z)
 #define vec3_i32(x, y, z) ((VECTOR) { _vec3_layout(x, y, z) })
@@ -206,10 +214,14 @@ typedef struct _BVECTOR {
 #define vec3_i8(x, y, z) ((CVECTOR) { _vec3_layout(x, y, z) })
 #define vec2_i16(x, y) ((DVECTOR) { _vec2_layout(x, y) })
 
+// Unified vector init
+
 #define vec3_i32_all(v) vec3_i32(v, v, v)
 #define vec3_i16_all(v) vec3_i16(v, v, v)
 #define vec3_i8_all(v) vec3_i8(v, v, v)
 #define vec2_i16_all(v) vec2_i16(v, v)
+
+// Swizzle
 
 #define _vec2_layout_swizzle(_v, x, y) _vec2_layout( \
     (_v).GLUE(v,x), \
@@ -224,6 +236,10 @@ typedef struct _BVECTOR {
 #define vec3_i16_swizzle(_v, x, y, z) ((SVECTOR) { _vec3_layout_swizzle(_v, x, y, z) })
 #define vec3_i8_swizzle(_v, x, y, z) ((CVECTOR) { _vec3_layout_swizzle(_v, x, y, z) })
 #define vec2_i16_swizzle(_v, x, y) ((DVECTOR) { _vec2_layout_swizzle(_v, x, y) })
+
+// Normalisation
+
+VECTOR vec3_i32_normalize(const VECTOR v);
 
 // TODO: Add vec+const variations
 

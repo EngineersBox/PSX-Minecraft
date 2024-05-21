@@ -22,16 +22,15 @@ typedef struct {
 // fov should be in the range [0,4096]. To convert degrees to
 // this, take x (in degrees) and apply: (x / 360) * 4096
 void frustumInit(Frustum* frustum,
-                 VECTOR front,
-                 VECTOR right,
-                 VECTOR up,
-                 fixedi32 fov,
+                 fixedi32 fov_y,
                  fixedi32 aspect,
                  fixedi32 z_near,
                  fixedi32 z_far);
 
+void frustumTransform(Frustum* frustum, Transforms* transforms);
+void frustumRestore(Frustum* frustum);
+
 bool frustumContainsAABB(const Frustum* frustum,
-                         const MATRIX* omtx,
                          const AABB* aabb);
 
 #endif // _PSX_MINECRAFT__RENDER__FRUSTUM_H_

@@ -440,7 +440,6 @@ void chunkRender(Chunk* chunk, RenderContext* ctx, Transforms* transforms) {
     MATRIX omtx, olmtx;
     // Set object rotation and position
     RotMatrix(&rotation, &omtx);
-    ApplyMatrixLV(&omtx, &transforms->translation_position, &transforms->translation_position);
     TransMatrix(&omtx, &chunk->position);
     // Multiply light matrix to object matrix
     MulMatrix0(&transforms->lighting_mtx, &omtx, &olmtx);
@@ -452,7 +451,7 @@ void chunkRender(Chunk* chunk, RenderContext* ctx, Transforms* transforms) {
     CompMatrixLV(&transforms->geometry_mtx, &omtx, &omtx);
     // Save matrix
     PushMatrix();
-    const AABB aabb = (AABB) {
+    AABB aabb = (AABB) {
         .min = vec3_i32(
             (chunk->position.vx * CHUNK_BLOCK_SIZE) << FIXED_POINT_SHIFT,
             (-chunk->position.vy * CHUNK_BLOCK_SIZE) << FIXED_POINT_SHIFT,
@@ -466,9 +465,10 @@ void chunkRender(Chunk* chunk, RenderContext* ctx, Transforms* transforms) {
     };
     // These set the rot/trans matrices in GTE, so we need to set
     // those afterward to ensure rendering works correctly
-    // ApplyMatrixLV(&omtx, &min, &aabb.min);
-    // ApplyMatrixLV(&omtx, &max, &aabb.max);
-    if (!frustumContainsAABB(&ctx->camera->frustum, &omtx, &aabb)) {
+    ApplyMatrixLV(&omtx, &aabb.min, &aabb.min);
+    ApplyMatrixLV(&omtx, &aabb.max, &aabb.max);
+    if (!frustumContainsAABB(&ctx->camera->frustum, &aabb)) {
+        DEBUG_LOG("[CHUNK: (%d,%d,%d)] Not in frustum\n", inlineVec(chunk->position));
         PopMatrix();
         return;
     }

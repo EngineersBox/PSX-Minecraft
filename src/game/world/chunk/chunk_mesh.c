@@ -229,16 +229,16 @@ void chunkMeshRenderFaceDirection(const SMD* mesh, RenderContext* ctx, Transform
 bool faceDirectionHidden(RenderContext* ctx, FaceDirection face_dir) {
     // TODO: Implement face direction culling, determing if faces in this
     //       direction are visible to the camera
-    return true;
+    return false;
 }
 
 void chunkMeshRender(const ChunkMesh* mesh, RenderContext* ctx, Transforms* transforms) {
     bool skip_check[6] = {false};
     #pragma GCC unroll 6
     for (int i = 0; i < FACE_DIRECTION_COUNT; i++) {
-        if (skip_check[i] || faceDirectionHidden(ctx, i)) {
-            continue;
-        }
+        // if (skip_check[i] || faceDirectionHidden(ctx, i)) {
+        //     continue;
+        // }
         // If we have determined that a face is visible, then the
         // opposite face direction is necesserily not visible
         switch (i) {
