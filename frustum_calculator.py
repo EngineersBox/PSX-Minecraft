@@ -23,7 +23,7 @@ def printPlane(name, normal, pos):
 def calculate_frustum(fov_y: float, aspect: float, z_near: float, z_far: float):
     half_v_side = z_far * math.tan(math.radians(fov_y * 0.5))
     half_h_side = half_v_side * aspect
-    front_mul_far = z_far * BACK
+    front_mul_far = z_far * FRONT
 
     printPlane(
         "near",
@@ -48,7 +48,7 @@ def calculate_frustum(fov_y: float, aspect: float, z_near: float, z_far: float):
     printPlane(
         "top",
         ZERO,
-        np.cross(RIGHT, front_mul_far - UP, half_v_side)
+        np.cross(RIGHT, front_mul_far - UP * half_v_side)
     )
     printPlane(
         "bottom",
