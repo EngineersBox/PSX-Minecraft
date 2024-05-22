@@ -6,6 +6,16 @@
 #include "../blocks/block.h"
 #include "../math/math_utils.h"
 
+Camera cameraCreate(Transforms* transforms) {
+    return (Camera) {
+        .transforms = transforms,
+        .frustum = frustumCreate(),
+        .position = vec3_i32_all(0),
+        .rotation = vec3_i32_all(0),
+        .mode = 0
+    };
+}
+
 void handleDigitalPadAndDualAnalogShock(Camera* camera, const Input* input, const Transforms* transforms) {
     // For digital input->pad, dual-analog and dual-shock
     if (input->pad->type != 0x4

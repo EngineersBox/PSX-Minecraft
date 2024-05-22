@@ -10,18 +10,20 @@ DOWN = np.array([0,1,0])
 
 ZERO = np.array([0,0,0])
 
-ONE = 10
+ONE = 4096
 
 def normalize(v):
     return v / np.sqrt(np.sum(v**2))
 
 def printPlane(name, normal, offset):
-    print(name)
-    print(f"(Plane) {{ .normal = vec3_i32({normal[0] * ONE}, {normal[1] * ONE}, {normal[2] * ONE}), .offset = {offset * ONE} }}")
+    n0 = int(normal[0] * ONE)
+    n1 = int(normal[1] * ONE)
+    n2 = int(normal[2] * ONE)
+    print(f"    .{name} = (Plane) {{ .normal = vec3_i32({n0}, {n1}, {n2}), .distance = {int(offset * ONE)} }},")
 
 def calculate_frustum(fov_y: float, aspect: float, z_near: float, z_far: float):
-    near_centre = BACK * z_near
-    far_centre = BACK * z_far
+    near_centre = FRONT * z_near
+    far_centre = FRONT * z_far
 
     near_height = 2 * math.tan(math.radians(fov_y / 2)) * z_near
     far_height = 2 * math.tan(math.radians(fov_y / 2)) * z_far
@@ -44,26 +46,28 @@ def calculate_frustum(fov_y: float, aspect: float, z_near: float, z_far: float):
 
     p0 = near_bottom_left; p1 = far_bottom_left; p2 = far_top_left
     left_plane_normal = normalize(np.cross(p1 - p0, p2 - p1))
-    left_plane_offset = np.dot(left_plane_normal, p0)
-    printPlane("left", left_plane_normal, left_plane_offset)
+    # left_plane_offset = np.dot(left_plane_normal, p0)
 
     p0 = near_top_left; p1 = far_top_left; p2 = far_top_right
     top_plane_normal = normalize(np.cross(p1 - p0, p2 - p1))
-    top_plane_offset = np.dot(top_plane_normal, p0)
-    printPlane("top", top_plane_normal, top_plane_offset)
+    # top_plane_offset = np.dot(top_plane_normal, p0)
 
     p0 = near_top_right; p1 = far_top_right; p2 = far_bottom_right
     right_plane_normal = normalize(np.cross(p1 - p0, p2 - p1))
-    right_plane_offset = np.dot(right_plane_normal, p0)
-    printPlane("right", right_plane_normal, right_plane_offset)
+    # right_plane_offset = np.dot(right_plane_normal, p0)
 
     p0 = near_bottom_right; p1 = far_bottom_right; p2 = far_bottom_left
     bottom_plane_normal = normalize(np.cross(p1 - p0, p2 - p1))
-    bottom_plane_offset = np.dot(bottom_plane_normal, p0)
-    printPlane("bottom", bottom_plane_normal, bottom_plane_offset)
+    # bottom_plane_offset = np.dot(bottom_plane_normal, p0)
 
-    printPlane("front", FRONT, z_near)
-    printPlane("back", BACK, z_far)
+    print("(Frustum) {")
+    printPlane("left", left_plane_normal, 0)
+    printPlane("right", right_plane_normal, 0)
+    printPlane("top", top_plane_normal, 0)
+    printPlane("bottom", bottom_plane_normal, 0)
+    printPlane("near", FRONT, z_near)
+    printPlane("far", BACK, z_far)
+    print("}")
 
 def main():
     if (len(sys.argv) != 6):

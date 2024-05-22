@@ -72,22 +72,9 @@ void Minecraft_init(VSelf, void* ctx) {
         .input = (Input) {},
         .camera = {}
     };
-    camera = (Camera) {
-        .transforms = &self->internals.transforms,
-        .position = vec3_i32_all(0),
-        .rotation = vec3_i32_all(0),
-        .mode = 0
-    };
+    camera = cameraCreate(&self->internals.transforms);
     DYN_PTR(&self->internals.camera, Camera, IInputHandler, &camera);
     self->internals.ctx.camera = VCAST(Camera*, self->internals.camera);
-    // self->internals.ctx.camera->frustum = {0};
-    frustumInit(
-        &self->internals.ctx.camera->frustum,
-        90,
-        5461, // (4/3) * ONE
-        4096, // 0.1 * ONE
-        (CHUNK_BLOCK_SIZE * 3) << FIXED_POINT_SHIFT
-    );
     // Set light ambient color and light color ma trix
     gte_SetBackColor(
         back_colour.r,
