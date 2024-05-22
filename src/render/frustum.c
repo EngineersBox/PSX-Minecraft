@@ -76,16 +76,16 @@ bool testAABBPlane(const AABB* aabb, const Plane* plane) {
         z1 = aabb->min.vz;
         z2 = aabb->max.vz;
     }
-    const i64 dot_1 = fixedMul(normal.vx, x1)
-        + fixedMul(normal.vy, y1)
-        + fixedMul(normal.vz, z1);
+    const i64 dot_1 = fixedMul((i64) normal.vx, x1)
+        + fixedMul((i64) normal.vy, y1)
+        + fixedMul((i64) normal.vz, z1);
     if (dot_1 < plane->distance) {
         return false; // Outside
     }
-    const i64 dot_2 = fixedMul(normal.vx, x2)
-        + fixedMul(normal.vy, y2)
-        + fixedMul(normal.vz, z2);
-    return dot_2 <= plane->distance;
+    const i64 dot_2 = fixedMul((i64) normal.vx, x2)
+        + fixedMul((i64) normal.vy, y2)
+        + fixedMul((i64) normal.vz, z2);
+    return dot_2 >= plane->distance;
 }
 
 bool frustumContainsAABB(const Frustum* frustum,
