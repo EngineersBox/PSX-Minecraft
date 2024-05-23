@@ -79,18 +79,20 @@ bool testAABBPlane(const AABB* aabb, const Plane* plane) {
     const i64 dot_1 = fixedMul((i64) normal.vx, x1)
         + fixedMul((i64) normal.vy, y1)
         + fixedMul((i64) normal.vz, z1);
-    if (dot_1 < plane->distance) {
+    if (dot_1 < -plane->distance) {
+        DEBUG_LOG("[FRUSTUM] Dot: %d, Distance: %d\n", (i32) dot_1, (i32) plane->distance);
         return false; // Outside
     }
-    const i64 dot_2 = fixedMul((i64) normal.vx, x2)
-        + fixedMul((i64) normal.vy, y2)
-        + fixedMul((i64) normal.vz, z2);
-    return dot_2 >= plane->distance;
+    // const i64 dot_2 = fixedMul((i64) normal.vx, x2)
+    //     + fixedMul((i64) normal.vy, y2)
+    //     + fixedMul((i64) normal.vz, z2);
+    // DEBUG_LOG("[FRUSTUM] Check 2 Dot: %d, Distance: %d\n", (i32) dot_2, (i32) plane->distance);
+    return true; //dot_2 >= plane->distance;
 }
 
 bool frustumContainsAABB(const Frustum* frustum,
                           const AABB* aabb) {
-    DEBUG_LOG("[FRUSTUM] Chunk AABB [Min: (%d,%d,%d)] [Max: (%d,%d,%d)]\n", inlineVec(aabb->min), inlineVec(aabb->max));
+    // DEBUG_LOG("[FRUSTUM] Chunk AABB [Min: (%d,%d,%d)] [Max: (%d,%d,%d)]\n", inlineVec(aabb->min), inlineVec(aabb->max));
     return testAABBPlane(aabb, &frustum->left)
         && testAABBPlane(aabb, &frustum->right)
         && testAABBPlane(aabb, &frustum->top)
