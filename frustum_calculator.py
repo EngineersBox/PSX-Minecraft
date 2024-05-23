@@ -19,7 +19,7 @@ def printPlane(name, normal, offset):
     n0 = int(normal[0] * ONE)
     n1 = int(normal[1] * ONE)
     n2 = int(normal[2] * ONE)
-    print(f"    .{name} = (Plane) {{ .normal = vec3_i32({n0}, {n1}, {n2}), .distance = {int(offset * ONE)} }},")
+    print(f"        [FRUSTUM_PLANE_{name.upper()}] = (Plane) {{ .normal = vec3_i32({n0}, {n1}, {n2}), .distance = {int(offset * ONE)} }},")
 
 def calculate_frustum(fov_y: float, aspect: float, z_near: float, z_far: float):
     near_centre = FRONT * z_near
@@ -61,12 +61,14 @@ def calculate_frustum(fov_y: float, aspect: float, z_near: float, z_far: float):
     # bottom_plane_offset = np.dot(bottom_plane_normal, p0)
 
     print("(Frustum) {")
+    print("    .planes = {")
+    printPlane("near", FRONT, z_near)
+    printPlane("far", BACK, z_far)
     printPlane("left", left_plane_normal, 0)
     printPlane("right", right_plane_normal, 0)
     printPlane("top", top_plane_normal, 0)
     printPlane("bottom", bottom_plane_normal, 0)
-    printPlane("near", FRONT, z_near)
-    printPlane("far", BACK, z_far)
+    print("    }")
     print("}")
 
 def main():

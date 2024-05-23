@@ -9,12 +9,14 @@
 Frustum frustumCreate() {
     // Pre-calculated with frustum_calculator.py
     return (Frustum) {
-        .left = (Plane) { .normal = vec3_i32(-2457, 0, 3276), .distance = 0 },
-        .right = (Plane) { .normal = vec3_i32(2457, 0, 3276), .distance = 0 },
-        .top = (Plane) { .normal = vec3_i32(0, -2896, 2896), .distance = 0 },
-        .bottom = (Plane) { .normal = vec3_i32(0, 2896, 2896), .distance = 0 },
-        .near = (Plane) { .normal = vec3_i32(0, 0, -4096), .distance = 409 },
-        .far = (Plane) { .normal = vec3_i32(0, 0, 4096), .distance = 4096000 },
+        .planes = {
+            [FRUSTUM_PLANE_NEAR] = (Plane) { .normal = vec3_i32(0, 0, -4096), .distance = 409 },
+            [FRUSTUM_PLANE_FAR] = (Plane) { .normal = vec3_i32(0, 0, 4096), .distance = 4096000 },
+            [FRUSTUM_PLANE_LEFT] = (Plane) { .normal = vec3_i32(-2457, 0, 3276), .distance = 0 },
+            [FRUSTUM_PLANE_RIGHT] = (Plane) { .normal = vec3_i32(2457, 0, 3276), .distance = 0 },
+            [FRUSTUM_PLANE_TOP] = (Plane) { .normal = vec3_i32(0, -2896, 2896), .distance = 0 },
+            [FRUSTUM_PLANE_BOTTOM] = (Plane) { .normal = vec3_i32(0, 2896, 2896), .distance = 0 },
+        }
     };
 }
 
@@ -50,7 +52,7 @@ Frustum frustumCreate() {
 //         && testAABBPlane(aabb, &frustum->far);
 // }
 
-bool testAABBPlane(const AABB* aabb, const Plane* plane) {
+FrustumQueryResult frustumTestAABBPlane(const AABB* aabb, const Plane* plane) {
     const VECTOR normal = plane->normal;
     i64 x1; i64 x2;
     i64 y1; i64 y2;
@@ -81,22 +83,28 @@ bool testAABBPlane(const AABB* aabb, const Plane* plane) {
         + fixedMul((i64) normal.vz, z1);
     if (dot_1 < -plane->distance) {
         DEBUG_LOG("[FRUSTUM] Dot: %d, Distance: %d\n", (i32) dot_1, (i32) plane->distance);
-        return false; // Outside
+        return FRUSTUM_OUTSIDE;
     }
-    // const i64 dot_2 = fixedMul((i64) normal.vx, x2)
-    //     + fixedMul((i64) normal.vy, y2)
-    //     + fixedMul((i64) normal.vz, z2);
-    // DEBUG_LOG("[FRUSTUM] Check 2 Dot: %d, Distance: %d\n", (i32) dot_2, (i32) plane->distance);
-    return true; //dot_2 >= plane->distance;
+    const i64 dot_2 = fixedMul((i64) normal.vx, x2)
+        + fixedMul((i64) normal.vy, y2)
+        + fixedMul((i64) normal.vz, z2);
+    DEBUG_LOG("[FRUSTUM] Check 2 Dot: %d, Distance: %d\n", (i32) dot_2, (i32) plane->distance);
+    if (dot_2 <= -plane->distance) {
+        return FRUSTUM_INTERSECTS;
+    }
+    return FRUSTUM_INSIDE;
 }
 
-bool frustumContainsAABB(const Frustum* frustum,
-                          const AABB* aabb) {
+FrustumQueryResult frustumContainsAABB(const Frustum* frustum, const AABB* aabb) {
     // DEBUG_LOG("[FRUSTUM] Chunk AABB [Min: (%d,%d,%d)] [Max: (%d,%d,%d)]\n", inlineVec(aabb->min), inlineVec(aabb->max));
-    return testAABBPlane(aabb, &frustum->left)
-        && testAABBPlane(aabb, &frustum->right)
-        && testAABBPlane(aabb, &frustum->top)
-        && testAABBPlane(aabb, &frustum->bottom)
-        && testAABBPlane(aabb, &frustum->near)
-        && testAABBPlane(aabb, &frustum->far);
+    FrustumQueryResult result = FRUSTUM_INSIDE;
+    #pragma GCC unroll 6
+    for (u8 i = 0; i < 6; i++) {
+        switch (frustumTestAABBPlane(aabb, &frustum->planes[i])) {
+            case FRUSTUM_OUTSIDE: return FRUSTUM_OUTSIDE;
+            case FRUSTUM_INTERSECTS: result = FRUSTUM_INTERSECTS; break;
+            case FRUSTUM_INSIDE: break;
+        }
+    }
+    return result;
 }

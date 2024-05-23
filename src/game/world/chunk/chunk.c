@@ -499,11 +499,8 @@ bool chunkIsOutsideFrustum(const Chunk* chunk, const Frustum* frustum, const Tra
     }
     aabb.min = geomMul(transforms->geometry_mtx, aabb.min);
     aabb.max = geomMul(transforms->geometry_mtx, aabb.max);
-    const bool inside = frustumContainsAABB(frustum, &aabb);
-    if (!inside) {
-        // DEBUG_LOG("[CHUNK: (%d,%d,%d)] Not in frustum\n", inlineVec(chunk->position));
-    }
-    return !inside;
+    const FrustumQueryResult result = frustumContainsAABB(frustum, &aabb);
+    return result == FRUSTUM_OUTSIDE;
 }
 
 void chunkRender(Chunk* chunk, RenderContext* ctx, Transforms* transforms) {

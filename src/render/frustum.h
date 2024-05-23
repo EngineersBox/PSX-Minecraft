@@ -10,21 +10,30 @@
 #include "../structure/primitive/plane.h"
 #include "transforms.h"
 
+typedef enum {
+    FRUSTUM_PLANE_NEAR,
+    FRUSTUM_PLANE_FAR,
+    FRUSTUM_PLANE_LEFT,
+    FRUSTUM_PLANE_RIGHT,
+    FRUSTUM_PLANE_TOP,
+    FRUSTUM_PLANE_BOTTOM,
+} FrustumPlanes;
+
 typedef struct {
-    Plane top;
-    Plane bottom;
-    Plane left;
-    Plane right;
-    Plane far;
-    Plane near;
+    Plane planes[6];
 } Frustum;
+
+typedef enum {
+    FRUSTUM_INSIDE = 0,
+    FRUSTUM_OUTSIDE,
+    FRUSTUM_INTERSECTS
+} FrustumQueryResult;
 
 Frustum frustumCreate();
 
 void frustumTransform(Frustum* frustum, Transforms* transforms);
 void frustumRestore(Frustum* frustum);
 
-bool frustumContainsAABB(const Frustum* frustum,
-                         const AABB* aabb);
+FrustumQueryResult frustumContainsAABB(const Frustum* frustum, const AABB* aabb);
 
 #endif // _PSX_MINECRAFT__RENDER__FRUSTUM_H_
