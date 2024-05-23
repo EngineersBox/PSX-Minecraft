@@ -1,10 +1,10 @@
 #include "frustum.h"
 
 #include <psxgte.h>
-#include <logging.h>
-#include <texture.h>
 
+#include "../logging/logging.h"
 #include "../math/math_utils.h"
+#include "../util/inttypes.h"
 
 Frustum frustumCreate() {
     // Pre-calculated with frustum_calculator.py

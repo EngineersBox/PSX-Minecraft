@@ -3,30 +3,34 @@
 #ifndef _PSX_MINECRAFT__RENDER__FRUSTUM_H_
 #define _PSX_MINECRAFT__RENDER__FRUSTUM_H_
 
-#include <psxgte.h>
-
-#include "../util/inttypes.h"
 #include "../physics/aabb.h"
 #include "../structure/primitive/plane.h"
 #include "transforms.h"
+#include "../util/preprocessor.h"
+
+#define FRUSTUM_PLANES_LIST(f) \
+    f(ENUM_ENTRY(FRUSTUM_PLANE_NEAR)), \
+    f(ENUM_ENTRY(FRUSTUM_PLANE_FAR)), \
+    f(ENUM_ENTRY(FRUSTUM_PLANE_LEFT)), \
+    f(ENUM_ENTRY(FRUSTUM_PLANE_RIGHT)), \
+    f(ENUM_ENTRY(FRUSTUM_PLANE_TOP)), \
+    f(ENUM_ENTRY(FRUSTUM_PLANE_BOTTOM))
 
 typedef enum {
-    FRUSTUM_PLANE_NEAR,
-    FRUSTUM_PLANE_FAR,
-    FRUSTUM_PLANE_LEFT,
-    FRUSTUM_PLANE_RIGHT,
-    FRUSTUM_PLANE_TOP,
-    FRUSTUM_PLANE_BOTTOM,
+    FRUSTUM_PLANES_LIST(enumConstruct)
 } FrustumPlanes;
 
 typedef struct {
     Plane planes[6];
 } Frustum;
 
+#define FRUSTUM_QUERY_RESULT_LIST(f) \
+    f(ENUM_ENTRY_ORD(FRUSTUM_OUTSIDE, 0)), \
+    f(ENUM_ENTRY_ORD(FRUSTUM_INSIDE, 1)), \
+    f(ENUM_ENTRY_ORD(FRUSTUM_INTERSECTS, 2)),
+
 typedef enum {
-    FRUSTUM_INSIDE = 0,
-    FRUSTUM_OUTSIDE,
-    FRUSTUM_INTERSECTS
+    FRUSTUM_QUERY_RESULT_LIST(enumConstruct)
 } FrustumQueryResult;
 
 Frustum frustumCreate();
