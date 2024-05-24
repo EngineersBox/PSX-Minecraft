@@ -485,14 +485,13 @@ bool chunkIsOutsideFrustum(const Chunk* chunk, const Frustum* frustum, const Tra
 }
 
 void chunkRender(Chunk* chunk, RenderContext* ctx, Transforms* transforms) {
-    if (chunkIsOutsideFrustum(chunk, &ctx->camera->frustum, transforms)) {
-        return;
-    }
-    static SVECTOR rotation = {0, 0, 0};
+    // if (chunkIsOutsideFrustum(chunk, &ctx->camera->frustum, transforms)) {
+    //     return;
+    // }
     // Object and light matrix for object
     MATRIX omtx, olmtx;
     // Set object rotation and position
-    RotMatrix(&rotation, &omtx);
+    RotMatrix(&VEC3_I16_ZERO, &omtx);
     TransMatrix(&omtx, &chunk->position);
     // Multiply light matrix to object matrix
     MulMatrix0(&transforms->lighting_mtx, &omtx, &olmtx);

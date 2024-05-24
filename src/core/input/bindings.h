@@ -5,26 +5,26 @@
 
 #include <psxpad.h>
 
-extern PadButton binding_move_forward;
-extern PadButton binding_move_backward;
-extern PadButton binding_move_left;
-extern PadButton binding_move_right;
+extern PadButton BINDING_MOVE_FORWARD;
+extern PadButton BINDING_MOVE_BACKWARD;
+extern PadButton BINDING_MOVE_LEFT;
+extern PadButton BINDING_MOVE_RIGHT;
 
-extern PadButton binding_look_up;
-extern PadButton binding_look_down;
-extern PadButton binding_look_left;
-extern PadButton binding_look_right;
+extern PadButton BINDING_LOOK_UP;
+extern PadButton BINDING_LOOK_DOWN;
+extern PadButton BINDING_LOOK_LEFT;
+extern PadButton BINDING_LOOK_RIGHT;
 
-extern PadButton binding_jump;
-extern PadButton binding_sneak;
+extern PadButton BINDING_JUMP;
+extern PadButton BINDING_SNEAK;
 
-extern PadButton binding_attack;
-extern PadButton binding_use;
+extern PadButton BINDING_ATTACK;
+extern PadButton BINDING_USE;
 
-extern PadButton binding_open_inventory;
-extern PadButton binding_previous;
-extern PadButton binding_next;
+extern PadButton BINDING_OPEN_INVENTORY;
+extern PadButton BINDING_PREVIOUS;
+extern PadButton BINDING_NEXT;
 
-extern PadButton binding_pause;
+extern PadButton BINDING_PAUSE;
 
 #endif // PSX_MINECRAFT_BINDINGS_H

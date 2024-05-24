@@ -4,6 +4,8 @@
 
 #include "../logging/logging.h"
 
+const SVECTOR VEC3_I16_ZERO = vec3_i16_all(0);
+
 VECTOR rotationToDirection(const VECTOR* rotation) {
     // printf("Rotation: " VEC_PATTERN "\n", rotation->vx, rotation->vy, rotation->vz);
     const int32_t x = rotation->vx >> FIXED_POINT_SHIFT;

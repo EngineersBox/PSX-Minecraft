@@ -10,7 +10,8 @@
   fancy at a later point.
 * [ ] Camera far plane cutoff with fog relative to chunk render distance
 * [x] Continuous shifting world chunk array
-* [ ] Frustum and depth-first search culling through chunks
+* [ ] Frustum and culling
+* [ ] Depth-first search culling through chunks
 * [x] Graphing lib to use for resource usage and debugging
 * [x] Ray cast from camera normal to block retrieving exact block coordinates in world
 * [x] Dynamic chunk loading and unloading with movement
@@ -71,7 +72,7 @@
 * [ ] Mesh vertices z-depth is inconsistent leading to faces drawn in wrong order and thus culling fails
 * [x] Background in loading screen not rendering texture
 * [ ] Vertices are distorted (in their location) when very close to the camera
-* [ ] Transparent textures rendering multiple layers of textures from different points in terrain texture
+* [ ] Transparent textures rendering multiple interleaved textures from different points in terrain texture page
 * [ ] Movement tied to FPS
 * [x] Cannot fall off a block edge, get pushed back
 * [x] Jumping onto a block pushes player back, not allowing for movement up to a block (weird edge cases for certain angles still work)

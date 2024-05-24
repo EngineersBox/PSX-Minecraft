@@ -287,7 +287,7 @@ bool _debounce(Inventory* inventory) {
 
 bool inventoryInputHandler(const Input* input, void* ctx) {
     Inventory* inventory = (Inventory*) ctx;
-    if (isPressed(input->pad, binding_open_inventory) && _debounce(inventory)) {
+    if (isPressed(input->pad, BINDING_OPEN_INVENTORY) && _debounce(inventory)) {
         if (inventory->ui.active) {
             inventoryClose(inventory);
             return false;

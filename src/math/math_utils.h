@@ -126,6 +126,7 @@
 // E.g. degToUnitRange(45) = 512
 #define degToUnitRange(deg) (((deg) << 12) / 360)
 
+// Byte vector
 typedef struct _BVECTOR {
     uint8_t x;
     uint8_t y;
@@ -133,6 +134,7 @@ typedef struct _BVECTOR {
     uint8_t pad;
 } BVECTOR;
 
+// Long vector
 typedef struct _LVECTOR {
     i64 vx;
     i64 vy;
@@ -783,5 +785,9 @@ VECTOR rotationToDirection(const VECTOR* rotation);
 #define dvector_const_ip_sub(v0, c) dvector_c_ip_op(v0, c, -)
 #define dvector_const_ip_mul(v0, c) dvector_c_ip_op(v0, c, *)
 #define dvector_const_ip_div(v0, c) dvector_c_ip_op(v0, c, /)
+
+// ==== COMMON DEFINITIONS ====
+
+extern const SVECTOR VEC3_I16_ZERO;
 
 #endif //MATH_UTILS_H

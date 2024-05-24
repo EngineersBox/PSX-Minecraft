@@ -85,26 +85,26 @@ bool playerInputHandler(const Input* input, void* ctx) {
     }
     const PADTYPE* pad = input->pad;
     // Look controls
-    if (isPressed(pad, binding_look_up)) {
+    if (isPressed(pad, BINDING_LOOK_UP)) {
         // Look up
         physics_object->rotation.pitch = positiveModulo(
             physics_object->rotation.pitch - (ONE * ROTATION_SPEED),
             ONE << FIXED_POINT_SHIFT
         );
-    } else if (isPressed(pad, binding_look_down)) {
+    } else if (isPressed(pad, BINDING_LOOK_DOWN)) {
         // Look down
         physics_object->rotation.pitch = positiveModulo(
             physics_object->rotation.pitch + (ONE * ROTATION_SPEED),
             ONE << FIXED_POINT_SHIFT
         );
     }
-    if (isPressed(pad, binding_look_left)) {
+    if (isPressed(pad, BINDING_LOOK_LEFT)) {
         // Look left
         physics_object->rotation.yaw = positiveModulo(
             physics_object->rotation.yaw + (ONE * ROTATION_SPEED),
             ONE << FIXED_POINT_SHIFT
         );
-    } else if (isPressed(pad, binding_look_right)) {
+    } else if (isPressed(pad, BINDING_LOOK_RIGHT)) {
         // Look right
         physics_object->rotation.yaw = positiveModulo(
             physics_object->rotation.yaw - (ONE * ROTATION_SPEED),
@@ -112,14 +112,14 @@ bool playerInputHandler(const Input* input, void* ctx) {
         );
     }
     i32 move_amount = ONE_BLOCK;
-    if (isPressed(pad, binding_jump)) {
+    if (isPressed(pad, BINDING_JUMP)) {
         if (physics_object->flags.no_clip) {
             physics_object->velocity.vy = move_amount;
         } else {
             physics_object->flags.jumping = true;
         }
     }
-    if (isPressed(pad, binding_sneak)) {
+    if (isPressed(pad, BINDING_SNEAK)) {
         move_amount = 86016; // ONE_BLOCK * 0.3 = 86016
         if (physics_object->flags.no_clip) {
             physics_object->velocity.vy = -move_amount;
@@ -127,14 +127,14 @@ bool playerInputHandler(const Input* input, void* ctx) {
             physics_object->flags.sneaking = true;
         }
     }
-    if (isPressed(pad, binding_move_forward)) {
+    if (isPressed(pad, BINDING_MOVE_FORWARD)) {
         physics_object->move.forward += move_amount;
-    } else if (isPressed(pad, binding_move_backward)) {
+    } else if (isPressed(pad, BINDING_MOVE_BACKWARD)) {
         physics_object->move.forward -= move_amount;
     }
-    if (isPressed(pad, binding_move_left)) {
+    if (isPressed(pad, BINDING_MOVE_LEFT)) {
         physics_object->move.strafe -= move_amount;
-    } else if (isPressed(pad, binding_move_right)) {
+    } else if (isPressed(pad, BINDING_MOVE_RIGHT)) {
         physics_object->move.strafe += move_amount;
     }
     return false;

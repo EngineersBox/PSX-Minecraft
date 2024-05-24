@@ -192,7 +192,7 @@ void renderQuad(const SMD* mesh, SMD_PRIM* primitive, RenderContext* ctx, Transf
     pol4->tpage = primitive->tpage;
     pol4->clut = primitive->clut;
     // Sort primitive to the ordering table
-    uint32_t* ot_object = allocateOrderingTable(ctx, p);
+    u32* ot_object = allocateOrderingTable(ctx, p);
     addPrim(ot_object, pol4);
     // Advance to make another primitive
     // Bind a texture window to ensure wrapping across merged block face primitives
