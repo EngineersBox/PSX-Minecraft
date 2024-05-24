@@ -126,19 +126,38 @@
 // E.g. degToUnitRange(45) = 512
 #define degToUnitRange(deg) (((deg) << 12) / 360)
 
-void _crossProduct(const SVECTOR *v0, const SVECTOR *v1, VECTOR *out);
-
-VECTOR cross(const VECTOR* v0, const VECTOR* v1);
-VECTOR _cross(const VECTOR v0, const VECTOR v1);
-i32 dot(const VECTOR* v0, const VECTOR* v1);
-i64 _dot(const VECTOR v0, const VECTOR v1);
-
 typedef struct _BVECTOR {
     uint8_t x;
     uint8_t y;
     uint8_t z;
     uint8_t pad;
 } BVECTOR;
+
+typedef struct _LVECTOR {
+    i64 vx;
+    i64 vy;
+    i64 vz;
+} LVECTOR;
+
+#define _cross(type, v0, v1) ({ \
+    __typeof__(v0) _v0 = (v0); \
+    __typeof__(v1) _v1 = (v1); \
+    ((type) { _vec3_layout( \
+        (fixedMul(_v0.vy, _v1.vz) - fixedMul(_v0.vz, _v1.vy)), \
+        (fixedMul(_v0.vz, _v1.vx) - fixedMul(_v0.vx, _v1.vz)), \
+        (fixedMul(_v0.vx, _v1.vy) - fixedMul(_v0.vy, _v1.vx)) \
+    )}); \
+})
+#define cross_i16(v0, v1) _cross(SVECTOR, v0, v1)
+#define cross_i32(v0, v1) _cross(VECTOR, v0, v1)
+#define cross_i64(v0, v1) _cross(LVECTOR, v0, v1)
+
+#define _dot(type, v0, v1) (fixedMul((type)(v0).vx, (type)(v1).vx) \
+    + fixedMul((type)(v0).vy, (type)(v1).vy)\
+    + fixedMul((type)(v0).vz, (type)(v1).vz))
+#define dot_i16(v0, v1) _dot(i32, v0, v1)
+#define dot_i32(v0, v1) _dot(i32, v0, v1)
+#define dot_i64(v0, v1) _dot(i64, v0, v1)
 
 #define inlineVec(vec) (vec).vx, (vec).vy, (vec).vz
 #define inlineVecPtr(vec) (vec)->vx, (vec)->vy, (vec)->vz

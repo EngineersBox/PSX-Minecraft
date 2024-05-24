@@ -4,19 +4,6 @@
 
 #include "../math/math_utils.h"
 
-Plane planeCreate(const VECTOR point, const VECTOR normal) {
-    DEBUG_LOG(
-        "[PLANE] Point: (%d,%d,%d) Normal: (%d,%d,%d) Distance: %d\n",
-        inlineVec(point),
-        inlineVec(normal),
-        dot(&normal, &point)
-    );
-    return (Plane) {
-        .normal = normal,
-        .distance = _dot(normal, point)
-    };
-}
-
 bool planePointInFront(const Plane* plane, const VECTOR point) {
     // Dot between plane normal and point compute the distance between
     // the two, relative to the origin. We then compare this to the offset
@@ -24,5 +11,5 @@ bool planePointInFront(const Plane* plane, const VECTOR point) {
     // whether the distance of the point from the origin is more than
     // the distance that the plane is away from the origin determining
     // whether the point is in front of the plane in the normal direction
-    return _dot(plane->normal, point) >= plane->distance;
+    return dot_i64(plane->normal, point) >= plane->distance;
 }

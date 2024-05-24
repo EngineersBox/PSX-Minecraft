@@ -163,9 +163,9 @@ void lookAt(const VECTOR* eye, const VECTOR* at, const SVECTOR* up, MATRIX* mtx)
     SVECTOR xaxis;
     SVECTOR yaxis;
     VectorNormalS(&taxis, &zaxis);
-    _crossProduct(&zaxis, up, &taxis);
+    taxis = cross_i32(zaxis, *up);
     VectorNormalS(&taxis, &xaxis);
-    _crossProduct(&zaxis, &xaxis, &taxis);
+    taxis = cross_i32(zaxis, xaxis);
     VectorNormalS(&taxis, &yaxis);
     mtx->m[0][0] = xaxis.vx;
     mtx->m[1][0] = yaxis.vx;

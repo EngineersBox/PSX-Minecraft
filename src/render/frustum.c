@@ -54,40 +54,24 @@ Frustum frustumCreate() {
 
 FrustumQueryResult frustumTestAABBPlane(const AABB* aabb, const Plane* plane) {
     const VECTOR normal = plane->normal;
-    i64 x1; i64 x2;
-    i64 y1; i64 y2;
-    i64 z1; i64 z2;
-    if (normal.vx > 0) {
-        x1 = aabb->max.vx;
-        x2 = aabb->min.vx;
-    } else {
-        x1 = aabb->min.vx;
-        x2 = aabb->max.vx;
+    LVECTOR vec1;
+    LVECTOR vec2;
+#define pickBoundsFromSign(axis) \
+    if (normal.v##axis > 0) { \
+        vec1.v##axis = aabb->max.v##axis; vec2.v##axis = aabb->min.v##axis; \
+    } else { \
+        vec1.v##axis = aabb->min.v##axis; vec2.v##axis = aabb->max.v##axis; \
     }
-    if (normal.vy > 0) {
-        y1 = aabb->max.vy;
-        y2 = aabb->min.vy;
-    } else {
-        y1 = aabb->min.vy;
-        y2 = aabb->max.vy;
-    }
-    if (normal.vz > 0) {
-        z1 = aabb->max.vz;
-        z2 = aabb->min.vz;
-    } else {
-        z1 = aabb->min.vz;
-        z2 = aabb->max.vz;
-    }
-    const i64 dot_1 = fixedMul((i64) normal.vx, x1)
-        + fixedMul((i64) normal.vy, y1)
-        + fixedMul((i64) normal.vz, z1);
+    pickBoundsFromSign(x);
+    pickBoundsFromSign(y);
+    pickBoundsFromSign(z);
+#undef pickBoundsFromSign
+    const i64 dot_1 = dot_i64(normal, vec1);
     if (dot_1 < -plane->distance) {
         DEBUG_LOG("[FRUSTUM] Dot: %d, Distance: %d\n", (i32) dot_1, (i32) plane->distance);
         return FRUSTUM_OUTSIDE;
     }
-    const i64 dot_2 = fixedMul((i64) normal.vx, x2)
-        + fixedMul((i64) normal.vy, y2)
-        + fixedMul((i64) normal.vz, z2);
+    const i64 dot_2 = dot_i64(normal, vec2);
     DEBUG_LOG("[FRUSTUM] Check 2 Dot: %d, Distance: %d\n", (i32) dot_2, (i32) plane->distance);
     if (dot_2 <= -plane->distance) {
         return FRUSTUM_INTERSECTS;
