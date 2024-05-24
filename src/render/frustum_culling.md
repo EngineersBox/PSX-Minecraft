@@ -2,4 +2,46 @@
 
 TODO: Explain frustum creation and how queries work with dot product
 
-TODO: Move here the explanation of using CPU instead of GPU to calculate (m_rt * v_pos) + v_tr
+## Computing Rotation + Translation
+
+The GPU is 16-bit so all ops are over SVECTORs when we have worldspace with is
+typically 32-bit since the world is large. This makes the world limited to:
+
+```
+-2^15 <= CHUNK_SIZE * BLOCK_SIZE * AXIS_INDEX <= 2^15 - 1
+```
+
+Which limits the AXIS index to a range of `[-58,58]` since `8 * 70 * 58 = 32,480`
+but `8 * 70 * 59 = 33,040` (similarly for negatives), so we can only have up to
+58 chunks in each direction. Which equates to 464 blocks in each direction.
+So instead of this we compute the matrix product and vector summation on the CPU
+which is realistically just as fast and get much larger world spaces as a result.
+
+For reference the GPU based code looks like this:
+```c
+SVECTOR pos_before_1 = vec3_i16(
+    (chunk->position.vx * CHUNK_BLOCK_SIZE),
+    (-chunk->position.vy * CHUNK_BLOCK_SIZE),
+    (chunk->position.vz * CHUNK_BLOCK_SIZE)
+);
+SVECTOR pos_after_1 = vec3_i16_all(0);
+PushMatrix();
+gte_SetRotMatrix(&transforms->geometry_mtx);
+gte_SetTransMatrix(&transforms->geometry_mtx);
+gte_ldsv(&pos_before_1); // Load SVECTOR var into sv general purpose short vector register
+gte_rtirtr(); // (Rotation Matrix * sv) + Translation Vector
+gte_stsv(&pos_after_1); // Store sv into SVECTOR output var
+PopMatrix();
+```
+
+And the comparative CPU code is:
+
+```c
+VECTOR geomMul(const MATRIX m, const VECTOR v) {
+    return vec3_i32(
+        (fixedMul((i32) m.m[0][0], v.vx) + fixedMul((i32) m.m[0][1], v.vy) + fixedMul((i32) m.m[0][2], v.vz)) + ((i32) m.t[0] << 12),
+        (fixedMul((i32) m.m[1][0], v.vx) + fixedMul((i32) m.m[1][1], v.vy) + fixedMul((i32) m.m[1][2], v.vz)) + ((i32) m.t[1] << 12),
+        (fixedMul((i32) m.m[2][0], v.vx) + fixedMul((i32) m.m[2][1], v.vy) + fixedMul((i32) m.m[2][2], v.vz)) + ((i32) m.t[2] << 12)
+    );
+}
+```

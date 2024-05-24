@@ -153,7 +153,7 @@ typedef struct _LVECTOR {
 #define cross_i64(v0, v1) _cross(LVECTOR, v0, v1)
 
 #define _dot(type, v0, v1) (fixedMul((type)(v0).vx, (type)(v1).vx) \
-    + fixedMul((type)(v0).vy, (type)(v1).vy)\
+    + fixedMul((type)(v0).vy, (type)(v1).vy) \
     + fixedMul((type)(v0).vz, (type)(v1).vz))
 #define dot_i16(v0, v1) _dot(i32, v0, v1)
 #define dot_i32(v0, v1) _dot(i32, v0, v1)

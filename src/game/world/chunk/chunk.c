@@ -475,7 +475,7 @@ bool chunkIsOutsideFrustum(const Chunk* chunk, const Frustum* frustum, const Tra
         pos_after = geomMul(transforms->geometry_mtx, pos_before);
         // ApplyMatrixLV(&transforms->geometry_mtx, &pos_before, &pos_after);
         DEBUG_LOG("[CHUNK] Position [Before: (%d,%d,%d)] [After: (%d,%d,%d)]\n", inlineVec(pos_before), inlineVec(pos_after));
-         // NOTE: GPU is 16-bit so all ops are over SVECTORs when we have worldspace with is
+        // NOTE: GPU is 16-bit so all ops are over SVECTORs when we have worldspace with is
         //       typically 32-bit since the world is large. This makes the world limited to
         //       -2^15 <= CHUNK_SIZE * BLOCK_SIZE * AXIS_INDEX <= 2^15 - 1
         //       Which limits the AXIS index to a range of [-58,58] since 8 * 70 * 58 = 32,480
