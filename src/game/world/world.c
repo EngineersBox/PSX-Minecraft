@@ -415,7 +415,7 @@ void worldUpdate(World* world, Player* player) {
         prevx = player_chunk_pos.vx;
         prevy = player_chunk_pos.vy;
         prevz = player_chunk_pos.vz;
-        // DEBUG_LOG("Player chunk pos: %d,%d,%d\n", inlineVec(player_chunk_pos));
+        // DEBUG_LOG("Player chunk pos: %d,%d,%d\n", VEC_LAYOUT(player_chunk_pos));
         worldLoadChunks(world, &player_chunk_pos);
         // DEBUG_LOG(
         //     "[WORLD] Head { x: %d, z: %d } Centre { x: %d, z: %d}\n",
@@ -500,7 +500,7 @@ bool worldModifyVoxel(const World* world, const VECTOR* position, IBlock* block,
     }
     const ChunkBlockPosition chunk_block_position = worldToChunkBlockPosition(position, CHUNK_SIZE);
     DEBUG_LOG(
-        "[WORLD] Modify - Chunk: (%d,%d,%d) Block: (%d,%d,%d)\n",
+        "[WORLD] Modify - Chunk: " VEC_PATTERN " Block: " VEC_PATTERN "\n",
         chunk_block_position.chunk.vx,
         chunk_block_position.chunk.vy,
         chunk_block_position.chunk.vz,
@@ -533,7 +533,7 @@ RayCastResult worldRayCastIntersection_new1(const World* world,
     const i32 dx = direction.vx;
     const i32 dy = direction.vy;
     const i32 dz = direction.vz;
-    printf("Direction: (%d,%d,%d)\n", inlineVec(direction));
+    printf("Direction: " VEC_PATTERN "\n", VEC_LAYOUT(direction));
     if (dx == 0 && dy == 0 && dz == 0) {
         printf("Zero delta\n");
         return (RayCastResult) {
@@ -545,23 +545,23 @@ RayCastResult worldRayCastIntersection_new1(const World* world,
     i32 ix = (position.vx / BLOCK_SIZE) >> FIXED_POINT_SHIFT;
     i32 iy = (position.vy / BLOCK_SIZE) >> FIXED_POINT_SHIFT;
     i32 iz = (position.vz / BLOCK_SIZE) >> FIXED_POINT_SHIFT;
-    printf("Index position: (%d,%d,%d)\n", ix, iy, iz);
+    printf("Index position: " VEC_PATTERN "\n", ix, iy, iz);
     const i32 step_x = sign(dx);
     const i32 step_y = sign(dy);
     const i32 step_z = sign(dz);
-    printf("Step: (%d,%d,%d)\n", step_x, step_y, step_z);
+    printf("Step: " VEC_PATTERN "\n", step_x, step_y, step_z);
     const i32 tx_delta = absv((ONE << FIXED_POINT_SHIFT) / dx);
     const i32 ty_delta = absv((ONE << FIXED_POINT_SHIFT) / dy);
     const i32 tz_delta = absv((ONE << FIXED_POINT_SHIFT) / dz);
-    printf("Delta: (%d,%d,%d)\n", tx_delta, ty_delta, tz_delta);
+    printf("Delta: " VEC_PATTERN "\n", tx_delta, ty_delta, tz_delta);
     const i32 x_dist = step_x > 0 ? (((ix + 1) * BLOCK_SIZE) << FIXED_POINT_SHIFT) - position.vx : position.vx - ((ix * BLOCK_SIZE) << FIXED_POINT_SHIFT);
     const i32 y_dist = step_y > 0 ? (((iy + 1) * BLOCK_SIZE) << FIXED_POINT_SHIFT) - position.vy : position.vy - ((iy * BLOCK_SIZE) << FIXED_POINT_SHIFT);
     const i32 z_dist = step_z > 0 ? (((iz + 1) * BLOCK_SIZE) << FIXED_POINT_SHIFT) - position.vz : position.vz - ((iz * BLOCK_SIZE) << FIXED_POINT_SHIFT);
-    printf("Dist: (%d,%d,%d)\n", x_dist, y_dist, z_dist);
+    printf("Dist: " VEC_PATTERN "\n", x_dist, y_dist, z_dist);
     i32 tx_max = fixedMul(tx_delta, x_dist);
     i32 ty_max = fixedMul(ty_delta, y_dist);
     i32 tz_max = fixedMul(tz_delta, z_dist);
-    printf("Max: (%d,%d,%d)\n", tx_max, ty_max, tz_max);
+    printf("Max: " VEC_PATTERN "\n", tx_max, ty_max, tz_max);
     i32 stepped_index = -1;
     i32 t = 0;
     const i32 world_min_x = (world->centre.vx - WORLD_CHUNKS_RADIUS) * CHUNK_SIZE * BLOCK_SIZE;
@@ -591,7 +591,7 @@ RayCastResult worldRayCastIntersection_new1(const World* world,
             cpos->vy = (-iy * BLOCK_SIZE) + (BLOCK_SIZE >> 1);
             cpos->vz = (iz * BLOCK_SIZE) + (BLOCK_SIZE >> 1);
             const Block* block = VCAST(Block*, *worldGetBlock(world, &temp_pos));
-            printf("Queried block: (%d,%d,%d) = %d\n", inlineVec(temp_pos), block->id);
+            printf("Queried block: " VEC_PATTERN " = %d\n", VEC_LAYOUT(temp_pos), block->id);
             if (block->id != BLOCKID_AIR) {
                 hit_position.vx = position.vx + ((t * dx) >> FIXED_POINT_SHIFT);
                 hit_position.vy = position.vy + ((t * dy) >> FIXED_POINT_SHIFT);
@@ -639,7 +639,7 @@ RayCastResult worldRayCastIntersection_new1(const World* world,
         .vy = (hit_position.vy / BLOCK_SIZE) >> FIXED_POINT_SHIFT,
         .vz = (hit_position.vz / BLOCK_SIZE) >> FIXED_POINT_SHIFT
     };
-    printf("Position: (%d,%d,%d)\n", inlineVec(intersection));
+    printf("Position: " VEC_PATTERN "\n", VEC_LAYOUT(intersection));
     printf("Before getting block\n");
     return (RayCastResult) {
         .pos = vector_const_div(hit_position, BLOCK_SIZE),
@@ -656,7 +656,7 @@ RayCastResult worldRayCastIntersection_new(const World* world,
     const i32 dir_x = direction.vx;
     const i32 dir_y = direction.vy;
     const i32 dir_z = direction.vz;
-    printf("Direction: (%d,%d,%d)\n", inlineVec(direction));
+    printf("Direction: " VEC_PATTERN "\n", VEC_LAYOUT(direction));
     if (dir_x == 0 && dir_y == 0 && dir_z == 0) {
         printf("Zero delta\n");
         return (RayCastResult) {
@@ -737,7 +737,7 @@ RayCastResult worldRayCastIntersection(const World* world,
         -camera->position.vy,// / BLOCK_SIZE,
         camera->position.vz// / BLOCK_SIZE
     );
-    printf("Origin: (%d,%d,%d)\n", inlineVec(position));
+    printf("Origin: " VEC_PATTERN "\n", VEC_LAYOUT(position));
     printf("Before rotation to direction\n");
     const VECTOR direction = rotationToDirection(&camera->rotation);
     const i32 dx = direction.vx;
@@ -755,16 +755,16 @@ RayCastResult worldRayCastIntersection(const World* world,
     const i32 step_x = (sign(dx) << FIXED_POINT_SHIFT) * BLOCK_SIZE;
     const i32 step_y = (sign(dy) << FIXED_POINT_SHIFT) * BLOCK_SIZE;
     const i32 step_z = (sign(dz) << FIXED_POINT_SHIFT) * BLOCK_SIZE;
-    printf("step: (%d,%d,%d)\n", step_x, step_y, step_z);
+    printf("step: " VEC_PATTERN "\n", step_x, step_y, step_z);
     printf("Before intbound\n");
     i32 t_max_x = intbound(position.vx, dx);
     i32 t_max_y = intbound(position.vy, dy);
     i32 t_max_z = intbound(position.vz, dz);
-    printf("After intbound: (%d,%d,%d)\n", t_max_x, t_max_y, t_max_z);
+    printf("After intbound: " VEC_PATTERN "\n", t_max_x, t_max_y, t_max_z);
     const i32 t_delta_x = (step_x << FIXED_POINT_SHIFT) / dx;
     const i32 t_delta_y = (step_y << FIXED_POINT_SHIFT) / dy;
     const i32 t_delta_z = (step_z << FIXED_POINT_SHIFT) / dz;
-    printf("t_delta: (%d,%d,%d)\n", t_delta_x, t_delta_y, t_delta_z);
+    printf("t_delta: " VEC_PATTERN "\n", t_delta_x, t_delta_y, t_delta_z);
     VECTOR face = (VECTOR) { .vx = 0, .vy = 0, .vz = 0 };
     // Rescale from units of 1 cube-edge to units of 'direction' so we can
     // compare with 't'.
@@ -780,7 +780,7 @@ RayCastResult worldRayCastIntersection(const World* world,
     printf("X: %d, Y: %d, Z: %d\n", position.vx >> FIXED_POINT_SHIFT, position.vy >> FIXED_POINT_SHIFT, position.vz >> FIXED_POINT_SHIFT);
     radius *= BLOCK_SIZE;
     while (1) {
-        printf("[Raycast] Checking (%d,%d,%d)\n", position.vx >> FIXED_POINT_SHIFT, position.vy >> FIXED_POINT_SHIFT, position.vz >> FIXED_POINT_SHIFT);
+        printf("[Raycast] Checking " VEC_PATTERN "\n", position.vx >> FIXED_POINT_SHIFT, position.vy >> FIXED_POINT_SHIFT, position.vz >> FIXED_POINT_SHIFT);
         cvector_push_back((*markers), (SVECTOR) {});
         SVECTOR* cpos = &(*markers)[cvector_size((*markers)) - 1];
         cpos->vx = (((position.vx / BLOCK_SIZE) >> FIXED_POINT_SHIFT) * BLOCK_SIZE) + (BLOCK_SIZE >> 1);
@@ -796,7 +796,7 @@ RayCastResult worldRayCastIntersection(const World* world,
                 .vz = (position.vz / BLOCK_SIZE) >> FIXED_POINT_SHIFT,
             };
             const Block* block = VCAST(Block*, *worldGetBlock(world, &temp_pos));
-            printf("Querying block: (%d,%d,%d) = %s\n", inlineVec(temp_pos), blockIdStringify(block->id));
+            printf("Querying block: " VEC_PATTERN " = %s\n", VEC_LAYOUT(temp_pos), blockIdStringify(block->id));
             if (block->id != BLOCKID_AIR && block->type != BLOCKTYPE_EMPTY) {
                 break;
             }
@@ -870,7 +870,7 @@ RayCastResult worldRayCastIntersection(const World* world,
         .vy = (position.vy / BLOCK_SIZE) >> FIXED_POINT_SHIFT,
         .vz = (position.vz / BLOCK_SIZE) >> FIXED_POINT_SHIFT
     };
-    printf("Position: (%d,%d,%d)\n", inlineVec(intersection));
+    printf("Position: " VEC_PATTERN "\n", VEC_LAYOUT(intersection));
     printf("Before getting block\n");
     return (RayCastResult) {
         .pos = (VECTOR) {

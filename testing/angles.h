@@ -41,7 +41,7 @@ typedef struct {
 } VECTOR;
 
 VECTOR rotationToDirection(const VECTOR* rotation) {
-    printf("Rotation: (%d,%d,%d)\n", rotation->vx, rotation->vy, rotation->vz);
+    printf("Rotation: " VEC_PATTERN "\n", rotation->vx, rotation->vy, rotation->vz);
     const int32_t x = rotation->vx >> FIXED_POINT_SHIFT;
     const int32_t y = rotation->vy >> FIXED_POINT_SHIFT;
     const int32_t xz_len = icos(x);
@@ -67,6 +67,6 @@ int main() {
         .vy = 0 << FIXED_POINT_SHIFT,
     };
     VECTOR direction = rotationToDirection(&rotation);
-    printf("Direction: (%d,%d,%d)\n", direction.vx, direction.vy, direction.vz);
+    printf("Direction: " VEC_PATTERN "\n", direction.vx, direction.vy, direction.vz);
     return 0;
 }

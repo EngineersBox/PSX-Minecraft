@@ -43,7 +43,7 @@ Frustum frustumCreate() {
 //
 // bool frustumContainsAABB(const Frustum* frustum,
 //                          const AABB* aabb) {
-//     DEBUG_LOG("[FRUSTUM] Chunk AABB [Min: (%d,%d,%d)] [Max: (%d,%d,%d)]\n", inlineVec(aabb->min), inlineVec(aabb->max));
+//     DEBUG_LOG("[FRUSTUM] Chunk AABB [Min: " VEC_PATTERN "] [Max: " VEC_PATTERN "]\n", VEC_LAYOUT(aabb->min), VEC_LAYOUT(aabb->max));
 //     return testAABBPlane(aabb, &frustum->left)
 //         && testAABBPlane(aabb, &frustum->right)
 //         && testAABBPlane(aabb, &frustum->top)
@@ -80,7 +80,7 @@ FrustumQueryResult frustumTestAABBPlane(const AABB* aabb, const Plane* plane) {
 }
 
 FrustumQueryResult frustumContainsAABB(const Frustum* frustum, const AABB* aabb) {
-    // DEBUG_LOG("[FRUSTUM] Chunk AABB [Min: (%d,%d,%d)] [Max: (%d,%d,%d)]\n", inlineVec(aabb->min), inlineVec(aabb->max));
+    // DEBUG_LOG("[FRUSTUM] Chunk AABB [Min: " VEC_PATTERN "] [Max: " VEC_PATTERN "]\n", VEC_LAYOUT(aabb->min), VEC_LAYOUT(aabb->max));
     FrustumQueryResult result = FRUSTUM_INSIDE;
     #pragma GCC unroll 6
     for (u8 i = 0; i < 6; i++) {

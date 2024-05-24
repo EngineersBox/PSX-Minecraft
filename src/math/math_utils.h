@@ -159,9 +159,6 @@ typedef struct _LVECTOR {
 #define dot_i32(v0, v1) _dot(i32, v0, v1)
 #define dot_i64(v0, v1) _dot(i64, v0, v1)
 
-#define inlineVec(vec) (vec).vx, (vec).vy, (vec).vz
-#define inlineVecPtr(vec) (vec)->vx, (vec)->vy, (vec)->vz
-
 // Fixed point
 
 #define FIXED_MASK_FRACTIONAL 0xFFF
@@ -205,24 +202,6 @@ typedef struct _LVECTOR {
     __typeof__(v) _v = (v);\
     _v - positiveModulo(_v, (factor)); \
 })
-
-// #define cross(v0, v1) ({ \
-//     __typeof__(v0) _v0 = (v0); \
-//     __typeof__(v1) _v1 = (v1); \
-//     vec3_i32( \
-//         fixedMul(_v0.vy * _v1.vz) - fixedMul(_v0.vz, _v1.vy), \
-//         fixedMul(_v0.vz * _v1.vx) - fixedMul(_v0.vx, _v1.vz), \
-//         fixedMul(_v0.vx * _v1.vy) - fixedMul(_v0.vy, _v1.vx) \
-//     ); \
-// })
-//
-// #define dot(v0, v1) ({ \
-//     __typeof__(v0) _v0 = (v0); \
-//     __typeof__(v1) _v1 = (v1); \
-//     fixedMul(_v0.vx, _v1.vx) \
-//     + fixedMul(_v0.vy, _v1.vy) \
-//     + fixedMul(_v0.vz, _v1.vz); \
-// })
 
 // Vector init
 

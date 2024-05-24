@@ -5,7 +5,7 @@
 #include "../logging/logging.h"
 
 VECTOR rotationToDirection(const VECTOR* rotation) {
-    // printf("Rotation: (%d,%d,%d)\n", rotation->vx, rotation->vy, rotation->vz);
+    // printf("Rotation: " VEC_PATTERN "\n", rotation->vx, rotation->vy, rotation->vz);
     const int32_t x = rotation->vx >> FIXED_POINT_SHIFT;
     const int32_t y = rotation->vy >> FIXED_POINT_SHIFT;
     const int32_t xz_len = icos(x);
@@ -18,7 +18,7 @@ VECTOR rotationToDirection(const VECTOR* rotation) {
 
 VECTOR vec3_i32_normalize(const VECTOR v) {
     const fixedi32 length = SquareRoot12(dot_i32(v,v));
-    DEBUG_LOG("[MATH] Normalize. Source: (%d,%d,%d), Length: %d\n", inlineVec(v), length);
+    DEBUG_LOG("[MATH] Normalize. Source: " VEC_PATTERN ", Length: %d\n", VEC_LAYOUT(v), length);
     return vec3_i32(
         (v.vx << FIXED_POINT_SHIFT) / length,
         (v.vy << FIXED_POINT_SHIFT) / length,

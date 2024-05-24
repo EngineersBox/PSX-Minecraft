@@ -211,20 +211,20 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
                     const IBlock* current_block = worldGetChunkBlock(chunk->world, &chunk_block_position);
                     if (current_block == NULL) {
                         errorAbort(
-                            "[BINARY GREEDY MESHER] Null block returned while constructing mask [Face: %d] [Chunk: (%d,%d,%d)] [Block: (%d,%d,%d)]\n",
+                            "[BINARY GREEDY MESHER] Null block returned while constructing mask [Face: %d] [Chunk: " VEC_PATTERN "] [Block: " VEC_PATTERN "]\n",
                             face,
-                            inlineVec(chunk->position),
-                            inlineVec(chunk_block_position.block)
+                            VEC_LAYOUT(chunk->position),
+                            VEC_LAYOUT(chunk_block_position.block)
                         );
                         continue;
                     }
                     const Block* block = VCAST_PTR(Block*, current_block);
                     if (block->type == BLOCKTYPE_EMPTY) {
                         errorAbort(
-                            "[BINARY GREEDY MESHER] Empty block encountered while constructing mask [Face: %d] [Chunk: (%d,%d,%d)] [Block: (%d,%d,%d)]\n",
+                            "[BINARY GREEDY MESHER] Empty block encountered while constructing mask [Face: %d] [Chunk: " VEC_PATTERN "] [Block: " VEC_PATTERN "]\n",
                             face,
-                            inlineVec(chunk->position),
-                            inlineVec(chunk_block_position.block)
+                            VEC_LAYOUT(chunk->position),
+                            VEC_LAYOUT(chunk_block_position.block)
                         );
                         continue;
                     }

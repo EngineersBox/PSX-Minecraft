@@ -222,7 +222,7 @@ void collideWithWorld(PhysicsObject* physics_object, const World* world, i32 vel
     const i32 curr_vel_y = vel_y;
     const i32 curr_vel_z = vel_z;
     AABB aabb = (AABB) {0};
-    DEBUG_LOG("[PHYSICS] Vel: (%d,%d,%d)\n", vel_x, vel_y, vel_z);
+    DEBUG_LOG("[PHYSICS] Vel: " VEC_PATTERN "\n", vel_x, vel_y, vel_z);
     aabbAddCoord(&physics_object->aabb, &aabb, vel_x, vel_y, vel_z);
     const cvector(AABB) collided_aabbs = getCollidingAABBs(world, &aabb);
     AABB const* elem = NULL;
@@ -241,7 +241,7 @@ void collideWithWorld(PhysicsObject* physics_object, const World* world, i32 vel
         vel_z = aabbZOffset(elem, &physics_object->aabb, vel_z);
     }
     aabbOffset(&physics_object->aabb, 0, 0, vel_z);
-    DEBUG_LOG("[PHYSICS] Vel modified: (%d,%d,%d)\n", vel_x, vel_y, vel_z);
+    DEBUG_LOG("[PHYSICS] Vel modified: " VEC_PATTERN "\n", vel_x, vel_y, vel_z);
     // Make the new position at the bottom centre of the AABB
     physics_object->position.vx = (physics_object->aabb.min.vx + physics_object->aabb.max.vx) >> 1;
     physics_object->position.vy = physics_object->aabb.min.vy + physics_object->config->y_offset - physics_object->y_size;
@@ -260,7 +260,7 @@ void collideWithWorld(PhysicsObject* physics_object, const World* world, i32 vel
     if (curr_vel_z != vel_z) {
         physics_object->velocity.vz = 0;
     }
-    DEBUG_LOG("[PHYSICS] Velocity after: (%d,%d,%d)\n",
+    DEBUG_LOG("[PHYSICS] Velocity after: " VEC_PATTERN "\n",
         physics_object->velocity.vx,
         physics_object->velocity.vy,
         physics_object->velocity.vz
@@ -310,10 +310,10 @@ void IPhysicsObject_moveFlying(VSelf, i32 move_strafe, i32 move_forward, const i
     const i32 sin_yaw = isin(self->rotation.yaw >> FIXED_POINT_SHIFT);
     const i32 cos_yaw = icos(self->rotation.yaw >> FIXED_POINT_SHIFT);
     DEBUG_LOG("[PHYSICS] sin: %d, cos: %d\n", sin_yaw, cos_yaw);
-    DEBUG_LOG("[PHYSICS] MoveFlying vel before: (%d,%d,%d)\n", inlineVec(self->velocity));
+    DEBUG_LOG("[PHYSICS] MoveFlying vel before: " VEC_PATTERN "\n", VEC_LAYOUT(self->velocity));
     self->velocity.vx += fixedMul(move_strafe, cos_yaw) - fixedMul(move_forward, sin_yaw);
     self->velocity.vz += fixedMul(move_forward, cos_yaw) + fixedMul(move_strafe, sin_yaw);
-    DEBUG_LOG("[PHYSICS] MoveFlying vel after: (%d,%d,%d)\n", inlineVec(self->velocity));
+    DEBUG_LOG("[PHYSICS] MoveFlying vel after: " VEC_PATTERN "\n", VEC_LAYOUT(self->velocity));
 }
 
 void iPhysicsObjectFall(VSelf, i32 distance) __attribute__((alias("IPhysicsObject_fall")));

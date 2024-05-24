@@ -200,10 +200,10 @@ void startHandler(Camera* camera) {
     // result.pos.vz = (result.pos.vz / BLOCK_SIZE) >> FIXED_POINT_SHIFT;
     // result.pos.vy = (result.pos.vy / BLOCK_SIZE) >> FIXED_POINT_SHIFT;
     // printf(
-    //     "Ray cast result: [Pos: (%d,%d,%d)] [Block: %d] [Face: (%d,%d,%d)]\n",
-    //     inlineVec(result.pos),
+    //     "Ray cast result: [Pos: " VEC_PATTERN "] [Block: %d] [Face: " VEC_PATTERN "]\n",
+    //     VEC_LAYOUT(result.pos),
     //     result.block == NULL ? -1 : VCAST(Block*, *result.block)->id,
-    //     inlineVec(result.face)
+    //     VEC_LAYOUT(result.face)
     // );
     // camera_pos = (SVECTOR) {
     //     .vx = camera->position.vx >> FIXED_POINT_SHIFT,
@@ -221,28 +221,28 @@ void startHandler(Camera* camera) {
     // //       or the trigger/key/mouse is unpressed?
     // IItem* item = NULL;
     // worldModifyVoxel(world, &result.pos, airBlockCreate(), &item);
-    // printf("Origin: (%d,%d,%d)\n", inlineVec(origin_pos));
+    // printf("Origin: " VEC_PATTERN "\n", VEC_LAYOUT(origin_pos));
     // printf(
-    //     "Marker: (%d,%d,%d) Camera: (%d,%d,%d)\n",
-    //     inlineVec(marker_pos),
-    //     inlineVec(camera->position)
+    //     "Marker: " VEC_PATTERN " Camera: " VEC_PATTERN "\n",
+    //     VEC_LAYOUT(marker_pos),
+    //     VEC_LAYOUT(camera->position)
     // );
     // const VECTOR direction = rotationToDirection(&camera->rotation);
-    // printf("Direction: (%d,%d,%d)\n", inlineVec(direction));
+    // printf("Direction: " VEC_PATTERN "\n", VEC_LAYOUT(direction));
     // direction_pos = (SVECTOR) {
     //     .vx = (camera->position.vx + (direction.vx * BLOCK_SIZE)) >> FIXED_POINT_SHIFT,
     //     .vy = (camera->position.vy - (direction.vy * BLOCK_SIZE)) >> FIXED_POINT_SHIFT,
     //     .vz = (camera->position.vz + (direction.vz * BLOCK_SIZE)) >> FIXED_POINT_SHIFT
     // };
     // printf(
-    //     "CPOS: (%d,%d,%d) DPOS: (%d,%d,%d)\n",
-    //     inlineVec(origin_pos),
-    //     inlineVec(direction_pos)
+    //     "CPOS: " VEC_PATTERN " DPOS: " VEC_PATTERN "\n",
+    //     VEC_LAYOUT(origin_pos),
+    //     VEC_LAYOUT(direction_pos)
     // );
     // render_marker = true;
     // SVECTOR* cmarker;
     // cvector_for_each_in(cmarker, markers) {
-    //     printf("[TRACE] MARKER: (%d,%d,%d)\n", inlineVecPtr(cmarker));
+    //     printf("[TRACE] MARKER: " VEC_PATTERN "\n", VEC_PTR_LAYOUT(cmarker));
     // }
 }
 
@@ -339,7 +339,7 @@ void drawMarker(Minecraft* minecraft) {
 //     POLY_F4* pol4;
 //     int p;
 //     MATRIX omtx, olmtx;
-//     // printf("CURRENT MARKER: (%d,%d,%d)\n", inlineVecPtr(current_marker));
+//     // printf("CURRENT MARKER: " VEC_PATTERN "\n", VEC_PTR_LAYOUT(current_marker));
 //     // Set object rotation and position
 //     RotMatrix(&marker_rot, &omtx);
 //     TransMatrix(&omtx, &zero);
@@ -458,7 +458,7 @@ void drawDebugText(const Minecraft* minecraft, const Stats* stats) {
     FntPrint(
         0,
         "DX=%d DY=%d DZ=%d\n",
-        inlineVec(direction)
+        VEC_LAYOUT(direction)
     );
 }
 

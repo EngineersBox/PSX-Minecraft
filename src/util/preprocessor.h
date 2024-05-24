@@ -60,6 +60,18 @@
 #define INT16_BIN_LAYOUT(i) INT8_BIN_LAYOUT((i) >> 8), INT8_BIN_LAYOUT(i)
 #define INT32_BIN_LAYOUT(i) INT16_BIN_LAYOUT((i) >> 16), INT16_BIN_LAYOUT(i)
 
+#define VEC_PATTERN "(%d,%d,%d)"
+#define VEC_LAYOUT(v) (v).vx, (v).vy, (v).vz
+#define VEC_PTR_LAYOUT(v) (v)->vx, (v)->vy, (v)->vz
+
+#define MAT_PATTERN "%d, %d, %d | %d,\n%d, %d, %d | %d,\n%d, %d, %d | %d\n"
+#define MAT_LAYOUT(_m) (_m).m[0][0], (_m).m[0][1], (_m).m[0][2], (_m).t[0], \
+    (_m).m[1][0], (_m).m[1][1], (_m).m[1][2], (_m).t[1], \
+    (_m).m[2][0], (_m).m[2][1], (_m).m[2][2], (_m).t[2]
+#define MAT_PTR_LAYOUT(_m) (_m)->m[0][0], (_m)->m[0][1], (_m)->m[0][2], (_m)->t[0], \
+    (_m)->m[1][0], (_m)->m[1][1], (_m)->m[1][2], (_m)->t[1], \
+    (_m)->m[2][0], (_m)->m[2][1], (_m)->m[2][2], (_m)->t[2]
+
 // ==== ENUM CONSTRUCTORS ====
 // #define ENUM_ENTRY(name) ML99_choice(v(ENUM_ENTRY), v(name))
 // #define ENUM_ENTRY_ORD(name, id) ML99_choice(v(ENUM_ENTRY_ORD), v(name), v(id))
