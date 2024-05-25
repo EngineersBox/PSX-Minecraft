@@ -25,7 +25,7 @@ typedef struct {
 
 Camera cameraCreate(Transforms* transforms);
 
-void cameraUpdate(Camera* camera, const Input* input, Transforms* transforms, const VECTOR* look_pos);
+void cameraUpdate(Camera* camera, Transforms* transforms, const VECTOR* look_pos);
 void lookAt(const VECTOR* eye, const VECTOR* at, const SVECTOR* up, MATRIX* mtx);
 
 void cameraRegisterInputHandler(VSelf, Input* input);

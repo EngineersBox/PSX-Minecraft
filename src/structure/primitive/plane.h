@@ -10,6 +10,7 @@
 
 typedef struct {
     VECTOR normal;
+    VECTOR point;
     i64 distance;
 } Plane;
 

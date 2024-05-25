@@ -72,6 +72,9 @@
     (_m)->m[1][0], (_m)->m[1][1], (_m)->m[1][2], (_m)->t[1], \
     (_m)->m[2][0], (_m)->m[2][1], (_m)->m[2][2], (_m)->t[2]
 
+#define INT64_PATTERN "%d_%d"
+#define INT64_LAYOUT(v) (i32) ((v) >> 32), (i32) ((v) & (UINT32_MAX - 1))
+
 // ==== ENUM CONSTRUCTORS ====
 // #define ENUM_ENTRY(name) ML99_choice(v(ENUM_ENTRY), v(name))
 // #define ENUM_ENTRY_ORD(name, id) ML99_choice(v(ENUM_ENTRY_ORD), v(name), v(id))

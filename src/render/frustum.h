@@ -24,6 +24,9 @@ typedef struct {
     Plane planes[6];
 } Frustum;
 
+// Ordinal values are important as this allows us
+// to treat the query result as a regular C bool,
+// where 0 is false and anything else is true
 #define FRUSTUM_QUERY_RESULT_LIST(f) \
     f(ENUM_ENTRY_ORD(FRUSTUM_OUTSIDE, 0)), \
     f(ENUM_ENTRY_ORD(FRUSTUM_INSIDE, 1)), \

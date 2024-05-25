@@ -433,14 +433,14 @@ static void chunkRenderDroppedItems(Chunk* chunk, RenderContext* ctx, Transforms
         VCALL_SUPER(**item, Renderable, renderWorld, ctx, transforms);
     }
 }
-
-VECTOR geomMul(const MATRIX m, const VECTOR v) {
-    return vec3_i32(
-        (fixedMul((i32) m.m[0][0], v.vx) + fixedMul((i32) m.m[0][1], v.vy) + fixedMul((i32) m.m[0][2], v.vz)) + ((i32) m.t[0] << 12),
-        (fixedMul((i32) m.m[1][0], v.vx) + fixedMul((i32) m.m[1][1], v.vy) + fixedMul((i32) m.m[1][2], v.vz)) + ((i32) m.t[1] << 12),
-        (fixedMul((i32) m.m[2][0], v.vx) + fixedMul((i32) m.m[2][1], v.vy) + fixedMul((i32) m.m[2][2], v.vz)) + ((i32) m.t[2] << 12)
-    );
-}
+//
+// VECTOR geomMul(const MATRIX m, const VECTOR v) {
+//     return vec3_i32(
+//         (fixedMul((i32) m.m[0][0], v.vx) + fixedMul((i32) m.m[0][1], v.vy) + fixedMul((i32) m.m[0][2], v.vz)) + ((i32) m.t[0] << 12),
+//         (fixedMul((i32) m.m[1][0], v.vx) + fixedMul((i32) m.m[1][1], v.vy) + fixedMul((i32) m.m[1][2], v.vz)) + ((i32) m.t[1] << 12),
+//         (fixedMul((i32) m.m[2][0], v.vx) + fixedMul((i32) m.m[2][1], v.vy) + fixedMul((i32) m.m[2][2], v.vz)) + ((i32) m.t[2] << 12)
+//     );
+// }
 
 bool chunkIsOutsideFrustum(const Chunk* chunk, const Frustum* frustum, const Transforms* transforms) {
     AABB aabb = (AABB) {
@@ -455,39 +455,46 @@ bool chunkIsOutsideFrustum(const Chunk* chunk, const Frustum* frustum, const Tra
             ((chunk->position.vx + 1) * CHUNK_BLOCK_SIZE) << FIXED_POINT_SHIFT
         )
     };
-    DEBUG_LOG(
-        "[CHUNK] Pre-transform AABB: " VEC_PATTERN " -> " VEC_PATTERN "\n",
-        VEC_LAYOUT(aabb.min),
-        VEC_LAYOUT(aabb.max)
-    );
-    if (chunk->position.vx == 0 && chunk->position.vz == 1) {
-        const VECTOR pos_before = vec3_i32(
-            (chunk->position.vx * CHUNK_BLOCK_SIZE) << FIXED_POINT_SHIFT,
-            (-chunk->position.vy * CHUNK_BLOCK_SIZE) << FIXED_POINT_SHIFT,
-            (chunk->position.vz * CHUNK_BLOCK_SIZE) << FIXED_POINT_SHIFT
-        );
-        VECTOR pos_after = vec3_i32_all(0);
-        printf(
-            "GEOMETRY MATRIX:\n" MAT_PATTERN,
-            MAT_LAYOUT(transforms->geometry_mtx)
-        );
-        pos_after = geomMul(transforms->geometry_mtx, pos_before);
-        DEBUG_LOG(
-            "[CHUNK] Position [Before: " VEC_PATTERN "] [After: " VEC_PATTERN "]\n",
-            VEC_LAYOUT(pos_before),
-            VEC_LAYOUT(pos_after)
-        );
-    }
-    aabb.min = geomMul(transforms->geometry_mtx, aabb.min);
-    aabb.max = geomMul(transforms->geometry_mtx, aabb.max);
+    // DEBUG_LOG(
+    //     "[CHUNK " VEC_PATTERN "] Pre-transform AABB: " VEC_PATTERN " -> " VEC_PATTERN "\n",
+    //     VEC_LAYOUT(chunk->position),
+    //     VEC_LAYOUT(aabb.min),
+    //     VEC_LAYOUT(aabb.max)
+    // );
+    // if (chunk->position.vx == 0 && chunk->position.vz == 1) {
+    //     const VECTOR pos_before = vec3_i32(
+    //         (chunk->position.vx * CHUNK_BLOCK_SIZE) << FIXED_POINT_SHIFT,
+    //         (-chunk->position.vy * CHUNK_BLOCK_SIZE) << FIXED_POINT_SHIFT,
+    //         (chunk->position.vz * CHUNK_BLOCK_SIZE) << FIXED_POINT_SHIFT
+    //     );
+    //     VECTOR pos_after = vec3_i32_all(0);
+    //     DEBUG_LOG(
+    //         "GEOMETRY MATRIX:\n" MAT_PATTERN,
+    //         MAT_LAYOUT(transforms->geometry_mtx)
+    //     );
+    //     pos_after = applyGeometryMatrix(transforms->geometry_mtx, pos_before);
+    //     DEBUG_LOG(
+    //         "[CHUNK] Position [Before: " VEC_PATTERN "] [After: " VEC_PATTERN "]\n",
+    //         VEC_LAYOUT(pos_before),
+    //         VEC_LAYOUT(pos_after)
+    //     );
+    // }
+    // aabb.min = applyGeometryMatrix(transforms->geometry_mtx, aabb.min);
+    // aabb.max = applyGeometryMatrix(transforms->geometry_mtx, aabb.max);
+    // DEBUG_LOG(
+    //     "[CHUNK " VEC_PATTERN "] Post-transform AABB: " VEC_PATTERN " -> " VEC_PATTERN "\n",
+    //     VEC_LAYOUT(chunk->position),
+    //     VEC_LAYOUT(aabb.min),
+    //     VEC_LAYOUT(aabb.max)
+    // );
     const FrustumQueryResult result = frustumContainsAABB(frustum, &aabb);
     return result == FRUSTUM_OUTSIDE;
 }
 
 void chunkRender(Chunk* chunk, RenderContext* ctx, Transforms* transforms) {
-    // if (chunkIsOutsideFrustum(chunk, &ctx->camera->frustum, transforms)) {
-    //     return;
-    // }
+    if (chunkIsOutsideFrustum(chunk, &ctx->camera->frustum, transforms)) {
+        return;
+    }
     // Object and light matrix for object
     MATRIX omtx, olmtx;
     // Set object rotation and position

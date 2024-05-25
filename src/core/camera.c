@@ -106,27 +106,38 @@ void handleDualAnalogShock(Camera* camera, const Input* input, const Transforms*
     }
 }
 
-void cameraUpdate(Camera* camera, const Input* input, Transforms* transforms, const VECTOR* look_pos) {
+void cameraUpdate(Camera* camera, Transforms* transforms, const VECTOR* look_pos) {
     // Parse controller input
     camera->mode = 0;
     // Divide out fractions of camera rotation
-    transforms->translation_rotation.vx = camera->rotation.vx >> FIXED_POINT_SHIFT;
-    transforms->translation_rotation.vy = camera->rotation.vy >> FIXED_POINT_SHIFT;
-    transforms->translation_rotation.vz = camera->rotation.vz >> FIXED_POINT_SHIFT;
-    if (input->pad->stat == 0) {
-        handleDigitalPadAndDualAnalogShock(camera, input, transforms);
-        handleDualAnalogShock(camera, input, transforms);
-    }
+    transforms->translation_rotation = vec3_i16(
+        camera->rotation.vx >> FIXED_POINT_SHIFT,
+        camera->rotation.vy >> FIXED_POINT_SHIFT,
+        camera->rotation.vz >> FIXED_POINT_SHIFT
+    );
+    transforms->negative_translation_rotation = vec3_i16(
+        -camera->rotation.vx >> FIXED_POINT_SHIFT,
+        -camera->rotation.vy >> FIXED_POINT_SHIFT,
+        -camera->rotation.vz >> FIXED_POINT_SHIFT
+    );
     // First-person camera mode
     if (camera->mode == 0) {
         // Set rotation to the matrix
         RotMatrix(&transforms->translation_rotation, &transforms->geometry_mtx);
+        RotMatrix(&transforms->negative_translation_rotation, &transforms->frustum_mtx);
         // Divide out the fractions of camera coordinates and invert
         // the sign, so camera coordinates will line up to world
         // (or geometry) coordinates
-        transforms->translation_position.vx = -camera->position.vx >> FIXED_POINT_SHIFT;
-        transforms->translation_position.vy = -camera->position.vy >> FIXED_POINT_SHIFT;
-        transforms->translation_position.vz = -camera->position.vz >> FIXED_POINT_SHIFT;
+        transforms->translation_position = vec3_i32(
+            -camera->position.vx >> FIXED_POINT_SHIFT,
+            -camera->position.vy >> FIXED_POINT_SHIFT,
+            -camera->position.vz >> FIXED_POINT_SHIFT
+        );
+        transforms->negative_translation_position = vec3_i32(
+            camera->position.vx >> FIXED_POINT_SHIFT,
+            camera->position.vy >> FIXED_POINT_SHIFT,
+            camera->position.vz >> FIXED_POINT_SHIFT
+        );
         // Apply rotation of matrix to translation value to achieve a
         // first person perspective
         ApplyMatrixLV(
@@ -134,11 +145,16 @@ void cameraUpdate(Camera* camera, const Input* input, Transforms* transforms, co
             &transforms->translation_position,
             &transforms->translation_position
         );
-        // Set translation matrix
-        TransMatrix(
-            &transforms->geometry_mtx,
-            &transforms->translation_position
+        ApplyMatrixLV(
+            &transforms->frustum_mtx,
+            &transforms->negative_translation_position,
+            &transforms->negative_translation_position
         );
+        // Set translation matrix
+        TransMatrix(&transforms->geometry_mtx,&transforms->translation_position);
+        TransMatrix(&transforms->frustum_mtx,&transforms->negative_translation_position);
+        printf("[CAMERA] Frustum Matrix: \n" MAT_PATTERN, MAT_LAYOUT(transforms->frustum_mtx));
+        printf("[CAMERA] Geometry Matrix: \n" MAT_PATTERN, MAT_LAYOUT(transforms->geometry_mtx));
     } else {
         // DEBUG: Tracking mode
         // Vector that defines the 'up' direction of the camera

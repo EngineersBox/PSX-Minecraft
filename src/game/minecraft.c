@@ -65,8 +65,11 @@ void Minecraft_init(VSelf, void* ctx) {
         },
         .transforms = (Transforms) {
             .translation_rotation = vec3_i16_all(0),
+            .negative_translation_rotation = vec3_i16_all(0),
             .translation_position = vec3_i32_all(0),
+            .negative_translation_position = vec3_i32_all(0),
             .geometry_mtx = {},
+            .frustum_mtx = {},
             .lighting_mtx = lighting_direction
         },
         .input = (Input) {},
@@ -190,6 +193,7 @@ void Minecraft_update(VSelf, const Stats* stats) {
     camera->position.vx = player->physics_object.position.vx;
     camera->position.vy = -player->physics_object.position.vy - CAMERA_OFFSET;
     camera->position.vz = player->physics_object.position.vz;
+    cameraUpdate(camera, &self->internals.transforms, NULL);
 }
 
 void startHandler(Camera* camera) {
@@ -466,11 +470,13 @@ void minecraftRender(VSelf, const Stats* stats) ALIAS("Minecraft_render");
 void Minecraft_render(VSelf, const Stats* stats) {
     VSELF(Minecraft);
     // Draw the world
+    frustumTransform(&self->internals.ctx.camera->frustum, &self->internals.transforms);
     worldRender(
         self->world,
         &self->internals.ctx,
         &self->internals.transforms
     );
+    frustumRestore(&self->internals.ctx.camera->frustum);
     // Clear window constraints
     renderClearConstraints(&self->internals.ctx);
     // Draw marker
