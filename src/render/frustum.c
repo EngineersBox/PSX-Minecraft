@@ -22,6 +22,7 @@ Frustum frustumCreate() {
 
 Plane current_planes[6] = {0};
 
+// TODO: Only transform/restore when the camera has moved, otherwise keep reusing the current planes
 void frustumTransform(Frustum* frustum, Transforms* transforms) {
     #pragma GCC unroll 6
     for (u8 i = 0; i < 6; i++) {
