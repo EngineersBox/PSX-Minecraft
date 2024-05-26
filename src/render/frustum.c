@@ -34,10 +34,10 @@ void frustumTransform(Frustum* frustum, Transforms* transforms) {
             INT64_LAYOUT(plane->distance)
         );
         current_planes[i] = *plane;
-        plane->normal = applyGeometryMatrix(
+        plane->normal = vec3_i32_normalize(applyGeometryMatrix(
             transforms->frustum_mtx,
             plane->normal
-        );
+        ));
         plane->point = applyGeometryMatrix(
             transforms->frustum_mtx,
             plane->point
