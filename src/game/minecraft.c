@@ -193,7 +193,6 @@ void Minecraft_update(VSelf, const Stats* stats) {
     camera->position.vx = player->physics_object.position.vx;
     camera->position.vy = -player->physics_object.position.vy - CAMERA_OFFSET;
     camera->position.vz = player->physics_object.position.vz;
-    cameraUpdate(camera, &self->internals.transforms, NULL);
 }
 
 void startHandler(Camera* camera) {

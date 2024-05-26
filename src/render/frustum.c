@@ -20,7 +20,7 @@ Frustum frustumCreate() {
     };
 }
 
-Plane original_planes[6] = {0};
+Plane current_planes[6] = {0};
 
 void frustumTransform(Frustum* frustum, Transforms* transforms) {
     #pragma GCC unroll 6
@@ -33,7 +33,7 @@ void frustumTransform(Frustum* frustum, Transforms* transforms) {
             VEC_LAYOUT(plane->point),
             INT64_LAYOUT(plane->distance)
         );
-        original_planes[i] = *plane;
+        current_planes[i] = *plane;
         plane->normal = applyGeometryMatrix(
             transforms->frustum_mtx,
             plane->normal
@@ -56,41 +56,9 @@ void frustumTransform(Frustum* frustum, Transforms* transforms) {
 void frustumRestore(Frustum* frustum) {
     #pragma GCC unroll 6
     for (u8 i = 0; i < 6; i++) {
-        frustum->planes[i] = original_planes[i];
+        frustum->planes[i] = current_planes[i];
     }
 }
-
-// bool testAABBPlane(const AABB* aabb,
-//                    const Plane* plane) {
-//     // Convert AABB to centre-extents representation
-//     const VECTOR c = vec3_i32(
-//         (aabb->max.vx + aabb->min.vx) >> 1,
-//         (aabb->max.vy + aabb->min.vy) >> 1,
-//         (aabb->max.vz + aabb->min.vz) >> 1
-//     );
-//     // Compute positive extents
-//     const VECTOR e = vector_sub(aabb->max, c);
-//     // Compute the projection interval radius of b onto
-//     // L(t) = aabb->centre + t * plane->normal
-//     const fixedi32 r = fixedMul(e.vx, absv(plane->normal.vx))
-//         + fixedMul(e.vy, absv(plane->normal.vy))
-//         + fixedMul(e.vz, absv(plane->normal.vz));
-//     // Compute distance of box centre from plane
-//     const fixedi32 s = dot(&plane->normal, &c) - plane->distance;
-//     // Intersection ocurs when distance s falls within [-r,+r] interval
-//     return absv(s) <= r;
-// }
-//
-// bool frustumContainsAABB(const Frustum* frustum,
-//                          const AABB* aabb) {
-//     DEBUG_LOG("[FRUSTUM] Chunk AABB [Min: " VEC_PATTERN "] [Max: " VEC_PATTERN "]\n", VEC_LAYOUT(aabb->min), VEC_LAYOUT(aabb->max));
-//     return testAABBPlane(aabb, &frustum->left)
-//         && testAABBPlane(aabb, &frustum->right)
-//         && testAABBPlane(aabb, &frustum->top)
-//         && testAABBPlane(aabb, &frustum->bottom)
-//         && testAABBPlane(aabb, &frustum->near)
-//         && testAABBPlane(aabb, &frustum->far);
-// }
 
 /*
  * NOTE: For dot products with plane normals, positive implies behind the
