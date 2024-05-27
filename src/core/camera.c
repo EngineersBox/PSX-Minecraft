@@ -211,15 +211,15 @@ bool cameraInputHandler(const Input* input, void* ctx) {
         camera->rotation.vz >> FIXED_POINT_SHIFT
     );
     transforms->negative_translation_rotation = vec3_i16(
-        -camera->rotation.vx >> FIXED_POINT_SHIFT,
-        -camera->rotation.vy >> FIXED_POINT_SHIFT,
-        -camera->rotation.vz >> FIXED_POINT_SHIFT
+        positiveModulo((camera->rotation.vx >> FIXED_POINT_SHIFT) - FIXED_1_2, ONE),
+        positiveModulo((camera->rotation.vy >> FIXED_POINT_SHIFT) - FIXED_1_2, ONE),
+        positiveModulo((camera->rotation.vz >> FIXED_POINT_SHIFT) - FIXED_1_2, ONE)
     );
     // First-person camera mode
     if (camera->mode == 0) {
         // Set rotation to the matrix
-        RotMatrix(&transforms->translation_rotation, &transforms->geometry_mtx);
-        RotMatrix(&transforms->negative_translation_rotation, &transforms->frustum_mtx);
+        RotMatrix(&transforms->translation_rotation, &transforms->frustum_mtx);
+        RotMatrix(&transforms->negative_translation_rotation, &transforms->geometry_mtx);
         // Divide out the fractions of camera coordinates and invert
         // the sign, so camera coordinates will line up to world
         // (or geometry) coordinates
@@ -236,18 +236,18 @@ bool cameraInputHandler(const Input* input, void* ctx) {
         // Apply rotation of matrix to translation value to achieve a
         // first person perspective
         ApplyMatrixLV(
-            &transforms->geometry_mtx,
+            &transforms->frustum_mtx,
             &transforms->translation_position,
             &transforms->translation_position
         );
         ApplyMatrixLV(
-            &transforms->frustum_mtx,
+            &transforms->geometry_mtx,
             &transforms->negative_translation_position,
             &transforms->negative_translation_position
         );
         // Set translation matrix
-        TransMatrix(&transforms->geometry_mtx,&transforms->translation_position);
-        TransMatrix(&transforms->frustum_mtx,&transforms->negative_translation_position);
+        TransMatrix(&transforms->frustum_mtx,&transforms->translation_position);
+        TransMatrix(&transforms->geometry_mtx,&transforms->negative_translation_position);
         printf("[CAMERA] Frustum Matrix: \n" MAT_PATTERN, MAT_LAYOUT(transforms->frustum_mtx));
         printf("[CAMERA] Geometry Matrix: \n" MAT_PATTERN, MAT_LAYOUT(transforms->geometry_mtx));
     }
