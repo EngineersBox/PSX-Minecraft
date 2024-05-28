@@ -218,8 +218,8 @@ bool cameraInputHandler(const Input* input, void* ctx) {
     // First-person camera mode
     if (camera->mode == 0) {
         // Set rotation to the matrix
-        RotMatrix(&transforms->translation_rotation, &transforms->frustum_mtx);
-        InvRotMatrix(&transforms->negative_translation_rotation, &transforms->geometry_mtx);
+        RotMatrix(&transforms->translation_rotation, &transforms->geometry_mtx);
+        InvRotMatrix(&transforms->negative_translation_rotation, &transforms->frustum_mtx);
         // Divide out the fractions of camera coordinates and invert
         // the sign, so camera coordinates will line up to world
         // (or geometry) coordinates
@@ -236,20 +236,20 @@ bool cameraInputHandler(const Input* input, void* ctx) {
         // Apply rotation of matrix to translation value to achieve a
         // first person perspective
         ApplyMatrixLV(
-            &transforms->frustum_mtx,
+            &transforms->geometry_mtx,
             &transforms->translation_position,
             &transforms->translation_position
         );
         ApplyMatrixLV(
-            &transforms->geometry_mtx,
+            &transforms->frustum_mtx,
             &transforms->negative_translation_position,
             &transforms->negative_translation_position
         );
         // Set translation matrix
-        TransMatrix(&transforms->frustum_mtx,&transforms->translation_position);
-        TransMatrix(&transforms->geometry_mtx,&transforms->negative_translation_position);
-        printf("[CAMERA] Frustum Matrix: \n" MAT_PATTERN, MAT_LAYOUT(transforms->frustum_mtx));
+        TransMatrix(&transforms->geometry_mtx,&transforms->translation_position);
+        TransMatrix(&transforms->frustum_mtx,&transforms->negative_translation_position);
         printf("[CAMERA] Geometry Matrix: \n" MAT_PATTERN, MAT_LAYOUT(transforms->geometry_mtx));
+        printf("[CAMERA] Frustum Matrix: \n" MAT_PATTERN, MAT_LAYOUT(transforms->frustum_mtx));
     }
     // Camera is the base level input handler, we should always give up
     // control to a layer added on top of base movement

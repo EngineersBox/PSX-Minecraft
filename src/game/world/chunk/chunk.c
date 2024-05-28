@@ -110,9 +110,9 @@ bool chunkIsOutsideFrustum(const Chunk* chunk, const Frustum* frustum, const Tra
 }
 
 void chunkRender(Chunk* chunk, RenderContext* ctx, Transforms* transforms) {
-    // if (chunkIsOutsideFrustum(chunk, &ctx->camera->frustum, transforms)) {
-    //     return;
-    // }
+    if (chunkIsOutsideFrustum(chunk, &ctx->camera->frustum, transforms)) {
+        return;
+    }
     // Object and light matrix for object
     MATRIX omtx, olmtx;
     // Set object rotation and position
