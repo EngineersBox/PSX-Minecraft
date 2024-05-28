@@ -171,6 +171,9 @@ typedef struct _LVECTOR {
     ); \
 })
 
+// Inverse of a rotation matrix is equivalent to transpose
+MATRIX* InvRotMatrix(const SVECTOR* r, MATRIX* m);
+
 // Fixed point
 
 #define FIXED_MASK_FRACTIONAL 0xFFF

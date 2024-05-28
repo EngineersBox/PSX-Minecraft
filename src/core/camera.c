@@ -211,15 +211,15 @@ bool cameraInputHandler(const Input* input, void* ctx) {
         camera->rotation.vz >> FIXED_POINT_SHIFT
     );
     transforms->negative_translation_rotation = vec3_i16(
-        positiveModulo((camera->rotation.vx >> FIXED_POINT_SHIFT) - FIXED_1_2, ONE),
-        positiveModulo((camera->rotation.vy >> FIXED_POINT_SHIFT) - FIXED_1_2, ONE),
-        positiveModulo((camera->rotation.vz >> FIXED_POINT_SHIFT) - FIXED_1_2, ONE)
+        camera->rotation.vx >> FIXED_POINT_SHIFT,
+        camera->rotation.vy >> FIXED_POINT_SHIFT,
+        camera->rotation.vz >> FIXED_POINT_SHIFT
     );
     // First-person camera mode
     if (camera->mode == 0) {
         // Set rotation to the matrix
         RotMatrix(&transforms->translation_rotation, &transforms->frustum_mtx);
-        RotMatrix(&transforms->negative_translation_rotation, &transforms->geometry_mtx);
+        InvRotMatrix(&transforms->negative_translation_rotation, &transforms->geometry_mtx);
         // Divide out the fractions of camera coordinates and invert
         // the sign, so camera coordinates will line up to world
         // (or geometry) coordinates
