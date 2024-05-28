@@ -97,7 +97,8 @@ CMake within the Docker context attached to CLion. To the following to set this 
 
 ## Progress
 
-Current work is around physics and reworking the meshing to use binary greedy meshing with bit-ops
+Current work is implementing frustum culling and ordered visibility culling with ordered mesh
+generation during binary greedy meshing for offset based culling.
 
 ![PSXMC](./docs/PSXMC.png)
 ![PSXMC](./docs/PSXMC-1.png)

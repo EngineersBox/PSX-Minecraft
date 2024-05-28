@@ -51,7 +51,7 @@
 * [ ] Refactor vector operations to use `_Generic` C11 macro to perform type specific operations between any kind of two vector types or constant
 * [x] Move to binary greedy meshing with bitwise ops for single-pass mask creation
 * [x] Migrate to chunk providers and generators created with world for specific generation
-* [ ] Move old mesh generation in `Chunk` into standalone implementation in `src/game/world/chunk/meshing`
+* [x] Move old mesh generation in `Chunk` into standalone implementation in `src/game/world/chunk/meshing` or remove
 * [x] Per-face opacity control on each block for minimal meshing with mixed opacity (like farmland, bottom only opaque)
 
 ## Fix
@@ -77,6 +77,6 @@
 * [x] Cannot fall off a block edge, get pushed back
 * [x] Jumping onto a block pushes player back, not allowing for movement up to a block (weird edge cases for certain angles still work)
 * [x] Certain faces at chunk boundaries are not generated with binary greedy meshing
-* [ ] Move mesh generation to after all loading when updating world to avoid face generation on orthogonal axis
+* [ ] Move mesh generation to after all loading when updating world to avoid face generation on orthogonal axis to update axis
 * [ ] Cull faces on chunk edges that face outward on the render limit
 * [x] Chunks with a negative component in position don't generate meshes correctly (incorrect faces and textures)
