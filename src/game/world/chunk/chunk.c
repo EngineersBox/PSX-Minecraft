@@ -13,24 +13,6 @@
 #include "../../util/interface99_extensions.h"
 #include "meshing/binary_greedy_mesher.h"
 
-// Forward declaration
-FWD_DECL IBlock* worldGetBlock(const World* world, const VECTOR* position);
-
-typedef struct {
-    IBlock* block;
-    i8 normal;
-} Mask;
-
-#define compareMask(m1, m2) (\
-    (m1.block == NULL && m2.block == NULL) \
-    || ( \
-        m1.block != NULL \
-        && m2.block != NULL \
-        && VCAST_PTR(Block*, m1.block)->id == VCAST_PTR(Block*, m2.block)->id \
-        && m1.normal == m2.normal \
-    ) \
-)
-
 void chunkDestroyDroppedItem(void* elem) {
     IItem** iitem = (IItem**) elem;
     if (iitem == NULL || *iitem == NULL) {
