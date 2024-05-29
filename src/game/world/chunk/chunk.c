@@ -93,7 +93,10 @@ bool chunkIsOutsideFrustum(const Chunk* chunk, const Frustum* frustum, const Tra
 
 void chunkRender(Chunk* chunk, RenderContext* ctx, Transforms* transforms) {
     if (chunkIsOutsideFrustum(chunk, &ctx->camera->frustum, transforms)) {
-        return;
+        DEBUG_LOG("[CHUNK " VEC_PATTERN "] Not visible\n", VEC_LAYOUT(chunk->position));
+        // return;
+    } else {
+        DEBUG_LOG("[CHUNK " VEC_PATTERN "] Visible\n", VEC_LAYOUT(chunk->position));
     }
     // Object and light matrix for object
     MATRIX omtx, olmtx;

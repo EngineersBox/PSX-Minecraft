@@ -64,6 +64,7 @@ typedef enum {
 
 typedef struct {
     BlockID id;
+    u8 metadata_id;
     BlockType type; // TODO: Move this to attributes
     Orientation orientation;
     TextureAttributes face_attributes[BLOCK_FACES];
@@ -106,20 +107,35 @@ interface(IBlock);
     extern IBlock extern_name##_IBLOCK_SINGLETON; \
     extern name extern_name##_BLOCK_SINGLETON
 
-#define declareBlock(_id, _type, _orientation, _face_attributes) (Block) {\
+#define declareBlock(_id, _metadata_id, _type, _orientation, _face_attributes) (Block) {\
     .id = (BlockID) _id,\
+    .metadata_id = _metadata_id,\
     .type = (BlockType) _type,\
     .orientation = (Orientation) _orientation,\
     .face_attributes = _face_attributes\
 }
 #define declareFixedBlock(_id, _type, face_attributes) declareBlock( \
     _id, \
+    0, \
+    _type, \
+    ORIENTATION_POS_X, \
+    P99_PROTECT(face_attributes) \
+)
+#define declareFixedBlockMeta(_id, _metadata_id, _type, face_attributes) declareBlock( \
+    _id, \
+    _metadata_id, \
     _type, \
     ORIENTATION_POS_X, \
     P99_PROTECT(face_attributes) \
 )
 #define declareSolidBlock(_id, face_attributes) declareFixedBlock( \
     _id, \
+    BLOCKTYPE_SOLID, \
+    P99_PROTECT(face_attributes) \
+)
+#define declareSolidBlockMeta(_id, _metadata_id, face_attributes) declareFixedBlockMeta( \
+    _id, \
+    _metadata_id, \
     BLOCKTYPE_SOLID, \
     P99_PROTECT(face_attributes) \
 )

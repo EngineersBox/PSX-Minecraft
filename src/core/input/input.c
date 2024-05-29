@@ -25,7 +25,7 @@ void inputInit(Input *input) {
 
 void inputUpdate(Input* input) {
     if (input->in_focus == NULL) {
-        ContextualInputHandler* handler = NULL;
+        InputHandlerVTable* handler = NULL;
         cvector_for_each_in(handler, input->handlers) {
             if (handler->input_handler(input, handler->ctx)) {
                 // If the input handler acquires focus (returning true)

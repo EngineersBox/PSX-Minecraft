@@ -18,13 +18,13 @@ typedef bool (*InputHandler)(const Input* input, void* ctx);
 typedef struct {
     void* ctx;
     InputHandler input_handler;
-} ContextualInputHandler;
+} InputHandlerVTable;
 
 typedef struct Input {
     char pad_buffer[PAD_SECTIONS][PAD_SECTION_SIZE];
     PADTYPE* pad;
-    ContextualInputHandler* in_focus;
-    cvector(ContextualInputHandler) handlers;
+    InputHandlerVTable* in_focus;
+    cvector(InputHandlerVTable) handlers;
 } Input;
 
 #define IInputHandler_IFACE \
@@ -35,7 +35,7 @@ interface(IInputHandler);
 void inputInit(Input* input);
 void inputUpdate(Input* input);
 
-#define inputAddHandler(input, handler) cvector_push_back((input)->handlers, (ContextualInputHandler)(handler))
+#define inputAddHandler(input, handler) cvector_push_back((input)->handlers, (InputHandlerVTable)(handler))
 #define isPressed(input_pad, pad_button) (!((input_pad)->btn & (pad_button)))
 
 #endif //INPUT_H

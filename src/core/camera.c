@@ -248,8 +248,8 @@ bool cameraInputHandler(const Input* input, void* ctx) {
         // Set translation matrix
         TransMatrix(&transforms->geometry_mtx,&transforms->translation_position);
         TransMatrix(&transforms->frustum_mtx,&transforms->negative_translation_position);
-        printf("[CAMERA] Geometry Matrix: \n" MAT_PATTERN, MAT_LAYOUT(transforms->geometry_mtx));
-        printf("[CAMERA] Frustum Matrix: \n" MAT_PATTERN, MAT_LAYOUT(transforms->frustum_mtx));
+        // printf("[CAMERA] Geometry Matrix: \n" MAT_PATTERN, MAT_LAYOUT(transforms->geometry_mtx));
+        // printf("[CAMERA] Frustum Matrix: \n" MAT_PATTERN, MAT_LAYOUT(transforms->frustum_mtx));
     }
     // Camera is the base level input handler, we should always give up
     // control to a layer added on top of base movement
@@ -259,7 +259,7 @@ bool cameraInputHandler(const Input* input, void* ctx) {
 void cameraRegisterInputHandler(VSelf, Input* input) ALIAS("Camera_registerInputHandler");
 void Camera_registerInputHandler(VSelf, Input* input) {
     VSELF(Camera);
-    const ContextualInputHandler handler = (ContextualInputHandler) {
+    const InputHandlerVTable handler = (InputHandlerVTable) {
         .ctx = self,
         .input_handler = cameraInputHandler
     };

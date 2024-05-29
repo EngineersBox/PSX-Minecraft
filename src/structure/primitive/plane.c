@@ -1,7 +1,5 @@
 #include "plane.h"
 
-#include <logging.h>
-
 #include "../math/math_utils.h"
 
 bool planePointInFront(const Plane* plane, const VECTOR point) {

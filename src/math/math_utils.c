@@ -20,7 +20,7 @@ VECTOR rotationToDirection(const VECTOR* rotation) {
 
 VECTOR vec3_i32_normalize(const VECTOR v) {
     const fixedi32 length = SquareRoot12(dot_i32(v,v));
-    DEBUG_LOG("[MATH] Normalize. Source: " VEC_PATTERN ", Length: %d\n", VEC_LAYOUT(v), length);
+    // DEBUG_LOG("[MATH] Normalize. Source: " VEC_PATTERN ", Length: %d\n", VEC_LAYOUT(v), length);
     return vec3_i32(
         (v.vx << FIXED_POINT_SHIFT) / length,
         (v.vy << FIXED_POINT_SHIFT) / length,

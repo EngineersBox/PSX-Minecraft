@@ -27,13 +27,13 @@ void frustumTransform(Frustum* frustum, Transforms* transforms) {
     #pragma GCC unroll 6
     for (u8 i = 0; i < 6; i++) {
         Plane* plane = &frustum->planes[i];
-        DEBUG_LOG(
-            "[FRUSTUM :: PLANE %d] Normal: " VEC_PATTERN " Point: " VEC_PATTERN " Dot: " INT64_PATTERN "\n",
-            i,
-            VEC_LAYOUT(plane->normal),
-            VEC_LAYOUT(plane->point),
-            INT64_LAYOUT(plane->distance)
-        );
+        // DEBUG_LOG(
+        //     "[FRUSTUM :: PLANE %d] Normal: " VEC_PATTERN " Point: " VEC_PATTERN " Dot: " INT64_PATTERN "\n",
+        //     i,
+        //     VEC_LAYOUT(plane->normal),
+        //     VEC_LAYOUT(plane->point),
+        //     INT64_LAYOUT(plane->distance)
+        // );
         current_planes[i] = *plane;
         plane->normal = vec3_i32_normalize(applyGeometryMatrix(
             transforms->frustum_mtx,
@@ -44,13 +44,13 @@ void frustumTransform(Frustum* frustum, Transforms* transforms) {
             plane->point
         );
         plane->distance = dot_i64(plane->normal, plane->point);
-        DEBUG_LOG(
-            "[FRUSTUM :: PLANE %d] Normal: " VEC_PATTERN " Point: " VEC_PATTERN " Dot: " INT64_PATTERN "\n",
-            i,
-            VEC_LAYOUT(plane->normal),
-            VEC_LAYOUT(plane->point),
-            INT64_LAYOUT(plane->distance)
-        );
+        // DEBUG_LOG(
+        //     "[FRUSTUM :: PLANE %d] Normal: " VEC_PATTERN " Point: " VEC_PATTERN " Dot: " INT64_PATTERN "\n",
+        //     i,
+        //     VEC_LAYOUT(plane->normal),
+        //     VEC_LAYOUT(plane->point),
+        //     INT64_LAYOUT(plane->distance)
+        // );
     }
 }
 
@@ -83,12 +83,12 @@ FrustumQueryResult frustumTestAABBPlane(const AABB* aabb, const Plane* plane) {
     const i64 dot_1 = dot_i64(normal, vec1);
     if (dot_1 > plane->distance) {
         // AABB max point is outside the frustum
-        DEBUG_LOG("[FRUSTUM] Dot: " INT64_PATTERN ", Distance: %d\n", INT64_LAYOUT(dot_1), (i32) plane->distance);
+        // DEBUG_LOG("[FRUSTUM] Dot: " INT64_PATTERN ", Distance: %d\n", INT64_LAYOUT(dot_1), (i32) plane->distance);
         return FRUSTUM_OUTSIDE;
     }
     // AABB max point is inside the frustum
     const i64 dot_2 = dot_i64(normal, vec2);
-    DEBUG_LOG("[FRUSTUM] Check 2 Dot: " INT64_PATTERN ", Distance: %d\n", INT64_LAYOUT(dot_2), (i32) plane->distance);
+    // DEBUG_LOG("[FRUSTUM] Check 2 Dot: " INT64_PATTERN ", Distance: %d\n", INT64_LAYOUT(dot_2), (i32) plane->distance);
     if (dot_2 >= plane->distance) {
         // AABB min point is outside or on the edge of the frustum
         return FRUSTUM_INTERSECTS;
@@ -107,9 +107,6 @@ FrustumQueryResult frustumContainsAABB(const Frustum* frustum, const AABB* aabb)
             case FRUSTUM_INTERSECTS: result = FRUSTUM_INTERSECTS; break;
             case FRUSTUM_INSIDE: break;
         }
-    }
-    if (result != FRUSTUM_OUTSIDE) {
-        DEBUG_LOG("[FRUSTUM] AABB Visible!\n");
     }
     return result;
 }

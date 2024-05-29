@@ -18,7 +18,7 @@
 #define PICKUP_TO_INV_DISTANCE_SQUARED pow2(PICKUP_TO_INV_DISTANCE)
 #define PICKUP_MOVE_ANIM_DISTANCE 8
 
-typedef uint8_t ItemID;
+typedef u8 ItemID;
 
 typedef enum {
     ITEMTYPE_BLOCK,
@@ -28,6 +28,7 @@ typedef enum {
 
 typedef struct {
     ItemID id;
+    u8 metadata_id;
     ItemType type;
     uint8_t stack_size;
     uint8_t max_stack_size;

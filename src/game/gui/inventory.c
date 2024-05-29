@@ -301,7 +301,7 @@ bool inventoryInputHandler(const Input* input, void* ctx) {
 void inventoryRegisterInputHandler(VSelf, Input* input) ALIAS("Inventory_registerInputHandler");
 void Inventory_registerInputHandler(VSelf, Input* input) {
     VSELF(Inventory);
-    const ContextualInputHandler handler = (ContextualInputHandler) {
+    const InputHandlerVTable handler = (InputHandlerVTable) {
         .ctx = self,
         .input_handler = inventoryInputHandler
     };
