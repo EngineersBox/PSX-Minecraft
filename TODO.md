@@ -80,3 +80,4 @@
 * [ ] Move mesh generation to after all loading when updating world to avoid face generation on orthogonal axis to update axis
 * [ ] Cull faces on chunk edges that face outward on the render limit
 * [x] Chunks with a negative component in position don't generate meshes correctly (incorrect faces and textures)
+* [ ] Texture attributes on block item rendering in world and picked up items

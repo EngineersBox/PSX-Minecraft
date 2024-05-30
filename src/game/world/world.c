@@ -897,7 +897,7 @@ u32 argmin(i64 values[3]) {
     return index;
 }
 
-RayCastResult worldRayCastIntersection(const World* world,
+RayCastResult worldRayCastIntersection_new3(const World* world,
                                        const Camera* camera,
                                        i32 radius,
                                        cvector(SVECTOR)* markers) {
@@ -966,6 +966,143 @@ RayCastResult worldRayCastIntersection(const World* world,
         }
         steps[axis] += reciprocal[axis];
         dist = squareDistance(&origin, &position);
+    }
+    return (RayCastResult) {
+        .pos = vec3_i32_all(0),
+        .block = NULL,
+        .face = vec3_i32_all(0)
+    };
+}
+
+float signof(const float val) {
+    if (val < 0) {
+        return -1.0;
+    }
+    return 1.0;
+}
+
+float floorf(const float val) {
+    i32 _val = val;
+    // if (val < 0) {
+    //     _val--;
+    // }
+    DEBUG_LOG("Floor: %d\n", _val);
+    return (float) _val;
+}
+
+u32 argminf(float values[3]) {
+    float min = values[0];
+    u32 index = 0;
+    if (values[1] < min) {
+        min = values[1];
+        index = 1;
+    }
+    if (values[2] < min) {
+        index = 2;
+    }
+    return index;
+}
+
+float absf(float val) {
+    if (val < 0) {
+        return -val;
+    }
+    return val;
+}
+
+RayCastResult worldRayCastIntersection(const World* world,
+                                       const Camera* camera,
+                                       i32 radius,
+                                       cvector(SVECTOR)* markers) {
+    const float pos[3] = {
+        ((float) camera->position.vx) / ((float) ONE_BLOCK),
+        ((float) -camera->position.vy) / ((float) ONE_BLOCK),
+        ((float) camera->position.vz) / ((float) ONE_BLOCK)
+    };
+    const VECTOR _step = rotationToDirection(&camera->rotation);
+    DEBUG_LOG("Step: " VEC_PATTERN "\n", VEC_LAYOUT(_step));
+    const float step[3] = {
+        ((float) _step.vx) / ((float) ONE),
+        ((float) _step.vy) / ((float) ONE),
+        ((float) _step.vz) / ((float) ONE)
+    };
+    DEBUG_LOG(
+        "Step: %d.%d, %d.%d, %d.%d\n",
+        (i32) step[0], (i32)(10000.0 * (step[0] - ((i32) step[0]))),
+        (i32) step[1], (i32)(10000.0 * (step[1] - ((i32) step[1]))),
+        (i32) step[2], (i32)(10000.0 * (step[2] - ((i32) step[2])))
+    );
+    const float sign[3] = {
+        signof(_step.vx),
+        signof(_step.vy),
+        signof(_step.vz)
+    };
+    DEBUG_LOG(
+        "Sign: %d, %d, %d\n",
+        (i32)(1000 * sign[0]),
+        (i32)(1000 * sign[1]),
+        (i32)(1000 * sign[2])
+    );
+    const float reci[3] = {
+        1.0 / absf(step[0]),
+        1.0 / absf(step[1]),
+        1.0 / absf(step[2])
+    };
+    DEBUG_LOG(
+        "Reci: %d.%d, %d.%d, %d.%d\n",
+        (i32) reci[0], (i32)(10000.0 * (reci[0] - ((i32) reci[0]))),
+        (i32) reci[1], (i32)(10000.0 * (reci[1] - ((i32) reci[1]))),
+        (i32) reci[2], (i32)(10000.0 * (reci[2] - ((i32) reci[2])))
+    );
+    float grid[3] = {
+        floorf(pos[0]),
+        floorf(pos[1]),
+        floorf(pos[2])
+    };
+    DEBUG_LOG(
+        "Grid: %d.%d, %d.%d, %d.%d\n",
+        (i32) grid[0], (i32)(10000.0 * (grid[0] - ((i32) grid[0]))),
+        (i32) grid[1], (i32)(10000.0 * (grid[1] - ((i32) grid[1]))),
+        (i32) grid[2], (i32)(10000.0 * (grid[2] - ((i32) grid[2])))
+    );
+    float steps[3] = {
+        ((sign[0] + 1.0) / 2.0) - ((pos[0] - grid[0]) / step[0]),
+        ((sign[1] + 1.0) / 2.0) - ((pos[1] - grid[1]) / step[1]),
+        ((sign[2] + 1.0) / 2.0) - ((pos[2] - grid[2]) / step[2])
+    };
+    DEBUG_LOG(
+        "Steps: %d.%d, %d.%d, %d.%d\n",
+        (i32) steps[0], (i32)(10000.0 * (steps[0] - ((i32) steps[0]))),
+        (i32) steps[1], (i32)(10000.0 * (steps[1] - ((i32) steps[1]))),
+        (i32) steps[2], (i32)(10000.0 * (steps[2] - ((i32) steps[2])))
+    );
+    i32 index = 0;
+    while (index < radius) {
+        const u32 axis = argminf(steps);
+        DEBUG_LOG("Axis: %d\n", axis);
+        grid[axis] += sign[axis];
+        const VECTOR position = vec3_i32(
+            grid[0],
+            grid[1],
+            grid[2]
+        );
+        DEBUG_LOG("Position: " VEC_PATTERN "\n", VEC_LAYOUT(position));
+        IBlock* iblock = worldGetBlock(world, &position);
+        if (iblock == NULL) {
+            printf("[WORLD] Raycast enountered null block at " VEC_PATTERN "\n", VEC_LAYOUT(position));
+            abort();
+            return (RayCastResult) {};
+        }
+        const Block* block = VCAST_PTR(Block*, iblock);
+        if (block->type != BLOCKTYPE_EMPTY) {
+            return (RayCastResult) {
+                .pos = vec3_i32(position.vx, position.vy, position.vz),
+                .block = iblock,
+                .face = vec3_i32_all(0)
+            };
+        }
+        steps[index] += reci[axis];
+        index++;
     }
     return (RayCastResult) {
         .pos = vec3_i32_all(0),
