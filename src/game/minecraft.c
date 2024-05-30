@@ -177,7 +177,7 @@ void Minecraft_input(VSelf, const Stats* stats) {
     camera->mode = 0;
     Input* input = &self->internals.input;
     inputUpdate(input);
-    if (isPressed(input->pad, PAD_START)) {
+    if (isPressed(input->pad, BINDING_ATTACK)) {
         startHandler(camera);
     }
 }
@@ -197,22 +197,22 @@ void Minecraft_update(VSelf, const Stats* stats) {
 
 void startHandler(Camera* camera) {
     // cvector_clear(markers);
-    // result = worldRayCastIntersection(world, camera, 6 * ONE, &markers);
+    result = worldRayCastIntersection(world, camera, 6, &markers);
     // printf("Marker count: %d\n", cvector_size(markers));
     // result.pos.vx = (result.pos.vx / BLOCK_SIZE) >> FIXED_POINT_SHIFT;
     // result.pos.vz = (result.pos.vz / BLOCK_SIZE) >> FIXED_POINT_SHIFT;
     // result.pos.vy = (result.pos.vy / BLOCK_SIZE) >> FIXED_POINT_SHIFT;
-    // printf(
-    //     "Ray cast result: [Pos: " VEC_PATTERN "] [Block: %d] [Face: " VEC_PATTERN "]\n",
-    //     VEC_LAYOUT(result.pos),
-    //     result.block == NULL ? -1 : VCAST(Block*, *result.block)->id,
-    //     VEC_LAYOUT(result.face)
-    // );
-    // camera_pos = (SVECTOR) {
-    //     .vx = camera->position.vx >> FIXED_POINT_SHIFT,
-    //     .vy = camera->position.vy >> FIXED_POINT_SHIFT,
-    //     .vz = camera->position.vz >> FIXED_POINT_SHIFT,
-    // };
+    printf(
+        "Ray cast result: [Pos: " VEC_PATTERN "] [Block: %d] [Face: " VEC_PATTERN "]\n",
+        VEC_LAYOUT(result.pos),
+        result.block == NULL ? -1 : VCAST(Block*, *result.block)->id,
+        VEC_LAYOUT(result.face)
+    );
+    camera_pos = (SVECTOR) {
+        .vx = camera->position.vx >> FIXED_POINT_SHIFT,
+        .vy = camera->position.vy >> FIXED_POINT_SHIFT,
+        .vz = camera->position.vz >> FIXED_POINT_SHIFT,
+    };
     // origin_pos.vx = (((camera->position.vx / BLOCK_SIZE) >> FIXED_POINT_SHIFT) * BLOCK_SIZE) + (BLOCK_SIZE >> 1);
     // origin_pos.vy = (((camera->position.vy / BLOCK_SIZE) >> FIXED_POINT_SHIFT) * BLOCK_SIZE) + (BLOCK_SIZE >> 1);
     // origin_pos.vz = (((camera->position.vz / BLOCK_SIZE) >> FIXED_POINT_SHIFT) * BLOCK_SIZE) + (BLOCK_SIZE >> 1);
@@ -222,8 +222,8 @@ void startHandler(Camera* camera) {
     // // TODO: When removing a block (as it takes time to break) should the camera be locked in
     // //       place as to avoid needing to continually raycast each frame until the block is broken
     // //       or the trigger/key/mouse is unpressed?
-    // IItem* item = NULL;
-    // worldModifyVoxel(world, &result.pos, airBlockCreate(), &item);
+    IItem* item = NULL;
+    worldModifyVoxel(world, &result.pos, airBlockCreate(), &item);
     // printf("Origin: " VEC_PATTERN "\n", VEC_LAYOUT(origin_pos));
     // printf(
     //     "Marker: " VEC_PATTERN " Camera: " VEC_PATTERN "\n",

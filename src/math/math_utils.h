@@ -222,6 +222,7 @@ MATRIX* InvRotMatrix(const SVECTOR* r, MATRIX* m);
 
 #define _vec2_layout(x, y) .vx = (x), .vy = (y)
 #define _vec3_layout(x, y, z) _vec2_layout(x, y), .vz = (z)
+#define vec3_i64(x, y, z) ((LVECTOR) { _vec3_layout(x, y, z) })
 #define vec3_i32(x, y, z) ((VECTOR) { _vec3_layout(x, y, z) })
 #define vec3_i16(x, y, z) ((SVECTOR) { _vec3_layout(x, y, z) })
 #define vec3_i8(x, y, z) ((CVECTOR) { _vec3_layout(x, y, z) })

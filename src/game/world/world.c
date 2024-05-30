@@ -726,7 +726,7 @@ RayCastResult worldRayCastIntersection_new(const World* world,
     return (RayCastResult) {};
 }
 
-RayCastResult worldRayCastIntersection(const World* world,
+RayCastResult worldRayCastIntersection_new2(const World* world,
                                        const Camera* camera,
                                        i32 radius,
                                        cvector(SVECTOR)* markers) {
@@ -880,5 +880,96 @@ RayCastResult worldRayCastIntersection(const World* world,
         },
         .block = worldGetBlock(world, &intersection),
         .face = face
+    };
+}
+
+u32 argmin(i64 values[3]) {
+    i64 min = values[0];
+    u32 index = 0;
+    if (values[1] < min) {
+        min = values[1];
+        index = 1;
+    }
+    if (values[2] < min) {
+        min = values[2];
+        index = 2;
+    }
+    return index;
+}
+
+RayCastResult worldRayCastIntersection(const World* world,
+                                       const Camera* camera,
+                                       i32 radius,
+                                       cvector(SVECTOR)* markers) {
+    const LVECTOR pos = vec3_i64(
+        camera->position.vx,
+        -camera->position.vy,
+        camera->position.vz
+    );
+    const VECTOR _step = rotationToDirection(&camera->rotation);
+    const LVECTOR step = vec3_i64(_step.vx, _step.vy, _step.vz);
+    const i64 sign[3] = {
+        sign(step.vx) * ONE_BLOCK,
+        sign(step.vy) * ONE_BLOCK,
+        sign(step.vz) * ONE_BLOCK,
+    };
+    // DEBUG_LOG("Sign: %d,%d,%d\n", sign[0], sign[1], sign[2]);
+    const LVECTOR abs_step = vec3_i64(
+        absv(step.vx),
+        absv(step.vy),
+        absv(step.vz)
+    );
+    // DEBUG_LOG("Abs step: " VEC_PATTERN "\n", VEC_LAYOUT(abs_step));
+    const i64 reciprocal[3] = {
+        (ONE_BLOCK << 12) / abs_step.vx,
+        (ONE_BLOCK << 12) / abs_step.vy,
+        (ONE_BLOCK << 12) / abs_step.vz
+    };
+    // DEBUG_LOG("Reciprocal: %d,%d,%d\n", reciprocal[0], reciprocal[1], reciprocal[2]);
+    i64 grid[3] = {
+        fixedFloor((i32)pos.vx, ONE_BLOCK),
+        fixedFloor((i32)pos.vy, ONE_BLOCK),
+        fixedFloor((i32)pos.vz, ONE_BLOCK)
+    };
+    const VECTOR origin = vec3_i32(grid[0], grid[1], grid[2]);
+    // DEBUG_LOG("Grid: %d,%d,%d\n", grid[0], grid[1], grid[2]);
+    i64 steps[3] = {
+        fixedDiv((sign[0] + ONE_BLOCK), 2) - (((pos.vx - grid[0]) << 12) / step.vx),
+        fixedDiv((sign[1] + ONE_BLOCK), 2) - (((pos.vy - grid[1]) << 12) / step.vy),
+        fixedDiv((sign[2] + ONE_BLOCK), 2) - (((pos.vz - grid[2]) << 12) / step.vz)
+    };
+    // DEBUG_LOG("Steps: %d,%d,%d\n", steps[0], steps[1], steps[2]);
+    i32 dist = 0;
+    const i32 radius_sq = (radius * radius);
+    while (dist < radius_sq) {
+        const u32 axis = argmin(steps);
+        grid[axis] += sign[axis];
+        const VECTOR position = vec3_i32(
+            (grid[0] >> FIXED_POINT_SHIFT) / BLOCK_SIZE,
+            (grid[1] >> FIXED_POINT_SHIFT) / BLOCK_SIZE,
+            (grid[2] >> FIXED_POINT_SHIFT) / BLOCK_SIZE
+        );
+        DEBUG_LOG("Position: " VEC_PATTERN "\n", VEC_LAYOUT(position));
+        IBlock* iblock = worldGetBlock(world, &position);
+        if (iblock == NULL) {
+            printf("[WORLD] Raycast enountered null block at " VEC_PATTERN "\n", VEC_LAYOUT(position));
+            abort();
+            return (RayCastResult) {};
+        }
+        const Block* block = VCAST_PTR(Block*, iblock);
+        if (block->type != BLOCKTYPE_EMPTY) {
+            return (RayCastResult) {
+                .pos = vec3_i32(position.vx, position.vy, position.vz),
+                .block = iblock,
+                .face = vec3_i32_all(0)
+            };
+        }
+        steps[axis] += reciprocal[axis];
+        dist = squareDistance(&origin, &position);
+    }
+    return (RayCastResult) {
+        .pos = vec3_i32_all(0),
+        .block = NULL,
+        .face = vec3_i32_all(0)
     };
 }

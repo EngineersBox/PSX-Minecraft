@@ -92,12 +92,12 @@ bool chunkIsOutsideFrustum(const Chunk* chunk, const Frustum* frustum, const Tra
 }
 
 void chunkRender(Chunk* chunk, RenderContext* ctx, Transforms* transforms) {
-    if (chunkIsOutsideFrustum(chunk, &ctx->camera->frustum, transforms)) {
-        DEBUG_LOG("[CHUNK " VEC_PATTERN "] Not visible\n", VEC_LAYOUT(chunk->position));
-        // return;
-    } else {
-        DEBUG_LOG("[CHUNK " VEC_PATTERN "] Visible\n", VEC_LAYOUT(chunk->position));
-    }
+    // if (chunkIsOutsideFrustum(chunk, &ctx->camera->frustum, transforms)) {
+    //     DEBUG_LOG("[CHUNK " VEC_PATTERN "] Not visible\n", VEC_LAYOUT(chunk->position));
+    //     // return;
+    // } else {
+    //     DEBUG_LOG("[CHUNK " VEC_PATTERN "] Visible\n", VEC_LAYOUT(chunk->position));
+    // }
     // Object and light matrix for object
     MATRIX omtx, olmtx;
     // Set object rotation and position
@@ -162,7 +162,7 @@ static void constructItemPosition(const Chunk* chunk, const VECTOR* block_positi
 
 bool chunkModifyVoxel(Chunk* chunk, const VECTOR* position, IBlock* block, IItem** item_result) {
     const i32 x = position->vx;
-    const i32 y = positiveModulo(-position->vy - 1, CHUNK_SIZE);
+    const i32 y = position->vy; //positiveModulo(-position->vy - 1, CHUNK_SIZE);
     const i32 z = position->vz;
     if (checkIndexOOB(x, y, z)) {
         return false;
