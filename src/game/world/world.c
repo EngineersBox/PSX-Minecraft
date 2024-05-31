@@ -1119,17 +1119,8 @@ double ceild(const double v) {
         return d;
 }
 
-double intboundd(double s, const double ds) {
-    // // Find the smallest positive t such that s+t*ds is an integer.
-    // if (ds < 0.0) {
-    //     return intboundd(-s, -ds);
-    // } else {
-    //     s = modd(s, 1.0);
-    //     // problem is now s+t*ds = 1
-    //     return (1.0-s)/ds;
-    // }
-    bool s_is_int = roundd(s) == s;
-    if (ds < 0 && s_is_int) {
+double intboundd(const double s, const double ds) {
+    if (ds < 0 && roundd(s) == s) {
         return 0;
     }
     return (ds > 0 ? ceild(s) - s : s - floord(s)) / absd(ds);
