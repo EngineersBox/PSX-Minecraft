@@ -13,6 +13,18 @@
  * @brief Factor to shift left/right to convert int to/from fixed-point format
  */
 #define FIXED_POINT_SHIFT 12
+#define TRIG_5TH_ORDER_REDUCTION 9
+/**
+ * Implements the 5-order polynomial approximation to sin(x).
+ *
+ * Sourced from https://www.nullhardware.com/blog/fixed-point-sine-and-cosine-for-embedded-systems/
+ *
+ * @param i   angle (with 2^15 units/circle: [0,32768])
+ * @return    16 bit fixed point Sine value (4.12) (ie: +4096 = +1 & -4096 = -1)
+ * @note The result is accurate to within +- 1 count. ie: +/-2.44e-4.
+ */
+i32 sin5o(i16 i);
+i32 cos5o(i16 i);
 
 /**
  * @brief Compute the maximum of two numbers
