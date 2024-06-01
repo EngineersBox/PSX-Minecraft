@@ -251,6 +251,9 @@ VECTOR vec3_i32_normalize(const VECTOR v);
 #define vector_const_p_div(v0, c) vector_c_p_op(v0, c, /)
 
 VECTOR rotationToDirection(const VECTOR* rotation);
+// High accuracy conversion using 5th order polynomial
+// approximations for sin & cosine.
+VECTOR rotationToDirection5o(const VECTOR* rotation);
 
 // VECTOR - Inline
 

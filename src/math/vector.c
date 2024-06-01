@@ -19,6 +19,17 @@ VECTOR rotationToDirection(const VECTOR* rotation) {
     };
 }
 
+VECTOR rotationToDirection5o(const VECTOR* rotation) {
+    const int32_t x = rotation->vx >> TRIG_5TH_ORDER_REDUCTION;
+    const int32_t y = rotation->vy >> TRIG_5TH_ORDER_REDUCTION;
+    const int32_t xz_len = cos5o(x);
+    return (VECTOR) {
+        .vx = (xz_len * sin5o(-y)) >> FIXED_POINT_SHIFT,
+        .vy = -sin5o(x), // Negation to conver from -Y up to +Y up coordinate space
+        .vz = (xz_len * cos5o(y)) >> FIXED_POINT_SHIFT
+    };
+}
+
 VECTOR vec3_i32_normalize(const VECTOR v) {
     const fixedi32 length = SquareRoot12(dot_i32(v,v));
     // DEBUG_LOG("[MATH] Normalize. Source: " VEC_PATTERN ", Length: %d\n", VEC_LAYOUT(v), length);

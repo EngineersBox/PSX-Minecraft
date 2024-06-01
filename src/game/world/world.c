@@ -2,7 +2,6 @@
 
 #include <assert.h>
 #include <psxapi.h>
-#include <psxgpu.h>
 #include <psxgte.h>
 
 #include "../../util/interface99_extensions.h"
@@ -512,61 +511,32 @@ bool worldModifyVoxel(const World* world, const VECTOR* position, IBlock* block,
     return worldModifyVoxelChunkBlock(world, &chunk_block_position, block, item_result);
 }
 
-double signd(const double v) {
+INLINE double signd(const double v) {
     return v < 0.0 ? -1.0 : 1.0;
 }
 
-double absd(const double v) {
-    if (v < 0) {
-        return -v;
-    }
-    return v;
+INLINE double absd(const double v) {
+    return v < 0 ? -v : v;
 }
 
-double floord(const double v) {
-    long long n = (long long) v;
-    double d = (double)n;
-    if (d == v || v >= 0)
-        return d;
-    else
-        return d - 1;
-}
-
-u32 argmind(const double values[3]) {
-    double min = values[0];
-    u32 index = 0;
-    if (values[1] < min) {
-        min = values[1];
-        index = 1;
-    }
-    if (values[2] < min) {
-        min = values[2];
-        index = 2;
-    }
-    return index;
-}
-
-VECTOR rotationToDirection5o(const VECTOR* rotation) {
-    const int32_t x = rotation->vx >> TRIG_5TH_ORDER_REDUCTION;
-    const int32_t y = rotation->vy >> TRIG_5TH_ORDER_REDUCTION;
-    const int32_t xz_len = cos5o(x);
-    return (VECTOR) {
-        .vx = (xz_len * sin5o(-y)) >> FIXED_POINT_SHIFT,
-        .vy = -sin5o(x), // Negation to conver from -Y up to +Y up coordinate space
-        .vz = (xz_len * cos5o(y)) >> FIXED_POINT_SHIFT
-    };
-}
-
-double signumd(const double x) {
+INLINE double signumd(const double x) {
     return x > 0.0 ? 1.0 : x < 0.0 ? -1.0 : 0.0;
 }
 
-double dmod(const double x, const double y) {
+INLINE double dmod(const double x, const double y) {
     return x - (long long)(x/y) * y;
 }
 
-double modd(const double value, const double modulus) {
+INLINE double modd(const double value, const double modulus) {
     return dmod(dmod(value, modulus + modulus), modulus);
+}
+
+double floord(const double v) {
+    const long long n = (long long) v;
+    const double d = (double) n;
+    if (d == v || v >= 0)
+        return d;
+    return d - 1;
 }
 
 double roundd(const double v) {
@@ -579,33 +549,35 @@ double roundd(const double v) {
 }
 
 double ceild(const double v) {
-    long long n = (long long) v;
-    double d = (double)n;
+    const long long n = (long long) v;
+    const double d = (double) n;
     if (d == v || v >= 0)
         return d + 1;
-    else
-        return d;
+    return d;
 }
 
 double intboundd(const double s, const double ds) {
     if (ds < 0 && roundd(s) == s) {
         return 0;
     }
-    return (ds > 0 ? ceild(s) - s : s - floord(s)) / absd(ds);
+    const double dividend = ds > 0
+        ? ceild(s) - s
+        : s - floord(s);
+    return dividend / absd(ds);
 }
 
 // It works. Do I like it? No. Do I care? Also no.
 RayCastResult worldRayCastIntersection(const World* world,
                                        const Camera* camera,
-                                       i32 radius,
+                                       const i32 radius,
                                        cvector(SVECTOR)* markers) {
-    double origin[3] = {
+    const double origin[3] = {
         ((double) camera->position.vx) / ((double) ONE_BLOCK),
         ((double) -camera->position.vy) / ((double) ONE_BLOCK),
         ((double) camera->position.vz) / ((double) ONE_BLOCK)
     };
     const VECTOR _step = rotationToDirection5o(&camera->rotation);
-    double direction[3] = {
+    const double direction[3] = {
         ((double) _step.vx) / ((double) ONE),
         ((double) _step.vy) / ((double) ONE),
         ((double) _step.vz) / ((double) ONE)
@@ -615,9 +587,9 @@ RayCastResult worldRayCastIntersection(const World* world,
     double y = floord(origin[1]);
     double z = floord(origin[2]);
     // Break out direction vector
-    double dx = direction[0];
-    double dy = direction[1];
-    double dz = direction[2];
+    const double dx = direction[0];
+    const double dy = direction[1];
+    const double dz = direction[2];
     if (dx == 0 && dy == 0 && dz == 0) {
         return (RayCastResult) {
             .pos = vec3_i32_all(0),
@@ -626,21 +598,21 @@ RayCastResult worldRayCastIntersection(const World* world,
         };
     }
     // Direction to increment x,y,z when stepping
-    double stepX = signumd(dx);
-    double stepY = signumd(dy);
-    double stepZ = signumd(dz);
+    const double stepX = signumd(dx);
+    const double stepY = signumd(dy);
+    const double stepZ = signumd(dz);
     // See description above. The initial values depend on the fractional
     // part of the origin.
     double tMaxX = intboundd(origin[0], dx);
     double tMaxY = intboundd(origin[1], dy);
     double tMaxZ = intboundd(origin[2], dz);
     // The change in t when taking a step (always positive).
-    double tDeltaX = stepX/dx;
-    double tDeltaY = stepY/dy;
-    double tDeltaZ = stepZ/dz;
+    const double tDeltaX = stepX/dx;
+    const double tDeltaY = stepY/dy;
+    const double tDeltaZ = stepZ/dz;
     // Buffer for reporting faces to the callback.
     VECTOR face = vec3_i32_all(0);
-    double rad = ((double) radius * (double) radius) / (dx * dx + dy * dy + dz * dz);
+    const double rad = ((double) radius * (double) radius) / (dx * dx + dy * dy + dz * dz);
     while (true) {
         // Check what the current block position is, if its non-empty
         // then return the result
@@ -649,7 +621,7 @@ RayCastResult worldRayCastIntersection(const World* world,
             (i32) y,
             (i32) z
         );
-        DEBUG_LOG("Position: " VEC_PATTERN "\n", VEC_LAYOUT(position));
+        // DEBUG_LOG("Position: " VEC_PATTERN "\n", VEC_LAYOUT(position));
         IBlock* iblock = worldGetBlock(world, &position);
         if (iblock == NULL) {
             printf("[WORLD] Raycast enountered null block at " VEC_PATTERN "\n", VEC_LAYOUT(position));
@@ -708,7 +680,7 @@ RayCastResult worldRayCastIntersection(const World* world,
             }
         }
     }
-    DEBUG_LOG("Raycast failed\n");
+    // DEBUG_LOG("Raycast failed\n");
     return (RayCastResult) {
         .pos = vec3_i32_all(0),
         .block = NULL,

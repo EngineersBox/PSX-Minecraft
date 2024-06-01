@@ -37,7 +37,7 @@
 #define UNIMPLEMENTED __attribute__((unavailable("Unimplemented function/method")))
 #define UNUSED __attribute__((unused))
 #define ALIAS(name) __attribute__((alias(name)))
-#define INLINE __attribute((always_inline)) inline
+#define INLINE __attribute__((always_inline)) inline
 
 // Forward declaration
 #define FWD_DECL
