@@ -29,6 +29,7 @@
 * [ ] D-pad or analogue stick controlled cursor in UIs with item movement between slots being held by cursor
 * [ ] TooManyItems-like overlay in inventory GUI
 * [x] Support transparent textures (original and binary greedy meshing)
+* [ ] Full ASCII, extended characters and symbols set front + printing lib
 
 ## Refactor
 

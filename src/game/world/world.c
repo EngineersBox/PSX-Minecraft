@@ -629,7 +629,7 @@ RayCastResult worldRayCastIntersection(const World* world,
             return (RayCastResult) {};
         }
         const Block* block = VCAST_PTR(Block*, iblock);
-        DEBUG_LOG("Block: %s\n", EBLOCKID_NAMES[block->id]);
+        // DEBUG_LOG("Block: %s\n", EBLOCKID_NAMES[block->id]);
         if (block->type != BLOCKTYPE_EMPTY) {
             return (RayCastResult) {
                 .pos = vec3_i32(position.vx, position.vy, position.vz),

@@ -412,8 +412,8 @@ void renderItemBlockInventory(ItemBlock* item,
     ctx->primitive = FntSort(
         allocateOrderingTable(ctx, 0),
         ctx->primitive,
-        screen_position->vx - 8,
-        screen_position->vy - 1, // -1 Offset accounts for shadow on text
+        screen_position->vx - 7,
+        screen_position->vy, // -1 Offset accounts for shadow on text
         stack_count_text
     );
     renderClearConstraints(ctx);
