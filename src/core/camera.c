@@ -3,7 +3,7 @@
 #include <psxapi.h>
 
 #include "../blocks/block.h"
-#include "../math/math_utils.h"
+#include "../math/vector.h"
 
 Camera cameraCreate(Transforms* transforms) {
     return (Camera) {

@@ -4,6 +4,7 @@
 
 #include "../logging/logging.h"
 #include "../math/math_utils.h"
+#include "../math/vector.h"
 #include "../util/inttypes.h"
 
 Frustum frustumCreate() {

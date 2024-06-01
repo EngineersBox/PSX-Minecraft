@@ -1,6 +1,7 @@
 #include "aabb.h"
 
 #include "../math/math_utils.h"
+#include "../math/vector.h"
 
 void aabbAddCoord(const AABB* source, AABB* target, const i32 x, const i32 y, const i32 z) {
     target->min = vec3_i32(

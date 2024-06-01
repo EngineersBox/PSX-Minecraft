@@ -13,6 +13,7 @@
 #include "../structure/cvector_utils.h"
 #include "../render/debug.h"
 #include "../math/math_utils.h"
+#include "../math/vector.h"
 #include "../ui/ui.h"
 #include "../entity/player.h"
 #include "../resources/assets.h"

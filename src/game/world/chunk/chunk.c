@@ -10,6 +10,7 @@
 #include "../../structure/primitive/primitive.h"
 #include "../generation/noise.h"
 #include "../../math/math_utils.h"
+#include "../math/vector.h"
 #include "../../util/interface99_extensions.h"
 #include "meshing/binary_greedy_mesher.h"
 

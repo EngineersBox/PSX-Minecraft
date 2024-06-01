@@ -3,6 +3,7 @@
 #include "../game/blocks/block.h"
 #include "../util/interface99_extensions.h"
 #include "../logging/logging.h"
+#include "../math/vector.h"
 
 #define HEIGHT_INTERVALS 3
 #define RADIUS_INTERVALS 2

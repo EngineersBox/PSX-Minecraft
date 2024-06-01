@@ -1,6 +1,6 @@
 #include "texture.h"
 
-#include "../math/math_utils.h"
+#include "../math/vector.h"
 
 const SVECTOR FACE_DIRECTION_NORMALS[6] = {
     [FACE_DIR_DOWN] = vec3_i16(0, 1, 0),

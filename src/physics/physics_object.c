@@ -4,6 +4,7 @@
 
 #include "../structure/cvector.h"
 #include "../math/math_utils.h"
+#include "../math/vector.h"
 #include "../util/interface99_extensions.h"
 #include "../game/blocks/blocks.h"
 #include "../logging/logging.h"

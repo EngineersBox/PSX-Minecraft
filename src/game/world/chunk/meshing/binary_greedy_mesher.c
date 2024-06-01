@@ -4,7 +4,7 @@
 #include "../../../../logging/logging.h"
 #include "../../../util/interface99_extensions.h"
 #include "../../../util/bits.h"
-#include "../../../math/math_utils.h"
+#include "../math/vector.h"
 #include "../../../structure/hashmap.h"
 #include "../../../resources/asset_indices.h"
 #include "../../../structure/primitive/primitive.h"
