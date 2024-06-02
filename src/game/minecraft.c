@@ -17,6 +17,7 @@
 #include "../ui/ui.h"
 #include "../entity/player.h"
 #include "../resources/assets.h"
+#include "../render/font.h"
 
 // Reference texture data
 extern const uint32_t tim_texture[];
@@ -49,6 +50,8 @@ World* world;
 Camera camera;
 IInputHandler player_handler;
 Player* player;
+
+FontID font_id;
 
 // ONE_BLOCK * 1.7
 #define CAMERA_OFFSET 487424
@@ -98,6 +101,8 @@ void Minecraft_init(VSelf, void* ctx) {
     // Load font and open a text stream
     FntLoad(960, 0);
     FntOpen(0, 8, 320, 216, 0, 150);
+    fontLoad(960, 33);
+    font_id = fontOpen(0, 0, 128, 128, 0, 256 + 16);
     // Unpack LZP archive and load assets
     assetsLoad();
     // Initialise world
@@ -466,32 +471,52 @@ void drawDebugText(const Minecraft* minecraft, const Stats* stats) {
     );
 }
 
+void printAllFontPoints(RenderContext* ctx) {
+    for (int i = 0; i < 16; i++) {
+        char str[18] = {0};
+        sprintf(
+            str,
+            "%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c\n",
+            i, i + 1, i + 2, i + 3, i + 4, i + 5, i + 6, i + 7,
+            i + 8, i + 9, i + 10, i + 11, i + 12, i + 13, i + 14, i + 15
+        );
+        ctx->primitive = fontSort(
+            ctx->db[ctx->active].ordering_table,
+            ctx->primitive,
+            0, i * FONT_CHARACTER_SPRITE_HEIGHT,
+            str
+        );
+    }
+}
+
 void minecraftRender(VSelf, const Stats* stats) ALIAS("Minecraft_render");
 void Minecraft_render(VSelf, const Stats* stats) {
     VSELF(Minecraft);
     // Draw the world
-    frustumTransform(&self->internals.ctx.camera->frustum, &self->internals.transforms);
-    worldRender(
-        self->world,
-        &self->internals.ctx,
-        &self->internals.transforms
-    );
-    frustumRestore(&self->internals.ctx.camera->frustum);
+    // frustumTransform(&self->internals.ctx.camera->frustum, &self->internals.transforms);
+    // worldRender(
+    //     self->world,
+    //     &self->internals.ctx,
+    //     &self->internals.transforms
+    // );
+    // frustumRestore(&self->internals.ctx.camera->frustum);
     // Clear window constraints
     renderClearConstraints(&self->internals.ctx);
     // Draw marker
-    drawMarker(self);
+    // drawMarker(self);
     // Render UI
-    playerRender(player, &self->internals.ctx, &self->internals.transforms);
+    // playerRender(player, &self->internals.ctx, &self->internals.transforms);
     // crosshairDraw(&render_context);
-    drawDebugText(self, stats);
-    axisDraw(&self->internals.ctx, &self->internals.transforms, &camera);
-    debugDrawPBUsageGraph(
-        &self->internals.ctx,
-        0,
-        SCREEN_YRES - HOTBAR_HEIGHT - 2
-    );
+    // drawDebugText(self, stats);
+    // axisDraw(&self->internals.ctx, &self->internals.transforms, &camera);
+    // debugDrawPBUsageGraph(
+    //     &self->internals.ctx,
+    //     0,
+    //     SCREEN_YRES - HOTBAR_HEIGHT - 2
+    // );
     // Flush font to screen
+    printAllFontPoints(&self->internals.ctx);
+    fontFlush(font_id);
     FntFlush(0);
     // Swap buffers and draw the primitives
     swapBuffers(&self->internals.ctx);

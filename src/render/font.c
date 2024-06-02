@@ -1,10 +1,13 @@
 #include "font.h"
 
+#include <asset_indices.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <ctype.h>
+
+#include "../resources/assets.h"
 
 typedef struct {
 	char* txtbuff;
@@ -18,8 +21,7 @@ typedef struct {
 static FontStream font_stream[8];
 static int font_nstreams = 0;
 
-u16 font_current_tpage;
-u16 font_current_clut;
+Texture* font_current;
 
 u32 fontStringWidth(const char* string) {
     return FONT_CHARACTER_SPRITE_WIDTH * strlen(string);
@@ -56,6 +58,20 @@ void fontPrintCentreOffset(RenderContext* ctx,
 // I've modified it to work with a more general front sprite
 // sheet with complete ASCII and extended character + symbol
 // sets.
+
+void fontLoad(int x, int y) {
+	_sdk_validate_args_void((x >= 0) && (y >= 0) && (x < 1024) && (y < 1024));
+	font_current = &textures[ASSET_TEXTURES_FONT_INDEX];
+	DrawSync(0);
+	// Clear previously opened text streams
+	if (font_nstreams) {
+		for(int i = 0; i < font_nstreams; i++) {
+			free(font_stream[i].txtbuff);
+			free(font_stream[i].pribuff);
+		}
+		font_nstreams = 0;
+	}
+}
 
 FontID fontOpen(const int x,
 			    const int y,
@@ -120,7 +136,7 @@ void* fontFlush(FontID id) {
 	char* primitive = font_stream[id].pribuff;
 	// Create TPage primitive
 	DR_TPAGE* texture_page = (DR_TPAGE*)primitive;
-	setDrawTPage(texture_page, 0, 0, font_current_tpage);
+	setDrawTPage(texture_page, 0, 0, font_current->tpage);
 	SPRT_8* sprite;
 	// Create a black rectangle background when enabled
 	if (font_stream[id].bg) {
@@ -163,7 +179,7 @@ void* fontFlush(FontID id) {
 				(i % FONT_SPRITE_WIDTH) * FONT_CHARACTER_SPRITE_WIDTH,
 				(i / FONT_SPRITE_HEIGHT) * FONT_CHARACTER_SPRITE_HEIGHT
 			);
-			sprite->clut = font_current_clut;
+			sprite->clut = font_current->clut;
 			setaddr(primitive, sprite);
 			primitive = (char*)sprite;
 			sprite++;
@@ -209,7 +225,7 @@ void* fontSort(u32* ordering_table,
 				(i % FONT_SPRITE_WIDTH) * FONT_CHARACTER_SPRITE_WIDTH,
 				(i / FONT_SPRITE_HEIGHT) * FONT_CHARACTER_SPRITE_HEIGHT
 			);
-			sprite->clut = font_current_clut;
+			sprite->clut = font_current->clut;
 			addPrim(ordering_table, sprite);
 			sprite++;
 		}
@@ -217,8 +233,8 @@ void* fontSort(u32* ordering_table,
 		text++;
 	}
 	primitive = (char*)sprite;
-	DR_TPAGE* texture_page = (DR_TPAGE*)primitive;
-	texture_page->code[0] = font_current_tpage;
+	DR_TPAGE* texture_page = (DR_TPAGE*) primitive;
+	texture_page->code[0] = font_current->tpage;
 	setlen(texture_page, 1);
 	setcode(texture_page, 0xE1);
 	addPrim(ordering_table, primitive);
