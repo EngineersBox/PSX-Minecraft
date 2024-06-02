@@ -101,10 +101,10 @@ void Minecraft_init(VSelf, void* ctx) {
     // Load font and open a text stream
     FntLoad(960, 0);
     FntOpen(0, 8, 320, 216, 0, 150);
-    fontLoad(960, 33);
-    font_id = fontOpen(0, 0, 128, 128, 0, 256 + 16);
     // Unpack LZP archive and load assets
     assetsLoad();
+    fontLoad();
+    // font_id = fontOpen(0, 0, 128, 128, 0, 256 + 16);
     // Initialise world
     self->world = (World*) malloc(sizeof(World));
     self->world->head.vx = 0;
@@ -473,12 +473,13 @@ void drawDebugText(const Minecraft* minecraft, const Stats* stats) {
 
 void printAllFontPoints(RenderContext* ctx) {
     for (int i = 0; i < 16; i++) {
+        const char c = i * 16;
         char str[18] = {0};
         sprintf(
             str,
             "%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c\n",
-            i, i + 1, i + 2, i + 3, i + 4, i + 5, i + 6, i + 7,
-            i + 8, i + 9, i + 10, i + 11, i + 12, i + 13, i + 14, i + 15
+            c, c + 1, c + 2, c + 3, c + 4, c + 5, c + 6, c + 7,
+            c + 8, c + 9, c + 10, c + 11, c + 12, c + 13, c + 14, c + 15
         );
         ctx->primitive = fontSort(
             ctx->db[ctx->active].ordering_table,
@@ -516,7 +517,7 @@ void Minecraft_render(VSelf, const Stats* stats) {
     // );
     // Flush font to screen
     printAllFontPoints(&self->internals.ctx);
-    fontFlush(font_id);
+    // fontFlush(font_id);
     FntFlush(0);
     // Swap buffers and draw the primitives
     swapBuffers(&self->internals.ctx);

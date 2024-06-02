@@ -44,6 +44,7 @@ AssetBundle ASSET_BUNDLES[] = {
 };
 
 Texture* textures;
+bool assets_loaded = false;
 
 void _loadTextures(const int lzp_index) {
     TIM_IMAGE tim = {};
@@ -57,15 +58,17 @@ void _loadTextures(const int lzp_index) {
     for (int i = 0; i < file_count; i++) {
         const QLP_FILE* file = qlpFileEntry(i, tex_buff);
         if (!GetTimInfo((uint32_t*) qlpFileAddr(i, tex_buff), &tim)) {
+            assetLoadImage(&tim, &textures[i]);
             DEBUG_LOG(
-                "[TEXTURE] Loading: [Name: %s] [Position: (%d,%d)] [Addr: %p] [Mode: 0x%x]\n",
+                "[TEXTURE] Loading: [Name: %s] [Position: (%d,%d)] [Addr: %p] [Mode: 0x%x] [TPage: %d] [CLUT: %d]\n",
                 file->name,
                 tim.prect->x,
                 tim.prect->y,
                 tim.caddr,
-                tim.mode
+                tim.mode,
+                textures[i].tpage,
+                textures[i].clut
             );
-            assetLoadImage(&tim, &textures[i]);
         }
     }
     free(tex_buff);
@@ -111,12 +114,14 @@ void assetsLoad() {
         printf("Found asset bundle '%s', loading\n", bundle->name);
         bundle->loader(lzp_index);
     }
+    assets_loaded = true;
 }
 
 void assetsFree() {
     for (const AssetBundle* bundle = &ASSET_BUNDLES[0]; bundle->name != NULL; bundle++) {
         bundle->freer();
     }
+    assets_loaded = false;
 }
 
 int assetLoadTextureDirect(const char* bundle, const char* filename, Texture* texture) {

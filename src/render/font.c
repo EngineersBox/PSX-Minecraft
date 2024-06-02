@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <ctype.h>
 
+#include "../logging/logging.h"
 #include "../resources/assets.h"
 
 typedef struct {
@@ -59,8 +60,10 @@ void fontPrintCentreOffset(RenderContext* ctx,
 // sheet with complete ASCII and extended character + symbol
 // sets.
 
-void fontLoad(int x, int y) {
-	_sdk_validate_args_void((x >= 0) && (y >= 0) && (x < 1024) && (y < 1024));
+void fontLoad() {
+	if (!assets_loaded) {
+		errorAbort("[ERROR] Cannot load font, assets have not been loaded\n");
+	}
 	font_current = &textures[ASSET_TEXTURES_FONT_INDEX];
 	DrawSync(0);
 	// Clear previously opened text streams
@@ -234,9 +237,12 @@ void* fontSort(u32* ordering_table,
 	}
 	primitive = (char*)sprite;
 	DR_TPAGE* texture_page = (DR_TPAGE*) primitive;
-	texture_page->code[0] = font_current->tpage;
-	setlen(texture_page, 1);
-	setcode(texture_page, 0xE1);
+	setDrawTPage(
+		texture_page,
+		1,
+		0,
+		font_current->tpage
+	);
 	addPrim(ordering_table, primitive);
 	primitive += sizeof(DR_TPAGE);
 	return (void *) primitive;
