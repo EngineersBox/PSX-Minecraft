@@ -6,8 +6,10 @@
 #include "../util/inttypes.h"
 #include "render_context.h"
 
-#define FONT_SPRITE_WIDTH 8
-#define FONT_SPRITE_HEIGHT 8
+#define FONT_CHARACTER_SPRITE_WIDTH 8
+#define FONT_CHARACTER_SPRITE_HEIGHT 8
+#define FONT_SPRITE_WIDTH 16
+#define FONT_SPRITE_HEIGHT 16
 
 typedef int FontID;
 

@@ -65,14 +65,14 @@ void worldInit(World* world, RenderContext* ctx) {
                 fontPrintCentreOffset(
                     ctx,
                     CENTRE_X,
-                    CENTRE_Y - ((FONT_SPRITE_HEIGHT + 2) * 3),
+                    CENTRE_Y - ((FONT_CHARACTER_SPRITE_HEIGHT + 2) * 3),
                     0,
                     "Loading World"
                 );
                 fontPrintCentreOffset(
                     ctx,
                     CENTRE_X,
-                    CENTRE_Y - ((FONT_SPRITE_HEIGHT + 2) * 2) - 1,
+                    CENTRE_Y - ((FONT_CHARACTER_SPRITE_HEIGHT + 2) * 2) - 1,
                     10,
                     "Chunk [%d,%d,%d]",
                     x, y, z
@@ -80,7 +80,7 @@ void worldInit(World* world, RenderContext* ctx) {
                 fontPrintCentreOffset(
                     ctx,
                     CENTRE_X,
-                    CENTRE_Y - ((FONT_SPRITE_HEIGHT + 2) * 1) - 1,
+                    CENTRE_Y - ((FONT_CHARACTER_SPRITE_HEIGHT + 2) * 1) - 1,
                     0,
                     "Loading Chunk Data"
                 );
@@ -125,14 +125,14 @@ void worldInit(World* world, RenderContext* ctx) {
                 fontPrintCentreOffset(
                     ctx,
                     CENTRE_X,
-                    CENTRE_Y - ((FONT_SPRITE_HEIGHT + 2) * 3),
+                    CENTRE_Y - ((FONT_CHARACTER_SPRITE_HEIGHT + 2) * 3),
                     0,
                     "Loading World"
                 );
                 fontPrintCentreOffset(
                     ctx,
                     CENTRE_X,
-                    CENTRE_Y - ((FONT_SPRITE_HEIGHT + 2) * 2) - 1,
+                    CENTRE_Y - ((FONT_CHARACTER_SPRITE_HEIGHT + 2) * 2) - 1,
                     10,
                     "Chunk [%d,%d,%d]",
                     x, y, z
@@ -140,7 +140,7 @@ void worldInit(World* world, RenderContext* ctx) {
                 fontPrintCentreOffset(
                     ctx,
                     CENTRE_X,
-                    CENTRE_Y - ((FONT_SPRITE_HEIGHT + 2) * 1) - 1,
+                    CENTRE_Y - ((FONT_CHARACTER_SPRITE_HEIGHT + 2) * 1) - 1,
                     10,
                     "Building Mesh",
                     x, y, z

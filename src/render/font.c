@@ -10,27 +10,27 @@ typedef struct {
 	char* txtbuff;
 	char* txtnext;
 	char* pribuff;
-	int16_t	x, y;
-	int16_t	w, h;
+	i16	x, y;
+	i16	w, h;
 	int	bg, maxchars;
 } FontStream;
 
 static FontStream font_stream[8];
 static int font_nstreams = 0;
 
-uint16_t font_current_tpage;
-uint16_t font_current_clut;
+u16 font_current_tpage;
+u16 font_current_clut;
 
-uint32_t fontStringWidth(const char* string) {
-    return FONT_SPRITE_WIDTH * strlen(string);
+u32 fontStringWidth(const char* string) {
+    return FONT_CHARACTER_SPRITE_WIDTH * strlen(string);
 }
 
 void fontPrintCentreOffset(RenderContext* ctx,
-                           const int32_t x_offset,
-                           const int32_t y,
-                           const uint32_t fmt_add_bytes,
+                           const i32 x_offset,
+                           const i32 y,
+                           const u32 fmt_add_bytes,
                            const char* fmt, ...) {
-    const uint32_t raw_length = strlen(fmt) + 1;
+    const u32 raw_length = strlen(fmt) + 1;
     char* buf = (char*) calloc(raw_length + fmt_add_bytes, sizeof(*buf));
     memset(buf, 0, raw_length + fmt_add_bytes);
     va_list ap;
@@ -63,13 +63,14 @@ FontID fontOpen(const int x,
 			    const int h,
 			    const int isbg,
 			    int n) {
+	// TODO: Restrict font texture to 128x128 since we only support that size
 	_sdk_validate_args((w > 0) && (h > 0) && (n > 0), -1);
 	// Initialize a text stream
 	font_stream[font_nstreams].x = x;
 	font_stream[font_nstreams].y = y;
 	font_stream[font_nstreams].w = w;
 	font_stream[font_nstreams].h = h;
-	font_stream[font_nstreams].txtbuff = (char*) malloc(n+ 1 );
+	font_stream[font_nstreams].txtbuff = (char*) malloc(n + 1);
 	int i = (sizeof(SPRT_8) * n) + sizeof(DR_TPAGE);
 	if (isbg) {
 		i += sizeof(TILE);
@@ -111,20 +112,20 @@ int fontPrint(FontID id, const char* fmt, ...) {
 void* fontFlush(FontID id) {
 	_sdk_validate_args(id < font_nstreams, 0);
 	if (id < 0) {
-		id = font_nstreams-1;
+		id = font_nstreams - 1;
 	}
-	int sx = font_stream[id].x;
-	int sy = font_stream[id].y;
+	int stream_x = font_stream[id].x;
+	int stream_y = font_stream[id].y;
 	const char* text = font_stream[id].txtbuff;
-	char* opri = font_stream[id].pribuff;
+	char* primitive = font_stream[id].pribuff;
 	// Create TPage primitive
-	DR_TPAGE* tpage = (DR_TPAGE*)opri;
-	setDrawTPage(tpage, 0, 0, font_current_tpage);
-	SPRT_8 *sprt;
+	DR_TPAGE* texture_page = (DR_TPAGE*)primitive;
+	setDrawTPage(texture_page, 0, 0, font_current_tpage);
+	SPRT_8* sprite;
 	// Create a black rectangle background when enabled
 	if (font_stream[id].bg) {
-		opri += sizeof(DR_TPAGE);
-		TILE* tile = (TILE*)opri;
+		primitive += sizeof(DR_TPAGE);
+		TILE* tile = (TILE*)primitive;
 		setTile(tile);
 		if (font_stream[id].bg == 2) {
 			setSemiTrans(tile, 1);
@@ -132,46 +133,49 @@ void* fontFlush(FontID id) {
 		setXY0(tile, font_stream[id].x, font_stream[id].y);
 		setWH(tile, font_stream[id].w, font_stream[id].h);
 		setRGB0(tile, 0, 0, 0);
-		setaddr(tpage, tile);
-		opri = (char*)tile;
-		sprt = (SPRT_8*)(opri+sizeof(TILE));
+		setaddr(texture_page, tile);
+		primitive = (char*)tile;
+		sprite = (SPRT_8*)(primitive+sizeof(TILE));
 	} else {
-		sprt = (SPRT_8*)(opri+sizeof(DR_TPAGE));
+		sprite = (SPRT_8*)(primitive+sizeof(DR_TPAGE));
 	}
 	// Create the sprite primitives
 	while (*text != 0) {
-		if (*text == '\n' || sx-font_stream[id].x > font_stream[id].w - 8) {
-			sx = font_stream[id].x;
-			sy += 8;
+		if (*text == '\n' || stream_x - font_stream[id].x > font_stream[id].w - FONT_CHARACTER_SPRITE_WIDTH) {
+			stream_x = font_stream[id].x;
+			stream_y += FONT_CHARACTER_SPRITE_WIDTH;
 			if (*text == '\n') {
 				text++;
 			}
 			continue;
 		}
-		if (sy-font_stream[id].y > font_stream[id].h - 8) {
+		if (stream_y - font_stream[id].y > font_stream[id].h - 8) {
 			break;
 		}
-		int i = toupper(*text) - ' ';
-		if (i > 0) {
-			i--;
-			setSprt8(sprt);
-			setShadeTex(sprt, 1);
-			setSemiTrans(sprt, 1);
-			setXY0(sprt, sx, sy);
-			setUV0(sprt, (i % 16) * 8, (i / 16) * 8);
-			sprt->clut = font_current_clut;
-			setaddr(opri, sprt);
-			opri = (char*)sprt;
-			sprt++;
+		const int i = *text;
+		if (i > 0 && i <= UINT8_MAX) {
+			setSprt8(sprite);
+			setShadeTex(sprite, 1);
+			setSemiTrans(sprite, 1);
+			setXY0(sprite, stream_x, stream_y);
+			setUV0(
+				sprite,
+				(i % FONT_SPRITE_WIDTH) * FONT_CHARACTER_SPRITE_WIDTH,
+				(i / FONT_SPRITE_HEIGHT) * FONT_CHARACTER_SPRITE_HEIGHT
+			);
+			sprite->clut = font_current_clut;
+			setaddr(primitive, sprite);
+			primitive = (char*)sprite;
+			sprite++;
 		}
-		sx += 8;
+		stream_x += FONT_CHARACTER_SPRITE_WIDTH;
 		text++;
 	}
 	// Set a terminator value to the last primitive
-	termPrim(opri);
+	termPrim(primitive);
 	// Draw the primitives
 	DrawSync(0);
-	DrawOTag((uint32_t*)font_stream[id].pribuff);
+	DrawOTag((u32*) font_stream[id].pribuff);
 	DrawSync(0);
 	font_stream[id].txtnext = font_stream[id].txtbuff;
 	font_stream[id].txtbuff[0] = 0;
@@ -184,36 +188,39 @@ void* fontSort(u32* ordering_table,
 			   const int y,
 			   const char *text) {
 	_sdk_validate_args(ordering_table && primitive, 0);
-	SPRT_8 *sprt = (SPRT_8*)primitive;
-	int sx = x;
-	int sy = y;
+	SPRT_8* sprite = (SPRT_8*)primitive;
+	int stream_x = x;
+	int stream_y = y;
 	while (*text != 0) {
 		if (*text == '\n') {
-			sx = x;
-			sy += 8;
+			stream_x = x;
+			stream_y += FONT_CHARACTER_SPRITE_HEIGHT;
 			text++;
 			continue;
 		}
-		int i = toupper(*text) - ' ';
-		if (i > 0) {
-			i--;
-			setSprt8(sprt);
-			setShadeTex(sprt, 1);
-			setSemiTrans(sprt, 1);
-			setXY0(sprt, sx, sy);
-			setUV0(sprt, (i % 16) * 8, (i / 16) * 8);
-			sprt->clut = font_current_clut;
-			addPrim(ordering_table, sprt);
-			sprt++;
+		const int i = *text;
+		if (i > 0 && i < UINT8_MAX) {
+			setSprt8(sprite);
+			setShadeTex(sprite, 1);
+			setSemiTrans(sprite, 1);
+			setXY0(sprite, stream_x, stream_y);
+			setUV0(
+				sprite,
+				(i % FONT_SPRITE_WIDTH) * FONT_CHARACTER_SPRITE_WIDTH,
+				(i / FONT_SPRITE_HEIGHT) * FONT_CHARACTER_SPRITE_HEIGHT
+			);
+			sprite->clut = font_current_clut;
+			addPrim(ordering_table, sprite);
+			sprite++;
 		}
-		sx += 8;
+		stream_x += FONT_CHARACTER_SPRITE_WIDTH;
 		text++;
 	}
-	primitive = (char*)sprt;
-	DR_TPAGE* tpage = (DR_TPAGE*)primitive;
-	tpage->code[0] = font_current_tpage;
-	setlen(tpage, 1);
-	setcode(tpage, 0xe1);
+	primitive = (char*)sprite;
+	DR_TPAGE* texture_page = (DR_TPAGE*)primitive;
+	texture_page->code[0] = font_current_tpage;
+	setlen(texture_page, 1);
+	setcode(texture_page, 0xE1);
 	addPrim(ordering_table, primitive);
 	primitive += sizeof(DR_TPAGE);
 	return (void *) primitive;
