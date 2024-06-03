@@ -139,7 +139,7 @@ void* fontFlush(FontID id) {
 	char* primitive = font_stream[id].pribuff;
 	// Create TPage primitive
 	DR_TPAGE* texture_page = (DR_TPAGE*)primitive;
-	setDrawTPage(texture_page, 0, 0, font_current->tpage);
+	setDrawTPage(texture_page, 1, 0, font_current->tpage);
 	SPRT_8* sprite;
 	// Create a black rectangle background when enabled
 	if (font_stream[id].bg) {
@@ -168,7 +168,7 @@ void* fontFlush(FontID id) {
 			}
 			continue;
 		}
-		if (stream_y - font_stream[id].y > font_stream[id].h - 8) {
+		if (stream_y - font_stream[id].y > font_stream[id].h - FONT_CHARACTER_SPRITE_WIDTH) {
 			break;
 		}
 		const int i = *text;
