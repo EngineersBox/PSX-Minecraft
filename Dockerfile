@@ -7,6 +7,7 @@
 #    -t <tag> \
 #    -f Dockerfile .
 
+# TODO: Use a slimmer distro than bloaty ubuntu
 FROM ubuntu:22.04
 
 ARG REPO_TARGET=Lameguy64/PSn00bSDK

@@ -162,7 +162,7 @@ void* fontFlush(FontID id) {
 	while (*text != 0) {
 		if (*text == '\n' || stream_x - font_stream[id].x > font_stream[id].w - FONT_CHARACTER_SPRITE_WIDTH) {
 			stream_x = font_stream[id].x;
-			stream_y += FONT_CHARACTER_SPRITE_WIDTH;
+			stream_y += FONT_CHARACTER_SPRITE_HEIGHT;
 			if (*text == '\n') {
 				text++;
 			}
@@ -182,7 +182,7 @@ void* fontFlush(FontID id) {
 				(i % FONT_SPRITE_WIDTH) * FONT_CHARACTER_SPRITE_WIDTH,
 				(i / FONT_SPRITE_HEIGHT) * FONT_CHARACTER_SPRITE_HEIGHT
 			);
-			sprite->clut = font_current->clut;
+			sprite->clut = 0; // font_current->clut;
 			setaddr(primitive, sprite);
 			primitive = (char*)sprite;
 			sprite++;

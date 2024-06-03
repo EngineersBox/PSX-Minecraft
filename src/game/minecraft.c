@@ -104,7 +104,7 @@ void Minecraft_init(VSelf, void* ctx) {
     // Unpack LZP archive and load assets
     assetsLoad();
     fontLoad();
-    // font_id = fontOpen(0, 0, 128, 128, 0, 256 + 16);
+    font_id = fontOpen(0, 0, 128, 128, 0, 256 + 16);
     // Initialise world
     self->world = (World*) malloc(sizeof(World));
     self->world->head.vx = 0;
@@ -474,18 +474,24 @@ void drawDebugText(const Minecraft* minecraft, const Stats* stats) {
 void printAllFontPoints(RenderContext* ctx) {
     for (int i = 0; i < 16; i++) {
         const char c = i * 16;
-        char str[18] = {0};
-        sprintf(
-            str,
+        // char str[18] = {0};
+        // sprintf(
+        //     str,
+        //     "%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c\n",
+        //     c, c + 1, c + 2, c + 3, c + 4, c + 5, c + 6, c + 7,
+        //     c + 8, c + 9, c + 10, c + 11, c + 12, c + 13, c + 14, c + 15
+        // );
+        // ctx->primitive = fontSort(
+        //     ctx->db[ctx->active].ordering_table,
+        //     ctx->primitive,
+        //     0, i * FONT_CHARACTER_SPRITE_HEIGHT,
+        //     str
+        // );
+        fontPrint(
+            font_id,
             "%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c\n",
-            c, c + 1, c + 2, c + 3, c + 4, c + 5, c + 6, c + 7,
+            c == 0 ? ' ' : c, c + 1, c + 2, c + 3, c + 4, c + 5, c + 6, c + 7,
             c + 8, c + 9, c + 10, c + 11, c + 12, c + 13, c + 14, c + 15
-        );
-        ctx->primitive = fontSort(
-            ctx->db[ctx->active].ordering_table,
-            ctx->primitive,
-            0, i * FONT_CHARACTER_SPRITE_HEIGHT,
-            str
         );
     }
 }
@@ -517,7 +523,7 @@ void Minecraft_render(VSelf, const Stats* stats) {
     // );
     // Flush font to screen
     printAllFontPoints(&self->internals.ctx);
-    // fontFlush(font_id);
+    fontFlush(font_id);
     FntFlush(0);
     // Swap buffers and draw the primitives
     swapBuffers(&self->internals.ctx);
