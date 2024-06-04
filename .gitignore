@@ -1,9 +1,9 @@
 build
-venv
-pyvenv.cfg
+scripts/venv
+scripts/pyvenv.cfg
 .ccls-cache
 .vscode
 .idea
 *.lzp
 *.qlp
-__pycache__
+scripts/__pycache__
