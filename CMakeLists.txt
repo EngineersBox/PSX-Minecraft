@@ -57,9 +57,9 @@ target_include_directories(PSXMC PRIVATE ${PSXMC_INCLUDE_DIRS})
 
 psn00bsdk_add_cd_image(
 	iso # Target name
-	PSXMC # Output file name (= template.bin + template.cue)
-	iso.xml  # Path to config file
-	DEPENDS PSXMC system.cnf # PS1 system conig dependency
+	PSXMC # Output file name (= <NAME>.bin + <NAME>.cue)
+	iso.xml  # Path to CD layout file
+	DEPENDS PSXMC system.cnf # PS1 system config dependency
 )
 
 # Include dependencies

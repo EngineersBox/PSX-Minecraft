@@ -54,6 +54,7 @@
 * [x] Migrate to chunk providers and generators created with world for specific generation
 * [x] Move old mesh generation in `Chunk` into standalone implementation in `src/game/world/chunk/meshing` or remove
 * [x] Per-face opacity control on each block for minimal meshing with mixed opacity (like farmland, bottom only opaque)
+* [ ] Move assets to on-disk directories and files instead of packing them into the binary
 
 ## Fix
 
