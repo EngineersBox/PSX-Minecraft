@@ -59,7 +59,7 @@ class ColoredFormatter(coloredlogs.ColoredFormatter):
             }
         }
 
-logging.config.fileConfig(fname="logger.ini", disable_existing_loggers=False)
+logging.config.fileConfig(fname="scripts/logger.ini", disable_existing_loggers=False)
 LOGGER = logging.getLogger("AssetBundler")
 
 MAX_FILE_NAME_SIZE = 16
@@ -164,10 +164,14 @@ def bundle(lzp_project) -> (int, int, int):
     return success, fail, skipped
 
 
-def sort_elements(lzp_project: ET.Element):
+def sort_elements(lzp_project: ET.Element) -> ET.Element:
+    lzp_project[:] = sorted(lzp_project, key=lambda child: (child.tag, child.get("packname")))    
+    for c in lzp_project:
+        c[:] = sorted(c, key=lambda child: (child.tag, child.get("alias")))
     assets = lzp_project.find("create[@packname='assets.lzp']")
     lzp_project.remove(assets)
     lzp_project.append(assets)
+    return lzp_project
 
 
 def generate_defines(lzp_project: ET.Element) -> str:
