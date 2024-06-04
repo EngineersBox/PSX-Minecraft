@@ -1,2 +1,0 @@
-CompileFlags:
-  Remove: -march=r3000 -mtune=r3000
