@@ -55,5 +55,5 @@ void blocksInitialiseBuiltin() {
         BLOCKID_COBBLESTONE,
         cobblestoneBlockCreateAttributes()
     );
-    DEBUG_LOG("Dirt: %d\n", VCAST_PTR(Block*, cobblestoneBlockCreate())->id);
+    DEBUG_LOG("Cobblestone: %d\n", VCAST_PTR(Block*, cobblestoneBlockCreate())->id);
 }
