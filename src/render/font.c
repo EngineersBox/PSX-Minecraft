@@ -90,7 +90,7 @@ FontID fontOpen(const int x,
 	font_stream[font_nstreams].w = w;
 	font_stream[font_nstreams].h = h;
 	font_stream[font_nstreams].txtbuff = (char*) malloc(n + 1);
-	int i = (sizeof(SPRT_8) * n) + sizeof(DR_TPAGE);
+	int i = (sizeof(SPRT_8) * n) + (2 * sizeof(DR_TPAGE));
 	if (isbg) {
 		i += sizeof(TILE);
 	}
@@ -190,6 +190,10 @@ void* fontFlush(FontID id) {
 		stream_x += FONT_CHARACTER_SPRITE_WIDTH;
 		text++;
 	}
+	// primitive = (char*)sprite;
+	// texture_page = (DR_TPAGE*) primitive;
+	// setDrawTPage(texture_page, 1, 0, font_current->tpage);
+	// primitive += sizeof(DR_TPAGE);
 	// Set a terminator value to the last primitive
 	termPrim(primitive);
 	// Draw the primitives

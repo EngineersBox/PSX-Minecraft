@@ -82,7 +82,6 @@ void Minecraft_init(VSelf, void* ctx) {
     camera = cameraCreate(&self->internals.transforms);
     DYN_PTR(&self->internals.camera, Camera, IInputHandler, &camera);
     self->internals.ctx.camera = VCAST(Camera*, self->internals.camera);
-    // Set light ambient color and light color ma trix
     gte_SetBackColor(
         back_colour.r,
         back_colour.g,
@@ -93,6 +92,7 @@ void Minecraft_init(VSelf, void* ctx) {
         far_colour.g,
         far_colour.b
     );
+    // Set light ambient color and light colorma trix
     gte_SetColorMatrix(&lighting_colour);
     // FOV?
     gte_SetGeomScreen(100);

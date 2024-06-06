@@ -407,8 +407,14 @@ void renderItemBlockInventory(ItemBlock* item,
         // Don't draw the amount of items if there is less than 2
         return;
     }
-    char stack_count_text[3];
-    sprintf(stack_count_text, "%2d\n", item->item.stack_size);
+    const u8 stack_size = item->item.stack_size;
+    // Faster print to avoid sprintf->vsprintf->vsnprintf
+    char stack_count_text[3] = {
+        stack_size < 10 ? ' ' : '0' + ((stack_size / 10) % 10),
+        '0' + (stack_size % 10),
+        '\0'
+    };
+    // sprintf(stack_count_text, "%2d\n", item->item.stack_size);
     ctx->primitive = FntSort(
         allocateOrderingTable(ctx, 0),
         ctx->primitive,
