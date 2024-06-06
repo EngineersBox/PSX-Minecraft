@@ -26,7 +26,7 @@ SVECTOR item_block_verts[VERTICES_COUNT] = {
 // Domain: [0,36] -> [0,1] (X)
 // Range:  [0,16] (Y)
 // f(x) = 16 * (1 / (1 + e^((-7.5 * x) + (7.5 / 2))))
-const int32_t item_block_anim_sigmoid_lut[ITEM_BLOCK_BOB_ANIM_SAMPLES] = {
+const i32 item_block_anim_sigmoid_lut[ITEM_BLOCK_BOB_ANIM_SAMPLES] = {
     0, 0, 0, 0, 0, 0, 1, 1, 1, 2, 2,
     2, 3, 3, 4, 5, 6, 6, 7, 8, 9, 9,
     10, 11, 12, 12, 13, 13, 13, 14,
@@ -35,7 +35,7 @@ const int32_t item_block_anim_sigmoid_lut[ITEM_BLOCK_BOB_ANIM_SAMPLES] = {
 // Domain: [0,36] -> [0,1] (X)
 // Range:  [0,16] (Y)
 // f(x) = 16 * (0.5 + ((sin((pi * x) - (pi / 2))) / 2))
-const int32_t item_block_anim_sin_lut[ITEM_BLOCK_BOB_ANIM_SAMPLES] = {
+const i32 item_block_anim_sin_lut[ITEM_BLOCK_BOB_ANIM_SAMPLES] = {
     0, 0, 0, 0, 0, 0, 1, 1, 1, 2, 2,
     3, 3, 4, 5, 5, 6, 6, 7, 8, 9, 9,
     10, 10, 11, 12, 12, 13, 13, 14,
@@ -66,8 +66,9 @@ const VECTOR item_stack_render_offsets[5] = {
     },
 };
 
-const uint8_t FULL_BLOCK_FACE_INDICES[FULL_BLOCK_FACE_INDICES_COUNT] = { 0, 1, 2, 3, 4, 5 };
-const uint8_t ISOMETRIC_BLOCK_FACE_INDICES[ISOMETRIC_BLOCK_FACE_INDICES_COUNT] = { 0,3,5 };
+const u8 FULL_BLOCK_FACE_INDICES[FULL_BLOCK_FACE_INDICES_COUNT] = { 0, 1, 2, 3, 4, 5 };
+// TODO: Fix these indices for isometric view in inventory
+const u8 ISOMETRIC_BLOCK_FACE_INDICES[ISOMETRIC_BLOCK_FACE_INDICES_COUNT] = { 0,3,5 };
 
 /**
  * Why does this work? Heres the layout of the vertices explicitly:
@@ -250,7 +251,7 @@ void itemBlockRenderWorld(ItemBlock* item, RenderContext* ctx, Transforms* trans
         );
     } else if (item->item.stack_size <= 16) {
         #pragma GCC unroll 2
-        for (int i = 0; i < 2; i ++) {
+        for (int i = 0; i < 2; i++) {
             renderItemBlock(
                 item,
                 ctx,
@@ -259,7 +260,7 @@ void itemBlockRenderWorld(ItemBlock* item, RenderContext* ctx, Transforms* trans
         }
     } else if (item->item.stack_size <= 32) {
         #pragma GCC unroll 3
-        for (int i = 0; i < 3; i ++) {
+        for (int i = 0; i < 3; i++) {
             renderItemBlock(
                 item,
                 ctx,
@@ -268,7 +269,7 @@ void itemBlockRenderWorld(ItemBlock* item, RenderContext* ctx, Transforms* trans
         }
     } else if (item->item.stack_size <= 48) {
         #pragma GCC unroll 4
-        for (int i = 0; i < 4; i ++) {
+        for (int i = 0; i < 4; i++) {
             renderItemBlock(
                 item,
                 ctx,
@@ -277,7 +278,7 @@ void itemBlockRenderWorld(ItemBlock* item, RenderContext* ctx, Transforms* trans
         }
     } else {
         #pragma GCC unroll 5
-        for (int i = 0; i < 5; i ++) {
+        for (int i = 0; i < 5; i++) {
             renderItemBlock(
                 item,
                 ctx,
@@ -299,13 +300,13 @@ void renderItemBlockInventory(ItemBlock* item,
                               RenderContext* ctx,
                               const VECTOR* screen_position,
                               const int size,
-                              const uint8_t* face_indices,
-                              const uint8_t face_indices_count) {
+                              const u8* face_indices,
+                              const u8 face_indices_count) {
     int p;
     TextureAttributes* face_attribute;
     const Texture* texture = &textures[ASSET_TEXTURES_TERRAIN_INDEX];
-    const int16_t offset_screen_x = -CENTRE_X + screen_position->vx;
-    const int16_t offset_screen_y = -CENTRE_Y + screen_position->vy;
+    const i16 offset_screen_x = -CENTRE_X + screen_position->vx;
+    const i16 offset_screen_y = -CENTRE_Y + screen_position->vy;
     RECT tex_window;
     int i;
     for (int idx = 0; idx < face_indices_count; idx++) {
@@ -394,7 +395,7 @@ void renderItemBlockInventory(ItemBlock* item,
         pol4->tpage = texture->tpage;
         pol4->clut = texture->clut;
         // Sort primitive to the ordering table
-        uint32_t* ot_object = allocateOrderingTable(ctx, 1);
+        u32* ot_object = allocateOrderingTable(ctx, 1);
         addPrim(ot_object, pol4);
         // Advance to make another primitive
         // Bind a texture window to ensure wrapping across merged block face primitives

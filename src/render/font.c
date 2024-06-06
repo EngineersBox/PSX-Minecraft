@@ -90,7 +90,7 @@ FontID fontOpen(const int x,
 	font_stream[font_nstreams].w = w;
 	font_stream[font_nstreams].h = h;
 	font_stream[font_nstreams].txtbuff = (char*) malloc(n + 1);
-	int i = (sizeof(SPRT_8) * n) + (2 * sizeof(DR_TPAGE));
+	int i = (sizeof(SPRT_8) * n) + sizeof(DR_TPAGE);
 	if (isbg) {
 		i += sizeof(TILE);
 	}
@@ -125,7 +125,6 @@ int fontPrint(FontID id, const char* fmt, ...) {
 	font_stream[id].txtnext += n;
 	va_end(ap);
 	return strlen(font_stream[id].txtbuff);
-
 }
 
 void* fontFlush(FontID id) {
@@ -182,7 +181,7 @@ void* fontFlush(FontID id) {
 				(i % FONT_SPRITE_WIDTH) * FONT_CHARACTER_SPRITE_WIDTH,
 				(i / FONT_SPRITE_HEIGHT) * FONT_CHARACTER_SPRITE_HEIGHT
 			);
-			sprite->clut = 0; // font_current->clut;
+			sprite->clut = font_current->clut;
 			setaddr(primitive, sprite);
 			primitive = (char*)sprite;
 			sprite++;
