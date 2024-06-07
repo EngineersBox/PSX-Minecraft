@@ -74,8 +74,9 @@ docker build -t psxmc:latest -f Dockerfile .
 
 ### Utility Build Script
 
-Instead, you can use the utility script `build_container.sh` to bundle assets and compile the
-project, it essentially does the same with some extra controls. Usage is defined as such:
+Using the above image, the utility script `build_container.sh` can be used to bundle assets
+and compile the project, it essentially does the work of running the image, mounting directories,
+passing the right flags, etc.
 
 ```
 Usage: ./build_container.sh [<options>]
