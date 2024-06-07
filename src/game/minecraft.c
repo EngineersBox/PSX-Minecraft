@@ -104,7 +104,7 @@ void Minecraft_init(VSelf, void* ctx) {
     // Unpack LZP archive and load assets
     assetsLoad();
     fontLoad();
-    font_id = fontOpen(0, 0, 128, 128, 0, 256 + 16);
+    // font_id = fontOpen(0, 0, 128, 128, 0, 256 + 16);
     // Initialise world
     self->world = (World*) malloc(sizeof(World));
     self->world->head.vx = 0;
@@ -500,30 +500,30 @@ void minecraftRender(VSelf, const Stats* stats) ALIAS("Minecraft_render");
 void Minecraft_render(VSelf, const Stats* stats) {
     VSELF(Minecraft);
     // Draw the world
-    // frustumTransform(&self->internals.ctx.camera->frustum, &self->internals.transforms);
-    // worldRender(
-    //     self->world,
-    //     &self->internals.ctx,
-    //     &self->internals.transforms
-    // );
-    // frustumRestore(&self->internals.ctx.camera->frustum);
+    frustumTransform(&self->internals.ctx.camera->frustum, &self->internals.transforms);
+    worldRender(
+        self->world,
+        &self->internals.ctx,
+        &self->internals.transforms
+    );
+    frustumRestore(&self->internals.ctx.camera->frustum);
     // Clear window constraints
     renderClearConstraints(&self->internals.ctx);
     // Draw marker
     // drawMarker(self);
     // Render UI
-    // playerRender(player, &self->internals.ctx, &self->internals.transforms);
+    playerRender(player, &self->internals.ctx, &self->internals.transforms);
     // crosshairDraw(&render_context);
-    // drawDebugText(self, stats);
-    // axisDraw(&self->internals.ctx, &self->internals.transforms, &camera);
-    // debugDrawPBUsageGraph(
-    //     &self->internals.ctx,
-    //     0,
-    //     SCREEN_YRES - HOTBAR_HEIGHT - 2
-    // );
+    drawDebugText(self, stats);
+    axisDraw(&self->internals.ctx, &self->internals.transforms, &camera);
+    debugDrawPBUsageGraph(
+        &self->internals.ctx,
+        0,
+        SCREEN_YRES - HOTBAR_HEIGHT - 2
+    );
     // Flush font to screen
-    printAllFontPoints(&self->internals.ctx);
-    fontFlush(font_id);
+    // printAllFontPoints(&self->internals.ctx);
+    // fontFlush(font_id);
     FntFlush(0);
     // Swap buffers and draw the primitives
     swapBuffers(&self->internals.ctx);

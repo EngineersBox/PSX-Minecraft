@@ -1,5 +1,6 @@
 #include "item_block.h"
 
+#include <font.h>
 #include <psxgte.h>
 #include <psxgpu.h>
 #include <inline_c.h>
@@ -66,9 +67,9 @@ const VECTOR item_stack_render_offsets[5] = {
     },
 };
 
-const u8 FULL_BLOCK_FACE_INDICES[FULL_BLOCK_FACE_INDICES_COUNT] = { 0, 1, 2, 3, 4, 5 };
+const u8 FULL_BLOCK_FACE_INDICES[FULL_BLOCK_FACE_INDICES_COUNT] = {0, 1, 2, 3, 4, 5};
 // TODO: Fix these indices for isometric view in inventory
-const u8 ISOMETRIC_BLOCK_FACE_INDICES[ISOMETRIC_BLOCK_FACE_INDICES_COUNT] = { 0,3,5 };
+const u8 ISOMETRIC_BLOCK_FACE_INDICES[ISOMETRIC_BLOCK_FACE_INDICES_COUNT] = {0, 3, 5};
 
 /**
  * Why does this work? Heres the layout of the vertices explicitly:
@@ -416,7 +417,16 @@ void renderItemBlockInventory(ItemBlock* item,
         '\0'
     };
     // sprintf(stack_count_text, "%2d\n", item->item.stack_size);
-    ctx->primitive = FntSort(
+    // fontOpen(
+    //     screen_position->vx - 7,
+    //     screen_position->vy,
+    //     FONT_CHARACTER_SPRITE_WIDTH * 2,
+    //     FONT_CHARACTER_SPRITE_HEIGHT,
+    //     0,
+    //     3
+    // );
+    //
+    ctx->primitive = fontSort(
         allocateOrderingTable(ctx, 0),
         ctx->primitive,
         screen_position->vx - 7,

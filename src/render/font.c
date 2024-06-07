@@ -90,7 +90,7 @@ FontID fontOpen(const int x,
 	font_stream[font_nstreams].w = w;
 	font_stream[font_nstreams].h = h;
 	font_stream[font_nstreams].txtbuff = (char*) malloc(n + 1);
-	int i = (sizeof(SPRT_8) * n) + sizeof(DR_TPAGE);
+	int i = (sizeof(SPRT_8) * n) + 1 * sizeof(DR_TPAGE);
 	if (isbg) {
 		i += sizeof(TILE);
 	}
@@ -167,19 +167,19 @@ void* fontFlush(FontID id) {
 			}
 			continue;
 		}
-		if (stream_y - font_stream[id].y > font_stream[id].h - FONT_CHARACTER_SPRITE_WIDTH) {
+		if (stream_y - font_stream[id].y > font_stream[id].h - FONT_CHARACTER_SPRITE_HEIGHT) {
 			break;
 		}
-		const int i = *text;
-		if (i > 0 && i <= UINT8_MAX) {
+		const int c = (u8) *text;
+		if (c > 0 && c <= UINT8_MAX) {
 			setSprt8(sprite);
 			setShadeTex(sprite, 1);
 			setSemiTrans(sprite, 1);
 			setXY0(sprite, stream_x, stream_y);
 			setUV0(
 				sprite,
-				(i % FONT_SPRITE_WIDTH) * FONT_CHARACTER_SPRITE_WIDTH,
-				(i / FONT_SPRITE_HEIGHT) * FONT_CHARACTER_SPRITE_HEIGHT
+				(c % FONT_SPRITE_WIDTH) * FONT_CHARACTER_SPRITE_WIDTH,
+				(c / FONT_SPRITE_HEIGHT) * FONT_CHARACTER_SPRITE_HEIGHT
 			);
 			sprite->clut = font_current->clut;
 			setaddr(primitive, sprite);
@@ -189,10 +189,9 @@ void* fontFlush(FontID id) {
 		stream_x += FONT_CHARACTER_SPRITE_WIDTH;
 		text++;
 	}
-	// primitive = (char*)sprite;
-	// texture_page = (DR_TPAGE*) primitive;
-	// setDrawTPage(texture_page, 1, 0, font_current->tpage);
-	// primitive += sizeof(DR_TPAGE);
+	// NOTE: setaddr sets the address of the next primitive to the target primitive. Essentially,
+	//       the ordering table is a unidirectional linked list
+	// setaddr(primitive, sprite);
 	// Set a terminator value to the last primitive
 	termPrim(primitive);
 	// Draw the primitives
@@ -220,7 +219,7 @@ void* fontSort(u32* ordering_table,
 			text++;
 			continue;
 		}
-		const int i = *text;
+		const int i = (u8) *text;
 		if (i > 0 && i < UINT8_MAX) {
 			setSprt8(sprite);
 			setShadeTex(sprite, 1);
