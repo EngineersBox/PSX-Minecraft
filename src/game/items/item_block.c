@@ -425,12 +425,12 @@ void renderItemBlockInventory(ItemBlock* item,
     //     0,
     //     3
     // );
-    //
     ctx->primitive = fontSort(
         allocateOrderingTable(ctx, 0),
         ctx->primitive,
         screen_position->vx - 7,
         screen_position->vy, // -1 Offset accounts for shadow on text
+        true,
         stack_count_text
     );
     renderClearConstraints(ctx);

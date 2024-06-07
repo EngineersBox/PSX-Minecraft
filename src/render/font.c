@@ -16,13 +16,17 @@ typedef struct {
 	char* pribuff;
 	i16	x, y;
 	i16	w, h;
-	int	bg, maxchars;
+	u8 bg: 1;
+	u8 shadow: 1;
+	u8 _pad: 6;
+	u32 maxchars;
 } FontStream;
 
 static FontStream font_stream[8];
 static int font_nstreams = 0;
 
 Texture* font_current;
+Texture* font_shadowed_current;
 
 u32 fontStringWidth(const char* string) {
     return FONT_CHARACTER_SPRITE_WIDTH * strlen(string);
@@ -65,6 +69,7 @@ void fontLoad() {
 		errorAbort("[ERROR] Cannot load font, assets have not been loaded\n");
 	}
 	font_current = &textures[ASSET_TEXTURES_FONT_INDEX];
+	font_shadowed_current = &textures[ASSET_TEXTURES_FONT_SHADOWED_INDEX];
 	DrawSync(0);
 	// Clear previously opened text streams
 	if (font_nstreams) {
@@ -80,7 +85,8 @@ FontID fontOpen(const int x,
 			    const int y,
 			    const int w,
 			    const int h,
-			    const int isbg,
+			    const bool isbg,
+			    const bool shadow,
 			    int n) {
 	// TODO: Restrict font texture to 128x128 since we only support that size
 	_sdk_validate_args((w > 0) && (h > 0) && (n > 0), -1);
@@ -99,6 +105,7 @@ FontID fontOpen(const int x,
 	font_stream[font_nstreams].txtbuff[0] = 0x0;
 	font_stream[font_nstreams].txtnext = font_stream[font_nstreams].txtbuff;
 	font_stream[font_nstreams].bg = isbg;
+	font_stream[font_nstreams].shadow = shadow;
 	n = font_nstreams;
 	font_nstreams++;
 	return n;
@@ -132,13 +139,19 @@ void* fontFlush(FontID id) {
 	if (id < 0) {
 		id = font_nstreams - 1;
 	}
+	const Texture* tex_ref = font_stream[id].shadow ? font_shadowed_current : font_current;
 	int stream_x = font_stream[id].x;
 	int stream_y = font_stream[id].y;
 	const char* text = font_stream[id].txtbuff;
 	char* primitive = font_stream[id].pribuff;
 	// Create TPage primitive
 	DR_TPAGE* texture_page = (DR_TPAGE*)primitive;
-	setDrawTPage(texture_page, 1, 0, font_current->tpage);
+	setDrawTPage(
+		texture_page,
+		1,
+		0,
+		tex_ref->tpage
+	);
 	SPRT_8* sprite;
 	// Create a black rectangle background when enabled
 	if (font_stream[id].bg) {
@@ -181,7 +194,7 @@ void* fontFlush(FontID id) {
 				(c % FONT_SPRITE_WIDTH) * FONT_CHARACTER_SPRITE_WIDTH,
 				(c / FONT_SPRITE_HEIGHT) * FONT_CHARACTER_SPRITE_HEIGHT
 			);
-			sprite->clut = font_current->clut;
+			sprite->clut = tex_ref->clut;
 			setaddr(primitive, sprite);
 			primitive = (char*)sprite;
 			sprite++;
@@ -189,9 +202,6 @@ void* fontFlush(FontID id) {
 		stream_x += FONT_CHARACTER_SPRITE_WIDTH;
 		text++;
 	}
-	// NOTE: setaddr sets the address of the next primitive to the target primitive. Essentially,
-	//       the ordering table is a unidirectional linked list
-	// setaddr(primitive, sprite);
 	// Set a terminator value to the last primitive
 	termPrim(primitive);
 	// Draw the primitives
@@ -207,8 +217,10 @@ void* fontSort(u32* ordering_table,
 			   void* primitive,
 			   const int x,
 			   const int y,
+			   const bool shadow,
 			   const char *text) {
 	_sdk_validate_args(ordering_table && primitive, 0);
+	const Texture* tex_ref = shadow ? font_shadowed_current : font_current;
 	SPRT_8* sprite = (SPRT_8*)primitive;
 	int stream_x = x;
 	int stream_y = y;
@@ -230,7 +242,7 @@ void* fontSort(u32* ordering_table,
 				(i % FONT_SPRITE_WIDTH) * FONT_CHARACTER_SPRITE_WIDTH,
 				(i / FONT_SPRITE_HEIGHT) * FONT_CHARACTER_SPRITE_HEIGHT
 			);
-			sprite->clut = font_current->clut;
+			sprite->clut = tex_ref->clut;
 			addPrim(ordering_table, sprite);
 			sprite++;
 		}
@@ -243,7 +255,7 @@ void* fontSort(u32* ordering_table,
 		texture_page,
 		1,
 		0,
-		font_current->tpage
+		tex_ref->tpage
 	);
 	addPrim(ordering_table, primitive);
 	primitive += sizeof(DR_TPAGE);
