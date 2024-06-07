@@ -2,7 +2,20 @@
 
 set -o errexit -o pipefail -o noclobber -o nounset
 
-# ignore errexit with `&& true`
+PWD="$(pwd)"
+PROJECT_DIR_NAME="PSX-Minecraft"
+
+# Ensure we work from the project base dir to avoid
+# weird mounting behaviour when running container
+case "$(basename "$PWD")" in
+  "$PROJECT_DIR_NAME") ;;
+  *)
+    echo "[ERROR] This script must be run from the $PROJECT_DIR_NAME directory, not $PWD"
+    exit 1
+    ;;
+esac
+
+# Ignore errexit with `&& true`
 getopt --test > /dev/null && true
 if [[ $? -ne 4 ]]; then
     echo '[ERROR] getopt invocation failed.'
@@ -18,22 +31,22 @@ function printHelp() {
     echo "    -i | --image=<image:tag>  Specify which image to use when building (default: psxmc:latest)"
 }
 
-# option --output/-o requires 1 argument
+# Note that options with a ':' require an argument
 LONGOPTS=help,rebuild,output:,image:
 OPTIONS=hro:i:
 
-# -temporarily store output to be able to check for errors
-# -activate quoting/enhanced mode (e.g. by writing out “--options”)
-# -pass arguments only via   -- "$@"   to separate them correctly
-# -if getopt fails, it complains itself to stdout
+# 1. Temporarily store output to be able to check for errors
+# 2. Activate quoting/enhanced mode (e.g. by writing out “--options”)
+# 3. Pass arguments only via   -- "$@"   to separate them correctly
+# 4. If getopt fails, it complains itself to stdout
 PARSED=$(getopt --options=$OPTIONS --longoptions=$LONGOPTS --name "$0" -- "$@") || exit 2
-# read getopt’s output this way to handle the quoting right:
+# Read getopt’s output this way to handle the quoting right:
 eval set -- "$PARSED"
 
 rebuild=0
 outDir="./build"
 image="psxmc:latest"
-# now enjoy the options in order and nicely split until we see --
+# Handle options in order and nicely split until we see --
 while true; do
     case "$1" in
         -h|--help)
@@ -63,6 +76,9 @@ while true; do
     esac
 done
 
+# Construct the command to run in the container,
+# only invoking a cmake build recreation when the
+# flag is set
 COMMAND="python3 scripts/asset_bundler.py"
 if [ $rebuild -eq 0 ]; then
   COMMAND="$COMMAND && cmake --build $outDir"
