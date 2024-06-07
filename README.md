@@ -9,6 +9,7 @@ Remake of Minecraft for PS1 with PSn00bSDK
   * [References](#references)
   * [Building](#building)
   * [Docker Environment](#docker-environment)
+    * [Utility Build Script](#utility-build-script)
     * [CLion](#clion)
   * [Progress](#progress)
 <!-- TOC -->
@@ -71,12 +72,24 @@ Using this, we can build as follows:
 docker build -t psxmc:latest -f Dockerfile .
 ```
 
-With this, use the utility script `build_container.sh [<image:tag>]` to bundle assets and compile the
-project. For example
+### Utility Build Script
+
+Instead, you can use the utility script `build_container.sh` to bundle assets and compile the
+project, it essentially does the same with some extra controls. Usage is defined as such:
 
 ```shell
-./build_container.sh psxmc:latest
+Usage: ./build_container.sh [-h|--help] [-r|--rebuild] [-o|--output=<dir>] [-i|--image=<image:tag>]
+Options:
+    -h | --help:              Print this help message
+    -r | --rebuild:           Clean the build directory and initialise CMake again (default: false)
+    -o | --output=<dir>:      Set the directory to use as the build output (default: ./build)
+    -i | --image=<image:tag>: Specify which image to use when building (default: psxmc:latest)
 ```
+
+Initially, you'll want to run it as `./build_container.sh --output=./build --rebuild`, but then for
+later rebuilds when making changes to code, just run `./build_container.sh`. Include `--output=<directory>`
+if you want to use a different directory than the default. Note that you'll need to use this option every
+time you run the command in that case.
 
 ### CLion
 
