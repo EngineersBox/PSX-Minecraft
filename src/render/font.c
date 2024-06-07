@@ -166,16 +166,17 @@ void* fontFlush(FontID id) {
 		setRGB0(tile, 0, 0, 0);
 		setaddr(texture_page, tile);
 		primitive = (char*)tile;
-		sprite = (SPRT_8*)(primitive+sizeof(TILE));
+		sprite = (SPRT_8*)(primitive + sizeof(TILE));
 	} else {
-		sprite = (SPRT_8*)(primitive+sizeof(DR_TPAGE));
+		sprite = (SPRT_8*)(primitive + sizeof(DR_TPAGE));
 	}
 	// Create the sprite primitives
-	while (*text != 0) {
-		if (*text == '\n' || stream_x - font_stream[id].x > font_stream[id].w - FONT_CHARACTER_SPRITE_WIDTH) {
+	char cc;
+	while ((cc = *text) != 0) {
+		if (cc == '\n' || stream_x - font_stream[id].x > font_stream[id].w - FONT_CHARACTER_SPRITE_WIDTH) {
 			stream_x = font_stream[id].x;
 			stream_y += FONT_CHARACTER_SPRITE_HEIGHT;
-			if (*text == '\n') {
+			if (cc == '\n') {
 				text++;
 			}
 			continue;
@@ -183,7 +184,7 @@ void* fontFlush(FontID id) {
 		if (stream_y - font_stream[id].y > font_stream[id].h - FONT_CHARACTER_SPRITE_HEIGHT) {
 			break;
 		}
-		const int c = (u8) *text;
+		const int c = (u8) cc;
 		if (c > 0 && c <= UINT8_MAX) {
 			setSprt8(sprite);
 			setShadeTex(sprite, 1);
@@ -224,14 +225,15 @@ void* fontSort(u32* ordering_table,
 	SPRT_8* sprite = (SPRT_8*)primitive;
 	int stream_x = x;
 	int stream_y = y;
-	while (*text != 0) {
-		if (*text == '\n') {
+	char cc;
+	while ((cc = *text) != 0) {
+		if (cc == '\n') {
 			stream_x = x;
 			stream_y += FONT_CHARACTER_SPRITE_HEIGHT;
 			text++;
 			continue;
 		}
-		const int i = (u8) *text;
+		const int i = (u8) cc;
 		if (i > 0 && i < UINT8_MAX) {
 			setSprt8(sprite);
 			setShadeTex(sprite, 1);
