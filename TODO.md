@@ -29,7 +29,8 @@
 * [ ] D-pad or analogue stick controlled cursor in UIs with item movement between slots being held by cursor
 * [ ] TooManyItems-like overlay in inventory GUI
 * [x] Support transparent textures (original and binary greedy meshing)
-* [ ] Full ASCII, extended characters and symbols set front + printing lib
+* [x] Full ASCII, extended characters and symbols set front + printing lib
+* [ ] Shadowed version of font to use via flag for printing
 
 ## Refactor
 
@@ -70,7 +71,7 @@
 * [x] Logs spammed with GPU bad address read when looking down after a certain point
 * [x] Chunk mesh construction replicates world bottom at top of world 
 * [x] Chunk meshing generates redundant faces at sides of chunk
-* [ ] Ray cast direction does not fully match camera rotation normal
+* [x] Ray cast direction does not fully match camera rotation normal
 * [ ] Mesh vertices z-depth is inconsistent leading to faces drawn in wrong order and thus culling fails
 * [x] Background in loading screen not rendering texture
 * [ ] Vertices are distorted (in their location) when very close to the camera
@@ -82,4 +83,4 @@
 * [ ] Move mesh generation to after all loading when updating world to avoid face generation on orthogonal axis to update axis
 * [ ] Cull faces on chunk edges that face outward on the render limit
 * [x] Chunks with a negative component in position don't generate meshes correctly (incorrect faces and textures)
-* [ ] Texture attributes on block item rendering in world and picked up items
+* [ ] Texture attributes on block item rendering in world and picked up items in inventory
