@@ -78,12 +78,12 @@ Instead, you can use the utility script `build_container.sh` to bundle assets an
 project, it essentially does the same with some extra controls. Usage is defined as such:
 
 ```
-Usage: ./build_container.sh [-h|--help] [-r|--rebuild] [-o|--output=<dir>] [-i|--image=<image:tag>]
+Usage: ./build_container.sh [<options>]
 Options:
-    -h | --help:              Print this help message
-    -r | --rebuild:           Clean the build directory and initialise CMake again (default: false)
-    -o | --output=<dir>:      Set the directory to use as the build output (default: ./build)
-    -i | --image=<image:tag>: Specify which image to use when building (default: psxmc:latest)
+    -h | --help                Print this help message
+    -r | --rebuild             Clean the build directory and initialise CMake again (default: false)
+    -o | --output=<dir>        Set the directory to use as the build output (default: ./build)
+    -i | --image=<image:tag>   Specify which image to use when building (default: psxmc:latest)
 ```
 
 Initially, you'll want to run it as `./build_container.sh --output=./build --rebuild`, but then for

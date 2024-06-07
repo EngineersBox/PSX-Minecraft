@@ -10,12 +10,12 @@ if [[ $? -ne 4 ]]; then
 fi
 
 function printHelp() {
-    echo "Usage: ./build_container.sh [-h|--help] [-r|--rebuild] [-o|--output=<dir>] [-i|--image=<image:tag>]"
+    echo "Usage: ./build_container.sh [<options>]"
     echo "Options:"
-    echo "    -h | --help:              Print this help message"
-    echo "    -r | --rebuild:           Clean the build directory and initialise CMake again (default: false)"
-    echo "    -o | --output=<dir>:      Set the directory to use as the build output (default: ./build)"
-    echo "    -i | --image=<image:tag>: Specify which image to use when building (default: psxmc:latest)"
+    echo "    -h | --help               Print this help message"
+    echo "    -r | --rebuild            Clean the build directory and initialise CMake again (default: false)"
+    echo "    -o | --output=<dir>       Set the directory to use as the build output (default: ./build)"
+    echo "    -i | --image=<image:tag>  Specify which image to use when building (default: psxmc:latest)"
 }
 
 # option --output/-o requires 1 argument
