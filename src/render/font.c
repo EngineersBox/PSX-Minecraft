@@ -148,7 +148,7 @@ void* fontFlush(FontID id) {
 	DR_TPAGE* texture_page = (DR_TPAGE*)primitive;
 	setDrawTPage(
 		texture_page,
-		1,
+		0,
 		0,
 		tex_ref->tpage
 	);
@@ -188,7 +188,7 @@ void* fontFlush(FontID id) {
 		if (c > 0 && c <= UINT8_MAX) {
 			setSprt8(sprite);
 			setShadeTex(sprite, 1);
-			setSemiTrans(sprite, 1);
+			setSemiTrans(sprite, 0);
 			setXY0(sprite, stream_x, stream_y);
 			setUV0(
 				sprite,
@@ -255,10 +255,13 @@ void* fontSort(u32* ordering_table,
 	DR_TPAGE* texture_page = (DR_TPAGE*) primitive;
 	setDrawTPage(
 		texture_page,
-		1,
+		0,
 		0,
 		tex_ref->tpage
 	);
+	setTPageSemiTrans(texture_page, 1);
+	// texture_page->code[0] &= ~((u32) 96);
+	// texture_page->code[0] |= 32;
 	addPrim(ordering_table, primitive);
 	primitive += sizeof(DR_TPAGE);
 	return (void *) primitive;

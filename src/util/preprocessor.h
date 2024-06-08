@@ -117,4 +117,10 @@
     ) \
 ))
 
+// ==== PRIMITIVE OPERANDS ====
+
+#define setTPageSemiTrans(p, st) \
+    (p)->code[0] &= ~((u32) 3 << 5); \
+    (p)->code[0] |= (st) << 5
+
 #endif // PSX_MINECRAFT_PREPROCESSOR_H
