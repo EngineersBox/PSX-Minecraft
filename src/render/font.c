@@ -1,6 +1,5 @@
 #include "font.h"
 
-#include <asset_indices.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -9,6 +8,7 @@
 
 #include "../logging/logging.h"
 #include "../resources/assets.h"
+#include "../resources/asset_indices.h"
 
 typedef struct {
 	char* txtbuff;

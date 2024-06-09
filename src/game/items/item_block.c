@@ -14,14 +14,14 @@
 
 #define VERTICES_COUNT 8
 SVECTOR item_block_verts[VERTICES_COUNT] = {
-    { -ITEM_BLOCK_SIZE, -ITEM_BLOCK_SIZE, -ITEM_BLOCK_SIZE, 0 }, // 0b000
-    {  ITEM_BLOCK_SIZE, -ITEM_BLOCK_SIZE, -ITEM_BLOCK_SIZE, 0 }, // 0b100
-    { -ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE, -ITEM_BLOCK_SIZE, 0 }, // 0b010
-    {  ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE, -ITEM_BLOCK_SIZE, 0 }, // 0b110
-    { -ITEM_BLOCK_SIZE, -ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE, 0 }, // 0b001
-    {  ITEM_BLOCK_SIZE, -ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE, 0 }, // 0b101
-    { -ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE, 0 }, // 0b011
-    {  ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE, 0 }, // 0b111
+    [0] = { -ITEM_BLOCK_SIZE, -ITEM_BLOCK_SIZE, -ITEM_BLOCK_SIZE, 0 }, // 0b000
+    [1] = {  ITEM_BLOCK_SIZE, -ITEM_BLOCK_SIZE, -ITEM_BLOCK_SIZE, 0 }, // 0b100
+    [2] = { -ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE, -ITEM_BLOCK_SIZE, 0 }, // 0b010
+    [3] = {  ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE, -ITEM_BLOCK_SIZE, 0 }, // 0b110
+    [4] = { -ITEM_BLOCK_SIZE, -ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE, 0 }, // 0b001
+    [5] = {  ITEM_BLOCK_SIZE, -ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE, 0 }, // 0b101
+    [6] = { -ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE, 0 }, // 0b011
+    [7] = {  ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE, 0 }, // 0b111
 }; // 6 <-> 7, 4 <-> 5
 
 // Domain: [0,36] -> [0,1] (X)
@@ -69,7 +69,7 @@ const VECTOR item_stack_render_offsets[5] = {
 
 const u8 FULL_BLOCK_FACE_INDICES[FULL_BLOCK_FACE_INDICES_COUNT] = {0, 1, 2, 3, 4, 5};
 // TODO: Fix these indices for isometric view in inventory
-const u8 ISOMETRIC_BLOCK_FACE_INDICES[ISOMETRIC_BLOCK_FACE_INDICES_COUNT] = {0, 3, 5};
+const u8 ISOMETRIC_BLOCK_FACE_INDICES[ISOMETRIC_BLOCK_FACE_INDICES_COUNT] = {1, 3, 5};
 
 /**
  * Why does this work? Heres the layout of the vertices explicitly:
@@ -416,15 +416,6 @@ void renderItemBlockInventory(ItemBlock* item,
         '0' + (stack_size % 10),
         '\0'
     };
-    // sprintf(stack_count_text, "%2d\n", item->item.stack_size);
-    // fontOpen(
-    //     screen_position->vx - 7,
-    //     screen_position->vy,
-    //     FONT_CHARACTER_SPRITE_WIDTH * 2,
-    //     FONT_CHARACTER_SPRITE_HEIGHT,
-    //     0,
-    //     3
-    // );
     ctx->primitive = fontSort(
         allocateOrderingTable(ctx, 0),
         ctx->primitive,

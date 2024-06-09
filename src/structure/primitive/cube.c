@@ -19,12 +19,12 @@ const SVECTOR CUBE_NORMS[6] = {
 };
 
 const INDEX CUBE_INDICES[6] = {
-    {0, 1, 2, 3},
-    {5, 4, 7, 6},
-    {7, 6, 3, 2},
+    {2, 3, 6, 7},
     {4, 5, 0, 1},
     {4, 0, 6, 2},
-    {1, 5, 3, 7}
+    {1, 5, 3, 7},
+    {5, 4, 7, 6},
+    {0, 1, 2, 3}
 };
 
 void cubeRender(Cube *cube, RenderContext *ctx, Transforms *transforms) {
