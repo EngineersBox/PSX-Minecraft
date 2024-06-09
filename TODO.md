@@ -30,7 +30,7 @@
 * [ ] TooManyItems-like overlay in inventory GUI
 * [x] Support transparent textures (original and binary greedy meshing)
 * [x] Full ASCII, extended characters and symbols set front + printing lib
-* [ ] Shadowed version of font to use via flag for printing
+* [x] Shadowed version of font to use via flag for printing
 
 ## Refactor
 
@@ -83,4 +83,4 @@
 * [ ] Move mesh generation to after all loading when updating world to avoid face generation on orthogonal axis to update axis
 * [ ] Cull faces on chunk edges that face outward on the render limit
 * [x] Chunks with a negative component in position don't generate meshes correctly (incorrect faces and textures)
-* [ ] Texture attributes on block item rendering in world and picked up items in inventory
+* [x] Texture attributes on block item rendering in world and picked up items in inventory
