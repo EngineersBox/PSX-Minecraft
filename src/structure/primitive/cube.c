@@ -18,10 +18,6 @@ const SVECTOR CUBE_NORMS[6] = {
     {ONE, 0, 0, 0}
 };
 
-/*
-
- */
-
 const INDEX CUBE_INDICES[6] = {
     {2, 3, 6, 7},
     {4, 5, 0, 1},

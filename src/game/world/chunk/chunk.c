@@ -75,7 +75,7 @@ static void chunkRenderDroppedItems(Chunk* chunk, RenderContext* ctx, Transforms
     }
 }
 
-bool chunkIsOutsideFrustum(const Chunk* chunk, const Frustum* frustum, const Transforms* transforms) {
+static bool chunkIsOutsideFrustum(const Chunk* chunk, const Frustum* frustum, const Transforms* transforms) {
     const AABB aabb = (AABB) {
         .min = vec3_i32(
             (chunk->position.vx * CHUNK_BLOCK_SIZE) << FIXED_POINT_SHIFT,
@@ -163,7 +163,7 @@ static void constructItemPosition(const Chunk* chunk, const VECTOR* block_positi
 
 bool chunkModifyVoxel(Chunk* chunk, const VECTOR* position, IBlock* block, IItem** item_result) {
     const i32 x = position->vx;
-    const i32 y = position->vy; //positiveModulo(-position->vy - 1, CHUNK_SIZE);
+    const i32 y = position->vy;
     const i32 z = position->vz;
     if (checkIndexOOB(x, y, z)) {
         return false;
@@ -203,7 +203,7 @@ bool itemPickupValidator(const Item* item) {
     //   b. [2:FALSE] Return false
     u8 from_slot = INVENTORY_SLOT_STORAGE_OFFSET;
     u8 next_free = INVENTORY_NO_FREE_SLOT;
-    while (1) {
+    while (true) {
         const Slot* slot = inventorySearchItem(_current_inventory, item->id, from_slot, &next_free);
         if (slot == NULL) {
             if (next_free == INVENTORY_NO_FREE_SLOT) {

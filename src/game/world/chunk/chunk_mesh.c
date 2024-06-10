@@ -194,7 +194,6 @@ void renderQuad(const SMD* mesh, SMD_PRIM* primitive, RenderContext* ctx, Transf
     // Sort primitive to the ordering table
     u32* ot_object = allocateOrderingTable(ctx, p);
     addPrim(ot_object, pol4);
-    // Advance to make another primitive
     // Bind a texture window to ensure wrapping across merged block face primitives
     DR_TWIN* ptwin = (DR_TWIN*) allocatePrimitive(ctx, sizeof(DR_TWIN));
     setTexWindow(ptwin, &tex_window);
@@ -226,29 +225,29 @@ void chunkMeshRenderFaceDirection(const SMD* mesh, RenderContext* ctx, Transform
     }
 }
 
-bool faceDirectionHidden(RenderContext* ctx, FaceDirection face_dir) {
+UNUSED bool faceDirectionHidden(RenderContext* ctx, FaceDirection face_dir) {
     // TODO: Implement face direction culling, determing if faces in this
-    //       direction are visible to the camera
+    //  ./     direction are visible to the camera
     return false;
 }
 
 void chunkMeshRender(const ChunkMesh* mesh, RenderContext* ctx, Transforms* transforms) {
-    bool skip_check[6] = {false};
+    // bool skip_check[6] = {false};
     #pragma GCC unroll 6
     for (int i = 0; i < FACE_DIRECTION_COUNT; i++) {
         // if (skip_check[i] || faceDirectionHidden(ctx, i)) {
         //     continue;
         // }
-        // If we have determined that a face is visible, then the
-        // opposite face direction is necesserily not visible
-        switch (i) {
-            case FACE_DIR_DOWN: skip_check[1] = true; break;
-            case FACE_DIR_UP: skip_check[0] = true; break;
-            case FACE_DIR_LEFT: skip_check[3] = true; break;
-            case FACE_DIR_RIGHT: skip_check[2] = true; break;
-            case FACE_DIR_BACK: skip_check[5] = true; break;
-            case FACE_DIR_FRONT: skip_check[4] = true; break;
-        }
+        // // If we have determined that a face is visible, then the
+        // // opposite face direction is necesserily not visible
+        // switch (i) {
+        //     case FACE_DIR_DOWN: skip_check[1] = true; break;
+        //     case FACE_DIR_UP: skip_check[0] = true; break;
+        //     case FACE_DIR_LEFT: skip_check[3] = true; break;
+        //     case FACE_DIR_RIGHT: skip_check[2] = true; break;
+        //     case FACE_DIR_BACK: skip_check[5] = true; break;
+        //     case FACE_DIR_FRONT: skip_check[4] = true; break;
+        // }
         chunkMeshRenderFaceDirection(
             &mesh->face_meshes[i],
             ctx,

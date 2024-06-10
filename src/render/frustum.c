@@ -21,7 +21,7 @@ Frustum frustumCreate() {
     };
 }
 
-Plane current_planes[6] = {0};
+static Plane current_planes[6] = {0};
 
 // TODO: Only transform/restore when the camera has moved, otherwise keep reusing the current planes
 void frustumTransform(Frustum* frustum, Transforms* transforms) {
@@ -67,7 +67,7 @@ void frustumRestore(Frustum* frustum) {
  *       plane, and negative implies in front of the plane.
  */
 
-FrustumQueryResult frustumTestAABBPlane(const AABB* aabb, const Plane* plane) {
+static FrustumQueryResult frustumTestAABBPlane(const AABB* aabb, const Plane* plane) {
     const VECTOR normal = plane->normal;
     LVECTOR vec1;
     LVECTOR vec2;
