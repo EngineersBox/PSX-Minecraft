@@ -1,0 +1,62 @@
+{# ==== Naming Declarations ==== #}
+{% set block_name_snake_upper = block_name_snake.upper() %}
+{% set block_name_snake_lower = block_name_snake.lower() %}
+{% set block_name_lower = block_name.lower() %}
+{% set block_name_capital = block_name.capitalize() %}
+{# ==== Naming Declarations ==== #}
+#include "block_{{ block_name_snake_lower }}.h"
+
+#include "../../util/interface99_extensions.h"
+#include "block_id.h"
+#include "../items/item_block_{{ block_name_snake_lower }}.h"
+
+IBlock* {{ block_name_lower }}BlockCreate() {
+    return &{{ block_name_snake_upper }}_IBLOCK_SINGLETON;
+}
+
+void {{ block_name_lower }}BlockInit(VSelf) ALIAS("{{ block_name_capital }}Block_init");
+void {{ block_name_capital }}Block_init(VSelf) {
+    VSELF({{ block_name_capital }}Block);
+    {{ block_declaration }}
+}
+
+void {{ block_name_lower }}BlockAccess(VSelf) ALIAS("{{ block_name_capital }}Block_access");
+void {{ block_name_capital }}Block_access(VSelf) {
+}
+
+IItem* {{ block_name_lower }}BlockDestroy(VSelf) ALIAS("{{ block_name_capital }}Block_destroy");
+IItem* {{ block_name_capital }}Block_destroy(VSelf) {
+    VSELF({{ block_name_capital }}Block);
+    return {{ block_name_lower }}BlockProvideItem(self);
+}
+
+void {{ block_name_lower }}BlockUpdate(VSelf) ALIAS("{{ block_name_capital }}Block_update");
+void {{ block_name_capital }}Block_update(VSelf) {
+}
+
+IItem* {{ block_name_lower }}BlockProvideItem(VSelf) ALIAS("{{ block_name_capital }}Block_provideItem");
+IItem* {{ block_name_capital }}Block_provideItem(VSelf) {
+    VSELF({{ block_name_capital }}Block);
+    IItem* item = itemCreate();
+    {{ block_name_capital }}ItemBlock* item_block = {{ block_name_lower }}ItemBlockCreate();
+    DYN_PTR(item, {{ block_name_capital }}ItemBlock, IItem, item_block);
+    VCALL(*item, init);
+    itemBlockReplicateFaceAttributes(item_block->item_block, self->block);
+    item_block->item_block.item.stack_size = 1;
+    item_block->item_block.item.bob_direction = 1;
+    return item;
+}
+
+{% if custom_opacity %}
+static const u8 {{ block_name_snake_upper }}_OPAQUE_BITSET = opaqueFacesBitset({{ block_opaque_bitset }});
+
+bool {{ block_name_lower }}BlockIsOpaque(VSelf, FaceDirection face_dir) ALIAS("{{ block_name_capital }}Block_isOpaque");
+bool {{ block_name_capital }}Block_isOpaque(VSelf, const FaceDirection face_dir) {
+    return ({{ block_name_snake_upper }}_OPAQUE_BITSET >> face_dir) & 0x1;
+}
+
+u8 {{ block_name_lower }}BlockOpaqueBitset(VSelf) ALIAS("{{ block_name_capital }}Block_opaqueBitset");
+u8 {{ block_name_capital }}Block_opaqueBitset(VSelf) {
+    return {{ block_name_snake_upper }}_OPAQUE_BITSET;
+}
+{% endif %}

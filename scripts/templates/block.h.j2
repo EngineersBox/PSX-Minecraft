@@ -1,0 +1,54 @@
+{# ==== Naming Declarations ==== #}
+{% set block_name_snake_upper = block_name_snake.upper() %}
+{% set block_name_snake_lower = block_name_snake.lower() %}
+{% set block_name_lower = block_name.lower() %}
+{% set block_name_capital = block_name.capitalize() %}
+{# ==== Naming Declarations ==== #}
+#pragma once
+
+#ifndef _PSX_MINECRAFT__GAME_BLOCKS__BLOCK_{{ block_name_snake_upper }}_H_
+#define _PSX_MINECRAFT__GAME_BLOCKS__BLOCK_{{ block_name_snake_upper }}_H_
+
+#include <interface99.h>
+
+#include "block.h"
+
+DEFN_BLOCK_STATELESS({{ block_name_snake_upper }}, {{ block_name_capital }}Block);
+
+IBlock* {{ block_name_lower }}BlockCreate();
+
+#define {{ block_name_lower }}BlockCreateAttributes() ((BlockAttributes) { \
+    .slipperiness = {{ attributes["slipperiness"] }}, \
+    .hardness = {{ attributes["hardness"] }}, \
+    .resistance = {{ attributes["resistance"] }}, \
+    .name = "{{ block_name_snake_lower }}" \
+})
+
+void {{ block_name_lower }}BlockInit(VSelf);
+void {{ block_name_capital }}Block_init(VSelf);
+
+void {{ block_name_lower }}BlockAccess(VSelf);
+void {{ block_name_capital }}Block_access(VSelf);
+
+ALLOC_CALL(itemDestroy, 1) IItem* {{ block_name_lower }}BlockDestroy(VSelf);
+ALLOC_CALL(itemDestroy, 1) IItem* {{ block_name_capital }}Block_destroy(VSelf);
+
+void {{ block_name_lower }}BlockUpdate(VSelf);
+void {{ block_name_capital }}Block_update(VSelf);
+
+ALLOC_CALL(itemDestroy, 1) IItem* {{ block_name_lower }}BlockProvideItem(VSelf);
+ALLOC_CALL(itemDestroy, 1) IItem* {{ block_name_capital }}Block_provideItem(VSelf);
+
+{% if custom_opacity %}
+#define {{ block_name_capital }}Block_isOpaque_CUSTOM ()
+bool {{ block_name_lower }}BlockIsOpaque(VSelf, FaceDirection face_dir);
+bool {{ block_name_capital }}Block_isOpaque(VSelf, const FaceDirection face_dir);
+
+#define {{ block_name_capital }}Block_opaqueBitset_CUSTOM ()
+u8 {{ block_name_lower }}BlockOpaqueBitset(VSelf);
+u8 {{ block_name_capital }}Block_opaqueBitset(VSelf);
+{% endif %}
+
+impl(IBlock, {{ block_name_snake_upper }}Block);
+
+#endif // _PSX_MINECRAFT__GAME_BLOCKS__BLOCK_{{ block_name_snake_upper }}_H_
