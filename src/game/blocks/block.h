@@ -30,6 +30,8 @@ typedef struct {
 #define BLOCK_DEFAULT_SLIPPERINESS 2457
 // ONE * 0.5 * 5.0
 #define BLOCK_DEFAULT_RESISTANCE 10240
+// ONE * 0.5
+#define BLOCK_DEFAULT_HARDNESS 2048
 
 typedef u8 BlockID;
 

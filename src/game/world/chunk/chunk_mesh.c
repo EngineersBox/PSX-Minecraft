@@ -227,7 +227,7 @@ void chunkMeshRenderFaceDirection(const SMD* mesh, RenderContext* ctx, Transform
 
 UNUSED bool faceDirectionHidden(RenderContext* ctx, FaceDirection face_dir) {
     // TODO: Implement face direction culling, determing if faces in this
-    //  ./     direction are visible to the camera
+    //       direction are visible to the camera
     return false;
 }
 

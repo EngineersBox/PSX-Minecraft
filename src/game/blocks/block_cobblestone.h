@@ -13,7 +13,7 @@ IBlock* cobblestoneBlockCreate();
 
 #define cobblestoneBlockCreateAttributes() ((BlockAttributes) { \
     .slipperiness = BLOCK_DEFAULT_SLIPPERINESS, \
-    .hardness = 2048, \
+    .hardness = BLOCK_DEFAULT_HARDNESS, \
     .resistance = BLOCK_DEFAULT_RESISTANCE, \
     .name = "cobblestone" \
 })
