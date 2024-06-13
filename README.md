@@ -11,6 +11,7 @@ Remake of Minecraft for PS1 with PSn00bSDK
   * [Docker Environment](#docker-environment)
     * [Utility Build Script](#utility-build-script)
     * [CLion](#clion)
+  * [Git Hooks](#git-hooks)
   * [Progress](#progress)
 <!-- TOC -->
 
@@ -108,6 +109,20 @@ CMake within the Docker context attached to CLion. To the following to set this 
 9. Exit settings
 10. Verify that the Docker daemon is running on your local
 11. Reload CMake project
+
+## Git Hooks
+
+A custom git pre-commit hook is used to sort the TODO list so that unfinished items are grouped together
+in each sublist. This relies on hooks in a non-default location within the repository under `.githooks/`.
+
+If you want to be able to use these, then you will need to run the following which will override the git
+config parameter `core.hooksPath` for only this cloned repository (does not affect your normal git config
+located in `~/.gitconfig`). If you have externally global hooks, then they will need to be reconciled
+manually to work with this repository.
+
+```shell
+git config --local core.hooksPath "$(pwd)/.githooks"
+```
 
 ## Progress
 
