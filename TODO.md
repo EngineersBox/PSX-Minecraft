@@ -31,6 +31,8 @@
 * [x] Support transparent textures (original and binary greedy meshing)
 * [x] Full ASCII, extended characters and symbols set front + printing lib
 * [x] Shadowed version of font to use via flag for printing
+* [ ] Set block orientation relative to camera when placing
+* [ ] Retrieve face attributes based on block orientation during meshing
 
 ## Refactor
 
