@@ -10,10 +10,15 @@ env = Environment(
 @dataclass
 class Block:
     name: str
+    orientation: str
+    type: str
+    face_attributes: str
+    tinted_face_attributes: str
     opaque_bitset: str
     slipperiness: str
     hardness: str
     resistance: str
+    stateful: bool
     generator: str = "block"
 
 @dataclass
@@ -22,6 +27,9 @@ class ItemBlock:
     generator: str = "itemblock"
 
 def generateBlock(block: Block) -> None:
+    if ((block.face_attributes != None) == (block.tinted_face_attributes != None)):
+        print("[ERROR] Cannot have both tinted and non-tinted face attributes")
+        exit(1)
     render_parameters = {
         "name_snake_upper": caseconverter.macrocase(block.name),
         "name_snake_lower": caseconverter.snakecase(block.name),
@@ -41,10 +49,11 @@ def generateBlock(block: Block) -> None:
         f.write(source_content)
     print(f"[INFO] Written source to {filepath}.c")
     print("[INFO] Update the following files accordingly:")
-    print(" - src/game/blocks/block_id.c")
-    print(" - src/game/blocks/blocks.h")
-    print(" - src/game/blocks/blocks.c")
-    print("[INFO] Generate or create an associated item block to match this on in src/game/items")
+    print(f" - \"src/game/blocks/block_id.c\" to declare BLOCKID_{render_parameters["name_snake_upper"]}")
+    print(f" - \"src/game/blocks/blocks.h\" to add the include via '#include \"block_{render_parameters["name_snake_lower"]}.h\"'")
+    if (not block.stateful):
+        print(" - \"src/game/blocks/blocks.c\" to actaully declare an instance of the block")
+    print("[INFO] If required, generate or create an associated item block to match this in \"src/game/items\"")
 
 def generateItemBlock(itemblock: ItemBlock) -> None:
     pass
@@ -58,11 +67,45 @@ def main():
     sub_parsers = parser.add_subparsers(dest="generator", help="sub-command --help")
 
     parser_block = sub_parsers.add_parser("block", help="block --help")
-    parser_block.add_argument("--name", type=str, required=True, help="name --help")
-    parser_block.add_argument("--slipperiness", type=str, default="BLOCK_DEFAULT_SLIPPERINESS", help="slipperiness --help")
-    parser_block.add_argument("--hardness", type=str, default="BLOCK_DEFAULT_HARDNESS", help="hardness --help")
-    parser_block.add_argument("--resistance", type=str, default="BLOCK_DEFAULT_RESISTANCE", help="resistance --help")
-    parser_block.add_argument("--opaque_bitset", type=str, help="opaque-bitset --help")
+    parser_block.add_argument("--name", type=str, required=True, help="Name of the block")
+    parser_block.add_argument(
+        "--orientation",
+        type=str,
+        default="ORIENTATION_POS_X",
+        choices=[
+            "ORIENTATION_POS_X",
+            "ORIENTATION_NEG_X",
+            "ORIENTATION_POS_Y",
+            "ORIENTATION_NEG_Y",
+            "ORIENTATION_POS_Z",
+            "ORIENTATION_NEG_Z"
+        ],
+        help="Orientation the block should be in for texture indexing"
+    )
+    parser_block.add_argument(
+        "--type",
+        type=str,
+        default="BLOCKTYPE_SOLID",
+        choices=[
+            "BLOCKTYPE_EMPTY",
+            "BLOCKTYPE_SOLID",
+            "BLOCKTYPE_STAIR",
+            "BLOCKTYPE_SLAB",
+            "BLOCKTYPE_CROSS",
+            "BLOCKTYPE_HASH",
+            "BLOCKTYPE_PLATE",
+            "BLOCKTYPE_ROD",
+            "BLOCKTYPE_LIQUID"
+        ],
+        help="Block type to determine mesh and characteristics"
+    )
+    parser_block.add_argument("--face_attributes", type=int, default=None, help="Texture page index for 16x16 face texture on all sides [NOTE: Exclusive with --tinited_face_attributes]")
+    parser_block.add_argument("--tinted_face_attributes", type=str, default=None, help="Per-face (6) texture page indices and optional tint formatted as '<down>,<up>,<left>,<right>,<front>,<back>'. Where each entry is comma separated and of the form '<index>, NO_TINT' or '<index>, faceTint(r,g,b,cd)' [NOTE: Exclusive with --face_attributes]")
+    parser_block.add_argument("--slipperiness", type=str, default="BLOCK_DEFAULT_SLIPPERINESS", help="How much physics objects slide on the block (player, items, mobs, etc)")
+    parser_block.add_argument("--hardness", type=str, default="BLOCK_DEFAULT_HARDNESS", help="How difficult it is to use the relevant tool on")
+    parser_block.add_argument("--resistance", type=str, default="BLOCK_DEFAULT_RESISTANCE", help="How resistant it is to explosions")
+    parser_block.add_argument("--opaque_bitset", type=str, help="Face specific opacity where 1=opaque and 0=transparent of the form '<down>,<up>,<left>,<right>,<front>,<back>'")
+    parser_block.add_argument("--stateful", type=bool, action=argparse.BooleanOptionalAction, default=False, help="Whether the block should maintain state or be static (single instance)")
 
     parser_itemblock = sub_parsers.add_parser("itemblock", help="itemblock help")
     parser_itemblock.add_argument("--name", type=str, required=True, help="name help")

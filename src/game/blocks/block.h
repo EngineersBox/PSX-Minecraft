@@ -109,6 +109,7 @@ interface(IBlock);
     extern IBlock extern_name##_IBLOCK_SINGLETON; \
     extern name extern_name##_BLOCK_SINGLETON
 
+// Declare a Block instance
 #define declareBlock(_id, _metadata_id, _type, _orientation, _face_attributes) (Block) {\
     .id = (BlockID) _id,\
     .metadata_id = _metadata_id,\
@@ -116,26 +117,30 @@ interface(IBlock);
     .orientation = (Orientation) _orientation,\
     .face_attributes = _face_attributes\
 }
-#define declareFixedBlock(_id, _type, face_attributes) declareBlock( \
+// Declare a Block instance with a type
+#define declareBlockTyped(_id, _type, face_attributes) declareBlock( \
     _id, \
     0, \
     _type, \
     ORIENTATION_POS_X, \
     P99_PROTECT(face_attributes) \
 )
-#define declareFixedBlockMeta(_id, _metadata_id, _type, face_attributes) declareBlock( \
+// Declare a Block instance with a metadata ID and type
+#define declareBlockMetaTyped(_id, _metadata_id, _type, face_attributes) declareBlock( \
     _id, \
     _metadata_id, \
     _type, \
     ORIENTATION_POS_X, \
     P99_PROTECT(face_attributes) \
 )
-#define declareSolidBlock(_id, face_attributes) declareFixedBlock( \
+// Declare a SOLID type Block
+#define declareSolidBlock(_id, face_attributes) declareBlockTyped( \
     _id, \
     BLOCKTYPE_SOLID, \
     P99_PROTECT(face_attributes) \
 )
-#define declareSolidBlockMeta(_id, _metadata_id, face_attributes) declareFixedBlockMeta( \
+// Declare a SOLID type Block with a methdata ID
+#define declareSolidBlockMeta(_id, _metadata_id, face_attributes) declareBlockMetaTyped( \
     _id, \
     _metadata_id, \
     BLOCKTYPE_SOLID, \

@@ -11,7 +11,17 @@ IBlock* {{ name_lower }}BlockCreate() {
 void {{ name_lower }}BlockInit(VSelf) ALIAS("{{ name_capital }}Block_init");
 void {{ name_capital }}Block_init(VSelf) {
     VSELF({{ name_capital }}Block);
-    {{ block_declaration }}
+    self->block = declareBlock(
+        BLOCKID_{{ name_snake_upper }},
+        0,
+        {{ type }},
+        {{ orientation }},
+{% if face_attributes != None %}
+        declareFaceAttributes({{ face_attributes }})
+{% elif tinted_face_attributes != None %}
+        declareTintedFaceAttributes({{ tinted_face_attributes }})
+{% endif %}
+    );
 }
 
 void {{ name_lower }}BlockAccess(VSelf) ALIAS("{{ name_capital }}Block_access");
