@@ -124,6 +124,12 @@ manually to work with this repository.
 git config --local core.hooksPath "$(pwd)/.githooks"
 ```
 
+You can of course also just run these manually if you'd like to instead:
+
+```shell
+./.githooks/pre-commit
+```
+
 ## Progress
 
 Current work is implementing frustum culling and ordered visibility culling with ordered mesh

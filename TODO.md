@@ -1,5 +1,39 @@
 # TODO
 
+## Implement
+
+* [x] Implement texture loading via LZP compressed archive traversal
+* [x] Complete display/render context implementation
+* [x] Create standalone cube struct and load + render methods
+* [x] Greedy meshing for chunk rendering
+* [x] Create loading screen to visualise loading progress. Something simple like a loading bar for now. Make it more fancy at a later point.
+* [x] Continuous shifting world chunk array
+* [x] Graphing lib to use for resource usage and debugging
+* [x] Ray cast from camera normal to block retrieving exact block coordinates in world
+* [x] Dynamic chunk loading and unloading with movement
+* [x] Player entity with hit box
+* [x] Basic entity-mesh interaction physics with gravity
+* [x] Crosshair
+* [x] Axis marker
+* [x] Proper engine structure with logic interface
+* [x] Inheritable Block interface with concrete implementations
+* [x] 2D array indexed terrain texture specification in face attributes
+* [x] Support transparent textures (original and binary greedy meshing)
+* [x] Full ASCII, extended characters and symbols set front + printing lib
+* [x] Shadowed version of font to use via flag for printing
+* [ ] Camera far plane cutoff with fog relative to chunk render distance
+* [ ] Frustum and culling
+* [ ] Depth-first search culling through chunks
+* [ ] Check if camera not moving then ray cast once to get block targeted and draw outline around if in reach range
+* [ ] Thread scheduler using hardware timers for IRQ interleaved execution
+* [ ] Update queue for operations on the world
+* [ ] Breaking overlays for a block, enabled with a marker variable and a target resolved by ray cast and a texture reference
+* [ ] D-pad or analogue stick controlled cursor in UIs with item movement between slots being held by cursor
+* [ ] TooManyItems-like overlay in inventory GUI
+* [ ] Set block orientation relative to camera when placing
+* [ ] Retrieve face attributes based on block orientation during meshing
+
+
 ## Refactor
 
 * [x] Support texture windowing for wrap-around in multiples of texture width/height
@@ -51,37 +85,3 @@
 * [ ] Movement tied to FPS
 * [ ] Move mesh generation to after all loading when updating world to avoid face generation on orthogonal axis to update axis
 * [ ] Cull faces on chunk edges that face outward on the render limit
-
-
-## Implement
-
-* [x] Implement texture loading via LZP compressed archive traversal
-* [x] Complete display/render context implementation
-* [x] Create standalone cube struct and load + render methods
-* [x] Greedy meshing for chunk rendering
-* [x] Create loading screen to visualise loading progress. Something simple like a loading bar for now. Make it more fancy at a later point.
-* [x] Continuous shifting world chunk array
-* [x] Graphing lib to use for resource usage and debugging
-* [x] Ray cast from camera normal to block retrieving exact block coordinates in world
-* [x] Dynamic chunk loading and unloading with movement
-* [x] Player entity with hit box
-* [x] Basic entity-mesh interaction physics with gravity
-* [x] Crosshair
-* [x] Axis marker
-* [x] Proper engine structure with logic interface
-* [x] Inheritable Block interface with concrete implementations
-* [x] 2D array indexed terrain texture specification in face attributes
-* [x] Support transparent textures (original and binary greedy meshing)
-* [x] Full ASCII, extended characters and symbols set front + printing lib
-* [x] Shadowed version of font to use via flag for printing
-* [ ] Camera far plane cutoff with fog relative to chunk render distance
-* [ ] Frustum and culling
-* [ ] Depth-first search culling through chunks
-* [ ] Check if camera not moving then ray cast once to get block targeted and draw outline around if in reach range
-* [ ] Thread scheduler using hardware timers for IRQ interleaved execution
-* [ ] Update queue for operations on the world
-* [ ] Breaking overlays for a block, enabled with a marker variable and a target resolved by ray cast and a texture reference
-* [ ] D-pad or analogue stick controlled cursor in UIs with item movement between slots being held by cursor
-* [ ] TooManyItems-like overlay in inventory GUI
-* [ ] Set block orientation relative to camera when placing
-* [ ] Retrieve face attributes based on block orientation during meshing
