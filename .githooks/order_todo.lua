@@ -21,7 +21,7 @@ local section_header_pattern = "^##";
 local list_item_pattern = "^%*%s%[";
 local list_item_continuation_pattern = "^%s+[^%s]+.*$";
 
-local infile = assert(io.open("../TODO.md", "r"), "Unable to open TODO.md to read");
+local infile = assert(io.open("TODO.md", "r"), "Unable to open TODO.md to read");
 for l in infile:lines("*l") do
     if l:find(todo_or_empty_line_pattern) ~= nil then
         goto continue;
@@ -51,7 +51,7 @@ for l in infile:lines("*l") do
 end
 infile:close();
 
-local outfile = assert(io.open("../TODO.md", "w+b"), "Unable to open TODO.md to write");
+local outfile = assert(io.open("TODO.md", "w+b"), "Unable to open TODO.md to write");
 outfile:write("# TODO");
 for section_name, section in pairs(sections) do
     outfile:write("\n\n" .. section_name .. "\n\n");
