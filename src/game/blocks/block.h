@@ -9,6 +9,7 @@
 #include "../../resources/texture.h"
 #include "../../util/preprocessor.h"
 #include "../items/item.h"
+#include "../../structure/primitive/direction.h"
 
 #define BLOCK_SIZE 70
 #define BLOCK_FACES 6
@@ -55,20 +56,11 @@ typedef enum {
     BLOCKTYPE_LIQUID
 } BlockType;
 
-typedef enum {
-    ORIENTATION_POS_X = 0,
-    ORIENTATION_NEG_X,
-    ORIENTATION_POS_Y,
-    ORIENTATION_NEG_Y,
-    ORIENTATION_POS_Z,
-    ORIENTATION_NEG_Z
-} Orientation;
-
 typedef struct {
     BlockID id;
     u8 metadata_id;
     BlockType type; // TODO: Move this to attributes
-    Orientation orientation;
+    FaceDirection orientation;
     TextureAttributes face_attributes[BLOCK_FACES];
 } Block;
 
@@ -114,7 +106,7 @@ interface(IBlock);
     .id = (BlockID) _id,\
     .metadata_id = _metadata_id,\
     .type = (BlockType) _type,\
-    .orientation = (Orientation) _orientation,\
+    .orientation = (FaceDirection) _orientation,\
     .face_attributes = _face_attributes\
 }
 // Declare a Block instance with a type
@@ -122,7 +114,7 @@ interface(IBlock);
     _id, \
     0, \
     _type, \
-    ORIENTATION_POS_X, \
+    FACE_DIR_RIGHT, \
     P99_PROTECT(face_attributes) \
 )
 // Declare a Block instance with a metadata ID and type
@@ -130,7 +122,7 @@ interface(IBlock);
     _id, \
     _metadata_id, \
     _type, \
-    ORIENTATION_POS_X, \
+    FACE_DIR_RIGHT, \
     P99_PROTECT(face_attributes) \
 )
 // Declare a SOLID type Block

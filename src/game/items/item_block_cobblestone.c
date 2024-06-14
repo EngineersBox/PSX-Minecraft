@@ -2,6 +2,8 @@
 
 #include <stdlib.h>
 
+#include "../../util/preprocessor.h"
+#include "../../math/vector.h"
 #include "item_id.h"
 
 CobblestoneItemBlock* cobblestoneItemBlockCreate() {
@@ -35,7 +37,7 @@ void CobblestoneItemBlock_renderHand(VSelf, RenderContext* ctx, Transforms* tran
 
 void cobblestoneItemBlockApplyWorldRenderAttributes(VSelf) ALIAS("CobblestoneItemBlock_applyWorldRenderAttributes");
 void CobblestoneItemBlock_applyWorldRenderAttributes(VSelf) {
-
+    UNIMPLEMENTED();
 }
 
 void cobblestoneItemBlockApplyInventoryRenderAttributes(VSelf) ALIAS("CobblestoneItemBlock_applyInventoryRenderAttributes");
@@ -46,7 +48,7 @@ void CobblestoneItemBlock_applyInventoryRenderAttributes(VSelf) {
 
 void cobblestoneItemBlockApplyHandRenderAttributes(VSelf) ALIAS("CobblestoneItemBlock_applyHandRenderAttributes");
 void CobblestoneItemBlock_applyHandRenderAttributes(VSelf) {
-
+    UNIMPLEMENTED();
 }
 
 void cobblestoneItemBlockInit(VSelf) ALIAS("CobblestoneItemBlock_init");
@@ -59,8 +61,8 @@ void CobblestoneItemBlock_init(VSelf) {
             .type = ITEMTYPE_BLOCK,
             .stack_size = 0,
             .max_stack_size = 64,
-            .position = (VECTOR) {0},
-            .rotation = (SVECTOR) {0},
+            .position = vec3_i32_all(0),
+            .rotation = vec3_i16_all(0),
             .name = "cobblestone",
             .picked_up = false
         },
@@ -70,15 +72,15 @@ void CobblestoneItemBlock_init(VSelf) {
 
 void cobblestoneItemBlockApplyDamage(VSelf) ALIAS("CobblestoneItemBlock_applyDamage");
 void CobblestoneItemBlock_applyDamage(VSelf) {
-
+    UNIMPLEMENTED();
 }
 
 void cobblestoneItemBlockUseAction(VSelf) ALIAS("CobblestoneItemBlock_useAction");
 void CobblestoneItemBlock_useAction(VSelf) {
-
+    UNIMPLEMENTED();
 }
 
 void cobblestoneItemBlockAttackAction(VSelf) ALIAS("CobblestoneItemBlock_attackAction");
 void CobblestoneItemBlock_attackAction(VSelf) {
-
+    UNIMPLEMENTED();
 }

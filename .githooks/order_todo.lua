@@ -52,9 +52,9 @@ end
 infile:close();
 
 local outfile = assert(io.open("TODO.md", "w+b"), "Unable to open TODO.md to write");
-outfile:write("# TODO");
+outfile:write("# TODO\n");
 for section_name, section in pairs(sections) do
-    outfile:write("\n\n" .. section_name .. "\n\n");
+    outfile:write("\n" .. section_name .. "\n\n");
     for _, checked in ipairs(section.checked) do
         outfile:write(checked .. "\n");
     end

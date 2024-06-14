@@ -5,6 +5,7 @@
 
 #include <psxgte.h>
 
+#include "fixed_point.h"
 #include "../util/inttypes.h"
 
 // Byte vector

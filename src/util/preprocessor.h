@@ -3,6 +3,8 @@
 #ifndef PSX_MINECRAFT_PREPROCESSOR_H
 #define PSX_MINECRAFT_PREPROCESSOR_H
 
+#include <stdio.h>
+#include <assert.h>
 #include <metalang99.h>
 
 // ==== META MACROS ====
@@ -34,13 +36,22 @@
     #define ALLOC_CALL(destructor, idx) __ALLOC_CALL({})
 #endif
 
-#define UNIMPLEMENTED __attribute__((unavailable("Unimplemented function/method")))
+#define UNAVAILABLE __attribute__((unavailable("Unavailable function/method")))
 #define UNUSED __attribute__((unused))
 #define ALIAS(name) __attribute__((alias(name)))
 #define INLINE __attribute__((always_inline)) inline
 
 // Forward declaration
 #define FWD_DECL
+
+#define UNIMPLEMENTED() \
+    do { \
+        printf("Unimplemented function: " #__func__ "\n"); \
+        printf("File: " #__FILE__ "\n"); \
+        printf("Line:" #__LINE__ "\n"); \
+        assert(0); \
+        abort(); \
+    } while(0)
 
 // ==== PRINTING ====
 

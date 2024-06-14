@@ -1,0 +1,90 @@
+#include "item_block_{{ name_lower }}.h"
+
+#include <stdlib.h>
+
+#include "../../util/preprocessor.h"
+#include "../../math/vector.h"
+#include "item_id.h"
+
+{{ name_capital }}ItemBlock* {{ name_lower }}ItemBlockCreate() {
+    return ({{ name_capital }}ItemBlock*) malloc(sizeof({{ name_capital }}ItemBlock));
+}
+
+void {{ name_lower }}ItemBlockDestroy(VSelf) ALIAS("{{ name_capital }}ItemBlock_destroy");
+void {{ name_capital }}ItemBlock_destroy(VSelf) {
+    VSELF({{ name_capital }}ItemBlock);
+    free(self);
+}
+
+void {{ name_lower }}ItemBlockRenderWorld(VSelf, RenderContext* ctx, Transforms* transforms) ALIAS("{{ name_capital }}ItemBlock_renderWorld");
+void {{ name_capital }}ItemBlock_renderWorld(VSelf, RenderContext* ctx, Transforms* transforms) {
+    VSELF({{ name_capital }}ItemBlock);
+    itemBlockRenderWorld(&self->item_block, ctx, transforms);
+}
+
+void {{ name_lower }}ItemBlockRenderInventory(VSelf, RenderContext* ctx, Transforms* transforms) ALIAS("{{ name_capital }}ItemBlock_renderInventory");
+void {{ name_capital }}ItemBlock_renderInventory(VSelf, RenderContext* ctx, Transforms* transforms) {
+    VSELF({{ name_capital }}ItemBlock);
+    self->item_block.item.position.vz = ITEM_BLOCK_INVENTORY_SCALING;
+    itemBlockRenderInventory(&self->item_block, ctx, transforms);
+}
+
+void {{ name_lower }}ItemBlockRenderHand(VSelf, RenderContext* ctx, Transforms* transforms) ALIAS("{{ name_capital }}ItemBlock_renderHand");
+void {{ name_capital }}ItemBlock_renderHand(VSelf, RenderContext* ctx, Transforms* transforms) {
+    VSELF({{ name_capital }}ItemBlock);
+    itemBlockRenderHand(&self->item_block, ctx, transforms);
+}
+
+void {{ name_lower }}ItemBlockApplyWorldRenderAttributes(VSelf) ALIAS("{{ name_capital }}ItemBlock_applyWorldRenderAttributes");
+void {{ name_capital }}ItemBlock_applyWorldRenderAttributes(VSelf) {
+    UNIMPLEMENTED();
+}
+
+void {{ name_lower }}ItemBlockApplyInventoryRenderAttributes(VSelf) ALIAS("{{ name_capital }}ItemBlock_applyInventoryRenderAttributes");
+void {{ name_capital }}ItemBlock_applyInventoryRenderAttributes(VSelf) {
+    VSELF({{ name_capital }}ItemBlock);
+    itemBlockApplyInventoryRenderAttributes(&self->item_block);
+}
+
+void {{ name_lower }}ItemBlockApplyHandRenderAttributes(VSelf) ALIAS("{{ name_capital }}ItemBlock_applyHandRenderAttributes");
+void {{ name_capital }}ItemBlock_applyHandRenderAttributes(VSelf) {
+    UNIMPLEMENTED();
+}
+
+void {{ name_lower }}ItemBlockInit(VSelf) ALIAS("{{ name_capital }}ItemBlock_init");
+void {{ name_capital }}ItemBlock_init(VSelf) {
+    VSELF({{ name_capital }}ItemBlock);
+    self->item_block = (ItemBlock) {
+        .item = (Item) {
+            .id = ITEMID_{{ name_snake_upper }},
+            .metadata_id = 0,
+            .type = ITEMTYPE_BLOCK,
+            .stack_size = 0,
+            .max_stack_size = {{ max_stack_size }},
+            .position = vec3_i32_all(0),
+            .rotation = vec3_i16_all(0),
+            .name = "{{ name_snake_lower }}",
+            .picked_up = false
+        },
+{% if face_attributes != None %}
+        .face_attributes = declareFaceAttributes({{ face_attributes }})
+{% elif tinted_face_attributes != None %}
+        .face_attributes = declareTintedFaceAttributes({{ tinted_face_attributes }})
+{% endif %}
+    };
+}
+
+void {{ name_lower }}ItemBlockApplyDamage(VSelf) ALIAS("{{ name_capital }}ItemBlock_applyDamage");
+void {{ name_capital }}ItemBlock_applyDamage(VSelf) {
+    UNIMPLEMENTED();
+}
+
+void {{ name_lower }}ItemBlockUseAction(VSelf) ALIAS("{{ name_capital }}ItemBlock_useAction");
+void {{ name_capital }}ItemBlock_useAction(VSelf) {
+    UNIMPLEMENTED();
+}
+
+void {{ name_lower }}ItemBlockAttackAction(VSelf) ALIAS("{{ name_capital }}ItemBlock_attackAction");
+void {{ name_capital }}ItemBlock_attackAction(VSelf) {
+    UNIMPLEMENTED();
+}

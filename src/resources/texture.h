@@ -4,31 +4,19 @@
 #define PSX_MINECRAFT_TEXTURE_H
 
 #include <psxgte.h>
-#include <stdint.h>
 
-typedef enum {
-    FACE_DIR_DOWN = 0,
-    FACE_DIR_UP,
-    FACE_DIR_LEFT,
-    FACE_DIR_RIGHT,
-    FACE_DIR_BACK,
-    FACE_DIR_FRONT
-} FaceDirection;
-
-#define FACE_DIRECTION_COUNT 6
-
-extern const SVECTOR FACE_DIRECTION_NORMALS[FACE_DIRECTION_COUNT];
+#include "../util/inttypes.h"
 
 typedef struct {
-    uint16_t tpage;
-    uint16_t clut;
+    u16 tpage;
+    u16 clut;
 } Texture;
 
 typedef struct {
-    uint8_t u;
-    uint8_t v;
-    uint8_t w;
-    uint8_t h;
+    u8 u;
+    u8 v;
+    u8 w;
+    u8 h;
     CVECTOR tint;
 } TextureAttributes;
 

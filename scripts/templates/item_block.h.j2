@@ -1,0 +1,53 @@
+#pragma once
+
+#ifndef _PSX_MINECRAFT__GAME_ITEMS__ITEM_BLOCK_{{ name_snake_upper }}_H_
+#define _PSX_MINECRAFT__GAME_ITEMS__ITEM_BLOCK_{{ name_snake_upper }}_H_
+
+#include <stddef.h>
+#include <interface99.h>
+
+#include "item_block.h"
+#include "../../render/renderable.h"
+
+DEFN_ITEM_BLOCK({{ name_capital }}ItemBlock);
+
+void {{ name_lower}}ItemBlockRenderWorld(VSelf, RenderContext* ctx, Transforms* transforms);
+void {{ name_capital }}ItemBlock_renderWorld(VSelf, RenderContext* ctx, Transforms* transforms);
+
+void {{ name_lower}}ItemBlockRenderInventory(VSelf, RenderContext* ctx, Transforms* transforms);
+void {{ name_capital }}ItemBlock_renderInventory(VSelf, RenderContext* ctx, Transforms* transforms);
+
+void {{ name_lower}}ItemBlockRenderHand(VSelf, RenderContext* ctx, Transforms* transforms);
+void {{ name_capital }}ItemBlock_renderHand(VSelf, RenderContext* ctx, Transforms* transforms);
+
+void {{ name_lower}}ItemBlockApplyWorldRenderAttributes(VSelf);
+void {{ name_capital }}ItemBlock_applyWorldRenderAttributes(VSelf);
+
+void {{ name_lower}}ItemBlockApplyInventoryRenderAttributes(VSelf);
+void {{ name_capital }}ItemBlock_applyInventoryRenderAttributes(VSelf);
+
+void {{ name_lower}}ItemBlockApplyHandRenderAttributes(VSelf);
+void {{ name_capital }}ItemBlock_applyHandRenderAttributes(VSelf);
+
+impl(Renderable, {{ name_capital }}ItemBlock);
+
+void {{ name_lower}}ItemBlockInit(VSelf);
+void {{ name_capital }}ItemBlock_init(VSelf);
+
+void {{ name_lower}}ItemBlockDestroy(VSelf);
+void {{ name_capital }}ItemBlock_destroy(VSelf);
+
+void {{ name_lower}}ItemBlockApplyDamage(VSelf);
+void {{ name_capital }}ItemBlock_applyDamage(VSelf);
+
+void {{ name_lower}}ItemBlockUseAction(VSelf);
+void {{ name_capital }}ItemBlock_useAction(VSelf);
+
+void {{ name_lower}}ItemBlockAttackAction(VSelf);
+void {{ name_capital }}ItemBlock_attackAction(VSelf);
+
+impl(IItem, {{ name_capital }}ItemBlock);
+
+ALLOC_CALL({{ name_capital }}ItemBlock_destroy, 1) {{ name_capital }}ItemBlock* {{ name_lower}}ItemBlockCreate();
+
+#endif // _PSX_MINECRAFT__GAME_ITEMS__ITEM_BLOCK_{{ name_snake_upper }}_H_

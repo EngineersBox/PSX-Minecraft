@@ -1,6 +1,6 @@
 #include "plane.h"
 
-#include "../math/math_utils.h"
+#include "../math/vector.h"
 
 bool planePointInFront(const Plane* plane, const VECTOR point) {
     // Dot between plane normal and point compute the distance between

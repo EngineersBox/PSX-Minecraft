@@ -17,7 +17,7 @@ void AirBlock_init(VSelf) {
         BLOCKID_AIR,
         0,
         BLOCKTYPE_EMPTY,
-        ORIENTATION_POS_X,
+        FACE_DIR_RIGHT,
         {}
     );
 }
