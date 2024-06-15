@@ -45,6 +45,23 @@
 // Forward declaration
 #define FWD_DECL
 
+/**
+ * @brief Indicates not yet implemented functionality,
+ *        implying that it will be implemented later
+ * @param msg Intention of the functionality to be implemented
+ */
+#define TODO(msg) ({ \
+    printf( \
+        "[TODO :: Start] Location: [%s @ %s:%d] Detail:\n"msg"\n[TODO :: End]\n", \
+        __func__, \
+        __FILE__, \
+        __LINE__ \
+    ); \
+})
+/**
+ * @brief Indicates not yet implemented functionality,
+ *        but does not claim it will be implemented later
+ */
 #define UNIMPLEMENTED() \
     do { \
         printf( \

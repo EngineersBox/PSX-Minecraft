@@ -24,7 +24,7 @@ extern const PhysicsObjectUpdateHandlers player_physics_object_update_handlers;
 #define PLAYER_REACH_DISTANCE 6
 
 typedef struct {
-    u32 progress;
+    u32 current_damage;
     VECTOR position;
     IBlock* block; // NULL == not breaking anything
 } PlayerBreaking;

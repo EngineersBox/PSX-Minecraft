@@ -170,6 +170,7 @@ bool chunkModifyVoxel(Chunk* chunk, const VECTOR* position, IBlock* block, IItem
     }
     const IBlock* old_block = chunk->blocks[chunkBlockIndex(x, y, z)];
     IItem* iitem = VCALL(*old_block, destroy);
+    bool result = true;
     if (iitem != NULL && iitem->self != NULL) {
         cvector_push_back(
             chunk->dropped_items,
@@ -182,11 +183,12 @@ bool chunkModifyVoxel(Chunk* chunk, const VECTOR* position, IBlock* block, IItem
         }
     } else if (item_result != NULL) {
         *item_result = NULL;
+        result = false;
     }
     chunk->blocks[chunkBlockIndex(x, y, z)] = block;
     chunkClearMesh(chunk);
     chunkGenerateMesh(chunk);
-    return true;
+    return result;
 }
 
 // This only works because PS1 games are single threaded (mostly)

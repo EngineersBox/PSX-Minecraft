@@ -30,6 +30,22 @@ void chunkGenerate3DHeightMap(Chunk* chunk, const VECTOR* position);
 void chunkGenerateMesh(Chunk* chunk);
 void chunkClearMesh(Chunk* chunk);
 
+/**
+ * @brief Sets a block at a given location in the chunk, invoking the @code destroy@endcode
+ *        method on any existing block at the location. If the destroyed block returns an item,
+ *        it is added to the dropped items list on the chunk instance and a reference is set into
+ *        the inout parameter item_result if it is not @code NULL@endcode. After being destroyed,
+ *        the provided new block instance is set at the given position.
+ * @param chunk Chunk instance
+ * @param position Block position in local chunk coordinates in range (0,0,0) -> (7,7,7) inclusive
+ * @param block Block instance to place at the given position
+ * @param item_result Pointer to an item reference for the dropped item from destroying the block
+ *                    that previously existed at the given location (if it exists). Supplying
+ *                    @code NULL@endcode as a value to @code item_result@endcode will not return anything.
+ * @return @code true@endcode if there was a previous block occupying the location or
+ *         @code false@endcode if there was no block or the position it out of the chunk
+ *         boundary.
+ */
 bool chunkModifyVoxel(Chunk* chunk, const VECTOR* position, IBlock* block, IItem** item_result);
 
 void chunkRender(Chunk* chunk, RenderContext* ctx, Transforms* transforms);

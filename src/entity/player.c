@@ -78,7 +78,7 @@ void playerFallHandler(PhysicsObject* physics_object, const i32 distance, void* 
 void updateBreakingState(Player* player, const RayCastResult* result) {
     PlayerBreaking* state = &player->breaking;
     if ((uintptr_t) state->block != (uintptr_t) result->block) {
-        state->progress = 0;
+        state->current_damage = 0;
         state->position = result->pos;
         state->block = result->block;
         return;
@@ -103,15 +103,18 @@ void playerInputHandlerWorldInteraction(const Input* input, const PlayerInputHan
             worldModifyVoxel(ctx->world, &result.pos, airBlockCreate(), &item);
         }
     } else if (isPressed(pad, BINDING_USE)) {
-        const RayCastResult result = worldRayCastIntersection(
-            ctx->world,
-            VCAST_PTR(Camera*, player->camera),
-            PLAYER_REACH_DISTANCE
+        TODO(
+            "Support USE actions for placing blocks and using items.\n"
+            "Use item or place itemblock if active hotbar slot has\n"
+            "anything in it, handling decrementing stack sizes,\n"
+            "durability, or updating the raycast intersected block\n"
+            "if need be for interaction (i.e doors)"
         );
-        // TODO: Use item or place itemblock if active hotbar slot has
-        //       anything in it, handling decrementing stack sizes,
-        //       durability, or updating the raycast intersected block
-        //       if need be for interaction (i.e doors)
+        // const RayCastResult result = worldRayCastIntersection(
+        //     ctx->world,
+        //     VCAST_PTR(Camera*, player->camera),
+        //     PLAYER_REACH_DISTANCE
+        // );
     }
     // If we are not holding down the BINDING_ATTACH
     // button, then we should discontinue breaking
@@ -119,7 +122,7 @@ void playerInputHandlerWorldInteraction(const Input* input, const PlayerInputHan
     // and revert breaking progress
     if (!breaking) {
         player->breaking = (PlayerBreaking) {
-            .progress = 0,
+            .current_damage = 0,
             .position = vec3_i32_all(0),
             .block = NULL
         };
