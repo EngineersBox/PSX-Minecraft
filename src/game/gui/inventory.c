@@ -298,8 +298,8 @@ bool inventoryInputHandler(const Input* input, void* ctx) {
     return inventory->ui.active;
 }
 
-void inventoryRegisterInputHandler(VSelf, Input* input) ALIAS("Inventory_registerInputHandler");
-void Inventory_registerInputHandler(VSelf, Input* input) {
+void inventoryRegisterInputHandler(VSelf, Input* input, void* ctx) ALIAS("Inventory_registerInputHandler");
+void Inventory_registerInputHandler(VSelf, Input* input, void* ctx) {
     VSELF(Inventory);
     const InputHandlerVTable handler = (InputHandlerVTable) {
         .ctx = self,

@@ -8,11 +8,8 @@
 #include <psxgte.h>
 
 #include "../ui/axis.h"
-#include "../structure/primitive/clip.h"
 #include "../structure/primitive/cube.h"
-#include "../structure/cvector_utils.h"
 #include "../render/debug.h"
-#include "../math/math_utils.h"
 #include "../math/vector.h"
 #include "../ui/ui.h"
 #include "../entity/player.h"
@@ -21,7 +18,6 @@
 
 // Reference texture data
 extern const uint32_t tim_texture[];
-RayCastResult result = {};
 
 #define MARKER_SIZE 20
 SVECTOR verts[8] = {
@@ -129,11 +125,11 @@ void Minecraft_init(VSelf, void* ctx) {
     iPhysicsObjectSetPosition(&player->physics_object, &player_positon);
     player->physics_object.flags.no_clip = true;
     player_handler = DYN(Player, IInputHandler, player);
-    VCALL(player_handler, registerInputHandler, &self->internals.input);
+    VCALL(player_handler, registerInputHandler, &self->internals.input, world);
     // Register handlers
-    VCALL(*player->camera, registerInputHandler, &self->internals.input);
-    VCALL_SUPER(player->inventory, IInputHandler, registerInputHandler, &self->internals.input);
-    VCALL_SUPER(player->hotbar, IInputHandler, registerInputHandler, &self->internals.input);
+    VCALL(*player->camera, registerInputHandler, &self->internals.input, NULL);
+    VCALL_SUPER(player->inventory, IInputHandler, registerInputHandler, &self->internals.input, NULL);
+    VCALL_SUPER(player->hotbar, IInputHandler, registerInputHandler, &self->internals.input, NULL);
 
     // Initialise camera
     Camera* camera = VCAST(Camera*, self->internals.camera);
@@ -183,9 +179,6 @@ void Minecraft_input(VSelf, const Stats* stats) {
     camera->mode = 0;
     Input* input = &self->internals.input;
     inputUpdate(input);
-    if (isPressed(input->pad, BINDING_ATTACK)) {
-        startHandler(camera);
-    }
 }
 
 void minecraftUpdate(VSelf, const Stats* stats) ALIAS("Minecraft_update");
@@ -199,60 +192,6 @@ void Minecraft_update(VSelf, const Stats* stats) {
     camera->position.vx = player->physics_object.position.vx;
     camera->position.vy = -player->physics_object.position.vy - CAMERA_OFFSET;
     camera->position.vz = player->physics_object.position.vz;
-}
-
-void startHandler(Camera* camera) {
-    // cvector_clear(markers);
-    result = worldRayCastIntersection(world, camera, 6, &markers);
-    // printf("Marker count: %d\n", cvector_size(markers));
-    // result.pos.vx = (result.pos.vx / BLOCK_SIZE) >> FIXED_POINT_SHIFT;
-    // result.pos.vz = (result.pos.vz / BLOCK_SIZE) >> FIXED_POINT_SHIFT;
-    // result.pos.vy = (result.pos.vy / BLOCK_SIZE) >> FIXED_POINT_SHIFT;
-    printf(
-        "Ray cast result: [Pos: " VEC_PATTERN "] [Block: %d] [Face: " VEC_PATTERN "]\n",
-        VEC_LAYOUT(result.pos),
-        result.block == NULL ? -1 : VCAST(Block*, *result.block)->id,
-        VEC_LAYOUT(result.face)
-    );
-    camera_pos = (SVECTOR) {
-        .vx = camera->position.vx >> FIXED_POINT_SHIFT,
-        .vy = camera->position.vy >> FIXED_POINT_SHIFT,
-        .vz = camera->position.vz >> FIXED_POINT_SHIFT,
-    };
-    // origin_pos.vx = (((camera->position.vx / BLOCK_SIZE) >> FIXED_POINT_SHIFT) * BLOCK_SIZE) + (BLOCK_SIZE >> 1);
-    // origin_pos.vy = (((camera->position.vy / BLOCK_SIZE) >> FIXED_POINT_SHIFT) * BLOCK_SIZE) + (BLOCK_SIZE >> 1);
-    // origin_pos.vz = (((camera->position.vz / BLOCK_SIZE) >> FIXED_POINT_SHIFT) * BLOCK_SIZE) + (BLOCK_SIZE >> 1);
-    // marker_pos.vx =  (result.pos.vx * BLOCK_SIZE) + (BLOCK_SIZE >> 1); // + ((result.face.vx >> FIXED_POINT_SHIFT) * (BLOCK_SIZE >> 1));
-    // marker_pos.vy = (-result.pos.vy * BLOCK_SIZE) - (BLOCK_SIZE >> 1); // + ((result.face.vy >> FIXED_POINT_SHIFT) * (BLOCK_SIZE >> 1));
-    // marker_pos.vz =  (result.pos.vz * BLOCK_SIZE) + (BLOCK_SIZE >> 1); // + ((result.face.vz >> FIXED_POINT_SHIFT) * (BLOCK_SIZE >> 1));
-    // // TODO: When removing a block (as it takes time to break) should the camera be locked in
-    // //       place as to avoid needing to continually raycast each frame until the block is broken
-    // //       or the trigger/key/mouse is unpressed?
-    IItem* item = NULL;
-    worldModifyVoxel(world, &result.pos, airBlockCreate(), &item);
-    // printf("Origin: " VEC_PATTERN "\n", VEC_LAYOUT(origin_pos));
-    // printf(
-    //     "Marker: " VEC_PATTERN " Camera: " VEC_PATTERN "\n",
-    //     VEC_LAYOUT(marker_pos),
-    //     VEC_LAYOUT(camera->position)
-    // );
-    // const VECTOR direction = rotationToDirection(&camera->rotation);
-    // printf("Direction: " VEC_PATTERN "\n", VEC_LAYOUT(direction));
-    // direction_pos = (SVECTOR) {
-    //     .vx = (camera->position.vx + (direction.vx * BLOCK_SIZE)) >> FIXED_POINT_SHIFT,
-    //     .vy = (camera->position.vy - (direction.vy * BLOCK_SIZE)) >> FIXED_POINT_SHIFT,
-    //     .vz = (camera->position.vz + (direction.vz * BLOCK_SIZE)) >> FIXED_POINT_SHIFT
-    // };
-    // printf(
-    //     "CPOS: " VEC_PATTERN " DPOS: " VEC_PATTERN "\n",
-    //     VEC_LAYOUT(origin_pos),
-    //     VEC_LAYOUT(direction_pos)
-    // );
-    // render_marker = true;
-    // SVECTOR* cmarker;
-    // cvector_for_each_in(cmarker, markers) {
-    //     printf("[TRACE] MARKER: " VEC_PATTERN "\n", VEC_PTR_LAYOUT(cmarker));
-    // }
 }
 
 void drawDirectionLine(Minecraft* minecraft) {
@@ -471,31 +410,6 @@ void drawDebugText(const Minecraft* minecraft, const Stats* stats) {
     );
 }
 
-void printAllFontPoints(RenderContext* ctx) {
-    for (int i = 0; i < 16; i++) {
-        const char c = i * 16;
-        // char str[18] = {0};
-        // sprintf(
-        //     str,
-        //     "%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c\n",
-        //     c, c + 1, c + 2, c + 3, c + 4, c + 5, c + 6, c + 7,
-        //     c + 8, c + 9, c + 10, c + 11, c + 12, c + 13, c + 14, c + 15
-        // );
-        // ctx->primitive = fontSort(
-        //     ctx->db[ctx->active].ordering_table,
-        //     ctx->primitive,
-        //     0, i * FONT_CHARACTER_SPRITE_HEIGHT,
-        //     str
-        // );
-        fontPrint(
-            font_id,
-            "%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c\n",
-            c == 0 ? ' ' : c, c + 1, c + 2, c + 3, c + 4, c + 5, c + 6, c + 7,
-            c + 8, c + 9, c + 10, c + 11, c + 12, c + 13, c + 14, c + 15
-        );
-    }
-}
-
 void minecraftRender(VSelf, const Stats* stats) ALIAS("Minecraft_render");
 void Minecraft_render(VSelf, const Stats* stats) {
     VSELF(Minecraft);
@@ -522,7 +436,6 @@ void Minecraft_render(VSelf, const Stats* stats) {
         SCREEN_YRES - HOTBAR_HEIGHT - 2
     );
     // Flush font to screen
-    // printAllFontPoints(&self->internals.ctx);
     // fontFlush(font_id);
     FntFlush(0);
     // Swap buffers and draw the primitives

@@ -20,4 +20,12 @@ typedef enum {
 
 extern const SVECTOR FACE_DIRECTION_NORMALS[FACE_DIRECTION_COUNT];
 
+// Given target_direction, a direction relative to FACE_DIR_FRONT,
+// this computes the equivalent direction of target_direction
+// relevant to front_direction, right_direction, up_direction.
+FaceDirection faceDirectionRelative(FaceDirection target_direction,
+                                    FaceDirection front_direction,
+                                    FaceDirection right_direction,
+                                    FaceDirection up_direction);
+
 #endif // _PSX_MINECRAFT__STRUCTURE_PRIMITIVE__DIRECTION_H_

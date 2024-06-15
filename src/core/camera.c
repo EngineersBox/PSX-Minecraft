@@ -256,8 +256,8 @@ bool cameraInputHandler(const Input* input, void* ctx) {
     return false;
 }
 
-void cameraRegisterInputHandler(VSelf, Input* input) ALIAS("Camera_registerInputHandler");
-void Camera_registerInputHandler(VSelf, Input* input) {
+void cameraRegisterInputHandler(VSelf, Input* input, void* ctx) ALIAS("Camera_registerInputHandler");
+void Camera_registerInputHandler(VSelf, Input* input, void* ctx) {
     VSELF(Camera);
     const InputHandlerVTable handler = (InputHandlerVTable) {
         .ctx = self,

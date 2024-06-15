@@ -33,8 +33,8 @@ void Hotbar_open(VSelf);
 void hotbarClose(VSelf);
 void Hotbar_close(VSelf);
 
-void hotbarRegisterInputHandler(VSelf, Input* input);
-void Hotbar_registerInputHandler(VSelf, Input* input);
+void hotbarRegisterInputHandler(VSelf, Input* input, void* ctx);
+void Hotbar_registerInputHandler(VSelf, Input* input, void* ctx);
 
 impl(IInputHandler, Hotbar);
 impl(IUI, Hotbar);

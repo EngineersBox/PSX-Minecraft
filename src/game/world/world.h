@@ -69,12 +69,4 @@ IBlock* worldGetBlock(const World* world, const VECTOR* position);
 bool worldModifyVoxelChunkBlock(const World* world, const ChunkBlockPosition* position, IBlock* block, IItem** item_result);
 bool worldModifyVoxel(const World* world, const VECTOR* position, IBlock* block, IItem** item_result);
 
-typedef struct {
-    VECTOR pos;
-    IBlock* block;
-    VECTOR face;
-} RayCastResult;
-
-RayCastResult worldRayCastIntersection(const World* world, const Camera* camera, i32 radius, cvector(SVECTOR)* markers);
-
 #endif // PSX_MINECRAFT_WORLD_H

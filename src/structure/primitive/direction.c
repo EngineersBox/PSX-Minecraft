@@ -1,5 +1,7 @@
 #include "direction.h"
 
+#include <preprocessor.h>
+
 #include "../math/vector.h"
 
 const SVECTOR FACE_DIRECTION_NORMALS[6] = {
@@ -10,3 +12,10 @@ const SVECTOR FACE_DIRECTION_NORMALS[6] = {
     [FACE_DIR_BACK] = vec3_i16(0, 0, 1),
     [FACE_DIR_FRONT] = vec3_i16(0, 0, -1)
 };
+
+FaceDirection faceDirectionRelative(FaceDirection target_direction,
+                                    FaceDirection front_direction,
+                                    FaceDirection right_direction,
+                                    FaceDirection up_direction) {
+    UNIMPLEMENTED();
+}

@@ -15,9 +15,11 @@
 typedef struct Input Input;
 
 typedef bool (*InputHandler)(const Input* input, void* ctx);
+typedef void (*InputHandlerDestroy)(Input* input, void* ctx);
 typedef struct {
     void* ctx;
     InputHandler input_handler;
+    InputHandlerDestroy input_handler_destroy;
 } InputHandlerVTable;
 
 typedef struct Input {
@@ -28,7 +30,7 @@ typedef struct Input {
 } Input;
 
 #define IInputHandler_IFACE \
-    vfunc(void, registerInputHandler, VSelf, Input* input)
+    vfunc(void, registerInputHandler, VSelf, Input* input, void* ctx)
 
 interface(IInputHandler);
 

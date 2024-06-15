@@ -1,9 +1,13 @@
 #include "player.h"
 
-#include "../game/blocks/block.h"
 #include "../util/interface99_extensions.h"
 #include "../logging/logging.h"
 #include "../math/vector.h"
+#include "../game/world/world_raycast.h"
+#include "../game/blocks/blocks.h"
+
+// Forward declaration
+FWD_DECL bool worldModifyVoxel(const World* world, const VECTOR* position, IBlock* block, IItem** item_result);
 
 #define HEIGHT_INTERVALS 3
 #define RADIUS_INTERVALS 2
@@ -71,8 +75,60 @@ void playerFallHandler(PhysicsObject* physics_object, const i32 distance, void* 
     }
 }
 
-bool playerInputHandler(const Input* input, void* ctx) {
-    Player* player = (Player*) ctx;
+void updateBreakingState(Player* player, const RayCastResult* result) {
+    PlayerBreaking* state = &player->breaking;
+    if ((uintptr_t) state->block != (uintptr_t) result->block) {
+        state->progress = 0;
+        state->position = result->pos;
+        state->block = result->block;
+        return;
+    }
+    // TODO: Update breaking progress based on block and tool
+}
+
+void playerInputHandlerWorldInteraction(const Input* input, const PlayerInputHandlerContext* ctx) {
+    Player* player = ctx->player;
+    const PADTYPE* pad = input->pad;
+    bool breaking = false;
+    if (isPressed(pad, BINDING_ATTACK)) {
+        const RayCastResult result = worldRayCastIntersection(
+            ctx->world,
+            VCAST_PTR(Camera*, player->camera),
+            PLAYER_REACH_DISTANCE
+        );
+        if (result.block != NULL) {
+            updateBreakingState(player, &result);
+            breaking = true;
+            IItem* item = NULL;
+            worldModifyVoxel(ctx->world, &result.pos, airBlockCreate(), &item);
+        }
+    } else if (isPressed(pad, BINDING_USE)) {
+        const RayCastResult result = worldRayCastIntersection(
+            ctx->world,
+            VCAST_PTR(Camera*, player->camera),
+            PLAYER_REACH_DISTANCE
+        );
+        // TODO: Use item or place itemblock if active hotbar slot has
+        //       anything in it, handling decrementing stack sizes,
+        //       durability, or updating the raycast intersected block
+        //       if need be for interaction (i.e doors)
+    }
+    // If we are not holding down the BINDING_ATTACH
+    // button, then we should discontinue breaking
+    // and update the flag to stop the breaking overlay
+    // and revert breaking progress
+    if (!breaking) {
+        player->breaking = (PlayerBreaking) {
+            .progress = 0,
+            .position = vec3_i32_all(0),
+            .block = NULL
+        };
+    }
+}
+
+bool playerInputHandlerMovement(const Input* input, const PlayerInputHandlerContext* ctx) {
+    const PADTYPE* pad = input->pad;
+    Player* player = ctx->player;
     PhysicsObject* physics_object = &player->physics_object;
     physics_object->move.forward = 0;
     physics_object->move.strafe = 0;
@@ -84,7 +140,6 @@ bool playerInputHandler(const Input* input, void* ctx) {
     if (input->pad->stat != 0) {
         return false;
     }
-    const PADTYPE* pad = input->pad;
     // Look controls
     if (isPressed(pad, BINDING_LOOK_UP)) {
         // Look up
@@ -141,12 +196,27 @@ bool playerInputHandler(const Input* input, void* ctx) {
     return false;
 }
 
-void playerRegisterInputHandler(VSelf, Input* input) ALIAS("Player_registerInputHandler");
-void Player_registerInputHandler(VSelf, Input* input) {
+bool playerInputHandler(const Input* input, void* ctx) {
+    PlayerInputHandlerContext* context = ctx;
+    playerInputHandlerWorldInteraction(input, context);
+    return playerInputHandlerMovement(input, context);
+}
+
+void playerInputHandlerDestroy(Input* input, void* ctx) {
+    PlayerInputHandlerContext* context = ctx;
+    free(context);
+}
+
+void playerRegisterInputHandler(VSelf, Input* input, void* ctx) ALIAS("Player_registerInputHandler");
+void Player_registerInputHandler(VSelf, Input* input, void* ctx) {
     VSELF(Player);
+    PlayerInputHandlerContext* context = malloc(sizeof(PlayerInputHandlerContext));
+    context->player = self;
+    context->world = (World*) ctx;
     InputHandlerVTable handler = (InputHandlerVTable) {
-        .ctx = self,
-        .input_handler = playerInputHandler
+        .ctx = context,
+        .input_handler = playerInputHandler,
+        .input_handler_destroy = playerInputHandlerDestroy
     };
     inputAddHandler(input, handler);
 }

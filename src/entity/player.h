@@ -11,6 +11,7 @@
 #include "../game/gui/hotbar.h"
 #include "../physics/physics_object.h"
 #include "../core/input/input.h"
+#include "../game/blocks/block.h"
 #include "entity.h"
 
 extern const u32 player_collision_intervals_height[];
@@ -20,6 +21,13 @@ extern const PhysicsObjectUpdateHandlers player_physics_object_update_handlers;
 
 // 10 hearts with 2 points in each heart
 #define PLAYER_MAX_HEALTH 20
+#define PLAYER_REACH_DISTANCE 6
+
+typedef struct {
+    u32 progress;
+    VECTOR position;
+    IBlock* block; // NULL == not breaking anything
+} PlayerBreaking;
 
 typedef struct {
     Entity entity;
@@ -27,10 +35,16 @@ typedef struct {
     PhysicsObject physics_object;
     IUI inventory;
     IUI hotbar;
+    PlayerBreaking breaking;
 } Player;
 
 // Forward declaration
 typedef struct World World;
+
+typedef struct {
+    Player* player;
+    World* world;
+} PlayerInputHandlerContext;
 
 void playerInit(Player* player);
 void playerDestroy(const Player* player);
@@ -41,8 +55,8 @@ void playerFallHandler(PhysicsObject* physics_object, i32 distance, void* ctx);
 
 impl(IEntity, Player);
 
-void playerRegisterInputHandler(VSelf, Input* input);
-void Player_registerInputHandler(VSelf, Input* input);
+void playerRegisterInputHandler(VSelf, Input* input, void* ctx);
+void Player_registerInputHandler(VSelf, Input* input, void* ctx);
 
 impl(IInputHandler, Player);
 

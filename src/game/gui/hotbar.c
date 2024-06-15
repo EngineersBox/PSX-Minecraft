@@ -87,7 +87,7 @@ void Hotbar_close(VSelf) {
     // Always open
 }
 
-void hotbarRegisterInputHandler(VSelf, Input* input) ALIAS("Hotbar_registerInputHandler");
-void Hotbar_registerInputHandler(VSelf, Input* input) {
+void hotbarRegisterInputHandler(VSelf, Input* input, void* ctx) ALIAS("Hotbar_registerInputHandler");
+void Hotbar_registerInputHandler(VSelf, Input* input, void* ctx) {
     // Nothing to register
 }

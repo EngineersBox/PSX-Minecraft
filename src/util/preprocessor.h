@@ -4,6 +4,7 @@
 #define PSX_MINECRAFT_PREPROCESSOR_H
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <assert.h>
 #include <metalang99.h>
 
@@ -46,10 +47,12 @@
 
 #define UNIMPLEMENTED() \
     do { \
-        printf("Unimplemented function: " #__func__ "\n"); \
-        printf("File: " #__FILE__ "\n"); \
-        printf("Line:" #__LINE__ "\n"); \
-        assert(0); \
+        printf( \
+            "[ERROR] Invoked unimplemented function %s @ %s:%d\n", \
+            __func__, \
+            __FILE__, \
+            __LINE__ \
+        ); \
         abort(); \
     } while(0)
 
