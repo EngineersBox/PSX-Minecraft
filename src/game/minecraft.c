@@ -51,7 +51,6 @@ FontID font_id;
 
 // ONE_BLOCK * 1.7
 #define CAMERA_OFFSET 487424
-// #define CAMERA_OFFSET ONE_BLOCK
 
 void minecraftInit(VSelf, void* ctx) ALIAS("Minecraft_init");
 void Minecraft_init(VSelf, void* ctx) {
