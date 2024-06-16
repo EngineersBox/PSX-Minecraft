@@ -10,7 +10,7 @@
 #include "../../util/preprocessor.h"
 #include "../../hardware/counters.h"
 
-// * 0-3: armor
+// * 0-3: armour
 // * 4-7: crafting input
 // * 8: crafting output
 // * 9-35: storage

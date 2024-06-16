@@ -58,7 +58,6 @@ void CobblestoneItemBlock_init(VSelf) {
         .item = (Item) {
             .id = ITEMID_COBBLESTONE,
             .metadata_id = 0,
-            .type = ITEMTYPE_BLOCK,
             .stack_size = 0,
             .max_stack_size = 64,
             .position = vec3_i32_all(0),

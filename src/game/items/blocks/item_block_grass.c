@@ -55,7 +55,6 @@ void GrassItemBlock_init(VSelf) {
         .item = (Item) {
             .id = ITEMID_GRASS,
             .metadata_id = 0,
-            .type = ITEMTYPE_BLOCK,
             .stack_size = 0,
             .max_stack_size = 64,
             .position = (VECTOR) {0},
@@ -64,12 +63,12 @@ void GrassItemBlock_init(VSelf) {
             .picked_up = false
         },
         .face_attributes = declareTintedFaceAttributes(
-        2 /*49*/, NO_TINT,
-        0 /*49*/, /*NO_TINT,*/ faceTint(91, 139, 50, 1),
-        3 /*49*/, NO_TINT,
-        3 /*49*/, NO_TINT,
-        3 /*49*/, NO_TINT,
-        3 /*49*/, NO_TINT
+            2 /*49*/, NO_TINT,
+            0 /*49*/, /*NO_TINT,*/ faceTint(91, 139, 50, 1),
+            3 /*49*/, NO_TINT,
+            3 /*49*/, NO_TINT,
+            3 /*49*/, NO_TINT,
+            3 /*49*/, NO_TINT
         )
     };
 }

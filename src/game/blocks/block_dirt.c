@@ -2,7 +2,7 @@
 
 #include "../../util/interface99_extensions.h"
 #include "block_id.h"
-#include "../items/item_block_dirt.h"
+#include "../items/blocks/item_block_dirt.h"
 
 IBlock* dirtBlockCreate() {
     return &DIRT_IBLOCK_SINGLETON;
@@ -12,7 +12,7 @@ void dirtBlockInit(VSelf) ALIAS("DirtBlock_init");
 void DirtBlock_init(VSelf) {
     // TODO: Can make this VSELF(Block) since DirtBlock composes Block as the first struct element
     VSELF(DirtBlock);
-    self->block = declareSolidBlock(
+    self->block = declareSimpleBlock(
         BLOCKID_DIRT,
         defaultFaceAttributes(2)
     );

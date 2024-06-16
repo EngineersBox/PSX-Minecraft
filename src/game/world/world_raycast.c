@@ -1,5 +1,6 @@
 #include "world_raycast.h"
 
+#include "../blocks/blocks.h"
 #include "../../math/vector.h"
 #include "../../util/interface99_extensions.h"
 
@@ -124,7 +125,7 @@ RayCastResult worldRayCastIntersection(const World* world,
         }
         const Block* block = VCAST_PTR(Block*, iblock);
         // DEBUG_LOG("Block: %s\n", EBLOCKID_NAMES[block->id]);
-        if (block->type != BLOCKTYPE_EMPTY) {
+        if (blockGetType(block->id) != BLOCKTYPE_EMPTY) {
             return (RayCastResult) {
                 .pos = vec3_i32(position.vx, position.vy, position.vz),
                 .block = iblock,

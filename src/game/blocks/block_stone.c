@@ -2,7 +2,7 @@
 
 #include "../../util/interface99_extensions.h"
 #include "block_id.h"
-#include "../items/item_block_stone.h"
+#include "../items/blocks/item_block_stone.h"
 
 IBlock* stoneBlockCreate() {
     return &STONE_IBLOCK_SINGLETON;
@@ -12,7 +12,7 @@ void stoneBlockInit(VSelf) ALIAS("StoneBlock_init");
 void StoneBlock_init(VSelf) {
     // TODO: Can make this VSELF(Block) since StoneBlock composes Block as the first struct element
     VSELF(StoneBlock);
-    self->block = declareSolidBlock(
+    self->block = declareSimpleBlock(
         BLOCKID_STONE,
         defaultFaceAttributes(1)
     );

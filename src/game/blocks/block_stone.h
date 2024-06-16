@@ -18,6 +18,9 @@ IBlock* stoneBlockCreate();
     .slipperiness = BLOCK_DEFAULT_SLIPPERINESS, \
     .hardness = 6144, \
     .resistance = 40960, \
+    .type = BLOCKTYPE_SOLID, \
+    .tool_type = TOOLTYPE_PICKAXE, \
+    .tool_material = TOOLMATERIAL_WOOD, \
     .name = "stone" \
 })
 

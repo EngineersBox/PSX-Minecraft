@@ -20,9 +20,12 @@ extern BlockAttributes block_attributes[BLOCK_COUNT];
 
 #define blockGetAttribute(id, attr) (block_attributes[(id)].attr)
 #define blockGetName(id) blockGetAttribute(id, name)
+#define blockGetType(id) blockGetAttribute(id, type)
 #define blockGetSlipperiness(id) blockGetAttribute(id, slipperiness)
 #define blockGetHardness(id) blockGetAttribute(id, hardness)
 #define blockGetResistance(id) blockGetAttribute(id, resistance)
+#define blockGetToolType(id) blockGetAttribute(id, tool_type)
+#define blockGetToolMaterial(id) blockGetAttribute(id, tool_material)
 
 void blocksInitialiseBuiltin();
 

@@ -75,15 +75,32 @@ void playerFallHandler(PhysicsObject* physics_object, const i32 distance, void* 
     }
 }
 
-void updateBreakingState(Player* player, const RayCastResult* result) {
+void updateBreakingState(Player* player, const RayCastResult* result, World* world) {
     BreakingState* state = &player->breaking;
     if ((uintptr_t) state->block != (uintptr_t) result->block) {
-        state->current_damage = 0;
-        state->position = result->pos;
-        state->block = result->block;
+        *state = (BreakingState) {
+            .ticks_left = 0,
+            .position = result->pos,
+            .block = result->block
+        };
+        breakingStateCalculateTicksLeft(
+            state,
+            NULL, // TODO: Get held item
+            false, // TODO: Get whether in water
+            false // TODO: Get whether on ground
+        );
         return;
     }
-    // TODO: Update breaking progress based on block and tool
+    state->ticks_left--;
+    if (state->ticks_left == 0) {
+        worldModifyVoxel(world, &result->pos, airBlockCreate(), NULL);
+        breakingStateReset(*state);
+        // TODO: Decrement durability of item in hand if it is a tool.
+        //       Making sure we only get the item at the last tick when
+        //       breaking means the OG bug of being able to mine with one
+        //       tool then switch to another at the last second to preserve
+        //       durability will still work.
+    }
 }
 
 void playerInputHandlerWorldInteraction(const Input* input, const PlayerInputHandlerContext* ctx) {
@@ -97,10 +114,8 @@ void playerInputHandlerWorldInteraction(const Input* input, const PlayerInputHan
             PLAYER_REACH_DISTANCE
         );
         if (result.block != NULL) {
-            updateBreakingState(player, &result);
+            updateBreakingState(player, &result, ctx->world);
             breaking = true;
-            IItem* item = NULL;
-            worldModifyVoxel(ctx->world, &result.pos, airBlockCreate(), &item);
         }
     } else if (isPressed(pad, BINDING_USE)) {
         TODO(
@@ -121,11 +136,7 @@ void playerInputHandlerWorldInteraction(const Input* input, const PlayerInputHan
     // and update the flag to stop the breaking overlay
     // and revert breaking progress
     if (!breaking) {
-        player->breaking = (BreakingState) {
-            .current_damage = 0,
-            .position = vec3_i32_all(0),
-            .block = NULL
-        };
+        breakingStateReset(player->breaking);
     }
 }
 

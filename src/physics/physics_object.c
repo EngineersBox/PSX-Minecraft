@@ -94,7 +94,7 @@ i32 resolveGroundAcceleration(const PhysicsObject* physics_object,
         return scaling;
     }
     const Block* block = VCAST_PTR(Block*, iblock);
-    if (block->type != BLOCKTYPE_EMPTY) {
+    if (blockGetType(block->id) != BLOCKTYPE_EMPTY) {
         scaling = block_attributes[block->id].slipperiness;
     }
     return scaling;
@@ -170,7 +170,7 @@ cvector(AABB) getCollidingAABBs(const World* world, const AABB* aabb) {
                     continue;
                 }
                 const Block* block = VCAST_PTR(const Block*, iblock);
-                if (block->type == BLOCKTYPE_EMPTY) {
+                if (blockGetType(block->id) == BLOCKTYPE_EMPTY) {
                     continue;
                 }
                 const AABB block_aabb = (AABB) {

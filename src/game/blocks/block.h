@@ -9,22 +9,13 @@
 #include "../../resources/texture.h"
 #include "../../util/preprocessor.h"
 #include "../items/item.h"
+#include "../items/tools/item_tool.h"
 #include "../../structure/primitive/direction.h"
 
 #define BLOCK_SIZE 70
 #define BLOCK_FACES 6
 #define BLOCK_TEXTURE_SIZE 16
 #define ONE_BLOCK (BLOCK_SIZE << FIXED_POINT_SHIFT)
-
-typedef struct {
-    // Higher = more slip
-    u16 slipperiness;
-    // Higher = harder to destroy with a tool
-    u16 hardness;
-    // Higher = harder to destroy with TNT
-    u16 resistance;
-    char* name;
-} BlockAttributes;
 
 // ONE * 0.91 = 3727 == ice
 // ONE * 0.6 = 2457 == normal block
@@ -36,7 +27,9 @@ typedef struct {
 
 typedef u8 BlockID;
 
-typedef enum {
+#define BLOCK_TYPE_COUNT 9
+#define BLOCK_TYPE_COUNT_BITS 4
+typedef enum BlockType {
     BLOCKTYPE_EMPTY = 0,
     // Regular block
     BLOCKTYPE_SOLID,
@@ -56,10 +49,23 @@ typedef enum {
     BLOCKTYPE_LIQUID
 } BlockType;
 
-typedef struct {
+typedef struct BlockAttributes {
+    // Higher = more slip
+    u16 slipperiness;
+    // Higher = harder to destroy with a tool
+    u16 hardness;
+    // Higher = harder to destroy with TNT
+    u16 resistance;
+    BlockType type: BLOCK_TYPE_COUNT_BITS;
+    ToolType tool_type: TOOL_TYPE_COUNT_BITS;
+    ToolMaterial tool_material: TOOL_MATERIAL_COUNT_BITS;
+    u16 _pad: 6;
+    char* name;
+} BlockAttributes;
+
+typedef struct Block {
     BlockID id;
     u8 metadata_id;
-    BlockType type; // TODO: Move this to attributes
     FaceDirection orientation;
     TextureAttributes face_attributes[BLOCK_FACES];
 } Block;
@@ -102,40 +108,24 @@ interface(IBlock);
     extern name extern_name##_BLOCK_SINGLETON
 
 // Declare a Block instance
-#define declareBlock(_id, _metadata_id, _type, _orientation, _face_attributes) (Block) {\
+#define declareBlock(_id, _metadata_id, _orientation, _face_attributes) (Block) {\
     .id = (BlockID) _id,\
     .metadata_id = _metadata_id,\
-    .type = (BlockType) _type,\
     .orientation = (FaceDirection) _orientation,\
     .face_attributes = _face_attributes\
 }
-// Declare a Block instance with a type
-#define declareBlockTyped(_id, _type, face_attributes) declareBlock( \
+// Declare a Block
+#define declareSimpleBlock(_id, face_attributes) declareBlock( \
     _id, \
     0, \
-    _type, \
     FACE_DIR_RIGHT, \
     P99_PROTECT(face_attributes) \
 )
-// Declare a Block instance with a metadata ID and type
-#define declareBlockMetaTyped(_id, _metadata_id, _type, face_attributes) declareBlock( \
+// Declare a Block with a metadata ID
+#define declareSimpleBlockMeta(_id, _metadata_id, face_attributes) declareBlock( \
     _id, \
     _metadata_id, \
-    _type, \
     FACE_DIR_RIGHT, \
-    P99_PROTECT(face_attributes) \
-)
-// Declare a SOLID type Block
-#define declareSolidBlock(_id, face_attributes) declareBlockTyped( \
-    _id, \
-    BLOCKTYPE_SOLID, \
-    P99_PROTECT(face_attributes) \
-)
-// Declare a SOLID type Block with a methdata ID
-#define declareSolidBlockMeta(_id, _metadata_id, face_attributes) declareBlockMetaTyped( \
-    _id, \
-    _metadata_id, \
-    BLOCKTYPE_SOLID, \
     P99_PROTECT(face_attributes) \
 )
 

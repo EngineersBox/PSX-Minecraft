@@ -20,16 +20,46 @@
 
 typedef u8 ItemID;
 
+#define ITEM_TYPE_COUNT 4
+#define ITEM_TYPE_COUNT_BITS 2
 typedef enum {
     ITEMTYPE_BLOCK,
     ITEMTYPE_RESOURCE,
-    ITEMTYPE_TOOL
+    ITEMTYPE_TOOL,
+    ITEMTYPE_ARMOUR
 } ItemType;
 
-typedef struct {
+#define TOOL_TYPE_COUNT 6
+#define TOOL_TYPE_COUNT_BITS 3
+typedef enum ToolType {
+    TOOLTYPE_NONE = 0,
+    TOOLTYPE_PICKAXE,
+    TOOLTYPE_AXE,
+    TOOLTYPE_SWORD,
+    TOOLTYPE_SHOVEL,
+    TOOLTYPE_HOE
+} ToolType;
+
+#define TOOL_MATERIAL_COUNT 6
+#define TOOL_MATERIAL_COUNT_BITS 3
+typedef enum ToolMaterial {
+    TOOLMATERIAL_NONE = 0,
+    TOOLMATERIAL_WOOD,
+    TOOLMATERIAL_STONE,
+    TOOLMATERIAL_IRON,
+    TOOLMATERIAL_GOLD,
+    TOOLMATERIAL_DIAMOND
+} ToolMaterial;
+
+typedef struct ItemAttributes {
+    ItemType type: ITEM_TYPE_COUNT_BITS;
+    ToolType tool_type: TOOL_TYPE_COUNT_BITS;
+    ToolMaterial tool_material: TOOL_MATERIAL_COUNT;
+} ItemAttributes;
+
+typedef struct Item {
     ItemID id;
     u8 metadata_id;
-    ItemType type;
     uint8_t stack_size;
     uint8_t max_stack_size;
     uint8_t bob_offset;

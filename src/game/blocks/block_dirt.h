@@ -17,6 +17,9 @@ IBlock* dirtBlockCreate();
     .slipperiness = BLOCK_DEFAULT_SLIPPERINESS, \
     .hardness = 2048, \
     .resistance = BLOCK_DEFAULT_RESISTANCE, \
+    .type = BLOCKTYPE_SOLID, \
+    .tool_type = TOOLTYPE_SHOVEL, \
+    .tool_material = TOOLMATERIAL_WOOD, \
     .name = "dirt" \
 })
 

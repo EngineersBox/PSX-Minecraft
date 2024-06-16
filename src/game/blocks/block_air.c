@@ -16,7 +16,6 @@ void AirBlock_init(VSelf) {
     self->block = declareBlock(
         BLOCKID_AIR,
         0,
-        BLOCKTYPE_EMPTY,
         FACE_DIR_RIGHT,
         {}
     );

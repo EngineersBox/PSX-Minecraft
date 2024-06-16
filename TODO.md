@@ -27,30 +27,6 @@
 * [ ] Move mesh generation to after all loading when updating world to avoid face generation on orthogonal axis to update axis
 * [ ] Cull faces on chunk edges that face outward on the render limit
 
-## Refactor
-
-* [x] Support texture windowing for wrap-around in multiples of texture width/height
-* [x] Removed aliasing wrappers for primitive/vertex/normal arrays in `ChunkMesh` and refactor to direct type alias of `SMD`
-* [x] Camera displayed position to be units of `BLOCK_SIZE`
-* [x] Y-axis values are negative upwards should be positive
-* [x] Block world coords should start at 0 from bottom of chunk and go up positively.
-* [x] Move crosshair render handler to UI directory with dependent structure
-* [x] Move axis render handler to UI directory with dependent structure
-* [x] Create loading screen structure with update/render methods and move content in world to there
-* [x] Ray cast should check distance walked is less than radius instead of out of world check
-* [x] Use geometry matrix to centre loading screen text and loading bar instead of manual positioning
-* [x] Refactor `World` and `Chunk` to support interface based blocks with dynamic dispatch handlers
-* [x] Move to binary greedy meshing with bitwise ops for single-pass mask creation
-* [x] Migrate to chunk providers and generators created with world for specific generation
-* [x] Move old mesh generation in `Chunk` into standalone implementation in `src/game/world/chunk/meshing` or remove
-* [x] Per-face opacity control on each block for minimal meshing with mixed opacity (like farmland, bottom only opaque)
-* [ ] Move rendering handlers in `ChunkMesh` to standalone SMD renderer file
-* [ ] Turn these TODO list sections into tables instead of checkmark lists 
-* [ ] Support other resolutions that aren't 320x240
-* [ ] Move static values like block/item names and max stack sizes to global constants accessed by ID
-* [ ] Refactor vector operations to use `_Generic` C11 macro to perform type specific operations between any kind of two vector types or constant
-* [ ] Move assets to on-disk directories and files instead of packing them into the binary
-
 ## Implement
 
 * [x] Implement texture loading via LZP compressed archive traversal
@@ -84,3 +60,27 @@
 * [ ] Set block orientation relative to camera when placing
 * [ ] Retrieve face attributes based on block orientation during meshing
 * [ ] Finish player attack/use input handlers
+
+## Refactor
+
+* [x] Support texture windowing for wrap-around in multiples of texture width/height
+* [x] Removed aliasing wrappers for primitive/vertex/normal arrays in `ChunkMesh` and refactor to direct type alias of `SMD`
+* [x] Camera displayed position to be units of `BLOCK_SIZE`
+* [x] Y-axis values are negative upwards should be positive
+* [x] Block world coords should start at 0 from bottom of chunk and go up positively.
+* [x] Move crosshair render handler to UI directory with dependent structure
+* [x] Move axis render handler to UI directory with dependent structure
+* [x] Create loading screen structure with update/render methods and move content in world to there
+* [x] Ray cast should check distance walked is less than radius instead of out of world check
+* [x] Use geometry matrix to centre loading screen text and loading bar instead of manual positioning
+* [x] Refactor `World` and `Chunk` to support interface based blocks with dynamic dispatch handlers
+* [x] Move to binary greedy meshing with bitwise ops for single-pass mask creation
+* [x] Migrate to chunk providers and generators created with world for specific generation
+* [x] Move old mesh generation in `Chunk` into standalone implementation in `src/game/world/chunk/meshing` or remove
+* [x] Per-face opacity control on each block for minimal meshing with mixed opacity (like farmland, bottom only opaque)
+* [ ] Move rendering handlers in `ChunkMesh` to standalone SMD renderer file
+* [ ] Turn these TODO list sections into tables instead of checkmark lists 
+* [ ] Support other resolutions that aren't 320x240
+* [ ] Move static values like block/item names and max stack sizes to global constants accessed by ID
+* [ ] Refactor vector operations to use `_Generic` C11 macro to perform type specific operations between any kind of two vector types or constant
+* [ ] Move assets to on-disk directories and files instead of packing them into the binary

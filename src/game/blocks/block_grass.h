@@ -16,6 +16,9 @@ IBlock* grassBlockCreate();
     .slipperiness = BLOCK_DEFAULT_SLIPPERINESS, \
     .hardness = 2457, \
     .resistance = 12288, \
+    .type = BLOCKTYPE_SOLID, \
+    .tool_type = TOOLTYPE_SHOVEL, \
+    .tool_material = TOOLMATERIAL_WOOD, \
     .name = "grass" \
 })
 

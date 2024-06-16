@@ -2,7 +2,7 @@
 
 #include "../../util/interface99_extensions.h"
 #include "block_id.h"
-#include "../items/item_block_grass.h"
+#include "../items/blocks/item_block_grass.h"
 
 IBlock* grassBlockCreate() {
     return &GRASS_IBLOCK_SINGLETON;
@@ -12,7 +12,7 @@ void grassBlockInit(VSelf) ALIAS("GrassBlock_init");
 void GrassBlock_init(VSelf) {
     // TODO: Can make this VSELF(Block) since GrassBlock composes Block as the first struct element
     VSELF(GrassBlock);
-    self->block = declareSolidBlock(
+    self->block = declareSimpleBlock(
         BLOCKID_GRASS,
         declareTintedFaceAttributes(
             2 /*49*/, NO_TINT,

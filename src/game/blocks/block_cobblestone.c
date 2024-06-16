@@ -2,7 +2,7 @@
 
 #include "../../util/interface99_extensions.h"
 #include "block_id.h"
-#include "../items/item_block_cobblestone.h"
+#include "../items/blocks/item_block_cobblestone.h"
 
 IBlock* cobblestoneBlockCreate() {
     return &COBBLESTONE_IBLOCK_SINGLETON;
@@ -11,7 +11,7 @@ IBlock* cobblestoneBlockCreate() {
 void cobblestoneBlockInit(VSelf) ALIAS("CobblestoneBlock_init");
 void CobblestoneBlock_init(VSelf) {
     VSELF(CobblestoneBlock);
-    self->block = declareSolidBlock(
+    self->block = declareSimpleBlock(
         BLOCKID_COBBLESTONE,
         defaultFaceAttributes(16)
     );

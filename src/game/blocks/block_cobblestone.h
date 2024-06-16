@@ -15,6 +15,9 @@ IBlock* cobblestoneBlockCreate();
     .slipperiness = BLOCK_DEFAULT_SLIPPERINESS, \
     .hardness = BLOCK_DEFAULT_HARDNESS, \
     .resistance = BLOCK_DEFAULT_RESISTANCE, \
+    .type = BLOCKTYPE_SOLID, \
+    .tool_type = TOOLTYPE_PICKAXE, \
+    .tool_material = TOOLMATERIAL_WOOD, \
     .name = "cobblestone" \
 })
 

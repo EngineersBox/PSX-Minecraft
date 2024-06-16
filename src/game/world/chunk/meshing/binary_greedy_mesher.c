@@ -33,7 +33,7 @@ INLINE void addVoxelToFaceColumns(FacesColumns axis_cols,
         return;
     }
     const Block* block = VCAST_PTR(Block*, iblock);
-    if (block->type == BLOCKTYPE_EMPTY) {
+    if (blockGetType(block->id) == BLOCKTYPE_EMPTY) {
         return;
     }
     axis_cols[0][z][x] |= 1 << y; // DOWN
@@ -219,7 +219,7 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
                         continue;
                     }
                     const Block* block = VCAST_PTR(Block*, current_block);
-                    if (block->type == BLOCKTYPE_EMPTY) {
+                    if (blockGetType(block->id) == BLOCKTYPE_EMPTY) {
                         errorAbort(
                             "[BINARY GREEDY MESHER] Empty block encountered while constructing mask [Face: %d] [Chunk: " VEC_PATTERN "] [Block: " VEC_PATTERN "]\n",
                             face,
