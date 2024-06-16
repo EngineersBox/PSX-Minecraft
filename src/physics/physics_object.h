@@ -15,7 +15,7 @@
 #define ROTATION_SPEED 15
 #define MINIMUM_VELOCITY 40
 
-typedef struct {
+typedef struct PhysicsObjectConfig {
     // Fixed point block size (ONE * BLOCK_SIZE == single block)
     u32 jump_height;
     // Blocks per second
@@ -48,7 +48,7 @@ typedef struct {
  * entries since they are not orthogonal in all
  * circumstances or AABB sizes.
  */
-typedef struct {
+typedef struct PhysicsObjectFlags {
     bool on_ground: 1;
     bool in_water: 1;
     bool in_lava: 1;
@@ -65,11 +65,11 @@ typedef struct {
 
 typedef void (*PhysicsObjectFall)(VSelf, i32 distance, void* ctx);
 
-typedef struct {
+typedef struct PhysicsObjectUpdateHandlers {
     const PhysicsObjectFall fall_handler;
 } PhysicsObjectUpdateHandlers;
 
-typedef struct {
+typedef struct PhysicsObject {
     VECTOR position;
     VECTOR velocity;
     struct {

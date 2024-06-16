@@ -48,5 +48,5 @@ void breakingStateCalculateTicks(BreakingState* state,
         state->ticks_left = 0;
         return;
     }
-    state->ticks_left = fixedDiv(ONE, damage); // In tick
+    state->ticks_left = fixedDiv(ONE, damage); // In ticks
 }

@@ -83,11 +83,12 @@ void updateBreakingState(Player* player, const RayCastResult* result, World* wor
             .position = result->pos,
             .block = result->block
         };
+        const PhysicsObjectFlags* player_physics_flags = &player->physics_object.flags;
         breakingStateCalculateTicks(
             state,
             NULL, // TODO: Get held item
-            false, // TODO: Get whether in water
-            false // TODO: Get whether on ground
+            player_physics_flags->in_water,
+            player_physics_flags->on_ground
         );
         return;
     }
