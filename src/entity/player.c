@@ -83,7 +83,7 @@ void updateBreakingState(Player* player, const RayCastResult* result, World* wor
             .position = result->pos,
             .block = result->block
         };
-        breakingStateCalculateTicksLeft(
+        breakingStateCalculateTicks(
             state,
             NULL, // TODO: Get held item
             false, // TODO: Get whether in water
