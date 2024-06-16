@@ -417,6 +417,7 @@ void Minecraft_render(VSelf, const Stats* stats) {
     frustumTransform(&self->internals.ctx.camera->frustum, &self->internals.transforms);
     worldRender(
         self->world,
+        &player->breaking,
         &self->internals.ctx,
         &self->internals.transforms
     );

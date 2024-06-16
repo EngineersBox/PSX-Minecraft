@@ -76,7 +76,7 @@ void playerFallHandler(PhysicsObject* physics_object, const i32 distance, void* 
 }
 
 void updateBreakingState(Player* player, const RayCastResult* result) {
-    PlayerBreaking* state = &player->breaking;
+    BreakingState* state = &player->breaking;
     if ((uintptr_t) state->block != (uintptr_t) result->block) {
         state->current_damage = 0;
         state->position = result->pos;
@@ -121,7 +121,7 @@ void playerInputHandlerWorldInteraction(const Input* input, const PlayerInputHan
     // and update the flag to stop the breaking overlay
     // and revert breaking progress
     if (!breaking) {
-        player->breaking = (PlayerBreaking) {
+        player->breaking = (BreakingState) {
             .current_damage = 0,
             .position = vec3_i32_all(0),
             .block = NULL

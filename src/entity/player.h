@@ -11,7 +11,7 @@
 #include "../game/gui/hotbar.h"
 #include "../physics/physics_object.h"
 #include "../core/input/input.h"
-#include "../game/blocks/block.h"
+#include "../game/blocks/breaking_state.h"
 #include "entity.h"
 
 extern const u32 player_collision_intervals_height[];
@@ -24,18 +24,12 @@ extern const PhysicsObjectUpdateHandlers player_physics_object_update_handlers;
 #define PLAYER_REACH_DISTANCE 6
 
 typedef struct {
-    u32 current_damage;
-    VECTOR position;
-    IBlock* block; // NULL == not breaking anything
-} PlayerBreaking;
-
-typedef struct {
     Entity entity;
     ICamera* camera;
     PhysicsObject physics_object;
     IUI inventory;
     IUI hotbar;
-    PlayerBreaking breaking;
+    BreakingState breaking;
 } Player;
 
 // Forward declaration

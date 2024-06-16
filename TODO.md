@@ -1,5 +1,32 @@
 # TODO
 
+## Fix
+
+* [x] Chunk mesh traversal to be Y up instead of Z up
+* [x] Last vertex in chunk not correct
+* [x] Last texture window causing font render to be weird
+* [x] Figure out why odd numbered chunks render, no x-valued chunks render and Y alternate chunks don't render
+* [x] Figure out why `CHUNK_SIZE` that isn't 8 doesn't work (e.g. 16), in that nothing renders (no errors logged)
+* [x] Fix mesh rendering of last faces connected to neighbouring chunk, normal seems inverted.  This might be the inverse of changes made with windowing and indexing to fix chunk rendering initially.
+* [x] Camera rotation values do not wrap when a complete rotation is achieved
+* [x] Fixed stale references to mesh attribute iterators (primitive/vertex/normal)
+* [x] Logs spammed with GPU bad address read when looking down after a certain point
+* [x] Chunk mesh construction replicates world bottom at top of world 
+* [x] Chunk meshing generates redundant faces at sides of chunk
+* [x] Ray cast direction does not fully match camera rotation normal
+* [x] Background in loading screen not rendering texture
+* [x] Cannot fall off a block edge, get pushed back
+* [x] Jumping onto a block pushes player back, not allowing for movement up to a block (weird edge cases for certain angles still work)
+* [x] Certain faces at chunk boundaries are not generated with binary greedy meshing
+* [x] Chunks with a negative component in position don't generate meshes correctly (incorrect faces and textures)
+* [x] Texture attributes on block item rendering in world and picked up items in inventory
+* [ ] Mesh vertices z-depth is inconsistent leading to faces drawn in wrong order and thus culling fails
+* [ ] Vertices are distorted (in their location) when very close to the camera
+* [ ] Transparent textures rendering multiple interleaved textures from different points in terrain texture page
+* [ ] Movement tied to FPS
+* [ ] Move mesh generation to after all loading when updating world to avoid face generation on orthogonal axis to update axis
+* [ ] Cull faces on chunk edges that face outward on the render limit
+
 ## Refactor
 
 * [x] Support texture windowing for wrap-around in multiples of texture width/height
@@ -57,30 +84,3 @@
 * [ ] Set block orientation relative to camera when placing
 * [ ] Retrieve face attributes based on block orientation during meshing
 * [ ] Finish player attack/use input handlers
-
-## Fix
-
-* [x] Chunk mesh traversal to be Y up instead of Z up
-* [x] Last vertex in chunk not correct
-* [x] Last texture window causing font render to be weird
-* [x] Figure out why odd numbered chunks render, no x-valued chunks render and Y alternate chunks don't render
-* [x] Figure out why `CHUNK_SIZE` that isn't 8 doesn't work (e.g. 16), in that nothing renders (no errors logged)
-* [x] Fix mesh rendering of last faces connected to neighbouring chunk, normal seems inverted.  This might be the inverse of changes made with windowing and indexing to fix chunk rendering initially.
-* [x] Camera rotation values do not wrap when a complete rotation is achieved
-* [x] Fixed stale references to mesh attribute iterators (primitive/vertex/normal)
-* [x] Logs spammed with GPU bad address read when looking down after a certain point
-* [x] Chunk mesh construction replicates world bottom at top of world 
-* [x] Chunk meshing generates redundant faces at sides of chunk
-* [x] Ray cast direction does not fully match camera rotation normal
-* [x] Background in loading screen not rendering texture
-* [x] Cannot fall off a block edge, get pushed back
-* [x] Jumping onto a block pushes player back, not allowing for movement up to a block (weird edge cases for certain angles still work)
-* [x] Certain faces at chunk boundaries are not generated with binary greedy meshing
-* [x] Chunks with a negative component in position don't generate meshes correctly (incorrect faces and textures)
-* [x] Texture attributes on block item rendering in world and picked up items in inventory
-* [ ] Mesh vertices z-depth is inconsistent leading to faces drawn in wrong order and thus culling fails
-* [ ] Vertices are distorted (in their location) when very close to the camera
-* [ ] Transparent textures rendering multiple interleaved textures from different points in terrain texture page
-* [ ] Movement tied to FPS
-* [ ] Move mesh generation to after all loading when updating world to avoid face generation on orthogonal axis to update axis
-* [ ] Cull faces on chunk edges that face outward on the render limit

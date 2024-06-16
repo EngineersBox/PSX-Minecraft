@@ -75,6 +75,26 @@ static void chunkRenderDroppedItems(Chunk* chunk, RenderContext* ctx, Transforms
     }
 }
 
+static void chunkRenderBreakingOverlay(Chunk* chunk,
+                                       const BreakingState* breaking_state,
+                                       RenderContext* ctx,
+                                       Transforms* transforms) {
+    if (breaking_state->block == NULL) {
+        // No target block, therefore nothing to break
+        // and so no overlay to render
+        return;
+    }
+    // NOTE: For rendering the breaking overlay we can do the following:
+    //       1. Get the 1-3 visible faces' normals of the block
+    //       2. Look up the blooks in adject to those faces
+    //       3. If a given adject block is air, then render the breaking
+    //          overlay texture on that face
+    //       In order to render the overlay, we can just use the same method
+    //       that we use for chunk rendering to transform each vertex of a block
+    //       relative to the chunk into perspective space, in this case just for
+    //       a given set of faces instead of the entire block though.
+}
+
 static bool chunkIsOutsideFrustum(const Chunk* chunk, const Frustum* frustum, const Transforms* transforms) {
     const AABB aabb = (AABB) {
         .min = vec3_i32(
@@ -92,7 +112,10 @@ static bool chunkIsOutsideFrustum(const Chunk* chunk, const Frustum* frustum, co
     return result == FRUSTUM_OUTSIDE;
 }
 
-void chunkRender(Chunk* chunk, RenderContext* ctx, Transforms* transforms) {
+void chunkRender(Chunk* chunk,
+                 const BreakingState* breaking_state,
+                 RenderContext* ctx,
+                 Transforms* transforms) {
     // if (chunkIsOutsideFrustum(chunk, &ctx->camera->frustum, transforms)) {
     //     DEBUG_LOG("[CHUNK " VEC_PATTERN "] Not visible\n", VEC_LAYOUT(chunk->position));
     //     // return;
@@ -119,6 +142,9 @@ void chunkRender(Chunk* chunk, RenderContext* ctx, Transforms* transforms) {
     gte_SetTransMatrix(&omtx);
     // Sort + render mesh
     chunkMeshRender(&chunk->mesh, ctx, transforms);
+    if (breaking_state != NULL) {
+        chunkRenderBreakingOverlay(chunk, breaking_state, ctx, transforms);
+    }
     // Restore matrix
     PopMatrix();
     chunkRenderDroppedItems(chunk, ctx, transforms);

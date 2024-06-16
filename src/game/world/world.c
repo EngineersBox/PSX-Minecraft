@@ -181,7 +181,11 @@ void worldDestroy(World* world) {
     free(world->chunk_provider.self);
 }
 
-void worldRender(const World* world, RenderContext* ctx, Transforms* transforms) {
+void worldRender(const World* world,
+                 const BreakingState* breaking_state,
+                 RenderContext* ctx,
+                 Transforms* transforms) {
+    const VECTOR chunk_position = worldToChunkBlockPosition(&breaking_state->position, CHUNK_SIZE).chunk;
     // PERF: Revamp with BFS for visible chunks occlusion (use frustum culling too?)
     const i32 x_start = world->centre.vx - LOADED_CHUNKS_RADIUS;
     const i32 x_end = world->centre.vx + LOADED_CHUNKS_RADIUS;
@@ -191,13 +195,26 @@ void worldRender(const World* world, RenderContext* ctx, Transforms* transforms)
     //       if there are still bits that are missing traverse to next chunks in the direction
     //       the player is facing and render them. Stop drawing if screen is full and/or there
     //       are no more loaded chunks to traverse to.
+    BreakingState const* forwarded_breaking_state = NULL;
     for (i32 x = x_start; x <= x_end; x++) {
+        if (chunk_position.vx == x) {
+            forwarded_breaking_state = breaking_state;
+        } else {
+            forwarded_breaking_state = NULL;
+        }
         for (i32 z = z_start; z <= z_end; z++) {
+            if (chunk_position.vz != z) {
+                forwarded_breaking_state = NULL;
+            }
             for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
+                if (chunk_position.vy != y) {
+                    forwarded_breaking_state = NULL;
+                }
                 chunkRender(
                     world->chunks[arrayCoord(world, vz, z)]
                                  [arrayCoord(world, vx, x)]
                                  [y],
+                    forwarded_breaking_state,
                     ctx,
                     transforms
                 );
@@ -369,8 +386,7 @@ void worldShiftChunks(World* world, const i8 x_direction, const i8 z_direction) 
     world->centre.vz += z_direction;
 }
 
-__attribute__((always_inline))
-inline bool worldWithinLoadRadius(const World* world, const VECTOR* player_chunk_pos) {
+INLINE bool worldWithinLoadRadius(const World* world, const VECTOR* player_chunk_pos) {
     return absv(world->centre.vx - player_chunk_pos->vx) < LOADED_CHUNKS_RADIUS - 1
            && absv(world->centre.vz - player_chunk_pos->vz) < LOADED_CHUNKS_RADIUS - 1;
 }
@@ -447,20 +463,28 @@ void worldUpdate(World* world, Player* player) {
     }
 }
 
-IBlock* worldGetChunkBlock(const World* world, const ChunkBlockPosition* position) {
+INLINE Chunk* worldGetChunkFromChunkBlock(const World* world, const ChunkBlockPosition* position) {
     // World is void below 0 on y-axis and nothing above height limit
     if ((position->chunk.vy <= 0 && position->block.vy < 0)
         || position->chunk.vy >= WORLD_CHUNKS_HEIGHT) {
-        // DEBUG_LOG(
-        //     "[ERROR] Invalid Y [Chunk: %d] [Block: %d]\n",
-        //     position->chunk.vy,
-        //     position->block.vy
-        // );
-        return airBlockCreate();
+        return NULL;
     }
-    const Chunk* chunk = world->chunks[arrayCoord(world, vz, position->chunk.vz)]
-                                      [arrayCoord(world, vx, position->chunk.vx)]
-                                      [position->chunk.vy];
+    return world->chunks[arrayCoord(world, vz, position->chunk.vz)]
+                        [arrayCoord(world, vx, position->chunk.vx)]
+                        [position->chunk.vy];
+}
+
+INLINE Chunk* worldGetChunk(const World* world, const VECTOR* position) {
+    // World is void below 0 and above world-height on y-axis
+    if (position->vy < 0 || position->vy >= WORLD_HEIGHT) {
+        return NULL;
+    }
+    const ChunkBlockPosition chunk_block_position = worldToChunkBlockPosition(position, CHUNK_SIZE);
+    return worldGetChunkFromChunkBlock(world, &chunk_block_position);
+}
+
+IBlock* worldGetChunkBlock(const World* world, const ChunkBlockPosition* position) {
+    const Chunk* chunk = worldGetChunkFromChunkBlock(world, position);
     if (chunk == NULL) {
         return airBlockCreate();
     }
@@ -470,7 +494,6 @@ IBlock* worldGetChunkBlock(const World* world, const ChunkBlockPosition* positio
 IBlock* worldGetBlock(const World* world, const VECTOR* position) {
     // World is void below 0 and above world-height on y-axis
     if (position->vy < 0 || position->vy >= WORLD_HEIGHT) {
-        // DEBUG_LOG("[ERROR] Invalid Y: %d\n", position->vy);
         return airBlockCreate();
     }
     const ChunkBlockPosition chunk_block_position = worldToChunkBlockPosition(position, CHUNK_SIZE);

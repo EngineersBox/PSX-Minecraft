@@ -12,6 +12,7 @@
 #include "../../blocks/blocks.h"
 #include "../../items/item.h"
 #include "../../entity/player.h"
+#include "../../blocks/breaking_state.h"
 
 // ==== [NOTE] ====
 // This class contains only methods and implementations
@@ -48,7 +49,7 @@ void chunkClearMesh(Chunk* chunk);
  */
 bool chunkModifyVoxel(Chunk* chunk, const VECTOR* position, IBlock* block, IItem** item_result);
 
-void chunkRender(Chunk* chunk, RenderContext* ctx, Transforms* transforms);
+void chunkRender(Chunk* chunk, const BreakingState* breaking_state, RenderContext* ctx, Transforms* transforms);
 
 IBlock* chunkGetBlock(const Chunk* chunk, i32 x, i32 y, i32 z);
 IBlock* chunkGetBlockVec(const Chunk* chunk, const VECTOR* position);
