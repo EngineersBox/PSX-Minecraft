@@ -207,8 +207,10 @@ bool chunkModifyVoxel(Chunk* chunk, const VECTOR* position, IBlock* block, IItem
         if (item_result != NULL) {
             *item_result = iitem;
         }
-    } else if (item_result != NULL) {
-        *item_result = NULL;
+    } else {
+        if (item_result != NULL) {
+            *item_result = NULL;
+        }
         result = false;
     }
     chunk->blocks[chunkBlockIndex(x, y, z)] = block;

@@ -7,12 +7,14 @@ project(
 	DESCRIPTION  "PSX Minecraft"
 	HOMEPAGE_URL "https://github.com/EngineersBox/PSX-Minecraft"
 )
+# 0 = Debug, 3 = Release
+set(COMPILE_OPTIMISATION_LEVEL 0)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -fshort-enums -Wno-unused-parameter -Wno-comments")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O${COMPILE_OPTIMISATION_LEVEL}")
 #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fanalyzer")
-#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3")
 set(ASSETS_DIR ${PROJECT_SOURCE_DIR}/assets)
 configure_file(assets.xml _assets.xml)
 
@@ -98,5 +100,4 @@ if (NOT (asset_count EQUAL 0))
 	)
 endif()
 
-#psn00bsdk_target_incbin(PSXMC PRIVATE tim_texture "assets/texture.tim")
 install(FILES ${PROJECT_BINARY_DIR}/PSXMC.exe TYPE BIN)

@@ -26,6 +26,7 @@
 * [ ] Movement tied to FPS
 * [ ] Move mesh generation to after all loading when updating world to avoid face generation on orthogonal axis to update axis
 * [ ] Cull faces on chunk edges that face outward on the render limit
+* [ ] Core engine ticks can go higher than 20, redo the engine cycle system
 
 ## Implement
 

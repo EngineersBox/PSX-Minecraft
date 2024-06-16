@@ -109,6 +109,13 @@ void playerInputHandlerWorldInteraction(const Input* input, const PlayerInputHan
     const PADTYPE* pad = input->pad;
     bool breaking = false;
     if (isPressed(pad, BINDING_ATTACK)) {
+        // NOTE: This will probably hit framerate a decent bit
+        //       while we are holding down the BINDING_ATTACH
+        //       button. It's probably not going to be a problem
+        //       but it might warrant trying to optimise the
+        //       implementation to just use fixed point intead
+        //       of doubles that are semi-hardware based with
+        //       extra software support.
         const RayCastResult result = worldRayCastIntersection(
             ctx->world,
             VCAST_PTR(Camera*, player->camera),
@@ -132,7 +139,7 @@ void playerInputHandlerWorldInteraction(const Input* input, const PlayerInputHan
         //     PLAYER_REACH_DISTANCE
         // );
     }
-    // If we are not holding down the BINDING_ATTACH
+    // If we are not holding down the BINDING_ATTACK
     // button, then we should discontinue breaking
     // and update the flag to stop the breaking overlay
     // and revert breaking progress
