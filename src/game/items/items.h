@@ -6,10 +6,10 @@
 #include "item.h"
 // These includes allow for only including items.h
 // and getting access to all items instantly
-#include "blocks/block_stone.h"
-#include "blocks/block_grass.h"
-#include "blocks/block_dirt.h"
-#include "blocks/block_cobblestone.h"
+#include "blocks/item_block_stone.h"
+#include "blocks/item_block_grass.h"
+#include "blocks/item_block_dirt.h"
+#include "blocks/item_block_cobblestone.h"
 
 #define ITEM_COUNT 6
 

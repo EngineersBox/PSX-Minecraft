@@ -11,10 +11,23 @@
 #include "../items/item.h"
 #include "block.h"
 
-typedef struct {
+typedef struct BreakingState {
+    /**
+     * @brief Value greater than 0 indicates being broken
+     *        and a value of 0 indicates broken iff
+     *        @code block@endcode is not @code NULL@endcode
+     */
     u32 ticks_left;
+    /**
+     * @brief World position of block being broken, this is
+     *        0 in all axis when @code block@endcode is
+     *        @code NULL@endcode
+     */
     VECTOR position;
-    IBlock* block; // NULL == not breaking anything
+    /**
+     * @brief @code NULL@endcode == not breaking anything
+     */
+    IBlock* block;
 } BreakingState;
 
 #define breakingStateReset(state) ({ \

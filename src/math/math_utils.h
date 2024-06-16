@@ -46,7 +46,7 @@
 )
 
 /**
- * @brief Computer the second power of v as v^2 or v * v
+ * @brief Compute the second power of v as v^2 or v * v
  * @param v - Value to square
  * @return v * v
  */
