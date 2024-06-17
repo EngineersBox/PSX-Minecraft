@@ -53,16 +53,7 @@ void dirtItemBlockInit(VSelf) ALIAS("DirtItemBlock_init");
 void DirtItemBlock_init(VSelf) {
     VSELF(DirtItemBlock);
     self->item_block = (ItemBlock) {
-        .item = (Item) {
-            .id = ITEMID_DIRT,
-            .metadata_id = 0,
-            .stack_size = 0,
-            .max_stack_size = 64,
-            .position = (VECTOR) {0},
-            .rotation = (SVECTOR) {0},
-            .name = "dirt",
-            .picked_up = false
-        },
+        .item = declareSimpleItem(ITEMID_DIRT, 64),
         .face_attributes = defaultFaceAttributes(2),
     };
 }

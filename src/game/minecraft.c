@@ -2,6 +2,7 @@
 
 #include <inline_c.h>
 #include <interface99_extensions.h>
+#include <items.h>
 #include <item_block_grass.h>
 #include <item_block_stone.h>
 #include <psxgpu.h>
@@ -56,6 +57,7 @@ void minecraftInit(VSelf, void* ctx) ALIAS("Minecraft_init");
 void Minecraft_init(VSelf, void* ctx) {
     VSELF(Minecraft);
     blocksInitialiseBuiltin();
+    itemsInitialiseBuiltin();
     self->internals = (Internals) {
         .ctx = (RenderContext) {
             .active = 0,

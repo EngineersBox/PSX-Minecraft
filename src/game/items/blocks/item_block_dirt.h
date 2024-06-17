@@ -11,6 +11,13 @@
 
 DEFN_ITEM_BLOCK(DirtItemBlock);
 
+#define dirtItemBlockAttributes() ((ItemAttributes) { \
+    .type = ITEMTYPE_BLOCK, \
+    .tool_type = TOOLTYPE_SHOVEL, \
+    .tool_material = TOOLMATERIAL_WOOD, \
+    .name = "dirt" \
+})
+
 void dirtItemBlockRenderWorld(VSelf, RenderContext* ctx, Transforms* transforms);
 void DirtItemBlock_renderWorld(VSelf, RenderContext* ctx, Transforms* transforms);
 

@@ -10,6 +10,7 @@
 
 #include "../../render/renderable.h"
 #include "../../math/math_utils.h"
+#include "../../math/vector.h"
 #include "../../util/preprocessor.h"
 
 #define PICKUP_DISTANCE 154
@@ -55,6 +56,7 @@ typedef struct ItemAttributes {
     ItemType type: ITEM_TYPE_COUNT_BITS;
     ToolType tool_type: TOOL_TYPE_COUNT_BITS;
     ToolMaterial tool_material: TOOL_MATERIAL_COUNT;
+    char* name;
 } ItemAttributes;
 
 typedef struct Item {
@@ -68,7 +70,6 @@ typedef struct Item {
     // World position or screen position
     VECTOR position;
     SVECTOR rotation;
-    char* name;
 } Item;
 
 /**
@@ -99,5 +100,27 @@ ALLOC_CALL(itemDestroy, 1) IItem* itemCreate();
         Item item; \
         __VA_ARGS__ \
     } name;
+
+#define declareItem(_id, _metadata_id, _stack_size, _max_stack_size, _picked_up, _position, _rotation) ((Item) { \
+    .id = (_id), \
+    .metadata_id = (_metadata_id), \
+    .stack_size = (_stack_size), \
+    .max_stack_size = (_max_stack_size), \
+    .bob_offset = 0, \
+    .bob_direction = 0, \
+    .picked_up = (_picked_up), \
+    .position = (_position), \
+    .rotation = (_rotation) \
+})
+#define declareSimpleItemMeta(_id, _metadata_id, _max_stack_size) declareItem( \
+    _id, \
+    _metadata_id, \
+    0, \
+    _max_stack_size, \
+    false, \
+    vec3_i32_all(0), \
+    vec3_i16_all(0) \
+)
+#define declareSimpleItem(_id, _max_stack_size) declareSimpleItemMeta(_id, 0, _max_stack_size)
 
 #endif // PSX_MINECRAFT_ITEM_H

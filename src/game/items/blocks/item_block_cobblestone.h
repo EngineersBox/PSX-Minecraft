@@ -11,6 +11,13 @@
 
 DEFN_ITEM_BLOCK(CobblestoneItemBlock);
 
+#define cobblestoneItemBlockAttributes() ((ItemAttributes) { \
+    .type = ITEMTYPE_BLOCK, \
+    .tool_type = TOOLTYPE_PICKAXE, \
+    .tool_material = TOOLMATERIAL_WOOD, \
+    .name = "cobblestone" \
+})
+
 void cobblestoneItemBlockRenderWorld(VSelf, RenderContext* ctx, Transforms* transforms);
 void CobblestoneItemBlock_renderWorld(VSelf, RenderContext* ctx, Transforms* transforms);
 

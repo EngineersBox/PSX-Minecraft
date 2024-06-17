@@ -5,7 +5,6 @@
 #include "blocks.h"
 #include "../items/items.h"
 
-
 void breakingStateCalculateTicks(BreakingState* state,
                                      const IItem* held_item,
                                      const bool in_water,

@@ -10,6 +10,13 @@
 
 DEFN_ITEM_BLOCK(StoneItemBlock);
 
+#define stoneItemBlockAttributes() ((ItemAttributes) { \
+    .type = ITEMTYPE_BLOCK, \
+    .tool_type = TOOLTYPE_PICKAXE, \
+    .tool_material = TOOLMATERIAL_WOOD, \
+    .name = "stone" \
+})
+
 void stoneItemBlockRenderWorld(VSelf, RenderContext* ctx, Transforms* transforms);
 void StoneItemBlock_renderWorld(VSelf, RenderContext* ctx, Transforms* transforms);
 

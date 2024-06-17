@@ -55,16 +55,7 @@ void cobblestoneItemBlockInit(VSelf) ALIAS("CobblestoneItemBlock_init");
 void CobblestoneItemBlock_init(VSelf) {
     VSELF(CobblestoneItemBlock);
     self->item_block = (ItemBlock) {
-        .item = (Item) {
-            .id = ITEMID_COBBLESTONE,
-            .metadata_id = 0,
-            .stack_size = 0,
-            .max_stack_size = 64,
-            .position = vec3_i32_all(0),
-            .rotation = vec3_i16_all(0),
-            .name = "cobblestone",
-            .picked_up = false
-        },
+        .item = declareSimpleItem(ITEMID_COBBLESTONE, 64),
         .face_attributes = defaultFaceAttributes(2),
     };
 }

@@ -52,16 +52,7 @@ void grassItemBlockInit(VSelf) ALIAS("GrassItemBlock_init");
 void GrassItemBlock_init(VSelf) {
     VSELF(GrassItemBlock);
     self->item_block = (ItemBlock) {
-        .item = (Item) {
-            .id = ITEMID_GRASS,
-            .metadata_id = 0,
-            .stack_size = 0,
-            .max_stack_size = 64,
-            .position = (VECTOR) {0},
-            .rotation = (SVECTOR) {0},
-            .name = "grass",
-            .picked_up = false
-        },
+        .item = declareSimpleItem(ITEMID_GRASS, 64),
         .face_attributes = declareTintedFaceAttributes(
             2 /*49*/, NO_TINT,
             0 /*49*/, /*NO_TINT,*/ faceTint(91, 139, 50, 1),

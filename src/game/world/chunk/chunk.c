@@ -3,15 +3,16 @@
 #include <inline_c.h>
 #include <stdbool.h>
 
-#include "../../structure/primitive/clip.h"
-#include "../../structure/cvector_utils.h"
-#include "../../logging/logging.h"
-#include "../../structure/cvector.h"
-#include "../../structure/primitive/primitive.h"
+#include "../../../logging/logging.h"
+#include "../../../math/math_utils.h"
+#include "../../../math/vector.h"
+#include "../../../structure/cvector.h"
+#include "../../../structure/cvector_utils.h"
+#include "../../../structure/primitive/clip.h"
+#include "../../../structure/primitive/primitive.h"
+#include "../../../util/interface99_extensions.h"
+#include "../../items/items.h"
 #include "../generation/noise.h"
-#include "../../math/math_utils.h"
-#include "../math/vector.h"
-#include "../../util/interface99_extensions.h"
 #include "meshing/binary_greedy_mesher.h"
 
 void chunkDestroyDroppedItem(void* elem) {
@@ -287,7 +288,7 @@ void chunkUpdate(Chunk* chunk, Player* player) {
             //      or itemDestroy(*item). But that could be a red herring as it falls through
             //      to the cvector_erase(...) in the INVENTORY_STORE_RESULT_ADDED_NEW_SLOT
             //      case block.
-            printf("[ITEM] Picked up: %s x%d\n", item->name, item->stack_size);
+            printf("[ITEM] Picked up: %s x%d\n", itemGetName(item->id), item->stack_size);
             const InventoryStoreResult result = inventoryStoreItem(_current_inventory, iitem);
             printf("[ITEM] Result: %s\n", inventoryStoreResultStringify(result));
             switch (result) {

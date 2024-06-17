@@ -20,4 +20,6 @@ extern ItemAttributes item_attributes[ITEM_COUNT];
 #define itemGetToolType(id) itemGetAttribute(id, tool_type)
 #define itemGetToolMaterial(id) itemGetAttribute(id, tool_material)
 
+void itemsInitialiseBuiltin();
+
 #endif // _PSX_MINECRAFT__GAME_ITEMS__ITEMS_H_

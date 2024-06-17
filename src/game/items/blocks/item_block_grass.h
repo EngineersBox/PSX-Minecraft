@@ -9,6 +9,13 @@
 
 DEFN_ITEM_BLOCK(GrassItemBlock);
 
+#define grassItemBlockAttributes() ((ItemAttributes) { \
+    .type = ITEMTYPE_BLOCK, \
+    .tool_type = TOOLTYPE_SHOVEL, \
+    .tool_material = TOOLMATERIAL_WOOD, \
+    .name = "grass" \
+})
+
 void grassItemBlockRenderWorld(VSelf, RenderContext* ctx, Transforms* transforms);
 void GrassItemBlock_renderWorld(VSelf, RenderContext* ctx, Transforms* transforms);
 
