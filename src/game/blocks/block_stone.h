@@ -20,7 +20,7 @@ IBlock* stoneBlockCreate();
     .resistance = 40960, \
     .type = BLOCKTYPE_SOLID, \
     .tool_type = TOOLTYPE_PICKAXE, \
-    .material = ITEMMATERIAL_WOOD, \
+    .tool_material = ITEMMATERIAL_WOOD, \
     .name = "stone" \
 })
 

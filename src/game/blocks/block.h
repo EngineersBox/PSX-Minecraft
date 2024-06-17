@@ -58,7 +58,7 @@ typedef struct BlockAttributes {
     u16 resistance;
     BlockType type: BLOCK_TYPE_COUNT_BITS;
     ToolType tool_type: TOOL_TYPE_COUNT_BITS;
-    ItemMaterial material: ITEM_MATERIAL_COUNT_BITS;
+    ItemMaterial tool_material: ITEM_MATERIAL_COUNT_BITS;
     u16 _pad: 6;
     char* name;
 } BlockAttributes;

@@ -17,7 +17,7 @@ IBlock* airBlockCreate();
     .resistance = 0, \
     .type = BLOCKTYPE_EMPTY, \
     .tool_type = TOOLTYPE_NONE, \
-    .material = ITEMMATERIAL_NONE, \
+    .tool_material = ITEMMATERIAL_NONE, \
     .name = "air" \
 })
 
