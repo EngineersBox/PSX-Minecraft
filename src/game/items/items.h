@@ -17,8 +17,10 @@ extern ItemAttributes item_attributes[ITEM_COUNT];
 
 #define itemGetAttribute(id, attr) (item_attributes[(id)].attr)
 #define itemGetName(id) itemGetAttribute(id, name)
+#define itemGetType(id) itemGetAttribute(id, type)
 #define itemGetToolType(id) itemGetAttribute(id, tool_type)
-#define itemGetToolMaterial(id) itemGetAttribute(id, tool_material)
+#define itemGetArmourType(id) itemGetAttribute(id, armour_type)
+#define itemGetMaterial(id) itemGetAttribute(id, material)
 #define itemHasDurability(id) itemGetAttribute(id, has_durability)
 
 void itemsInitialiseBuiltin();

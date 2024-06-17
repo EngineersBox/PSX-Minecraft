@@ -14,19 +14,21 @@ void breakingStateCalculateTicks(BreakingState* state,
     }
     const Block* block = VCAST_PTR(Block*, state->block);
     const ToolType block_tool_type = blockGetToolType(block->id);
-    const ToolMaterial block_tool_material = blockGetToolMaterial(block->id);
+    const ItemMaterial block_tool_material = blockGetToolMaterial(block->id);
     ToolType item_tool_type = TOOLTYPE_NONE;
-    ToolMaterial item_tool_material = TOOLMATERIAL_NONE;
+    ItemMaterial item_tool_material = ITEMMATERIAL_NONE;
     if (held_item != NULL) {
-        const Item* item = VCAST_PTR(Item*, held_item);
-        item_tool_type = itemGetToolType(item->id);
-        item_tool_material = itemGetToolMaterial(item->id);
+        const ItemID item_id = VCAST_PTR(Item*, held_item)->id;
+        if (itemGetType(item_id) == ITEMTYPE_TOOL) {
+            item_tool_type = itemGetToolType(item_id);
+            item_tool_material = itemGetMaterial(item_id);
+        }
     }
     const bool is_ideal_tool_type = item_tool_type == block_tool_type;
     const bool tool_can_harvest_block = item_tool_material >= block_tool_material;
     fixedi32 speed_multiplier = 1;
     if (is_ideal_tool_type) {
-        speed_multiplier = TOOL_MATERIAL_SPEED_MULTIPLIER[item_tool_material];
+        speed_multiplier = ITEM_MATERIAL_SPEED_MULTIPLIER[item_tool_material];
         if (!tool_can_harvest_block) {
             speed_multiplier = 1;
         }

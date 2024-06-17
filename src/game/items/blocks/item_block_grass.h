@@ -12,7 +12,8 @@ DEFN_ITEM_BLOCK(GrassItemBlock);
 #define grassItemBlockAttributes() ((ItemAttributes) { \
     .type = ITEMTYPE_BLOCK, \
     .tool_type = TOOLTYPE_SHOVEL, \
-    .tool_material = TOOLMATERIAL_WOOD, \
+    .armour_type = ARMOURTYPE_NONE, \
+    .material = ITEMMATERIAL_WOOD, \
     .has_durability = false, \
     .name = "grass" \
 })

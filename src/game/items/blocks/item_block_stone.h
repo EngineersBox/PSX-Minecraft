@@ -13,7 +13,8 @@ DEFN_ITEM_BLOCK(StoneItemBlock);
 #define stoneItemBlockAttributes() ((ItemAttributes) { \
     .type = ITEMTYPE_BLOCK, \
     .tool_type = TOOLTYPE_PICKAXE, \
-    .tool_material = TOOLMATERIAL_WOOD, \
+    .armour_type = ARMOURTYPE_NONE, \
+    .material = ITEMMATERIAL_WOOD, \
     .has_durability = false, \
     .name = "stone" \
 })

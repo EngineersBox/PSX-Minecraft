@@ -18,7 +18,7 @@ IBlock* grassBlockCreate();
     .resistance = 12288, \
     .type = BLOCKTYPE_SOLID, \
     .tool_type = TOOLTYPE_SHOVEL, \
-    .tool_material = TOOLMATERIAL_WOOD, \
+    .material = ITEMMATERIAL_WOOD, \
     .name = "grass" \
 })
 

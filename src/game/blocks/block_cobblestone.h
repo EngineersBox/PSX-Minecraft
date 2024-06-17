@@ -17,7 +17,7 @@ IBlock* cobblestoneBlockCreate();
     .resistance = BLOCK_DEFAULT_RESISTANCE, \
     .type = BLOCKTYPE_SOLID, \
     .tool_type = TOOLTYPE_PICKAXE, \
-    .tool_material = TOOLMATERIAL_WOOD, \
+    .material = ITEMMATERIAL_WOOD, \
     .name = "cobblestone" \
 })
 

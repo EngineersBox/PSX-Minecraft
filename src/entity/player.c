@@ -112,26 +112,33 @@ void updateBreakingState(Player* player, const RayCastResult* result, const Worl
     Slot* slot = &hotbarGetSelectSlot(hotbar);
     IItem* iitem = slot->data.item;
     bool drop_item_on_break = false;
-    if (iitem != NULL) {
-        Item* item = VCAST_PTR(Item*, iitem);
-        const ItemID item_id = item->id;
-        const BlockID block_id = VCAST_PTR(Block*, state->block)->id;
-        const ToolType block_tool_type = blockGetToolType(block_id);
-        const ToolMaterial block_tool_material = blockGetToolMaterial(block_id);
-        const ToolType item_tool_type = itemGetToolType(item_id);
-        const ToolMaterial item_tool_material = itemGetToolMaterial(item_id);
-        drop_item_on_break = item_tool_type == block_tool_type
-                        && item_tool_material >= block_tool_material;
-        // NOTE: Using an unchecked decrement on the durability here
-        //       allows us to keep another OG bug which is that getting
-        //       a negative durability item wraps around and gives a
-        //       high durability item.
-        if (itemHasDurability(item_id) && --item->durability == 0) {
-            VCALL(*iitem, destroy);
-            itemDestroy(iitem);
-            slot->data.item = NULL;
-        }
+    if (iitem == NULL) {
+        // No item in the player's hand
+        goto remove_world_block;
     }
+    Item* item = VCAST_PTR(Item*, iitem);
+    const ItemID item_id = item->id;
+    if (itemGetType(item_id) != ITEMTYPE_TOOL) {
+        // Not a tool, so no durability decrement or tool breaking to handle
+        goto remove_world_block;
+    }
+    const BlockID block_id = VCAST_PTR(Block*, state->block)->id;
+    const ToolType block_tool_type = blockGetToolType(block_id);
+    const ItemMaterial block_tool_material = blockGetToolMaterial(block_id);
+    const ToolType item_tool_type = itemGetToolType(item_id);
+    const ItemMaterial item_tool_material = itemGetMaterial(item_id);
+    drop_item_on_break = item_tool_type == block_tool_type
+                    && item_tool_material >= block_tool_material;
+    // NOTE: Using an unchecked decrement on the durability here
+    //       allows us to keep another OG bug which is that getting
+    //       a negative durability item wraps around and gives a
+    //       high durability item.
+    if (itemHasDurability(item_id) && --item->durability == 0) {
+        VCALL(*iitem, destroy);
+        itemDestroy(iitem);
+        slot->data.item = NULL;
+    }
+remove_world_block:
     worldModifyVoxel(
         world,
         &result->pos,
@@ -147,7 +154,7 @@ void playerInputHandlerWorldInteraction(const Input* input, const PlayerInputHan
     bool breaking = false;
     if (isPressed(pad, BINDING_ATTACK)) {
         // NOTE: This will probably hit framerate a decent bit
-        //       while we are holding down the BINDING_ATTACH
+        //       while we are holding down the BINDING_ATTACK
         //       button. It's probably not going to be a problem
         //       but it might warrant trying to optimise the
         //       implementation to just use fixed point intead
@@ -197,30 +204,26 @@ bool playerInputHandlerMovement(const Input* input, const PlayerInputHandlerCont
         physics_object->velocity = vec3_i32(0, 0, 0);
     }
     if (input->pad->stat != 0) {
+        // No input, don't bother updating from pads
         return false;
     }
-    // Look controls
     if (isPressed(pad, BINDING_LOOK_UP)) {
-        // Look up
         physics_object->rotation.pitch = positiveModulo(
             physics_object->rotation.pitch - (ONE * ROTATION_SPEED),
             ONE << FIXED_POINT_SHIFT
         );
     } else if (isPressed(pad, BINDING_LOOK_DOWN)) {
-        // Look down
         physics_object->rotation.pitch = positiveModulo(
             physics_object->rotation.pitch + (ONE * ROTATION_SPEED),
             ONE << FIXED_POINT_SHIFT
         );
     }
     if (isPressed(pad, BINDING_LOOK_LEFT)) {
-        // Look left
         physics_object->rotation.yaw = positiveModulo(
             physics_object->rotation.yaw + (ONE * ROTATION_SPEED),
             ONE << FIXED_POINT_SHIFT
         );
     } else if (isPressed(pad, BINDING_LOOK_RIGHT)) {
-        // Look right
         physics_object->rotation.yaw = positiveModulo(
             physics_object->rotation.yaw - (ONE * ROTATION_SPEED),
             ONE << FIXED_POINT_SHIFT

@@ -25,7 +25,7 @@ extern BlockAttributes block_attributes[BLOCK_COUNT];
 #define blockGetHardness(id) blockGetAttribute(id, hardness)
 #define blockGetResistance(id) blockGetAttribute(id, resistance)
 #define blockGetToolType(id) blockGetAttribute(id, tool_type)
-#define blockGetToolMaterial(id) blockGetAttribute(id, tool_material)
+#define blockGetToolMaterial(id) blockGetAttribute(id, material)
 
 void blocksInitialiseBuiltin();
 

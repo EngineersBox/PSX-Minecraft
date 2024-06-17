@@ -41,23 +41,34 @@ typedef enum ToolType {
     TOOLTYPE_HOE
 } ToolType;
 
-#define TOOL_MATERIAL_COUNT 6
-#define TOOL_MATERIAL_COUNT_BITS 3
-typedef enum ToolMaterial {
-    TOOLMATERIAL_NONE = 0,
-    TOOLMATERIAL_WOOD,
-    TOOLMATERIAL_STONE,
-    TOOLMATERIAL_IRON,
-    TOOLMATERIAL_GOLD,
-    TOOLMATERIAL_DIAMOND
-} ToolMaterial;
+#define ARMOUR_TYPE_COUNT 5
+#define ARMOUR_TYPE_COUNT_BITS 3
+typedef enum ArmourType {
+    ARMOURTYPE_NONE = 0,
+    ARMOURTYPE_HELMET,
+    ARMOURTYPE_CHESTPLATE,
+    ARMOURTYPE_LEGGINGS,
+    ARMOURTYPE_BOOTS
+} ArmourType;
+
+#define ITEM_MATERIAL_COUNT 6
+#define ITEM_MATERIAL_COUNT_BITS 3
+typedef enum ItemMaterial {
+    ITEMMATERIAL_NONE = 0,
+    ITEMMATERIAL_WOOD,
+    ITEMMATERIAL_STONE,
+    ITEMMATERIAL_IRON,
+    ITEMMATERIAL_GOLD,
+    ITEMMATERIAL_DIAMOND
+} ItemMaterial;
 
 typedef struct ItemAttributes {
     ItemType type: ITEM_TYPE_COUNT_BITS;
     ToolType tool_type: TOOL_TYPE_COUNT_BITS;
-    ToolMaterial tool_material: TOOL_MATERIAL_COUNT_BITS;
+    ArmourType armour_type: ARMOUR_TYPE_COUNT_BITS;
+    ItemMaterial material: ITEM_MATERIAL_COUNT_BITS;
     bool has_durability: 1;
-    u16 _pad: 5;
+    u16 _pad: 3;
     char* name;
 } ItemAttributes;
 
@@ -69,8 +80,8 @@ typedef struct Item {
     uint8_t max_stack_size;
     uint8_t bob_offset;
     uint8_t bob_direction;
-    bool picked_up;
-    // World position or screen position
+    bool picked_up; // TODO: Probably best to rename to in_world and invert dependent logic
+    // World position or screen position conditional on picked_up
     VECTOR position;
     SVECTOR rotation;
 } Item;
