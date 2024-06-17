@@ -40,6 +40,7 @@ void chunkClearMesh(Chunk* chunk);
  * @param chunk Chunk instance
  * @param position Block position in local chunk coordinates in range (0,0,0) -> (7,7,7) inclusive
  * @param block Block instance to place at the given position
+ * @param drop_item Whether to drop an item on invoking @code destroy@endcode
  * @param item_result Pointer to an item reference for the dropped item from destroying the block
  *                    that previously existed at the given location (if it exists). Supplying
  *                    @code NULL@endcode as a value to @code item_result@endcode will not return anything.
@@ -47,7 +48,7 @@ void chunkClearMesh(Chunk* chunk);
  *         @code false@endcode if there was no block or the position it out of the chunk
  *         boundary.
  */
-bool chunkModifyVoxel(Chunk* chunk, const VECTOR* position, IBlock* block, IItem** item_result);
+bool chunkModifyVoxel(Chunk* chunk, const VECTOR* position, IBlock* block, bool drop_item, IItem** item_result);
 
 void chunkRender(Chunk* chunk, const BreakingState* breaking_state, RenderContext* ctx, Transforms* transforms);
 

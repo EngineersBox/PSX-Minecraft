@@ -188,7 +188,11 @@ static void constructItemPosition(const Chunk* chunk, const VECTOR* block_positi
     item_position->vz = (chunk_origin_z + block_position->vz) * BLOCK_SIZE + HALF_BLOCK_SIZE;
 }
 
-bool chunkModifyVoxel(Chunk* chunk, const VECTOR* position, IBlock* block, IItem** item_result) {
+bool chunkModifyVoxel(Chunk* chunk,
+                     const VECTOR* position,
+                     IBlock* block,
+                     const bool drop_item,
+                     IItem** item_result) {
     const i32 x = position->vx;
     const i32 y = position->vy;
     const i32 z = position->vz;
@@ -196,8 +200,8 @@ bool chunkModifyVoxel(Chunk* chunk, const VECTOR* position, IBlock* block, IItem
         return false;
     }
     const IBlock* old_block = chunk->blocks[chunkBlockIndex(x, y, z)];
-    IItem* iitem = VCALL(*old_block, destroy);
-    bool result = true;
+    const bool result = VCAST_PTR(Block*, old_block)->id != BLOCKID_AIR;
+    IItem* iitem = VCALL(*old_block, destroy, drop_item);
     if (iitem != NULL && iitem->self != NULL) {
         cvector_push_back(
             chunk->dropped_items,
@@ -212,7 +216,6 @@ bool chunkModifyVoxel(Chunk* chunk, const VECTOR* position, IBlock* block, IItem
         if (item_result != NULL) {
             *item_result = NULL;
         }
-        result = false;
     }
     chunk->blocks[chunkBlockIndex(x, y, z)] = block;
     chunkClearMesh(chunk);

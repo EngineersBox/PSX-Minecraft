@@ -21,10 +21,10 @@ void cobblestoneBlockAccess(VSelf) ALIAS("CobblestoneBlock_access");
 void CobblestoneBlock_access(VSelf) {
 }
 
-IItem* cobblestoneBlockDestroy(VSelf) ALIAS("CobblestoneBlock_destroy");
-IItem* CobblestoneBlock_destroy(VSelf) {
+IItem* cobblestoneBlockDestroy(VSelf, bool drop_item) ALIAS("CobblestoneBlock_destroy");
+IItem* CobblestoneBlock_destroy(VSelf, const bool drop_item) {
     VSELF(CobblestoneBlock);
-    return cobblestoneBlockProvideItem(self);
+    return drop_item ? cobblestoneBlockProvideItem(self) : NULL;
 }
 
 void cobblestoneBlockUpdate(VSelf) ALIAS("CobblestoneBlock_update");

@@ -28,8 +28,8 @@ void GrassBlock_init(VSelf);
 void grassBlockAccess(VSelf);
 void GrassBlock_access(VSelf);
 
-ALLOC_CALL(itemDestroy, 1) IItem* grassBlockDestroy(VSelf);
-ALLOC_CALL(itemDestroy, 1) IItem* GrassBlock_destroy(VSelf);
+ALLOC_CALL(itemDestroy, 1) IItem* grassBlockDestroy(VSelf, bool drop_item);
+ALLOC_CALL(itemDestroy, 1) IItem* GrassBlock_destroy(VSelf, bool drop_item);
 
 void grassBlockUpdate(VSelf);
 void GrassBlock_update(VSelf);

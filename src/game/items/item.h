@@ -55,13 +55,16 @@ typedef enum ToolMaterial {
 typedef struct ItemAttributes {
     ItemType type: ITEM_TYPE_COUNT_BITS;
     ToolType tool_type: TOOL_TYPE_COUNT_BITS;
-    ToolMaterial tool_material: TOOL_MATERIAL_COUNT;
+    ToolMaterial tool_material: TOOL_MATERIAL_COUNT_BITS;
+    bool has_durability: 1;
+    u16 _pad: 5;
     char* name;
 } ItemAttributes;
 
 typedef struct Item {
     ItemID id;
     u8 metadata_id;
+    u32 durability;
     uint8_t stack_size;
     uint8_t max_stack_size;
     uint8_t bob_offset;
@@ -101,9 +104,10 @@ ALLOC_CALL(itemDestroy, 1) IItem* itemCreate();
         __VA_ARGS__ \
     } name;
 
-#define declareItem(_id, _metadata_id, _stack_size, _max_stack_size, _picked_up, _position, _rotation) ((Item) { \
+#define declareItem(_id, _metadata_id, _durability, _stack_size, _max_stack_size, _picked_up, _position, _rotation) ((Item) { \
     .id = (_id), \
     .metadata_id = (_metadata_id), \
+    .durability = (_durability), \
     .stack_size = (_stack_size), \
     .max_stack_size = (_max_stack_size), \
     .bob_offset = 0, \
@@ -112,15 +116,16 @@ ALLOC_CALL(itemDestroy, 1) IItem* itemCreate();
     .position = (_position), \
     .rotation = (_rotation) \
 })
-#define declareSimpleItemMeta(_id, _metadata_id, _max_stack_size) declareItem( \
+#define declareSimpleItemMeta(_id, _metadata_id, _durability, _max_stack_size) declareItem( \
     _id, \
     _metadata_id, \
+    _durability, \
     0, \
     _max_stack_size, \
     false, \
     vec3_i32_all(0), \
     vec3_i16_all(0) \
 )
-#define declareSimpleItem(_id, _max_stack_size) declareSimpleItemMeta(_id, 0, _max_stack_size)
+#define declareSimpleItem(_id, _durability, _max_stack_size) declareSimpleItemMeta(_id, 0, _durability, _max_stack_size)
 
 #endif // PSX_MINECRAFT_ITEM_H

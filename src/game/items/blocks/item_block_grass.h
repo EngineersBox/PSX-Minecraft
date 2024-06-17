@@ -13,6 +13,7 @@ DEFN_ITEM_BLOCK(GrassItemBlock);
     .type = ITEMTYPE_BLOCK, \
     .tool_type = TOOLTYPE_SHOVEL, \
     .tool_material = TOOLMATERIAL_WOOD, \
+    .has_durability = false, \
     .name = "grass" \
 })
 

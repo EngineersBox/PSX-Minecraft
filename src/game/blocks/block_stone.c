@@ -22,10 +22,10 @@ void stoneBlockAccess(VSelf) ALIAS("StoneBlock_access");
 void StoneBlock_access(VSelf) {
 }
 
-IItem* stoneBlockDestroy(VSelf) ALIAS("StoneBlock_destroy");
-IItem* StoneBlock_destroy(VSelf) {
+IItem* stoneBlockDestroy(VSelf, bool drop_item) ALIAS("StoneBlock_destroy");
+IItem* StoneBlock_destroy(VSelf, const bool drop_item) {
     VSELF(StoneBlock);
-    return stoneBlockProvideItem(self);
+    return drop_item ? stoneBlockProvideItem(self) : NULL;
 }
 
 void stoneBlockUpdate(VSelf) ALIAS("StoneBlock_update");

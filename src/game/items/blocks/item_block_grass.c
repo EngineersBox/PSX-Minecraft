@@ -52,7 +52,11 @@ void grassItemBlockInit(VSelf) ALIAS("GrassItemBlock_init");
 void GrassItemBlock_init(VSelf) {
     VSELF(GrassItemBlock);
     self->item_block = (ItemBlock) {
-        .item = declareSimpleItem(ITEMID_GRASS, 64),
+        .item = declareSimpleItem(
+            ITEMID_GRASS,
+            0,
+            64
+        ),
         .face_attributes = declareTintedFaceAttributes(
             2 /*49*/, NO_TINT,
             0 /*49*/, /*NO_TINT,*/ faceTint(91, 139, 50, 1),

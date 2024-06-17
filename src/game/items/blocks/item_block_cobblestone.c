@@ -55,7 +55,11 @@ void cobblestoneItemBlockInit(VSelf) ALIAS("CobblestoneItemBlock_init");
 void CobblestoneItemBlock_init(VSelf) {
     VSELF(CobblestoneItemBlock);
     self->item_block = (ItemBlock) {
-        .item = declareSimpleItem(ITEMID_COBBLESTONE, 64),
+        .item = declareSimpleItem(
+            ITEMID_COBBLESTONE,
+            0,
+            64
+        ),
         .face_attributes = defaultFaceAttributes(2),
     };
 }

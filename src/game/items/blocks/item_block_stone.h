@@ -14,6 +14,7 @@ DEFN_ITEM_BLOCK(StoneItemBlock);
     .type = ITEMTYPE_BLOCK, \
     .tool_type = TOOLTYPE_PICKAXE, \
     .tool_material = TOOLMATERIAL_WOOD, \
+    .has_durability = false, \
     .name = "stone" \
 })
 

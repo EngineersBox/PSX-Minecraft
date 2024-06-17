@@ -52,7 +52,11 @@ void stoneItemBlockInit(VSelf) ALIAS("StoneItemBlock_init");
 void StoneItemBlock_init(VSelf) {
     VSELF(StoneItemBlock);
     self->item_block = (ItemBlock) {
-        .item = declareSimpleItem(ITEMID_STONE, 64),
+        .item = declareSimpleItem(
+            ITEMID_STONE,
+            0,
+            64
+        ),
         .face_attributes = defaultFaceAttributes(1),
     };
 }

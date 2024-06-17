@@ -82,7 +82,7 @@ typedef struct Block {
 #define IBlock_IFACE \
     vfunc(void, init, VSelf) \
     vfunc(void, access, VSelf) \
-    vfunc(IItem*, destroy, VSelf) \
+    vfunc(IItem*, destroy, VSelf, bool drop_item) \
     vfunc(void, update, VSelf) \
     vfuncDefault(bool, isOpaque, VSelf, FaceDirection face_dir) \
     vfuncDefault(u8, opaqueBitset, VSelf) \

@@ -1,5 +1,7 @@
 #include "player.h"
 
+#include <items.h>
+
 #include "../util/interface99_extensions.h"
 #include "../logging/logging.h"
 #include "../math/vector.h"
@@ -7,7 +9,11 @@
 #include "../game/blocks/blocks.h"
 
 // Forward declaration
-FWD_DECL bool worldModifyVoxel(const World* world, const VECTOR* position, IBlock* block, IItem** item_result);
+FWD_DECL bool worldModifyVoxel(const World* world,
+                               const VECTOR* position,
+                               IBlock* block,
+                               bool drop_item,
+                               IItem** item_result);
 
 #define HEIGHT_INTERVALS 3
 #define RADIUS_INTERVALS 2
@@ -75,7 +81,7 @@ void playerFallHandler(PhysicsObject* physics_object, const i32 distance, void* 
     }
 }
 
-void updateBreakingState(Player* player, const RayCastResult* result, World* world) {
+void updateBreakingState(Player* player, const RayCastResult* result, const World* world) {
     BreakingState* state = &player->breaking;
     if ((uintptr_t) state->block != (uintptr_t) result->block) {
         *state = (BreakingState) {
@@ -94,15 +100,45 @@ void updateBreakingState(Player* player, const RayCastResult* result, World* wor
         return;
     }
     state->ticks_left--;
-    if (state->ticks_left == 0) {
-        worldModifyVoxel(world, &result->pos, airBlockCreate(), NULL);
-        breakingStateReset(*state);
-        // TODO: Decrement durability of item in hand if it is a tool.
-        //       Making sure we only get the item at the last tick when
-        //       breaking means the OG bug of being able to mine with one
-        //       tool then switch to another at the last second to preserve
-        //       durability will still work.
+    if (--state->ticks_left > 0) {
+        return;
     }
+    breakingStateReset(*state);
+    // NOTE: By making sure we only get the item at the last tick when
+    //       breaking means the OG bug of being able to mine with one
+    //       tool then switch to another at the last second to preserve
+    //       durability will still work.
+    const Hotbar* hotbar = VCAST_PTR(Hotbar*, &player->hotbar);
+    Slot* slot = &hotbarGetSelectSlot(hotbar);
+    IItem* iitem = slot->data.item;
+    bool drop_item_on_break = false;
+    if (iitem != NULL) {
+        Item* item = VCAST_PTR(Item*, iitem);
+        const ItemID item_id = item->id;
+        const BlockID block_id = VCAST_PTR(Block*, state->block)->id;
+        const ToolType block_tool_type = blockGetToolType(block_id);
+        const ToolMaterial block_tool_material = blockGetToolMaterial(block_id);
+        const ToolType item_tool_type = itemGetToolType(item_id);
+        const ToolMaterial item_tool_material = itemGetToolMaterial(item_id);
+        drop_item_on_break = item_tool_type == block_tool_type
+                        && item_tool_material >= block_tool_material;
+        // NOTE: Using an unchecked decrement on the durability here
+        //       allows us to keep another OG bug which is that getting
+        //       a negative durability item wraps around and gives a
+        //       high durability item.
+        if (itemHasDurability(item_id) && --item->durability == 0) {
+            VCALL(*iitem, destroy);
+            itemDestroy(iitem);
+            slot->data.item = NULL;
+        }
+    }
+    worldModifyVoxel(
+        world,
+        &result->pos,
+        airBlockCreate(),
+        drop_item_on_break,
+        NULL
+    );
 }
 
 void playerInputHandlerWorldInteraction(const Input* input, const PlayerInputHandlerContext* ctx) {

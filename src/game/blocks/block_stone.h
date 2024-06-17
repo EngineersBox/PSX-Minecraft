@@ -30,8 +30,8 @@ void StoneBlock_init(VSelf);
 void stoneBlockAccess(VSelf);
 void StoneBlock_access(VSelf);
 
-ALLOC_CALL(itemDestroy, 1) IItem* stoneBlockDestroy(VSelf);
-ALLOC_CALL(itemDestroy, 1) IItem* StoneBlock_destroy(VSelf);
+ALLOC_CALL(itemDestroy, 1) IItem* stoneBlockDestroy(VSelf, bool drop_item);
+ALLOC_CALL(itemDestroy, 1) IItem* StoneBlock_destroy(VSelf, bool drop_item);
 
 void stoneBlockUpdate(VSelf);
 void StoneBlock_update(VSelf);

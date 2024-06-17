@@ -25,8 +25,8 @@ void airBlockAccess(VSelf) ALIAS("AirBlock_access");
 void AirBlock_access(VSelf) {
 }
 
-IItem* airBlockDestroy(VSelf) ALIAS("AirBlock_destroy");
-IItem* AirBlock_destroy(VSelf) {
+IItem* airBlockDestroy(VSelf, bool drop_item) ALIAS("AirBlock_destroy");
+IItem* AirBlock_destroy(VSelf, const bool drop_item) {
     VSELF(AirBlock);
     return airBlockProvideItem(self);
 }

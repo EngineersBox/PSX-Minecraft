@@ -15,6 +15,7 @@ DEFN_ITEM_BLOCK(CobblestoneItemBlock);
     .type = ITEMTYPE_BLOCK, \
     .tool_type = TOOLTYPE_PICKAXE, \
     .tool_material = TOOLMATERIAL_WOOD, \
+    .has_durability = false, \
     .name = "cobblestone" \
 })
 

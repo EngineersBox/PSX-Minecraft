@@ -29,8 +29,8 @@ void DirtBlock_init(VSelf);
 void dirtBlockAccess(VSelf);
 void DirtBlock_access(VSelf);
 
-ALLOC_CALL(itemDestroy, 1) IItem* dirtBlockDestroy(VSelf);
-ALLOC_CALL(itemDestroy, 1) IItem* DirtBlock_destroy(VSelf);
+ALLOC_CALL(itemDestroy, 1) IItem* dirtBlockDestroy(VSelf, bool drop_item);
+ALLOC_CALL(itemDestroy, 1) IItem* DirtBlock_destroy(VSelf, bool drop_item);
 
 void dirtBlockUpdate(VSelf);
 void DirtBlock_update(VSelf);
