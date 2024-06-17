@@ -17,6 +17,8 @@
 #define HOTBAR_SELECTOR_WIDTH 24
 #define HOTBAR_SELECTOR_HEIGHT 24
 
+#define hotbarGetSelectSlot(hotbar) ((hotbar)->slots[(hotbar)->selected_slot])
+
 DEFN_UI(
     Hotbar,
     cvector(Slot) slots;

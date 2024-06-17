@@ -84,9 +84,10 @@ void updateBreakingState(Player* player, const RayCastResult* result, World* wor
             .block = result->block
         };
         const PhysicsObjectFlags* player_physics_flags = &player->physics_object.flags;
+        const Hotbar* hotbar = VCAST_PTR(Hotbar*, &player->hotbar);
         breakingStateCalculateTicks(
             state,
-            NULL, // TODO: Get held item
+            hotbarGetSelectSlot(hotbar).data.item,
             player_physics_flags->in_water,
             player_physics_flags->on_ground
         );
