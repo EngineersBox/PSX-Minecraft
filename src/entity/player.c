@@ -165,6 +165,10 @@ void playerInputHandlerWorldInteraction(const Input* input, const PlayerInputHan
             VCAST_PTR(Camera*, player->camera),
             PLAYER_REACH_DISTANCE
         );
+        // TODO: Add a state to the player for determining whether to
+        //       instant break or not (like creative). If it's true
+        //       we should invoke worldModifyVoxel here directly and
+        //       ensure that no items are dropped.
         if (result.block != NULL) {
             updateBreakingState(player, &result, ctx->world);
             breaking = true;
