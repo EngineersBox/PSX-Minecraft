@@ -9,7 +9,7 @@
 #include "../render/render_context.h"
 #include "clip.h"
 
-const SVECTOR CUBE_NORMS[6] = {
+const SVECTOR CUBE_NORMS[FACE_DIRECTION_COUNT] = {
     {0, ONE, 0, 0},  // DOWN
     {0, -ONE, 0, 0}, // UP
     {-ONE, 0, 0, 0}, // LEFT
@@ -18,14 +18,14 @@ const SVECTOR CUBE_NORMS[6] = {
     {0, 0, -ONE, 0}  // FRONT
 };
 
-const INDEX CUBE_INDICES[6] = {
-    {1, 5, 3, 7}, // DOWN
-    {4, 0, 6, 2}, // UP
-    {5, 4, 7, 6}, // LEFT
-    {0, 1, 2, 3}, // RIGHT
-    {4, 5, 0, 1}, // BACK
-    {2, 3, 6, 7}  // FRONT
-};
+const INDEX CUBE_INDICES[FACE_DIRECTION_COUNT] = {
+    [FACE_DIR_DOWN] = {2, 3, 6, 7},
+    [FACE_DIR_UP] = {4, 5, 0, 1},
+    [FACE_DIR_LEFT] = {4, 0, 6, 2},
+    [FACE_DIR_RIGHT] = {1, 5, 3, 7},
+    [FACE_DIR_BACK] = {5, 4, 7, 6},
+    [FACE_DIR_FRONT] = {0, 1, 2, 3}
+};;
 
 void cubeRender(Cube *cube, RenderContext *ctx, Transforms *transforms) {
     int p;

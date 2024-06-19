@@ -11,6 +11,7 @@
 #include "../render/render_context.h"
 #include "../render/transforms.h"
 #include "../primitive/primitive.h"
+#include "direction.h"
 
 #define CUBE_FACES 6
 
@@ -22,8 +23,8 @@ typedef struct {
     const SVECTOR vertices[8];
 } Cube;
 
-extern const SVECTOR CUBE_NORMS[];
-extern const INDEX CUBE_INDICES[];
+extern const SVECTOR CUBE_NORMS[FACE_DIRECTION_COUNT];
+extern const INDEX CUBE_INDICES[FACE_DIRECTION_COUNT];
 
 void cubeRender(Cube* cube, RenderContext* ctx, Transforms* transforms);
 

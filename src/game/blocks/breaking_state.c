@@ -1,5 +1,7 @@
 #include "breaking_state.h"
 
+#include <logging.h>
+
 #include "../../math/math_utils.h"
 #include "../../math/fixed_point.h"
 #include "../../util/interface99_extensions.h"
@@ -10,16 +12,20 @@ void breakingStateCalculateTicks(BreakingState* state,
                                      const IItem* held_item,
                                      const bool in_water,
                                      const bool on_ground) {
+    printf("Block: %p\n", state->block);
     if (state->block == NULL) {
         return;
     }
     const Block* block = VCAST_PTR(Block*, state->block);
+    DEBUG_LOG("Block ID: %s\n", EBLOCKID_NAMES[block->id]);
     const ToolType block_tool_type = blockGetToolType(block->id);
     const ItemMaterial block_tool_material = blockGetToolMaterial(block->id);
     ToolType item_tool_type = TOOLTYPE_NONE;
     ItemMaterial item_tool_material = ITEMMATERIAL_NONE;
     if (held_item != NULL) {
-        const ItemID item_id = VCAST_PTR(Item*, held_item)->id;
+        const Item* item = VCAST_PTR(Item*, held_item);
+        DEBUG_LOG("Item: %d\n", item->id);
+        const ItemID item_id = item->id;
         if (itemGetType(item_id) == ITEMTYPE_TOOL) {
             item_tool_type = itemGetToolType(item_id);
             item_tool_material = itemGetMaterial(item_id);

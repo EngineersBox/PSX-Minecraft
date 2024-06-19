@@ -22,7 +22,7 @@
 DEFN_UI(
     Hotbar,
     cvector(Slot) slots;
-    uint8_t selected_slot;
+    u8 selected_slot;
 );
 
 void hotbarInit(Hotbar* hotbar);

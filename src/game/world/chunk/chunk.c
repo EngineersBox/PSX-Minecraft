@@ -138,7 +138,7 @@ static void chunkRenderBreakingOverlay(Chunk* chunk,
             convertToVertex(CUBE_INDICES[i]._v, 0b100, 2, BREAKING_OVERLAY_SIZE) + position_offset.vz, \
             0 \
         }
-        SVECTOR current_verts[4] = {
+        const SVECTOR current_verts[4] = {
             createVert(v0),
             createVert(v1),
             createVert(v2),

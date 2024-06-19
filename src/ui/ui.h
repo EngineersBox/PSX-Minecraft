@@ -44,7 +44,7 @@ typedef struct {
     cvector(IUIComponent) components;
 } UI;
 
-#define DEFN_UI(name, ...) typedef struct { \
+#define DEFN_UI(name, ...) typedef struct name { \
     UI ui; \
     __VA_ARGS__ \
 } name

@@ -184,7 +184,7 @@ void renderItemBlock(ItemBlock* item,
         }
         gte_ldrgb(&pol4->r0);
         // Load the face normal
-        gte_ldv0(&CUBE_NORMS[i]);
+        gte_ldv0(&FACE_DIRECTION_NORMALS[i]);
         // Apply RGB tinting to lighting calculation result on the basis
         // that it is enabled.
         if (face_attribute->tint.cd) {
