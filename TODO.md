@@ -2,86 +2,87 @@
 
 ## Fix
 
-* [x] Chunk mesh traversal to be Y up instead of Z up
-* [x] Last vertex in chunk not correct
-* [x] Last texture window causing font render to be weird
-* [x] Figure out why odd numbered chunks render, no x-valued chunks render and Y alternate chunks don't render
-* [x] Figure out why `CHUNK_SIZE` that isn't 8 doesn't work (e.g. 16), in that nothing renders (no errors logged)
-* [x] Fix mesh rendering of last faces connected to neighbouring chunk, normal seems inverted.  This might be the inverse of changes made with windowing and indexing to fix chunk rendering initially.
-* [x] Camera rotation values do not wrap when a complete rotation is achieved
-* [x] Fixed stale references to mesh attribute iterators (primitive/vertex/normal)
-* [x] Logs spammed with GPU bad address read when looking down after a certain point
-* [x] Chunk mesh construction replicates world bottom at top of world 
-* [x] Chunk meshing generates redundant faces at sides of chunk
-* [x] Ray cast direction does not fully match camera rotation normal
-* [x] Background in loading screen not rendering texture
-* [x] Cannot fall off a block edge, get pushed back
-* [x] Jumping onto a block pushes player back, not allowing for movement up to a block (weird edge cases for certain angles still work)
-* [x] Certain faces at chunk boundaries are not generated with binary greedy meshing
-* [x] Chunks with a negative component in position don't generate meshes correctly (incorrect faces and textures)
-* [x] Texture attributes on block item rendering in world and picked up items in inventory
-* [ ] Mesh vertices z-depth is inconsistent leading to faces drawn in wrong order and thus culling fails
-* [ ] Vertices are distorted (in their location) when very close to the camera
-* [ ] Transparent textures rendering multiple interleaved textures from different points in terrain texture page
-* [ ] Movement tied to FPS
-* [ ] Move mesh generation to after all loading when updating world to avoid face generation on orthogonal axis to update axis
-* [ ] Cull faces on chunk edges that face outward on the render limit
-* [ ] Core engine ticks can go higher than 20, redo the engine cycle system
+* [X]  Chunk mesh traversal to be Y up instead of Z up
+* [X]  Last vertex in chunk not correct
+* [X]  Last texture window causing font render to be weird
+* [X]  Figure out why odd numbered chunks render, no x-valued chunks render and Y alternate chunks don't render
+* [X]  Figure out why `CHUNK_SIZE` that isn't 8 doesn't work (e.g. 16), in that nothing renders (no errors logged)
+* [X]  Fix mesh rendering of last faces connected to neighbouring chunk, normal seems inverted.  This might be the inverse of changes made with windowing and indexing to fix chunk rendering initially.
+* [X]  Camera rotation values do not wrap when a complete rotation is achieved
+* [X]  Fixed stale references to mesh attribute iterators (primitive/vertex/normal)
+* [X]  Logs spammed with GPU bad address read when looking down after a certain point
+* [X]  Chunk mesh construction replicates world bottom at top of world
+* [X]  Chunk meshing generates redundant faces at sides of chunk
+* [X]  Ray cast direction does not fully match camera rotation normal
+* [X]  Background in loading screen not rendering texture
+* [X]  Cannot fall off a block edge, get pushed back
+* [X]  Jumping onto a block pushes player back, not allowing for movement up to a block (weird edge cases for certain angles still work)
+* [X]  Certain faces at chunk boundaries are not generated with binary greedy meshing
+* [X]  Chunks with a negative component in position don't generate meshes correctly (incorrect faces and textures)
+* [X]  Texture attributes on block item rendering in world and picked up items in inventory
+* [ ]  Mesh vertices z-depth is inconsistent leading to faces drawn in wrong order and thus culling fails
+* [ ]  Vertices are distorted (in their location) when very close to the camera
+* [ ]  Transparent textures rendering multiple interleaved textures from different points in terrain texture page
+* [ ]  Movement tied to FPS
+* [ ]  Move mesh generation to after all loading when updating world to avoid face generation on orthogonal axis to update axis
+* [ ]  Cull faces on chunk edges that face outward on the render limit
+* [ ]  Core engine ticks can go higher than 20, redo the engine cycle system
+* [ ]  Resource generation script does not contain new attributes for `ItemBlock` instances
 
 ## Implement
 
-* [x] Implement texture loading via LZP compressed archive traversal
-* [x] Complete display/render context implementation
-* [x] Create standalone cube struct and load + render methods
-* [x] Greedy meshing for chunk rendering
-* [x] Create loading screen to visualise loading progress. Something simple like a loading bar for now. Make it more fancy at a later point.
-* [x] Continuous shifting world chunk array
-* [x] Graphing lib to use for resource usage and debugging
-* [x] Ray cast from camera normal to block retrieving exact block coordinates in world
-* [x] Dynamic chunk loading and unloading with movement
-* [x] Player entity with hit box
-* [x] Basic entity-mesh interaction physics with gravity
-* [x] Crosshair
-* [x] Axis marker
-* [x] Proper engine structure with logic interface
-* [x] Inheritable Block interface with concrete implementations
-* [x] 2D array indexed terrain texture specification in face attributes
-* [x] Support transparent textures (original and binary greedy meshing)
-* [x] Full ASCII, extended characters and symbols set front + printing lib
-* [x] Shadowed version of font to use via flag for printing
-* [ ] Camera far plane cutoff with fog relative to chunk render distance
-* [ ] Frustum and culling
-* [ ] Depth-first search culling through chunks
-* [ ] Check if camera not moving then ray cast once to get block targeted and draw outline around if in reach range
-* [ ] Thread scheduler using hardware timers for IRQ interleaved execution
-* [ ] Update queue for operations on the world
-* [ ] Breaking overlays for a block, enabled with a marker variable and a target resolved by ray cast and a texture reference
-* [ ] D-pad or analogue stick controlled cursor in UIs with item movement between slots being held by cursor
-* [ ] TooManyItems-like overlay in inventory GUI
-* [ ] Set block orientation relative to camera when placing
-* [ ] Retrieve face attributes based on block orientation during meshing
-* [ ] Finish player attack/use input handlers
+* [X]  Implement texture loading via LZP compressed archive traversal
+* [X]  Complete display/render context implementation
+* [X]  Create standalone cube struct and load + render methods
+* [X]  Greedy meshing for chunk rendering
+* [X]  Create loading screen to visualise loading progress. Something simple like a loading bar for now. Make it more fancy at a later point.
+* [X]  Continuous shifting world chunk array
+* [X]  Graphing lib to use for resource usage and debugging
+* [X]  Ray cast from camera normal to block retrieving exact block coordinates in world
+* [X]  Dynamic chunk loading and unloading with movement
+* [X]  Player entity with hit box
+* [X]  Basic entity-mesh interaction physics with gravity
+* [X]  Crosshair
+* [X]  Axis marker
+* [X]  Proper engine structure with logic interface
+* [X]  Inheritable Block interface with concrete implementations
+* [X]  2D array indexed terrain texture specification in face attributes
+* [X]  Support transparent textures (original and binary greedy meshing)
+* [X]  Full ASCII, extended characters and symbols set front + printing lib
+* [X]  Shadowed version of font to use via flag for printing
+* [ ]  Camera far plane cutoff with fog relative to chunk render distance
+* [ ]  Frustum and culling
+* [ ]  Depth-first search culling through chunks
+* [ ]  Check if camera not moving then ray cast once to get block targeted and draw outline around if in reach range
+* [ ]  Thread scheduler using hardware timers for IRQ interleaved execution
+* [ ]  Update queue for operations on the world
+* [ ]  Breaking overlays for a block, enabled with a marker variable and a target resolved by ray cast and a texture reference
+* [ ]  D-pad or analogue stick controlled cursor in UIs with item movement between slots being held by cursor
+* [ ]  TooManyItems-like overlay in inventory GUI
+* [ ]  Set block orientation relative to camera when placing
+* [ ]  Retrieve face attributes based on block orientation during meshing
+* [ ]  Finish player attack/use input handlers
 
 ## Refactor
 
-* [x] Support texture windowing for wrap-around in multiples of texture width/height
-* [x] Removed aliasing wrappers for primitive/vertex/normal arrays in `ChunkMesh` and refactor to direct type alias of `SMD`
-* [x] Camera displayed position to be units of `BLOCK_SIZE`
-* [x] Y-axis values are negative upwards should be positive
-* [x] Block world coords should start at 0 from bottom of chunk and go up positively.
-* [x] Move crosshair render handler to UI directory with dependent structure
-* [x] Move axis render handler to UI directory with dependent structure
-* [x] Create loading screen structure with update/render methods and move content in world to there
-* [x] Ray cast should check distance walked is less than radius instead of out of world check
-* [x] Use geometry matrix to centre loading screen text and loading bar instead of manual positioning
-* [x] Refactor `World` and `Chunk` to support interface based blocks with dynamic dispatch handlers
-* [x] Move to binary greedy meshing with bitwise ops for single-pass mask creation
-* [x] Migrate to chunk providers and generators created with world for specific generation
-* [x] Move old mesh generation in `Chunk` into standalone implementation in `src/game/world/chunk/meshing` or remove
-* [x] Per-face opacity control on each block for minimal meshing with mixed opacity (like farmland, bottom only opaque)
-* [ ] Move rendering handlers in `ChunkMesh` to standalone SMD renderer file
-* [ ] Turn these TODO list sections into tables instead of checkmark lists 
-* [ ] Support other resolutions that aren't 320x240
-* [ ] Move static values like block/item names and max stack sizes to global constants accessed by ID
-* [ ] Refactor vector operations to use `_Generic` C11 macro to perform type specific operations between any kind of two vector types or constant
-* [ ] Move assets to on-disk directories and files instead of packing them into the binary
+* [X]  Support texture windowing for wrap-around in multiples of texture width/height
+* [X]  Removed aliasing wrappers for primitive/vertex/normal arrays in `ChunkMesh` and refactor to direct type alias of `SMD`
+* [X]  Camera displayed position to be units of `BLOCK_SIZE`
+* [X]  Y-axis values are negative upwards should be positive
+* [X]  Block world coords should start at 0 from bottom of chunk and go up positively.
+* [X]  Move crosshair render handler to UI directory with dependent structure
+* [X]  Move axis render handler to UI directory with dependent structure
+* [X]  Create loading screen structure with update/render methods and move content in world to there
+* [X]  Ray cast should check distance walked is less than radius instead of out of world check
+* [X]  Use geometry matrix to centre loading screen text and loading bar instead of manual positioning
+* [X]  Refactor `World` and `Chunk` to support interface based blocks with dynamic dispatch handlers
+* [X]  Move to binary greedy meshing with bitwise ops for single-pass mask creation
+* [X]  Migrate to chunk providers and generators created with world for specific generation
+* [X]  Move old mesh generation in `Chunk` into standalone implementation in `src/game/world/chunk/meshing` or remove
+* [X]  Per-face opacity control on each block for minimal meshing with mixed opacity (like farmland, bottom only opaque)
+* [ ]  Move rendering handlers in `ChunkMesh` to standalone SMD renderer file
+* [ ]  Turn these TODO list sections into tables instead of checkmark lists
+* [ ]  Support other resolutions that aren't 320x240
+* [ ]  Move static values like block/item names and max stack sizes to global constants accessed by ID
+* [ ]  Refactor vector operations to use `_Generic` C11 macro to perform type specific operations between any kind of two vector types or constant
+* [ ]  Move assets to on-disk directories and files instead of packing them into the binary
