@@ -9,22 +9,19 @@
 #include "../items/items.h"
 
 void breakingStateCalculateTicks(BreakingState* state,
-                                     const IItem* held_item,
-                                     const bool in_water,
-                                     const bool on_ground) {
-    printf("Block: %p\n", state->block);
+                                 const IItem* held_item,
+                                 const bool in_water,
+                                 const bool on_ground) {
     if (state->block == NULL) {
         return;
     }
     const Block* block = VCAST_PTR(Block*, state->block);
-    DEBUG_LOG("Block ID: %s\n", EBLOCKID_NAMES[block->id]);
     const ToolType block_tool_type = blockGetToolType(block->id);
     const ItemMaterial block_tool_material = blockGetToolMaterial(block->id);
     ToolType item_tool_type = TOOLTYPE_NONE;
     ItemMaterial item_tool_material = ITEMMATERIAL_NONE;
     if (held_item != NULL) {
         const Item* item = VCAST_PTR(Item*, held_item);
-        DEBUG_LOG("Item: %d\n", item->id);
         const ItemID item_id = item->id;
         if (itemGetType(item_id) == ITEMTYPE_TOOL) {
             item_tool_type = itemGetToolType(item_id);
@@ -52,11 +49,14 @@ void breakingStateCalculateTicks(BreakingState* state,
     } else {
         damage /= 100;
     }
-    DEBUG_LOG("Before assignments\n");
     if (damage > ONE) {
         state->ticks_left = 0;
+        state->ticks_per_stage = 1;
         return;
     }
+    // TODO: Fix badv = 0x0 (bad value) here aka div by 0,
+    //       presumably because of damange calc or block
+    //       attributes being wrong causing shifts to 0
     state->ticks_left = fixedDiv(ONE, damage); // In ticks
-    state->ticks_per_stage = max(1, state->ticks_left / 10);
+    state->ticks_per_stage = max(((u32) 1), state->ticks_left / 10);
 }
