@@ -1,5 +1,6 @@
 #include "breaking_state.h"
 
+#include "../../math/math_utils.h"
 #include "../../math/fixed_point.h"
 #include "../../util/interface99_extensions.h"
 #include "blocks.h"
@@ -50,4 +51,5 @@ void breakingStateCalculateTicks(BreakingState* state,
         return;
     }
     state->ticks_left = fixedDiv(ONE, damage); // In ticks
+    state->ticks_per_stage = max(1, state->ticks_left / 10);
 }

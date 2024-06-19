@@ -10,21 +10,21 @@
 #include "clip.h"
 
 const SVECTOR CUBE_NORMS[6] = {
-    {0, 0, -ONE, 0},
-    {0, 0, ONE, 0},
-    {0, -ONE, 0, 0},
-    {0, ONE, 0, 0},
-    {-ONE, 0, 0, 0},
-    {ONE, 0, 0, 0}
+    {0, ONE, 0, 0},  // DOWN
+    {0, -ONE, 0, 0}, // UP
+    {-ONE, 0, 0, 0}, // LEFT
+    {ONE, 0, 0, 0},  // RIGHT
+    {0, 0, ONE, 0},  // BACK
+    {0, 0, -ONE, 0}  // FRONT
 };
 
 const INDEX CUBE_INDICES[6] = {
-    {2, 3, 6, 7},
-    {4, 5, 0, 1},
-    {4, 0, 6, 2},
-    {1, 5, 3, 7},
-    {5, 4, 7, 6},
-    {0, 1, 2, 3}
+    {1, 5, 3, 7}, // DOWN
+    {4, 0, 6, 2}, // UP
+    {5, 4, 7, 6}, // LEFT
+    {0, 1, 2, 3}, // RIGHT
+    {4, 5, 0, 1}, // BACK
+    {2, 3, 6, 7}  // FRONT
 };
 
 void cubeRender(Cube *cube, RenderContext *ctx, Transforms *transforms) {

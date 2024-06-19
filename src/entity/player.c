@@ -40,6 +40,7 @@ const PhysicsObjectUpdateHandlers player_physics_object_update_handlers = (Physi
 void playerInit(Player* player) {
     entityInit(&player->entity);
     player->entity.health = PLAYER_MAX_HEALTH;
+    breakingStateReset(player->breaking);
     Inventory* inventory = (Inventory*) malloc(sizeof(Inventory));
     Hotbar* hotbar = (Hotbar*) malloc(sizeof(Hotbar));
     hotbarInit(hotbar);
@@ -263,7 +264,7 @@ bool playerInputHandlerMovement(const Input* input, const PlayerInputHandlerCont
 }
 
 bool playerInputHandler(const Input* input, void* ctx) {
-    PlayerInputHandlerContext* context = ctx;
+    const PlayerInputHandlerContext* context = ctx;
     playerInputHandlerWorldInteraction(input, context);
     return playerInputHandlerMovement(input, context);
 }

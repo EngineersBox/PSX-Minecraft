@@ -1,5 +1,8 @@
 #include "chunk.h"
 
+#include <assets.h>
+#include <asset_indices.h>
+#include <cube.h>
 #include <inline_c.h>
 #include <stdbool.h>
 
@@ -14,6 +17,9 @@
 #include "../../items/items.h"
 #include "../generation/noise.h"
 #include "meshing/binary_greedy_mesher.h"
+
+// Forward declaration
+FWD_DECL IBlock* worldGetBlock(const World* world, const VECTOR* position);
 
 void chunkDestroyDroppedItem(void* elem) {
     IItem** iitem = (IItem**) elem;
@@ -76,6 +82,10 @@ static void chunkRenderDroppedItems(Chunk* chunk, RenderContext* ctx, Transforms
     }
 }
 
+#define BREAKING_OVERLAY_SIZE ((BLOCK_SIZE >> 1) + 1)
+// [0,1] -> [-SIZE,SIZE]
+#define convertToVertex(v, mask, shift, size) (size * (-1 + ((((v) & (mask)) >> (shift)) << 1)))
+
 static void chunkRenderBreakingOverlay(Chunk* chunk,
                                        const BreakingState* breaking_state,
                                        RenderContext* ctx,
@@ -94,6 +104,137 @@ static void chunkRenderBreakingOverlay(Chunk* chunk,
     //       that we use for chunk rendering to transform each vertex of a block
     //       relative to the chunk into perspective space, in this case just for
     //       a given set of faces instead of the entire block though.
+    const VECTOR position_offset = vec3_i32(
+        breaking_state->position.vx,
+        -breaking_state->position.vy,
+        breaking_state->position.vz
+    );
+    int p;
+    const TextureAttributes face_attribute = (TextureAttributes) {
+        .u = (breaking_state->ticks_left / breaking_state->ticks_per_stage) * 16,
+        .v = 16 * 15,
+        .w = 16,
+        .h = 16,
+        .tint = {0}
+    };
+    const Texture* texture = &textures[ASSET_TEXTURES_TERRAIN_INDEX];
+    for (int i = 0; i < 6; i++) {
+        const VECTOR vis_check_position = vec3_i32(
+            breaking_state->position.vx + CUBE_NORMS[i].vx,
+            breaking_state->position.vy - CUBE_NORMS[i].vy, // Normal up direction is negative in world space and we use positive for arrays
+            breaking_state->position.vz + CUBE_NORMS[i].vz
+        );
+        const IBlock* iblock = worldGetBlock(chunk->world, &vis_check_position);
+        assert(iblock != NULL);
+        const Block* block = VCAST_PTR(Block*, iblock);
+        // Using bitwise XOR here, allows us to flip the least significant
+        // bit in the number. If we think of the face directions as opposing
+        // sequential pairs then apply XOR on the bitwise representations,
+        // we see the desired outcome:
+        //
+        // Name  | Index | XOR'd Index
+        // ------|-------|----------------------
+        // DOWN  | 0b000 | 0b000 ^ 0b001 = 0b001
+        // UP    | 0b001 | 0b000 ^ 0b001 = 0b000
+        // LEFT  | 0b010 | 0b010 ^ 0b001 = 0b011
+        // RIGHT | 0b011 | 0b011 ^ 0b001 = 0b010
+        // BACK  | 0b100 | 0b100 ^ 0b001 = 0b101
+        // FRONT | 0b101 | 0b101 ^ 0b001 = 0b100
+        //
+        if (block->id != BLOCKID_AIR && VCALL(*iblock, isOpaque, (FaceDirection) i ^ 1)) {
+            continue;
+        }
+        POLY_FT4* pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
+        #define createVert(_v) (SVECTOR) { \
+            convertToVertex(CUBE_INDICES[i]._v, 0b001, 0, BREAKING_OVERLAY_SIZE) + position_offset.vx, \
+            convertToVertex(CUBE_INDICES[i]._v, 0b010, 1, BREAKING_OVERLAY_SIZE) + position_offset.vy, \
+            convertToVertex(CUBE_INDICES[i]._v, 0b100, 2, BREAKING_OVERLAY_SIZE) + position_offset.vz, \
+            0 \
+        }
+        SVECTOR current_verts[4] = {
+            createVert(v0),
+            createVert(v1),
+            createVert(v2),
+            createVert(v3)
+        };
+        #undef createVert
+        gte_ldv3(
+            &current_verts[0],
+            &current_verts[1],
+            &current_verts[2]
+        );
+        // Rotation, Translation and Perspective Triple
+        gte_rtpt();
+        gte_nclip();
+        gte_stopz(&p);
+        if (p < 0) {
+            freePrimitive(ctx, sizeof(POLY_FT4));
+            continue;
+        }
+        // Average screen Z result for four primtives
+        gte_avsz4();
+        gte_stotz(&p);
+        // Initialize a textured quad primitive
+        setPolyF4(pol4);
+        // Set the projected vertices to the primitive
+        gte_stsxy0(&pol4->x0);
+        gte_stsxy1(&pol4->x1);
+        gte_stsxy2(&pol4->x2);
+        // Compute the last vertex and set the result
+        gte_ldv0(&current_verts[3]);
+        gte_rtps();
+        gte_stsxy(&pol4->x3);
+        // Test if quad is off-screen, discard if so
+        if (quadClip(
+            &ctx->screen_clip,
+            (DVECTOR*) &pol4->x0,
+            (DVECTOR*) &pol4->x1,
+            (DVECTOR*) &pol4->x2,
+            (DVECTOR*) &pol4->x3)) {
+            freePrimitive(ctx, sizeof(POLY_F4));
+            continue;
+            }
+        // Load primitive color even though gte_ncs() doesn't use it.
+        // This is so the GTE will output a color result with the
+        // correct primitive code.
+        if (face_attribute.tint.cd) {
+            setRGB0(
+                pol4,
+                face_attribute.tint.r,
+                face_attribute.tint.g,
+                face_attribute.tint.b
+            );
+        }
+        gte_ldrgb(&pol4->r0);
+        // Load the face normal
+        gte_ldv0(&CUBE_NORMS[i]);
+        // Apply RGB tinting to lighting calculation result on the basis
+        // that it is enabled. This corresponds to the column based calc
+        if (face_attribute.tint.cd) {
+            // Normal Color Column Single
+            gte_nccs();
+        } else {
+            // Normal Color Single
+            gte_ncs();
+        }
+        // Store result to the primitive
+        gte_strgb(&pol4->r0);
+        // Set texture coords and dimensions
+        setUVWH(
+            pol4,
+            face_attribute.u,
+            face_attribute.v,
+            face_attribute.w,
+            face_attribute.h
+        );
+        // Bind texture page and colour look-up-table
+        pol4->tpage = texture->tpage;
+        pol4->clut = texture->clut;
+        // Store result to the primitive
+        gte_strgb(&pol4->r0);
+        uint32_t* ot_entry = allocateOrderingTable(ctx, 0);
+        addPrim(ot_entry, pol4);
+    }
 }
 
 static bool chunkIsOutsideFrustum(const Chunk* chunk, const Frustum* frustum, const Transforms* transforms) {

@@ -19,6 +19,11 @@ typedef struct BreakingState {
      */
     u32 ticks_left;
     /**
+     * @brief Number of ticks that each breaking texture
+     *        stage should take.
+     */
+    u32 ticks_per_stage;
+    /**
      * @brief World position of block being broken, this is
      *        0 in all axis when @code block@endcode is
      *        @code NULL@endcode
@@ -33,6 +38,7 @@ typedef struct BreakingState {
 #define breakingStateReset(state) ({ \
     (state) = (BreakingState) { \
         .ticks_left = 0, \
+        .ticks_per_stage = 0, \
         .position = vec3_i32_all(0), \
         .block = NULL \
     }; \
