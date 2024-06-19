@@ -52,6 +52,7 @@ void breakingStateCalculateTicks(BreakingState* state,
     } else {
         damage /= 100;
     }
+    DEBUG_LOG("Before assignments\n");
     if (damage > ONE) {
         state->ticks_left = 0;
         return;
