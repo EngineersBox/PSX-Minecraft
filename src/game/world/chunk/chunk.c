@@ -12,6 +12,7 @@
 #include "../../../structure/cvector.h"
 #include "../../../structure/cvector_utils.h"
 #include "../../../structure/primitive/clip.h"
+#include "../../../structure/primitive/direction.h"
 #include "../../../structure/primitive/primitive.h"
 #include "../../../util/interface99_extensions.h"
 #include "../../items/items.h"
@@ -127,21 +128,7 @@ static void chunkRenderBreakingOverlay(Chunk* chunk,
         const IBlock* iblock = worldGetBlock(chunk->world, &vis_check_position);
         assert(iblock != NULL);
         const Block* block = VCAST_PTR(Block*, iblock);
-        // Using bitwise XOR here, allows us to flip the least significant
-        // bit in the number. If we think of the face directions as opposing
-        // sequential pairs then apply XOR on the bitwise representations,
-        // we see the desired outcome:
-        //
-        // Name  | Index | XOR'd Index
-        // ------|-------|----------------------
-        // DOWN  | 0b000 | 0b000 ^ 0b001 = 0b001
-        // UP    | 0b001 | 0b000 ^ 0b001 = 0b000
-        // LEFT  | 0b010 | 0b010 ^ 0b001 = 0b011
-        // RIGHT | 0b011 | 0b011 ^ 0b001 = 0b010
-        // BACK  | 0b100 | 0b100 ^ 0b001 = 0b101
-        // FRONT | 0b101 | 0b101 ^ 0b001 = 0b100
-        //
-        if (block->id != BLOCKID_AIR && VCALL(*iblock, isOpaque, (FaceDirection) i ^ 1)) {
+        if (block->id != BLOCKID_AIR && VCALL(*iblock, isOpaque, faceDirectionOpposing(i))) {
             continue;
         }
         POLY_FT4* pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
