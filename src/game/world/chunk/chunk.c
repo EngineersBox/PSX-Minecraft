@@ -120,9 +120,9 @@ static void chunkRenderBreakingOverlay(Chunk* chunk,
     const Texture* texture = &textures[ASSET_TEXTURES_TERRAIN_INDEX];
     for (int i = 0; i < 6; i++) {
         const VECTOR vis_check_position = vec3_i32(
-            breaking_state->position.vx + CUBE_NORMS[i].vx,
-            breaking_state->position.vy - CUBE_NORMS[i].vy, // Normal up direction is negative in world space and we use positive for arrays
-            breaking_state->position.vz + CUBE_NORMS[i].vz
+            (breaking_state->position.vx + CUBE_NORMS[i].vx) * BLOCK_SIZE,
+            (breaking_state->position.vy - CUBE_NORMS[i].vy) * BLOCK_SIZE, // Normal up direction is negative in world space and we use positive for arrays
+            (breaking_state->position.vz + CUBE_NORMS[i].vz) * BLOCK_SIZE
         );
         const IBlock* iblock = worldGetBlock(chunk->world, &vis_check_position);
         assert(iblock != NULL);
@@ -285,7 +285,7 @@ void chunkRender(Chunk* chunk,
     // Sort + render mesh
     chunkMeshRender(&chunk->mesh, ctx, transforms);
     if (breaking_state != NULL) {
-        chunkRenderBreakingOverlay(chunk, breaking_state, ctx, transforms);
+        // chunkRenderBreakingOverlay(chunk, breaking_state, ctx, transforms);
     }
     // Restore matrix
     PopMatrix();
