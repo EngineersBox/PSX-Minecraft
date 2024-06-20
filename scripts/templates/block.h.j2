@@ -18,7 +18,7 @@ IBlock* {{ name_lower }}BlockCreate();
     .type = {{ type }}, \
     .tool_type = {{ tool_type }}, \
     .tool_material = {{ tool_material }}, \
-    .can_harvest = {{ can_harvest_bitset }}, \
+    .can_harvest = toolTypeBitset({{ can_harvest_bitset }}), \
     .name = "{{ name_snake_lower }}" \
 })
 
