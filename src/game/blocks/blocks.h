@@ -6,6 +6,7 @@
 #include "../../util/inttypes.h"
 #include "block_id.h"
 #include "block.h"
+#include "../items/tools/tool_type.h"
 // These includes allow for only including blocks.h
 // and getting access to all blocks instantly
 #include "block_air.h"
@@ -26,6 +27,7 @@ extern BlockAttributes block_attributes[BLOCK_COUNT];
 #define blockGetResistance(id) blockGetAttribute(id, resistance)
 #define blockGetToolType(id) blockGetAttribute(id, tool_type)
 #define blockGetToolMaterial(id) blockGetAttribute(id, tool_material)
+#define blockItemCanHarvest(id, tool_type) ((blockGetAttribute(id, can_harvest) >> (tool_type)) & 0x1)
 
 void blocksInitialiseBuiltin();
 

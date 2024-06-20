@@ -12,6 +12,7 @@
 #include "../../math/math_utils.h"
 #include "../../math/vector.h"
 #include "../../util/preprocessor.h"
+#include "tools/tool_type.h"
 
 #define PICKUP_DISTANCE 154
 #define PICKUP_DISTANCE_SQUARED (PICKUP_DISTANCE * PICKUP_DISTANCE)
@@ -29,17 +30,6 @@ typedef enum ItemType {
     ITEMTYPE_TOOL,
     ITEMTYPE_ARMOUR
 } ItemType;
-
-#define TOOL_TYPE_COUNT 6
-#define TOOL_TYPE_COUNT_BITS 3
-typedef enum ToolType {
-    TOOLTYPE_NONE = 0,
-    TOOLTYPE_PICKAXE,
-    TOOLTYPE_AXE,
-    TOOLTYPE_SWORD,
-    TOOLTYPE_SHOVEL,
-    TOOLTYPE_HOE
-} ToolType;
 
 #define ARMOUR_TYPE_COUNT 5
 #define ARMOUR_TYPE_COUNT_BITS 3

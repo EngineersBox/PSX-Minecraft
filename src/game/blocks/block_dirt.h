@@ -20,6 +20,7 @@ IBlock* dirtBlockCreate();
     .type = BLOCKTYPE_SOLID, \
     .tool_type = TOOLTYPE_SHOVEL, \
     .tool_material = ITEMMATERIAL_WOOD, \
+    .can_harvest = toolTypeBitset(1,1,1,1,1,1), \
     .name = "dirt" \
 })
 

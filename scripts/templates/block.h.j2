@@ -15,6 +15,10 @@ IBlock* {{ name_lower }}BlockCreate();
     .slipperiness = {{ slipperiness }}, \
     .hardness = {{ hardness }}, \
     .resistance = {{ resistance }}, \
+    .type = {{ type }}, \
+    .tool_type = {{ tool_type }}, \
+    .tool_material = {{ tool_material }}, \
+    .can_harvest = {{ can_harvest_bitset }}, \
     .name = "{{ name_snake_lower }}" \
 })
 

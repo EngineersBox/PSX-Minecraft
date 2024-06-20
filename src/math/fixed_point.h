@@ -33,11 +33,27 @@ i32 cos5o(i16 i);
 
 /**
  * @brief Divides two fixed point int16_t numbers as x / y
- * @param x dividend (number being divided)
- * @param y divisor (number performing division)
+ * @param x Dividend (number being divided)
+ * @param y Divisor (number performing division)
  * @return Result of division x / y
  */
 #define fixedDiv(x, y) ((((x) << FIXED_POINT_SHIFT) / (y)) >> FIXED_POINT_SHIFT)
+
+/**
+ * @brief Divides a fixed point number by an integer as x / y
+ * @param x Dividend (fixed-point number being divided)
+ * @param y Divisor (integer number performing division)
+ * @return Result of division x / y
+ */
+#define fixedIntDiv(x, y) (((fixedi32) x) / ((i32) y))
+
+/**
+ * @brief Divides two fixed point numbers as x / y
+ * @param x Dividend (number being divided)
+ * @param y Divisor (number performing division)
+ * @return Result of division x / y
+ */
+#define fixedFixedDiv(x, y) ((((fixedi64) x) << FIXED_POINT_SHIFT) / ((fixedi32) y))
 
 /**
  * @brief Multiply two fixed point numbers as x_w.x_f * y_w.w_f:

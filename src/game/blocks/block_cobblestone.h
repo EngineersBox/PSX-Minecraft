@@ -18,6 +18,7 @@ IBlock* cobblestoneBlockCreate();
     .type = BLOCKTYPE_SOLID, \
     .tool_type = TOOLTYPE_PICKAXE, \
     .tool_material = ITEMMATERIAL_WOOD, \
+    .can_harvest = toolTypeBitset(0,1,0,0,0,0), \
     .name = "cobblestone" \
 })
 

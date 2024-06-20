@@ -59,7 +59,7 @@ typedef struct BlockAttributes {
     BlockType type: BLOCK_TYPE_COUNT_BITS;
     ToolType tool_type: TOOL_TYPE_COUNT_BITS;
     ItemMaterial tool_material: ITEM_MATERIAL_COUNT_BITS;
-    u16 _pad: 6;
+    u8 can_harvest: 6;
     char* name;
 } BlockAttributes;
 
@@ -71,12 +71,12 @@ typedef struct Block {
 } Block;
 
 #define opaqueFacesBitset(down, up, left, right, back, front) (\
-      ((down) << 0) \
-    | ((up) << 1) \
-    | ((left) << 2) \
-    | ((right) << 3) \
-    | ((back) << 4) \
-    | ((front) << 5) \
+      ((down) << FACE_DIR_DOWN) \
+    | ((up) << FACE_DIR_UP) \
+    | ((left) << FACE_DIR_LEFT) \
+    | ((right) << FACE_DIR_RIGHT) \
+    | ((back) << FACE_DIR_BACK) \
+    | ((front) << FACE_DIR_FRONT) \
 )
 
 #define IBlock_IFACE \

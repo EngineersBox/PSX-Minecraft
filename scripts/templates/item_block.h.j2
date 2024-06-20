@@ -14,9 +14,9 @@ DEFN_ITEM_BLOCK({{ name_capital }}ItemBlock);
 #define {{ name_lower }}ItemBlockAttributes() ((ItemAttributes) { \
     .max_stack_size = {{ max_stack_size }}, \
     .type = ITEMTYPE_BLOCK, \
-    .tool_type = {{ tool_type }}, \
+    .tool_type = TOOLTYPE_NONE, \
     .armour_type = ARMOURTYPE_NONE, \
-    .material = {{ tool_material }}, \
+    .material = ITEMMATERIAL_NONE, \
     .has_durability = false, \
     .name = "{{ name_snake_lower }}" \
 })
