@@ -55,8 +55,7 @@ void DirtItemBlock_init(VSelf) {
     self->item_block = (ItemBlock) {
         .item = declareSimpleItem(
             ITEMID_DIRT,
-            0,
-            64
+            0
         ),
         .face_attributes = defaultFaceAttributes(2),
     };

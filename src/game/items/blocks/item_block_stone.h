@@ -11,6 +11,7 @@
 DEFN_ITEM_BLOCK(StoneItemBlock);
 
 #define stoneItemBlockAttributes() ((ItemAttributes) { \
+    .max_stack_size = 64, \
     .type = ITEMTYPE_BLOCK, \
     .tool_type = TOOLTYPE_PICKAXE, \
     .armour_type = ARMOURTYPE_NONE, \

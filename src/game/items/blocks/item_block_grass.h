@@ -10,6 +10,7 @@
 DEFN_ITEM_BLOCK(GrassItemBlock);
 
 #define grassItemBlockAttributes() ((ItemAttributes) { \
+    .max_stack_size = 64, \
     .type = ITEMTYPE_BLOCK, \
     .tool_type = TOOLTYPE_SHOVEL, \
     .armour_type = ARMOURTYPE_NONE, \

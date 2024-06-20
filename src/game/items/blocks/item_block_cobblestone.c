@@ -57,8 +57,7 @@ void CobblestoneItemBlock_init(VSelf) {
     self->item_block = (ItemBlock) {
         .item = declareSimpleItem(
             ITEMID_COBBLESTONE,
-            0,
-            64
+            0
         ),
         .face_attributes = defaultFaceAttributes(2),
     };

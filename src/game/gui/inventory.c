@@ -2,6 +2,7 @@
 
 #include <interface99.h>
 
+#include "../items/items.h"
 #include "../../ui/components/background.h"
 #include "../../util/interface99_extensions.h"
 
@@ -208,8 +209,8 @@ InventoryStoreResult inventoryStoreItem(Inventory* inventory, IItem* iitem) {
         const IItem* slot_iitem = inventorySlotGetItem(slot);
         Item* slot_item = VCAST_PTR(Item*, slot_iitem);
         // Has space?
-        if (slot_item->stack_size < slot_item->max_stack_size) {
-            const int stack_left = slot_item->max_stack_size - slot_item->stack_size;
+        if (slot_item->stack_size < itemGetMaxStackSize(slot_item->id)) {
+            const int stack_left = itemGetMaxStackSize(slot_item->id) - slot_item->stack_size;
             // Can fit into stack?
             if (stack_left >= item->stack_size) {
                 slot_item->stack_size += item->stack_size;
@@ -218,7 +219,7 @@ InventoryStoreResult inventoryStoreItem(Inventory* inventory, IItem* iitem) {
                 // handle it depending on the state enum returned.
                 return INVENTORY_STORE_RESULT_ADDED_ALL;
             }
-            slot_item->stack_size = slot_item->max_stack_size;
+            slot_item->stack_size = itemGetMaxStackSize(slot_item->id);
             item->stack_size = item->stack_size - stack_left;
             exit_code = INVENTORY_STORE_RESULT_ADDED_SOME;
         } else {

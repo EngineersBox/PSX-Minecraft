@@ -11,6 +11,16 @@
 
 DEFN_ITEM_BLOCK({{ name_capital }}ItemBlock);
 
+#define {{ name_lower }}ItemBlockAttributes() ((ItemAttributes) { \
+    .max_stack_size = {{ max_stack_size }}, \
+    .type = ITEMTYPE_BLOCK, \
+    .tool_type = {{ tool_type }}, \
+    .armour_type = ARMOURTYPE_NONE, \
+    .material = {{ tool_material }}, \
+    .has_durability = false, \
+    .name = "{{ name_snake_lower }}" \
+})
+
 void {{ name_lower}}ItemBlockRenderWorld(VSelf, RenderContext* ctx, Transforms* transforms);
 void {{ name_capital }}ItemBlock_renderWorld(VSelf, RenderContext* ctx, Transforms* transforms);
 

@@ -12,6 +12,7 @@
 DEFN_ITEM_BLOCK(CobblestoneItemBlock);
 
 #define cobblestoneItemBlockAttributes() ((ItemAttributes) { \
+    .max_stack_size = 64, \
     .type = ITEMTYPE_BLOCK, \
     .tool_type = TOOLTYPE_PICKAXE, \
     .armour_type = ARMOURTYPE_NONE, \

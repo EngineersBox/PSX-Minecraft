@@ -18,6 +18,7 @@ extern ItemAttributes item_attributes[ITEM_COUNT];
 #define itemGetAttribute(id, attr) (item_attributes[(id)].attr)
 #define itemGetName(id) itemGetAttribute(id, name)
 #define itemGetType(id) itemGetAttribute(id, type)
+#define itemGetMaxStackSize(id) itemGetAttribute(id, max_stack_size)
 #define itemGetToolType(id) itemGetAttribute(id, tool_type)
 #define itemGetArmourType(id) itemGetAttribute(id, armour_type)
 #define itemGetMaterial(id) itemGetAttribute(id, material)

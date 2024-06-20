@@ -377,7 +377,7 @@ bool itemPickupValidator(const Item* item) {
             }
         }
         const Item* slot_item = VCAST(Item*, *inventorySlotGetItem(slot));
-        const int stack_left = slot_item->max_stack_size - slot_item->stack_size;
+        const int stack_left = itemGetMaxStackSize(slot_item->id) - slot_item->stack_size;
         if (stack_left != 0) {
             break;
         }

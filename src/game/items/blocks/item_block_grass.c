@@ -54,8 +54,7 @@ void GrassItemBlock_init(VSelf) {
     self->item_block = (ItemBlock) {
         .item = declareSimpleItem(
             ITEMID_GRASS,
-            0,
-            64
+            0
         ),
         .face_attributes = declareTintedFaceAttributes(
             2 /*49*/, NO_TINT,

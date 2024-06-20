@@ -27,6 +27,8 @@ class ItemBlock:
     max_stack_size: str
     face_attributes: str
     tinted_face_attributes: str
+    tool_type: str
+    tool_material: str
     generator: str = "itemblock"
 
 def generateBlock(block: Block) -> None:
@@ -73,7 +75,7 @@ def generateItemBlock(itemblock: ItemBlock) -> None:
     print("[INFO] Rendered header content")
     source_content = env.get_template("item_block.c.j2").render(render_parameters)
     print("[INFO] Rendered source content")
-    filepath = "src/game/items/item_block_" + caseconverter.snakecase(itemblock.name)
+    filepath = "src/game/items/blocks/item_block_" + caseconverter.snakecase(itemblock.name)
     with open(f"{filepath}.h", "w") as f:
         f.write(header_content)
     print(f"[INFO] Written header to {filepath}.h")
@@ -82,7 +84,7 @@ def generateItemBlock(itemblock: ItemBlock) -> None:
     print(f"[INFO] Written source to {filepath}.c")
     print("[INFO] Update the following files accordingly:")
     print(f" - \"src/game/items/item_id.h\" to declare ITEMID_{render_parameters["name_snake_upper"]}")
-    print(f" - \"src/game/items/item_block_{render_parameters["name_snake_lower"]}.h\" implement functions marked with UNIMPLEMENTED()")
+    print(f" - \"src/game/items/blocks/item_block_{render_parameters["name_snake_lower"]}.h\" implement functions marked with UNIMPLEMENTED()")
     print("[INFO] If required, generate or create an associated block to match this in \"src/game/blocks\"")
 
 def main():
@@ -135,10 +137,37 @@ def main():
     parser_block.add_argument("--stateful", type=bool, action=argparse.BooleanOptionalAction, default=False, help="Whether the block should maintain state or be static (single instance)")
 
     parser_itemblock = sub_parsers.add_parser("itemblock", help="itemblock help")
-    parser_itemblock.add_argument("--name", type=str, required=True, help="name help")
+    parser_itemblock.add_argument("--name", type=str, required=True, help="Name of the item block")
     parser_itemblock.add_argument("--max_stack_size", type=str, default=64, help="Maximum item count to have in a stack")
     parser_itemblock.add_argument("--face_attributes", type=int, default=None, help="Texture page index for 16x16 face texture on all sides [NOTE: Exclusive with --tinited_face_attributes]")
     parser_itemblock.add_argument("--tinted_face_attributes", type=str, default=None, help="Per-face (6) texture page indices and optional tint formatted as '<down>,<up>,<left>,<right>,<front>,<back>'. Where each entry is comma separated and of the form '<index>, NO_TINT' or '<index>, faceTint(r,g,b,cd)' [NOTE: Exclusive with --face_attributes]")
+    parser_itemblock.add_argument(
+        "--tool_type",
+        type=str,
+        default="TOOLTYPE_NONE",
+        choices=[
+            "TOOLTYPE_PICKAXE",
+            "TOOLTYPE_AXE",
+            "TOOLTYPE_SWORD",
+            "TOOLTYPE_SHOVEL",
+            "TOOLTYPE_HOE",
+            "TOOLTYPE_NONE"
+        ],
+        help="Type of tool that is used to mine the block"
+    )
+    parser_itemblock.add_argument(
+        "--tool_material",
+        type=str,
+        default="ITEMMATERIAL_WOOD",
+        choices=[
+            "ITEMMATERIAL_WOOD",
+            "ITEMMATERIAL_STONE",
+            "ITEMMATERIAL_IRON",
+            "ITEMMATERIAL_GOLD",
+            "ITEMMATERIAL_DIAMOND"
+        ],
+        help="Minimum material level of the tool used to mine this block"
+    )
 
     args = vars(parser.parse_args())
     if (args["generator"] == "block"):

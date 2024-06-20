@@ -63,6 +63,7 @@ typedef enum ItemMaterial {
 } ItemMaterial;
 
 typedef struct ItemAttributes {
+    u8 max_stack_size;
     ItemType type: ITEM_TYPE_COUNT_BITS;
     ToolType tool_type: TOOL_TYPE_COUNT_BITS;
     ArmourType armour_type: ARMOUR_TYPE_COUNT_BITS;
@@ -76,10 +77,9 @@ typedef struct Item {
     ItemID id;
     u8 metadata_id;
     u32 durability;
-    uint8_t stack_size;
-    uint8_t max_stack_size;
-    uint8_t bob_offset;
-    uint8_t bob_direction;
+    u8 stack_size;
+    u8 bob_offset;
+    u8 bob_direction;
     bool picked_up; // TODO: Probably best to rename to in_world and invert dependent logic
     // World position or screen position conditional on picked_up
     VECTOR position;
@@ -115,28 +115,26 @@ ALLOC_CALL(itemDestroy, 1) IItem* itemCreate();
         __VA_ARGS__ \
     } name;
 
-#define declareItem(_id, _metadata_id, _durability, _stack_size, _max_stack_size, _picked_up, _position, _rotation) ((Item) { \
+#define declareItem(_id, _metadata_id, _durability, _stack_size, _picked_up, _position, _rotation) ((Item) { \
     .id = (_id), \
     .metadata_id = (_metadata_id), \
     .durability = (_durability), \
     .stack_size = (_stack_size), \
-    .max_stack_size = (_max_stack_size), \
     .bob_offset = 0, \
     .bob_direction = 0, \
     .picked_up = (_picked_up), \
     .position = (_position), \
     .rotation = (_rotation) \
 })
-#define declareSimpleItemMeta(_id, _metadata_id, _durability, _max_stack_size) declareItem( \
+#define declareSimpleItemMeta(_id, _metadata_id, _durability) declareItem( \
     _id, \
     _metadata_id, \
     _durability, \
     0, \
-    _max_stack_size, \
     false, \
     vec3_i32_all(0), \
     vec3_i16_all(0) \
 )
-#define declareSimpleItem(_id, _durability, _max_stack_size) declareSimpleItemMeta(_id, 0, _durability, _max_stack_size)
+#define declareSimpleItem(_id, _durability) declareSimpleItemMeta(_id, 0, _durability)
 
 #endif // PSX_MINECRAFT_ITEM_H

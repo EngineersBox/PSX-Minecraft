@@ -54,8 +54,7 @@ void StoneItemBlock_init(VSelf) {
     self->item_block = (ItemBlock) {
         .item = declareSimpleItem(
             ITEMID_STONE,
-            0,
-            64
+            0
         ),
         .face_attributes = defaultFaceAttributes(1),
     };
