@@ -112,7 +112,7 @@ static void chunkRenderBreakingOverlay(Chunk* chunk,
     );
     int p;
     const TextureAttributes face_attribute = (TextureAttributes) {
-        .u = (breaking_state->ticks_left / breaking_state->ticks_per_stage) * 16,
+        .u = (breaking_state->ticks_so_far / breaking_state->ticks_per_stage) * 16,
         .v = 16 * 15,
         .w = 16,
         .h = 16,

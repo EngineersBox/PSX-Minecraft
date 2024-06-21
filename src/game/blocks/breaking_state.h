@@ -13,20 +13,30 @@
 
 typedef struct BreakingState {
     /**
-     * @brief Value greater than 0 indicates being broken
-     *        and a value of 0 indicates broken iff
-     *        @code block@endcode is not @code NULL@endcode
+     * @brief Amount of ticks in fixed-point format
+     *        required to break the block.
      */
-    u32 ticks_left;
+    fixedi32 ticks_precise;
     /**
-     * @brief Number of ticks that each breaking texture
-     *        stage should take.
+     * @brief Amount of ticks in fixed-point format
+     *        per stage of the breaking animation.
      */
-    u32 ticks_per_stage;
+    fixedi32 ticks_per_stage;
+    /**
+     * @brief How many ticks in fixed-point format
+     *        we have progressed through so far in
+     *        breaking the block.
+     *
+     * @note Using @code ticks_so_far@endcode and
+     *       dividing it by @code ticks_per_stage@endcode,
+     *       you can get the index into the breaking
+     *       texture at the current point.
+     */
+    fixedi32 ticks_so_far;
     /**
      * @brief World position of block being broken, this is
      *        0 in all axis when @code block@endcode is
-     *        @code NULL@endcode
+     *        @code NULL@endcode.
      */
     VECTOR position;
     /**
@@ -37,8 +47,9 @@ typedef struct BreakingState {
 
 #define breakingStateReset(state) ({ \
     (state) = (BreakingState) { \
-        .ticks_left = 0, \
+        .ticks_precise = 0, \
         .ticks_per_stage = 0, \
+        .ticks_so_far = 0, \
         .position = vec3_i32_all(0), \
         .block = NULL \
     }; \

@@ -8,6 +8,21 @@
 #include "blocks.h"
 #include "../items/items.h"
 
+bool canHarvestBlock(const ToolType block_tool_type,
+                     const ItemMaterial block_tool_material,
+                     const ToolType item_tool_type,
+                     const ItemMaterial item_tool_material,
+                     const Block* block) {
+    const bool can_harvest = blockGetItemCanHarvest(block->id, item_tool_type);
+    if (!can_harvest) {
+        return false;
+    }
+    if (item_tool_type == TOOLTYPE_NONE) {
+        return true;
+    }
+    return block_tool_type == item_tool_type && item_tool_material >= block_tool_material;
+}
+
 void breakingStateCalculateTicks(BreakingState* state,
                                  const IItem* held_item,
                                  const bool in_water,
@@ -29,7 +44,13 @@ void breakingStateCalculateTicks(BreakingState* state,
         }
     }
     const bool is_ideal_tool_type = item_tool_type == block_tool_type;
-    const bool tool_can_harvest_block = item_tool_material >= block_tool_material;
+    const bool tool_can_harvest_block = canHarvestBlock(
+        block_tool_type,
+        block_tool_material,
+        item_tool_type,
+        item_tool_material,
+        block
+    );
     fixedi32 speed_multiplier = ONE;
     if (is_ideal_tool_type) {
         speed_multiplier = ITEM_MATERIAL_SPEED_MULTIPLIER[item_tool_material];
@@ -49,7 +70,7 @@ void breakingStateCalculateTicks(BreakingState* state,
     }
     fixedi32 damage = fixedFixedDiv(speed_multiplier, (fixedi32) blockGetHardness(block->id));
     DEBUG_LOG("Damage: %d\n", damage);
-    if (blockItemCanHarvest(block->id, item_tool_type)) {
+    if (blockGetItemCanHarvest(block->id, item_tool_type)) {
         damage /= 30;
         DEBUG_LOG("Tool can harvest block: %d\n", damage);
     } else {
@@ -57,15 +78,17 @@ void breakingStateCalculateTicks(BreakingState* state,
         DEBUG_LOG("Tool cannot harvest block: %d\n", damage);
     }
     if (damage > ONE) {
-        state->ticks_left = 0;
+        state->ticks_precise = 0;
         state->ticks_per_stage = 1;
+        state->ticks_so_far = 0;
         return;
     }
     // TODO: Fix badv = 0x0 (bad value) here aka div by 0,
     //       presumably because of damange calc or block
     //       attributes being wrong causing shifts to 0
-    state->ticks_left = fixedIntDiv(ONE, damage); // In ticks
-    DEBUG_LOG("Ticks left: %d\n", state->ticks_left);
-    state->ticks_per_stage = max(((u32) 1), state->ticks_left / 10);
+    state->ticks_precise = fixedFixedDiv(ONE, damage); // In ticks
+    DEBUG_LOG("Ticks precise: %d\n", state->ticks_precise);
+    state->ticks_per_stage = max(((u32) 1), ceilDiv(state->ticks_precise, 10));
     DEBUG_LOG("Ticks per stage: %d\n", state->ticks_per_stage);
+    state->ticks_so_far = 0;
 }

@@ -87,8 +87,9 @@ void updateBreakingState(Player* player, const RayCastResult* result, const Worl
     BreakingState* state = &player->breaking;
     if ((uintptr_t) state->block != (uintptr_t) result->block) {
         *state = (BreakingState) {
-            .ticks_left = 0,
+            .ticks_precise = 0,
             .ticks_per_stage = 0,
+            .ticks_so_far = 0,
             .position = result->pos,
             .block = result->block
         };
@@ -106,11 +107,11 @@ void updateBreakingState(Player* player, const RayCastResult* result, const Worl
             player_physics_flags->in_water,
             player_physics_flags->on_ground
         );
-        DEBUG_LOG("Breaking state: [ticks_left: %d] [ticks_per_stage: %d]\n", state->ticks_left, state->ticks_per_stage);
+        DEBUG_LOG("Breaking state: [ticks_precise: %d] [ticks_per_stage: %d]\n", state->ticks_precise, state->ticks_per_stage);
         return;
     }
-    state->ticks_left--;
-    if (--state->ticks_left > 0) {
+    state->ticks_so_far += ONE;
+    if (--state->ticks_so_far < state->ticks_precise) {
         return;
     }
     breakingStateReset(*state);
