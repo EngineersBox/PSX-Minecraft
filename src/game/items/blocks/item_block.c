@@ -6,7 +6,6 @@
 #include <inline_c.h>
 
 #include "../../structure/primitive/clip.h"
-#include "../../math/math_utils.h"
 #include "../../structure/primitive/cube.h"
 #include "../../resources/asset_indices.h"
 #include "../../resources/assets.h"
@@ -14,15 +13,15 @@
 
 #define VERTICES_COUNT 8
 SVECTOR item_block_verts[VERTICES_COUNT] = {
-    [0] = { -ITEM_BLOCK_SIZE, -ITEM_BLOCK_SIZE, -ITEM_BLOCK_SIZE, 0 }, // 0b000
-    [1] = {  ITEM_BLOCK_SIZE, -ITEM_BLOCK_SIZE, -ITEM_BLOCK_SIZE, 0 }, // 0b100
-    [2] = { -ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE, -ITEM_BLOCK_SIZE, 0 }, // 0b010
-    [3] = {  ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE, -ITEM_BLOCK_SIZE, 0 }, // 0b110
-    [4] = { -ITEM_BLOCK_SIZE, -ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE, 0 }, // 0b001
-    [5] = {  ITEM_BLOCK_SIZE, -ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE, 0 }, // 0b101
-    [6] = { -ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE, 0 }, // 0b011
-    [7] = {  ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE, 0 }, // 0b111
-}; // 6 <-> 7, 4 <-> 5
+    [0] = vec3_i16(-ITEM_BLOCK_SIZE, -ITEM_BLOCK_SIZE, -ITEM_BLOCK_SIZE), // 0b000
+    [1] = vec3_i16( ITEM_BLOCK_SIZE, -ITEM_BLOCK_SIZE, -ITEM_BLOCK_SIZE), // 0b100
+    [2] = vec3_i16(-ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE, -ITEM_BLOCK_SIZE), // 0b010
+    [3] = vec3_i16( ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE, -ITEM_BLOCK_SIZE), // 0b110
+    [4] = vec3_i16(-ITEM_BLOCK_SIZE, -ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE), // 0b001
+    [5] = vec3_i16( ITEM_BLOCK_SIZE, -ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE), // 0b101
+    [6] = vec3_i16(-ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE), // 0b011
+    [7] = vec3_i16( ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE,  ITEM_BLOCK_SIZE), // 0b111
+};
 
 // Domain: [0,36] -> [0,1] (X)
 // Range:  [0,16] (Y)
@@ -44,31 +43,14 @@ const i32 item_block_anim_sin_lut[ITEM_BLOCK_BOB_ANIM_SAMPLES] = {
 };
 
 const VECTOR item_stack_render_offsets[5] = {
-    [0] = (VECTOR) {0},
-    [1] = (VECTOR) {
-        .vx = 4,
-        .vy = 4,
-        .vz = 4,
-    },
-    [2] = (VECTOR) {
-        .vx = -5,
-        .vy = 2,
-        .vz = 3,
-    },
-    [3] = (VECTOR) {
-        .vx = 2,
-        .vy = 5,
-        .vz = -4,
-    },
-    [4] = (VECTOR) {
-        .vx = -3,
-        .vy = 3,
-        .vz = -5,
-    },
+    [0] = vec3_i32_all(0),
+    [1] = vec3_i32(4,4,4),
+    [2] = vec3_i32(-5,2,3),
+    [3] = vec3_i32(2,5,-4),
+    [4] = vec3_i32(-3,3,-5),
 };
 
 const u8 FULL_BLOCK_FACE_INDICES[FULL_BLOCK_FACE_INDICES_COUNT] = {0, 1, 2, 3, 4, 5};
-// TODO: Fix these indices for isometric view in inventory
 const u8 ISOMETRIC_BLOCK_FACE_INDICES[ISOMETRIC_BLOCK_FACE_INDICES_COUNT] = {1, 3, 5};
 
 /**

@@ -83,9 +83,6 @@ void breakingStateCalculateTicks(BreakingState* state,
         state->ticks_so_far = 0;
         return;
     }
-    // TODO: Fix badv = 0x0 (bad value) here aka div by 0,
-    //       presumably because of damange calc or block
-    //       attributes being wrong causing shifts to 0
     state->ticks_precise = fixedFixedDiv(ONE, damage); // In ticks
     DEBUG_LOG("Ticks precise: %d\n", state->ticks_precise);
     state->ticks_per_stage = max(((u32) 1), ceilDiv(state->ticks_precise, 10));

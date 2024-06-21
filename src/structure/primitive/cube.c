@@ -7,15 +7,16 @@
 
 #include "../../resources/assets.h"
 #include "../render/render_context.h"
+#include "../../math/vector.h"
 #include "clip.h"
 
 const SVECTOR CUBE_NORMS[FACE_DIRECTION_COUNT] = {
-    {0, ONE, 0, 0},  // DOWN
-    {0, -ONE, 0, 0}, // UP
-    {-ONE, 0, 0, 0}, // LEFT
-    {ONE, 0, 0, 0},  // RIGHT
-    {0, 0, ONE, 0},  // BACK
-    {0, 0, -ONE, 0}  // FRONT
+    vec3_i16(0, ONE, 0, 0),  // DOWN
+    vec3_i16(0, -ONE, 0, 0), // UP
+    vec3_i16(-ONE, 0, 0, 0), // LEFT
+    vec3_i16(ONE, 0, 0, 0),  // RIGHT
+    vec3_i16(0, 0, ONE, 0),  // BACK
+    vec3_i16(0, 0, -ONE, 0)  // FRONT
 };
 
 const INDEX CUBE_INDICES[FACE_DIRECTION_COUNT] = {
