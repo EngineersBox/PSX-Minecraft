@@ -75,7 +75,8 @@ RUN apt update \
     && apt install --yes cmake \
     && apt-get clean
 
-RUN python3 -m pip install coloredlogs
+ADD scripts/requirements.txt /opt/requirements.txt
+RUN python3 -m pip -r /opt/requirements
 
 # Add cclangd script for LSPs
 ADD cclangd /usr/local/bin/cclangd
