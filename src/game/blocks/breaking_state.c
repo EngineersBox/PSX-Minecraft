@@ -1,12 +1,11 @@
 #include "breaking_state.h"
 
-#include <logging.h>
-
-#include "../../math/math_utils.h"
+#include "../../logging/logging.h"
 #include "../../math/fixed_point.h"
+#include "../../math/math_utils.h"
 #include "../../util/interface99_extensions.h"
-#include "blocks.h"
 #include "../items/items.h"
+#include "blocks.h"
 
 bool canHarvestBlock(const ToolType block_tool_type,
                      const ItemMaterial block_tool_material,
@@ -70,7 +69,7 @@ void breakingStateCalculateTicks(BreakingState* state,
     }
     fixedi32 damage = fixedFixedDiv(speed_multiplier, (fixedi32) blockGetHardness(block->id));
     DEBUG_LOG("Damage: %d\n", damage);
-    if (blockGetItemCanHarvest(block->id, item_tool_type)) {
+    if (tool_can_harvest_block) {
         damage /= 30;
         DEBUG_LOG("Tool can harvest block: %d\n", damage);
     } else {
