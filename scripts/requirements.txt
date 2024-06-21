@@ -1,0 +1,4 @@
+case_converter==1.1.0
+coloredlogs==15.0.1
+Jinja2==3.1.4
+numpy==2.0.0
