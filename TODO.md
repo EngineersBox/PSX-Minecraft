@@ -22,12 +22,12 @@
 * [X]  Texture attributes on block item rendering in world and picked up items in inventory
 * [ ]  Mesh vertices z-depth is inconsistent leading to faces drawn in wrong order and thus culling fails
 * [ ]  Vertices are distorted (in their location) when very close to the camera
-* [ ]  Transparent textures rendering multiple interleaved textures from different points in terrain texture page
+* [ ]  Textures in terrain tpage with any `u` and `v >= 16` rendering multiple interleaved textures from different points in terrain texture page
 * [ ]  Movement tied to FPS
 * [ ]  Move mesh generation to after all loading when updating world to avoid face generation on orthogonal axis to update axis
 * [ ]  Cull faces on chunk edges that face outward on the render limit
 * [ ]  Core engine ticks can go higher than 20, redo the engine cycle system
-* [ ]  Resource generation script does not contain new attributes for `ItemBlock` instances
+* [X]  Resource generation script does not contain new attributes for `ItemBlock` instances
 
 ## Implement
 
@@ -57,7 +57,7 @@
 * [ ]  Check if camera not moving then ray cast once to get block targeted and draw outline around if in reach range
 * [ ]  Thread scheduler using hardware timers for IRQ interleaved execution
 * [ ]  Update queue for operations on the world
-* [ ]  Breaking overlays for a block, enabled with a marker variable and a target resolved by ray cast and a texture reference
+* [X]  Breaking overlays for a block, enabled with a marker variable and a target resolved by ray cast and a texture reference
 * [ ]  D-pad or analogue stick controlled cursor in UIs with item movement between slots being held by cursor
 * [ ]  TooManyItems-like overlay in inventory GUI
 * [ ]  Set block orientation relative to camera when placing
