@@ -50,6 +50,7 @@ void breakingStateCalculateTicks(BreakingState* state,
         item_tool_material,
         block
     );
+    DEBUG_LOG("Tool can harvest block: %s\n", tool_can_harvest_block ? "true" : "false");
     fixedi32 speed_multiplier = ONE;
     if (is_ideal_tool_type) {
         speed_multiplier = ITEM_MATERIAL_SPEED_MULTIPLIER[item_tool_material];
@@ -84,7 +85,7 @@ void breakingStateCalculateTicks(BreakingState* state,
     }
     state->ticks_precise = fixedFixedDiv(ONE, damage); // In ticks
     DEBUG_LOG("Ticks precise: %d\n", state->ticks_precise);
-    state->ticks_per_stage = max(((u32) 1), ceilDiv(state->ticks_precise, 10));
+    state->ticks_per_stage = ceilDiv(state->ticks_precise, 10);
     DEBUG_LOG("Ticks per stage: %d\n", state->ticks_per_stage);
     state->ticks_so_far = 0;
 }

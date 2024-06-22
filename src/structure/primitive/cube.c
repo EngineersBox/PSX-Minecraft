@@ -11,12 +11,12 @@
 #include "clip.h"
 
 const SVECTOR CUBE_NORMS[FACE_DIRECTION_COUNT] = {
-    vec3_i16(0, ONE, 0, 0),  // DOWN
-    vec3_i16(0, -ONE, 0, 0), // UP
-    vec3_i16(-ONE, 0, 0, 0), // LEFT
-    vec3_i16(ONE, 0, 0, 0),  // RIGHT
-    vec3_i16(0, 0, ONE, 0),  // BACK
-    vec3_i16(0, 0, -ONE, 0)  // FRONT
+    vec3_i16(0, ONE, 0),  // DOWN
+    vec3_i16(0, -ONE, 0), // UP
+    vec3_i16(-ONE, 0, 0), // LEFT
+    vec3_i16(ONE, 0, 0),  // RIGHT
+    vec3_i16(0, 0, ONE),  // BACK
+    vec3_i16(0, 0, -ONE)  // FRONT
 };
 
 const INDEX CUBE_INDICES[FACE_DIRECTION_COUNT] = {

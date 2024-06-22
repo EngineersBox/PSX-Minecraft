@@ -62,8 +62,19 @@ void playerDestroy(const Player* player) {
     free(hotbar);
 }
 
+void playerUpdateCamera(const Player* player) {
+    Camera* camera = VCAST_PTR(Camera*, player->camera);
+    const PhysicsObject* physics_object = &player->physics_object;
+    camera->rotation.vx = physics_object->rotation.pitch;
+    camera->rotation.vy = physics_object->rotation.yaw;
+    camera->position.vx = physics_object->position.vx;
+    camera->position.vy = -physics_object->position.vy - PLAYER_CAMERA_OFFSET;
+    camera->position.vz = physics_object->position.vz;
+}
+
 void playerUpdate(Player* player, World* world) {
     iPhysicsObjectUpdate(&player->physics_object, world, player);
+    playerUpdateCamera(player);
 }
 
 void playerRender(const Player* player, RenderContext* ctx, Transforms* transforms) {
@@ -110,6 +121,7 @@ void updateBreakingState(Player* player, const RayCastResult* result, const Worl
         DEBUG_LOG("Breaking state: [ticks_precise: %d] [ticks_per_stage: %d]\n", state->ticks_precise, state->ticks_per_stage);
         return;
     }
+    DEBUG_LOG("Equal blocks\n");
     state->ticks_so_far += ONE;
     if (--state->ticks_so_far < state->ticks_precise) {
         return;
@@ -176,11 +188,12 @@ void playerInputHandlerWorldInteraction(const Input* input, const PlayerInputHan
             VCAST_PTR(Camera*, player->camera),
             PLAYER_REACH_DISTANCE
         );
+        const Block* block = VCAST_PTR(Block*, result.block);
         // TODO: Add a state to the player for determining whether to
         //       instant break or not (like creative). If it's true
         //       we should invoke worldModifyVoxel here directly and
         //       ensure that no items are dropped.
-        if (result.block != NULL) {
+        if (result.block != NULL && block->id != BLOCKID_AIR) {
             updateBreakingState(player, &result, ctx->world);
             breaking = true;
         }

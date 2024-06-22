@@ -116,7 +116,6 @@ RayCastResult worldRayCastIntersection(const World* world,
             (i32) y,
             (i32) z
         );
-        // DEBUG_LOG("Position: " VEC_PATTERN "\n", VEC_LAYOUT(position));
         IBlock* iblock = worldGetBlock(world, &position);
         if (iblock == NULL) {
             printf("[WORLD] Raycast enountered null block at " VEC_PATTERN "\n", VEC_LAYOUT(position));
@@ -124,7 +123,7 @@ RayCastResult worldRayCastIntersection(const World* world,
             return (RayCastResult) {};
         }
         const Block* block = VCAST_PTR(Block*, iblock);
-        // DEBUG_LOG("Block: %s\n", EBLOCKID_NAMES[block->id]);
+        // TODO: Handle sub-block intersection test for blocks like doors and piston heads
         if (blockGetType(block->id) != BLOCKTYPE_EMPTY) {
             return (RayCastResult) {
                 .pos = vec3_i32(position.vx, position.vy, position.vz),

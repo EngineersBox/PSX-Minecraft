@@ -125,12 +125,12 @@ static void chunkRenderBreakingOverlay(Chunk* chunk,
             (breaking_state->position.vy - CUBE_NORMS[i].vy) * BLOCK_SIZE, // Normal up direction is negative in world space and we use positive for arrays
             (breaking_state->position.vz + CUBE_NORMS[i].vz) * BLOCK_SIZE
         );
-        const IBlock* iblock = worldGetBlock(chunk->world, &vis_check_position);
-        assert(iblock != NULL);
-        const Block* block = VCAST_PTR(Block*, iblock);
-        if (block->id != BLOCKID_AIR && VCALL(*iblock, isOpaque, faceDirectionOpposing(i))) {
-            continue;
-        }
+        // const IBlock* iblock = worldGetBlock(chunk->world, &vis_check_position);
+        // assert(iblock != NULL);
+        // const Block* block = VCAST_PTR(Block*, iblock);
+        // if (block->id != BLOCKID_AIR && VCALL(*iblock, isOpaque, faceDirectionOpposing(i))) {
+        //     continue;
+        // }
         POLY_FT4* pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
         #define createVert(_v) (SVECTOR) { \
             convertToVertex(CUBE_INDICES[i]._v, 0b001, 0, BREAKING_OVERLAY_SIZE) + position_offset.vx, \
@@ -272,7 +272,7 @@ void chunkRender(Chunk* chunk,
     // Sort + render mesh
     chunkMeshRender(&chunk->mesh, ctx, transforms);
     if (breaking_state != NULL) {
-        // chunkRenderBreakingOverlay(chunk, breaking_state, ctx, transforms);
+        chunkRenderBreakingOverlay(chunk, breaking_state, ctx, transforms);
     }
     // Restore matrix
     PopMatrix();

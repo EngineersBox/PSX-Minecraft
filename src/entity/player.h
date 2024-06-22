@@ -22,6 +22,8 @@ extern const PhysicsObjectUpdateHandlers player_physics_object_update_handlers;
 // 10 hearts with 2 points in each heart
 #define PLAYER_MAX_HEALTH 20
 #define PLAYER_REACH_DISTANCE 6
+// ONE_BLOCK * 1.7
+#define PLAYER_CAMERA_OFFSET 487424
 
 typedef struct {
     Entity entity;
@@ -43,6 +45,7 @@ typedef struct {
 void playerInit(Player* player);
 void playerDestroy(const Player* player);
 void playerUpdate(Player* player, World* world);
+void playerUpdateCamera(const Player* player);
 void playerRender(const Player* player, RenderContext* ctx, Transforms* transforms);
 
 void playerFallHandler(PhysicsObject* physics_object, i32 distance, void* ctx);

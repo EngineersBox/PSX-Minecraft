@@ -1,10 +1,6 @@
 #include "minecraft.h"
 
 #include <inline_c.h>
-#include <interface99_extensions.h>
-#include <items.h>
-#include <item_block_grass.h>
-#include <item_block_stone.h>
 #include <psxgpu.h>
 #include <psxgte.h>
 
@@ -16,6 +12,14 @@
 #include "../entity/player.h"
 #include "../resources/assets.h"
 #include "../render/font.h"
+#include "../util/interface99_extensions.h"
+#include "../logging/logging.h"
+#include "../util/preprocessor.h"
+#include "items/items.h"
+#include "items/blocks/item_block_grass.h"
+#include "items/blocks/item_block_stone.h"
+#include "level/overworld_flatland.h"
+#include "level/overworld_perlin.h"
 
 // Reference texture data
 extern const uint32_t tim_texture[];
@@ -32,26 +36,12 @@ SVECTOR verts[8] = {
     { -MARKER_SIZE,  MARKER_SIZE,  MARKER_SIZE, 0 }
 };
 
-bool render_marker = false;
-cvector(SVECTOR) markers = NULL;
-VECTOR zero_vec = {0};
-SVECTOR zero_svec = {0};
-
-SVECTOR camera_pos = {0};
-SVECTOR origin_pos = {0};
-SVECTOR marker_pos = {0};
-SVECTOR marker_rot = {0};
-SVECTOR direction_pos = {0};
-
 World* world;
 Camera camera;
 IInputHandler player_handler;
 Player* player;
 
 FontID font_id;
-
-// ONE_BLOCK * 1.7
-#define CAMERA_OFFSET 487424
 
 void minecraftInit(VSelf, void* ctx) ALIAS("Minecraft_init");
 void Minecraft_init(VSelf, void* ctx) {
@@ -111,20 +101,19 @@ void Minecraft_init(VSelf, void* ctx) {
     self->world->centre.vz = 0;
     DYN_PTR(
         &self->world->chunk_provider,
-        OverworldPerlinChunkProvider,
+        OverworldFlatlandChunkProvider,
         IChunkProvider,
-        malloc(sizeof(OverworldPerlinChunkProvider))
+        malloc(sizeof(OverworldFlatlandChunkProvider))
     );
     worldInit(self->world, &self->internals.ctx);
     world = self->world;
-    cvector_init(markers, 1, NULL);
     // Initialise player
     player = (Player*) malloc(sizeof(Player));
     playerInit(player);
     player->camera = &self->internals.camera;
-    const VECTOR player_positon = vec3_i32(0, CHUNK_BLOCK_SIZE + (BLOCK_SIZE * 2), 0);
+    const VECTOR player_positon = vec3_i32(0, (CHUNK_BLOCK_SIZE + (BLOCK_SIZE * 2)) << 12, 0);
     iPhysicsObjectSetPosition(&player->physics_object, &player_positon);
-    player->physics_object.flags.no_clip = true;
+    player->physics_object.flags.no_clip = false;
     player_handler = DYN(Player, IInputHandler, player);
     VCALL(player_handler, registerInputHandler, &self->internals.input, world);
     // Register handlers
@@ -133,12 +122,12 @@ void Minecraft_init(VSelf, void* ctx) {
     VCALL_SUPER(player->hotbar, IInputHandler, registerInputHandler, &self->internals.input, NULL);
 
     // Initialise camera
-    Camera* camera = VCAST(Camera*, self->internals.camera);
-    camera->rotation.vx = player->physics_object.rotation.pitch;
-    camera->rotation.vy = player->physics_object.rotation.yaw;
-    camera->position.vx = player->physics_object.position.vx;
-    camera->position.vy = -player->physics_object.position.vy - CAMERA_OFFSET;
-    camera->position.vz = player->physics_object.position.vz;
+    playerUpdateCamera(player);
+    DEBUG_LOG(
+        "Player pos: " VEC_PATTERN " Camera pos: " VEC_PATTERN "\n",
+        VEC_LAYOUT(player->physics_object.position),
+        VEC_LAYOUT(camera.position)
+    );
 
     // ==== TESTING: Hotbar ====
     Inventory* inventory = VCAST(Inventory*, player->inventory);
@@ -187,101 +176,95 @@ void Minecraft_update(VSelf, const Stats* stats) {
     VSELF(Minecraft);
     worldUpdate(self->world, player);
     playerUpdate(player, world);
-    Camera* camera = VCAST(Camera*, self->internals.camera);
-    camera->rotation.vx = player->physics_object.rotation.pitch;
-    camera->rotation.vy = player->physics_object.rotation.yaw;
-    camera->position.vx = player->physics_object.position.vx;
-    camera->position.vy = -player->physics_object.position.vy - CAMERA_OFFSET;
-    camera->position.vz = player->physics_object.position.vz;
 }
 
 void drawDirectionLine(Minecraft* minecraft) {
-    MATRIX omtx, olmtx;
-    // Ray trace line
-    RotMatrix(&zero_svec, &omtx);
-    TransMatrix(&omtx, &zero_vec);
-    // Multiply light matrix to object matrix
-    MulMatrix0(&minecraft->internals.transforms.lighting_mtx, &omtx, &olmtx);
-    // Set result to GTE light matrix
-    gte_SetLightMatrix(&olmtx);
-    // Composite coordinate matrix transform, so object will be rotated and
-    // positioned relative to camera matrix (mtx), so it'll appear as
-    // world-space relative.
-    CompMatrixLV(&minecraft->internals.transforms.geometry_mtx, &omtx, &omtx);
-    // Save matrix
-    PushMatrix();
-    // Set matrices
-    gte_SetRotMatrix(&omtx);
-    gte_SetTransMatrix(&omtx);
-    // Generate line
-    LINE_F2* line = (LINE_F2*) allocatePrimitive(&minecraft->internals.ctx, sizeof(LINE_F2));
-    setLineF2(line);
-    gte_ldv0(&origin_pos);
-    // Rotation, Translation and Perspective Single
-    gte_rtps();
-    gte_stsxy(&line->x0);
-    gte_ldv0(&direction_pos);
-    // Rotation, Translation and Perspective Single
-    gte_rtps();
-    gte_stsxy(&line->x1);
-    setRGB0(
-        line,
-        0x0,
-        0xff,
-        0x0
-    );
-    uint32_t* ot_entry = allocateOrderingTable(&minecraft->internals.ctx, 0);
-    addPrim(ot_entry, line);
-    PopMatrix();
+    // MATRIX omtx, olmtx;
+    // // Ray trace line
+    // RotMatrix(&zero_svec, &omtx);
+    // TransMatrix(&omtx, &zero_vec);
+    // // Multiply light matrix to object matrix
+    // MulMatrix0(&minecraft->internals.transforms.lighting_mtx, &omtx, &olmtx);
+    // // Set result to GTE light matrix
+    // gte_SetLightMatrix(&olmtx);
+    // // Composite coordinate matrix transform, so object will be rotated and
+    // // positioned relative to camera matrix (mtx), so it'll appear as
+    // // world-space relative.
+    // CompMatrixLV(&minecraft->internals.transforms.geometry_mtx, &omtx, &omtx);
+    // // Save matrix
+    // PushMatrix();
+    // // Set matrices
+    // gte_SetRotMatrix(&omtx);
+    // gte_SetTransMatrix(&omtx);
+    // // Generate line
+    // LINE_F2* line = (LINE_F2*) allocatePrimitive(&minecraft->internals.ctx, sizeof(LINE_F2));
+    // setLineF2(line);
+    // gte_ldv0(&origin_pos);
+    // // Rotation, Translation and Perspective Single
+    // gte_rtps();
+    // gte_stsxy(&line->x0);
+    // gte_ldv0(&direction_pos);
+    // // Rotation, Translation and Perspective Single
+    // gte_rtps();
+    // gte_stsxy(&line->x1);
+    // setRGB0(
+    //     line,
+    //     0x0,
+    //     0xff,
+    //     0x0
+    // );
+    // uint32_t* ot_entry = allocateOrderingTable(&minecraft->internals.ctx, 0);
+    // addPrim(ot_entry, line);
+    // PopMatrix();
 }
 
 void drawRayLine(Minecraft* minecraft) {
-    MATRIX omtx, olmtx;
-    // Ray trace line
-    RotMatrix(&zero_svec, &omtx);
-    TransMatrix(&omtx, &zero_vec);
-    // Multiply light matrix to object matrix
-    MulMatrix0(&minecraft->internals.transforms.lighting_mtx, &omtx, &olmtx);
-    // Set result to GTE light matrix
-    gte_SetLightMatrix(&olmtx);
-    // Composite coordinate matrix transform, so object will be rotated and
-    // positioned relative to camera matrix (mtx), so it'll appear as
-    // world-space relative.
-    CompMatrixLV(&minecraft->internals.transforms.geometry_mtx, &omtx, &omtx);
-    // Save matrix
-    PushMatrix();
-    // Set matrices
-    gte_SetRotMatrix(&omtx);
-    gte_SetTransMatrix(&omtx);
-    // Generate line
-    LINE_F2* line = (LINE_F2*) allocatePrimitive(&minecraft->internals.ctx, sizeof(LINE_F2));
-    setLineF2(line);
-    gte_ldv0(&origin_pos);
-    // Rotation, Translation and Perspective Single
-    gte_rtps();
-    gte_stsxy(&line->x0);
-    gte_ldv0(&marker_pos);
-    // Rotation, Translation and Perspective Single
-    gte_rtps();
-    gte_stsxy(&line->x1);
-    setRGB0(
-        line,
-        0x0,
-        0x0,
-        0xff
-    );
-    uint32_t* ot_entry = allocateOrderingTable(&minecraft->internals.ctx, 0);
-    addPrim(ot_entry, line);
-    PopMatrix();
+    // MATRIX omtx, olmtx;
+    // // Ray trace line
+    // RotMatrix(&zero_svec, &omtx);
+    // TransMatrix(&omtx, &zero_vec);
+    // // Multiply light matrix to object matrix
+    // MulMatrix0(&minecraft->internals.transforms.lighting_mtx, &omtx, &olmtx);
+    // // Set result to GTE light matrix
+    // gte_SetLightMatrix(&olmtx);
+    // // Composite coordinate matrix transform, so object will be rotated and
+    // // positioned relative to camera matrix (mtx), so it'll appear as
+    // // world-space relative.
+    // CompMatrixLV(&minecraft->internals.transforms.geometry_mtx, &omtx, &omtx);
+    // // Save matrix
+    // PushMatrix();
+    // // Set matrices
+    // gte_SetRotMatrix(&omtx);
+    // gte_SetTransMatrix(&omtx);
+    // // Generate line
+    // LINE_F2* line = (LINE_F2*) allocatePrimitive(&minecraft->internals.ctx, sizeof(LINE_F2));
+    // setLineF2(line);
+    // gte_ldv0(&origin_pos);
+    // // Rotation, Translation and Perspective Single
+    // gte_rtps();
+    // gte_stsxy(&line->x0);
+    // gte_ldv0(&marker_pos);
+    // // Rotation, Translation and Perspective Single
+    // gte_rtps();
+    // gte_stsxy(&line->x1);
+    // setRGB0(
+    //     line,
+    //     0x0,
+    //     0x0,
+    //     0xff
+    // );
+    // uint32_t* ot_entry = allocateOrderingTable(&minecraft->internals.ctx, 0);
+    // addPrim(ot_entry, line);
+    // PopMatrix();
 }
 
 void drawMarker(Minecraft* minecraft) {
-    if (!render_marker) {
-        return;
-    }
-    VECTOR zero = {0};
-    drawDirectionLine(minecraft);
-    drawRayLine(minecraft);
+    // if (!render_marker) {
+    //     return;
+    // }
+    // VECTOR zero = {0};
+    // drawDirectionLine(minecraft);
+    // drawRayLine(minecraft);
     // Trace end marker
     // marker_rot.vy += 16;
     // marker_rot.vz += 16;

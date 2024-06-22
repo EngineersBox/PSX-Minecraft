@@ -9,7 +9,6 @@ getmetatable('').__index = function(str,i)
     end
 end
 
-
 -- Ordered table implementation from: <https://stackoverflow.com/a/30970276>
 ordered_table = {}
 
@@ -112,7 +111,7 @@ for l in infile:lines("*l") do
             }
         );
     elseif l:find(list_item_pattern) ~= nil then
-        current_checked = l[4] == "x"
+        current_checked = string.lower(l[4]) == "x"
         local c = "unchecked";
         if current_checked then
             c = "checked"

@@ -50,6 +50,7 @@
 * [X]  Support transparent textures (original and binary greedy meshing)
 * [X]  Full ASCII, extended characters and symbols set front + printing lib
 * [X]  Shadowed version of font to use via flag for printing
+* [X]  Finish player attack input handler
 * [ ]  Camera far plane cutoff with fog relative to chunk render distance
 * [ ]  Frustum and culling
 * [ ]  Depth-first search culling through chunks
@@ -61,7 +62,8 @@
 * [ ]  TooManyItems-like overlay in inventory GUI
 * [ ]  Set block orientation relative to camera when placing
 * [ ]  Retrieve face attributes based on block orientation during meshing
-* [ ]  Finish player attack/use input handlers
+* [ ]  Add handling for player use handler with logic for using items and applying damage on items like fishing rods
+* [ ]  Sub-block intersection tests for raycast to handling interacting with blocks like doors and piston heads
 
 ## Refactor
 
