@@ -20,6 +20,7 @@
 * [X]  Certain faces at chunk boundaries are not generated with binary greedy meshing
 * [X]  Chunks with a negative component in position don't generate meshes correctly (incorrect faces and textures)
 * [X]  Texture attributes on block item rendering in world and picked up items in inventory
+* [X]  Resource generation script does not contain new attributes for `ItemBlock` instances
 * [ ]  Mesh vertices z-depth is inconsistent leading to faces drawn in wrong order and thus culling fails
 * [ ]  Vertices are distorted (in their location) when very close to the camera
 * [ ]  Textures in terrain tpage with any `u` and `v >= 16` rendering multiple interleaved textures from different points in terrain texture page
@@ -27,7 +28,6 @@
 * [ ]  Move mesh generation to after all loading when updating world to avoid face generation on orthogonal axis to update axis
 * [ ]  Cull faces on chunk edges that face outward on the render limit
 * [ ]  Core engine ticks can go higher than 20, redo the engine cycle system
-* [X]  Resource generation script does not contain new attributes for `ItemBlock` instances
 
 ## Implement
 
@@ -51,13 +51,13 @@
 * [X]  Full ASCII, extended characters and symbols set front + printing lib
 * [X]  Shadowed version of font to use via flag for printing
 * [X]  Finish player attack input handler
+* [X]  Breaking overlays for a block, enabled with a marker variable and a target resolved by ray cast and a texture reference
 * [ ]  Camera far plane cutoff with fog relative to chunk render distance
 * [ ]  Frustum and culling
 * [ ]  Depth-first search culling through chunks
 * [ ]  Check if camera not moving then ray cast once to get block targeted and draw outline around if in reach range
 * [ ]  Thread scheduler using hardware timers for IRQ interleaved execution
 * [ ]  Update queue for operations on the world
-* [X]  Breaking overlays for a block, enabled with a marker variable and a target resolved by ray cast and a texture reference
 * [ ]  D-pad or analogue stick controlled cursor in UIs with item movement between slots being held by cursor
 * [ ]  TooManyItems-like overlay in inventory GUI
 * [ ]  Set block orientation relative to camera when placing
