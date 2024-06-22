@@ -11,21 +11,21 @@
 #include "clip.h"
 
 const SVECTOR CUBE_NORMS_UNIT[FACE_DIRECTION_COUNT] = {
-    vec3_i16(0, 1, 0),  // DOWN
-    vec3_i16(0, -1, 0), // UP
-    vec3_i16(-1, 0, 0), // LEFT
-    vec3_i16(1, 0, 0),  // RIGHT
-    vec3_i16(0, 0, 1),  // BACK
-    vec3_i16(0, 0, -1)  // FRONT};
+    [FACE_DIR_DOWN] = vec3_i16(0, 1, 0),
+    [FACE_DIR_UP] = vec3_i16(0, -1, 0),
+    [FACE_DIR_LEFT] = vec3_i16(-1, 0, 0),
+    [FACE_DIR_RIGHT] = vec3_i16(1, 0, 0),
+    [FACE_DIR_BACK] = vec3_i16(0, 0, 1),
+    [FACE_DIR_FRONT] = vec3_i16(0, 0, -1)
 };
 
 const SVECTOR CUBE_NORMS[FACE_DIRECTION_COUNT] = {
-    vec3_i16(0, ONE, 0),  // DOWN
-    vec3_i16(0, -ONE, 0), // UP
-    vec3_i16(-ONE, 0, 0), // LEFT
-    vec3_i16(ONE, 0, 0),  // RIGHT
-    vec3_i16(0, 0, ONE),  // BACK
-    vec3_i16(0, 0, -ONE)  // FRONT
+    [FACE_DIR_DOWN] = vec3_i16(0, ONE, 0),
+    [FACE_DIR_UP] = vec3_i16(0, -ONE, 0),
+    [FACE_DIR_LEFT] = vec3_i16(-ONE, 0, 0),
+    [FACE_DIR_RIGHT] = vec3_i16(ONE, 0, 0),
+    [FACE_DIR_BACK] = vec3_i16(0, 0, ONE),
+    [FACE_DIR_FRONT] = vec3_i16(0, 0, -ONE)
 };
 
 const INDEX CUBE_INDICES[FACE_DIRECTION_COUNT] = {

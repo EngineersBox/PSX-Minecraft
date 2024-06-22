@@ -28,7 +28,7 @@ extern BlockAttributes block_attributes[BLOCK_COUNT];
 #define blockGetToolType(id) blockGetAttribute(id, tool_type)
 #define blockGetToolMaterial(id) blockGetAttribute(id, tool_material)
 #define blockGetCanHarvestBitSet(id) blockGetAttribute(id, can_harvest)
-#define blockGetItemCanHarvest(id, tool_type) ((blockGetCanHarvestBitSet(id) >> (tool_type)) & 0x1)
+#define blockGetItemCanHarvest(id, tool_type) ((blockGetCanHarvestBitSet(id) >> (tool_type)) & 0b1)
 
 void blocksInitialiseBuiltin();
 

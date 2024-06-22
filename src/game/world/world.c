@@ -195,32 +195,50 @@ void worldRender(const World* world,
     //       if there are still bits that are missing traverse to next chunks in the direction
     //       the player is facing and render them. Stop drawing if screen is full and/or there
     //       are no more loaded chunks to traverse to.
-    BreakingState const* forwarded_breaking_state = NULL;
-    for (i32 x = x_start; x <= x_end; x++) {
-        if (chunk_position.vx == x) {
-            forwarded_breaking_state = breaking_state;
-        } else {
-            forwarded_breaking_state = NULL;
-        }
-        for (i32 z = z_start; z <= z_end; z++) {
-            if (chunk_position.vz != z) {
-                forwarded_breaking_state = NULL;
-            }
-            for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
-                if (chunk_position.vy != y) {
-                    forwarded_breaking_state = NULL;
+    if (breaking_state->block == NULL) {
+        // Optimised to skip coords checks when we aren't breaking anything
+        for (i32 x = x_start; x <= x_end; x++) {
+            for (i32 z = z_start; z <= z_end; z++) {
+                for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
+                    chunkRender(
+                        world->chunks[arrayCoord(world, vz, z)]
+                                     [arrayCoord(world, vx, x)]
+                                     [y],
+                        NULL,
+                        ctx,
+                        transforms
+                    );
                 }
+            }
+        }
+        return;
+    }
+    u8 coords_check = 0b000;
+    #define updateCoordBit(index, axis) ({ \
+        if (axis == chunk_position.v##axis) { \
+            coords_check |= 1 << (index);\
+        } else { \
+            coords_check &= ~(1 << index) & 0b111;\
+        } \
+    })
+    for (i32 x = x_start; x <= x_end; x++) {
+        updateCoordBit(0, x);
+        for (i32 z = z_start; z <= z_end; z++) {
+            updateCoordBit(1, x);
+            for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
+                updateCoordBit(2, x);
                 chunkRender(
                     world->chunks[arrayCoord(world, vz, z)]
                                  [arrayCoord(world, vx, x)]
                                  [y],
-                    forwarded_breaking_state,
+                    coords_check == 0b111 ? breaking_state : NULL,
                     ctx,
                     transforms
                 );
             }
         }
     }
+    #undef updateCoordBit
 }
 
 // NOTE: Should this just take i32 x,y,z params instead of a

@@ -43,7 +43,7 @@ INLINE void addVoxelToFaceColumns(FacesColumns axis_cols,
     axis_cols[4][y][x] |= 1 << z; // BACK
     axis_cols[5][y][x] |= 1 << z; // FRONT
     const u8 bitset = VCALL(*iblock, opaqueBitset);
-#define bitsetAt(i) ((bitset >> (i)) & 0x1)
+#define bitsetAt(i) ((bitset >> (i)) & 0b1)
     axis_cols_opaque[0][z][x] |= bitsetAt(1) << y;
     axis_cols_opaque[1][z][x] |= bitsetAt(0) << y;
     axis_cols_opaque[2][y][z] |= bitsetAt(3) << x;
