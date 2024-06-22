@@ -1,13 +1,11 @@
 #include "player.h"
 
-#include <cvector_utils.h>
-#include <items.h>
-
 #include "../util/interface99_extensions.h"
 #include "../logging/logging.h"
 #include "../math/vector.h"
 #include "../game/world/world_raycast.h"
 #include "../game/blocks/blocks.h"
+#include "../game/items/items.h"
 
 // Forward declaration
 FWD_DECL bool worldModifyVoxel(const World* world,
@@ -106,22 +104,14 @@ void updateBreakingState(Player* player, const RayCastResult* result, const Worl
         };
         const PhysicsObjectFlags* player_physics_flags = &player->physics_object.flags;
         const Hotbar* hotbar = VCAST(Hotbar*, player->hotbar);
-        DEBUG_LOG("Calculating breaking state ticks\n");
-        DEBUG_LOG("Slot item: %p\n", hotbarGetSelectSlot(hotbar).data.item);
-        Slot* slot;
-        cvector_for_each_in(slot, hotbar->slots) {
-            DEBUG_LOG("Slot %d: %p\n", slot->index, slot->data.item);
-        }
         breakingStateCalculateTicks(
             state,
             hotbarGetSelectSlot(hotbar).data.item,
             player_physics_flags->in_water,
             player_physics_flags->on_ground
         );
-        DEBUG_LOG("Breaking state: [ticks_precise: %d] [ticks_per_stage: %d]\n", state->ticks_precise, state->ticks_per_stage);
         return;
     }
-    DEBUG_LOG("Equal blocks\n");
     state->ticks_so_far += ONE;
     if (--state->ticks_so_far < state->ticks_precise) {
         return;

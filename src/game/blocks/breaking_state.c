@@ -1,6 +1,5 @@
 #include "breaking_state.h"
 
-#include "../../logging/logging.h"
 #include "../../math/fixed_point.h"
 #include "../../math/math_utils.h"
 #include "../../util/interface99_extensions.h"
@@ -50,32 +49,24 @@ void breakingStateCalculateTicks(BreakingState* state,
         item_tool_material,
         block
     );
-    DEBUG_LOG("Tool can harvest block: %s\n", tool_can_harvest_block ? "true" : "false");
     fixedi32 speed_multiplier = ONE;
     if (is_ideal_tool_type) {
         speed_multiplier = ITEM_MATERIAL_SPEED_MULTIPLIER[item_tool_material];
-        DEBUG_LOG("Deal tool type speed multiplier: %d\n", speed_multiplier);
         if (!tool_can_harvest_block) {
             speed_multiplier = ONE;
-            DEBUG_LOG("Tool is too low level, reset multiplier to 1\n");
         }
     }
     if (in_water) {
         speed_multiplier /= 5;
-        DEBUG_LOG("In water, divided by 5: %d\n", speed_multiplier);
     }
     if (!on_ground) {
         speed_multiplier /= 5;
-        DEBUG_LOG("Not on ground, divided by 5: %d\n", speed_multiplier);
     }
     fixedi32 damage = fixedFixedDiv(speed_multiplier, (fixedi32) blockGetHardness(block->id));
-    DEBUG_LOG("Damage: %d\n", damage);
     if (tool_can_harvest_block) {
         damage /= 30;
-        DEBUG_LOG("Tool can harvest block: %d\n", damage);
     } else {
         damage /= 100;
-        DEBUG_LOG("Tool cannot harvest block: %d\n", damage);
     }
     if (damage > ONE) {
         state->ticks_precise = 0;
@@ -83,9 +74,7 @@ void breakingStateCalculateTicks(BreakingState* state,
         state->ticks_so_far = 0;
         return;
     }
-    state->ticks_precise = fixedFixedDiv(ONE, damage); // In ticks
-    DEBUG_LOG("Ticks precise: %d\n", state->ticks_precise);
+    state->ticks_precise = fixedFixedDiv(ONE, damage);
     state->ticks_per_stage = ceilDiv(state->ticks_precise, 10);
-    DEBUG_LOG("Ticks per stage: %d\n", state->ticks_per_stage);
     state->ticks_so_far = 0;
 }
