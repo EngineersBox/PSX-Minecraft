@@ -23,6 +23,7 @@ typedef struct {
     const SVECTOR vertices[8];
 } Cube;
 
+extern const SVECTOR CUBE_NORMS_UNIT[FACE_DIRECTION_COUNT];
 extern const SVECTOR CUBE_NORMS[FACE_DIRECTION_COUNT];
 extern const INDEX CUBE_INDICES[FACE_DIRECTION_COUNT];
 

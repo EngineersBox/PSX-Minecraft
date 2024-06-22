@@ -80,7 +80,7 @@ const u8 ISOMETRIC_BLOCK_FACE_INDICES[ISOMETRIC_BLOCK_FACE_INDICES_COUNT] = {1, 
  */
 
 // [0,1] -> [-SIZE,SIZE]
-#define convertToVertex(v, mask, shift, size) (size * (-1 + ((((v) & (mask)) >> (shift)) << 1)))
+#define convertToVertex(v, shift, size) (size * (-1 + ((((v) & (1 << (shift))) >> (shift)) << 1)))
 
 void renderItemBlock(ItemBlock* item,
                      RenderContext* ctx,
@@ -98,12 +98,11 @@ void renderItemBlock(ItemBlock* item,
             face_attribute->h >> 3
         };
         POLY_FT4* pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
-        #define createVert(_v) (SVECTOR) { \
-            convertToVertex(CUBE_INDICES[i]._v, 0b001, 0, ITEM_BLOCK_SIZE) + position_offset->vx, \
-            convertToVertex(CUBE_INDICES[i]._v, 0b010, 1, ITEM_BLOCK_SIZE) + position_offset->vy, \
-            convertToVertex(CUBE_INDICES[i]._v, 0b100, 2, ITEM_BLOCK_SIZE) + position_offset->vz, \
-            0 \
-        }
+        #define createVert(_v) vec3_i16( \
+            convertToVertex(CUBE_INDICES[i]._v, 0, ITEM_BLOCK_SIZE) + position_offset->vx, \
+            convertToVertex(CUBE_INDICES[i]._v, 1, ITEM_BLOCK_SIZE) + position_offset->vy, \
+            convertToVertex(CUBE_INDICES[i]._v, 2, ITEM_BLOCK_SIZE) + position_offset->vz \
+        )
         SVECTOR current_verts[4] = {
             createVert(v0),
             createVert(v1),
@@ -302,12 +301,11 @@ void renderItemBlockInventory(ItemBlock* item,
             face_attribute->h >> 3
         };
         POLY_FT4* pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
-        #define createVert(_v) (SVECTOR) { \
-            convertToVertex(CUBE_INDICES[i]._v, 0b001, 0, size), \
-            convertToVertex(CUBE_INDICES[i]._v, 0b010, 1, size), \
-            convertToVertex(CUBE_INDICES[i]._v, 0b100, 2, size), \
-            0 \
-        }
+        #define createVert(_v) vec3_i16( \
+            convertToVertex(CUBE_INDICES[i]._v, 0, size), \
+            convertToVertex(CUBE_INDICES[i]._v, 1, size), \
+            convertToVertex(CUBE_INDICES[i]._v, 2, size) \
+        )
         SVECTOR current_verts[4] = {
             createVert(v0),
             createVert(v1),
@@ -315,6 +313,7 @@ void renderItemBlockInventory(ItemBlock* item,
             createVert(v3)
         };
         #undef createVert
+        #undef convertToVertex
         gte_ldv3(
             &current_verts[0],
             &current_verts[1],
@@ -334,13 +333,14 @@ void renderItemBlockInventory(ItemBlock* item,
         gte_ldv0(&current_verts[3]);
         gte_rtps();
         gte_stsxy(&pol4->x3);
-#define applyoffset(_idx) \
-    pol4->x##_idx += offset_screen_x;\
-    pol4->y##_idx += offset_screen_y
+        #define applyoffset(_idx) \
+            pol4->x##_idx += offset_screen_x; \
+            pol4->y##_idx += offset_screen_y
         applyoffset(0);
         applyoffset(1);
         applyoffset(2);
         applyoffset(3);
+        #undef applyoffset
         // Load primitive color even though gte_ncs() doesn't use it.
         // This is so the GTE will output a color result with the
         // correct primitive code.

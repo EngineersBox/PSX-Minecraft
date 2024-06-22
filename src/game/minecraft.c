@@ -113,7 +113,7 @@ void Minecraft_init(VSelf, void* ctx) {
     player->camera = &self->internals.camera;
     const VECTOR player_positon = vec3_i32(0, (CHUNK_BLOCK_SIZE + (BLOCK_SIZE * 2)) << 12, 0);
     iPhysicsObjectSetPosition(&player->physics_object, &player_positon);
-    player->physics_object.flags.no_clip = false;
+    player->physics_object.flags.no_clip = true;
     player_handler = DYN(Player, IInputHandler, player);
     VCALL(player_handler, registerInputHandler, &self->internals.input, world);
     // Register handlers

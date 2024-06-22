@@ -10,6 +10,15 @@
 #include "../../math/vector.h"
 #include "clip.h"
 
+const SVECTOR CUBE_NORMS_UNIT[FACE_DIRECTION_COUNT] = {
+    vec3_i16(0, 1, 0),  // DOWN
+    vec3_i16(0, -1, 0), // UP
+    vec3_i16(-1, 0, 0), // LEFT
+    vec3_i16(1, 0, 0),  // RIGHT
+    vec3_i16(0, 0, 1),  // BACK
+    vec3_i16(0, 0, -1)  // FRONT};
+};
+
 const SVECTOR CUBE_NORMS[FACE_DIRECTION_COUNT] = {
     vec3_i16(0, ONE, 0),  // DOWN
     vec3_i16(0, -ONE, 0), // UP

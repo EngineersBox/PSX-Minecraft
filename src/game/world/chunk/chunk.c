@@ -83,17 +83,20 @@ static void chunkRenderDroppedItems(Chunk* chunk, RenderContext* ctx, Transforms
     }
 }
 
-#define BREAKING_OVERLAY_SIZE ((BLOCK_SIZE >> 1) + 1)
+#define BREAKING_OVERLAY_SIZE ((BLOCK_SIZE >> 1) + 2)
 // [0,1] -> [-SIZE,SIZE]
-#define convertToVertex(v, mask, shift, size) (size * (-1 + ((((v) & (mask)) >> (shift)) << 1)))
+#define convertToVertex(v, shift, size) (size * (-1 + ((((v) & (1 << (shift))) >> (shift)) << 1)))
 
 static void chunkRenderBreakingOverlay(Chunk* chunk,
                                        const BreakingState* breaking_state,
                                        RenderContext* ctx,
                                        Transforms* transforms) {
-    if (breaking_state->block == NULL) {
-        // No target block, therefore nothing to break
-        // and so no overlay to render
+    // if (breaking_state->block == NULL) {
+    //     // No target block, therefore nothing to break
+    //     // and so no overlay to render
+    //     return;
+    // }
+    if (chunk->position.vx != 0 || chunk->position.vz != 0) {
         return;
     }
     // NOTE: For rendering the breaking overlay we can do the following:
@@ -105,26 +108,27 @@ static void chunkRenderBreakingOverlay(Chunk* chunk,
     //       that we use for chunk rendering to transform each vertex of a block
     //       relative to the chunk into perspective space, in this case just for
     //       a given set of faces instead of the entire block though.
-    const VECTOR position_offset = vec3_i32(
-        breaking_state->position.vx,
-        -breaking_state->position.vy,
-        breaking_state->position.vz
-    );
+    // const VECTOR position_offset = vec3_i32(
+    //     breaking_state->position.vx * BLOCK_SIZE,
+    //     -breaking_state->position.vy * BLOCK_SIZE,
+    //     breaking_state->position.vz * BLOCK_SIZE
+    // );
+    const VECTOR position_offset = vector_const_mul(vec3_i32(3, -6, 3), BLOCK_SIZE);
     int p;
     const TextureAttributes face_attribute = (TextureAttributes) {
-        .u = (breaking_state->ticks_so_far / breaking_state->ticks_per_stage) * 16,
-        .v = 16 * 15,
+        .u = 1 * 16, //(breaking_state->ticks_so_far / breaking_state->ticks_per_stage) * 16,
+        .v = 16 * 13,
         .w = 16,
         .h = 16,
-        .tint = {0}
+        .tint = {0, 0, 0, 0}
     };
     const Texture* texture = &textures[ASSET_TEXTURES_TERRAIN_INDEX];
     for (int i = 0; i < 6; i++) {
-        const VECTOR vis_check_position = vec3_i32(
-            (breaking_state->position.vx + CUBE_NORMS[i].vx) * BLOCK_SIZE,
-            (breaking_state->position.vy - CUBE_NORMS[i].vy) * BLOCK_SIZE, // Normal up direction is negative in world space and we use positive for arrays
-            (breaking_state->position.vz + CUBE_NORMS[i].vz) * BLOCK_SIZE
-        );
+        // const VECTOR vis_check_position = vec3_i32(
+        //     breaking_state->position.vx + CUBE_NORMS_UNIT[i].vx,
+        //     breaking_state->position.vy - CUBE_NORMS_UNIT[i].vy, // Normal up direction is negative in world space and we use positive for arrays
+        //     breaking_state->position.vz + CUBE_NORMS_UNIT[i].vz
+        // );
         // const IBlock* iblock = worldGetBlock(chunk->world, &vis_check_position);
         // assert(iblock != NULL);
         // const Block* block = VCAST_PTR(Block*, iblock);
@@ -132,12 +136,11 @@ static void chunkRenderBreakingOverlay(Chunk* chunk,
         //     continue;
         // }
         POLY_FT4* pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
-        #define createVert(_v) (SVECTOR) { \
-            convertToVertex(CUBE_INDICES[i]._v, 0b001, 0, BREAKING_OVERLAY_SIZE) + position_offset.vx, \
-            convertToVertex(CUBE_INDICES[i]._v, 0b010, 1, BREAKING_OVERLAY_SIZE) + position_offset.vy, \
-            convertToVertex(CUBE_INDICES[i]._v, 0b100, 2, BREAKING_OVERLAY_SIZE) + position_offset.vz, \
-            0 \
-        }
+        #define createVert(_v) vec3_i16( \
+            convertToVertex(CUBE_INDICES[i]._v, 0, BREAKING_OVERLAY_SIZE) + position_offset.vx + BREAKING_OVERLAY_SIZE, \
+            convertToVertex(CUBE_INDICES[i]._v, 1, BREAKING_OVERLAY_SIZE) + position_offset.vy + BREAKING_OVERLAY_SIZE, \
+            convertToVertex(CUBE_INDICES[i]._v, 2, BREAKING_OVERLAY_SIZE) + position_offset.vz + BREAKING_OVERLAY_SIZE \
+        )
         const SVECTOR current_verts[4] = {
             createVert(v0),
             createVert(v1),
@@ -145,6 +148,7 @@ static void chunkRenderBreakingOverlay(Chunk* chunk,
             createVert(v3)
         };
         #undef createVert
+        #undef convertToVertex
         gte_ldv3(
             &current_verts[0],
             &current_verts[1],
@@ -159,8 +163,12 @@ static void chunkRenderBreakingOverlay(Chunk* chunk,
             continue;
         }
         // Average screen Z result for four primtives
-        gte_avsz4();
+        gte_avsz3();
         gte_stotz(&p);
+        if (p <= 0 || p >= ORDERING_TABLE_LENGTH) {
+            freePrimitive(ctx, sizeof(POLY_FT4));
+            continue;
+        }
         // Initialize a textured quad primitive
         setPolyF4(pol4);
         // Set the projected vertices to the primitive
@@ -178,9 +186,9 @@ static void chunkRenderBreakingOverlay(Chunk* chunk,
             (DVECTOR*) &pol4->x1,
             (DVECTOR*) &pol4->x2,
             (DVECTOR*) &pol4->x3)) {
-            freePrimitive(ctx, sizeof(POLY_F4));
+            freePrimitive(ctx, sizeof(POLY_FT4));
             continue;
-            }
+        }
         // Load primitive color even though gte_ncs() doesn't use it.
         // This is so the GTE will output a color result with the
         // correct primitive code.
@@ -217,9 +225,7 @@ static void chunkRenderBreakingOverlay(Chunk* chunk,
         // Bind texture page and colour look-up-table
         pol4->tpage = texture->tpage;
         pol4->clut = texture->clut;
-        // Store result to the primitive
-        gte_strgb(&pol4->r0);
-        uint32_t* ot_entry = allocateOrderingTable(ctx, 0);
+        u32* ot_entry = allocateOrderingTable(ctx, p);
         addPrim(ot_entry, pol4);
     }
 }
@@ -271,9 +277,10 @@ void chunkRender(Chunk* chunk,
     gte_SetTransMatrix(&omtx);
     // Sort + render mesh
     chunkMeshRender(&chunk->mesh, ctx, transforms);
-    if (breaking_state != NULL) {
+    // TODO: Fix logic in world that ensures only one chunk gets non-NULL instance
+    // if (breaking_state != NULL) {
         chunkRenderBreakingOverlay(chunk, breaking_state, ctx, transforms);
-    }
+    // }
     // Restore matrix
     PopMatrix();
     chunkRenderDroppedItems(chunk, ctx, transforms);
