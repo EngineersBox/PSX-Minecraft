@@ -8,6 +8,7 @@
 
 #include "../../math/vector.h"
 #include "../../util/inttypes.h"
+#include "../../render/render_context.h"
 #include "../items/item.h"
 #include "block.h"
 
@@ -45,6 +46,8 @@ typedef struct BreakingState {
     IBlock* block;
 } BreakingState;
 
+extern const RECT breaking_texture_offscreen;
+
 #define breakingStateReset(state) ({ \
     (state) = (BreakingState) { \
         .ticks_precise = 0, \
@@ -67,5 +70,22 @@ typedef struct BreakingState {
  * @param on_ground Whether the player is currently on the ground
  */
 void breakingStateCalculateTicks(BreakingState* state, const IItem* held_item, bool in_water, bool on_ground);
+
+/**
+ * @brief Updates the off-screen render target texture for each visible face
+ *        based on the current breaking progress. If the @code block@endcode field
+ *        is @code NULL@endcode then we do nothing. Taking the modulo of @code ticks_so_far@endcode
+ *        and @code ticks_per_stage@endcode and comparing against the previous
+ *        (@code max(ticks_so_far - ONE, 0))@endcode modulo value, we can determine
+ *        if we need to update the render target. If so, the visible faces of
+ *        the block are determined via bitset, then for each visible one, the
+ *        texture is blitted to the relevant multiple of 16 section of the off-screen
+ *        render target and operations are sorted into the ordering-table to
+ *        write the breaking texture for the current progress on top of the
+ *        render target with 50% F + 50% B blending.
+ * @param state State instance
+ * @param ctx Render context to sort rendering operations into
+ */
+void breakingStateUpdateRenderTarget(const BreakingState* state, RenderContext* ctx);
 
 #endif // _PSX_MINECRAFT__GAME_BLOCKS__BREAKING_STATE_H_
