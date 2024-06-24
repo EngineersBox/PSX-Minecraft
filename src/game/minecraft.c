@@ -360,40 +360,6 @@ void drawMarker(Minecraft* minecraft) {
 //     PopMatrix();
 }
 
-void drawDebugText(const Minecraft* minecraft, const Stats* stats) {
-    FntPrint(0, "FPS=%d TPS=%d\n", stats->fps, stats->tps);
-    const int32_t x = camera.position.vx / BLOCK_SIZE;
-    const int32_t y_down = camera.position.vy / BLOCK_SIZE;
-    const int32_t y_up = -camera.position.vy / BLOCK_SIZE;
-    const int32_t z = camera.position.vz / BLOCK_SIZE;
-#define fracToFloat(frac) ((u32)(100000 * ((frac) / 4096.0)))
-// #define fracToFloat(frac) (frac)
-    FntPrint(
-        0,
-        ""
-        "X=%d.%05d\n"
-        "Y=%d.%05d (DOWN)\n"
-        "Y=%d.%05d (UP)\n"
-        "Z=%d.%05d\n",
-        fixedGetWhole(x), fracToFloat(fixedGetFractional(x)),
-        fixedGetWhole(y_down), fracToFloat(fixedGetFractional(y_down)),
-        fixedGetWhole(y_up), fracToFloat(fixedGetFractional(y_up)),
-        fixedGetWhole(z), fracToFloat(fixedGetFractional(z))
-    );
-    FntPrint(
-        0,
-        "RX=%d RY=%d\n",
-        camera.rotation.vx >> FIXED_POINT_SHIFT,
-        camera.rotation.vy >> FIXED_POINT_SHIFT
-    );
-    const VECTOR direction = rotationToDirection(&camera.rotation);
-    FntPrint(
-        0,
-        "DX=%d DY=%d DZ=%d\n",
-        VEC_LAYOUT(direction)
-    );
-}
-
 void minecraftRender(VSelf, const Stats* stats) ALIAS("Minecraft_render");
 void Minecraft_render(VSelf, const Stats* stats) {
     VSELF(Minecraft);
@@ -415,7 +381,7 @@ void Minecraft_render(VSelf, const Stats* stats) {
     // Render UI
     playerRender(player, &self->internals.ctx, &self->internals.transforms);
     // crosshairDraw(&render_context);
-    drawDebugText(self, stats);
+    drawDebugText(stats, &camera);
     axisDraw(&self->internals.ctx, &self->internals.transforms, &camera);
     debugDrawPBUsageGraph(
         &self->internals.ctx,

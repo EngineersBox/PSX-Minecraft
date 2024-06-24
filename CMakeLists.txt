@@ -91,6 +91,10 @@ endif()
 
 target_compile_definitions(PSXMC PUBLIC -DFPT_BITS=32 -DFPT_WBITS=20)
 target_compile_definitions(PSXMC PUBLIC -DPSXMC_DEBUG=1)
+target_compile_definitions(PSXMC PUBLIC -DPSXMC_DEBUG_OVERLAY_FPS=1)
+target_compile_definitions(PSXMC PUBLIC -DPSXMC_DEBUG_OVERLAY_POS=1)
+target_compile_definitions(PSXMC PUBLIC -DPSXMC_DEBUG_OVERLAY_DIR=0)
+
 
 # Include assets in binary
 if (NOT (asset_count EQUAL 0))

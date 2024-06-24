@@ -2,6 +2,7 @@
 
 #include "../math/math_utils.h"
 #include "../primitive/primitive.h"
+#include "../game/blocks/block.h"
 
 DEFINE_CIRCULAR_BUFFER(ordering_table_usage, SAMPLE_WINDOW_SIZE);
 #define OT_DATA_POINT_PER_PIXEL (ORDERING_TABLE_LENGTH / SAMPLE_MAX_VALUE)
@@ -66,3 +67,47 @@ void debugDrawPBUsageGraph(RenderContext* ctx, const uint16_t base_screen_x, con
     renderBlackBackground(ctx, base_screen_x, base_screen_y, SAMPLE_WINDOW_SIZE, SAMPLE_MAX_VALUE);
     renderUsageGraph(ctx, &packet_buffer_usage, base_screen_x, base_screen_y);
 }
+
+#define isOverlayEnabled(suffix) isDebugEnabled() && defined(PSXMC_DEBUG_OVERLAY_##suffix) && PSXMC_DEBUG_OVERLAY_##suffix
+
+void drawDebugText(const Stats* stats, const Camera* camera) {
+#if isOverlayEnabled(FPS)
+    FntPrint(0, "FPS=%d TPS=%d\n", stats->fps, stats->tps);
+#endif
+#if isOverlayEnabled(POS)
+    const int32_t x = camera->position.vx / BLOCK_SIZE;
+    const int32_t y_down = camera->position.vy / BLOCK_SIZE;
+    const int32_t y_up = -camera->position.vy / BLOCK_SIZE;
+    const int32_t z = camera->position.vz / BLOCK_SIZE;
+    #define fracToFloat(frac) ((u32)(100000 * ((frac) / 4096.0)))
+    FntPrint(
+        0,
+        ""
+        "X=%d.%05d\n"
+        "Y=%d.%05d (DOWN)\n"
+        "Y=%d.%05d (UP)\n"
+        "Z=%d.%05d\n",
+        fixedGetWhole(x), fracToFloat(fixedGetFractional(x)),
+        fixedGetWhole(y_down), fracToFloat(fixedGetFractional(y_down)),
+        fixedGetWhole(y_up), fracToFloat(fixedGetFractional(y_up)),
+        fixedGetWhole(z), fracToFloat(fixedGetFractional(z))
+    );
+    #undef fracToFloat
+#endif
+#if isOverlayEnabled(DIR)
+    FntPrint(
+        0,
+        "RX=%d RY=%d\n",
+        camera.rotation.vx >> FIXED_POINT_SHIFT,
+        camera.rotation.vy >> FIXED_POINT_SHIFT
+    );
+    const VECTOR direction = rotationToDirection(&camera.rotation);
+    FntPrint(
+        0,
+        "DX=%d DY=%d DZ=%d\n",
+        VEC_LAYOUT(direction)
+    );
+#endif
+}
+
+#undef isOverlayEnabled

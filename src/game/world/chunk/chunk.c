@@ -121,19 +121,11 @@ static void chunkRenderBreakingOverlay(Chunk* chunk,
         .h = BLOCK_TEXTURE_SIZE,
         .tint = {0, 0, 0, 0}
     };
-    DEBUG_LOG(
-        "Attribute: [U: %d] [V: %d] [W: %d] [H: %d]\n",
-        face_attribute.u,
-        face_attribute.v,
-        face_attribute.w,
-        face_attribute.h
-    );
     const RECT tex_window = (RECT){
-        // All in units of 8 pixels, hence right shift by 3
-        .w = 0, //BLOCK_TEXTURE_SIZE >> 3,
-        .h = 0, //BLOCK_TEXTURE_SIZE >> 3,
-        .x = 0, //face_attribute.u >> 3,
-        .y = 0  //face_attribute.v >> 3
+        .w = 0,
+        .h = 0,
+        .x = 0,
+        .y = 0
     };
     const Texture* texture = &textures[ASSET_TEXTURES_TERRAIN_INDEX];
     const u8 visible_sides_bitset = breaking_state->visible_sides_bitset;

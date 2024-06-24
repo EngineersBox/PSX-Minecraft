@@ -5,7 +5,9 @@
 
 #include <stdio.h>
 
-#if defined(PSXMC_DEBUG) && PSXMC_DEBUG == 1
+#include "../render/debug_defines.h"
+
+#if isDebugEnabled()
 #define DEBUG_LOG(s, ...) printf(s, ##__VA_ARGS__)
 #else
 #define DEBUG_LOG(x, ...) ({})
