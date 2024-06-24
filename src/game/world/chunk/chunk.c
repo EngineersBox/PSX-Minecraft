@@ -121,6 +121,13 @@ static void chunkRenderBreakingOverlay(Chunk* chunk,
         .h = BLOCK_TEXTURE_SIZE,
         .tint = {0, 0, 0, 0}
     };
+    DEBUG_LOG(
+        "Attribute: [U: %d] [V: %d] [W: %d] [H: %d]\n",
+        face_attribute.u,
+        face_attribute.v,
+        face_attribute.w,
+        face_attribute.h
+    );
     const RECT tex_window = (RECT){
         // All in units of 8 pixels, hence right shift by 3
         .w = 0, //BLOCK_TEXTURE_SIZE >> 3,
