@@ -96,9 +96,6 @@ void updateBreakingState(Player* player, const RayCastResult* result, const Worl
     BreakingState* state = &player->breaking;
     if ((uintptr_t) state->block != (uintptr_t) result->block) {
         *state = (BreakingState) {
-            .ticks_precise = 0,
-            .ticks_per_stage = 0,
-            .ticks_so_far = 0,
             .position = result->pos,
             .block = result->block
         };
@@ -110,6 +107,7 @@ void updateBreakingState(Player* player, const RayCastResult* result, const Worl
             player_physics_flags->in_water,
             player_physics_flags->on_ground
         );
+        breakingStateCalculateVisibility(state, world);
         return;
     }
     state->ticks_so_far += ONE;

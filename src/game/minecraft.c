@@ -397,6 +397,8 @@ void drawDebugText(const Minecraft* minecraft, const Stats* stats) {
 void minecraftRender(VSelf, const Stats* stats) ALIAS("Minecraft_render");
 void Minecraft_render(VSelf, const Stats* stats) {
     VSELF(Minecraft);
+    // Update breaking state textures
+    breakingStateUpdateRenderTarget(&player->breaking, &self->internals.ctx);
     // Draw the world
     frustumTransform(&self->internals.ctx.camera->frustum, &self->internals.transforms);
     worldRender(

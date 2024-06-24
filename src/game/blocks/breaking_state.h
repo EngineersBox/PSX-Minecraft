@@ -12,6 +12,9 @@
 #include "../items/item.h"
 #include "block.h"
 
+// Forward declaration
+typedef struct World World;
+
 typedef struct BreakingState {
     /**
      * @brief Amount of ticks in fixed-point format
@@ -40,6 +43,7 @@ typedef struct BreakingState {
      *        @code NULL@endcode.
      */
     VECTOR position;
+    u8 visible_sides_bitset;
     /**
      * @brief @code NULL@endcode == not breaking anything
      */
@@ -54,6 +58,7 @@ extern const RECT breaking_texture_offscreen;
         .ticks_per_stage = 0, \
         .ticks_so_far = 0, \
         .position = vec3_i32_all(0), \
+        .visible_sides_bitset = 0, \
         .block = NULL \
     }; \
 })
@@ -69,7 +74,12 @@ extern const RECT breaking_texture_offscreen;
  * @param in_water Whether the player is currently in water
  * @param on_ground Whether the player is currently on the ground
  */
-void breakingStateCalculateTicks(BreakingState* state, const IItem* held_item, bool in_water, bool on_ground);
+void breakingStateCalculateTicks(BreakingState* state,
+                                 const IItem* held_item,
+                                 bool in_water,
+                                 bool on_ground);
+
+void breakingStateCalculateVisibility(BreakingState* state, const World* world);
 
 /**
  * @brief Updates the off-screen render target texture for each visible face
