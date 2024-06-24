@@ -3,7 +3,9 @@
 Remake of Minecraft for PS1 with PSn00bSDK
 
 **Table of Contents**
+
 <!-- TOC -->
+
 * [PSX-Minecraft](#psx-minecraft)
   * [Dependencies](#dependencies)
   * [References](#references)
@@ -15,6 +17,7 @@ Remake of Minecraft for PS1 with PSn00bSDK
   * [Progress](#progress)
     * [Goal](#goal)
     * [Screenshots](#screenshots)
+
 <!-- TOC -->
 
 ## Dependencies
@@ -137,6 +140,7 @@ You can of course also just run these manually if you'd like to instead:
 ### Goal
 
 <!-- Current work is implementing frustum culling and ordered visibility culling with ordered mesh -->
+
 <!-- generation during binary greedy meshing for offset based culling. -->
 
 Current work is in block breaking logic with tool and material based influence on duration, and
@@ -144,6 +148,6 @@ rendering the breaking overlay for a given block.
 
 ### Screenshots
 
-![PSXMC](./docs/PSXMC.png)
+![Breaking Overlay](./docs/breaking_overlay.png)
 ![PSXMC](./docs/PSXMC-1.png)
 ![PSXMC](./docs/PSXMC-2.png)

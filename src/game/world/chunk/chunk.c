@@ -83,7 +83,7 @@ static void chunkRenderDroppedItems(Chunk* chunk, RenderContext* ctx, Transforms
     }
 }
 
-#define BREAKING_OVERLAY_SIZE ((BLOCK_SIZE >> 1) + 1)
+#define BREAKING_OVERLAY_SIZE ((BLOCK_SIZE >> 1) + 2)
 // [0,1] -> [-SIZE,SIZE]
 #define convertToVertex(v, shift, size) (size * (-1 + ((((v) & (1 << (shift))) >> (shift)) << 1)))
 
@@ -136,16 +136,9 @@ static void chunkRenderBreakingOverlay(Chunk* chunk,
         .y = 0  //face_attribute.v >> 3
     };
     const Texture* texture = &textures[ASSET_TEXTURES_TERRAIN_INDEX];
-    for (int i = 0; i < 6; i++) {
-        const VECTOR vis_check_position = vec3_i32(
-            breaking_state->position.vx + CUBE_NORMS_UNIT[i].vx,
-            breaking_state->position.vy - CUBE_NORMS_UNIT[i].vy, // Normal up direction is negative in world space and we use positive for arrays
-            breaking_state->position.vz + CUBE_NORMS_UNIT[i].vz
-        );
-        const IBlock* iblock = worldGetBlock(chunk->world, &vis_check_position);
-        assert(iblock != NULL);
-        const Block* block = VCAST_PTR(Block*, iblock);
-        if (block->id != BLOCKID_AIR && VCALL(*iblock, isOpaque, faceDirectionOpposing(i))) {
+    const u8 visible_sides_bitset = breaking_state->visible_sides_bitset;
+    for (int i = 0; i < FACE_DIRECTION_COUNT; i++) {
+        if (((visible_sides_bitset >> i) & 0b1) == 0) {
             continue;
         }
         POLY_FT4* pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
