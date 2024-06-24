@@ -7,6 +7,8 @@
 #include "../../math/math_utils.h"
 #include "../../util/interface99_extensions.h"
 #include "../../structure/primitive/cube.h"
+#include "../../resources/assets.h"
+#include "../../resources/asset_indices.h"
 #include "../items/items.h"
 #include "blocks.h"
 
@@ -124,34 +126,122 @@ void breakingStateUpdateRenderTarget(const BreakingState* state,
     if (state->block == NULL || !next_texture) {
         return;
     }
-    // 2. Determine which faces are visible on the target block
-    // 3. For each visible face, blit the face texture to the offset position in the render target
+    // 2. For each visible face, blit the face texture to the offset position in the render target
+
+    // Sort drawing primitives to reset drawing area to default (OT is in reverse order so that's
+    // why this is here and not after the loop).
+    DR_AREA* area = (DR_AREA*) allocatePrimitive(ctx, sizeof(DR_AREA));
+    const DB* active = &ctx->db[ctx->active];
+    setDrawArea(area, &active->draw_env.clip);
+    u32* ot_entry = allocateOrderingTable(ctx, 0);
+    addPrim(ot_entry, area);
+    DR_OFFSET* offset = (DR_OFFSET*) allocatePrimitive(ctx, sizeof(DR_OFFSET));
+    setDrawOffset(
+        offset,
+        active->draw_env.clip.x,
+        active->draw_env.clip.y
+    );
+    ot_entry = allocateOrderingTable(ctx, 0);
+    addPrim(ot_entry, offset);
     const Block* block = VCAST_PTR(Block*, state->block);
     const TextureAttributes* attributes = block->face_attributes;
+    const Texture* terrain_texture = &textures[ASSET_TEXTURES_TERRAIN_INDEX];
     for (FaceDirection face_dir = 0; face_dir < FACE_DIRECTION_COUNT; face_dir++) {
         if (((state->visible_sides_bitset >> face_dir) & 0b1) == 0) {
             continue;
         }
         const TextureAttributes* attribute = &attributes[face_dir];
-        const RECT reference_texture = (RECT) {
-            .x = attribute->u,
-            .y = attribute->v,
-            .w = attribute->w,
-            .h = attribute->h
-        };
-        MoveImage2(
-            &reference_texture,
-            breaking_texture_offscreen.x + ((face_dir * 16) >> 3),
-            breaking_texture_offscreen.y
+        POLY_FT4* pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
+        setPolyFT4(pol4);
+        setSemiTrans(pol4, 1); // 0=B/2+F/2 1=B+F 2=B-F 3=B+F/4
+        setXYWH(
+            pol4,
+            BLOCK_TEXTURE_SIZE * face_dir,
+            0,
+            BLOCK_TEXTURE_SIZE,
+            BLOCK_TEXTURE_SIZE
         );
+        setUVWH(
+            pol4,
+            attribute->u,
+            attribute->v,
+            BLOCK_TEXTURE_SIZE,
+            BLOCK_TEXTURE_SIZE
+        );
+        pol4->tpage = terrain_texture->tpage;
+        pol4->clut = terrain_texture->clut;
+        ot_entry = allocateOrderingTable(ctx, 0);
+        addPrim(ot_entry, pol4);
     }
-    // Wait for blitting to finish via GPU IRQ
-    // DrawSync(1);
-    // 4. Sort sprite operations to render to offset positions and merge breaking texture with 50% blending.
+    // Reset texture window that will be enabled for applying the breaking
+    // texture
+    RECT tex_window = (RECT) {0, 0, 0, 0};
+    DR_TWIN* ptwin = (DR_TWIN*) allocatePrimitive(ctx, sizeof(DR_TWIN));
+    setTexWindow(ptwin, &tex_window);
+    ot_entry = allocateOrderingTable(ctx, 0);
+    addPrim(ot_entry, ptwin);
+    // Sort drawing bindings to ensure we target offscreen TPage area
+    area = (DR_AREA*) allocatePrimitive(ctx, sizeof(DR_AREA));
+    setDrawArea(area, &breaking_texture_offscreen);
+    ot_entry = allocateOrderingTable(ctx, 0);
+    addPrim(ot_entry, area);
+    offset = (DR_OFFSET*) allocatePrimitive(ctx, sizeof(DR_OFFSET));
+    setDrawOffset(
+        offset,
+        breaking_texture_offscreen.x,
+        breaking_texture_offscreen.y
+    );
+    ot_entry = allocateOrderingTable(ctx, 0);
+    addPrim(ot_entry, offset);
+    // Sort a textured polygon that covers the entire offscreem TPage
+    // area and repeats the current stage of breaking texture over it
+    // with 50% blending. This saves needing to do multiple SPRT prims
+    // to cover the same area
+    const TextureAttributes face_attribute = (TextureAttributes) {
+        .u = (BLOCK_TEXTURE_SIZE * 2) + ((state->ticks_so_far / state->ticks_per_stage) * BLOCK_TEXTURE_SIZE),
+        .v = BLOCK_TEXTURE_SIZE * 14,
+        .w = BLOCK_TEXTURE_SIZE,
+        .h = BLOCK_TEXTURE_SIZE,
+        .tint = {0, 0, 0, 0}
+    };
+    POLY_FT4* pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
+    setPolyFT4(pol4);
+    setSemiTrans(pol4, 1); // 0=B/2+F/2 1=B+F 2=B-F 3=B+F/4
+    setXYWH(
+        pol4,
+        breaking_texture_offscreen.x,
+        breaking_texture_offscreen.y,
+        BLOCK_TEXTURE_SIZE * FACE_DIRECTION_COUNT,
+        BLOCK_TEXTURE_SIZE
+    );
+    setUVWH(
+        pol4,
+        face_attribute.u,
+        face_attribute.v,
+        face_attribute.w,
+        face_attribute.h
+    );
+    pol4->tpage = terrain_texture->tpage;
+    pol4->clut = terrain_texture->clut;
+    ot_entry = allocateOrderingTable(ctx, 0);
+    addPrim(ot_entry, pol4);
+    // Texture window to ensure wrapping across offscreen TPage
+    tex_window = (RECT){
+        // All in units of 8 pixels, hence right shift by 3
+        .w = BLOCK_TEXTURE_SIZE >> 3,
+        .h = BLOCK_TEXTURE_SIZE >> 3,
+        .x = face_attribute.u >> 3,
+        .y = face_attribute.v >> 3
+    };
+    ptwin = (DR_TWIN*) allocatePrimitive(ctx, sizeof(DR_TWIN));
+    setTexWindow(ptwin, &tex_window);
+    ot_entry = allocateOrderingTable(ctx, 0);
+    addPrim(ot_entry, ptwin);
+    // 3. Sort sprite operations to render to offset positions and merge breaking texture with 50% blending.
     //    This must be sorted before any other chunk rendering takes place to ensure that the texture is
 
     //    updated correctly in time
-    // 5. Trigger remeshing on chunk holding block
-    // 6. (In meshing) if the block matches the breaking state ensure it has unique mesh primitives
+    // 4. Trigger remeshing on chunk holding block
+    // 5. (In meshing) if the block matches the breaking state ensure it has unique mesh primitives
     //    with correct tpage and texture window into the render target
 }

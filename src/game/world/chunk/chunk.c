@@ -115,18 +115,18 @@ static void chunkRenderBreakingOverlay(Chunk* chunk,
     );
     int p;
     const TextureAttributes face_attribute = (TextureAttributes) {
-        .u = (breaking_state->ticks_so_far / breaking_state->ticks_per_stage) * 16,
-        .v = 16 * 15,
-        .w = 16,
-        .h = 16,
+        .u = (BLOCK_TEXTURE_SIZE * 2) + (breaking_state->ticks_so_far / breaking_state->ticks_per_stage) * BLOCK_TEXTURE_SIZE,
+        .v = BLOCK_TEXTURE_SIZE * 14,
+        .w = BLOCK_TEXTURE_SIZE,
+        .h = BLOCK_TEXTURE_SIZE,
         .tint = {0, 0, 0, 0}
     };
     const RECT tex_window = (RECT){
         // All in units of 8 pixels, hence right shift by 3
-        .w = BLOCK_TEXTURE_SIZE >> 3,
-        .h = BLOCK_TEXTURE_SIZE >> 3,
-        .x = face_attribute.u >> 3,
-        .y = face_attribute.v >> 3
+        .w = 0, //BLOCK_TEXTURE_SIZE >> 3,
+        .h = 0, //BLOCK_TEXTURE_SIZE >> 3,
+        .x = 0, //face_attribute.u >> 3,
+        .y = 0  //face_attribute.v >> 3
     };
     const Texture* texture = &textures[ASSET_TEXTURES_TERRAIN_INDEX];
     for (int i = 0; i < 6; i++) {
