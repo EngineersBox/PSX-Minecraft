@@ -45,8 +45,12 @@ typedef struct BreakingState {
      */
     VECTOR position;
     u8 visible_sides_bitset: FACE_DIRECTION_COUNT;
+    // New breaking texture in breaking progress,
+    // trigger a chunk remesh
     bool chunk_remesh_trigger: 1;
-    u8 _pad: 1;
+    // No longer breaking, trigger a mesh reset
+    // and reset this struct's values
+    bool reset_trigger: 1;
     /**
      * @brief @code NULL@endcode == not breaking anything
      */
@@ -62,6 +66,8 @@ extern const RECT breaking_texture_offscreen;
         .ticks_so_far = 0, \
         .position = vec3_i32_all(0), \
         .visible_sides_bitset = 0, \
+        .chunk_remesh_trigger = false, \
+        .reset_trigger = false, \
         .block = NULL \
     }; \
 })

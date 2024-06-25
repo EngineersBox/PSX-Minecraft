@@ -558,6 +558,7 @@ void binaryGreedyMesherConstructBreakingOverlay(Chunk* chunk, const BreakingStat
             ),
             .clut = textures[ASSET_TEXTURES_TERRAIN_INDEX].clut
         };
+        // TODO: Fix these coordinates, they don't line up with the block
         u32 x = 0;
         u32 y = 0;
         u32 axis = 0;

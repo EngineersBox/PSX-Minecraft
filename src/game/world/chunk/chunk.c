@@ -259,12 +259,18 @@ void chunkRender(Chunk* chunk,
                  BreakingState* breaking_state,
                  RenderContext* ctx,
                  Transforms* transforms) {
-    if (breaking_state != NULL && breaking_state->chunk_remesh_trigger) {
-        // (In meshing) if the block matches the breaking state ensure it has unique mesh primitives
-        // with correct tpage and texture window into the render target
-        chunkClearMesh(chunk);
-        chunkGenerateMeshWithBreakingState(chunk, breaking_state);
-        breaking_state->chunk_remesh_trigger = false;
+    if (breaking_state != NULL) {
+        if (breaking_state->chunk_remesh_trigger) {
+            // (In meshing) if the block matches the breaking state ensure it has unique mesh primitives
+            // with correct tpage and texture window into the render target
+            chunkClearMesh(chunk);
+            chunkGenerateMeshWithBreakingState(chunk, breaking_state);
+            breaking_state->chunk_remesh_trigger = false;
+        } else if (breaking_state->reset_trigger) {
+            chunkClearMesh(chunk);
+            chunkGenerateMesh(chunk);
+            breakingStateReset(*breaking_state);
+        }
     }
     // if (chunkIsOutsideFrustum(chunk, &ctx->camera->frustum, transforms)) {
     //     DEBUG_LOG("[CHUNK " VEC_PATTERN "] Not visible\n", VEC_LAYOUT(chunk->position));

@@ -111,7 +111,7 @@ void updateBreakingState(Player* player, const RayCastResult* result, const Worl
         return;
     }
     state->ticks_so_far += ONE;
-    if (--state->ticks_so_far < state->ticks_precise) {
+    if (state->ticks_so_far < state->ticks_precise) {
         return;
     }
     breakingStateReset(*state);
@@ -204,7 +204,7 @@ void playerInputHandlerWorldInteraction(const Input* input, const PlayerInputHan
     // and update the flag to stop the breaking overlay
     // and revert breaking progress
     if (!breaking) {
-        breakingStateReset(player->breaking);
+        player->breaking.reset_trigger = true;
     }
 }
 
