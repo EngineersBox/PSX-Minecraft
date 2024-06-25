@@ -39,21 +39,21 @@ INLINE void addVoxelToFaceColumns(FacesColumns axis_cols,
     if (blockGetType(block->id) == BLOCKTYPE_EMPTY) {
         return;
     }
-    axis_cols[0][z][x] |= 1 << y; // DOWN
-    axis_cols[1][z][x] |= 1 << y; // UP
-    axis_cols[2][y][z] |= 1 << x; // LEFT
-    axis_cols[3][y][z] |= 1 << x; // RIGHT
-    axis_cols[4][y][x] |= 1 << z; // BACK
-    axis_cols[5][y][x] |= 1 << z; // FRONT
+    axis_cols[FACE_DIR_DOWN][z][x] |= 1 << y;
+    axis_cols[FACE_DIR_UP][z][x] |= 1 << y;
+    axis_cols[FACE_DIR_LEFT][y][z] |= 1 << x;
+    axis_cols[FACE_DIR_RIGHT][y][z] |= 1 << x;
+    axis_cols[FACE_DIR_BACK][y][x] |= 1 << z;
+    axis_cols[FACE_DIR_FRONT][y][x] |= 1 << z;
     const u8 bitset = VCALL(*iblock, opaqueBitset);
 #define bitsetAt(i) ((bitset >> (i)) & 0b1)
-    axis_cols_opaque[0][z][x] |= bitsetAt(1) << y;
-    axis_cols_opaque[1][z][x] |= bitsetAt(0) << y;
-    axis_cols_opaque[2][y][z] |= bitsetAt(3) << x;
-    axis_cols_opaque[3][y][z] |= bitsetAt(2) << x;
-    axis_cols_opaque[4][y][x] |= bitsetAt(4) << z;
-    axis_cols_opaque[5][y][x] |= bitsetAt(5) << z;
-#undef bitset
+    axis_cols_opaque[FACE_DIR_DOWN][z][x] |= bitsetAt(1) << y;
+    axis_cols_opaque[FACE_DIR_UP][z][x] |= bitsetAt(0) << y;
+    axis_cols_opaque[FACE_DIR_LEFT][y][z] |= bitsetAt(3) << x;
+    axis_cols_opaque[FACE_DIR_RIGHT][y][z] |= bitsetAt(2) << x;
+    axis_cols_opaque[FACE_DIR_BACK][y][x] |= bitsetAt(4) << z;
+    axis_cols_opaque[FACE_DIR_FRONT][y][x] |= bitsetAt(5) << z;
+#undef bitsetAt
 }
 
 void binaryGreedyMesherBuildMesh(Chunk* chunk, const BreakingState* breaking_state) {
@@ -78,6 +78,8 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk, const BreakingState* breaking_sta
                 for (u32 y = 0; y < CHUNK_SIZE; y++) {
                     updateCoordBit(1, y);
                     if (coords_check == 0b111) {
+                        // TODO: Fix this exclusion, it seems to be removing the wrong
+                        //       block, it is far away on only one axis for some reason
                         DEBUG_LOG("[CHUNK] Excluding block from mesh: " VEC_PATTERN "\n", x, y, z);
                         // Don't include the block being broken in the mesh since
                         // we need to create non-merged faces in the mesh to ensure
@@ -552,7 +554,7 @@ void binaryGreedyMesherConstructBreakingOverlay(Chunk* chunk, const BreakingStat
         const Texture texture = (Texture) {
             .tpage = getTPage(
                 2,
-                3,
+                1,
                 breaking_texture_offscreen.x,
                 breaking_texture_offscreen.y
             ),
