@@ -125,7 +125,7 @@ void breakingStateUpdateRenderTarget(const BreakingState* state,
     const fixedi32 ticks_per_stage = state->ticks_per_stage;
     const fixedi32 ticks_so_far = state->ticks_so_far;
     const bool next_texture = ticks_so_far == 0 || (ticks_so_far / ticks_per_stage) > ((ticks_so_far - ONE) / ticks_per_stage);
-    if (state->block == NULL/* || !next_texture*/) {
+    if (state->block == NULL || !next_texture) {
         return;
     }
     // 2. For each visible face, blit the face texture to the offset position in the render target
