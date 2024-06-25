@@ -5,8 +5,9 @@
 
 #include <smd/smd.h>
 
-#include "../../render/render_context.h"
-#include "../../render/transforms.h"
+#include "../../../render/render_context.h"
+#include "../../../render/transforms.h"
+#include "../../../structure/primitive/direction.h"
 
 #ifndef MESH_PRIMITIVE_VEC_INITIAL_CAPCITY
 #define MESH_PRIMITIVE_VEC_INITIAL_CAPCITY 0
@@ -23,7 +24,7 @@
 // typedef SMD ChunkMesh;
 
 typedef struct {
-    SMD face_meshes[6];
+    SMD face_meshes[FACE_DIRECTION_COUNT];
 } ChunkMesh;
 
 void chunkMeshInit(ChunkMesh* mesh);

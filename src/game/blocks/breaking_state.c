@@ -18,7 +18,7 @@
 FWD_DECL IBlock* worldGetBlock(const World* world, const VECTOR* position);
 
 const RECT breaking_texture_offscreen = (RECT) {
-    .x = 784,
+    .x = 832,
     .y = 0,
     .w = (16 * FACE_DIRECTION_COUNT),
     .h = 16
@@ -119,13 +119,14 @@ void breakingStateCalculateVisibility(BreakingState* state, const World* world) 
     }
 }
 
-void breakingStateUpdateRenderTarget(const BreakingState* state,
+void breakingStateUpdateRenderTarget(BreakingState* state,
                                      RenderContext* ctx) {
     // 1. Check if we have progressed far enough in breaking to update the texture
     const fixedi32 ticks_per_stage = state->ticks_per_stage;
     const fixedi32 ticks_so_far = state->ticks_so_far;
     const bool next_texture = ticks_so_far == 0 || (ticks_so_far / ticks_per_stage) > ((ticks_so_far - ONE) / ticks_per_stage);
     if (state->block == NULL || !next_texture) {
+        state->chunk_remesh_trigger = false;
         return;
     }
     // 2. For each visible face, blit the face texture to the offset position in the render target
@@ -250,6 +251,5 @@ void breakingStateUpdateRenderTarget(const BreakingState* state,
     );
     addPrim(ot_entry, offset);
     // 4. Trigger remeshing on chunk holding block
-    // 5. (In meshing) if the block matches the breaking state ensure it has unique mesh primitives
-    //    with correct tpage and texture window into the render target
+    state->chunk_remesh_trigger = true;
 }

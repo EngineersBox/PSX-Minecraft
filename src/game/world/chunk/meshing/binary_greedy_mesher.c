@@ -1,14 +1,17 @@
 #include "binary_greedy_mesher.h"
 
 #include <psxgte.h>
-#include "../../../../logging/logging.h"
+
+#include "../../../logging/logging.h"
 #include "../../../util/interface99_extensions.h"
 #include "../../../util/bits.h"
-#include "../math/vector.h"
+#include "../../../math/vector.h"
 #include "../../../structure/hashmap.h"
 #include "../../../resources/asset_indices.h"
 #include "../../../structure/primitive/primitive.h"
 #include "../../../resources/assets.h"
+#include "../../../structure/primitive/cube.h"
+#include "../../position.h"
 
 // Forward declarations
 FWD_DECL typedef struct World World;
@@ -24,11 +27,11 @@ static const u32 AXIAL_EDGES[AXIAL_EDGES_COUNT] = { 0, CHUNK_SIZE_PADDED - 1 };
 typedef u32 FacesColumns[FACE_DIRECTION_COUNT][CHUNK_SIZE_PADDED][CHUNK_SIZE_PADDED];
 
 INLINE void addVoxelToFaceColumns(FacesColumns axis_cols,
-                               FacesColumns axis_cols_opaque,
-                               const IBlock* iblock,
-                               const u32 x,
-                               const u32 y,
-                               const u32 z) {
+                                  FacesColumns axis_cols_opaque,
+                                  const IBlock* iblock,
+                                  const u32 x,
+                                  const u32 y,
+                                  const u32 z) {
     if (iblock == NULL) {
         return;
     }
@@ -53,23 +56,61 @@ INLINE void addVoxelToFaceColumns(FacesColumns axis_cols,
 #undef bitset
 }
 
-void binaryGreedyMesherBuildMesh(Chunk* chunk) {
+void binaryGreedyMesherBuildMesh(Chunk* chunk, const BreakingState* breaking_state) {
     FacesColumns faces_cols = {0};
     // See binary_greedy_mesher_transparency.md
     FacesColumns faces_cols_opaque = {0};
     FacesColumns col_face_masks = {0};
     // Inner chunk blocks
-    for (u32 z = 0; z < CHUNK_SIZE; z++) {
-        for (u32 x = 0; x < CHUNK_SIZE; x++) {
-            for (u32 y = 0; y < CHUNK_SIZE; y++) {
-                addVoxelToFaceColumns(
-                    faces_cols,
-                    faces_cols_opaque,
-                    chunkGetBlock(chunk, x, y, z),
-                    x + 1,
-                    y + 1,
-                    z + 1
-                );
+    if (breaking_state != NULL) {
+        u8 coords_check = 0b000; // XYZ
+        #define updateCoordBit(index, axis) ({ \
+            if (chunk->position.v##axis + axis == breaking_state->position.v##axis) { \
+                coords_check |= 1 << (index);\
+            } else { \
+                coords_check &= ~(1 << index) & 0b111;\
+            } \
+        })
+        for (u32 z = 0; z < CHUNK_SIZE; z++) {
+            updateCoordBit(0, z);
+            for (u32 x = 0; x < CHUNK_SIZE; x++) {
+                updateCoordBit(2, x);
+                for (u32 y = 0; y < CHUNK_SIZE; y++) {
+                    updateCoordBit(1, y);
+                    if (coords_check == 0b111) {
+                        DEBUG_LOG("[CHUNK] Excluding block from mesh: " VEC_PATTERN "\n", x, y, z);
+                        // Don't include the block being broken in the mesh since
+                        // we need to create non-merged faces in the mesh to ensure
+                        // that the overlay is correctly rendered
+                        continue;
+                    }
+                    addVoxelToFaceColumns(
+                        faces_cols,
+                        faces_cols_opaque,
+                        chunkGetBlock(chunk, x, y, z),
+                        x + 1,
+                        y + 1,
+                        z + 1
+                    );
+                }
+            }
+        }
+        #undef updateCoordBit
+    } else {
+        // Duplication here is just to optimise away lots of if statements
+        // when this chunk has no breaking state available as a paramater
+        for (u32 z = 0; z < CHUNK_SIZE; z++) {
+            for (u32 x = 0; x < CHUNK_SIZE; x++) {
+                for (u32 y = 0; y < CHUNK_SIZE; y++) {
+                    addVoxelToFaceColumns(
+                        faces_cols,
+                        faces_cols_opaque,
+                        chunkGetBlock(chunk, x, y, z),
+                        x + 1,
+                        y + 1,
+                        z + 1
+                    );
+                }
             }
         }
     }
@@ -258,13 +299,18 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
         );
     }
     hashmap_free(data);
+    if (breaking_state != NULL) {
+        binaryGreedyMesherConstructBreakingOverlay(chunk, breaking_state);
+    }
 }
 
 static SMD_PRIM* createPrimitive(ChunkMesh* mesh,
                                  const Block* block,
                                  const FaceDirection face_dir,
                                  const u32 width,
-                                 const u32 height) {
+                                 const u32 height,
+                                 const Texture* texture_override,
+                                 const TextureAttributes texture_attributes_override[FACE_DIRECTION_COUNT]) {
     SMD* face_dir_mesh = &mesh->face_meshes[face_dir];
     cvector(SMD_PRIM) prims = face_dir_mesh->p_prims;
     cvector_push_back(prims, (SMD_PRIM){});
@@ -283,10 +329,14 @@ static SMD_PRIM* createPrimitive(ChunkMesh* mesh,
     primitive->prim_id.texoff = 0;
     primitive->prim_id.reserved = 0;
     primitive->prim_id.len = 4 + 8 + 4 + 8 + 4; // Some wizardry based on PSn00bSDK/tools/smxlink/main.cpp lines 518-644
-    const Texture* texture = &textures[ASSET_TEXTURES_TERRAIN_INDEX];
+    const Texture* texture = texture_override != NULL
+        ? texture_override
+        : &textures[ASSET_TEXTURES_TERRAIN_INDEX];
     primitive->tpage = texture->tpage;
     primitive->clut = texture->clut;
-    const TextureAttributes* attributes = &block->face_attributes[face_dir];
+    const TextureAttributes* attributes = texture_attributes_override != NULL
+        ? texture_attributes_override
+        : &block->face_attributes[face_dir];
     primitive->tu0 = attributes->u;
     primitive->tv0 = attributes->v;
     primitive->tu1 = BLOCK_TEXTURE_SIZE * width;
@@ -391,6 +441,8 @@ static void createQuad(Chunk* chunk,
                        const FaceDirection face_dir,
                        const u32 axis,
                        const Block* block,
+                       const Texture* texture_override,
+                       const TextureAttributes* texture_attributes_override,
                        const u32 x,
                        const u32 y,
                        const u32 w,
@@ -400,7 +452,9 @@ static void createQuad(Chunk* chunk,
         block,
         face_dir,
         w,
-        h
+        h,
+        texture_override,
+        texture_attributes_override
     );
     createVertices(
         chunk,
@@ -457,6 +511,8 @@ void binaryGreedyMesherConstructPlane(Chunk* chunk,
                 face_dir,
                 axis,
                 block,
+                NULL,
+                NULL,
                 row,
                 y,
                 w,
@@ -466,3 +522,86 @@ void binaryGreedyMesherConstructPlane(Chunk* chunk,
         }
     }
 }
+
+// [0,1] -> [-SIZE,SIZE]
+#define convertToVertex(v, shift) (-1 + ((((v) & (1 << (shift))) >> (shift)) << 1))
+
+void binaryGreedyMesherConstructBreakingOverlay(Chunk* chunk, const BreakingState* breaking_state) {
+    DEBUG_LOG("[CHUNK] Rebuilding mesh with overlay\n");
+    const ChunkBlockPosition chunk_block_position = worldToChunkBlockPosition(
+        &breaking_state->position,
+        CHUNK_SIZE
+    );
+    const u8 visible_sides_bitset = breaking_state->visible_sides_bitset;
+    const Block* block = VCAST_PTR(Block*, breaking_state->block);
+    TextureAttributes texture_attributes[FACE_DIRECTION_COUNT] = {0};
+    #pragma GCC unroll 6
+    for (FaceDirection face_dir = 0; face_dir < FACE_DIRECTION_COUNT; face_dir++) {
+        if (((visible_sides_bitset >> face_dir) & 0b1) == 0) {
+            continue;
+        }
+        // Creating these as we go is fine since we will only ever
+        // reference the one we create now in this loop iteration.
+        // The previous and next attributes that have/will be created
+        // will never be used in the current loop.
+        TextureAttributes* attributes = &texture_attributes[face_dir];
+        attributes->u = face_dir * BLOCK_TEXTURE_SIZE;
+        attributes->v = 0;
+        attributes->w = BLOCK_TEXTURE_SIZE;
+        attributes->h = BLOCK_TEXTURE_SIZE;
+        const Texture texture = (Texture) {
+            .tpage = getTPage(
+                2,
+                1,
+                breaking_texture_offscreen.x,
+                breaking_texture_offscreen.y
+            ),
+            .clut = textures[ASSET_TEXTURES_TERRAIN_INDEX].clut
+        };
+        u32 x = 0;
+        u32 y = 0;
+        u32 axis = 0;
+        #define generateVertex(_x, _y, _z) ({ \
+            _x = convertToVertex(CUBE_INDICES[face_dir].v0, 0) + chunk_block_position.block.vx; \
+            _y = convertToVertex(CUBE_INDICES[face_dir].v0, 1) + chunk_block_position.block.vy; \
+            _z = convertToVertex(CUBE_INDICES[face_dir].v0, 2) + chunk_block_position.block.vz; \
+        })
+        switch (face_dir) {
+            case FACE_DIR_DOWN:
+            case FACE_DIR_UP:
+                generateVertex(x, axis, y);
+                break;
+            case FACE_DIR_LEFT:
+            case FACE_DIR_RIGHT:
+                generateVertex(axis, y, x);
+                break;
+            case FACE_DIR_BACK:
+            case FACE_DIR_FRONT:
+                generateVertex(x, y, axis);
+                break;
+        }
+        DEBUG_LOG(
+            "[CHUNK] Face: %d X: %d Y: %d Axis: %d\n",
+            face_dir,
+            x, y, axis
+        );
+        createQuad(
+            chunk,
+            face_dir,
+            // This should be the coordinate value for which ever axis stays constant
+            // in the facing direction, i.e. in the UP direction the Y coord doesn't
+            // change at each vertex, that would be the value here.
+            axis,
+            block,
+            &texture,
+            texture_attributes,
+            // These should be in winding order, see <src/structure/primitive/cube_layout.md>
+            x,
+            y,
+            1,
+            1
+        );
+    }
+}
+
+#undef convertToVertex

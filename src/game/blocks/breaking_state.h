@@ -9,6 +9,7 @@
 #include "../../math/vector.h"
 #include "../../util/inttypes.h"
 #include "../../render/render_context.h"
+#include "../../structure/primitive/direction.h"
 #include "../items/item.h"
 #include "block.h"
 
@@ -43,7 +44,9 @@ typedef struct BreakingState {
      *        @code NULL@endcode.
      */
     VECTOR position;
-    u8 visible_sides_bitset;
+    u8 visible_sides_bitset: FACE_DIRECTION_COUNT;
+    bool chunk_remesh_trigger: 1;
+    u8 _pad: 1;
     /**
      * @brief @code NULL@endcode == not breaking anything
      */
@@ -96,6 +99,6 @@ void breakingStateCalculateVisibility(BreakingState* state, const World* world);
  * @param state State instance
  * @param ctx Render context to sort rendering operations into
  */
-void breakingStateUpdateRenderTarget(const BreakingState* state, RenderContext* ctx);
+void breakingStateUpdateRenderTarget(BreakingState* state, RenderContext* ctx);
 
 #endif // _PSX_MINECRAFT__GAME_BLOCKS__BREAKING_STATE_H_

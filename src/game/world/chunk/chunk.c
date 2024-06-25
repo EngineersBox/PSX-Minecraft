@@ -69,8 +69,12 @@ void chunkClearMesh(Chunk* chunk) {
     chunkMeshClear(&chunk->mesh);
 }
 
+void chunkGenerateMeshWithBreakingState(Chunk* chunk, const BreakingState* breaking_state) {
+    binaryGreedyMesherBuildMesh(chunk, breaking_state);
+}
+
 void chunkGenerateMesh(Chunk* chunk) {
-    binaryGreedyMesherBuildMesh(chunk);
+    chunkGenerateMeshWithBreakingState(chunk, NULL);
 }
 
 static void chunkRenderDroppedItems(Chunk* chunk, RenderContext* ctx, Transforms* transforms) {
@@ -252,9 +256,16 @@ static bool chunkIsOutsideFrustum(const Chunk* chunk, const Frustum* frustum, co
 }
 
 void chunkRender(Chunk* chunk,
-                 const BreakingState* breaking_state,
+                 BreakingState* breaking_state,
                  RenderContext* ctx,
                  Transforms* transforms) {
+    if (breaking_state != NULL && breaking_state->chunk_remesh_trigger) {
+        // (In meshing) if the block matches the breaking state ensure it has unique mesh primitives
+        // with correct tpage and texture window into the render target
+        chunkClearMesh(chunk);
+        chunkGenerateMeshWithBreakingState(chunk, breaking_state);
+        breaking_state->chunk_remesh_trigger = false;
+    }
     // if (chunkIsOutsideFrustum(chunk, &ctx->camera->frustum, transforms)) {
     //     DEBUG_LOG("[CHUNK " VEC_PATTERN "] Not visible\n", VEC_LAYOUT(chunk->position));
     //     // return;
@@ -281,10 +292,9 @@ void chunkRender(Chunk* chunk,
     gte_SetTransMatrix(&omtx);
     // Sort + render mesh
     chunkMeshRender(&chunk->mesh, ctx, transforms);
-    // TODO: Fix logic in world that ensures only one chunk gets non-NULL instance
-    if (breaking_state != NULL) {
-        chunkRenderBreakingOverlay(chunk, breaking_state, ctx, transforms);
-    }
+    // if (breaking_state != NULL) {
+    //     chunkRenderBreakingOverlay(chunk, breaking_state, ctx, transforms);
+    // }
     // Restore matrix
     PopMatrix();
     chunkRenderDroppedItems(chunk, ctx, transforms);

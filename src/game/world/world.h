@@ -50,7 +50,7 @@ typedef struct World {
 void worldInit(World* world, RenderContext* ctx);
 void worldDestroy(World* world);
 
-void worldRender(const World* world, const BreakingState* breaking_state, RenderContext* ctx, Transforms* transforms);
+void worldRender(const World* world, BreakingState* breaking_state, RenderContext* ctx, Transforms* transforms);
 
 void worldUnloadChunk(const World* world, Chunk* chunk);
 ALLOC_CALL(worldUnloadChunk, 2) Chunk* worldLoadChunk(World* world, VECTOR chunk_position);

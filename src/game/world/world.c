@@ -182,7 +182,7 @@ void worldDestroy(World* world) {
 }
 
 void worldRender(const World* world,
-                 const BreakingState* breaking_state,
+                 BreakingState* breaking_state,
                  RenderContext* ctx,
                  Transforms* transforms) {
     const VECTOR chunk_position = worldToChunkBlockPosition(&breaking_state->position, CHUNK_SIZE).chunk;
@@ -213,7 +213,7 @@ void worldRender(const World* world,
         }
         return;
     }
-    u8 coords_check = 0b000;
+    u8 coords_check = 0b000; // XYZ
     #define updateCoordBit(index, axis) ({ \
         if (axis == chunk_position.v##axis) { \
             coords_check |= 1 << (index);\
@@ -222,11 +222,11 @@ void worldRender(const World* world,
         } \
     })
     for (i32 x = x_start; x <= x_end; x++) {
-        updateCoordBit(0, x);
+        updateCoordBit(2, x);
         for (i32 z = z_start; z <= z_end; z++) {
             updateCoordBit(1, x);
             for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
-                updateCoordBit(2, x);
+                updateCoordBit(0, x);
                 chunkRender(
                     world->chunks[arrayCoord(world, vz, z)]
                                  [arrayCoord(world, vx, x)]

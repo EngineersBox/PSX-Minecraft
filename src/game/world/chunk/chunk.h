@@ -50,7 +50,7 @@ void chunkClearMesh(Chunk* chunk);
  */
 bool chunkModifyVoxel(Chunk* chunk, const VECTOR* position, IBlock* block, bool drop_item, IItem** item_result);
 
-void chunkRender(Chunk* chunk, const BreakingState* breaking_state, RenderContext* ctx, Transforms* transforms);
+void chunkRender(Chunk* chunk, BreakingState* breaking_state, RenderContext* ctx, Transforms* transforms);
 
 IBlock* chunkGetBlock(const Chunk* chunk, i32 x, i32 y, i32 z);
 IBlock* chunkGetBlockVec(const Chunk* chunk, const VECTOR* position);
