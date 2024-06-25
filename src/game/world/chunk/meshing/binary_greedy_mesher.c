@@ -552,7 +552,7 @@ void binaryGreedyMesherConstructBreakingOverlay(Chunk* chunk, const BreakingStat
         const Texture texture = (Texture) {
             .tpage = getTPage(
                 2,
-                1,
+                3,
                 breaking_texture_offscreen.x,
                 breaking_texture_offscreen.y
             ),
