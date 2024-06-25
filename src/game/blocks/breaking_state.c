@@ -196,6 +196,9 @@ void breakingStateUpdateRenderTarget(const BreakingState* state,
     ptwin = (DR_TWIN*) allocatePrimitive(ctx, sizeof(DR_TWIN));
     setTexWindow(ptwin, &tex_window);
     addPrim(ot_entry, ptwin);
+    // 3. Sort sprite operations to render to offset positions and merge breaking texture with blending.
+    //    This must be sorted before any other chunk rendering takes place to ensure that the texture is
+    //    updated correctly in time
     const Block* block = VCAST_PTR(Block*, state->block);
     const TextureAttributes* attributes = block->face_attributes;
     for (FaceDirection face_dir = 0; face_dir < FACE_DIRECTION_COUNT; face_dir++) {
@@ -246,10 +249,6 @@ void breakingStateUpdateRenderTarget(const BreakingState* state,
         breaking_texture_offscreen.y
     );
     addPrim(ot_entry, offset);
-    // 3. Sort sprite operations to render to offset positions and merge breaking texture with 50% blending.
-    //    This must be sorted before any other chunk rendering takes place to ensure that the texture is
-
-    //    updated correctly in time
     // 4. Trigger remeshing on chunk holding block
     // 5. (In meshing) if the block matches the breaking state ensure it has unique mesh primitives
     //    with correct tpage and texture window into the render target
