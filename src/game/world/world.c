@@ -224,9 +224,9 @@ void worldRender(const World* world,
     for (i32 x = x_start; x <= x_end; x++) {
         updateCoordBit(2, x);
         for (i32 z = z_start; z <= z_end; z++) {
-            updateCoordBit(1, x);
+            updateCoordBit(0, z);
             for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
-                updateCoordBit(0, x);
+                updateCoordBit(1, y);
                 chunkRender(
                     world->chunks[arrayCoord(world, vz, z)]
                                  [arrayCoord(world, vx, x)]

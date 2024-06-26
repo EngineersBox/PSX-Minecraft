@@ -209,6 +209,9 @@ void playerInputHandlerWorldInteraction(const Input* input, const PlayerInputHan
     }
 }
 
+// This intentional always returns false as it is the
+// base level of input handling, everything else should
+// take control on top of this (i.e. return true).
 bool playerInputHandlerMovement(const Input* input, const PlayerInputHandlerContext* ctx) {
     const PADTYPE* pad = input->pad;
     Player* player = ctx->player;
