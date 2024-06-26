@@ -44,12 +44,19 @@ typedef struct BreakingState {
      *        @code NULL@endcode.
      */
     VECTOR position;
+    /**
+     * @brief Which sides of the block are visible
+     */
     u8 visible_sides_bitset: FACE_DIRECTION_COUNT;
-    // New breaking texture in breaking progress,
-    // trigger a chunk remesh
+    /**
+     * @brief New breaking texture in breaking progress,
+     *        trigger a chunk remesh
+     */
     bool chunk_remesh_trigger: 1;
-    // No longer breaking, trigger a mesh reset
-    // and reset this struct's values
+    /**
+     * @brief No longer breaking, trigger a mesh
+     *        reset and reset this struct's values
+     */
     bool reset_trigger: 1;
     /**
      * @brief @code NULL@endcode == not breaking anything

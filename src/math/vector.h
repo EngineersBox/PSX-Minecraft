@@ -93,6 +93,10 @@ MATRIX* InvRotMatrix(const SVECTOR* r, MATRIX* m);
 
 VECTOR vec3_i32_normalize(const VECTOR v);
 
+// Comparison
+
+#define vec3_equal(v0, v1) ((v0).vx == (v1).vx && (v0).vy == (v1).vy && (v0).vz == (v1).vz)
+
 // TODO: Add vec+const variations
 
 // Field operations

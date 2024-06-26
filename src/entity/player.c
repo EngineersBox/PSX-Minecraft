@@ -94,7 +94,8 @@ void playerFallHandler(PhysicsObject* physics_object, const i32 distance, void* 
 
 void updateBreakingState(Player* player, const RayCastResult* result, const World* world) {
     BreakingState* state = &player->breaking;
-    if ((uintptr_t) state->block != (uintptr_t) result->block) {
+    if ((state->block == NULL && result->block != NULL)
+        || (state->block != NULL && result->block != NULL && !vec3_equal(state->position, result->pos))) {
         *state = (BreakingState) {
             .position = result->pos,
             .block = result->block

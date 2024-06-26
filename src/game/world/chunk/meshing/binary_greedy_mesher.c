@@ -66,9 +66,9 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk, const BreakingState* breaking_sta
         u8 coords_check = 0b000; // XYZ
         #define updateCoordBit(index, axis) ({ \
             if (chunk->position.v##axis + axis == breaking_state->position.v##axis) { \
-                coords_check |= 1 << (index);\
+                coords_check |= 1 << (index); \
             } else { \
-                coords_check &= ~(1 << index) & 0b111;\
+                coords_check &= ~(1 << index) & 0b111; \
             } \
         })
         for (u32 z = 0; z < CHUNK_SIZE; z++) {
