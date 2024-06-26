@@ -266,7 +266,8 @@ void chunkRender(Chunk* chunk,
             chunkClearMesh(chunk);
             chunkGenerateMeshWithBreakingState(chunk, breaking_state);
             breaking_state->chunk_remesh_trigger = false;
-        } else if (breaking_state->reset_trigger) {
+        }
+        if (breaking_state->reset_trigger) {
             chunkClearMesh(chunk);
             chunkGenerateMesh(chunk);
             breakingStateReset(*breaking_state);
