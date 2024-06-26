@@ -204,7 +204,7 @@ void playerInputHandlerWorldInteraction(const Input* input, const PlayerInputHan
     // button, then we should discontinue breaking
     // and update the flag to stop the breaking overlay
     // and revert breaking progress
-    if (!breaking) {
+    if (!breaking && player->breaking.block != NULL) {
         player->breaking.reset_trigger = true;
     }
 }
