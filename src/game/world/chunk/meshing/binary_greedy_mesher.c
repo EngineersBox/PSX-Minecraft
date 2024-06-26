@@ -525,11 +525,7 @@ void binaryGreedyMesherConstructPlane(Chunk* chunk,
     }
 }
 
-// [0,1] -> [-SIZE,SIZE]
-#define convertToVertex(v, shift) (-1 + ((((v) & (1 << (shift))) >> (shift)) << 1))
-
 void binaryGreedyMesherConstructBreakingOverlay(Chunk* chunk, const BreakingState* breaking_state) {
-    DEBUG_LOG("[CHUNK] Rebuilding mesh with overlay\n");
     const ChunkBlockPosition chunk_block_position = worldToChunkBlockPosition(
         &breaking_state->position,
         CHUNK_SIZE
@@ -560,34 +556,43 @@ void binaryGreedyMesherConstructBreakingOverlay(Chunk* chunk, const BreakingStat
             ),
             .clut = textures[ASSET_TEXTURES_TERRAIN_INDEX].clut
         };
-        // TODO: Fix these coordinates, they don't line up with the block
+        // TODO: Fix these (except UP which is correct)
         u32 x = 0;
         u32 y = 0;
         u32 axis = 0;
-        #define generateVertex(_x, _y, _z) ({ \
-            _x = convertToVertex(CUBE_INDICES[face_dir].v0, 0) + chunk_block_position.block.vx; \
-            _y = convertToVertex(CUBE_INDICES[face_dir].v0, 1) + chunk_block_position.block.vy; \
-            _z = convertToVertex(CUBE_INDICES[face_dir].v0, 2) + chunk_block_position.block.vz; \
-        })
         switch (face_dir) {
             case FACE_DIR_DOWN:
+                x = chunk_block_position.block.vx;
+                axis = chunk_block_position.block.vy - 1;
+                y = chunk_block_position.block.vz;
+                break;
             case FACE_DIR_UP:
-                generateVertex(x, axis, y);
+                x = chunk_block_position.block.vx;
+                axis = chunk_block_position.block.vy;
+                y = chunk_block_position.block.vz;
                 break;
             case FACE_DIR_LEFT:
-            case FACE_DIR_RIGHT:
-                generateVertex(axis, y, x);
+                axis = chunk_block_position.block.vx;
+                x = chunk_block_position.block.vy;
+                y = chunk_block_position.block.vz;
                 break;
-            case FACE_DIR_BACK:
-            case FACE_DIR_FRONT:
-                generateVertex(x, y, axis);
-                break;
+            // case FACE_DIR_RIGHT:
+            //     axis = chunk_block_position.block.vx + 1;
+            //     y = chunk_block_position.block.vy;
+            //     x = chunk_block_position.block.vz;
+            //     break;
+            default: continue;
+            // case FACE_DIR_BACK:
+            //     x = chunk_block_position.block.vx;
+            //     y = chunk_block_position.block.vy;
+            //     axis = chunk_block_position.block.vz + 1;
+            //     break;
+            // case FACE_DIR_FRONT:
+            //     x = chunk_block_position.block.vx;
+            //     y = chunk_block_position.block.vy;
+            //     axis = chunk_block_position.block.vz;
+            //     break;
         }
-        DEBUG_LOG(
-            "[CHUNK] Face: %d X: %d Y: %d Axis: %d\n",
-            face_dir,
-            x, y, axis
-        );
         createQuad(
             chunk,
             face_dir,
@@ -606,5 +611,3 @@ void binaryGreedyMesherConstructBreakingOverlay(Chunk* chunk, const BreakingStat
         );
     }
 }
-
-#undef convertToVertex
