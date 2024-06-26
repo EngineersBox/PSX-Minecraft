@@ -185,7 +185,7 @@ void breakingStateUpdateRenderTarget(BreakingState* state,
     setRGB0(pol4, 0x80, 0x80, 0x80);
     pol4->tpage = terrain_texture->tpage;
     // Clear semi-transparency bits
-    pol4->tpage &= 0b1111111110011111;
+    pol4->tpage &= ~(0b11 << 5);
     // Set custom semi-transparency
     pol4->tpage |= 0b11 << 5;
     pol4->clut = terrain_texture->clut;
