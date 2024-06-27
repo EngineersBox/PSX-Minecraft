@@ -183,6 +183,8 @@ void breakingStateUpdateRenderTarget(BreakingState* state,
         face_attribute.h
     );
     setRGB0(pol4, 0x80, 0x80, 0x80);
+    // TODO: Fix this blending to ensure that the overlay
+    //       changes color according to the block texture
     pol4->tpage = terrain_texture->tpage;
     // Clear semi-transparency bits
     pol4->tpage &= ~(0b11 << 5);
@@ -228,6 +230,14 @@ void breakingStateUpdateRenderTarget(BreakingState* state,
             BLOCK_TEXTURE_SIZE,
             BLOCK_TEXTURE_SIZE
         );
+        // switch (face_dir) {
+        //     case FACE_DIR_DOWN: setRGB0(pol4,0xFF,0x00,0x00); break;
+        //     case FACE_DIR_UP: setRGB0(pol4,0xFF,0xFF,0x00); break;
+        //     case FACE_DIR_LEFT: setRGB0(pol4,0x00,0xFF,0x00); break;
+        //     case FACE_DIR_RIGHT: setRGB0(pol4,0x00,0xFF,0xFF); break;
+        //     case FACE_DIR_BACK: setRGB0(pol4,0x00,0x00,0xFF); break;
+        //     case FACE_DIR_FRONT: setRGB0(pol4,0xFF,0x00,0xFF); break;
+        // }
         setRGB0(
             pol4,
             0x80,

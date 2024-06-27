@@ -78,9 +78,6 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk, const BreakingState* breaking_sta
                 for (u32 y = 0; y < CHUNK_SIZE; y++) {
                     updateCoordBit(1, y);
                     if (coords_check == 0b111) {
-                        // TODO: Fix this exclusion, it seems to be removing the wrong
-                        //       block, it is far away on only one axis for some reason
-                        DEBUG_LOG("[CHUNK] Excluding block from mesh: " VEC_PATTERN "\n", x, y, z);
                         // Don't include the block being broken in the mesh since
                         // we need to create non-merged faces in the mesh to ensure
                         // that the overlay is correctly rendered
@@ -337,7 +334,7 @@ static SMD_PRIM* createPrimitive(ChunkMesh* mesh,
     primitive->tpage = texture->tpage;
     primitive->clut = texture->clut;
     const TextureAttributes* attributes = texture_attributes_override != NULL
-        ? texture_attributes_override
+        ? &texture_attributes_override[face_dir]
         : &block->face_attributes[face_dir];
     primitive->tu0 = attributes->u;
     primitive->tv0 = attributes->v;
@@ -543,10 +540,17 @@ void binaryGreedyMesherConstructBreakingOverlay(Chunk* chunk, const BreakingStat
         // The previous and next attributes that have/will be created
         // will never be used in the current loop.
         TextureAttributes* attributes = &texture_attributes[face_dir];
-        attributes->u = face_dir * BLOCK_TEXTURE_SIZE;
+        FaceDirection current_face_dir;
+        switch (face_dir) {
+            case FACE_DIR_LEFT: current_face_dir = FACE_DIR_RIGHT; break;
+            case FACE_DIR_RIGHT: current_face_dir = FACE_DIR_LEFT; break;
+            default: current_face_dir = face_dir; break;
+        }
+        attributes->u = current_face_dir * BLOCK_TEXTURE_SIZE;
         attributes->v = 0;
         attributes->w = BLOCK_TEXTURE_SIZE;
         attributes->h = BLOCK_TEXTURE_SIZE;
+        attributes->tint = block->face_attributes[face_dir].tint;
         const Texture texture = (Texture) {
             .tpage = getTPage(
                 2,
@@ -562,36 +566,35 @@ void binaryGreedyMesherConstructBreakingOverlay(Chunk* chunk, const BreakingStat
         u32 axis = 0;
         switch (face_dir) {
             case FACE_DIR_DOWN:
+                axis = chunk_block_position.block.vy;
                 x = chunk_block_position.block.vx;
-                axis = chunk_block_position.block.vy - 1;
                 y = chunk_block_position.block.vz;
                 break;
             case FACE_DIR_UP:
-                x = chunk_block_position.block.vx;
                 axis = chunk_block_position.block.vy;
+                x = chunk_block_position.block.vx;
                 y = chunk_block_position.block.vz;
                 break;
             case FACE_DIR_LEFT:
                 axis = chunk_block_position.block.vx;
-                x = chunk_block_position.block.vy;
-                y = chunk_block_position.block.vz;
+                x = chunk_block_position.block.vz;
+                y = chunk_block_position.block.vy;
                 break;
-            // case FACE_DIR_RIGHT:
-            //     axis = chunk_block_position.block.vx + 1;
-            //     y = chunk_block_position.block.vy;
-            //     x = chunk_block_position.block.vz;
-            //     break;
-            default: continue;
-            // case FACE_DIR_BACK:
-            //     x = chunk_block_position.block.vx;
-            //     y = chunk_block_position.block.vy;
-            //     axis = chunk_block_position.block.vz + 1;
-            //     break;
-            // case FACE_DIR_FRONT:
-            //     x = chunk_block_position.block.vx;
-            //     y = chunk_block_position.block.vy;
-            //     axis = chunk_block_position.block.vz;
-            //     break;
+            case FACE_DIR_RIGHT:
+                axis = chunk_block_position.block.vx;
+                x = chunk_block_position.block.vz;
+                y = chunk_block_position.block.vy;
+                break;
+            case FACE_DIR_BACK:
+                axis = chunk_block_position.block.vz;
+                x = chunk_block_position.block.vx;
+                y = chunk_block_position.block.vy;
+                break;
+            case FACE_DIR_FRONT:
+                x = chunk_block_position.block.vx;
+                y = chunk_block_position.block.vy;
+                axis = chunk_block_position.block.vz;
+                break;
         }
         createQuad(
             chunk,
