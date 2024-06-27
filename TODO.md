@@ -90,4 +90,4 @@
 * [ ]  Support other resolutions that aren't 320x240
 * [ ]  Refactor vector operations to use `_Generic` C11 macro to perform type specific operations between any kind of two vector types or constant
 * [ ]  Move assets to on-disk directories and files instead of packing them into the binary
-* [ ]  Merge both font textures (with and without shadow) into a single texture to use space more efficiently and avoid the gap between the current texture file layout in VRAM.
+* [X]  Merge both font textures (with and without shadow) into a single texture to use space more efficiently and avoid the gap between the current texture file layout in VRAM.

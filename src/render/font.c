@@ -26,7 +26,6 @@ static FontStream font_stream[8];
 static int font_nstreams = 0;
 
 Texture* font_current;
-Texture* font_shadowed_current;
 
 u32 fontStringWidth(const char* string) {
     return FONT_CHARACTER_SPRITE_WIDTH * strlen(string);
@@ -69,7 +68,6 @@ void fontLoad() {
 		errorAbort("[ERROR] Cannot load font, assets have not been loaded\n");
 	}
 	font_current = &textures[ASSET_TEXTURES_FONT_INDEX];
-	font_shadowed_current = &textures[ASSET_TEXTURES_FONT_SHADOWED_INDEX];
 	DrawSync(0);
 	// Clear previously opened text streams
 	if (font_nstreams) {
@@ -139,7 +137,7 @@ void* fontFlush(FontID id) {
 	if (id < 0) {
 		id = font_nstreams - 1;
 	}
-	const Texture* tex_ref = font_stream[id].shadow ? font_shadowed_current : font_current;
+	const Texture* tex_ref = font_current;
 	int stream_x = font_stream[id].x;
 	int stream_y = font_stream[id].y;
 	const char* text = font_stream[id].txtbuff;
@@ -152,6 +150,9 @@ void* fontFlush(FontID id) {
 		0,
 		tex_ref->tpage
 	);
+	// Increment the xcoord to target the shadow half of the
+	// texture at an offset of 128
+	const u16 texture_offset = font_stream[id].shadow ? 128 : 0;
 	SPRT_8* sprite;
 	// Create a black rectangle background when enabled
 	if (font_stream[id].bg) {
@@ -192,7 +193,7 @@ void* fontFlush(FontID id) {
 			setXY0(sprite, stream_x, stream_y);
 			setUV0(
 				sprite,
-				(c % FONT_SPRITE_WIDTH) * FONT_CHARACTER_SPRITE_WIDTH,
+				(c % FONT_SPRITE_WIDTH) * FONT_CHARACTER_SPRITE_WIDTH + texture_offset,
 				(c / FONT_SPRITE_HEIGHT) * FONT_CHARACTER_SPRITE_HEIGHT
 			);
 			sprite->clut = tex_ref->clut;
@@ -221,7 +222,8 @@ void* fontSort(u32* ordering_table,
 			   const bool shadow,
 			   const char *text) {
 	_sdk_validate_args(ordering_table && primitive, 0);
-	const Texture* tex_ref = shadow ? font_shadowed_current : font_current;
+	const Texture* tex_ref = font_current;
+	const u16 texture_offset = shadow ? 128 : 0;
 	SPRT_8* sprite = (SPRT_8*)primitive;
 	int stream_x = x;
 	int stream_y = y;
@@ -241,7 +243,7 @@ void* fontSort(u32* ordering_table,
 			setXY0(sprite, stream_x, stream_y);
 			setUV0(
 				sprite,
-				(i % FONT_SPRITE_WIDTH) * FONT_CHARACTER_SPRITE_WIDTH,
+				(i % FONT_SPRITE_WIDTH) * FONT_CHARACTER_SPRITE_WIDTH + texture_offset,
 				(i / FONT_SPRITE_HEIGHT) * FONT_CHARACTER_SPRITE_HEIGHT
 			);
 			sprite->clut = tex_ref->clut;
