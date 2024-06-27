@@ -48,11 +48,12 @@ void fontPrintCentreOffset(RenderContext* ctx,
         ap
     );
     va_end(ap);
-    ctx->primitive = FntSort(
+    ctx->primitive = fontSort(
         allocateOrderingTable(ctx, 0),
         ctx->primitive,
         x_offset - (fontStringWidth(buf) / 2),
         y,
+        true,
         buf
     );
 }
