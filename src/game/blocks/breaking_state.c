@@ -24,21 +24,6 @@ const RECT breaking_texture_offscreen = (RECT) {
     .h = 16
 };
 
-bool canHarvestBlock(const ToolType block_tool_type,
-                     const ItemMaterial block_tool_material,
-                     const ToolType item_tool_type,
-                     const ItemMaterial item_tool_material,
-                     const Block* block) {
-    const bool can_harvest = blockGetItemCanHarvest(block->id, item_tool_type);
-    if (!can_harvest) {
-        return false;
-    }
-    if (item_tool_type == TOOLTYPE_NONE) {
-        return true;
-    }
-    return block_tool_type == item_tool_type && item_tool_material >= block_tool_material;
-}
-
 void breakingStateCalculateTicks(BreakingState* state,
                                  const IItem* held_item,
                                  const bool in_water,
@@ -60,7 +45,7 @@ void breakingStateCalculateTicks(BreakingState* state,
         }
     }
     const bool is_ideal_tool_type = item_tool_type == block_tool_type;
-    const bool tool_can_harvest_block = canHarvestBlock(
+    const bool tool_can_harvest_block = blockCanHarvest(
         block_tool_type,
         block_tool_material,
         item_tool_type,

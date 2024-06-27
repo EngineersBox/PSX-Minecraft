@@ -115,7 +115,6 @@ void updateBreakingState(Player* player, const RayCastResult* result, const Worl
     if (state->ticks_so_far < state->ticks_precise) {
         return;
     }
-    breakingStateReset(*state);
     // NOTE: By making sure we only get the item at the last tick when
     //       breaking means the OG bug of being able to mine with one
     //       tool then switch to another at the last second to preserve
@@ -123,7 +122,12 @@ void updateBreakingState(Player* player, const RayCastResult* result, const Worl
     const Hotbar* hotbar = VCAST_PTR(Hotbar*, &player->hotbar);
     Slot* slot = &hotbarGetSelectSlot(hotbar);
     IItem* iitem = slot->data.item;
-    bool drop_item_on_break = false;
+    const Block* block = VCAST_PTR(Block*, state->block);
+    const BlockID block_id = block->id;
+    const ToolType block_tool_type = blockGetToolType(block_id);
+    const ItemMaterial block_tool_material = blockGetToolMaterial(block_id);
+    ToolType item_tool_type = TOOLTYPE_NONE;
+    ItemMaterial item_tool_material = ITEMMATERIAL_NONE;
     if (iitem == NULL) {
         // No item in the player's hand
         goto remove_world_block;
@@ -134,13 +138,8 @@ void updateBreakingState(Player* player, const RayCastResult* result, const Worl
         // Not a tool, so no durability decrement or tool breaking to handle
         goto remove_world_block;
     }
-    const BlockID block_id = VCAST_PTR(Block*, state->block)->id;
-    const ToolType block_tool_type = blockGetToolType(block_id);
-    const ItemMaterial block_tool_material = blockGetToolMaterial(block_id);
-    const ToolType item_tool_type = itemGetToolType(item_id);
-    const ItemMaterial item_tool_material = itemGetMaterial(item_id);
-    drop_item_on_break = item_tool_type == block_tool_type
-                    && item_tool_material >= block_tool_material;
+    item_tool_type = itemGetToolType(item_id);
+    item_tool_material = itemGetMaterial(item_id);
     // NOTE: Using an unchecked decrement on the durability here
     //       allows us to keep another OG bug which is that getting
     //       a negative durability item wraps around and gives a
@@ -151,6 +150,13 @@ void updateBreakingState(Player* player, const RayCastResult* result, const Worl
         slot->data.item = NULL;
     }
 remove_world_block:
+    const bool drop_item_on_break = blockCanHarvest(
+        block_tool_type,
+        block_tool_material,
+        item_tool_type,
+        item_tool_material,
+        block
+    );
     worldModifyVoxel(
         world,
         &result->pos,
@@ -158,6 +164,7 @@ remove_world_block:
         drop_item_on_break,
         NULL
     );
+    breakingStateReset(*state);
 }
 
 void playerInputHandlerWorldInteraction(const Input* input, const PlayerInputHandlerContext* ctx) {

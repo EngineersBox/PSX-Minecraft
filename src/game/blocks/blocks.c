@@ -57,3 +57,18 @@ void blocksInitialiseBuiltin() {
     );
     DEBUG_LOG("Cobblestone: %d\n", VCAST_PTR(Block*, cobblestoneBlockCreate())->id);
 }
+
+bool blockCanHarvest(const ToolType block_tool_type,
+                     const ItemMaterial block_tool_material,
+                     const ToolType item_tool_type,
+                     const ItemMaterial item_tool_material,
+                     const Block* block) {
+    const bool can_harvest = blockGetItemCanHarvest(block->id, item_tool_type);
+    if (!can_harvest) {
+        return false;
+    }
+    if (item_tool_type == TOOLTYPE_NONE) {
+        return true;
+    }
+    return block_tool_type == item_tool_type && item_tool_material >= block_tool_material;
+}

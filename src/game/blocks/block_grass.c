@@ -32,7 +32,7 @@ void GrassBlock_access(VSelf) {
 IItem* grassBlockDestroy(VSelf, bool drop_item) ALIAS("GrassBlock_destroy");
 IItem* GrassBlock_destroy(VSelf, const bool drop_item) {
     VSELF(GrassBlock);
-    return  drop_item ? grassBlockProvideItem(self) : NULL;
+    return drop_item ? grassBlockProvideItem(self) : NULL;
 }
 
 void grassBlockUpdate(VSelf) ALIAS("GrassBlock_update");
