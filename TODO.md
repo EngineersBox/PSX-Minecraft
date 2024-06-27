@@ -85,9 +85,9 @@
 * [X]  Per-face opacity control on each block for minimal meshing with mixed opacity (i.e. like farmland or stairs)
 * [X]  Breaking overlay should mark target block as being broken, have a global to mark the block being broken and the breaking texture index to use, then trigger a chunk mesh regeneration on starting to break the block and when stopped (not finished breaking). Render the overlay on top of the target texture to a part of the framebuffer with `(16*6)x16` reserved to merge the texture and overlay together. Then ensure the block render tpage is poiting to the reserved area by `face_dir * 16` for that face (in the mesh data).
 * [X]  Move static values like block/item names and max stack sizes to global constants accessed by ID
+* [X]  Merge both font textures (with and without shadow) into a single texture to use space more efficiently and avoid the gap between the current texture file layout in VRAM.
 * [ ]  Move rendering handlers in `ChunkMesh` to standalone SMD renderer file
 * [ ]  Turn these TODO list sections into tables instead of checkmark lists
 * [ ]  Support other resolutions that aren't 320x240
 * [ ]  Refactor vector operations to use `_Generic` C11 macro to perform type specific operations between any kind of two vector types or constant
 * [ ]  Move assets to on-disk directories and files instead of packing them into the binary
-* [X]  Merge both font textures (with and without shadow) into a single texture to use space more efficiently and avoid the gap between the current texture file layout in VRAM.
