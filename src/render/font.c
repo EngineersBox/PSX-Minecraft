@@ -60,7 +60,7 @@ void fontPrintCentreOffset(RenderContext* ctx,
 
 // Referenced implementations are from Lameguy64 and spicyjpeg
 // in the Psn00bSDK: <https://github.com/Lameguy64/PSn00bSDK/blob/master/libpsn00b/psxgpu/font.c>
-// I've modified it to work with a more general front sprite
+// I've modified it to work with a more general font sprite
 // sheet with complete ASCII and extended character + symbol
 // sets.
 
