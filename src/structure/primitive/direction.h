@@ -32,7 +32,7 @@ extern const SVECTOR FACE_DIRECTION_NORMALS[FACE_DIRECTION_COUNT];
  *       Name  | Index | XOR'd Index
  *       ------|-------|----------------------
  *       DOWN  | 0b000 | 0b000 ^ 0b001 = 0b001
- *       UP    | 0b001 | 0b000 ^ 0b001 = 0b000
+ *       UP    | 0b001 | 0b001 ^ 0b001 = 0b000
  *       LEFT  | 0b010 | 0b010 ^ 0b001 = 0b011
  *       RIGHT | 0b011 | 0b011 ^ 0b001 = 0b010
  *       BACK  | 0b100 | 0b100 ^ 0b001 = 0b101
@@ -42,7 +42,7 @@ extern const SVECTOR FACE_DIRECTION_NORMALS[FACE_DIRECTION_COUNT];
  * @param face_dir Current @code FaceDirection@endcode
  * @return Opposing @code FaceDirection@endcode
  */
-#define faceDirectionOpposing(face_dir) ((FaceDirection) (face_dir ^ 1))
+#define faceDirectionOpposing(face_dir) ((FaceDirection) (((u8) face_dir) ^ 1))
 
 // Given target_direction, a direction relative to FACE_DIR_FRONT,
 // this computes the equivalent direction of target_direction

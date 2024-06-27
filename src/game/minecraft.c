@@ -101,9 +101,9 @@ void Minecraft_init(VSelf, void* ctx) {
     self->world->centre.vz = 0;
     DYN_PTR(
         &self->world->chunk_provider,
-        OverworldFlatlandChunkProvider,
+        OverworldPerlinChunkProvider,
         IChunkProvider,
-        malloc(sizeof(OverworldFlatlandChunkProvider))
+        malloc(sizeof(OverworldPerlinChunkProvider))
     );
     worldInit(self->world, &self->internals.ctx);
     world = self->world;

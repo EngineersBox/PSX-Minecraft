@@ -27,12 +27,12 @@ void chunkMeshInit(ChunkMesh* mesh) {
         // NOTE: This null init is important for cvector to ensure allocation is done initially
         SMD* smd = &mesh->face_meshes[i];
         cvector(SMD_PRIM) p_prims = NULL;
-        cvector_init(p_prims, MESH_PRIMITIVE_VEC_INITIAL_CAPCITY, __primtiveDestructor);
+        cvector_init(p_prims, MESH_PRIMITIVE_VEC_INITIAL_CAPCITY, NULL);
         smd->p_prims = p_prims;
         smd->p_verts = NULL;
-        cvector_init(smd->p_verts, MESH_VERTEX_VEC_INITIAL_CAPCITY, __svectorDestructor);
+        cvector_init(smd->p_verts, MESH_VERTEX_VEC_INITIAL_CAPCITY, NULL);
         smd->p_norms = NULL;
-        cvector_init(smd->p_norms, MESH_NORMAL_VEC_INITIAL_CAPCITY, __svectorDestructor);
+        cvector_init(smd->p_norms, MESH_NORMAL_VEC_INITIAL_CAPCITY, NULL);
     }
 }
 

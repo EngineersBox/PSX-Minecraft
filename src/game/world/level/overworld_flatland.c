@@ -38,7 +38,7 @@ void OverworldFlatlandChunkGenerator_generate(VSelf, Chunk* chunk) {
                 } else if (y == 4) {
                     chunk->blocks[chunkBlockIndex(x, y, z)] = grassBlockCreate();
                 } else {
-                    if (y == 6 && x % 3 == 0 && z % 3 == 0) {
+                    if (y == 5 && x % 3 == 0 && z % 3 == 0) {
                         chunk->blocks[chunkBlockIndex(x, y, z)] = grassBlockCreate();
                         // chunk->blocks[chunkBlockIndex(x, y, z)] = airBlockCreate();
                     } else {

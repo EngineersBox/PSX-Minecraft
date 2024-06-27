@@ -62,54 +62,19 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk, const BreakingState* breaking_sta
     FacesColumns faces_cols_opaque = {0};
     FacesColumns col_face_masks = {0};
     // Inner chunk blocks
-    if (breaking_state != NULL) {
-        u8 coords_check = 0b000; // XYZ
-        #define updateCoordBit(index, axis) ({ \
-            if (chunk->position.v##axis + axis == breaking_state->position.v##axis) { \
-                coords_check |= 1 << (index); \
-            } else { \
-                coords_check &= ~(1 << index) & 0b111; \
-            } \
-        })
-        for (u32 z = 0; z < CHUNK_SIZE; z++) {
-            updateCoordBit(0, z);
-            for (u32 x = 0; x < CHUNK_SIZE; x++) {
-                updateCoordBit(2, x);
-                for (u32 y = 0; y < CHUNK_SIZE; y++) {
-                    updateCoordBit(1, y);
-                    if (coords_check == 0b111) {
-                        // Don't include the block being broken in the mesh since
-                        // we need to create non-merged faces in the mesh to ensure
-                        // that the overlay is correctly rendered
-                        continue;
-                    }
-                    addVoxelToFaceColumns(
-                        faces_cols,
-                        faces_cols_opaque,
-                        chunkGetBlock(chunk, x, y, z),
-                        x + 1,
-                        y + 1,
-                        z + 1
-                    );
-                }
-            }
-        }
-        #undef updateCoordBit
-    } else {
-        // Duplication here is just to optimise away lots of if statements
-        // when this chunk has no breaking state available as a paramater
-        for (u32 z = 0; z < CHUNK_SIZE; z++) {
-            for (u32 x = 0; x < CHUNK_SIZE; x++) {
-                for (u32 y = 0; y < CHUNK_SIZE; y++) {
-                    addVoxelToFaceColumns(
-                        faces_cols,
-                        faces_cols_opaque,
-                        chunkGetBlock(chunk, x, y, z),
-                        x + 1,
-                        y + 1,
-                        z + 1
-                    );
-                }
+    // Duplication here is just to optimise away lots of if statements
+    // when this chunk has no breaking state available as a paramater
+    for (u32 z = 0; z < CHUNK_SIZE; z++) {
+        for (u32 x = 0; x < CHUNK_SIZE; x++) {
+            for (u32 y = 0; y < CHUNK_SIZE; y++) {
+                addVoxelToFaceColumns(
+                    faces_cols,
+                    faces_cols_opaque,
+                    chunkGetBlock(chunk, x, y, z),
+                    x + 1,
+                    y + 1,
+                    z + 1
+                );
             }
         }
     }
@@ -215,7 +180,6 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk, const BreakingState* breaking_sta
         NULL
     );
     // Find faces and build binary planes based on block types
-    u32 primitive_index = 0;
     for (u32 face = 0; face < FACE_DIRECTION_COUNT; face++) {
         for (u32 z = 0; z < CHUNK_SIZE; z++) {
             for (u32 x = 0; x < CHUNK_SIZE; x++) {
@@ -248,6 +212,21 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk, const BreakingState* breaking_sta
                             chunk_block_position.block = vec3_i32(x, z, y);
                             break;
                     }
+                    const VECTOR world_block_position = vector_add(
+                        vector_const_mul(
+                            chunk_block_position.chunk,
+                            CHUNK_SIZE
+                        ),
+                        chunk_block_position.block
+                    );
+                    if (breaking_state != NULL
+                        && breaking_state->block != NULL
+                        && vec3_equal(breaking_state->position, world_block_position)) {
+                        // Don't generate faces that match with the breaking block
+                        // as we will create those later with the overlay. This avoids
+                        // z fighting between mesh faces and overlay faces.
+                        continue;
+                    }
                     const IBlock* current_block = worldGetChunkBlock(chunk->world, &chunk_block_position);
                     if (current_block == NULL) {
                         errorAbort(
@@ -278,7 +257,6 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk, const BreakingState* breaking_sta
                         current = (PlaneMeshingData*) hashmap_get(data, &query);
                     }
                     current->plane[x] |= 1 << z;
-                    primitive_index++;
                 }
             }
         }
@@ -298,7 +276,7 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk, const BreakingState* breaking_sta
         );
     }
     hashmap_free(data);
-    if (breaking_state != NULL) {
+    if (breaking_state != NULL && breaking_state->block != NULL) {
         binaryGreedyMesherConstructBreakingOverlay(chunk, breaking_state);
     }
 }
@@ -349,7 +327,7 @@ static SMD_PRIM* createPrimitive(ChunkMesh* mesh,
 
 #define nextRenderAttribute(mesh, attribute_field, index_field, count_field) ({ \
         cvector_push_back((mesh)->attribute_field, (SVECTOR){}); \
-        (primitive)->index_field = (mesh)->count_field; \
+        primitive->index_field = (mesh)->count_field; \
         (&cvector_begin((mesh)->attribute_field)[(mesh)->count_field++]); \
 })
 
@@ -539,14 +517,14 @@ void binaryGreedyMesherConstructBreakingOverlay(Chunk* chunk, const BreakingStat
         // reference the one we create now in this loop iteration.
         // The previous and next attributes that have/will be created
         // will never be used in the current loop.
-        TextureAttributes* attributes = &texture_attributes[face_dir];
         FaceDirection current_face_dir;
         switch (face_dir) {
-            case FACE_DIR_LEFT: current_face_dir = FACE_DIR_RIGHT; break;
-            case FACE_DIR_RIGHT: current_face_dir = FACE_DIR_LEFT; break;
+            case FACE_DIR_FRONT: current_face_dir = FACE_DIR_BACK; break;
+            case FACE_DIR_BACK: current_face_dir = FACE_DIR_FRONT; break;
             default: current_face_dir = face_dir; break;
         }
-        attributes->u = current_face_dir * BLOCK_TEXTURE_SIZE;
+        TextureAttributes* attributes = &texture_attributes[current_face_dir];
+        attributes->u = face_dir * BLOCK_TEXTURE_SIZE;
         attributes->v = 0;
         attributes->w = BLOCK_TEXTURE_SIZE;
         attributes->h = BLOCK_TEXTURE_SIZE;
@@ -560,45 +538,30 @@ void binaryGreedyMesherConstructBreakingOverlay(Chunk* chunk, const BreakingStat
             ),
             .clut = textures[ASSET_TEXTURES_TERRAIN_INDEX].clut
         };
-        // TODO: Fix these (except UP which is correct)
         u32 x = 0;
         u32 y = 0;
         u32 axis = 0;
-        switch (face_dir) {
+        #define pos(_axis, _x, _y) \
+            axis = chunk_block_position.block.v##_axis; \
+            x = chunk_block_position.block.v##_x; \
+            y = chunk_block_position.block.v##_y
+        switch (current_face_dir) {
             case FACE_DIR_DOWN:
-                axis = chunk_block_position.block.vy;
-                x = chunk_block_position.block.vx;
-                y = chunk_block_position.block.vz;
-                break;
             case FACE_DIR_UP:
-                axis = chunk_block_position.block.vy;
-                x = chunk_block_position.block.vx;
-                y = chunk_block_position.block.vz;
+                pos(y, x, z);
                 break;
             case FACE_DIR_LEFT:
-                axis = chunk_block_position.block.vx;
-                x = chunk_block_position.block.vz;
-                y = chunk_block_position.block.vy;
-                break;
             case FACE_DIR_RIGHT:
-                axis = chunk_block_position.block.vx;
-                x = chunk_block_position.block.vz;
-                y = chunk_block_position.block.vy;
+                pos(x, z, y);
                 break;
             case FACE_DIR_BACK:
-                axis = chunk_block_position.block.vz;
-                x = chunk_block_position.block.vx;
-                y = chunk_block_position.block.vy;
-                break;
             case FACE_DIR_FRONT:
-                x = chunk_block_position.block.vx;
-                y = chunk_block_position.block.vy;
-                axis = chunk_block_position.block.vz;
+                pos(z, x, y);
                 break;
         }
         createQuad(
             chunk,
-            face_dir,
+            current_face_dir,
             // This should be the coordinate value for which ever axis stays constant
             // in the facing direction, i.e. in the UP direction the Y coord doesn't
             // change at each vertex, that would be the value here.

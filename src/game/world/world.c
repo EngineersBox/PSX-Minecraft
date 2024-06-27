@@ -216,9 +216,9 @@ void worldRender(const World* world,
     u8 coords_check = 0b000; // XYZ
     #define updateCoordBit(index, axis) ({ \
         if (axis == chunk_position.v##axis) { \
-            coords_check |= 1 << (index);\
+            coords_check |= 1 << (index); \
         } else { \
-            coords_check &= ~(1 << index) & 0b111;\
+            coords_check &= ~(1 << index); \
         } \
     })
     for (i32 x = x_start; x <= x_end; x++) {
@@ -554,15 +554,15 @@ bool worldModifyVoxel(const World* world,
         return false;
     }
     const ChunkBlockPosition chunk_block_position = worldToChunkBlockPosition(position, CHUNK_SIZE);
-    DEBUG_LOG(
-        "[WORLD] Modify - Chunk: " VEC_PATTERN " Block: " VEC_PATTERN "\n",
-        chunk_block_position.chunk.vx,
-        chunk_block_position.chunk.vy,
-        chunk_block_position.chunk.vz,
-        chunk_block_position.block.vx,
-        chunk_block_position.block.vy,
-        chunk_block_position.block.vz
-    );
+    // DEBUG_LOG(
+    //     "[WORLD] Modify - Chunk: " VEC_PATTERN " Block: " VEC_PATTERN "\n",
+    //     chunk_block_position.chunk.vx,
+    //     chunk_block_position.chunk.vy,
+    //     chunk_block_position.chunk.vz,
+    //     chunk_block_position.block.vx,
+    //     chunk_block_position.block.vy,
+    //     chunk_block_position.block.vz
+    // );
     return worldModifyVoxelChunkBlock(
         world,
         &chunk_block_position,

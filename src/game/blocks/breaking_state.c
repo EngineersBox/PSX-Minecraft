@@ -212,10 +212,10 @@ void breakingStateUpdateRenderTarget(BreakingState* state,
         if (((state->visible_sides_bitset >> face_dir) & 0b1) == 0) {
             continue;
         }
-        const TextureAttributes* attribute = &attributes[face_dir];
         pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
         setPolyFT4(pol4);
         setSemiTrans(pol4, 0);
+        const TextureAttributes* attribute = &attributes[face_dir];
         setXYWH(
             pol4,
             BLOCK_TEXTURE_SIZE * face_dir,
@@ -230,6 +230,7 @@ void breakingStateUpdateRenderTarget(BreakingState* state,
             BLOCK_TEXTURE_SIZE,
             BLOCK_TEXTURE_SIZE
         );
+        // Commented out switch is used to render normals as distinct colours
         // switch (face_dir) {
         //     case FACE_DIR_DOWN: setRGB0(pol4,0xFF,0x00,0x00); break;
         //     case FACE_DIR_UP: setRGB0(pol4,0xFF,0xFF,0x00); break;
