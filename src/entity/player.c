@@ -167,7 +167,7 @@ remove_world_block:
     breakingStateReset(*state);
 }
 
-void playerInputHandlerWorldInteraction(const Input* input, const PlayerInputHandlerContext* ctx) {
+INLINE static void playerInputHandlerWorldInteraction(const Input* input, const PlayerInputHandlerContext* ctx) {
     Player* player = ctx->player;
     const PADTYPE* pad = input->pad;
     bool breaking = false;
@@ -204,25 +204,44 @@ void playerInputHandlerWorldInteraction(const Input* input, const PlayerInputHan
             "durability, or updating the raycast intersected block\n"
             "if need be for interaction (i.e doors)"
         );
-        // const RayCastResult result = worldRayCastIntersection(
-        //     ctx->world,
-        //     VCAST_PTR(Camera*, player->camera),
-        //     PLAYER_REACH_DISTANCE
-        // );
+        const RayCastResult result = worldRayCastIntersection(
+            ctx->world,
+            VCAST_PTR(Camera*, player->camera),
+            PLAYER_REACH_DISTANCE
+        );
+        // Interaction order:
+        // 1. If the raycast has a block result and we are not sneaking, or we are sneaking
+        //    and we don't have a block or tool in hand, invoke the use handler on the block
+        //    (that will handle such cases as open inventory or open door)
+        // 2. If the current item is a tool
+        //   a. Invoke the use handler on the tool and note the return boolean
+        //   b. If the use handler returns true, deallocate the item (durability used up)
+        // 3. If the raycast has a block result and we the current item is a block
+        //   a. Place it in the direction of the face the raycast result returned.
+        //   b. Decrement the item stack size, deallocate it if it is now zero
+        // 4. Otherwise, nothing to do
+        // const bool sneaking  = player->physics_object.flags.sneaking;
+        // const Hotbar* hotbar = VCAST_PTR(Hotbar*, &player->hotbar);
+        // Slot* slot = &hotbarGetSelectSlot(hotbar);
+        // IItem* iitem = slot->data.item;
+        // if (result.block != NULL) {
+        //     if (sneaking || (iitem == NULL || iitem ))
+        // }
+        // has_tool:
     }
     // If we are not holding down the BINDING_ATTACK
     // button, then we should discontinue breaking
     // and update the flag to stop the breaking overlay
     // and revert breaking progress
-    if (!breaking && player->breaking.block != NULL) {
+    if (player->breaking.block != NULL && !breaking) {
         player->breaking.reset_trigger = true;
     }
 }
 
-// This intentional always returns false as it is the
+// This intentionally always returns false as it is the
 // base level of input handling, everything else should
 // take control on top of this (i.e. return true).
-bool playerInputHandlerMovement(const Input* input, const PlayerInputHandlerContext* ctx) {
+INLINE static bool playerInputHandlerMovement(const Input* input, const PlayerInputHandlerContext* ctx) {
     const PADTYPE* pad = input->pad;
     Player* player = ctx->player;
     PhysicsObject* physics_object = &player->physics_object;
