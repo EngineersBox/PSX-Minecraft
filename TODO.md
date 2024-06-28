@@ -50,8 +50,8 @@
 * [X]  Support transparent textures (original and binary greedy meshing)
 * [X]  Full ASCII, extended characters and symbols set front + printing lib
 * [X]  Shadowed version of font to use via flag for printing
-* [X]  Finish player attack input handler
 * [X]  Breaking overlays for a block, enabled with a marker variable and a target resolved by ray cast and a texture reference
+* [ ]  Finish player attack input handler
 * [ ]  Camera far plane cutoff with fog relative to chunk render distance
 * [ ]  Frustum and culling
 * [ ]  Depth-first search culling through chunks

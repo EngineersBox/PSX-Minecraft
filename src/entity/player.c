@@ -195,6 +195,11 @@ INLINE static void playerInputHandlerWorldInteraction(const Input* input, const 
                 updateBreakingState(player, &result, ctx->world);
                 breaking = true;
             }
+        } else {
+            TODO(
+                "Support ATTACK actions for items when we are not\n"
+                "targetting a block (i.e. no block in raycast result"
+            );
         }
     } else if (isPressed(pad, BINDING_USE)) {
         TODO(
@@ -239,18 +244,6 @@ INLINE static void playerInputHandlerWorldInteraction(const Input* input, const 
         const Hotbar* hotbar = VCAST_PTR(Hotbar*, &player->hotbar);
         Slot* slot = &hotbarGetSelectSlot(hotbar);
         IItem* iitem = slot->data.item;
-        if (result.block != NULL) {
-            const Item* item = VCAST_PTR(Item*, iitem);
-            const ItemType item_type = itemGetType(item->id);
-            if (item_type == ITEMTYPE_TOOL) {
-                if (sneaking) {
-
-                }
-            }
-        } else {
-
-        }
-        after:
     }
     // If we are not holding down the BINDING_ATTACK
     // button, then we should discontinue breaking
