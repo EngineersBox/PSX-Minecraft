@@ -8,6 +8,7 @@
 #include "../../structure/cvector.h"
 #include "../../ui/ui.h"
 #include "../../util/preprocessor.h"
+#include "../../util/inttypes.h"
 #include "../../hardware/counters.h"
 
 // * 0-3: armour
@@ -71,8 +72,8 @@ void inventoryInit(Inventory* inventory, Hotbar* hotbar);
 
 void inventoryRenderSlots(const Inventory* inventory, RenderContext* ctx, Transforms* transforms);
 
-Slot* inventorySearchItem(const Inventory* inventory, const ItemID id, const uint8_t from_slot, uint8_t* next_free);
-Slot* inventoryFindFreeSlot(const Inventory* inventory, const uint8_t from_slot);
+Slot* inventorySearchItem(const Inventory* inventory, const ItemID id, const u8 from_slot, u8* next_free);
+Slot* inventoryFindFreeSlot(const Inventory* inventory, const u8 from_slot);
 
 InventoryStoreResult inventoryStoreItem(Inventory* inventory, IItem* iitem);
 

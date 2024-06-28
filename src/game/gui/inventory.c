@@ -43,7 +43,7 @@ void initStorageSlots(Inventory* inventory) {
         slot->index = i;
         slot->dimensions = INV_SLOT_DIMS;
         slot->blocked = false;
-        const uint8_t local_index = i - INVENTORY_SLOT_STORAGE_OFFSET;
+        const u8 local_index = i - INVENTORY_SLOT_STORAGE_OFFSET;
         slot->position = playerInvStoragePos(
             local_index % PLAYER_INV_STORAGE_SLOTS_WIDTH,
             local_index / PLAYER_INV_STORAGE_SLOTS_WIDTH
@@ -56,7 +56,7 @@ void initHotbarSlots(Inventory* inventory) {
     for (int i = INVENTORY_SLOT_HOTBAR_OFFSET; i < INVENTORY_SLOT_COUNT; i++) {
         cvector_push_back(inventory->slots, (Slot){});
         Slot* slot = &inventory->slots[i];
-        const uint8_t hotbar_index = i - INVENTORY_SLOT_HOTBAR_OFFSET;
+        const u8 hotbar_index = i - INVENTORY_SLOT_HOTBAR_OFFSET;
         slot->data.ref = &hotbar->slots[hotbar_index];
         slot->index = i;
         slot->blocked = false;
@@ -125,13 +125,13 @@ void inventoryRenderSlots(const Inventory* inventory, RenderContext* ctx, Transf
     }
 }
 
-Slot* inventorySearchItem(const Inventory* inventory, const ItemID id, const uint8_t from_slot, uint8_t* next_free) {
+Slot* inventorySearchItem(const Inventory* inventory, const ItemID id, const u8 from_slot, u8* next_free) {
     *next_free = INVENTORY_NO_FREE_SLOT;
     if (from_slot >= INVENTORY_SLOT_COUNT) {
         return NULL;
     }
     // Hotbar first
-    for (uint8_t i = max(from_slot, INVENTORY_SLOT_HOTBAR_OFFSET); i < INVENTORY_SLOT_COUNT; i++) {
+    for (u8 i = max(from_slot, INVENTORY_SLOT_HOTBAR_OFFSET); i < INVENTORY_SLOT_COUNT; i++) {
         Slot* slot = &inventory->slots[i];
         const Slot* slot_ref = slot->data.ref;
         if (slot_ref->data.item == NULL) {
@@ -146,7 +146,7 @@ Slot* inventorySearchItem(const Inventory* inventory, const ItemID id, const uin
         }
     }
     // Inventory storage second
-    for (uint8_t i = from_slot; i < INVENTORY_SLOT_HOTBAR_OFFSET; i++) {
+    for (u8 i = from_slot; i < INVENTORY_SLOT_HOTBAR_OFFSET; i++) {
         Slot* slot = &inventory->slots[i];
         if (slot->data.item == NULL) {
             if (*next_free == INVENTORY_NO_FREE_SLOT) {
@@ -162,19 +162,19 @@ Slot* inventorySearchItem(const Inventory* inventory, const ItemID id, const uin
     return NULL;
 }
 
-Slot* inventoryFindFreeSlot(const Inventory* inventory, const uint8_t from_slot) {
+Slot* inventoryFindFreeSlot(const Inventory* inventory, const u8 from_slot) {
     if (from_slot >= INVENTORY_SLOT_COUNT) {
         return NULL;
     }
     // Hotbar first
-    for (uint8_t i = max(from_slot, INVENTORY_SLOT_HOTBAR_OFFSET); i < INVENTORY_SLOT_COUNT; i++) {
+    for (u8 i = max(from_slot, INVENTORY_SLOT_HOTBAR_OFFSET); i < INVENTORY_SLOT_COUNT; i++) {
         Slot* slot = &inventory->slots[i];
         if (slot->data.ref->data.item == NULL) {
             return slot;
         }
     }
     // Inventory storage second
-    for (uint8_t i = from_slot; i < INVENTORY_SLOT_HOTBAR_OFFSET; i++) {
+    for (u8 i = from_slot; i < INVENTORY_SLOT_HOTBAR_OFFSET; i++) {
         Slot* slot = &inventory->slots[i];
         if (slot->data.item == NULL) {
             return slot;
@@ -196,9 +196,9 @@ InventoryStoreResult inventoryStoreItem(Inventory* inventory, IItem* iitem) {
     //   a. [2:TRUE] Add the item stack into the next free slot
     //   b. [2:FALSE] Add item back into array at the same index (make sure item world position is correct)
     InventoryStoreResult exit_code = INVENTORY_STORE_RESULT_ADDED_ALL;
-    uint8_t from_slot = INVENTORY_SLOT_STORAGE_OFFSET;
-    uint8_t next_free = INVENTORY_NO_FREE_SLOT;
-    uint8_t persisted_next_free = INVENTORY_NO_FREE_SLOT;
+    u8 from_slot = INVENTORY_SLOT_STORAGE_OFFSET;
+    u8 next_free = INVENTORY_NO_FREE_SLOT;
+    u8 persisted_next_free = INVENTORY_NO_FREE_SLOT;
     Slot* slot = NULL;
     while (1) {
         Item* item = VCAST_PTR(Item*, iitem);

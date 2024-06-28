@@ -216,30 +216,30 @@ INLINE static void playerInputHandlerWorldInteraction(const Input* input, const 
         );
         // Interaction order:
         // 1. If the raycast hit a block
-        //   1a. Not sneaking go to 1d
-        //   1b. If the current item is a block
-        //     1bi. Place the block in the direction of the normal returned by the
-        //          raycast
-        //     1bii. Decrement the stack size
-        //     1biii. If the stack size is zero remove the item
-        //     1biv. Exit
-        //   1c. Else if the current item is a tool
-        //     1ci. Invoke the item use handler (returns state)
-        //     1cii. If state equals DESTROY
-        //       1cii1. Destroy the item
-        //       icii2. Exit
-        //     1ciii. Else if state equals USED then exit
-        //     1civ. Otherwise continue
-        //   1d. Invoke the block update handler (returns bool)
-        //   1e. If true (consumed event) then exit
+        //   a. Not sneaking go to 1d
+        //   b. If the current item is a block
+        //     i. Place the block in the direction of the normal
+        //        returned by the raycast
+        //     ii. Decrement the stack size
+        //     iii. If the stack size is zero remove the item
+        //     iv. Exit
+        //   c. Else if the current item is a tool
+        //     i. Invoke the item use handler (returns state)
+        //     ii. If state equals DESTROY
+        //       1. Destroy the item
+        //       2. Exit
+        //     iii. Else if state equals USED then exit
+        //     iv. Otherwise continue
+        //   d. Invoke the block update handler (returns bool)
+        //   e. If true (consumed event) then exit
         // 2. Otherwise
-        //   2a. If the current item is a tool
-        //     2ai. Invoke the item use handler (returns state)
-        //     2aii. If state equals DESTROY
-        //       2aii1. Destroy the item
-        //       2aii2. Exit
-        //     2aiii. Else if state equals USED then exit
-        //     2aiv. Otherwise continue
+        //   a. If the current item is a tool
+        //     i. Invoke the item use handler (returns state)
+        //     ii. If state equals DESTROY
+        //       1. Destroy the item
+        //       2. Exit
+        //     iii. Else if state equals USED then exit
+        //     iv. Otherwise continue
         const bool sneaking  = player->physics_object.flags.sneaking;
         const Hotbar* hotbar = VCAST_PTR(Hotbar*, &player->hotbar);
         Slot* slot = &hotbarGetSelectSlot(hotbar);
