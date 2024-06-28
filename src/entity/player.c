@@ -210,24 +210,47 @@ INLINE static void playerInputHandlerWorldInteraction(const Input* input, const 
             PLAYER_REACH_DISTANCE
         );
         // Interaction order:
-        // 1. If the raycast has a block result and we are not sneaking, or we are sneaking
-        //    and we don't have a block or tool in hand, invoke the use handler on the block
-        //    (that will handle such cases as open inventory or open door)
-        // 2. If the current item is a tool
-        //   a. Invoke the use handler on the tool and note the return boolean
-        //   b. If the use handler returns true, deallocate the item (durability used up)
-        // 3. If the raycast has a block result and we the current item is a block
-        //   a. Place it in the direction of the face the raycast result returned.
-        //   b. Decrement the item stack size, deallocate it if it is now zero
-        // 4. Otherwise, nothing to do
-        // const bool sneaking  = player->physics_object.flags.sneaking;
-        // const Hotbar* hotbar = VCAST_PTR(Hotbar*, &player->hotbar);
-        // Slot* slot = &hotbarGetSelectSlot(hotbar);
-        // IItem* iitem = slot->data.item;
-        // if (result.block != NULL) {
-        //     if (sneaking || (iitem == NULL || iitem ))
-        // }
-        // has_tool:
+        // 1. If the raycast hit a block
+        //   1a. Not sneaking go to 1d
+        //   1b. If the current item is a block
+        //     1bi. Place the block in the direction of the normal returned by the
+        //          raycast
+        //     1bii. Decrement the stack size
+        //     1biii. If the stack size is zero remove the item
+        //     1biv. Exit
+        //   1c. Else if the current item is a tool
+        //     1ci. Invoke the item use handler (returns state)
+        //     1cii. If state equals DESTROY
+        //       1cii1. Destroy the item
+        //       icii2. Exit
+        //     1ciii. Else if state equals USED then exit
+        //     1civ. Otherwise continue
+        //   1d. Invoke the block update handler (returns bool)
+        //   1e. If true (consumed event) then exit
+        // 2. Otherwise
+        //   2a. If the current item is a tool
+        //     2ai. Invoke the item use handler (returns state)
+        //     2aii. If state equals DESTROY
+        //       2aii1. Destroy the item
+        //       2aii2. Exit
+        //     2aiii. Else if state equals USED then exit
+        //     2aiv. Otherwise continue
+        const bool sneaking  = player->physics_object.flags.sneaking;
+        const Hotbar* hotbar = VCAST_PTR(Hotbar*, &player->hotbar);
+        Slot* slot = &hotbarGetSelectSlot(hotbar);
+        IItem* iitem = slot->data.item;
+        if (result.block != NULL) {
+            const Item* item = VCAST_PTR(Item*, iitem);
+            const ItemType item_type = itemGetType(item->id);
+            if (item_type == ITEMTYPE_TOOL) {
+                if (sneaking) {
+
+                }
+            }
+        } else {
+
+        }
+        after:
     }
     // If we are not holding down the BINDING_ATTACK
     // button, then we should discontinue breaking

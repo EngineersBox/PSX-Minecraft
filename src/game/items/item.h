@@ -63,6 +63,14 @@ typedef struct ItemAttributes {
     char* name;
 } ItemAttributes;
 
+#define ITEM_ACTION_STATE_COUNT 3
+#define ITEM_ACTION_STATE_COUNT_BITS 2
+typedef enum ItemActionState {
+    ITEM_ACTION_STATE_NONE = 0,
+    ITEM_ACTION_STATE_DESTROY,
+    ITEM_ACTION_STATE_USED
+} ItemActionState;
+
 typedef struct Item {
     ItemID id;
     u8 metadata_id;
@@ -88,9 +96,12 @@ bool itemUpdate(Item* item, const VECTOR* player_position, const ItemPickupValid
 #define IItem_IFACE \
     vfunc(void, init, VSelf) \
     vfunc(void, applyDamage, VSelf) \
-    vfunc(void, useAction, VSelf) \
+    vfuncDefault(ItemActionState, useAction, VSelf) \
     vfunc(void, attackAction, VSelf) \
     vfunc(void, destroy, VSelf)
+
+ItemActionState iitemUseAction(VSelf);
+ItemActionState IItem_useAction(VSelf);
 
 // Superinterface: renderWorld, renderInventory, renderHand
 #define IItem_EXTENDS (Renderable)

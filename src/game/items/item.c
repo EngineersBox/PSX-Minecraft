@@ -31,6 +31,11 @@ IItem* itemCreate() {
     return (IItem*) malloc(sizeof(IItem));
 }
 
+ItemActionState iitemUseAction(VSelf) ALIAS("IItem_useAction");
+ItemActionState IItem_useAction(VSelf) {
+    return ITEM_ACTION_STATE_NONE;
+}
+
 void itemDestroy(IItem* item) {
     free(item);
 }
