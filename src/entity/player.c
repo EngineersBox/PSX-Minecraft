@@ -167,83 +167,103 @@ remove_world_block:
     breakingStateReset(*state);
 }
 
+INLINE static bool playerInputHandlerAttack(const PlayerInputHandlerContext* ctx) {
+    Player* player= ctx->player;
+    // NOTE: This will probably hit framerate a decent bit
+    //       while we are holding down the BINDING_ATTACK
+    //       button. It's probably not going to be a problem
+    //       but it might warrant trying to optimise the
+    //       implementation to just use fixed point intead
+    //       of doubles that are semi-hardware based with
+    //       extra software support.
+    const RayCastResult result = worldRayCastIntersection(
+        ctx->world,
+        VCAST_PTR(Camera*, player->camera),
+        PLAYER_REACH_DISTANCE
+    );
+    // TODO: Add a state to the player for determining whether to
+    //       instant break or not (like creative). If it's true
+    //       we should invoke worldModifyVoxel here directly and
+    //       ensure that no items are dropped.
+    if (result.block != NULL) {
+        const Block* block = VCAST_PTR(Block*, result.block);
+        // DEBUG_LOG("[PLAYER] Raycast position: " VEC_PATTERN "\n", VEC_LAYOUT(result.pos));
+        if (block->id != BLOCKID_AIR) {
+            updateBreakingState(player, &result, ctx->world);
+            return true;
+        }
+        return false;
+    }
+    const Hotbar* hotbar = VCAST_PTR(Hotbar*, &player->hotbar);
+    Slot* slot = &hotbarGetSelectSlot(hotbar);
+    IItem* iitem = slot->data.item;
+    if (iitem == NULL) {
+        return false;
+    }
+    const ItemActionState action_state = VCALL(*iitem, attackAction);
+    if (action_state != ITEM_ACTION_STATE_DESTROY) {
+        return false;
+    }
+    VCALL(*iitem, destroy);
+    itemDestroy(iitem);
+    slot->data.item = NULL;
+    return false;
+}
+
+INLINE static void playerInputHandlerUse(const PlayerInputHandlerContext* ctx) {
+    TODO(
+        "Support USE actions for placing blocks and using items.\n"
+        "Use item or place itemblock if active hotbar slot has\n"
+        "anything in it, handling decrementing stack sizes,\n"
+        "durability, or updating the raycast intersected block\n"
+        "if need be for interaction (i.e doors)"
+    );
+    const Player* player = ctx->player;
+    const RayCastResult result = worldRayCastIntersection(
+        ctx->world,
+        VCAST_PTR(Camera*, player->camera),
+        PLAYER_REACH_DISTANCE
+    );
+    // Interaction order:
+    // 1. If the raycast hit a block
+    //   a. Not sneaking go to 1d
+    //   b. If the current item is a block
+    //     i. Place the block in the direction of the normal
+    //        returned by the raycast
+    //     ii. Decrement the stack size
+    //     iii. If the stack size is zero remove the item
+    //     iv. Exit
+    //   c. Else if the current item is a tool
+    //     i. Invoke the item use handler (returns state)
+    //     ii. If state equals DESTROY
+    //       1. Destroy the item
+    //       2. Exit
+    //     iii. Else if state equals USED then exit
+    //     iv. Otherwise continue
+    //   d. Invoke the block update handler (returns bool)
+    //   e. If true (consumed event) then exit
+    // 2. Otherwise
+    //   a. If the current item is a tool
+    //     i. Invoke the item use handler (returns state)
+    //     ii. If state equals DESTROY
+    //       1. Destroy the item
+    //       2. Exit
+    //     iii. Else if state equals USED then exit
+    //     iv. Otherwise continue
+    const bool sneaking  = player->physics_object.flags.sneaking;
+    const Hotbar* hotbar = VCAST_PTR(Hotbar*, &player->hotbar);
+    Slot* slot = &hotbarGetSelectSlot(hotbar);
+    IItem* iitem = slot->data.item;
+}
+
 INLINE static void playerInputHandlerWorldInteraction(const Input* input, const PlayerInputHandlerContext* ctx) {
     Player* player = ctx->player;
     const PADTYPE* pad = input->pad;
     bool breaking = false;
     if (isPressed(pad, BINDING_ATTACK)) {
-        // NOTE: This will probably hit framerate a decent bit
-        //       while we are holding down the BINDING_ATTACK
-        //       button. It's probably not going to be a problem
-        //       but it might warrant trying to optimise the
-        //       implementation to just use fixed point intead
-        //       of doubles that are semi-hardware based with
-        //       extra software support.
-        const RayCastResult result = worldRayCastIntersection(
-            ctx->world,
-            VCAST_PTR(Camera*, player->camera),
-            PLAYER_REACH_DISTANCE
-        );
-        // TODO: Add a state to the player for determining whether to
-        //       instant break or not (like creative). If it's true
-        //       we should invoke worldModifyVoxel here directly and
-        //       ensure that no items are dropped.
-        if (result.block != NULL) {
-            const Block* block = VCAST_PTR(Block*, result.block);
-            // DEBUG_LOG("[PLAYER] Raycast position: " VEC_PATTERN "\n", VEC_LAYOUT(result.pos));
-            if (block->id != BLOCKID_AIR) {
-                updateBreakingState(player, &result, ctx->world);
-                breaking = true;
-            }
-        } else {
-            TODO(
-                "Support ATTACK actions for items when we are not\n"
-                "targetting a block (i.e. no block in raycast result"
-            );
-        }
+        breaking = playerInputHandlerAttack(ctx);
     } else if (isPressed(pad, BINDING_USE)) {
-        TODO(
-            "Support USE actions for placing blocks and using items.\n"
-            "Use item or place itemblock if active hotbar slot has\n"
-            "anything in it, handling decrementing stack sizes,\n"
-            "durability, or updating the raycast intersected block\n"
-            "if need be for interaction (i.e doors)"
-        );
-        const RayCastResult result = worldRayCastIntersection(
-            ctx->world,
-            VCAST_PTR(Camera*, player->camera),
-            PLAYER_REACH_DISTANCE
-        );
-        // Interaction order:
-        // 1. If the raycast hit a block
-        //   a. Not sneaking go to 1d
-        //   b. If the current item is a block
-        //     i. Place the block in the direction of the normal
-        //        returned by the raycast
-        //     ii. Decrement the stack size
-        //     iii. If the stack size is zero remove the item
-        //     iv. Exit
-        //   c. Else if the current item is a tool
-        //     i. Invoke the item use handler (returns state)
-        //     ii. If state equals DESTROY
-        //       1. Destroy the item
-        //       2. Exit
-        //     iii. Else if state equals USED then exit
-        //     iv. Otherwise continue
-        //   d. Invoke the block update handler (returns bool)
-        //   e. If true (consumed event) then exit
-        // 2. Otherwise
-        //   a. If the current item is a tool
-        //     i. Invoke the item use handler (returns state)
-        //     ii. If state equals DESTROY
-        //       1. Destroy the item
-        //       2. Exit
-        //     iii. Else if state equals USED then exit
-        //     iv. Otherwise continue
-        const bool sneaking  = player->physics_object.flags.sneaking;
-        const Hotbar* hotbar = VCAST_PTR(Hotbar*, &player->hotbar);
-        Slot* slot = &hotbarGetSelectSlot(hotbar);
-        IItem* iitem = slot->data.item;
+        playerInputHandlerUse(ctx);
     }
     // If we are not holding down the BINDING_ATTACK
     // button, then we should discontinue breaking

@@ -97,8 +97,11 @@ bool itemUpdate(Item* item, const VECTOR* player_position, const ItemPickupValid
     vfunc(void, init, VSelf) \
     vfunc(void, applyDamage, VSelf) \
     vfuncDefault(ItemActionState, useAction, VSelf) \
-    vfunc(void, attackAction, VSelf) \
+    vfuncDefault(ItemActionState, attackAction, VSelf) \
     vfunc(void, destroy, VSelf)
+
+ItemActionState iitemAttackAction(VSelf);
+ItemActionState IItem_attackAction(VSelf);
 
 ItemActionState iitemUseAction(VSelf);
 ItemActionState IItem_useAction(VSelf);
