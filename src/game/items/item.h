@@ -87,11 +87,12 @@ typedef struct Item {
 /**
  * @brief Determine if an item can be picked up
  * @param item Item to check against
+ * @param ctx Context object
  * @return true if item can be picked up, false otherwise
  */
-typedef bool (*ItemPickupValidator)(const Item* item);
+typedef bool (*ItemPickupValidator)(const Item* item, void* ctx);
 
-bool itemUpdate(Item* item, const VECTOR* player_position, const ItemPickupValidator validator);
+bool itemUpdate(Item* item, const VECTOR* player_position, void* ctx, const ItemPickupValidator validator);
 
 #define IItem_IFACE \
     vfunc(void, init, VSelf) \

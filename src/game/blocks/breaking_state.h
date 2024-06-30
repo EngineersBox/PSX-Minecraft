@@ -108,7 +108,7 @@ void breakingStateCalculateVisibility(BreakingState* state, const World* world);
  *        texture is blitted to the relevant multiple of 16 section of the off-screen
  *        render target and operations are sorted into the ordering-table to
  *        write the breaking texture for the current progress on top of the
- *        render target with 50% F + 50% B blending.
+ *        render target with 50% B + 50% F blending.
  * @param state State instance
  * @param ctx Render context to sort rendering operations into
  */

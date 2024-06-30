@@ -16,12 +16,10 @@ void iPhysicsObjectInit(PhysicsObject* physics_object,
                         const PhysicsObjectConfig* config,
                         const PhysicsObjectUpdateHandlers* update_handlers) {
     if (config == NULL) {
-        printf("[ERROR] Physics object must have a config supplied\n");
-        abort();
+        errorAbort("[ERROR] Physics object must have a config supplied\n");
         return;
     } else if (update_handlers == NULL) {
-        printf("[ERROR] Physics object must have update handlers supplied\n");
-        abort();
+        errorAbort("[ERROR] Physics object must have update handlers supplied\n");
         return;
     }
     physics_object->rotation.pitch = 0;

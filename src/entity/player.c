@@ -251,16 +251,24 @@ INLINE static void playerInputHandlerUse(const PlayerInputHandlerContext* ctx) {
     if (iitem == NULL) {
         goto block_update;
     }
-    Item* item = VCAST_PTR(Item*, iitem);
+    const Item* item = VCAST_PTR(Item*, iitem);
     switch (itemGetType(item->id)) {
         case ITEMTYPE_BLOCK:
             if (item->id > BLOCK_COUNT) {
-                errorAbort("[ERROR] Cannot create block from item %d\n", item->id);
+                errorAbort(
+                    "[ERROR] Cannot create block from item \"%s\" (id: %d)\n",
+                    itemGetName(item->id),
+                    item->id
+                );
                 return;
             }
             const BlockConstructor block_constructor = block_constructors[item->id];
             if (block_constructor == NULL) {
-                errorAbort("[ERROR] No constructor exists for block matching item id: %d\n", item->id);
+                errorAbort(
+                    "[ERROR] No constructor exists for block matching item \"%s\" (id: %d)\n",
+                    itemGetName(item->id),
+                    item->id
+                );
                 return;
             }
             const VECTOR place_position = vector_add(result.pos, result.face);

@@ -34,16 +34,12 @@ void chunkDestroyDroppedItem(void* elem) {
 void chunkInit(Chunk* chunk) {
     chunk->dropped_items = NULL;
     cvector_init(chunk->dropped_items, 0, chunkDestroyDroppedItem);
-    // DEBUG_LOG("[CHUNK: %d,%d,%d] Initialising mesh\n", VEC_LAYOUT(chunk->position));
     chunkMeshInit(&chunk->mesh);
     chunkClearMesh(chunk);
-    // DEBUG_LOG("[CHUNK: %d,%d,%d] Generating 2D height map\n", VEC_LAYOUT(chunk->position));
 }
 
 void chunkDestroy(const Chunk* chunk) {
-    // DEBUG_LOG("[CHUNK: %d,%d,%d] Destroy mesh\n", VEC_LAYOUT(chunk->position));
     chunkMeshDestroy(&chunk->mesh);
-    // DEBUG_LOG("[CHUNK: %d,%d,%d] Destroy dropped items: %d\n", VEC_LAYOUT(chunk->position), cvector_size(chunk->dropped_items));
     cvector_free(chunk->dropped_items);
 }
 
@@ -69,7 +65,7 @@ void chunkClearMesh(Chunk* chunk) {
     chunkMeshClear(&chunk->mesh);
 }
 
-void chunkGenerateMeshWithBreakingState(Chunk* chunk, const BreakingState* breaking_state) {
+INLINE static void chunkGenerateMeshWithBreakingState(Chunk* chunk, const BreakingState* breaking_state) {
     binaryGreedyMesherBuildMesh(chunk, breaking_state);
 }
 
@@ -77,7 +73,7 @@ void chunkGenerateMesh(Chunk* chunk) {
     chunkGenerateMeshWithBreakingState(chunk, NULL);
 }
 
-static void chunkRenderDroppedItems(Chunk* chunk, RenderContext* ctx, Transforms* transforms) {
+static void chunkRenderDroppedItems(const Chunk* chunk, RenderContext* ctx, Transforms* transforms) {
     IItem** item;
     cvector_for_each_in(item, chunk->dropped_items) {
         if (*item == NULL) {
@@ -86,10 +82,6 @@ static void chunkRenderDroppedItems(Chunk* chunk, RenderContext* ctx, Transforms
         VCALL_SUPER(**item, Renderable, renderWorld, ctx, transforms);
     }
 }
-
-#define BREAKING_OVERLAY_SIZE ((BLOCK_SIZE >> 1) + 2)
-// [0,1] -> [-SIZE,SIZE]
-#define convertToVertex(v, shift, size) (size * (-1 + ((((v) & (1 << (shift))) >> (shift)) << 1)))
 
 static bool chunkIsOutsideFrustum(const Chunk* chunk, const Frustum* frustum, const Transforms* transforms) {
     const AABB aabb = (AABB) {
@@ -229,10 +221,8 @@ bool chunkModifyVoxel(Chunk* chunk,
     return result;
 }
 
-// This only works because PS1 games are single threaded (mostly)
-Inventory* _current_inventory = NULL;
-
-bool itemPickupValidator(const Item* item) {
+bool itemPickupValidator(const Item* item, void* ctx) {
+    const Inventory* inventory = (Inventory*) ctx;
     // 1. Does the item already exist in the inventory?
     //   a. [1:TRUE] Does the existing have space?
     //     i. [a:TRUE] Return true
@@ -244,12 +234,12 @@ bool itemPickupValidator(const Item* item) {
     u8 from_slot = INVENTORY_SLOT_STORAGE_OFFSET;
     u8 next_free = INVENTORY_NO_FREE_SLOT;
     while (true) {
-        const Slot* slot = inventorySearchItem(_current_inventory, item->id, from_slot, &next_free);
+        const Slot* slot = inventorySearchItem(inventory, item->id, from_slot, &next_free);
         if (slot == NULL) {
             if (next_free == INVENTORY_NO_FREE_SLOT) {
                 return false;
             }
-            slot = &_current_inventory->slots[next_free];
+            slot = &inventory->slots[next_free];
             if (inventorySlotGetItem(slot) == NULL) {
                 break;
             }
@@ -265,8 +255,8 @@ bool itemPickupValidator(const Item* item) {
     return true;
 }
 
-void chunkUpdate(Chunk* chunk, Player* player) {
-    _current_inventory = VCAST(Inventory*, player->inventory);
+void chunkUpdate(const Chunk* chunk, const Player* player) {
+    Inventory* inventory = VCAST(Inventory*, player->inventory);
     // We are using chunk relative coords in absolute units and not in
     // fixed point format since item positons only need to be relatively
     // accurate not exact so we can save on the extra caclulation overhead
@@ -274,7 +264,7 @@ void chunkUpdate(Chunk* chunk, Player* player) {
     // @see itemPickupValidator
     const VECTOR pos = vec3_i32(
         player->physics_object.position.vx >> FIXED_POINT_SHIFT,
-        player->physics_object.position.vy >> FIXED_POINT_SHIFT,
+        -player->physics_object.position.vy >> FIXED_POINT_SHIFT,
         player->physics_object.position.vz >> FIXED_POINT_SHIFT
     );
     for (u32 i = 0; i < cvector_size(chunk->dropped_items);) {
@@ -284,7 +274,7 @@ void chunkUpdate(Chunk* chunk, Player* player) {
             continue;
         }
         Item* item = VCAST(Item*, *iitem);
-        if (itemUpdate(item, &pos, itemPickupValidator)) {
+        if (itemUpdate(item, &pos, inventory, itemPickupValidator)) {
             // BUG: Something causes invalid address read when picking up new blocks.
             //      Hotbar:
             //        - 0: x26 Grass
@@ -298,7 +288,7 @@ void chunkUpdate(Chunk* chunk, Player* player) {
             //      to the cvector_erase(...) in the INVENTORY_STORE_RESULT_ADDED_NEW_SLOT
             //      case block.
             printf("[ITEM] Picked up: %s x%d\n", itemGetName(item->id), item->stack_size);
-            const InventoryStoreResult result = inventoryStoreItem(_current_inventory, iitem);
+            const InventoryStoreResult result = inventoryStoreItem(inventory, iitem);
             printf("[ITEM] Result: %s\n", inventoryStoreResultStringify(result));
             switch (result) {
                 case INVENTORY_STORE_RESULT_ADDED_SOME:

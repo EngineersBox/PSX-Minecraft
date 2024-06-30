@@ -100,13 +100,13 @@ void worldInit(World* world, RenderContext* ctx) {
                                             [arrayCoord(world, vx, x)]
                                             [y];
                 chunkGenerateMesh(chunk);
-#define layoutMeshAttrs(attribute) \
-    chunk->mesh.face_meshes[0].attribute, \
-    chunk->mesh.face_meshes[1].attribute, \
-    chunk->mesh.face_meshes[2].attribute, \
-    chunk->mesh.face_meshes[3].attribute, \
-    chunk->mesh.face_meshes[4].attribute, \
-    chunk->mesh.face_meshes[5].attribute
+                #define layoutMeshAttrs(attribute) \
+                    chunk->mesh.face_meshes[FACE_DIR_DOWN].attribute, \
+                    chunk->mesh.face_meshes[FACE_DIR_UP].attribute, \
+                    chunk->mesh.face_meshes[FACE_DIR_LEFT].attribute, \
+                    chunk->mesh.face_meshes[FACE_DIR_RIGHT].attribute, \
+                    chunk->mesh.face_meshes[FACE_DIR_BACK].attribute, \
+                    chunk->mesh.face_meshes[FACE_DIR_FRONT].attribute
                 DEBUG_LOG(
                     "[CHUNK: %d,%d,%d, INDEX: %d,%d,%d] Mesh {\n"
                     "   Primitives: [%d,%d,%d,%d,%d,%d]\n"
@@ -121,7 +121,7 @@ void worldInit(World* world, RenderContext* ctx) {
                     layoutMeshAttrs(n_verts),
                     layoutMeshAttrs(n_norms)
                 );
-#undef layoutMeshAttrs
+                #undef layoutMeshAttrs
                 fontPrintCentreOffset(
                     ctx,
                     CENTRE_X,
@@ -420,15 +420,12 @@ void worldLoadChunks(World* world, const VECTOR* player_chunk_pos) {
     // Load chunks
     if (x_direction != 0) {
         worldLoadChunksX(world, x_direction, z_direction);
-
     }
     if (z_direction != 0) {
         worldLoadChunksZ(world, x_direction, z_direction);
-
     }
     if (x_direction != 0 && z_direction != 0) {
         worldLoadChunksXZ(world, x_direction, z_direction);
-
     }
     // Shift chunks into centre of arrays
     worldShiftChunks(world, x_direction, z_direction);
