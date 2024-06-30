@@ -540,6 +540,33 @@ bool worldModifyVoxelChunkBlock(const World* world,
     );
 }
 
+bool worldModifyVoxelChunkBlockConstructed(const World* world,
+                                           const ChunkBlockPosition* position,
+                                           const BlockConstructor block_constructor,
+                                           IItem* from_item,
+                                           const bool drop_item,
+                                           IItem** item_result) {
+    // World is void below 0 on y-axis and nothing above height limit
+    if ((position->chunk.vy <= 0 && position->block.vy < 0)
+        || position->chunk.vy >= WORLD_CHUNKS_HEIGHT) {
+        return false;
+    }
+    Chunk* chunk = world->chunks[arrayCoord(world, vz, position->chunk.vz)]
+                                [arrayCoord(world, vx, position->chunk.vx)]
+                                [position->chunk.vy];
+    if (chunk == NULL) {
+        return false;
+    }
+    return chunkModifyVoxelConstructed(
+        chunk,
+        &position->block,
+        block_constructor,
+        from_item,
+        drop_item,
+        item_result
+    );
+}
+
 bool worldModifyVoxel(const World* world,
                       const VECTOR* position,
                       IBlock* block,
@@ -547,23 +574,34 @@ bool worldModifyVoxel(const World* world,
                       IItem** item_result) {
     // World is void below 0 and above world-height on y-axis
     if (position->vy < 0 || position->vy >= WORLD_HEIGHT) {
-        // printf("[ERROR] Invalid Y: %d\n", position->vy);
         return false;
     }
     const ChunkBlockPosition chunk_block_position = worldToChunkBlockPosition(position, CHUNK_SIZE);
-    // DEBUG_LOG(
-    //     "[WORLD] Modify - Chunk: " VEC_PATTERN " Block: " VEC_PATTERN "\n",
-    //     chunk_block_position.chunk.vx,
-    //     chunk_block_position.chunk.vy,
-    //     chunk_block_position.chunk.vz,
-    //     chunk_block_position.block.vx,
-    //     chunk_block_position.block.vy,
-    //     chunk_block_position.block.vz
-    // );
     return worldModifyVoxelChunkBlock(
         world,
         &chunk_block_position,
         block,
+        drop_item,
+        item_result
+    );
+}
+
+bool worldModifyVoxelConstructed(const World* world,
+                                 const VECTOR* position,
+                                 const BlockConstructor block_constructor,
+                                 IItem* from_item,
+                                 bool drop_item,
+                                 IItem** item_result) {
+    // World is void below 0 and above world-height on y-axis
+    if (position->vy < 0 || position->vy >= WORLD_HEIGHT) {
+        return false;
+    }
+    const ChunkBlockPosition chunk_block_position = worldToChunkBlockPosition(position, CHUNK_SIZE);
+    return worldModifyVoxelChunkBlockConstructed(
+        world,
+        &chunk_block_position,
+        block_constructor,
+        from_item,
         drop_item,
         item_result
     );

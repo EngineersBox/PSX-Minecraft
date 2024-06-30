@@ -1,7 +1,5 @@
 #include "chunk.h"
 
-#include <assets.h>
-#include <asset_indices.h>
 #include <cube.h>
 #include <inline_c.h>
 #include <stdbool.h>
@@ -11,9 +9,7 @@
 #include "../../../math/vector.h"
 #include "../../../structure/cvector.h"
 #include "../../../structure/cvector_utils.h"
-#include "../../../structure/primitive/clip.h"
 #include "../../../structure/primitive/direction.h"
-#include "../../../structure/primitive/primitive.h"
 #include "../../../util/interface99_extensions.h"
 #include "../../items/items.h"
 #include "../generation/noise.h"
@@ -186,16 +182,15 @@ static void constructItemPosition(const Chunk* chunk, const VECTOR* block_positi
     item_position->vz = (chunk_origin_z + block_position->vz) * BLOCK_SIZE + HALF_BLOCK_SIZE;
 }
 
-bool chunkModifyVoxel(Chunk* chunk,
-                     const VECTOR* position,
-                     IBlock* block,
-                     const bool drop_item,
-                     IItem** item_result) {
+INLINE static int modifyVoxel0(Chunk* chunk,
+                               const VECTOR* position,
+                               const bool drop_item,
+                               IItem** item_result) {
     const i32 x = position->vx;
     const i32 y = position->vy;
     const i32 z = position->vz;
     if (checkIndexOOB(x, y, z)) {
-        return false;
+        return 2;
     }
     const IBlock* old_block = chunk->blocks[chunkBlockIndex(x, y, z)];
     const bool result = VCAST_PTR(Block*, old_block)->id != BLOCKID_AIR;
@@ -215,10 +210,46 @@ bool chunkModifyVoxel(Chunk* chunk,
             *item_result = NULL;
         }
     }
-    chunk->blocks[chunkBlockIndex(x, y, z)] = block;
+    return result;
+}
+
+bool chunkModifyVoxel(Chunk* chunk,
+                      const VECTOR* position,
+                      IBlock* block,
+                      const bool drop_item,
+                      IItem** item_result) {
+    const int result = modifyVoxel0(chunk, position, drop_item, item_result);
+    if (result == 2) {
+        return false;
+    }
+    chunk->blocks[chunkBlockIndex(
+        position->vx,
+        position->vy,
+        position->vz
+    )] = block;
     chunkClearMesh(chunk);
     chunkGenerateMesh(chunk);
-    return result;
+    return true;
+}
+
+bool chunkModifyVoxelConstructed(Chunk* chunk,
+                                 const VECTOR* position,
+                                 const BlockConstructor block_constructor,
+                                 IItem* from_item,
+                                 const bool drop_item,
+                                 IItem** item_result) {
+    const int result = modifyVoxel0(chunk, position, drop_item, item_result);
+    if (result == 2) {
+        return false;
+    }
+    chunk->blocks[chunkBlockIndex(
+        position->vx,
+        position->vy,
+        position->vz
+    )] = block_constructor(from_item);
+    chunkClearMesh(chunk);
+    chunkGenerateMesh(chunk);
+    return true;
 }
 
 bool itemPickupValidator(const Item* item, void* ctx) {

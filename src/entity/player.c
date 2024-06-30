@@ -8,6 +8,12 @@
 #include "../game/items/items.h"
 
 // Forward declaration
+FWD_DECL bool worldModifyVoxelConstructed(const World* world,
+                                          const VECTOR* position,
+                                          BlockConstructor block_constructor,
+                                          IItem* from_item,
+                                          bool drop_item,
+                                          IItem** item_result);
 FWD_DECL bool worldModifyVoxel(const World* world,
                                const VECTOR* position,
                                IBlock* block,
@@ -254,6 +260,9 @@ INLINE static void playerInputHandlerUse(const PlayerInputHandlerContext* ctx) {
     const Item* item = VCAST_PTR(Item*, iitem);
     switch (itemGetType(item->id)) {
         case ITEMTYPE_BLOCK:
+            if (result.block == NULL) {
+                break;
+            }
             if (item->id > BLOCK_COUNT) {
                 errorAbort(
                     "[ERROR] Cannot create block from item \"%s\" (id: %d)\n",
@@ -272,14 +281,15 @@ INLINE static void playerInputHandlerUse(const PlayerInputHandlerContext* ctx) {
                 return;
             }
             const VECTOR place_position = vector_add(result.pos, result.face);
-            worldModifyVoxel(
+            const bool modify_result = worldModifyVoxelConstructed(
                 ctx->world,
                 &place_position,
-                block_constructor(iitem),
+                block_constructor,
+                iitem,
                 false,
                 NULL
             );
-            if (item->stack_size == 0) {
+            if (modify_result && item->stack_size == 0) {
                 VCALL(*iitem, destroy);
                 itemDestroy(iitem);
                 slot->data.item = NULL;

@@ -45,7 +45,17 @@ void chunkClearMesh(Chunk* chunk);
  *         @code false@endcode if there was no block or the position it out of the chunk
  *         boundary.
  */
-bool chunkModifyVoxel(Chunk* chunk, const VECTOR* position, IBlock* block, bool drop_item, IItem** item_result);
+bool chunkModifyVoxel(Chunk* chunk,
+                      const VECTOR* position,
+                      IBlock* block,
+                      bool drop_item,
+                      IItem** item_result);
+bool chunkModifyVoxelConstructed(Chunk* chunk,
+                                 const VECTOR* position,
+                                 BlockConstructor block_constructor,
+                                 IItem* from_item,
+                                 bool drop_item,
+                                 IItem** item_result);
 
 void chunkRender(Chunk* chunk, BreakingState* breaking_state, RenderContext* ctx, Transforms* transforms);
 
