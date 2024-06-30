@@ -4,9 +4,7 @@
 #include "block_id.h"
 #include "../items/blocks/item_block_dirt.h"
 
-IBlock* dirtBlockCreate() {
-    return &DIRT_IBLOCK_SINGLETON;
-}
+DEFN_BLOCK_CONSTRUCTOR_IMPL_STATELESS(dirt, DIRT)
 
 void dirtBlockInit(VSelf) ALIAS("DirtBlock_init");
 void DirtBlock_init(VSelf) {

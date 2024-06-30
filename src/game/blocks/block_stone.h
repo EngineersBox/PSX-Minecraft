@@ -7,9 +7,9 @@
 
 #include "block.h"
 
-DEFN_BLOCK_STATELESS(STONE, StoneBlock);
+DEFN_BLOCK_STATELESS(StoneBlock, STONE);
 
-IBlock* stoneBlockCreate();
+DEFN_BLOCK_CONSTRUCTOR(stone);
 
 // ONE * 1.5 = 6144
 // ONE * 10 = 40960

@@ -7,9 +7,9 @@
 
 #include "block.h"
 
-DEFN_BLOCK_STATELESS(GRASS, GrassBlock);
+DEFN_BLOCK_STATELESS(GrassBlock, GRASS);
 
-IBlock* grassBlockCreate();
+DEFN_BLOCK_CONSTRUCTOR(grass);
 
 // ONE * 0.6 = 2457
 #define grassBlockCreateAttributes() ((BlockAttributes) { \

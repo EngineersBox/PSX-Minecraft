@@ -160,7 +160,7 @@ remove_world_block:
     worldModifyVoxel(
         world,
         &result->pos,
-        airBlockCreate(),
+        airBlockCreate(NULL),
         drop_item_on_break,
         NULL
     );
@@ -254,6 +254,79 @@ INLINE static void playerInputHandlerUse(const PlayerInputHandlerContext* ctx) {
     const Hotbar* hotbar = VCAST_PTR(Hotbar*, &player->hotbar);
     Slot* slot = &hotbarGetSelectSlot(hotbar);
     IItem* iitem = slot->data.item;
+    bool tool_interaction = false;
+    Item const* item;
+    if (result.block == NULL) {
+        goto tool_interaction;
+    }
+    if (!sneaking || iitem == NULL) {
+        goto block_update;
+    }
+    item = VCAST_PTR(Item*, iitem);
+    switch (itemGetType(item->id)) {
+        case ITEMTYPE_BLOCK:
+            if (item->id > BLOCK_COUNT) {
+                errorAbort("[ERROR] Cannot create block from item %d\n", item->id);
+                return;
+            }
+            const BlockConstructor block_constructor = block_constructors[item->id];
+            if (block_constructor == NULL) {
+                errorAbort("[ERROR] No constructor exists for block matching item id: %d\n", item->id);
+                return;
+            }
+            const VECTOR place_position = vector_add(result.pos, result.face);
+            worldModifyVoxel(
+                ctx->world,
+                &place_position,
+                block_constructor(iitem),
+                false,
+                NULL
+            );
+            if (item->stack_size == 0) {
+                VCALL(*iitem, destroy);
+                itemDestroy(iitem);
+                slot->data.item = NULL;
+                return;
+            }
+            break;
+        case ITEMTYPE_TOOL:
+            const ItemActionState action_state = VCALL(*iitem, useAction);
+            switch (action_state) {
+                case ITEM_ACTION_STATE_DESTROY:
+                    VCALL(*iitem, destroy);
+                    itemDestroy(iitem);
+                    slot->data.item = NULL;
+                case ITEM_ACTION_STATE_USED:
+                    return;
+                case ITEM_ACTION_STATE_NONE:
+                    tool_interaction = true;
+                    break;
+            }
+            break;
+        case ITEMTYPE_RESOURCE:
+        case ITEMTYPE_ARMOUR:
+            break;
+    }
+block_update:
+    if (VCALL(*result.block, useAction)) {
+        // Event is consumed so we don't try to invoke the tool usage
+        // on this block
+        return;
+    }
+tool_interaction:
+    if (iitem == NULL) {
+        return;
+    }
+    item = VCAST_PTR(Item*, iitem);
+    if (tool_interaction || itemGetType(item->id) != ITEMTYPE_TOOL) {
+        return;
+    }
+    const ItemActionState action_state = VCALL(*iitem, useAction);
+    if (action_state == ITEM_ACTION_STATE_DESTROY) {
+        VCALL(*iitem, destroy);
+        itemDestroy(iitem);
+        slot->data.item = NULL;
+    }
 }
 
 INLINE static void playerInputHandlerWorldInteraction(const Input* input, const PlayerInputHandlerContext* ctx) {

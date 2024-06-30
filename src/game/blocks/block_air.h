@@ -8,9 +8,10 @@
 
 #include "block.h"
 
-DEFN_BLOCK_STATELESS(AIR, AirBlock);
+DEFN_BLOCK_STATELESS(AirBlock, AIR);
 
-IBlock* airBlockCreate();
+DEFN_BLOCK_CONSTRUCTOR(air);
+
 #define airBlockCreateAttributes() ((BlockAttributes) { \
     .slipperiness = 0, \
     .hardness = 0, \

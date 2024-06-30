@@ -52,7 +52,7 @@
  */
 #define TODO(msg) ({ \
     printf( \
-        "[TODO :: Start] Location: [%s @ %s:%d] Detail:\n"msg"\n[TODO :: End]\n", \
+        "[TODO :: Start]\nLocation: %s @ %s:%d\n"msg"\n[TODO :: End]\n", \
         __func__, \
         __FILE__, \
         __LINE__ \

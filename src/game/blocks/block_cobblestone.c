@@ -4,9 +4,7 @@
 #include "block_id.h"
 #include "../items/blocks/item_block_cobblestone.h"
 
-IBlock* cobblestoneBlockCreate() {
-    return &COBBLESTONE_IBLOCK_SINGLETON;
-}
+DEFN_BLOCK_CONSTRUCTOR_IMPL_STATELESS(cobblestone, COBBLESTONE)
 
 void cobblestoneBlockInit(VSelf) ALIAS("CobblestoneBlock_init");
 void CobblestoneBlock_init(VSelf) {

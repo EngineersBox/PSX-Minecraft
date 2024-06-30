@@ -84,9 +84,13 @@ typedef struct Block {
     vfunc(void, access, VSelf) \
     vfunc(IItem*, destroy, VSelf, bool drop_item) \
     vfunc(void, update, VSelf) \
+    vfuncDefault(bool, useAction, VSelf) \
     vfuncDefault(bool, isOpaque, VSelf, FaceDirection face_dir) \
     vfuncDefault(u8, opaqueBitset, VSelf) \
     vfunc(IItem*, provideItem, VSelf)
+
+bool iBlockUseAction(VSelf);
+bool IBlock_useAction(VSelf);
 
 bool iBlockIsOpaque(VSelf, FaceDirection face_dir);
 bool IBlock_isOpaque(VSelf, FaceDirection face_dir);
@@ -96,16 +100,24 @@ u8 IBlock_opaqueBitset(VSelf);
 
 interface(IBlock);
 
+typedef IBlock* (*BlockConstructor)(const IItem* from_item);
+
 #define DEFN_BLOCK_STATEFUL(name, ...) \
     typedef struct {\
         Block block; \
         __VA_ARGS__ \
     } name
 
-#define DEFN_BLOCK_STATELESS(extern_name, name, ...) \
+#define DEFN_BLOCK_STATELESS(name, extern_name, ...) \
     DEFN_BLOCK_STATEFUL(name, P99_PROTECT(__VA_ARGS__)); \
     extern IBlock extern_name##_IBLOCK_SINGLETON; \
     extern name extern_name##_BLOCK_SINGLETON
+
+#define DEFN_BLOCK_CONSTRUCTOR(name) IBlock* name##BlockCreate(const IItem* from_item)
+#define DEFN_BLOCK_CONSTRUCTOR_IMPL_STATELESS(name, extern_name) DEFN_BLOCK_CONSTRUCTOR(name) { \
+    return &extern_name##_IBLOCK_SINGLETON; \
+}
+#define DEFN_BLOCK_CONSTRUCTOR_IMPL_STATEFUL(name) DEFN_BLOCK_CONSTRUCTOR(name)
 
 // Declare a Block instance
 #define declareBlock(_id, _metadata_id, _orientation, _face_attributes) (Block) {\

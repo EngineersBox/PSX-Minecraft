@@ -4,9 +4,7 @@
 #include "block_id.h"
 #include "../items/blocks/item_block_grass.h"
 
-IBlock* grassBlockCreate() {
-    return &GRASS_IBLOCK_SINGLETON;
-}
+DEFN_BLOCK_CONSTRUCTOR_IMPL_STATELESS(grass, GRASS)
 
 void grassBlockInit(VSelf) ALIAS("GrassBlock_init");
 void GrassBlock_init(VSelf) {

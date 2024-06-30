@@ -128,7 +128,7 @@ RayCastResult worldRayCastIntersection(const World* world,
             return (RayCastResult) {
                 .pos = vec3_i32(position.vx, position.vy, position.vz),
                 .block = iblock,
-                .face = vec3_i32(face.vx * ONE, face.vy * ONE, face.vz * ONE)
+                .face = vec3_i32(face.vx, face.vy, face.vz)
             };
         }
         // tMaxX stores the t-value at which we cross a cube boundary along the

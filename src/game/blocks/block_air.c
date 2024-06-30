@@ -5,9 +5,7 @@
 #include "../../util/interface99_extensions.h"
 #include "block_id.h"
 
-IBlock* airBlockCreate() {
-    return &AIR_IBLOCK_SINGLETON;
-}
+DEFN_BLOCK_CONSTRUCTOR_IMPL_STATELESS(air, AIR)
 
 void airBlockInit(VSelf) ALIAS("AirBlock_init");
 void AirBlock_init(VSelf) {

@@ -4,9 +4,7 @@
 #include "block_id.h"
 #include "../items/blocks/item_block_stone.h"
 
-IBlock* stoneBlockCreate() {
-    return &STONE_IBLOCK_SINGLETON;
-}
+DEFN_BLOCK_CONSTRUCTOR_IMPL_STATELESS(stone, STONE)
 
 void stoneBlockInit(VSelf) ALIAS("StoneBlock_init");
 void StoneBlock_init(VSelf) {

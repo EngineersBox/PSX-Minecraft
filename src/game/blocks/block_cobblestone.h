@@ -7,9 +7,9 @@
 
 #include "block.h"
 
-DEFN_BLOCK_STATELESS(COBBLESTONE, CobblestoneBlock);
+DEFN_BLOCK_STATELESS(CobblestoneBlock, COBBLESTONE);
 
-IBlock* cobblestoneBlockCreate();
+DEFN_BLOCK_CONSTRUCTOR(cobblestone);
 
 #define cobblestoneBlockCreateAttributes() ((BlockAttributes) { \
     .slipperiness = BLOCK_DEFAULT_SLIPPERINESS, \

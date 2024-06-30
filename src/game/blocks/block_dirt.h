@@ -7,9 +7,9 @@
 
 #include "block.h"
 
-DEFN_BLOCK_STATELESS(DIRT, DirtBlock);
+DEFN_BLOCK_STATELESS(DirtBlock, DIRT);
 
-IBlock* dirtBlockCreate();
+DEFN_BLOCK_CONSTRUCTOR(dirt);
 
 // (0.16277136 / ((0.6 * 0.91) * (0.6 * 0.91) * (0.6 * 0.91))) * ONE = 4096
 // ONE * 0.5 = 2048

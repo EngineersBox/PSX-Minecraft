@@ -46,13 +46,13 @@ void OverworldPerlinChunkGenerator_generate(VSelf, Chunk* chunk) {
             for (i32 y = 0; y < CHUNK_SIZE; y++) {
                 const i32 worldY = (position->vy * CHUNK_SIZE) + y + (CHUNK_SIZE * 6); // !IMPORTANT: TESTING OFFSET
                 if (worldY < height - 3) {
-                    chunk->blocks[chunkBlockIndex(x, y, z)] = stoneBlockCreate();
+                    chunk->blocks[chunkBlockIndex(x, y, z)] = stoneBlockCreate(NULL);
                 } else if (worldY < height - 1) {
-                    chunk->blocks[chunkBlockIndex(x, y, z)] = cobblestoneBlockCreate();
+                    chunk->blocks[chunkBlockIndex(x, y, z)] = cobblestoneBlockCreate(NULL);
                 } else if (worldY == height - 1) {
-                    chunk->blocks[chunkBlockIndex(x, y, z)] = grassBlockCreate();
+                    chunk->blocks[chunkBlockIndex(x, y, z)] = grassBlockCreate(NULL);
                 } else {
-                    chunk->blocks[chunkBlockIndex(x, y, z)] = airBlockCreate();
+                    chunk->blocks[chunkBlockIndex(x, y, z)] = airBlockCreate(NULL);
                 }
             }
         }

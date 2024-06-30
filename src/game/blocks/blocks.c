@@ -4,6 +4,7 @@
 #include "../../logging/logging.h"
 
 BlockAttributes block_attributes[BLOCK_COUNT] = {0};
+BlockConstructor block_constructors[BLOCK_COUNT] = {0};
 
 // Stateless blocks
 #define DECL_STATELESS_BLOCK(type, name) \
@@ -22,40 +23,33 @@ DECL_STATELESS_BLOCK(CobblestoneBlock, COBBLESTONE);
 })
 
 #define initBlockAttributes(id, attributes) ({ \
-    block_attributes[id] = attributes; \
+    block_attributes[(id)] = attributes; \
+})
+
+#define initBlockConstructor(id, constructor) ({ \
+    block_constructors[(id)] = constructor; \
 })
 
 void blocksInitialiseBuiltin() {
     initBlockSingleton(AirBlock, AIR);
-    initBlockAttributes(
-        BLOCKID_AIR,
-        airBlockCreateAttributes()
-    );
-    DEBUG_LOG("Air: %d\n", VCAST_PTR(Block*, airBlockCreate())->id);
+    initBlockAttributes(BLOCKID_AIR, airBlockCreateAttributes());
+    initBlockConstructor(BLOCKID_AIR, airBlockCreate);
+
     initBlockSingleton(StoneBlock, STONE);
-    initBlockAttributes(
-        BLOCKID_STONE,
-        stoneBlockCreateAttributes()
-    );
-    DEBUG_LOG("Stone: %d\n", VCAST_PTR(Block*, stoneBlockCreate())->id);
+    initBlockAttributes(BLOCKID_STONE, stoneBlockCreateAttributes());
+    initBlockConstructor(BLOCKID_STONE, stoneBlockCreate);
+
     initBlockSingleton(GrassBlock, GRASS);
-    initBlockAttributes(
-        BLOCKID_GRASS,
-        grassBlockCreateAttributes()
-    );
-    DEBUG_LOG("Grass: %d\n", VCAST_PTR(Block*, grassBlockCreate())->id);
+    initBlockAttributes(BLOCKID_GRASS, grassBlockCreateAttributes());
+    initBlockConstructor(BLOCKID_GRASS, grassBlockCreate);
+
     initBlockSingleton(DirtBlock, DIRT);
-    initBlockAttributes(
-        BLOCKID_DIRT,
-        dirtBlockCreateAttributes()
-    );
-    DEBUG_LOG("Dirt: %d\n", VCAST_PTR(Block*, dirtBlockCreate())->id);
+    initBlockAttributes(BLOCKID_DIRT, dirtBlockCreateAttributes());
+    initBlockConstructor(BLOCKID_DIRT, dirtBlockCreate);
+
     initBlockSingleton(CobblestoneBlock, COBBLESTONE);
-    initBlockAttributes(
-        BLOCKID_COBBLESTONE,
-        cobblestoneBlockCreateAttributes()
-    );
-    DEBUG_LOG("Cobblestone: %d\n", VCAST_PTR(Block*, cobblestoneBlockCreate())->id);
+    initBlockAttributes(BLOCKID_COBBLESTONE, cobblestoneBlockCreateAttributes());
+    initBlockConstructor(BLOCKID_COBBLESTONE, cobblestoneBlockCreate);
 }
 
 bool blockCanHarvest(const ToolType block_tool_type,

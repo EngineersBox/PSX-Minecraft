@@ -18,6 +18,7 @@
 #define BLOCK_COUNT 6
 
 extern BlockAttributes block_attributes[BLOCK_COUNT];
+extern BlockConstructor block_constructors[BLOCK_COUNT];
 
 #define blockGetAttribute(id, attr) (block_attributes[(id)].attr)
 #define blockGetName(id) blockGetAttribute(id, name)

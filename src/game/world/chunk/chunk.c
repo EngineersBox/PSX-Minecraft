@@ -58,8 +58,8 @@ void chunkGenerate3DHeightMap(Chunk* chunk, const VECTOR* position) {
                 );
                 printf("Height: %d\n", height);
                 chunk->blocks[chunkBlockIndex(x, y, z)] = height >= 0
-                    ? airBlockCreate()
-                    : stoneBlockCreate();
+                    ? airBlockCreate(NULL)
+                    : stoneBlockCreate(NULL);
             }
         }
     }
@@ -313,14 +313,14 @@ void chunkRender(Chunk* chunk,
 
 IBlock* chunkGetBlock(const Chunk* chunk, const i32 x, const i32 y, const i32 z) {
     if (checkIndexOOB(x, y, z)) {
-        return airBlockCreate();
+        return airBlockCreate(NULL);
     }
     return chunk->blocks[chunkBlockIndex(x, y, z)];
 }
 
 IBlock* chunkGetBlockVec(const Chunk* chunk, const VECTOR* position) {
     if (checkIndexOOB(position->vx, position->vy, position->vz)) {
-        return airBlockCreate();
+        return airBlockCreate(NULL);
     }
     return chunk->blocks[chunkBlockIndex(
         position->vx,
