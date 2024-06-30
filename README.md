@@ -17,6 +17,10 @@ Remake of Minecraft for PS1 with PSn00bSDK
   * [Progress](#progress)
     * [Goal](#goal)
     * [Screenshots](#screenshots)
+      * [Breaking Blocks](#breaking-blocks)
+      * [Placing Blocks](#placing-blocks)
+      * [Item Drops](#item-drops)
+      * [Inventory](#inventory)
 
 <!-- TOC -->
 
