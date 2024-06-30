@@ -62,7 +62,7 @@
 * [ ]  TooManyItems-like overlay in inventory GUI
 * [ ]  Set block orientation relative to camera when placing
 * [ ]  Retrieve face attributes based on block orientation during meshing
-* [ ]  Add handling for player use handler with logic for using items and applying damage on items like fishing rods
+* [X]  Add handling for player use handler with logic for using items and applying damage on items like fishing rods
 * [ ]  Sub-block intersection tests for raycast to handling interacting with blocks like doors and piston heads
 * [ ]  If we are breaking a block on the boundary of chunks, we should pass the breaking context to both the target and neighbouring chunk in order for the mesh generation to account for the missing faces on the chunk boundary.
 

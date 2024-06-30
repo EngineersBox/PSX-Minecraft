@@ -100,7 +100,7 @@ u8 IBlock_opaqueBitset(VSelf);
 
 interface(IBlock);
 
-typedef IBlock* (*BlockConstructor)(const IItem* from_item);
+typedef IBlock* (*BlockConstructor)(IItem* from_item);
 
 #define DEFN_BLOCK_STATEFUL(name, ...) \
     typedef struct {\
@@ -113,8 +113,12 @@ typedef IBlock* (*BlockConstructor)(const IItem* from_item);
     extern IBlock extern_name##_IBLOCK_SINGLETON; \
     extern name extern_name##_BLOCK_SINGLETON
 
-#define DEFN_BLOCK_CONSTRUCTOR(name) IBlock* name##BlockCreate(const IItem* from_item)
+#define DEFN_BLOCK_CONSTRUCTOR(name) IBlock* name##BlockCreate(IItem* from_item)
 #define DEFN_BLOCK_CONSTRUCTOR_IMPL_STATELESS(name, extern_name) DEFN_BLOCK_CONSTRUCTOR(name) { \
+    if (from_item != NULL) { \
+        Item* item = VCAST_PTR(Item*, from_item); \
+        item->stack_size--; \
+    } \
     return &extern_name##_IBLOCK_SINGLETON; \
 }
 #define DEFN_BLOCK_CONSTRUCTOR_IMPL_STATEFUL(name) DEFN_BLOCK_CONSTRUCTOR(name)

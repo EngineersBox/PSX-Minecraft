@@ -10,7 +10,7 @@ void hotbarInit(Hotbar* hotbar) {
     hotbar->ui.active = true;
     hotbar->ui.title = "hotbar";
     hotbar->slots = NULL;
-    hotbar->selected_slot = 1;
+    hotbar->selected_slot = 0;
     cvector_init(hotbar->slots, 0, NULL);
     for (uint8_t i = 0; i < HOTBAR_SLOT_COUNT; i++) {
         cvector_push_back(hotbar->slots, (Slot){});

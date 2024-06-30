@@ -211,13 +211,6 @@ INLINE static bool playerInputHandlerAttack(const PlayerInputHandlerContext* ctx
 }
 
 INLINE static void playerInputHandlerUse(const PlayerInputHandlerContext* ctx) {
-    TODO(
-        "Support USE actions for placing blocks and using items.\n"
-        "Use item or place itemblock if active hotbar slot has\n"
-        "anything in it, handling decrementing stack sizes,\n"
-        "durability, or updating the raycast intersected block\n"
-        "if need be for interaction (i.e doors)"
-    );
     const Player* player = ctx->player;
     const RayCastResult result = worldRayCastIntersection(
         ctx->world,
@@ -225,44 +218,40 @@ INLINE static void playerInputHandlerUse(const PlayerInputHandlerContext* ctx) {
         PLAYER_REACH_DISTANCE
     );
     // Interaction order:
-    // 1. If the raycast hit a block
-    //   a. Not sneaking go to 1d
-    //   b. If the current item is a block
-    //     i. Place the block in the direction of the normal
-    //        returned by the raycast
-    //     ii. Decrement the stack size
-    //     iii. If the stack size is zero remove the item
-    //     iv. Exit
-    //   c. Else if the current item is a tool
+    // 1. If the raycast hit a block and we are not sneaking
+    //   a. Invoke the block use handler (returns bool)
+    //     i. If true we consumed the input, exit
+    //     ii. Otherwise continue
+    // 2. If the current item is NULL
+    //   a. Go to 4
+    // 3. If the current item is a block
+    //   a. Place the block in the direction of the normal
+    //      returned by the raycast
+    //   b. Decrement the stack size
+    //   c. If the stack size is zero
+    //     i. Remove the item
+    //     ii. Exit
+    //   d. Otherwise continue
+    //   e. Else if the current item is a tool
     //     i. Invoke the item use handler (returns state)
     //     ii. If state equals DESTROY
     //       1. Destroy the item
     //       2. Exit
     //     iii. Else if state equals USED then exit
     //     iv. Otherwise continue
-    //   d. Invoke the block update handler (returns bool)
-    //   e. If true (consumed event) then exit
-    // 2. Otherwise
-    //   a. If the current item is a tool
-    //     i. Invoke the item use handler (returns state)
-    //     ii. If state equals DESTROY
-    //       1. Destroy the item
-    //       2. Exit
-    //     iii. Else if state equals USED then exit
-    //     iv. Otherwise continue
+    // 4. If we are sneaking
+    //   a. Invoke the block update handler (returns bool)
     const bool sneaking  = player->physics_object.flags.sneaking;
     const Hotbar* hotbar = VCAST_PTR(Hotbar*, &player->hotbar);
     Slot* slot = &hotbarGetSelectSlot(hotbar);
     IItem* iitem = slot->data.item;
-    bool tool_interaction = false;
-    Item const* item;
-    if (result.block == NULL) {
-        goto tool_interaction;
+    if (result.block != NULL && !sneaking && VCALL(*result.block, useAction)) {
+        return;
     }
-    if (!sneaking || iitem == NULL) {
+    if (iitem == NULL) {
         goto block_update;
     }
-    item = VCAST_PTR(Item*, iitem);
+    Item* item = VCAST_PTR(Item*, iitem);
     switch (itemGetType(item->id)) {
         case ITEMTYPE_BLOCK:
             if (item->id > BLOCK_COUNT) {
@@ -299,7 +288,6 @@ INLINE static void playerInputHandlerUse(const PlayerInputHandlerContext* ctx) {
                 case ITEM_ACTION_STATE_USED:
                     return;
                 case ITEM_ACTION_STATE_NONE:
-                    tool_interaction = true;
                     break;
             }
             break;
@@ -308,24 +296,10 @@ INLINE static void playerInputHandlerUse(const PlayerInputHandlerContext* ctx) {
             break;
     }
 block_update:
-    if (VCALL(*result.block, useAction)) {
+    if (sneaking) {
         // Event is consumed so we don't try to invoke the tool usage
         // on this block
-        return;
-    }
-tool_interaction:
-    if (iitem == NULL) {
-        return;
-    }
-    item = VCAST_PTR(Item*, iitem);
-    if (tool_interaction || itemGetType(item->id) != ITEMTYPE_TOOL) {
-        return;
-    }
-    const ItemActionState action_state = VCALL(*iitem, useAction);
-    if (action_state == ITEM_ACTION_STATE_DESTROY) {
-        VCALL(*iitem, destroy);
-        itemDestroy(iitem);
-        slot->data.item = NULL;
+        VCALL(*result.block, useAction);
     }
 }
 
