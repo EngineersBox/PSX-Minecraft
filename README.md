@@ -148,7 +148,18 @@ rendering the breaking overlay for a given block.
 
 ### Screenshots
 
+#### Breaking Blocks
+
 ![Breaking Overlay](./docs/breaking_overlay.png)
+
+#### Placing Blocks
+
 ![Placing Blocks](./docs/placing_blocks.png)
+
+#### Item Drops
+
 ![PSXMC](./docs/PSXMC-1.png)
+
+#### Inventory
+
 ![PSXMC](./docs/PSXMC-2.png)
