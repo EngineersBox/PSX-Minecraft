@@ -139,12 +139,8 @@ You can of course also just run these manually if you'd like to instead:
 
 ### Goal
 
-<!-- Current work is implementing frustum culling and ordered visibility culling with ordered mesh -->
-
-<!-- generation during binary greedy meshing for offset based culling. -->
-
-Current work is in block breaking logic with tool and material based influence on duration, and
-rendering the breaking overlay for a given block.
+Current work is implementing frustum culling and ordered visibility culling with ordered mesh
+generation during binary greedy meshing for offset based culling.
 
 ### Screenshots
 
