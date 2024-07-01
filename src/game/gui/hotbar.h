@@ -8,6 +8,7 @@
 #include "../../render/render_context.h"
 #include "../../render/transforms.h"
 #include "../../core/input/input.h"
+#include "../../hardware/counters.h"
 #include "slot.h"
 
 #define HOTBAR_SLOT_COUNT 9
@@ -17,12 +18,15 @@
 #define HOTBAR_SELECTOR_WIDTH 24
 #define HOTBAR_SELECTOR_HEIGHT 24
 
+#define HOTBAR_DEBOUNCE_MS 200
+
 #define hotbarGetSelectSlot(hotbar) ((hotbar)->slots[(hotbar)->selected_slot])
 
 DEFN_UI(
     Hotbar,
     cvector(Slot) slots;
     u8 selected_slot;
+    Timestamp debounce;
 );
 
 void hotbarInit(Hotbar* hotbar);

@@ -75,7 +75,7 @@ void inventoryRenderSlots(const Inventory* inventory, RenderContext* ctx, Transf
 Slot* inventorySearchItem(const Inventory* inventory, const ItemID id, const u8 from_slot, u8* next_free);
 Slot* inventoryFindFreeSlot(const Inventory* inventory, const u8 from_slot);
 
-InventoryStoreResult inventoryStoreItem(Inventory* inventory, IItem* iitem);
+InventoryStoreResult inventoryStoreItem(const Inventory* inventory, IItem* iitem);
 
 void inventoryOpen(VSelf);
 void Inventory_open(VSelf);

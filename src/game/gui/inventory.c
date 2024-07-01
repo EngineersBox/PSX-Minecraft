@@ -183,7 +183,7 @@ Slot* inventoryFindFreeSlot(const Inventory* inventory, const u8 from_slot) {
     return NULL;
 }
 
-InventoryStoreResult inventoryStoreItem(Inventory* inventory, IItem* iitem) {
+InventoryStoreResult inventoryStoreItem(const Inventory* inventory, IItem* iitem) {
     // 1. Does the item already exist in the inventory?
     //   a. [1:TRUE] Does the existing have space?
     //     i. [a:TRUE] Add the item quantity to the existing stack (up to max)
@@ -278,7 +278,7 @@ void Inventory_close(VSelf) {
     background->texture = NULL;
 }
 
-bool _debounce(Inventory* inventory) {
+static bool debounce(Inventory* inventory) {
     if (time_ms - inventory->debounce >= INVENTORY_DEBOUNCE_MS) {
         inventory->debounce = time_ms;
         return true;
@@ -288,7 +288,7 @@ bool _debounce(Inventory* inventory) {
 
 bool inventoryInputHandler(const Input* input, void* ctx) {
     Inventory* inventory = (Inventory*) ctx;
-    if (isPressed(input->pad, BINDING_OPEN_INVENTORY) && _debounce(inventory)) {
+    if (isPressed(input->pad, BINDING_OPEN_INVENTORY) && debounce(inventory)) {
         if (inventory->ui.active) {
             inventoryClose(inventory);
             return false;

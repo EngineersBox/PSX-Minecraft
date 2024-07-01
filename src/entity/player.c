@@ -410,7 +410,9 @@ INLINE static bool playerInputHandlerMovement(const Input* input, const PlayerIn
 
 bool playerInputHandler(const Input* input, void* ctx) {
     const PlayerInputHandlerContext* context = ctx;
-    playerInputHandlerWorldInteraction(input, context);
+    if (input->pad->stat == 0) {
+        playerInputHandlerWorldInteraction(input, context);
+    }
     return playerInputHandlerMovement(input, context);
 }
 

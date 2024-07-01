@@ -56,7 +56,7 @@ void hotbarRenderSlots(const Hotbar* hotbar,  RenderContext* ctx, Transforms* tr
     POLY_FT4* pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
     setXYWH(
         pol4,
-        CENTRE_X - (HOTBAR_WIDTH / 2) + (hotbar->selected_slot * 19),
+        CENTRE_X - (HOTBAR_WIDTH / 2) + (hotbar->selected_slot * 20) - 1,
         SCREEN_YRES - HOTBAR_HEIGHT - 2,
         HOTBAR_SELECTOR_WIDTH,
         HOTBAR_SELECTOR_HEIGHT
@@ -87,7 +87,37 @@ void Hotbar_close(VSelf) {
     // Always open
 }
 
+static bool debounce(Hotbar* hotbar) {
+    if (time_ms - hotbar->debounce >= HOTBAR_DEBOUNCE_MS) {
+        hotbar->debounce = time_ms;
+        return true;
+    }
+    return false;
+}
+
+bool hotbarInputHandler(const Input* input, void* ctx) {
+    const PADTYPE* pad = input->pad;
+    if (pad->stat != 0) {
+        return false;
+    }
+    Hotbar* hotbar = (Hotbar*) ctx;
+    if (isPressed(pad, BINDING_PREVIOUS) && debounce(hotbar)) {
+        hotbar->selected_slot = positiveModulo(((i8) hotbar->selected_slot) - 1, 9);
+    } else if (isPressed(pad, BINDING_NEXT) && debounce(hotbar)) {
+        hotbar->selected_slot = positiveModulo(((i8) hotbar->selected_slot) + 1, 9);
+    }
+    return false;
+}
+
 void hotbarRegisterInputHandler(VSelf, Input* input, void* ctx) ALIAS("Hotbar_registerInputHandler");
 void Hotbar_registerInputHandler(VSelf, Input* input, void* ctx) {
-    // Nothing to register
+    VSELF(Hotbar);
+    const InputHandlerVTable handler = (InputHandlerVTable) {
+        .ctx = self,
+        .input_handler = hotbarInputHandler
+    };
+    inputAddHandler(
+        input,
+        handler
+    );
 }
