@@ -66,6 +66,7 @@
 * [ ]  Retrieve face attributes based on block orientation during meshing
 * [ ]  Sub-block intersection tests for raycast to handling interacting with blocks like doors and piston heads
 * [ ]  If we are breaking a block on the boundary of chunks, we should pass the breaking context to both the target and neighbouring chunk in order for the mesh generation to account for the missing faces on the chunk boundary.
+* [ ]  Lightmapping with flood fill algorithm using LUTs for block light vs sky light
 
 ## Refactor
 
