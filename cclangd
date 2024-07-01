@@ -1,13 +1,7 @@
 #! /bin/sh
 
-# The name of the container to run `clangd` in must be passed as the first and only argument
-#
-# This is based off the name of the buffer and the repository, etc. it is in, so even if we
-# don't end up attaching to a container, it will still be passed
-[ "$#" -ne 2 ] && >&2 echo "Usage: cclangd <container name> <project root path>" >&2 && exit 1
-
-CONTAINER_NAME="$1"
-PROJECT_ROOT_PATH="$2"
+CONTAINER_NAME="psxmc"
+PROJECT_ROOT_PATH="$(pwd)"
 
 # Verify that a contianer by this name actually exists, and is running
 if [ -z "$(docker ps -q -f name="$CONTAINER_NAME" -f status=running)" ]; then

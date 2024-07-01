@@ -91,7 +91,7 @@ void playerRender(const Player* player, RenderContext* ctx, Transforms* transfor
 }
 
 void playerFallHandler(PhysicsObject* physics_object, const i32 distance, void* ctx) {
-    Player* player = (Player*) ctx;
+    // Player* player = (Player*) ctx;
     if (distance >= ONE_BLOCK * 3) {
         // NULL as the source indicates direct damage application
         // iEntityAttackFrom(&player->entity, NULL, (distance / ONE_BLOCK) - 3);
@@ -155,7 +155,7 @@ void updateBreakingState(Player* player, const RayCastResult* result, const Worl
         itemDestroy(iitem);
         slot->data.item = NULL;
     }
-remove_world_block:
+remove_world_block:;
     const bool drop_item_on_break = blockCanHarvest(
         block_tool_type,
         block_tool_material,
@@ -193,7 +193,6 @@ INLINE static bool playerInputHandlerAttack(const PlayerInputHandlerContext* ctx
     //       ensure that no items are dropped.
     if (result.block != NULL) {
         const Block* block = VCAST_PTR(Block*, result.block);
-        // DEBUG_LOG("[PLAYER] Raycast position: " VEC_PATTERN "\n", VEC_LAYOUT(result.pos));
         if (block->id != BLOCKID_AIR) {
             updateBreakingState(player, &result, ctx->world);
             return true;
@@ -296,7 +295,7 @@ INLINE static void playerInputHandlerUse(const PlayerInputHandlerContext* ctx) {
                 return;
             }
             break;
-        case ITEMTYPE_TOOL:
+        case ITEMTYPE_TOOL:;
             const ItemActionState action_state = VCALL(*iitem, useAction);
             switch (action_state) {
                 case ITEM_ACTION_STATE_DESTROY:
