@@ -53,6 +53,7 @@
 * [X]  Breaking overlays for a block, enabled with a marker variable and a target resolved by ray cast and a texture reference
 * [X]  Finish player attack input handler
 * [X]  Add handling for player use handler with logic for using items and applying damage on items like fishing rods
+* [X]  Hotbar active slot input handlers (left/right)
 * [ ]  Camera far plane cutoff with fog relative to chunk render distance
 * [ ]  Frustum and culling
 * [ ]  Depth-first search culling through chunks
