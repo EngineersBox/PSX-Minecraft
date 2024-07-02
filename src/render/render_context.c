@@ -34,9 +34,9 @@ CVECTOR far_colour = {
 // A column of zeroes effectively disables the light source.
 MATRIX lighting_colour = {
     .m = {
-        {FIXED_1_4 * 3, 0, 0}, /* Red */
-        {FIXED_1_4 * 3, 0, 0}, /* Green */
-        {FIXED_1_4 * 3, 0, 0}  /* Blue */
+        {FIXED_1_4 * 1, 0, 0}, /* Red */
+        {FIXED_1_4 * 1, 0, 0}, /* Green */
+        {FIXED_1_4 * 1, 0, 0}  /* Blue */
     }
 };
 

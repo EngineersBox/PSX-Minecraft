@@ -1,13 +1,13 @@
 #include "chunk_mesh.h"
 
-#include <clip.h>
 #include <inline_c.h>
-#include <logging.h>
 #include <stdlib.h>
 
 #include "../../structure/cvector.h"
 #include "../../structure/cvector_utils.h"
 #include "../../blocks/block.h"
+#include "../../structure/primitive/clip.h"
+#include "../../logging/logging.h"
 
 #ifndef QUAD_DUAL_TRI_NCLIP
 #define QUAD_DUAL_TRI_NCLIP 0

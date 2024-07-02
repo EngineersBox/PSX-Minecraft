@@ -18,12 +18,14 @@
 
 // Forward declaration
 typedef struct World World;
+typedef u8 LightMap[CHUNK_SIZE * CHUNK_SIZE  * CHUNK_SIZE];
 
 typedef struct {
     World* world;
     VECTOR position;
     ChunkMesh mesh;
     IBlock* blocks[CHUNK_DATA_SIZE];
+    LightMap lightmap;
     cvector(IItem*) dropped_items;
 } Chunk;
 

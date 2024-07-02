@@ -7,8 +7,8 @@
 #include <stdbool.h>
 
 #include "chunk_structure.h"
-#include "../../render/render_context.h"
-#include "../../render/transforms.h"
+#include "../../../render/render_context.h"
+#include "../../../render/transforms.h"
 #include "../../blocks/blocks.h"
 #include "../../items/item.h"
 #include "../../entity/player.h"
