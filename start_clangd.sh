@@ -25,7 +25,9 @@ docker run \
     -e PSN00BSDK_LIBS=/opt/psn00bsdk/lib/libpsn00b \
     --name "$CONTAINER_NAME" \
     psxmc:latest \
-    /bin/bash -c "ln -s $PROJECT_ROOT_PATH /tmp/PSX-Minecraft && ln -s $PROJECT_ROOT_PATH/.clangd /opt/psn00bsdk/include/libpsn00b/.clangd && /usr/bin/clangd \
+    /bin/bash -c "ln -s $PROJECT_ROOT_PATH /tmp/PSX-Minecraft \
+    && ln -s $PROJECT_ROOT_PATH/.clangd /opt/psn00bsdk/include/libpsn00b/.clangd \
+    && /usr/bin/clangd \
     --compile-commands-dir=\"${PROJECT_ROOT_PATH}/build\" \
     --background-index"
     # --log=verbose"

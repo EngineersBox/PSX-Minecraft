@@ -43,6 +43,8 @@ void drawLine(RenderContext* ctx, const SVECTOR* vertex, uint8_t r, uint8_t g, u
 }
 
 void axisDraw(RenderContext* ctx, const Transforms* transforms, const Camera* camera) {
+    // TODO: This is very jittery despite consistency between player and camera position
+    //       Need to ensure that it doesn't jitter
     static SVECTOR rotation = {0};
     VECTOR position = (VECTOR) {
         .vx = camera->position.vx >> FIXED_POINT_SHIFT,
