@@ -181,6 +181,11 @@ void renderQuad(const SMD* mesh, SMD_PRIM* primitive, RenderContext* ctx, Transf
     // Store result to the primitive
     gte_strgb(&pol4->r0);
     // Set texture coords and dimensions
+    // TODO: Blit texture to off-screen tpage and then apply lighting
+    //       changes for each 16x16 section of it. Finally reference
+    //       the off-screen tpage here as the target to draw to the
+    //       in-world poly. This is essentially procedural texturing,
+    //       the same as how the breaking overlay is done.
     setUVWH(
         pol4,
         primitive->tu0,
@@ -208,13 +213,13 @@ void chunkMeshRenderFaceDirection(const SMD* mesh, RenderContext* ctx, Transform
         switch (primitive->prim_id.type) {
             case SMD_PRI_TYPE_LINE:
                 renderLine(primitive, ctx, transforms);
-            break;
+                break;
             case SMD_PRI_TYPE_TRIANGLE:
                 renderTriangle(primitive, ctx, transforms);
-            break;
+                break;
             case SMD_PRI_TYPE_QUAD:
                 renderQuad(mesh, primitive, ctx, transforms);
-            break;
+                break;
             default:
                 printf(
                     "[ERROR] ChunkMesh - Unknown primitive type: %d\n",
