@@ -42,12 +42,12 @@ extern const SVECTOR FACE_DIRECTION_NORMALS[FACE_DIRECTION_COUNT];
  * @param face_dir Current @code FaceDirection@endcode
  * @return Opposing @code FaceDirection@endcode
  */
-#define faceDirectionOpposing(face_dir) ((FaceDirection) (((u8) face_dir) ^ 1))
+#define faceDirectionOpposing(face_dir) ((FaceDirection) (((u8) (face_dir)) ^ 1))
 
 // [-1,1] => [0,1]
 #define convertAxis(v,a) (((v).a + 1) >> 1)
 /**
-* @brief Converts a normal vector into its equivalent FaceDirection
+* @brief Converts a normal vector into its equivalent @code FaceDirection@endcode
 * @param normal Normal vector instance of @code VECTOR@endcode,
 *               @code SVECTOR@endcode or @code CVECTOR@endcode
 * @return @code FaceDirection@endcode corresponding to normal
@@ -56,6 +56,13 @@ extern const SVECTOR FACE_DIRECTION_NORMALS[FACE_DIRECTION_COUNT];
       ((convertAxis(normal, vy) | 0b000) * ((normal).vy & 0b1)) \
     | ((convertAxis(normal, vx) | 0b010) * ((normal).vx & 0b1)) \
     | ((convertAxis(normal, vz) | 0b100) * ((normal).vz & 0b1))
+
+/**
+* @brief For a given direction vector, finds the closest @code FaceDirection@endcode
+* @param vec Normalised direction @code VECTOR@endcode instance
+* @return @code FaceDirection@endcode corresponding to closes direction
+*/
+FaceDirection faceDirectionClosestNormal(const VECTOR vec);
 
 // Given target_direction, a direction relative to FACE_DIR_FRONT,
 // this computes the equivalent direction of target_direction
