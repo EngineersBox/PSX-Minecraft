@@ -54,6 +54,7 @@
 * [X]  Finish player attack input handler
 * [X]  Add handling for player use handler with logic for using items and applying damage on items like fishing rods
 * [X]  Hotbar active slot input handlers (left/right)
+* [X]  Set block orientation relative to face placed against
 * [ ]  Camera far plane cutoff with fog relative to chunk render distance
 * [ ]  Frustum and culling
 * [ ]  Depth-first search culling through chunks
@@ -62,7 +63,6 @@
 * [ ]  Update queue for operations on the world
 * [ ]  D-pad or analogue stick controlled cursor in UIs with item movement between slots being held by cursor
 * [ ]  TooManyItems-like overlay in inventory GUI
-* [ ]  Set block orientation relative to camera when placing
 * [ ]  Retrieve face attributes based on block orientation during meshing
 * [ ]  Sub-block intersection tests for raycast to handling interacting with blocks like doors and piston heads
 * [ ]  If we are breaking a block on the boundary of chunks, we should pass the breaking context to both the target and neighbouring chunk in order for the mesh generation to account for the missing faces on the chunk boundary.

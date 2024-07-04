@@ -232,24 +232,24 @@ bool chunkModifyVoxel(Chunk* chunk,
     return true;
 }
 
-bool chunkModifyVoxelConstructed(Chunk* chunk,
-                                 const VECTOR* position,
-                                 const BlockConstructor block_constructor,
-                                 IItem* from_item,
-                                 const bool drop_item,
-                                 IItem** item_result) {
+IBlock* chunkModifyVoxelConstructed(Chunk* chunk,
+                                    const VECTOR* position,
+                                    const BlockConstructor block_constructor,
+                                    IItem* from_item,
+                                    const bool drop_item,
+                                    IItem** item_result) {
     const int result = modifyVoxel0(chunk, position, drop_item, item_result);
     if (result == 2) {
-        return false;
+        return NULL;
     }
-    chunk->blocks[chunkBlockIndex(
+    IBlock* return_block = chunk->blocks[chunkBlockIndex(
         position->vx,
         position->vy,
         position->vz
     )] = block_constructor(from_item);
     chunkClearMesh(chunk);
     chunkGenerateMesh(chunk);
-    return true;
+    return return_block;
 }
 
 bool itemPickupValidator(const Item* item, void* ctx) {

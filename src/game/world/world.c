@@ -540,7 +540,7 @@ bool worldModifyVoxelChunkBlock(const World* world,
     );
 }
 
-bool worldModifyVoxelChunkBlockConstructed(const World* world,
+IBlock* worldModifyVoxelChunkBlockConstructed(const World* world,
                                            const ChunkBlockPosition* position,
                                            const BlockConstructor block_constructor,
                                            IItem* from_item,
@@ -586,7 +586,7 @@ bool worldModifyVoxel(const World* world,
     );
 }
 
-bool worldModifyVoxelConstructed(const World* world,
+IBlock* worldModifyVoxelConstructed(const World* world,
                                  const VECTOR* position,
                                  const BlockConstructor block_constructor,
                                  IItem* from_item,

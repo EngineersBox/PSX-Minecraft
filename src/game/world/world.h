@@ -73,23 +73,23 @@ bool worldModifyVoxelChunkBlock(const World* world,
                                 IBlock* block,
                                 bool drop_item,
                                 IItem** item_result);
-bool worldModifyVoxelChunkBlockConstructed(const World* world,
-                                           const ChunkBlockPosition* position,
-                                           BlockConstructor block_constructor,
-                                           IItem* from_item,
-                                           bool drop_item,
-                                           IItem** item_result);
+IBlock* worldModifyVoxelChunkBlockConstructed(const World* world,
+                                              const ChunkBlockPosition* position,
+                                              BlockConstructor block_constructor,
+                                              IItem* from_item,
+                                              bool drop_item,
+                                              IItem** item_result);
 
 bool worldModifyVoxel(const World* world,
                       const VECTOR* position,
                       IBlock* block,
                       bool drop_item,
                       IItem** item_result);
-bool worldModifyVoxelConstructed(const World* world,
-                                 const VECTOR* position,
-                                 BlockConstructor block_constructor,
-                                 IItem* from_item,
-                                 bool drop_item,
-                                 IItem** item_result);
+IBlock* worldModifyVoxelConstructed(const World* world,
+                                    const VECTOR* position,
+                                    BlockConstructor block_constructor,
+                                    IItem* from_item,
+                                    bool drop_item,
+                                    IItem** item_result);
 
 #endif // PSX_MINECRAFT_WORLD_H

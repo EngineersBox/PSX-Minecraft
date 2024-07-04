@@ -44,6 +44,19 @@ extern const SVECTOR FACE_DIRECTION_NORMALS[FACE_DIRECTION_COUNT];
  */
 #define faceDirectionOpposing(face_dir) ((FaceDirection) (((u8) face_dir) ^ 1))
 
+// [-1,1] => [0,1]
+#define convertAxis(v,a) (((v).a + 1) >> 1)
+/**
+* @brief Converts a normal vector into its equivalent FaceDirection
+* @param normal Normal vector instance of @code VECTOR@endcode,
+*               @code SVECTOR@endcode or @code CVECTOR@endcode
+* @return @code FaceDirection@endcode corresponding to normal
+*/
+#define faceDirectionFromNormal(normal) \
+      ((convertAxis(normal, vy) | 0b000) * ((normal).vy & 0b1)) \
+    | ((convertAxis(normal, vx) | 0b010) * ((normal).vx & 0b1)) \
+    | ((convertAxis(normal, vz) | 0b100) * ((normal).vz & 0b1))
+
 // Given target_direction, a direction relative to FACE_DIR_FRONT,
 // this computes the equivalent direction of target_direction
 // relevant to front_direction, right_direction, up_direction.
