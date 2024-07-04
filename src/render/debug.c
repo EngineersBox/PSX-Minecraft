@@ -68,7 +68,7 @@ void debugDrawPBUsageGraph(RenderContext* ctx, const uint16_t base_screen_x, con
     renderUsageGraph(ctx, &packet_buffer_usage, base_screen_x, base_screen_y);
 }
 
-#define isOverlayEnabled(suffix) isDebugEnabled() && defined(PSXMC_DEBUG_OVERLAY_##suffix) && PSXMC_DEBUG_OVERLAY_##suffix
+#define isOverlayEnabled(suffix) (isDebugEnabled() && defined(PSXMC_DEBUG_OVERLAY_##suffix) && PSXMC_DEBUG_OVERLAY_##suffix)
 
 void drawDebugText(const Stats* stats, const Camera* camera) {
 #if isOverlayEnabled(FPS)
@@ -94,18 +94,39 @@ void drawDebugText(const Stats* stats, const Camera* camera) {
     );
     #undef fracToFloat
 #endif
+#if (isOverlayEnabled(DIR) || isOverlayEnabled(FACING))
+    const VECTOR direction = rotationToDirection(&camera->rotation);
+#endif
 #if isOverlayEnabled(DIR)
     FntPrint(
         0,
         "RX=%d RY=%d\n",
-        camera.rotation.vx >> FIXED_POINT_SHIFT,
-        camera.rotation.vy >> FIXED_POINT_SHIFT
+        camera->rotation.vx >> FIXED_POINT_SHIFT,
+        camera->rotation.vy >> FIXED_POINT_SHIFT
     );
-    const VECTOR direction = rotationToDirection(&camera.rotation);
     FntPrint(
         0,
         "DX=%d DY=%d DZ=%d\n",
         VEC_LAYOUT(direction)
+    );
+#endif
+#if isOverlayEnabled(FACING)
+    char facing = 'B';
+    switch (faceDirectionClosestNormal(direction)) {
+        // NOTE: Up and down are swapping since the above function
+        //       returns a value based world position, not camera
+        //       position. So Y is inverted.
+        case FACE_DIR_DOWN: facing = 'U'; break;
+        case FACE_DIR_UP: facing = 'D'; break;
+        case FACE_DIR_LEFT: facing = 'L'; break;
+        case FACE_DIR_RIGHT: facing = 'R'; break;
+        case FACE_DIR_BACK: facing = 'B'; break;
+        case FACE_DIR_FRONT: facing = 'F'; break;
+    }
+    FntPrint(
+        0,
+        "FACING=%c\n",
+        facing
     );
 #endif
 }
