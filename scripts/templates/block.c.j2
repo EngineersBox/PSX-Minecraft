@@ -4,9 +4,13 @@
 #include "block_id.h"
 #include "../items/item_block_{{ name_snake_lower }}.h"
 
-IBlock* {{ name_lower }}BlockCreate() {
-    return &{{ name_snake_upper }}_IBLOCK_SINGLETON;
+{% if stateful %}
+DEFN_BLOCK_CONSTRUCTOR_IMPL_STATEFUL({{ name_lower }}) {
+    TODO("Constructor for {{ name_lower }} block");
 }
+{% else %}
+DEFN_BLOCK_CONSTRUCTOR_IMPL_STATELESS({{ name_lower }}, {{ name_snake_upper }})
+{% endif %}
 
 void {{ name_lower }}BlockInit(VSelf) ALIAS("{{ name_capital }}Block_init");
 void {{ name_capital }}Block_init(VSelf) {
@@ -28,10 +32,10 @@ void {{ name_lower }}BlockAccess(VSelf) ALIAS("{{ name_capital }}Block_access");
 void {{ name_capital }}Block_access(VSelf) {
 }
 
-IItem* {{ name_lower }}BlockDestroy(VSelf) ALIAS("{{ name_capital }}Block_destroy");
-IItem* {{ name_capital }}Block_destroy(VSelf) {
+IItem* {{ name_lower }}BlockDestroy(VSelf, bool drop_item) ALIAS("{{ name_capital }}Block_destroy");
+IItem* {{ name_capital }}Block_destroy(VSelf, bool drop_item) {
     VSELF({{ name_capital }}Block);
-    return {{ name_lower }}BlockProvideItem(self);
+    return drop_item ? {{ name_lower }}BlockProvideItem(self) : NULL;
 }
 
 void {{ name_lower }}BlockUpdate(VSelf) ALIAS("{{ name_capital }}Block_update");
@@ -50,6 +54,13 @@ IItem* {{ name_capital }}Block_provideItem(VSelf) {
     item_block->item_item.bob_direction = 1;
     return item;
 }
+
+{% if has_use_action %}
+bool {{ name_lower }}BlockUseAction(VSelf) ALIAS("{{ name_capital }}Block_useAction");
+bool {{ name_capital }}Block_useAction(VSelf) {
+    TODO("Implement use action for {{ name_lower }} block");
+}
+{% endif %}
 
 {% if opaque_bitset != None %}
 static const u8 {{ name_snake_upper }}_OPAQUE_BITSET = opaqueFacesBitset({{ opaque_bitset }});

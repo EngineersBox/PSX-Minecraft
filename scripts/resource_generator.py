@@ -22,6 +22,7 @@ class Block:
     tool_type: str
     tool_material: str
     can_harvest_bitset: str
+    has_use_action: bool
     generator: str = "block"
 
 @dataclass
@@ -96,6 +97,7 @@ def main():
     parser = argparse.ArgumentParser(prog="resource_generator")
     sub_parsers = parser.add_subparsers(dest="generator", help="sub-command --help")
 
+    # ==== BLOCK ====
     parser_block = sub_parsers.add_parser("block", help="block --help")
     parser_block.add_argument("--name", type=str, required=True, help="Name of the block")
     parser_block.add_argument(
@@ -165,7 +167,9 @@ def main():
         help="Minimum material level of the tool used to mine this block"
     )
     parser_block.add_argument("--can_harvest_bitset", type=str, required=True, help="Tool specific flags to determine if the tool can mine the block where 1=true and 0=false of the form '<none>,<pickaxe>,<axe>,<sword>,<shovel>,<hoe>'")
+    parser_block.add_argument("--has_use_action", type=bool, action=argparse.BooleanOptionalAction, default=False, help="Whether the block should respond to use actions")
 
+    # ==== ITEM BLOCK ====
     parser_itemblock = sub_parsers.add_parser("itemblock", help="itemblock help")
     parser_itemblock.add_argument("--name", type=str, required=True, help="Name of the item block")
     parser_itemblock.add_argument("--max_stack_size", type=str, default=64, help="Maximum item count to have in a stack")
