@@ -281,31 +281,19 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk, const BreakingState* breaking_sta
     }
 }
 
-static SMD_PRIM* createPrimitive(ChunkMesh* mesh,
-                                 const Block* block,
-                                 const FaceDirection face_dir,
-                                 const u32 width,
-                                 const u32 height,
-                                 const Texture* texture_override,
-                                 const TextureAttributes texture_attributes_override[FACE_DIRECTION_COUNT]) {
-    SMD* face_dir_mesh = &mesh->face_meshes[face_dir];
-    cvector(SMD_PRIM) prims = face_dir_mesh->p_prims;
-    cvector_push_back(prims, (SMD_PRIM){});
+static MeshPrimitive* createPrimitive(ChunkMesh* mesh,
+                                      const Block* block,
+                                      const FaceDirection face_dir,
+                                      const u32 width,
+                                      const u32 height,
+                                      const Texture* texture_override,
+                                      const TextureAttributes texture_attributes_override[FACE_DIRECTION_COUNT]) {
+    Mesh* face_dir_mesh = &mesh->face_meshes[face_dir];
+    cvector(MeshPrimitive) prims = face_dir_mesh->p_prims;
+    cvector_push_back(prims, (MeshPrimitive){});
     face_dir_mesh->p_prims = prims;
-    SMD_PRIM* primitive = &prims[face_dir_mesh->n_prims++];
-    primitive->prim_id = (SMD_PRI_TYPE){};
-    primitive->prim_id.type = SMD_PRI_TYPE_QUAD;
-    primitive->prim_id.l_type = SMD_PRI_TYPE_LIGHTING_FLAT;
-    primitive->prim_id.c_type = SMD_PRI_TYPE_COLORING_GOURAUD;
-    primitive->prim_id.texture = 1;
-    primitive->prim_id.blend = 0; // TODO: Check this
-    primitive->prim_id.zoff = 0; // TODO: Check this
-    primitive->prim_id.nocull = 0;
-    primitive->prim_id.mask = 0;
-    primitive->prim_id.texwin = 0;
-    primitive->prim_id.texoff = 0;
-    primitive->prim_id.reserved = 0;
-    primitive->prim_id.len = 4 + 8 + 4 + 8 + 4; // Some wizardry based on PSn00bSDK/tools/smxlink/main.cpp lines 518-644
+    MeshPrimitive* primitive = &prims[face_dir_mesh->n_prims++];
+    primitive->type = MESH_PRIM_TYPE_QUAD;
     const Texture* texture = texture_override != NULL
         ? texture_override
         : &textures[ASSET_TEXTURES_TERRAIN_INDEX];
@@ -318,10 +306,10 @@ static SMD_PRIM* createPrimitive(ChunkMesh* mesh,
     primitive->tv0 = attributes->v;
     primitive->tu1 = BLOCK_TEXTURE_SIZE * width;
     primitive->tv1 = BLOCK_TEXTURE_SIZE * height;
-    primitive->r0 = attributes->tint.r;
-    primitive->g0 = attributes->tint.g;
-    primitive->b0 = attributes->tint.b;
-    primitive->code = attributes->tint.cd;
+    primitive->r = attributes->tint.r;
+    primitive->g = attributes->tint.g;
+    primitive->b = attributes->tint.b;
+    primitive->tint= attributes->tint.cd;
     return primitive;
 }
 
@@ -366,14 +354,14 @@ static SVECTOR createVertex(const i32 chunk_origin_x,
 }
 
 static void createVertices(Chunk* chunk,
-                           SMD_PRIM* primitive,
+                           MeshPrimitive* primitive,
                            const FaceDirection face_dir,
                            const i32 axis,
                            const i32 x,
                            const i32 y,
                            const i32 w,
                            const i32 h) {
-    SMD* const mesh = &chunk->mesh.face_meshes[face_dir];
+    Mesh* const mesh = &chunk->mesh.face_meshes[face_dir];
     // Construct vertices relative to chunk mesh bottom left origin
     const i32 chunk_origin_x = chunk->position.vx * CHUNK_SIZE;
     const i32 chunk_origin_y = -chunk->position.vy * CHUNK_SIZE;
@@ -404,7 +392,7 @@ static void createVertices(Chunk* chunk,
 }
 
 static void createNormal(ChunkMesh* mesh,
-                         SMD_PRIM* primitive,
+                         MeshPrimitive* primitive,
                          const FaceDirection face_dir) {
     SVECTOR* norm = nextRenderAttribute(&mesh->face_meshes[face_dir], p_norms, n0, n_norms);
 #undef nextRenderAttribute
@@ -424,7 +412,7 @@ static void createQuad(Chunk* chunk,
                        const u32 y,
                        const u32 w,
                        const u32 h) {
-    SMD_PRIM* primitive = createPrimitive(
+    MeshPrimitive* primitive = createPrimitive(
         &chunk->mesh,
         block,
         face_dir,

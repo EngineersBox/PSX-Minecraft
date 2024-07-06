@@ -90,6 +90,7 @@
 * [X]  Breaking overlay should mark target block as being broken, have a global to mark the block being broken and the breaking texture index to use, then trigger a chunk mesh regeneration on starting to break the block and when stopped (not finished breaking). Render the overlay on top of the target texture to a part of the framebuffer with `(16*6)x16` reserved to merge the texture and overlay together. Then ensure the block render tpage is poiting to the reserved area by `face_dir * 16` for that face (in the mesh data).
 * [X]  Move static values like block/item names and max stack sizes to global constants accessed by ID
 * [X]  Merge both font textures (with and without shadow) into a single texture to use space more efficiently and avoid the gap between the current texture file layout in VRAM.
+* [X] Use custom mesh format for chunk meshes to avoid excessive overhead of unused fields with SMD structured
 * [ ]  Move rendering handlers in `ChunkMesh` to standalone SMD renderer file
 * [ ]  Turn these TODO list sections into tables instead of checkmark lists
 * [ ]  Support other resolutions that aren't 320x240

@@ -44,11 +44,13 @@ void chunkInit(Chunk* chunk) {
     chunk->dropped_items = NULL;
     cvector_init(chunk->dropped_items, 0, chunkDestroyDroppedItem);
     chunk->updates = (ChunkUpdates) {
-        .light_add_bfs_queue = NULL,
-        .light_remove_bfs_queue = NULL
+        .sunlight_queue = NULL,
+        .light_add_queue = NULL,
+        .light_remove_queue = NULL
     };
-    cvector_init(chunk->updates.light_add_bfs_queue, 0, NULL);
-    cvector_init(chunk->updates.light_remove_bfs_queue, 0, NULL);
+    cvector_init(chunk->updates.sunlight_queue, 0 ,NULL);
+    cvector_init(chunk->updates.light_add_queue, 0, NULL);
+    cvector_init(chunk->updates.light_remove_queue, 0, NULL);
     chunkMeshInit(&chunk->mesh);
     chunkClearMesh(chunk);
 }
@@ -56,8 +58,9 @@ void chunkInit(Chunk* chunk) {
 void chunkDestroy(const Chunk* chunk) {
     chunkMeshDestroy(&chunk->mesh);
     cvector_free(chunk->dropped_items);
-    cvector_free(chunk->updates.light_add_bfs_queue);
-    cvector_free(chunk->updates.light_remove_bfs_queue);
+    cvector_free(chunk->updates.sunlight_queue);
+    cvector_free(chunk->updates.light_add_queue);
+    cvector_free(chunk->updates.light_remove_queue);
 }
 
 void chunkGenerate3DHeightMap(Chunk* chunk, const VECTOR* position) {
@@ -394,14 +397,14 @@ void chunkUpdateAddLight(Chunk* chunk,
                          const VECTOR* position,
                          const u8 light_value,
                          const LightType light_type) {
-    cvector_push_back(chunk->updates.light_add_bfs_queue, ((LightAddNode) {
+    cvector_push_back(chunk->updates.light_add_queue, ((LightAddNode) {
         *position,
         chunk
     }));
-    while (!cvector_empty(chunk->updates.light_add_bfs_queue)) {
-        const VECTOR current_pos = chunk->updates.light_add_bfs_queue[0].position;
-        Chunk* current_chunk = chunk->updates.light_add_bfs_queue[0].chunk;
-        cvector_erase(chunk->updates.light_add_bfs_queue, 0);
+    while (!cvector_empty(chunk->updates.light_add_queue)) {
+        const VECTOR current_pos = chunk->updates.light_add_queue[0].position;
+        Chunk* current_chunk = chunk->updates.light_add_queue[0].chunk;
+        cvector_erase(chunk->updates.light_add_queue, 0);
         const u8 light_level = lightMapGetType(
             current_chunk->lightmap,
             current_pos,
@@ -451,7 +454,7 @@ void chunkUpdateAddLight(Chunk* chunk,
                 &query_pos,
                 CHUNK_SIZE
             );
-            cvector_push_back(current_chunk->updates.light_add_bfs_queue, ((LightAddNode) {
+            cvector_push_back(current_chunk->updates.light_add_queue, ((LightAddNode) {
                 block_pos.block,
                 worldGetChunk(
                     current_chunk->world,
@@ -468,16 +471,16 @@ void chunkUpdateRemoveLight(Chunk* chunk, const VECTOR* position) {
         position,
         LIGHT_TYPE_BLOCK
     );
-    cvector_push_back(chunk->updates.light_remove_bfs_queue, ((LightRemovalNode) {
+    cvector_push_back(chunk->updates.light_remove_queue, ((LightRemovalNode) {
         *position,
         chunk,
         light_value
     }));
-    while (!cvector_empty(chunk->updates.light_remove_bfs_queue)) {
-        const VECTOR current_pos = chunk->updates.light_remove_bfs_queue[0].position;
-        Chunk* current_chunk = chunk->updates.light_remove_bfs_queue[0].chunk;
-        u8 light_level = chunk->updates.light_remove_bfs_queue[0].light_value;
-        cvector_erase(chunk->updates.light_remove_bfs_queue, 0);
+    while (!cvector_empty(chunk->updates.light_remove_queue)) {
+        const VECTOR current_pos = chunk->updates.light_remove_queue[0].position;
+        Chunk* current_chunk = chunk->updates.light_remove_queue[0].chunk;
+        u8 light_level = chunk->updates.light_remove_queue[0].light_value;
+        cvector_erase(chunk->updates.light_remove_queue, 0);
         VECTOR world_pos = vector_add(
             current_pos,
             vector_const_mul(
@@ -520,7 +523,7 @@ void chunkUpdateRemoveLight(Chunk* chunk, const VECTOR* position) {
                     0,
                     LIGHT_TYPE_BLOCK
                 );
-                cvector_push_back(current_chunk->updates.light_remove_bfs_queue, ((LightRemovalNode) {
+                cvector_push_back(current_chunk->updates.light_remove_queue, ((LightRemovalNode) {
                     block_pos.block,
                     worldGetChunk(
                         current_chunk->world,
@@ -529,7 +532,7 @@ void chunkUpdateRemoveLight(Chunk* chunk, const VECTOR* position) {
                     neighbour_level
                 }));
             } else if (neighbour_level >= light_level) {
-                cvector_push_back(current_chunk->updates.light_add_bfs_queue, ((LightAddNode) {
+                cvector_push_back(current_chunk->updates.light_add_queue, ((LightAddNode) {
                     block_pos.block,
                     worldGetChunk(
                         current_chunk->world,

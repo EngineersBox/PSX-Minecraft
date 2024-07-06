@@ -25,55 +25,50 @@ void chunkMeshInit(ChunkMesh* mesh) {
     #pragma GCC unroll 6
     for (int i = 0; i < FACE_DIRECTION_COUNT; i++) {
         // NOTE: This null init is important for cvector to ensure allocation is done initially
-        SMD* smd = &mesh->face_meshes[i];
+        Mesh* face_mesh = &mesh->face_meshes[i];
         cvector(SMD_PRIM) p_prims = NULL;
         cvector_init(p_prims, MESH_PRIMITIVE_VEC_INITIAL_CAPCITY, NULL);
-        smd->p_prims = p_prims;
-        smd->p_verts = NULL;
-        cvector_init(smd->p_verts, MESH_VERTEX_VEC_INITIAL_CAPCITY, NULL);
-        smd->p_norms = NULL;
-        cvector_init(smd->p_norms, MESH_NORMAL_VEC_INITIAL_CAPCITY, NULL);
+        face_mesh->p_prims = p_prims;
+        face_mesh->p_verts = NULL;
+        cvector_init(face_mesh->p_verts, MESH_VERTEX_VEC_INITIAL_CAPCITY, NULL);
+        face_mesh->p_norms = NULL;
+        cvector_init(face_mesh->p_norms, MESH_NORMAL_VEC_INITIAL_CAPCITY, NULL);
     }
 }
 
 void chunkMeshDestroy(const ChunkMesh* mesh) {
     #pragma GCC unroll 6
     for (int i = 0; i < FACE_DIRECTION_COUNT; i++) {
-        const SMD* smd = &mesh->face_meshes[i];
-        cvector_free((SMD_PRIM*) smd->p_prims);
-        cvector_free(smd->p_verts);
-        cvector_free(smd->p_norms);
+        const Mesh* face_mesh = &mesh->face_meshes[i];
+        cvector_free((MeshPrimitive*) face_mesh->p_prims);
+        cvector_free(face_mesh->p_verts);
+        cvector_free(face_mesh->p_norms);
     }
 }
 
 void chunkMeshClear(ChunkMesh* mesh) {
     #pragma GCC unroll 6
     for (int i = 0; i < FACE_DIRECTION_COUNT; i++) {
-        SMD* smd = &mesh->face_meshes[i];
-        cvector_clear((cvector(SMD_PRIM)) smd->p_prims);
-        cvector_clear(smd->p_verts);
-        cvector_clear(smd->p_norms);
-        smd->id[0] = 'S';
-        smd->id[1] = 'M';
-        smd->id[2] = 'D';
-        smd->version = 0x01;
-        smd->flags = 0x0;
-        smd->n_verts = 0;
-        smd->n_norms = 0;
-        smd->n_prims = 0;
+        Mesh* face_mesh = &mesh->face_meshes[i];
+        cvector_clear((cvector(MeshPrimitive)) face_mesh->p_prims);
+        cvector_clear(face_mesh->p_verts);
+        cvector_clear(face_mesh->p_norms);
+        face_mesh->n_verts = 0;
+        face_mesh->n_norms = 0;
+        face_mesh->n_prims = 0;
     }
 }
 
 // TODO: Move these to SMD renderer file as general methods
-void renderLine(SMD_PRIM* primitive, RenderContext* ctx, Transforms* transforms) {
+static void renderLine(MeshPrimitive* primitive, RenderContext* ctx, Transforms* transforms) {
     // TODO
 }
 
-void renderTriangle(SMD_PRIM* primitive, RenderContext* ctx, Transforms* transforms) {
+static void renderTriangle(MeshPrimitive* primitive, RenderContext* ctx, Transforms* transforms) {
     // TODO
 }
 
-void renderQuad(const SMD* mesh, SMD_PRIM* primitive, RenderContext* ctx, Transforms* transforms) {
+static void renderQuad(const Mesh* mesh, MeshPrimitive* primitive, RenderContext* ctx, Transforms* transforms) {
     // TODO: Generalise for textured and non-textured
     int p;
     // int dp;
@@ -157,12 +152,12 @@ void renderQuad(const SMD* mesh, SMD_PRIM* primitive, RenderContext* ctx, Transf
     // Load primitive color even though gte_ncs() doesn't use it.
     // This is so the GTE will output a color result with the
     // correct primitive code.
-    if (primitive->code) {
+    if (primitive->tint) {
         setRGB0(
             pol4,
-            primitive->r0,
-            primitive->g0,
-            primitive->b0
+            primitive->r,
+            primitive->g,
+            primitive->b
         );
     }
     gte_ldrgb(&pol4->r0);
@@ -171,7 +166,7 @@ void renderQuad(const SMD* mesh, SMD_PRIM* primitive, RenderContext* ctx, Transf
     // gte_lddp(&dp);
     // Apply RGB tinting to lighting calculation result on the basis
     // that it is enabled.
-    if (primitive->code) {
+    if (primitive->tint) {
         // Normal Color Column Single
         gte_nccs();
     } else {
@@ -206,24 +201,24 @@ void renderQuad(const SMD* mesh, SMD_PRIM* primitive, RenderContext* ctx, Transf
     addPrim(ot_object, ptwin);
 }
 
-void chunkMeshRenderFaceDirection(const SMD* mesh, RenderContext* ctx, Transforms* transforms) {
-    SMD_PRIM* p_prims = (SMD_PRIM*) mesh->p_prims;
-    cvector_iterator(SMD_PRIM) primitive;
+void chunkMeshRenderFaceDirection(const Mesh* mesh, RenderContext* ctx, Transforms* transforms) {
+    MeshPrimitive* p_prims = (MeshPrimitive*) mesh->p_prims;
+    cvector_iterator(MeshPrimitive) primitive;
     cvector_for_each_in(primitive, p_prims) {
-        switch (primitive->prim_id.type) {
-            case SMD_PRI_TYPE_LINE:
+        switch (primitive->type) {
+            case MESH_PRIM_TYPE_LINE:
                 renderLine(primitive, ctx, transforms);
                 break;
-            case SMD_PRI_TYPE_TRIANGLE:
+            case MESH_PRIM_TYPE_TRIANGLE:
                 renderTriangle(primitive, ctx, transforms);
                 break;
-            case SMD_PRI_TYPE_QUAD:
+            case MESH_PRIM_TYPE_QUAD:
                 renderQuad(mesh, primitive, ctx, transforms);
                 break;
             default:
                 printf(
                     "[ERROR] ChunkMesh - Unknown primitive type: %d\n",
-                    primitive->prim_id.type
+                    primitive->type
                 );
             return;
         }

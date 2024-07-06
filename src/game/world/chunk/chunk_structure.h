@@ -33,8 +33,9 @@ typedef struct LightRemovalNode {
 } LightRemovalNode;
 
 typedef struct ChunkUpdates {
-    cvector(LightAddNode) light_add_bfs_queue;
-    cvector(LightRemovalNode) light_remove_bfs_queue;
+    cvector(LightAddNode) sunlight_queue;
+    cvector(LightAddNode) light_add_queue;
+    cvector(LightRemovalNode) light_remove_queue;
 } ChunkUpdates;
 
 typedef struct Chunk {
