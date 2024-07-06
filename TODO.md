@@ -55,6 +55,7 @@
 * [X]  Add handling for player use handler with logic for using items and applying damage on items like fishing rods
 * [X]  Hotbar active slot input handlers (left/right)
 * [X]  Set block orientation relative to face placed against
+* [X]  Lightmapping with flood fill algorithm using LUTs for block light (adding and removing)
 * [ ]  Camera far plane cutoff with fog relative to chunk render distance
 * [ ]  Frustum and culling
 * [ ]  Depth-first search culling through chunks
@@ -66,7 +67,8 @@
 * [ ]  Retrieve face attributes based on block orientation during meshing
 * [ ]  Sub-block intersection tests for raycast to handling interacting with blocks like doors and piston heads
 * [ ]  If we are breaking a block on the boundary of chunks, we should pass the breaking context to both the target and neighbouring chunk in order for the mesh generation to account for the missing faces on the chunk boundary.
-* [ ]  Lightmapping with flood fill algorithm using LUTs for block light vs sky light
+* [ ] Sunlight updates for chunks
+* [ ] Procedural texturing for each quad in chunk mesh by rendering texture and light maps to off screen TPage and then using that to render to world.
 
 ## Refactor
 

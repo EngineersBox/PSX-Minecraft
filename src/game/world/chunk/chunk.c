@@ -56,6 +56,8 @@ void chunkInit(Chunk* chunk) {
 void chunkDestroy(const Chunk* chunk) {
     chunkMeshDestroy(&chunk->mesh);
     cvector_free(chunk->dropped_items);
+    cvector_free(chunk->updates.light_add_bfs_queue);
+    cvector_free(chunk->updates.light_remove_bfs_queue);
 }
 
 void chunkGenerate3DHeightMap(Chunk* chunk, const VECTOR* position) {
