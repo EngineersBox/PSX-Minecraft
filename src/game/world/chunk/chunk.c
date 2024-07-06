@@ -13,10 +13,12 @@
 #include "../../../util/interface99_extensions.h"
 #include "../../items/items.h"
 #include "../generation/noise.h"
+#include "chunk_structure.h"
 #include "meshing/binary_greedy_mesher.h"
 
 // Forward declaration
 FWD_DECL IBlock* worldGetBlock(const World* world, const VECTOR* position);
+FWD_DECL Chunk* worldGetChunk(const World* world, const VECTOR* position);
 FWD_DECL u8 worldGetLightValue(const World* world,
                                const VECTOR* position,
                                const LightType light_type);
@@ -24,6 +26,10 @@ FWD_DECL void worldSetLightValue(const World* world,
                         const VECTOR* position,
                         u8 light_value,
                         const LightType light_type);
+FWD_DECL void worldSetLightValueChunkBlock(const World* world,
+                                           const ChunkBlockPosition* position,
+                                           u8 light_value,
+                                           const LightType light_type);
 
 void chunkDestroyDroppedItem(void* elem) {
     IItem** iitem = (IItem**) elem;
@@ -37,6 +43,12 @@ void chunkDestroyDroppedItem(void* elem) {
 void chunkInit(Chunk* chunk) {
     chunk->dropped_items = NULL;
     cvector_init(chunk->dropped_items, 0, chunkDestroyDroppedItem);
+    chunk->updates = (ChunkUpdates) {
+        .light_add_bfs_queue = NULL,
+        .light_remove_bfs_queue = NULL
+    };
+    cvector_init(chunk->updates.light_add_bfs_queue, 0, NULL);
+    cvector_init(chunk->updates.light_remove_bfs_queue, 0, NULL);
     chunkMeshInit(&chunk->mesh);
     chunkClearMesh(chunk);
 }
@@ -363,7 +375,7 @@ u8 chunkGetLightValue(Chunk* chunk,
     if (checkIndexOOB(position->vx, position->vy, position->vz)) {
         return 0;
     }
-    return lightMapGetValue(chunk->lightmap, *position, light_type);
+    return lightMapGetType(chunk->lightmap, *position, light_type);
 }
 
 void chunkSetLightValue(Chunk* chunk,
@@ -376,26 +388,19 @@ void chunkSetLightValue(Chunk* chunk,
     lightMapSetValue(chunk->lightmap, *position, light_value, light_type);
 }
 
-typedef struct LightNode {
-    VECTOR positon;
-    Chunk* chunk;
-} LightNode;
-
 void chunkUpdateAddLight(Chunk* chunk,
                          const VECTOR* position,
                          const u8 light_value,
                          const LightType light_type) {
-    cvector(LightNode) light_bfs_queue = NULL;
-    cvector_init(light_bfs_queue, 0, NULL);
-    cvector_push_back(light_bfs_queue, ((LightNode) {
+    cvector_push_back(chunk->updates.light_add_bfs_queue, ((LightAddNode) {
         *position,
         chunk
     }));
-    while (!cvector_empty(light_bfs_queue)) {
-        const VECTOR current_pos = light_bfs_queue[0].positon;
-        Chunk* current_chunk = light_bfs_queue[0].chunk;
-        cvector_erase(light_bfs_queue, 0);
-        const u8 light_level = lightMapGetValue(
+    while (!cvector_empty(chunk->updates.light_add_bfs_queue)) {
+        const VECTOR current_pos = chunk->updates.light_add_bfs_queue[0].position;
+        Chunk* current_chunk = chunk->updates.light_add_bfs_queue[0].chunk;
+        cvector_erase(chunk->updates.light_add_bfs_queue, 0);
+        const u8 light_level = lightMapGetType(
             current_chunk->lightmap,
             current_pos,
             LIGHT_TYPE_BLOCK
@@ -411,7 +416,7 @@ void chunkUpdateAddLight(Chunk* chunk,
         //       when the position is outside of the loaded world.
         #pragma GCC unroll 6
         for (FaceDirection i = FACE_DIR_DOWN; i <= FACE_DIR_FRONT; i++) {
-            VECTOR query_pos = vector_add(
+            const VECTOR query_pos = vector_add(
                 world_pos,
                 FACE_DIRECTION_NORMALS[i]
             );
@@ -440,14 +445,96 @@ void chunkUpdateAddLight(Chunk* chunk,
                 light_level - 1,
                 LIGHT_TYPE_BLOCK
             );
-            ChunkBlockPosition block_pos = worldToChunkBlockPosition(
+            const ChunkBlockPosition block_pos = worldToChunkBlockPosition(
                 &query_pos,
                 CHUNK_SIZE
             );
-            cvector_push_back(light_bfs_queue, ((LightNode) {
+            cvector_push_back(current_chunk->updates.light_add_bfs_queue, ((LightAddNode) {
                 block_pos.block,
-                current_chunk
+                worldGetChunk(
+                    current_chunk->world,
+                    &block_pos.chunk
+                ),
             }));
+        }
+    }
+}
+
+void chunkUpdateRemoveLight(Chunk* chunk, const VECTOR* position) {
+    u8 light_value = chunkGetLightValue(
+        chunk,
+        position,
+        LIGHT_TYPE_BLOCK
+    );
+    cvector_push_back(chunk->updates.light_remove_bfs_queue, ((LightRemovalNode) {
+        *position,
+        chunk,
+        light_value
+    }));
+    while (!cvector_empty(chunk->updates.light_remove_bfs_queue)) {
+        const VECTOR current_pos = chunk->updates.light_remove_bfs_queue[0].position;
+        Chunk* current_chunk = chunk->updates.light_remove_bfs_queue[0].chunk;
+        u8 light_level = chunk->updates.light_remove_bfs_queue[0].light_value;
+        cvector_erase(chunk->updates.light_remove_bfs_queue, 0);
+        VECTOR world_pos = vector_add(
+            current_pos,
+            vector_const_mul(
+                current_chunk->position,
+                CHUNK_SIZE
+            )
+        );
+        // TODO: For worldGetBlock it might be good to only return NULL
+        //       when the position is outside of the loaded world.
+        #pragma GCC unroll 6
+        for (FaceDirection i = FACE_DIR_DOWN; i <= FACE_DIR_FRONT; i++) {
+            const VECTOR query_pos = vector_add(
+                world_pos,
+                FACE_DIRECTION_NORMALS[i]
+            );
+            const IBlock* iblock = worldGetBlock(
+                current_chunk->world,
+                &query_pos
+            );
+            if (iblock == NULL) {
+                continue;
+            }
+            const Block* block = VCAST_PTR(Block*, iblock);
+            if (blockGetType(block->id) == BLOCKTYPE_SOLID) {
+                continue;
+            }
+            const ChunkBlockPosition block_pos = worldToChunkBlockPosition(
+                &query_pos,
+                CHUNK_SIZE
+            );
+            const u8 neighbour_level = worldGetLightValue(
+                current_chunk->world,
+                &query_pos,
+                LIGHT_TYPE_BLOCK
+            );
+            if (neighbour_level != 0 && neighbour_level < light_level) {
+                worldSetLightValueChunkBlock(
+                    current_chunk->world,
+                    &block_pos,
+                    0,
+                    LIGHT_TYPE_BLOCK
+                );
+                cvector_push_back(current_chunk->updates.light_remove_bfs_queue, ((LightRemovalNode) {
+                    block_pos.block,
+                    worldGetChunk(
+                        current_chunk->world,
+                        &block_pos.chunk
+                    ),
+                    neighbour_level
+                }));
+            } else if (neighbour_level >= light_level) {
+                cvector_push_back(current_chunk->updates.light_add_bfs_queue, ((LightAddNode) {
+                    block_pos.block,
+                    worldGetChunk(
+                        current_chunk->world,
+                        &block_pos.chunk
+                    ),
+                }));
+            }
         }
     }
 }

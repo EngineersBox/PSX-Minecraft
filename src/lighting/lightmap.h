@@ -16,6 +16,7 @@ typedef enum LightType {
 } LightType;
 
 void lightMapSetValue(LightMap lightmap, const VECTOR position, u8 light_value, const LightType light_type);
-u8 lightMapGetValue(const LightMap lightmap, const VECTOR position, const LightType light_type);
+u8 lightMapGetType(const LightMap lightmap, const VECTOR position, const LightType light_type);
+u16 lightMapGetValue(const LightMap lightmap, const VECTOR position);
 
 #endif // _PSX_MINECRAFT__LIGHTING__LIGHTMAP_H_

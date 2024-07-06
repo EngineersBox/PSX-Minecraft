@@ -13,9 +13,14 @@ void lightMapSetValue(LightMap lightmap,
     }
 }
 
-u8 lightMapGetValue(const LightMap lightmap,
-                    const VECTOR position,
-                    const LightType light_type) {
+u16 lightMapGetValue(const LightMap lightmap, const VECTOR position) {
+    const u32 index = position.vx << 11 | position.vz << 7 | position.vy;
+    return lightmap[index];
+}
+
+u8 lightMapGetType(const LightMap lightmap,
+                   const VECTOR position,
+                   const LightType light_type) {
     const u32 index = position.vx << 11 | position.vz << 7 | position.vy;
     return light_type == LIGHT_TYPE_SKY
         ? lightmap[index] & 0b1111
