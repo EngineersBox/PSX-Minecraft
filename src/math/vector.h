@@ -10,10 +10,10 @@
 
 // Byte vector
 typedef struct _BVECTOR {
-    uint8_t x;
-    uint8_t y;
-    uint8_t z;
-    uint8_t pad;
+    u8 vx;
+    u8 vy;
+    u8 vz;
+    u8 pad;
 } BVECTOR;
 
 // Long vector
@@ -64,6 +64,7 @@ MATRIX* InvRotMatrix(const SVECTOR* r, MATRIX* m);
 #define vec3_i32(x, y, z) ((VECTOR) { _vec3_layout(x, y, z) })
 #define vec3_i16(x, y, z) ((SVECTOR) { _vec3_layout(x, y, z) })
 #define vec3_i8(x, y, z) ((CVECTOR) { _vec3_layout(x, y, z) })
+#define vec3_u8(x, y, z) ((BVECTOR) { _vec3_layout(x, y, z) })
 #define vec2_i16(x, y) ((DVECTOR) { _vec2_layout(x, y) })
 
 // Unified vector init

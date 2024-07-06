@@ -284,6 +284,9 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk, const BreakingState* breaking_sta
 static MeshPrimitive* createPrimitive(ChunkMesh* mesh,
                                       const Block* block,
                                       const FaceDirection face_dir,
+                                      const u32 x,
+                                      const u32 y,
+                                      const u32 axis,
                                       const u32 width,
                                       const u32 height,
                                       const Texture* texture_override,
@@ -310,6 +313,19 @@ static MeshPrimitive* createPrimitive(ChunkMesh* mesh,
     primitive->g = attributes->tint.g;
     primitive->b = attributes->tint.b;
     primitive->tint= attributes->tint.cd;
+#define setLightmap(from_x, from_y, from_z, to_x, to_y, to_z) ({ \
+    primitive->lightmap.from_position = vec3_u8(from_x, from_y, from_z); \
+    primitive->lightmap.to_position = vec3_u8(to_x, to_y, to_z); \
+})
+    switch (face_dir) {
+        case FACE_DIR_DOWN: setLightmap(x, axis, y, width, 0, height); break;
+        case FACE_DIR_UP: setLightmap(x, axis + 1, y, width, 0, height); break;
+        case FACE_DIR_LEFT: setLightmap(axis, y, x, 0, height, width); break;
+        case FACE_DIR_RIGHT: setLightmap(axis + 1, y, x, 0, height, width); break;
+        case FACE_DIR_BACK: setLightmap(x, y, axis, width, height, 0); break;
+        case FACE_DIR_FRONT: setLightmap(x, y, axis + 1, width, height, 0); break;
+    }
+#undef setLightmap
     return primitive;
 }
 
@@ -416,6 +432,9 @@ static void createQuad(Chunk* chunk,
         &chunk->mesh,
         block,
         face_dir,
+        x,
+        y,
+        axis,
         w,
         h,
         texture_override,

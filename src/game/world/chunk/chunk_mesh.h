@@ -8,6 +8,7 @@
 #include "../../../render/render_context.h"
 #include "../../../render/transforms.h"
 #include "../../../structure/primitive/direction.h"
+#include "../../../math/vector.h"
 
 #ifndef MESH_PRIMITIVE_VEC_INITIAL_CAPCITY
 #define MESH_PRIMITIVE_VEC_INITIAL_CAPCITY 0
@@ -34,6 +35,10 @@ typedef struct MeshPrimitive {
     u8 _pad: 8 - MESH_PRIMITIVE_TYPE_BIN_COUNT;
     u16 v0, v1, v2, v3; // Vertex indices
     u16 n0, n1, n2, n3; // Normal indices
+    struct {
+        BVECTOR from_position;
+        BVECTOR to_position;
+    } lightmap;
     u8 r, g, b, tint;
     u8 tu0, tv0;
     u8 tu1, tv1;
