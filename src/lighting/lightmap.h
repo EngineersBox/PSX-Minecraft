@@ -10,7 +10,12 @@
 
 typedef u8 LightMap[CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE];
 
-void lightMapSetBlock(LightMap lightmap, const VECTOR position, u8 light_value);
-u8 lightMapGetBlock(const LightMap lightmap, const VECTOR position);
+typedef enum LightType {
+    LIGHT_TYPE_SKY = 0,
+    LIGHT_TYPE_BLOCK
+} LightType;
+
+void lightMapSetValue(LightMap lightmap, const VECTOR position, u8 light_value, const LightType light_type);
+u8 lightMapGetValue(const LightMap lightmap, const VECTOR position, const LightType light_type);
 
 #endif // _PSX_MINECRAFT__LIGHTING__LIGHTMAP_H_

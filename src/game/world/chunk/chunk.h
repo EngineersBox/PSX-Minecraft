@@ -13,6 +13,7 @@
 #include "../../items/item.h"
 #include "../../entity/player.h"
 #include "../../blocks/breaking_state.h"
+#include "../../../lighting/lightmap.h"
 
 // ==== [NOTE] ====
 // This class contains only methods and implementations
@@ -63,5 +64,18 @@ IBlock* chunkGetBlock(const Chunk* chunk, i32 x, i32 y, i32 z);
 IBlock* chunkGetBlockVec(const Chunk* chunk, const VECTOR* position);
 
 void chunkUpdate(const Chunk* chunk, const Player* player);
+
+u8 chunkGetLightValue(Chunk* chunk,
+                      const VECTOR* position,
+                      const LightType light_type);
+void chunkSetLightValue(Chunk* chunk,
+                        const VECTOR* position,
+                        const u8 light_value,
+                        const LightType light_type);
+
+// Occurs when placing a block that emits light or removing a block
+void chunkUpdateAddLight(Chunk* chunk, const VECTOR* position, const u8 light_value, const LightType light_type);
+// Occurs when removing a block
+void chunkUpdateRemoveLight(Chunk* chunk, const VECTOR* position);
 
 #endif // PSX_MINECRAFT_CHUNK_H

@@ -13,6 +13,7 @@
 #include "../entity/player.h"
 #include "../util/inttypes.h"
 #include "../blocks/breaking_state.h"
+#include "../../lighting/lightmap.h"
 
 #include "level/overworld_flatland.h"
 #include "level/overworld_perlin.h"
@@ -91,5 +92,20 @@ IBlock* worldModifyVoxelConstructed(const World* world,
                                     IItem* from_item,
                                     bool drop_item,
                                     IItem** item_result);
+
+u8 worldGetLightValue(const World* world,
+                      const VECTOR* position,
+                      const LightType light_type);
+u8 worldGetLightValueChunkBlock(const World* world,
+                                const ChunkBlockPosition* position,
+                                const LightType light_type);
+void worldSetLightValue(const World* world,
+                        const VECTOR* position,
+                        u8 light_value,
+                        const LightType light_type);
+void worldSetLightValueChunkBlock(const World* world,
+                                  const ChunkBlockPosition* position,
+                                  u8 light_value,
+                                  const LightType light_type);
 
 #endif // PSX_MINECRAFT_WORLD_H

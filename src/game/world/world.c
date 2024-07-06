@@ -11,6 +11,7 @@
 #include "../ui/progress_bar.h"
 #include "../ui/background.h"
 #include "../../logging/logging.h"
+#include "chunk/chunk.h"
 
 // NOTE: Cast to i32 is necessary here since computing modulo of 0 - 1
 //       is actually computing modulo over 0u32 - 1 == u32::MAX so we end
@@ -95,7 +96,7 @@ void worldInit(World* world, RenderContext* ctx) {
     for (i32 x = x_start; x <= x_end; x++) {
         for (i32 z = z_start; z <= z_end; z++) {
             for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
-                printf("[CHUNK: %d,%d,%d] Generating mesh\n", x, 0, z);
+printf("[CHUNK: %d,%d,%d] Generating mesh\n", x, 0, z);
                 Chunk* chunk = world->chunks[arrayCoord(world, vz, z)]
                                             [arrayCoord(world, vx, x)]
                                             [y];
@@ -604,5 +605,81 @@ IBlock* worldModifyVoxelConstructed(const World* world,
         from_item,
         drop_item,
         item_result
+    );
+}
+
+u8 worldGetLightValueChunkBlock(const World* world,
+                                const ChunkBlockPosition* position,
+                                const LightType light_type) {
+    // World is void below 0 on y-axis and nothing above height limit
+    if ((position->chunk.vy <= 0 && position->block.vy < 0)
+        || position->chunk.vy >= WORLD_CHUNKS_HEIGHT) {
+        return 0;
+    }
+    Chunk* chunk = world->chunks[arrayCoord(world, vz, position->chunk.vz)]
+                                [arrayCoord(world, vx, position->chunk.vx)]
+                                [position->chunk.vy];
+    if (chunk == NULL) {
+        return 0;
+    }
+    return chunkGetLightValue(
+        chunk,
+        &position->block,
+        light_type
+    );
+}
+
+u8 worldGetLightValue(const World* world,
+                      const VECTOR* position,
+                      const LightType light_type) {
+    // World is void below 0 and above world-height on y-axis
+    if (position->vy < 0 || position->vy >= WORLD_HEIGHT) {
+        return 0;
+    }
+    const ChunkBlockPosition chunk_block_position = worldToChunkBlockPosition(position, CHUNK_SIZE);
+    worldGetLightValueChunkBlock(
+        world,
+        &chunk_block_position,
+        light_type
+    );
+}
+
+void worldSetLightValueChunkBlock(const World* world,
+                                  const ChunkBlockPosition* position,
+                                  u8 light_value,
+                                  const LightType light_type) {
+    // World is void below 0 on y-axis and nothing above height limit
+    if ((position->chunk.vy <= 0 && position->block.vy < 0)
+        || position->chunk.vy >= WORLD_CHUNKS_HEIGHT) {
+        return;
+    }
+    Chunk* chunk = world->chunks[arrayCoord(world, vz, position->chunk.vz)]
+                                [arrayCoord(world, vx, position->chunk.vx)]
+                                [position->chunk.vy];
+    if (chunk == NULL) {
+        return;
+    }
+    chunkSetLightValue(
+        chunk,
+        &position->block,
+        light_value,
+        light_type
+    );
+}
+
+void worldSetLightValue(const World* world,
+                        const VECTOR* position,
+                        u8 light_value,
+                        const LightType light_type) {
+    // World is void below 0 and above world-height on y-axis
+    if (position->vy < 0 || position->vy >= WORLD_HEIGHT) {
+        return;
+    }
+    const ChunkBlockPosition chunk_block_position = worldToChunkBlockPosition(position, CHUNK_SIZE);
+    worldSetLightValueChunkBlock(
+        world,
+        &chunk_block_position,
+        light_value,
+        light_type
     );
 }

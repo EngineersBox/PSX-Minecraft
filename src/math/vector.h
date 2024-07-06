@@ -124,8 +124,8 @@ VECTOR vec3_i32_normalize(const VECTOR v);
  * @return A new vetor with the results of piece-wise operation
  */
 #define vector_op(v0, v1, op) ({ \
-    const VECTOR _v0 = (v0); \
-    const VECTOR _v1 = (v1); \
+    const __typeof__(v0) _v0 = (v0); \
+    const __typeof__(v1) _v1 = (v1); \
     (VECTOR) { \
         _vector_op_mm(vx, _v0, _v1, op), \
         _vector_op_mm(vy, _v0, _v1, op), \
