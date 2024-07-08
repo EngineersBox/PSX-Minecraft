@@ -185,6 +185,8 @@ VECTOR vec3_i32_normalize(const VECTOR v);
 
 // Operations
 
+// - Operands vec3, vec3
+
 #define vec3_add(v0, v1) vec3_op(v0, +, v1)
 #define vec3_sub(v0, v1) vec3_op(v0, -, v1)
 #define vec3_div(v0, v1) vec3_op(v0, /, v1)
@@ -195,6 +197,8 @@ VECTOR vec3_i32_normalize(const VECTOR v);
 #define vec3_and(v0, v1) vec3_op(v0, &, v1)
 #define vec3_or(v0, v1) vec3_op(v0, |, v1)
 #define vec3_xor(v0, v1) vec3_op(v0, ^, v1)
+
+// - Operands vec3*, vec3*
 
 #define pvec3_add(v0, v1) pvec3_op(v0, +, v1)
 #define pvec3_sub(v0, v1) pvec3_op(v0, -, v1)
@@ -207,6 +211,8 @@ VECTOR vec3_i32_normalize(const VECTOR v);
 #define pvec3_or(v0, v1) pvec3_op(v0, |, v1)
 #define pvec3_xor(v0, v1) pvec3_op(v0, ^, v1)
 
+// - Operands vec3, integer
+
 #define vec3_const_add(v0, c) vec3_const_op(v0, +, c)
 #define vec3_const_sub(v0, c) vec3_const_op(v0, -, c)
 #define vec3_const_div(v0, c) vec3_const_op(v0, /, c)
@@ -217,6 +223,8 @@ VECTOR vec3_i32_normalize(const VECTOR v);
 #define vec3_const_and(v0, c) vec3_const_op(v0, &, c)
 #define vec3_const_or(v0, c) vec3_const_op(v0, |, c)
 #define vec3_const_xor(v0, c) vec3_const_op(v0, ^, c)
+
+// - Operands vec3*, integer
 
 #define pvec3_const_add(v0, c) pvec3_const_op(v0, +, c)
 #define pvec3_const_sub(v0, c) pvec3_const_op(v0, -, c)
@@ -229,6 +237,8 @@ VECTOR vec3_i32_normalize(const VECTOR v);
 #define pvec3_const_or(v0, c) pvec3_const_op(v0, |, c)
 #define pvec3_const_xor(v0, c) pvec3_const_op(v0, ^, c)
 
+// - Operands vec2, vec2
+
 #define vec2_add(v0, v1) vec2_op(v0, +, v1)
 #define vec2_sub(v0, v1) vec2_op(v0, -, v1)
 #define vec2_div(v0, v1) vec2_op(v0, /, v1)
@@ -239,6 +249,8 @@ VECTOR vec3_i32_normalize(const VECTOR v);
 #define vec2_and(v0, v1) vec2_op(v0, &, v1)
 #define vec2_or(v0, v1) vec2_op(v0, |, v1)
 #define vec2_xor(v0, v1) vec2_op(v0, ^, v1)
+
+// - Operands vec2*, vec2*
 
 #define pvec2_add(v0, v1) pvec2_op(v0, +, v1)
 #define pvec2_sub(v0, v1) pvec2_op(v0, -, v1)
@@ -251,6 +263,8 @@ VECTOR vec3_i32_normalize(const VECTOR v);
 #define pvec2_or(v0, v1) pvec2_op(v0, |, v1)
 #define pvec2_xor(v0, v1) pvec2_op(v0, ^, v1)
 
+// - Operands vec2, integer
+
 #define vec2_const_add(v0, c) vec2_const_op(v0, +, c)
 #define vec2_const_sub(v0, c) vec2_const_op(v0, -, c)
 #define vec2_const_div(v0, c) vec2_const_op(v0, /, c)
@@ -261,6 +275,8 @@ VECTOR vec3_i32_normalize(const VECTOR v);
 #define vec2_const_and(v0, c) vec2_const_op(v0, &, c)
 #define vec2_const_or(v0, c) vec2_const_op(v0, |, c)
 #define vec2_const_xor(v0, c) vec2_const_op(v0, ^, c)
+
+// - Operands vec2*, integer
 
 #define pvec2_const_add(v0, c) pvec2_const_op(v0, +, c)
 #define pvec2_const_sub(v0, c) pvec2_const_op(v0, -, c)
