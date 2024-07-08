@@ -62,6 +62,8 @@ double intboundd(const double s, const double ds) {
     return dividend / absd(ds);
 }
 
+#define ALLOW_RAYCAST_OUTSIDE_WORLD true
+
 // It works. Do I like it? No. Do I care? Also no.
 RayCastResult worldRayCastIntersection(const World* world,
                                        const Camera* camera,
@@ -118,9 +120,16 @@ RayCastResult worldRayCastIntersection(const World* world,
         );
         IBlock* iblock = worldGetBlock(world, &position);
         if (iblock == NULL) {
-            printf("[WORLD] Raycast enountered null block at " VEC_PATTERN "\n", VEC_LAYOUT(position));
-            abort();
-            return (RayCastResult) {};
+            // We are outside the world
+#if ALLOW_RAYCAST_OUTSIDE_WORLD
+            goto check_block_boundaries;
+#else
+            return (RayCastResult) {
+                .pos = vec3_i32_all(0),
+                .face = vec3_i32_all(0),
+                .block = NULL
+            };
+#endif
         }
         const Block* block = VCAST_PTR(Block*, iblock);
         // TODO: Handle sub-block intersection test for blocks like doors and piston heads
@@ -131,6 +140,9 @@ RayCastResult worldRayCastIntersection(const World* world,
                 .face = vec3_i32(face.vx, face.vy, face.vz)
             };
         }
+#if ALLOW_RAYCAST_OUTSIDE_WORLD
+check_block_boundaries:;
+#endif
         // tMaxX stores the t-value at which we cross a cube boundary along the
         // X axis, and similarly for Y and Z. Therefore, choosing the least tMax
         // chooses the closest cube boundary. Only the first case of the four

@@ -92,12 +92,15 @@ void breakingStateCalculateVisibility(BreakingState* state, const World* world) 
             state->position.vz + CUBE_NORMS_UNIT[face_dir].vz
         );
         const IBlock* iblock = worldGetBlock(world, &vis_check_position);
-        assert(iblock != NULL);
+        if (iblock == NULL) {
+            goto set_visible;
+        }
         const Block* facing_block = VCAST_PTR(Block*, iblock);
         if (facing_block->id != BLOCKID_AIR
             && VCALL(*iblock, isOpaque, faceDirectionOpposing(face_dir))) {
             continue;
         }
+set_visible:
         state->visible_sides_bitset |= (0b1 << face_dir);
     }
 }
