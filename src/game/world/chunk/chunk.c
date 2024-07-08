@@ -410,9 +410,9 @@ void chunkUpdateAddLight(Chunk* chunk,
             current_pos,
             LIGHT_TYPE_BLOCK
         );
-        VECTOR world_pos = vector_add(
+        VECTOR world_pos = vec3_add(
             current_pos,
-            vector_const_mul(
+            vec3_const_mul(
                 current_chunk->position,
                 CHUNK_SIZE
             )
@@ -421,7 +421,7 @@ void chunkUpdateAddLight(Chunk* chunk,
         //       when the position is outside of the loaded world.
         #pragma GCC unroll 6
         for (FaceDirection i = FACE_DIR_DOWN; i <= FACE_DIR_FRONT; i++) {
-            const VECTOR query_pos = vector_add(
+            const VECTOR query_pos = vec3_add(
                 world_pos,
                 FACE_DIRECTION_NORMALS[i]
             );
@@ -481,9 +481,9 @@ void chunkUpdateRemoveLight(Chunk* chunk, const VECTOR* position) {
         Chunk* current_chunk = chunk->updates.light_remove_queue[0].chunk;
         u8 light_level = chunk->updates.light_remove_queue[0].light_value;
         cvector_erase(chunk->updates.light_remove_queue, 0);
-        VECTOR world_pos = vector_add(
+        VECTOR world_pos = vec3_add(
             current_pos,
-            vector_const_mul(
+            vec3_const_mul(
                 current_chunk->position,
                 CHUNK_SIZE
             )
@@ -492,7 +492,7 @@ void chunkUpdateRemoveLight(Chunk* chunk, const VECTOR* position) {
         //       when the position is outside of the loaded world.
         #pragma GCC unroll 6
         for (FaceDirection i = FACE_DIR_DOWN; i <= FACE_DIR_FRONT; i++) {
-            const VECTOR query_pos = vector_add(
+            const VECTOR query_pos = vec3_add(
                 world_pos,
                 FACE_DIRECTION_NORMALS[i]
             );

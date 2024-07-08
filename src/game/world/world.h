@@ -44,7 +44,6 @@ typedef struct World {
         u32 vz;
     } head; // Top left, effective (0,0) of 2D array of chunks
     IChunkProvider chunk_provider;
-    // TODO: Refactor chunks array from 3D -> 1D for better locality
     // X, Z, Y
     Chunk* chunks[AXIS_CHUNKS][AXIS_CHUNKS][WORLD_CHUNKS_HEIGHT];
 } World;

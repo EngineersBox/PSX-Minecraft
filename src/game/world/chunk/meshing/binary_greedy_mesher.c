@@ -212,8 +212,8 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk, const BreakingState* breaking_sta
                             chunk_block_position.block = vec3_i32(x, z, y);
                             break;
                     }
-                    const VECTOR world_block_position = vector_add(
-                        vector_const_mul(
+                    const VECTOR world_block_position = vec3_add(
+                        vec3_const_mul(
                             chunk_block_position.chunk,
                             CHUNK_SIZE
                         ),
@@ -412,7 +412,7 @@ static void createNormal(ChunkMesh* mesh,
                          const FaceDirection face_dir) {
     SVECTOR* norm = nextRenderAttribute(&mesh->face_meshes[face_dir], p_norms, n0, n_norms);
 #undef nextRenderAttribute
-    *norm = svector_const_mul(
+    *norm = vec3_const_mul(
         FACE_DIRECTION_NORMALS[face_dir],
         ONE
     );

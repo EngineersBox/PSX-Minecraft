@@ -279,7 +279,7 @@ INLINE static void playerInputHandlerUse(const PlayerInputHandlerContext* ctx) {
                 );
                 return;
             }
-            const VECTOR place_position = vector_add(result.pos, result.face);
+            const VECTOR place_position = vec3_add(result.pos, result.face);
             const IBlock* modify_result = worldModifyVoxelConstructed(
                 ctx->world,
                 &place_position,

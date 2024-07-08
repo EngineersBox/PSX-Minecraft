@@ -173,7 +173,7 @@ Camera cameraCreate(Transforms* transforms) {
 // }
 
 void lookAt(const VECTOR* eye, const VECTOR* at, const SVECTOR* up, MATRIX* mtx) {
-    VECTOR taxis = vector_sub(*at, *eye);
+    VECTOR taxis = vec3_sub(*at, *eye);
     SVECTOR zaxis;
     SVECTOR xaxis;
     SVECTOR yaxis;

@@ -172,7 +172,7 @@ cvector(AABB) getCollidingAABBs(const World* world, const AABB* aabb) {
                     continue;
                 }
                 const AABB block_aabb = (AABB) {
-                    .min = vector_const_mul(position, ONE_BLOCK),
+                    .min = vec3_const_mul(position, ONE_BLOCK),
                     .max = vec3_i32(
                         (x + 1) * ONE_BLOCK,
                         (y + 1) * ONE_BLOCK,

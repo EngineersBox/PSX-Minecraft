@@ -96,7 +96,7 @@ void worldInit(World* world, RenderContext* ctx) {
     for (i32 x = x_start; x <= x_end; x++) {
         for (i32 z = z_start; z <= z_end; z++) {
             for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
-printf("[CHUNK: %d,%d,%d] Generating mesh\n", x, 0, z);
+                DEBUG_LOG("[CHUNK: %d,%d,%d] Generating mesh\n", x, 0, z);
                 Chunk* chunk = world->chunks[arrayCoord(world, vz, z)]
                                             [arrayCoord(world, vx, x)]
                                             [y];
@@ -515,7 +515,7 @@ INLINE Chunk* worldGetChunk(const World* world, const VECTOR* position) {
 IBlock* worldGetChunkBlock(const World* world, const ChunkBlockPosition* position) {
     const Chunk* chunk = worldGetChunkFromChunkBlock(world, position);
     if (chunk == NULL) {
-        return NULL; //airBlockCreate(NULL);
+        return NULL;
     }
     return chunkGetBlockVec(chunk, &position->block);
 }
@@ -523,7 +523,7 @@ IBlock* worldGetChunkBlock(const World* world, const ChunkBlockPosition* positio
 IBlock* worldGetBlock(const World* world, const VECTOR* position) {
     // World is void below 0 and above world-height on y-axis
     if (position->vy < 0 || position->vy >= WORLD_HEIGHT) {
-        return NULL; //airBlockCreate(NULL);
+        return NULL;
     }
     const ChunkBlockPosition chunk_block_position = worldToChunkBlockPosition(position, CHUNK_SIZE);
     return worldGetChunkBlock(world, &chunk_block_position);
