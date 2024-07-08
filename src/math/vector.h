@@ -115,7 +115,7 @@ VECTOR vec3_i32_normalize(const VECTOR v);
 
 // Vector varaint operation bindings
 
-#define vec3_op(v0, v1, op) ({ \
+#define vec3_op(v0, op, v1) ({ \
     const __typeof__(v0) _v0 = (v0); \
     const __typeof__(v1) _v1 = (v1); \
     (__typeof__(v0)) { \
@@ -124,7 +124,7 @@ VECTOR vec3_i32_normalize(const VECTOR v);
         _vector_op_mm(vz, _v0, _v1, op) \
     }; \
 })
-#define vec3_c_op(v0, c, op) ({ \
+#define vec3_const_op(v0, op, c) ({ \
     const __typeof__(v0) _v0 = (v0); \
     (__typeof__(v0)) { \
         _vector_op_mc(vx, _v0, c, op), \
@@ -133,7 +133,7 @@ VECTOR vec3_i32_normalize(const VECTOR v);
     }; \
 })
 
-#define vec3_p_op(v0, v1, op) ({ \
+#define pvec3_op(v0, op, v1) ({ \
     const __typeof__(v0)* _v0 = (v0); \
     const __typeof__(v1)* _v1 = (v1); \
     (__typeof__(v0)) { \
@@ -142,7 +142,7 @@ VECTOR vec3_i32_normalize(const VECTOR v);
         _vector_p_op_mm(vz, _v0, _v1, op) \
     }; \
 })
-#define vec3_c_p_op(v0, c, op) ({ \
+#define pvec3_const_op(v0, op, c) ({ \
     cosnt __typeof__(v0)* _v0 = (v0); \
     (__typeof__(v0)) { \
         _vector_p_op_mc(vx, _v0, c, op), \
@@ -151,7 +151,7 @@ VECTOR vec3_i32_normalize(const VECTOR v);
     }; \
 })
 
-#define vec2_op(v0, v1, op) ({ \
+#define vec2_op(v0, op, v1) ({ \
     const __typeof__(v0) _v0 = (v0); \
     const __typeof__(v1) _v1 = (v1); \
     (__typeof__(v0)) { \
@@ -159,7 +159,7 @@ VECTOR vec3_i32_normalize(const VECTOR v);
         _vector_op_mm(vy, _v0, _v1, op) \
     }; \
 })
-#define vec2_c_op(v0, c, op) ({ \
+#define vec2_const_op(v0, op, c) ({ \
     const __typeof__(v0) _v0 = (v0); \
     (__typeof__(v0)) { \
         _vector_op_mc(vx, _v0, c, op), \
@@ -167,7 +167,7 @@ VECTOR vec3_i32_normalize(const VECTOR v);
     }; \
 })
 
-#define vec2_p_op(v0, v1, op) ({ \
+#define pvec2_op(v0, op, v1) ({ \
     const __typeof__(v0)* _v0 = (v0); \
     const __typeof__(v1)* _v1 = (v1); \
     (__typeof__(v0)) { \
@@ -175,7 +175,7 @@ VECTOR vec3_i32_normalize(const VECTOR v);
         _vector_p_op_mm(vy, _v0, _v1, op) \
     }; \
 })
-#define vec2_c_p_op(v0, c, op) ({ \
+#define pvec2_const_op(v0, op, c) ({ \
     cosnt __typeof__(v0)* _v0 = (v0); \
     (__typeof__(v0)) { \
         _vector_p_op_mc(vx, _v0, c, op), \
@@ -185,93 +185,93 @@ VECTOR vec3_i32_normalize(const VECTOR v);
 
 // Operations
 
-#define vec3_add(v0, v1) vec3_op(v0, v1, +)
-#define vec3_sub(v0, v1) vec3_op(v0, v1, -)
-#define vec3_div(v0, v1) vec3_op(v0, v1, /)
-#define vec3_mul(v0, v1) vec3_op(v0, v1, *)
-#define vec3_lshift(v0, v1) vec3_op(v0, v1, <<)
-#define vec3_rshift(v0, v1) vec3_op(v0, v1, >>)
-#define vec3_mod(v0, v1) vec3_op(v0, v1, %)
-#define vec3_and(v0, v1) vec3_op(v0, v1, &)
-#define vec3_or(v0, v1) vec3_op(v0, v1, |)
-#define vec3_xor(v0, v1) vec3_op(v0, v1, ^)
+#define vec3_add(v0, v1) vec3_op(v0, +, v1)
+#define vec3_sub(v0, v1) vec3_op(v0, -, v1)
+#define vec3_div(v0, v1) vec3_op(v0, /, v1)
+#define vec3_mul(v0, v1) vec3_op(v0, *, v1)
+#define vec3_lshift(v0, v1) vec3_op(v0, <<, v1)
+#define vec3_rshift(v0, v1) vec3_op(v0, >>, v1)
+#define vec3_mod(v0, v1) vec3_op(v0, %, v1)
+#define vec3_and(v0, v1) vec3_op(v0, &, v1)
+#define vec3_or(v0, v1) vec3_op(v0, |, v1)
+#define vec3_xor(v0, v1) vec3_op(v0, ^, v1)
 
-#define pvec3_add(v0, v1) vec3_p_op(v0, v1, +)
-#define pvec3_sub(v0, v1) vec3_p_op(v0, v1, -)
-#define pvec3_div(v0, v1) vec3_p_op(v0, v1, /)
-#define pvec3_mul(v0, v1) vec3_p_op(v0, v1, *)
-#define pvec3_lshift(v0, v1) vec3_p_op(v0, v1, <<)
-#define pvec3_rshift(v0, v1) vec3_p_op(v0, v1, >>)
-#define pvec3_mod(v0, v1) vec3_p_op(v0, v1, %)
-#define pvec3_and(v0, v1) vec3_p_op(v0, v1, &)
-#define pvec3_or(v0, v1) vec3_p_op(v0, v1, |)
-#define pvec3_xor(v0, v1) vec3_p_op(v0, v1, ^)
+#define pvec3_add(v0, v1) pvec3_op(v0, +, v1)
+#define pvec3_sub(v0, v1) pvec3_op(v0, -, v1)
+#define pvec3_div(v0, v1) pvec3_op(v0, /, v1)
+#define pvec3_mul(v0, v1) pvec3_op(v0, *, v1)
+#define pvec3_lshift(v0, v1) pvec3_op(v0, <<, v1)
+#define pvec3_rshift(v0, v1) pvec3_op(v0, >>, v1)
+#define pvec3_mod(v0, v1) pvec3_op(v0, %, v1)
+#define pvec3_and(v0, v1) pvec3_op(v0, &, v1)
+#define pvec3_or(v0, v1) pvec3_op(v0, |, v1)
+#define pvec3_xor(v0, v1) pvec3_op(v0, ^, v1)
 
-#define vec3_const_add(v0, c) vec3_c_op(v0, c, +)
-#define vec3_const_sub(v0, c) vec3_c_op(v0, c, -)
-#define vec3_const_div(v0, c) vec3_c_op(v0, c, /)
-#define vec3_const_mul(v0, c) vec3_c_op(v0, c, *)
-#define vec3_const_lshift(v0, c) vec3_c_op(v0, c, <<)
-#define vec3_const_rshift(v0, c) vec3_c_op(v0, c, >>)
-#define vec3_const_mod(v0, c) vec3_c_op(v0, c, %)
-#define vec3_const_and(v0, c) vec3_c_op(v0, c, &)
-#define vec3_const_or(v0, c) vec3_c_op(v0, c, |)
-#define vec3_const_xor(v0, c) vec3_c_op(v0, c, ^)
+#define vec3_const_add(v0, c) vec3_const_op(v0, +, c)
+#define vec3_const_sub(v0, c) vec3_const_op(v0, -, c)
+#define vec3_const_div(v0, c) vec3_const_op(v0, /, c)
+#define vec3_const_mul(v0, c) vec3_const_op(v0, *, c)
+#define vec3_const_lshift(v0, c) vec3_const_op(v0, <<, c)
+#define vec3_const_rshift(v0, c) vec3_const_op(v0, >>, c)
+#define vec3_const_mod(v0, c) vec3_const_op(v0, %, c)
+#define vec3_const_and(v0, c) vec3_const_op(v0, &, c)
+#define vec3_const_or(v0, c) vec3_const_op(v0, |, c)
+#define vec3_const_xor(v0, c) vec3_const_op(v0, ^, c)
 
-#define pvec3_const_add(v0, c) vec3_c_p_op(v0, c, +)
-#define pvec3_const_sub(v0, c) vec3_c_p_op(v0, c, -)
-#define pvec3_const_div(v0, c) vec3_c_p_op(v0, c, /)
-#define pvec3_const_mul(v0, c) vec3_c_p_op(v0, c, *)
-#define pvec3_const_lshift(v0, c) vec3_c_p_op(v0, c, <<)
-#define pvec3_const_rshift(v0, c) vec3_c_p_op(v0, c, >>)
-#define pvec3_const_mod(v0, c) vec3_c_p_op(v0, c, %)
-#define pvec3_const_and(v0, c) vec3_c_p_op(v0, c, &)
-#define pvec3_const_or(v0, c) vec3_c_p_op(v0, c, |)
-#define pvec3_const_xor(v0, c) vec3_c_p_op(v0, c, ^)
+#define pvec3_const_add(v0, c) pvec3_const_op(v0, +, c)
+#define pvec3_const_sub(v0, c) pvec3_const_op(v0, -, c)
+#define pvec3_const_div(v0, c) pvec3_const_op(v0, /, c)
+#define pvec3_const_mul(v0, c) pvec3_const_op(v0, *, c)
+#define pvec3_const_lshift(v0, c) pvec3_const_op(v0, <<, c)
+#define pvec3_const_rshift(v0, c) pvec3_const_op(v0, >>, c)
+#define pvec3_const_mod(v0, c) pvec3_const_op(v0, %, c)
+#define pvec3_const_and(v0, c) pvec3_const_op(v0, &, c)
+#define pvec3_const_or(v0, c) pvec3_const_op(v0, |, c)
+#define pvec3_const_xor(v0, c) pvec3_const_op(v0, ^, c)
 
-#define vec2_add(v0, v1) vec2_op(v0, v1, +)
-#define vec2_sub(v0, v1) vec2_op(v0, v1, -)
-#define vec2_div(v0, v1) vec2_op(v0, v1, /)
-#define vec2_mul(v0, v1) vec2_op(v0, v1, *)
-#define vec2_lshift(v0, v1) vec2_op(v0, v1, <<)
-#define vec2_rshift(v0, v1) vec2_op(v0, v1, >>)
-#define vec2_mod(v0, v1) vec2_op(v0, v1, %)
-#define vec2_and(v0, v1) vec2_op(v0, v1, &)
-#define vec2_or(v0, v1) vec2_op(v0, v1, |)
-#define vec2_xor(v0, v1) vec2_op(v0, v1, ^)
+#define vec2_add(v0, v1) vec2_op(v0, +, v1)
+#define vec2_sub(v0, v1) vec2_op(v0, -, v1)
+#define vec2_div(v0, v1) vec2_op(v0, /, v1)
+#define vec2_mul(v0, v1) vec2_op(v0, *, v1)
+#define vec2_lshift(v0, v1) vec2_op(v0, <<, v1)
+#define vec2_rshift(v0, v1) vec2_op(v0, >>, v1)
+#define vec2_mod(v0, v1) vec2_op(v0, %, v1)
+#define vec2_and(v0, v1) vec2_op(v0, &, v1)
+#define vec2_or(v0, v1) vec2_op(v0, |, v1)
+#define vec2_xor(v0, v1) vec2_op(v0, ^, v1)
 
-#define pvec2_add(v0, v1) vec2_p_op(v0, v1, +)
-#define pvec2_sub(v0, v1) vec2_p_op(v0, v1, -)
-#define pvec2_div(v0, v1) vec2_p_op(v0, v1, /)
-#define pvec2_mul(v0, v1) vec2_p_op(v0, v1, *)
-#define pvec2_lshift(v0, v1) vec2_p_op(v0, v1, <<)
-#define pvec2_rshift(v0, v1) vec2_p_op(v0, v1, >>)
-#define pvec2_mod(v0, v1) vec2_p_op(v0, v1, %)
-#define pvec2_and(v0, v1) vec2_p_op(v0, v1, &)
-#define pvec2_or(v0, v1) vec2_p_op(v0, v1, |)
-#define pvec2_xor(v0, v1) vec2_p_op(v0, v1, ^)
+#define pvec2_add(v0, v1) pvec2_op(v0, +, v1)
+#define pvec2_sub(v0, v1) pvec2_op(v0, -, v1)
+#define pvec2_div(v0, v1) pvec2_op(v0, /, v1)
+#define pvec2_mul(v0, v1) pvec2_op(v0, *, v1)
+#define pvec2_lshift(v0, v1) pvec2_op(v0, <<, v1)
+#define pvec2_rshift(v0, v1) pvec2_op(v0, >>, v1)
+#define pvec2_mod(v0, v1) pvec2_op(v0, %, v1)
+#define pvec2_and(v0, v1) pvec2_op(v0, &, v1)
+#define pvec2_or(v0, v1) pvec2_op(v0, |, v1)
+#define pvec2_xor(v0, v1) pvec2_op(v0, ^, v1)
 
-#define vec2_const_add(v0, c) vec2_c_op(v0, c, +)
-#define vec2_const_sub(v0, c) vec2_c_op(v0, c, -)
-#define vec2_const_div(v0, c) vec2_c_op(v0, c, /)
-#define vec2_const_mul(v0, c) vec2_c_op(v0, c, *)
-#define vec2_const_lshift(v0, c) vec2_c_op(v0, c, <<)
-#define vec2_const_rshift(v0, c) vec2_c_op(v0, c, >>)
-#define vec2_const_mod(v0, c) vec2_c_op(v0, c, %)
-#define vec2_const_and(v0, c) vec2_c_op(v0, c, &)
-#define vec2_const_or(v0, c) vec2_c_op(v0, c, |)
-#define vec2_const_xor(v0, c) vec2_c_op(v0, c, ^)
+#define vec2_const_add(v0, c) vec2_const_op(v0, +, c)
+#define vec2_const_sub(v0, c) vec2_const_op(v0, -, c)
+#define vec2_const_div(v0, c) vec2_const_op(v0, /, c)
+#define vec2_const_mul(v0, c) vec2_const_op(v0, *, c)
+#define vec2_const_lshift(v0, c) vec2_const_op(v0, <<, c)
+#define vec2_const_rshift(v0, c) vec2_const_op(v0, >>, c)
+#define vec2_const_mod(v0, c) vec2_const_op(v0, %, c)
+#define vec2_const_and(v0, c) vec2_const_op(v0, &, c)
+#define vec2_const_or(v0, c) vec2_const_op(v0, |, c)
+#define vec2_const_xor(v0, c) vec2_const_op(v0, ^, c)
 
-#define pvec2_const_add(v0, c) vec2_c_p_op(v0, c, +)
-#define pvec2_const_sub(v0, c) vec2_c_p_op(v0, c, -)
-#define pvec2_const_div(v0, c) vec2_c_p_op(v0, c, /)
-#define pvec2_const_mul(v0, c) vec2_c_p_op(v0, c, *)
-#define pvec2_const_lshift(v0, c) vec2_c_p_op(v0, c, <<)
-#define pvec2_const_rshift(v0, c) vec2_c_p_op(v0, c, >>)
-#define pvec2_const_mod(v0, c) vec2_c_p_op(v0, c, %)
-#define pvec2_const_and(v0, c) vec2_c_p_op(v0, c, &)
-#define pvec2_const_or(v0, c) vec2_c_p_op(v0, c, |)
-#define pvec2_const_xor(v0, c) vec2_c_p_op(v0, c, ^)
+#define pvec2_const_add(v0, c) pvec2_const_op(v0, +, c)
+#define pvec2_const_sub(v0, c) pvec2_const_op(v0, -, c)
+#define pvec2_const_div(v0, c) pvec2_const_op(v0, /, c)
+#define pvec2_const_mul(v0, c) pvec2_const_op(v0, *, c)
+#define pvec2_const_lshift(v0, c) pvec2_const_op(v0, <<, c)
+#define pvec2_const_rshift(v0, c) pvec2_const_op(v0, >>, c)
+#define pvec2_const_mod(v0, c) pvec2_const_op(v0, %, c)
+#define pvec2_const_and(v0, c) pvec2_const_op(v0, &, c)
+#define pvec2_const_or(v0, c) pvec2_const_op(v0, |, c)
+#define pvec2_const_xor(v0, c) pvec2_const_op(v0, ^, c)
 
 // Rotations
 
