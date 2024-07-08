@@ -92,6 +92,7 @@
 * [X] Move static values like block/item names and max stack sizes to global constants accessed by ID
 * [X] Merge both font textures (with and without shadow) into a single texture to use space more efficiently and avoid the gap between the current texture file layout in VRAM.
 * [X] Use custom mesh format for chunk meshes to avoid excessive overhead of unused fields with SMD structured
+* [X] Return `NULL` block/chunk when accessing block/chunk outside of loaded range
 * [ ] Move rendering handlers in `ChunkMesh` to standalone SMD renderer file
 * [ ] Turn these TODO list sections into tables instead of checkmark lists
 * [ ] Support other resolutions that aren't 320x240
