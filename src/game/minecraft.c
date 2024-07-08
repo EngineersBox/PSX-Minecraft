@@ -93,9 +93,8 @@ void Minecraft_init(VSelf, void* ctx) {
     self->world = (World*) malloc(sizeof(World));
     self->world->head.vx = 0;
     self->world->head.vz = 0;
-    self->world->centre.vx = 0;
-    self->world->centre.vy = 0;
-    self->world->centre.vz = 0;
+    self->world->centre = vec3_i32_all(0);
+    self->world->centre_next = vec3_i32_all(0);
     DYN_PTR(
         &self->world->chunk_provider,
         OverworldPerlinChunkProvider,

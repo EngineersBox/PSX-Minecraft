@@ -227,15 +227,16 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk, const BreakingState* breaking_sta
                         // z fighting between mesh faces and overlay faces.
                         continue;
                     }
-                    const IBlock* current_block = worldGetChunkBlock(chunk->world, &chunk_block_position);
+                    IBlock* current_block = worldGetChunkBlock(chunk->world, &chunk_block_position);
                     if (current_block == NULL) {
-                        errorAbort(
-                            "[BINARY GREEDY MESHER] Null block returned while constructing mask [Face: %d] [Chunk: " VEC_PATTERN "] [Block: " VEC_PATTERN "]\n",
-                            face,
-                            VEC_LAYOUT(chunk->position),
-                            VEC_LAYOUT(chunk_block_position.block)
-                        );
-                        continue;
+                        /*errorAbort(*/
+                        /*    "[BINARY GREEDY MESHER] Null block returned while constructing mask [Face: %d] [Chunk: " VEC_PATTERN "] [Block: " VEC_PATTERN "]\n",*/
+                        /*    face,*/
+                        /*    VEC_LAYOUT(chunk->position),*/
+                        /*    VEC_LAYOUT(chunk_block_position.block)*/
+                        /*);*/
+                        current_block = airBlockCreate(NULL);
+                        /*continue;*/
                     }
                     const Block* block = VCAST_PTR(Block*, current_block);
                     if (blockGetType(block->id) == BLOCKTYPE_EMPTY) {

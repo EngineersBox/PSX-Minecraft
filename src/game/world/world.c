@@ -397,14 +397,6 @@ void worldLoadChunksXZ(World* world, const i8 x_direction, const i8 z_direction)
     }
 }
 
-void worldShiftChunks(World* world, const i8 x_direction, const i8 z_direction) {
-    world->head.vx = wrapCoord(world, vx, x_direction);
-    world->head.vz = wrapCoord(world, vz, z_direction);
-    // Move centre towards player position by 1 increment
-    world->centre.vx += x_direction;
-    world->centre.vz += z_direction;
-}
-
 INLINE bool worldWithinLoadRadius(const World* world, const VECTOR* player_chunk_pos) {
     return absv(world->centre.vx - player_chunk_pos->vx) < LOADED_CHUNKS_RADIUS - 1
            && absv(world->centre.vz - player_chunk_pos->vz) < LOADED_CHUNKS_RADIUS - 1;
@@ -418,6 +410,9 @@ void worldLoadChunks(World* world, const VECTOR* player_chunk_pos) {
     // Calculate direction shifts
     const i8 x_direction = cmp(world->centre.vx, player_chunk_pos->vx);
     const i8 z_direction = cmp(world->centre.vz, player_chunk_pos->vz);
+    // Shift chunks into centre of arrays
+    world->centre_next.vx += x_direction;
+    world->centre_next.vz += z_direction;
     // Load chunks
     if (x_direction != 0) {
         worldLoadChunksX(world, x_direction, z_direction);
@@ -428,8 +423,10 @@ void worldLoadChunks(World* world, const VECTOR* player_chunk_pos) {
     if (x_direction != 0 && z_direction != 0) {
         worldLoadChunksXZ(world, x_direction, z_direction);
     }
-    // Shift chunks into centre of arrays
-    worldShiftChunks(world, x_direction, z_direction);
+    // Synchronise centre
+    world->head.vx = wrapCoord(world, vx, x_direction);
+    world->head.vz = wrapCoord(world, vz, z_direction);
+    world->centre = world->centre_next;
 }
 
 void worldUpdate(World* world, Player* player) {
@@ -485,6 +482,22 @@ INLINE Chunk* worldGetChunkFromChunkBlock(const World* world, const ChunkBlockPo
         || position->chunk.vy >= WORLD_CHUNKS_HEIGHT) {
         return NULL;
     }
+    const i32 neg_x_limit = world->centre_next.vx - LOADED_CHUNKS_RADIUS;
+    if (position->chunk.vx < neg_x_limit) {
+        return NULL;
+    }
+    const i32 pos_x_limit = world->centre_next.vx + LOADED_CHUNKS_RADIUS;
+    if (position->chunk.vx > pos_x_limit) {
+        return NULL;
+    }
+    const i32 neg_z_limit = world->centre_next.vz - LOADED_CHUNKS_RADIUS;
+    if (position->chunk.vz < neg_z_limit) {
+        return NULL;
+    }
+    const i32 pos_z_limit = world->centre_next.vz + LOADED_CHUNKS_RADIUS;
+    if (position->chunk.vz > pos_z_limit) {
+        return NULL;
+    }
     return world->chunks[arrayCoord(world, vz, position->chunk.vz)]
                         [arrayCoord(world, vx, position->chunk.vx)]
                         [position->chunk.vy];
@@ -502,7 +515,7 @@ INLINE Chunk* worldGetChunk(const World* world, const VECTOR* position) {
 IBlock* worldGetChunkBlock(const World* world, const ChunkBlockPosition* position) {
     const Chunk* chunk = worldGetChunkFromChunkBlock(world, position);
     if (chunk == NULL) {
-        return airBlockCreate(NULL);
+        return NULL; //airBlockCreate(NULL);
     }
     return chunkGetBlockVec(chunk, &position->block);
 }
@@ -510,7 +523,7 @@ IBlock* worldGetChunkBlock(const World* world, const ChunkBlockPosition* positio
 IBlock* worldGetBlock(const World* world, const VECTOR* position) {
     // World is void below 0 and above world-height on y-axis
     if (position->vy < 0 || position->vy >= WORLD_HEIGHT) {
-        return airBlockCreate(NULL);
+        return NULL; //airBlockCreate(NULL);
     }
     const ChunkBlockPosition chunk_block_position = worldToChunkBlockPosition(position, CHUNK_SIZE);
     return worldGetChunkBlock(world, &chunk_block_position);

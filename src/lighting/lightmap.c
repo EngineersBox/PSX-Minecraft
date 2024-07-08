@@ -1,6 +1,5 @@
 #include "lightmap.h"
 
-
 void lightMapSetValue(LightMap lightmap,
                       const VECTOR position,
                       u8 light_value,

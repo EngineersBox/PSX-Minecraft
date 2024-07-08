@@ -38,6 +38,7 @@
 
 typedef struct World {
     VECTOR centre;
+    VECTOR centre_next;
     struct {
         u32 vx;
         u32 vz;
