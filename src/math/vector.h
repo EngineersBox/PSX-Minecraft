@@ -113,16 +113,8 @@ VECTOR vec3_i32_normalize(const VECTOR v);
 #define _vector_ip_op_mm(field, v0, v1, op) _vector_iop((v0)->field, (v1)->field, op)
 #define _vector_ip_op_mc(field, v0, c, op) _vector_iop((v0)->field, c, op)
 
-// VECTOR - New instance
+// Vector varaint operation bindings
 
-/**
- * @brief vec3_op - Apply a given op piece-wise between two VECTOR instances, returning
- * the results in a new VECTOR instance
- * @param v0 - First VECTOR instance
- * @param v1  - Second VECTOR instance
- * @param op - Operation to perform piece-wise
- * @return A new vetor with the results of piece-wise operation
- */
 #define vec3_op(v0, v1, op) ({ \
     const __typeof__(v0) _v0 = (v0); \
     const __typeof__(v1) _v1 = (v1); \
@@ -141,14 +133,6 @@ VECTOR vec3_i32_normalize(const VECTOR v);
     }; \
 })
 
-/**
- * @brief vector_p_op - Apply a given op piece-wise between two VECTOR* pointers, returning
- * the results in a new VECTOR instance
- * @param v0 - First VECTOR* instance
- * @param v1  - Second VECTOR* instance
- * @param op - Operation to perform piece-wise
- * @return A new vetor with the results of piece-wise operation
- */
 #define vec3_p_op(v0, v1, op) ({ \
     const __typeof__(v0)* _v0 = (v0); \
     const __typeof__(v1)* _v1 = (v1); \
@@ -167,14 +151,6 @@ VECTOR vec3_i32_normalize(const VECTOR v);
     }; \
 })
 
-/**
- * @brief vec2_op - Apply a given op piece-wise between two VECTOR instances, returning
- * the results in a new VECTOR instance
- * @param v0 - First VECTOR instance
- * @param v1  - Second VECTOR instance
- * @param op - Operation to perform piece-wise
- * @return A new vetor with the results of piece-wise operation
- */
 #define vec2_op(v0, v1, op) ({ \
     const __typeof__(v0) _v0 = (v0); \
     const __typeof__(v1) _v1 = (v1); \
@@ -191,14 +167,6 @@ VECTOR vec3_i32_normalize(const VECTOR v);
     }; \
 })
 
-/**
- * @brief vec2_p_op - Apply a given op piece-wise between two VECTOR* pointers, returning
- * the results in a new VECTOR instance
- * @param v0 - First VECTOR* instance
- * @param v1  - Second VECTOR* instance
- * @param op - Operation to perform piece-wise
- * @return A new vetor with the results of piece-wise operation
- */
 #define vec2_p_op(v0, v1, op) ({ \
     const __typeof__(v0)* _v0 = (v0); \
     const __typeof__(v1)* _v1 = (v1); \
@@ -214,6 +182,8 @@ VECTOR vec3_i32_normalize(const VECTOR v);
         _vector_p_op_mc(vy, _v0, c, op) \
     }; \
 })
+
+// Operations
 
 #define vec3_add(v0, v1) vec3_op(v0, v1, +)
 #define vec3_sub(v0, v1) vec3_op(v0, v1, -)
