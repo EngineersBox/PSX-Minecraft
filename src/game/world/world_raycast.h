@@ -9,6 +9,8 @@
 #include "../../core/camera.h"
 #include "../blocks/block.h"
 
+#define ALLOW_RAYCAST_OUTSIDE_WORLD true
+
 // Fordward declaration
 typedef struct World World;
 

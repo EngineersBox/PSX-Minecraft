@@ -62,8 +62,6 @@ double intboundd(const double s, const double ds) {
     return dividend / absd(ds);
 }
 
-#define ALLOW_RAYCAST_OUTSIDE_WORLD true
-
 // It works. Do I like it? No. Do I care? Also no.
 RayCastResult worldRayCastIntersection(const World* world,
                                        const Camera* camera,
