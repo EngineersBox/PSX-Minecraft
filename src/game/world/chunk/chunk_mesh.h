@@ -10,18 +10,6 @@
 #include "../../../structure/primitive/direction.h"
 #include "../../../math/vector.h"
 
-#ifndef MESH_PRIMITIVE_VEC_INITIAL_CAPCITY
-#define MESH_PRIMITIVE_VEC_INITIAL_CAPCITY 0
-#endif
-
-#ifndef MESH_VERTEX_VEC_INITIAL_CAPCITY
-#define MESH_VERTEX_VEC_INITIAL_CAPCITY 0
-#endif
-
-#ifndef MESH_NORMAL_VEC_INITIAL_CAPCITY
-#define MESH_NORMAL_VEC_INITIAL_CAPCITY 0
-#endif
-
 #define MESH_PRIMITIVE_TYPE_COUNT 3
 #define MESH_PRIMITIVE_TYPE_BIN_COUNT 2
 typedef enum MeshPrimitiveType {
@@ -31,7 +19,7 @@ typedef enum MeshPrimitiveType {
 } MeshPrimitiveType;
 
 typedef struct MeshPrimitive {
-    MeshPrimitiveType type : MESH_PRIMITIVE_TYPE_BIN_COUNT;
+    MeshPrimitiveType type: MESH_PRIMITIVE_TYPE_BIN_COUNT;
     u8 _pad: 8 - MESH_PRIMITIVE_TYPE_BIN_COUNT;
     u16 v0, v1, v2, v3; // Vertex indices
     u16 n0, n1, n2, n3; // Normal indices

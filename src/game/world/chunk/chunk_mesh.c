@@ -14,7 +14,7 @@
 #endif
 
 void __primtiveDestructor(void* elem) {
-    memset(elem, 0, sizeof(SMD_PRIM));
+    memset(elem, 0, sizeof(MeshPrimitive));
 }
 
 void __svectorDestructor(void* elem) {
@@ -26,13 +26,13 @@ void chunkMeshInit(ChunkMesh* mesh) {
     for (int i = 0; i < FACE_DIRECTION_COUNT; i++) {
         // NOTE: This null init is important for cvector to ensure allocation is done initially
         Mesh* face_mesh = &mesh->face_meshes[i];
-        cvector(SMD_PRIM) p_prims = NULL;
-        cvector_init(p_prims, MESH_PRIMITIVE_VEC_INITIAL_CAPCITY, NULL);
+        cvector(MeshPrimitive) p_prims = NULL;
+        cvector_init(p_prims, 0, NULL);
         face_mesh->p_prims = p_prims;
         face_mesh->p_verts = NULL;
-        cvector_init(face_mesh->p_verts, MESH_VERTEX_VEC_INITIAL_CAPCITY, NULL);
+        cvector_init(face_mesh->p_verts, 0, NULL);
         face_mesh->p_norms = NULL;
-        cvector_init(face_mesh->p_norms, MESH_NORMAL_VEC_INITIAL_CAPCITY, NULL);
+        cvector_init(face_mesh->p_norms, 0, NULL);
     }
 }
 
