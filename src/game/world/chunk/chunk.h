@@ -48,7 +48,7 @@ void chunkClearMesh(Chunk* chunk);
  */
 bool chunkModifyVoxel(Chunk* chunk,
                       const VECTOR* position,
-                      IBlock* block,
+                      IBlock* iblock,
                       bool drop_item,
                       IItem** item_result);
 IBlock* chunkModifyVoxelConstructed(Chunk* chunk,

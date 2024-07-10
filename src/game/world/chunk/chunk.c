@@ -239,7 +239,7 @@ INLINE static int modifyVoxel0(Chunk* chunk,
 
 bool chunkModifyVoxel(Chunk* chunk,
                       const VECTOR* position,
-                      IBlock* block,
+                      IBlock* iblock,
                       const bool drop_item,
                       IItem** item_result) {
     const int result = modifyVoxel0(chunk, position, drop_item, item_result);
@@ -250,7 +250,20 @@ bool chunkModifyVoxel(Chunk* chunk,
         position->vx,
         position->vy,
         position->vz
-    )] = block;
+    )] = iblock;
+    /*const Block* block = VCAST_PTR(Block*, iblock);*/
+    /*if (blockGetType(block->id) != BLOCKTYPE_EMPTY) {*/
+    /*    chunkUpdateRemoveLight(chunk, position);*/
+    /*} else {*/
+    /*    // Adding a light level of 0 will trigger the lightmap*/
+    /*    // to be regenerated around this point*/
+    /*    chunkUpdateAddLight(*/
+    /*        chunk,*/
+    /*        position,*/
+    /*        0,*/
+    /*        LIGHT_TYPE_BLOCK*/
+    /*    );*/
+    /*}*/
     chunkClearMesh(chunk);
     chunkGenerateMesh(chunk);
     return true;
@@ -393,6 +406,9 @@ void chunkSetLightValue(Chunk* chunk,
     lightMapSetValue(chunk->lightmap, *position, light_value, light_type);
 }
 
+// TODO: Refactor this to just process the current lighting updates
+//       in the queue and move the initial add part of it to be
+//       standalone.
 void chunkUpdateAddLight(Chunk* chunk,
                          const VECTOR* position,
                          const u8 light_value,

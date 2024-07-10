@@ -98,3 +98,4 @@
 * [ ] Support other resolutions that aren't 320x240
 * [ ] Refactor vector operations to use `_Generic` C11 macro to perform type specific operations between any kind of two vector types or constant
 * [ ] Move assets to on-disk directories and files instead of packing them into the binary
+* [ ] Move light/add remove to be standalone methods to enqueue updates then have a separate chunk-internal method to process the lighting updates during a `chunkUpdate` call
