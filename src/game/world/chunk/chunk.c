@@ -404,19 +404,55 @@ void chunkSetLightValue(Chunk* chunk,
         return;
     }
     lightMapSetValue(chunk->lightmap, *position, light_value, light_type);
+    // Switch explicitly here instead of just using a ternary to get the
+    // queue pointer since we may increase the size of the queue which
+    // will mean the pointer is updated and thus we need to set the
+    // value on the struct, also because additional light types (not likely)
+    // should have compile-time failures for places they should be used.
+    switch (light_type) {
+        case LIGHT_TYPE_BLOCK:
+            cvector_push_back(chunk->updates.light_add_queue, ((LightAddNode) {
+                *position,
+                chunk
+            }));
+            break;
+        case LIGHT_TYPE_SKY:
+            cvector_push_back(chunk->updates.sunlight_queue, ((LightAddNode) {
+                *position,
+                chunk
+            }));
+            break;
+    }
 }
 
-// TODO: Refactor this to just process the current lighting updates
-//       in the queue and move the initial add part of it to be
-//       standalone.
+void chunkRemoveLightValue(Chunk* chunk,
+                           const VECTOR* position,
+                           const LightType light_type) {
+    if (checkIndexOOB(position->vx, position->vy, position->vz)) {
+        return;
+    }
+    const u8 light_value = lightMapGetType(
+        chunk->lightmap,
+        *position,
+        light_type
+    );
+    cvector_push_back(chunk->updates.light_remove_queue, ((LightRemovalNode) {
+        *position,
+        chunk,
+        light_value
+    }));
+    lightMapSetValue(
+        chunk->lightmap,
+        *position,
+        0,
+        LIGHT_TYPE_BLOCK
+    );
+}
+
 void chunkUpdateAddLight(Chunk* chunk,
                          const VECTOR* position,
                          const u8 light_value,
                          const LightType light_type) {
-    cvector_push_back(chunk->updates.light_add_queue, ((LightAddNode) {
-        *position,
-        chunk
-    }));
     while (!cvector_empty(chunk->updates.light_add_queue)) {
         const VECTOR current_pos = chunk->updates.light_add_queue[0].position;
         Chunk* current_chunk = chunk->updates.light_add_queue[0].chunk;
@@ -433,8 +469,6 @@ void chunkUpdateAddLight(Chunk* chunk,
                 CHUNK_SIZE
             )
         );
-        // TODO: For worldGetBlock it might be good to only return NULL
-        //       when the position is outside of the loaded world.
         #pragma GCC unroll 6
         for (FaceDirection i = FACE_DIR_DOWN; i <= FACE_DIR_FRONT; i++) {
             const VECTOR query_pos = vec3_add(
@@ -452,12 +486,12 @@ void chunkUpdateAddLight(Chunk* chunk,
             if (blockGetType(block->id) == BLOCKTYPE_SOLID) {
                 continue;
             }
-            const u8 block_light_level = worldGetLightValue(
+            const u8 neighbour_light_level = worldGetLightValue(
                 current_chunk->world,
                 &query_pos,
                 LIGHT_TYPE_BLOCK
             );
-            if (block_light_level + 2 > light_level) {
+            if (neighbour_light_level + 2 > light_level) {
                 continue;
             }
             worldSetLightValue(
@@ -475,23 +509,13 @@ void chunkUpdateAddLight(Chunk* chunk,
                 worldGetChunk(
                     current_chunk->world,
                     &block_pos.chunk
-                ),
+                )
             }));
         }
     }
 }
 
 void chunkUpdateRemoveLight(Chunk* chunk, const VECTOR* position) {
-    u8 light_value = chunkGetLightValue(
-        chunk,
-        position,
-        LIGHT_TYPE_BLOCK
-    );
-    cvector_push_back(chunk->updates.light_remove_queue, ((LightRemovalNode) {
-        *position,
-        chunk,
-        light_value
-    }));
     while (!cvector_empty(chunk->updates.light_remove_queue)) {
         const VECTOR current_pos = chunk->updates.light_remove_queue[0].position;
         Chunk* current_chunk = chunk->updates.light_remove_queue[0].chunk;
@@ -504,8 +528,6 @@ void chunkUpdateRemoveLight(Chunk* chunk, const VECTOR* position) {
                 CHUNK_SIZE
             )
         );
-        // TODO: For worldGetBlock it might be good to only return NULL
-        //       when the position is outside of the loaded world.
         #pragma GCC unroll 6
         for (FaceDirection i = FACE_DIR_DOWN; i <= FACE_DIR_FRONT; i++) {
             const VECTOR query_pos = vec3_add(

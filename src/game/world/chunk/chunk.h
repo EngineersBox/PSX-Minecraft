@@ -72,6 +72,9 @@ void chunkSetLightValue(Chunk* chunk,
                         const VECTOR* position,
                         const u8 light_value,
                         const LightType light_type);
+void chunkRemoveLightValue(Chunk* chunk,
+                           const VECTOR* position,
+                           const LightType light_type);
 
 // Occurs when placing a block that emits light or removing a block
 void chunkUpdateAddLight(Chunk* chunk, const VECTOR* position, const u8 light_value, const LightType light_type);
