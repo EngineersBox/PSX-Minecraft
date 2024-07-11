@@ -26,16 +26,16 @@ typedef struct LightAddNode {
     Chunk* chunk;
 } LightAddNode;
 
-typedef struct LightRemovalNode {
+typedef struct LightRemoveNode {
     VECTOR position;
     Chunk* chunk;
     u8 light_value;
-} LightRemovalNode;
+} LightRemoveNode;
 
 typedef struct ChunkUpdates {
     cvector(LightAddNode) sunlight_queue;
     cvector(LightAddNode) light_add_queue;
-    cvector(LightRemovalNode) light_remove_queue;
+    cvector(LightRemoveNode) light_remove_queue;
 } ChunkUpdates;
 
 typedef struct Chunk {

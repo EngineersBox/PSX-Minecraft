@@ -436,7 +436,7 @@ void chunkRemoveLightValue(Chunk* chunk,
         *position,
         light_type
     );
-    cvector_push_back(chunk->updates.light_remove_queue, ((LightRemovalNode) {
+    cvector_push_back(chunk->updates.light_remove_queue, ((LightRemoveNode) {
         *position,
         chunk,
         light_value
@@ -561,7 +561,7 @@ void chunkUpdateRemoveLight(Chunk* chunk, const VECTOR* position) {
                     0,
                     LIGHT_TYPE_BLOCK
                 );
-                cvector_push_back(current_chunk->updates.light_remove_queue, ((LightRemovalNode) {
+                cvector_push_back(current_chunk->updates.light_remove_queue, ((LightRemoveNode) {
                     block_pos.block,
                     worldGetChunk(
                         current_chunk->world,
