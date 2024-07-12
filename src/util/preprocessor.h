@@ -41,6 +41,7 @@
 #define UNUSED __attribute__((unused))
 #define ALIAS(name) __attribute__((alias(name)))
 #define INLINE __attribute__((always_inline)) inline
+#define WEAK __attribute__((weak))
 
 // Forward declaration
 #define FWD_DECL
