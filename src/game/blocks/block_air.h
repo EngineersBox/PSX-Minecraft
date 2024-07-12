@@ -34,9 +34,6 @@ IItem* AirBlock_destroy(VSelf, bool drop_item);
 void airBlockUpdate(VSelf);
 void AirBlock_update(VSelf);
 
-bool airBlockIsOpaque(VSelf, FaceDirection face_dir);
-bool AirBlock_isOpaque(VSelf, FaceDirection face_dir);
-
 IItem* airBlockProvideItem(VSelf);
 IItem* AirBlock_provideItem(VSelf);
 

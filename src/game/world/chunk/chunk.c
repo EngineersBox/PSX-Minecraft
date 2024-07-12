@@ -93,6 +93,13 @@ void chunkGenerateMesh(Chunk* chunk) {
     chunkGenerateMeshWithBreakingState(chunk, NULL);
 }
 
+void chunkGenerateLightmap(Chunk* chunk) {
+    // 1. Propogate sunlight
+    TODO("Propogate sunlight into lightmap");
+    // 2. Process any pending add light updates
+    chunkUpdateAddLight(chunk);
+}
+
 static void chunkRenderDroppedItems(const Chunk* chunk, RenderContext* ctx, Transforms* transforms) {
     IItem** item;
     cvector_for_each_in(item, chunk->dropped_items) {
@@ -449,10 +456,11 @@ void chunkRemoveLightValue(Chunk* chunk,
     );
 }
 
-void chunkUpdateAddLight(Chunk* chunk,
-                         const VECTOR* position,
-                         const u8 light_value,
-                         const LightType light_type) {
+void chunkUpdateLight(Chunk* chunk) {
+    TODO("Update chunk lightmaps");
+}
+
+void chunkUpdateAddLight(Chunk* chunk) {
     while (!cvector_empty(chunk->updates.light_add_queue)) {
         const VECTOR current_pos = chunk->updates.light_add_queue[0].position;
         Chunk* current_chunk = chunk->updates.light_add_queue[0].chunk;
@@ -515,7 +523,7 @@ void chunkUpdateAddLight(Chunk* chunk,
     }
 }
 
-void chunkUpdateRemoveLight(Chunk* chunk, const VECTOR* position) {
+void chunkUpdateRemoveLight(Chunk* chunk) {
     while (!cvector_empty(chunk->updates.light_remove_queue)) {
         const VECTOR current_pos = chunk->updates.light_remove_queue[0].position;
         Chunk* current_chunk = chunk->updates.light_remove_queue[0].chunk;

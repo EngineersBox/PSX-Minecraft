@@ -97,7 +97,7 @@ void breakingStateCalculateVisibility(BreakingState* state, const World* world) 
         }
         const Block* facing_block = VCAST_PTR(Block*, iblock);
         if (facing_block->id != BLOCKID_AIR
-            && VCALL(*iblock, isOpaque, faceDirectionOpposing(face_dir))) {
+            && blockIsFaceOpaque(facing_block, faceDirectionOpposing(face_dir))) {
             continue;
         }
 set_visible:

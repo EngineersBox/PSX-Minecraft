@@ -37,21 +37,6 @@ void grassBlockUpdate(VSelf) ALIAS("GrassBlock_update");
 void GrassBlock_update(VSelf) {
 }
 
-// TODO: EXAMPLE/TESTING ONLY, REMOVE LATER
-// static const u8 FARMLAND_OPAQUE_BITSET = opaqueFacesBitset(1,0,1,0,1,0);
-
-bool grassBlockIsOpaque(VSelf, FaceDirection face_dir) ALIAS("GrassBlock_isOpaque");
-bool GrassBlock_isOpaque(VSelf, UNUSED const FaceDirection face_dir) {
-    // return (FARMLAND_OPAQUE_BITSET >> face_dir) & 0x1;
-    return true;
-}
-
-u8 grassBlockOpaqueBitset(VSelf) ALIAS("GrassBlock_opaqueBitset");
-u8 GrassBlock_opaqueBitset(VSelf) {
-    // return FARMLAND_OPAQUE_BITSET;
-    return 63; // 0b00111111
-}
-
 IItem* grassBlockProvideItem(VSelf) ALIAS("GrassBlock_provideItem");
 IItem* GrassBlock_provideItem(VSelf) {
     VSELF(GrassBlock);

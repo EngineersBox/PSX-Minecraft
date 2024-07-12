@@ -9,10 +9,11 @@ DEFN_BLOCK_CONSTRUCTOR_IMPL_STATELESS(air, AIR)
 
 void airBlockInit(VSelf) ALIAS("AirBlock_init");
 void AirBlock_init(VSelf) {
-    // TODO: Can make this VSELF(Block) since AirBlock composes Block as the first struct element
     VSELF(AirBlock);
     self->block = declareBlock(
         BLOCKID_AIR,
+        0,
+        0,
         0,
         FACE_DIR_RIGHT,
         {}
@@ -31,11 +32,6 @@ IItem* AirBlock_destroy(VSelf, const bool drop_item) {
 
 void airBlockUpdate(VSelf) ALIAS("AirBlock_update");
 void AirBlock_update(VSelf) {
-}
-
-bool airBlockIsOpaque(VSelf, FaceDirection face_dir) ALIAS("AirBlock_isOpaque");
-bool AirBlock_isOpaque(VSelf, UNUSED FaceDirection face_dir) {
-    return false;
 }
 
 IItem* airBlockProvideItem(VSelf) ALIAS("AirBlock_provideItem");

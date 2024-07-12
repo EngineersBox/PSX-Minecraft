@@ -15,13 +15,13 @@ typedef enum ToolType {
     TOOLTYPE_HOE
 } ToolType;
 
-#define toolTypeBitset(none, pickaxe, axe, sword, shovel, hoe) (\
+#define toolTypeBitset(none, pickaxe, axe, sword, shovel, hoe) ((u8) (\
       ((none) << TOOLTYPE_NONE) \
     | ((pickaxe) << TOOLTYPE_PICKAXE) \
     | ((axe) << TOOLTYPE_AXE) \
     | ((sword) << TOOLTYPE_SWORD) \
     | ((shovel) << TOOLTYPE_SHOVEL) \
     | ((hoe) << TOOLTYPE_HOE) \
-)
+))
 
 #endif // _PSX_MINECRAFT__GAME_ITEMS_TOOLS__TOOL_TYPE_H_

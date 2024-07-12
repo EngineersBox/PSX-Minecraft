@@ -29,6 +29,11 @@ void chunkDestroy(const Chunk* chunk);
 void chunkGenerateMesh(Chunk* chunk);
 void chunkClearMesh(Chunk* chunk);
 
+// Initialise the lightmap, first by propogating sunlight
+// and then applying any pending updates in the add light
+// queue. This should be caled after generating a chunk.
+void chunkGenerateLightmap(Chunk* chunk);
+
 /**
  * @brief Sets a block at a given location in the chunk, invoking the @code destroy@endcode
  *        method on any existing block at the location. If the destroyed block returns an item,
@@ -76,9 +81,8 @@ void chunkRemoveLightValue(Chunk* chunk,
                            const VECTOR* position,
                            const LightType light_type);
 
-// Occurs when placing a block that emits light or removing a block
-void chunkUpdateAddLight(Chunk* chunk, const VECTOR* position, const u8 light_value, const LightType light_type);
-// Occurs when removing a block
-void chunkUpdateRemoveLight(Chunk* chunk, const VECTOR* position);
+void chunkUpdateLight(Chunk* chunk);
+void chunkUpdateAddLight(Chunk* chunk);
+void chunkUpdateRemoveLight(Chunk* chunk);
 
 #endif // PSX_MINECRAFT_CHUNK_H

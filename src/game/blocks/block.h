@@ -59,18 +59,23 @@ typedef struct BlockAttributes {
     BlockType type: BLOCK_TYPE_COUNT_BITS;
     ToolType tool_type: TOOL_TYPE_COUNT_BITS;
     ItemMaterial tool_material: ITEM_MATERIAL_COUNT_BITS;
-    u8 can_harvest: 6;
+    u8 can_harvest: TOOL_TYPE_COUNT;
+    u32 _pad: 15;
     char* name;
 } BlockAttributes;
 
 typedef struct Block {
     BlockID id;
     u8 metadata_id;
+    u8 light_level: 4;
+    u8 opacity_bitset: FACE_DIRECTION_COUNT;
+    u8 _pad: 6;
     FaceDirection orientation;
     TextureAttributes face_attributes[BLOCK_FACES];
 } Block;
 
-#define opaqueFacesBitset(down, up, left, right, back, front) (\
+#define BLOCK_DEFAULT_OPACITY_BITSET ((u8) 0b111111)
+#define opacityBitset(down, up, left, right, back, front) (\
       ((down) << FACE_DIR_DOWN) \
     | ((up) << FACE_DIR_UP) \
     | ((left) << FACE_DIR_LEFT) \
@@ -78,6 +83,7 @@ typedef struct Block {
     | ((back) << FACE_DIR_BACK) \
     | ((front) << FACE_DIR_FRONT) \
 )
+#define blockIsFaceOpaque(block, face) (((block)->opacity_bitset >> (face)) & 0b1)
 
 #define IBlock_IFACE \
     vfunc(void, init, VSelf) \
@@ -85,18 +91,10 @@ typedef struct Block {
     vfunc(IItem*, destroy, VSelf, bool drop_item) \
     vfunc(void, update, VSelf) \
     vfuncDefault(bool, useAction, VSelf) \
-    vfuncDefault(bool, isOpaque, VSelf, FaceDirection face_dir) \
-    vfuncDefault(u8, opaqueBitset, VSelf) \
     vfunc(IItem*, provideItem, VSelf)
 
 bool iBlockUseAction(VSelf);
 bool IBlock_useAction(VSelf);
-
-bool iBlockIsOpaque(VSelf, FaceDirection face_dir);
-bool IBlock_isOpaque(VSelf, FaceDirection face_dir);
-
-u8 iBlockOpaqueBitset(VSelf);
-u8 IBlock_opaqueBitset(VSelf);
 
 interface(IBlock);
 
@@ -124,16 +122,29 @@ typedef IBlock* (*BlockConstructor)(IItem* from_item);
 #define DEFN_BLOCK_CONSTRUCTOR_IMPL_STATEFUL(name) DEFN_BLOCK_CONSTRUCTOR(name)
 
 // Declare a Block instance
-#define declareBlock(_id, _metadata_id, _orientation, _face_attributes) (Block) {\
+#define declareBlock(_id, _metadata_id, _light_level, _opacity_bitset, _orientation, _face_attributes) ((Block) {\
     .id = (BlockID) _id,\
     .metadata_id = _metadata_id,\
+    .light_level = _light_level, \
+    .opacity_bitset = _opacity_bitset, \
     .orientation = (FaceDirection) _orientation,\
     .face_attributes = _face_attributes\
-}
+})
 // Declare a Block
 #define declareSimpleBlock(_id, face_attributes) declareBlock( \
     _id, \
     0, \
+    0, \
+    BLOCK_DEFAULT_OPACITY_BITSET, \
+    FACE_DIR_RIGHT, \
+    P99_PROTECT(face_attributes) \
+)
+// Declare a Block with a light level
+#define declareLightBlock(_id, _light_level) declareBlock( \
+    _id, \
+    0, \
+    _light_level, \
+    BLOCK_DEFAULT_OPACITY_BITSET, \
     FACE_DIR_RIGHT, \
     P99_PROTECT(face_attributes) \
 )
@@ -141,6 +152,8 @@ typedef IBlock* (*BlockConstructor)(IItem* from_item);
 #define declareSimpleBlockMeta(_id, _metadata_id, face_attributes) declareBlock( \
     _id, \
     _metadata_id, \
+    0, \
+    BLOCK_DEFAULT_OPACITY_BITSET, \
     FACE_DIR_RIGHT, \
     P99_PROTECT(face_attributes) \
 )

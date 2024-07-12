@@ -63,7 +63,7 @@ bool {{ name_capital }}Block_useAction(VSelf) {
 {% endif %}
 
 {% if opaque_bitset != None %}
-static const u8 {{ name_snake_upper }}_OPAQUE_BITSET = opaqueFacesBitset({{ opaque_bitset }});
+static const u8 {{ name_snake_upper }}_OPAQUE_BITSET = opacityBitset({{ opaque_bitset }});
 
 bool {{ name_lower }}BlockIsOpaque(VSelf, FaceDirection face_dir) ALIAS("{{ name_capital }}Block_isOpaque");
 bool {{ name_capital }}Block_isOpaque(VSelf, const FaceDirection face_dir) {
