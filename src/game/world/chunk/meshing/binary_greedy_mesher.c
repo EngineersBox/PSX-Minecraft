@@ -3,6 +3,7 @@
 #include <psxgte.h>
 
 #include "../../../logging/logging.h"
+#include "../../../lighting/lightmap.h"
 #include "../../../util/interface99_extensions.h"
 #include "../../../util/bits.h"
 #include "../../../math/vector.h"
@@ -18,6 +19,10 @@ FWD_DECL typedef struct World World;
 FWD_DECL IBlock* worldGetBlock(const World* world, const VECTOR* position);
 FWD_DECL IBlock* worldGetChunkBlock(const World* world, const ChunkBlockPosition* position);
 FWD_DECL IBlock* chunkGetBlock(const Chunk* chunk, i32 x, i32 y, i32 z);
+FWD_DECL void chunkSetLightValue(Chunk* chunk,
+                                 const VECTOR* position,
+                                 const u8 light_value,
+                                 const LightType light_type);
 
 #define CHUNK_SIZE_PADDED (CHUNK_SIZE + 2)
 #define AXIS_COUNT 3
@@ -67,10 +72,23 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk, const BreakingState* breaking_sta
     for (u32 z = 0; z < CHUNK_SIZE; z++) {
         for (u32 x = 0; x < CHUNK_SIZE; x++) {
             for (u32 y = 0; y < CHUNK_SIZE; y++) {
+                const IBlock* iblock = chunkGetBlock(chunk, x, y, z);
+                if (iblock != NULL) {
+                    const Block* block = VCAST_PTR(Block*, iblock);
+                    if (block->light_level != 0) {
+                        const VECTOR position = vec3_i32(x, y, z);
+                        chunkSetLightValue(
+                            chunk,
+                            &position,
+                            block->light_level,
+                            LIGHT_TYPE_BLOCK
+                        );
+                    }
+                }
                 addVoxelToFaceColumns(
                     faces_cols,
                     faces_cols_opaque,
-                    chunkGetBlock(chunk, x, y, z),
+                    iblock,
                     x + 1,
                     y + 1,
                     z + 1
