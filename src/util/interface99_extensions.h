@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef PSX_MINECRAFT_INTERFACE99_EXTENSIONS_H
-#define PSX_MINECRAFT_INTERFACE99_EXTENSIONS_H
+#ifndef PSXMC_INTERFACE99_EXTENSIONS_H
+#define PSXMC_INTERFACE99_EXTENSIONS_H
 
 #include <interface99.h>
 
@@ -40,4 +40,4 @@
 #define INSTANCEOF_PTR(ptr, implementer, iface) INSTANCEOF_PTR99(ptr, implementer, iface)
 #define INSTANCEOF_PTR99(ptr, implementer, iface) ((type)->vptr == &VTABLE99(implementer, iface))
 
-#endif // PSX_MINECRAFT_INTERFACE99_EXTENSIONS_H
+#endif // PSXMC_INTERFACE99_EXTENSIONS_H

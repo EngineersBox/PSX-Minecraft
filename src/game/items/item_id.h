@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef PSX_MINECRAFT_ITEM_ID_H
-#define PSX_MINECRAFT_ITEM_ID_H
+#ifndef PSXMC_ITEM_ID_H
+#define PSXMC_ITEM_ID_H
 
 #include "../../util/preprocessor.h"
 
@@ -36,4 +36,4 @@ extern const char* EITEMID_NAMES[];
 
 #define itemIdStringify(id) EITEMID_NAMES[(id)]
 
-#endif // PSX_MINECRAFT_ITEM_ID_H
+#endif // PSXMC_ITEM_ID_H

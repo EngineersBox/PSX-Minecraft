@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef PSX_MINECRAFT_CURSOR_H
-#define PSX_MINECRAFT_CURSOR_H
+#ifndef PSXMC_CURSOR_H
+#define PSXMC_CURSOR_H
 
 #include <interface99.h>
 
@@ -20,4 +20,4 @@ void UICursor_render(VSelf, RenderContext* ctx, Transforms* transforms);
 
 impl(IUIComponent, UICursor);
 
-#endif // PSX_MINECRAFT_CURSOR_H
+#endif // PSXMC_CURSOR_H

@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef PSX_MINECRAFT_SLOT_H
-#define PSX_MINECRAFT_SLOT_H
+#ifndef PSXMC_SLOT_H
+#define PSXMC_SLOT_H
 
 #include <stdbool.h>
 #include <psxgte.h>
@@ -237,4 +237,4 @@ typedef struct Slot {
 
 // Hotbar [END]
 
-#endif // PSX_MINECRAFT_SLOT_H
+#endif // PSXMC_SLOT_H

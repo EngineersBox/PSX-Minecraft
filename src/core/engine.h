@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef PSX_MINECRAFT_ENGINE_H
-#define PSX_MINECRAFT_ENGINE_H
+#ifndef PSXMC_ENGINE_H
+#define PSXMC_ENGINE_H
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -20,4 +20,4 @@ void engineInit(Engine* engine, void* ctx);
 void engineRun(Engine* engine);
 void engineStop(Engine* engine);
 
-#endif // PSX_MINECRAFT_ENGINE_H
+#endif // PSXMC_ENGINE_H

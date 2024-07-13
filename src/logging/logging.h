@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef PSX_MINECRAFT_LOGGING_H
-#define PSX_MINECRAFT_LOGGING_H
+#ifndef PSXMC_LOGGING_H
+#define PSXMC_LOGGING_H
 
 #include <stdio.h>
 
@@ -15,4 +15,4 @@
 
 void errorAbort(const char* fmt, ...);
 
-#endif // PSX_MINECRAFT_LOGGING_H
+#endif // PSXMC_LOGGING_H

@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef PSX_MINECRAFT_CHUNK_H
-#define PSX_MINECRAFT_CHUNK_H
+#ifndef PSXMC_CHUNK_H
+#define PSXMC_CHUNK_H
 
 #include <psxgte.h>
 #include <stdbool.h>
@@ -85,4 +85,4 @@ void chunkUpdateLight(Chunk* chunk);
 void chunkUpdateAddLight(Chunk* chunk);
 void chunkUpdateRemoveLight(Chunk* chunk);
 
-#endif // PSX_MINECRAFT_CHUNK_H
+#endif // PSXMC_CHUNK_H

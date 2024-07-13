@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef PSX_MINECRAFT_CHUNK_GENERATOR_H
-#define PSX_MINECRAFT_CHUNK_GENERATOR_H
+#ifndef PSXMC_CHUNK_GENERATOR_H
+#define PSXMC_CHUNK_GENERATOR_H
 
 #include <psxgte.h>
 #include <interface99.h>
@@ -20,4 +20,4 @@ interface(IChunkGenerator);
         __VA_ARGS__ \
     } name
 
-#endif // PSX_MINECRAFT_CHUNK_GENERATOR_H
+#endif // PSXMC_CHUNK_GENERATOR_H

@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef PSX_MINECRAFT_CUBE_H
-#define PSX_MINECRAFT_CUBE_H
+#ifndef PSXMC_CUBE_H
+#define PSXMC_CUBE_H
 
 #include <sys/types.h>
 #include <stdint.h>
@@ -29,4 +29,4 @@ extern const INDEX CUBE_INDICES[FACE_DIRECTION_COUNT];
 
 void cubeRender(Cube* cube, RenderContext* ctx, Transforms* transforms);
 
-#endif //PSX_MINECRAFT_CUBE_H
+#endif //PSXMC_CUBE_H

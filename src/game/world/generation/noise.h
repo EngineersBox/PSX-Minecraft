@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef PSX_MINECRAFT_NOISE_H
-#define PSX_MINECRAFT_NOISE_H
+#ifndef PSXMC_NOISE_H
+#define PSXMC_NOISE_H
 
 #include <stdint.h>
 
@@ -55,4 +55,4 @@ int noise3d(int x, int y, int z);
 int noise2d(int x, int y);
 
 
-#endif // PSX_MINECRAFT_NOISE_H
+#endif // PSXMC_NOISE_H

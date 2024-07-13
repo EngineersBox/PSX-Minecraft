@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef _PSX_MINECRAFT__GAME_WORLD_CHUNK_MESHING__PLANE_MESHING_DATA_H_
-#define _PSX_MINECRAFT__GAME_WORLD_CHUNK_MESHING__PLANE_MESHING_DATA_H_
+#ifndef _PSXMC__GAME_WORLD_CHUNK_MESHING__PLANE_MESHING_DATA_H_
+#define _PSXMC__GAME_WORLD_CHUNK_MESHING__PLANE_MESHING_DATA_H_
 
 #include "../chunk_structure.h"
 #include "../../../util/inttypes.h"
@@ -28,4 +28,4 @@ typedef struct {
 int plane_meshing_data_compare(const void* a, const void* b, void* ignored);
 u64 plane_meshing_data_hash(const void* item, u64 seed0, u64 seed1);
 
-#endif // _PSX_MINECRAFT__GAME_WORLD_CHUNK_MESHING__PLANE_MESHING_DATA_H_
+#endif // _PSXMC__GAME_WORLD_CHUNK_MESHING__PLANE_MESHING_DATA_H_

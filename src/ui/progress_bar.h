@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef PSX_MINECRAFT_LOADING_BAR_H
-#define PSX_MINECRAFT_LOADING_BAR_H
+#ifndef PSXMC_LOADING_BAR_H
+#define PSXMC_LOADING_BAR_H
 
 #include <psxgte.h>
 
@@ -22,4 +22,4 @@ typedef struct {
 
 void progressBarRender(const ProgressBar* bar, int ot_entry, RenderContext* ctx);
 
-#endif // PSX_MINECRAFT_LOADING_BAR_H
+#endif // PSXMC_LOADING_BAR_H

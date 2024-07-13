@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef _PSX_MINECRAFT__LIGHTING__LIGHTMAP_H_
-#define _PSX_MINECRAFT__LIGHTING__LIGHTMAP_H_
+#ifndef _PSXMC__LIGHTING__LIGHTMAP_H_
+#define _PSXMC__LIGHTING__LIGHTMAP_H_
 
 #include <psxgte.h>
 
@@ -19,4 +19,4 @@ void lightMapSetValue(LightMap lightmap, const VECTOR position, u8 light_value, 
 u8 lightMapGetType(const LightMap lightmap, const VECTOR position, const LightType light_type);
 u16 lightMapGetValue(const LightMap lightmap, const VECTOR position);
 
-#endif // _PSX_MINECRAFT__LIGHTING__LIGHTMAP_H_
+#endif // _PSXMC__LIGHTING__LIGHTMAP_H_

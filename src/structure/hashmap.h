@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef _PSX_MINECRAFT__STRUCTURE__HASHMAP_H_
-#define _PSX_MINECRAFT__STRUCTURE__HASHMAP_H_
+#ifndef _PSXMC__STRUCTURE__HASHMAP_H_
+#define _PSXMC__STRUCTURE__HASHMAP_H_
 
 // Copyright 2020 Joshua J Baker. All rights reserved.
 // Use of this source code is governed by an MIT-style
@@ -61,4 +61,4 @@ void hashmap_set_allocator(void *(*malloc)(size_t), void (*free)(void*));
 }
 #endif  // __cplusplus
 
-#endif // _PSX_MINECRAFT__STRUCTURE__HASHMAP_H_
+#endif // _PSXMC__STRUCTURE__HASHMAP_H_

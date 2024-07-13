@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef PSX_MINECRAFT_INTTYPES_H
-#define PSX_MINECRAFT_INTTYPES_H
+#ifndef PSXMC_INTTYPES_H
+#define PSXMC_INTTYPES_H
 
 #include <stdint.h>
 
@@ -20,4 +20,4 @@ typedef int64_t i64;
 typedef i32 fixedi32;
 typedef i64 fixedi64;
 
-#endif // PSX_MINECRAFT_INTTYPES_H
+#endif // PSXMC_INTTYPES_H

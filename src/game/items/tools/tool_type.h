@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef _PSX_MINECRAFT__GAME_ITEMS_TOOLS__TOOL_TYPE_H_
-#define _PSX_MINECRAFT__GAME_ITEMS_TOOLS__TOOL_TYPE_H_
+#ifndef _PSXMC__GAME_ITEMS_TOOLS__TOOL_TYPE_H_
+#define _PSXMC__GAME_ITEMS_TOOLS__TOOL_TYPE_H_
 
 #define TOOL_TYPE_COUNT 7
 #define TOOL_TYPE_COUNT_BITS 3
@@ -24,4 +24,4 @@ typedef enum ToolType {
     | ((hoe) << TOOLTYPE_HOE) \
 ))
 
-#endif // _PSX_MINECRAFT__GAME_ITEMS_TOOLS__TOOL_TYPE_H_
+#endif // _PSXMC__GAME_ITEMS_TOOLS__TOOL_TYPE_H_

@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef _PSX_MINECRAFT__RENDER__FRUSTUM_H_
-#define _PSX_MINECRAFT__RENDER__FRUSTUM_H_
+#ifndef _PSXMC__RENDER__FRUSTUM_H_
+#define _PSXMC__RENDER__FRUSTUM_H_
 
 #include "../physics/aabb.h"
 #include "../structure/primitive/plane.h"
@@ -43,4 +43,4 @@ void frustumRestore(Frustum* frustum);
 
 FrustumQueryResult frustumContainsAABB(const Frustum* frustum, const AABB* aabb);
 
-#endif // _PSX_MINECRAFT__RENDER__FRUSTUM_H_
+#endif // _PSXMC__RENDER__FRUSTUM_H_

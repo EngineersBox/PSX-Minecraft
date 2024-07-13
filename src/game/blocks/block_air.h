@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef PSX_MINECRAFT_BLOCK_AIR_H
-#define PSX_MINECRAFT_BLOCK_AIR_H
+#ifndef PSXMC_BLOCK_AIR_H
+#define PSXMC_BLOCK_AIR_H
 
 #include <stdbool.h>
 #include <interface99.h>
@@ -40,4 +40,4 @@ IItem* AirBlock_provideItem(VSelf);
 #define AirBlock_isOpaque_CUSTOM ()
 impl(IBlock, AirBlock);
 
-#endif // PSX_MINECRAFT_BLOCK_AIR_H
+#endif // PSXMC_BLOCK_AIR_H

@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef PSX_MINECRAFT_RENDERABLE_H
-#define PSX_MINECRAFT_RENDERABLE_H
+#ifndef PSXMC_RENDERABLE_H
+#define PSXMC_RENDERABLE_H
 
 #include <interface99.h>
 
@@ -18,4 +18,4 @@
 
 interface(Renderable);
 
-#endif // PSX_MINECRAFT_RENDERABLE_H
+#endif // PSXMC_RENDERABLE_H

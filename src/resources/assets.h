@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef PSX_MINECRAFT_ASSETS_H
-#define PSX_MINECRAFT_ASSETS_H
+#ifndef PSXMC_ASSETS_H
+#define PSXMC_ASSETS_H
 
 #include <stdbool.h>
 #include <psxgpu.h>
@@ -23,4 +23,4 @@ void assetLoadModel(const SMD* smd);
 void assetsLoad();
 void assetsFree();
 
-#endif // PSX_MINECRAFT_ASSETS_H
+#endif // PSXMC_ASSETS_H

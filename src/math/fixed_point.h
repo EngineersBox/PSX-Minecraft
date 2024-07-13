@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef _PSX_MINECRAFT__MATH__FIXED_POINT_H_
-#define _PSX_MINECRAFT__MATH__FIXED_POINT_H_
+#ifndef _PSXMC__MATH__FIXED_POINT_H_
+#define _PSXMC__MATH__FIXED_POINT_H_
 
 #include "../util/inttypes.h"
 
@@ -82,4 +82,4 @@ i32 cos5o(i16 i);
     _v - positiveModulo(_v, (factor)); \
 })
 
-#endif // _PSX_MINECRAFT__MATH__FIXED_POINT_H_
+#endif // _PSXMC__MATH__FIXED_POINT_H_

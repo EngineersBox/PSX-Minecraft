@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef PSX_MINECRAFT_TEXTURE_H
-#define PSX_MINECRAFT_TEXTURE_H
+#ifndef PSXMC_TEXTURE_H
+#define PSXMC_TEXTURE_H
 
 #include <psxgte.h>
 
@@ -62,4 +62,4 @@ typedef struct {
 )
 #define defaultFaceAttributes(index) declareFaceAttributes(index, index, index, index, index, index)
 
-#endif // PSX_MINECRAFT_TEXTURE_H
+#endif // PSXMC_TEXTURE_H

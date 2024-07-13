@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef _PSX_MINECRAFT__GAME_WORLD__WORLD_RAYCAST_H_
-#define _PSX_MINECRAFT__GAME_WORLD__WORLD_RAYCAST_H_
+#ifndef _PSXMC__GAME_WORLD__WORLD_RAYCAST_H_
+#define _PSXMC__GAME_WORLD__WORLD_RAYCAST_H_
 
 #include <psxgte.h>
 
@@ -22,4 +22,4 @@ typedef struct {
 
 RayCastResult worldRayCastIntersection(const World* world, const Camera* camera, i32 radius);
 
-#endif // _PSX_MINECRAFT__GAME_WORLD__WORLD_RAYCAST_H_
+#endif // _PSXMC__GAME_WORLD__WORLD_RAYCAST_H_

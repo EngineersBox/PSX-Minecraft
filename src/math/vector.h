@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef _PSX_MINECRAFT__MATH__VECTOR_H_
-#define _PSX_MINECRAFT__MATH__VECTOR_H_
+#ifndef _PSXMC__MATH__VECTOR_H_
+#define _PSXMC__MATH__VECTOR_H_
 
 #include <psxgte.h>
 
@@ -298,4 +298,4 @@ VECTOR rotationToDirection5o(const VECTOR* rotation);
 
 extern const SVECTOR VEC3_I16_ZERO;
 
-#endif // _PSX_MINECRAFT__MATH__VECTOR_H_
+#endif // _PSXMC__MATH__VECTOR_H_

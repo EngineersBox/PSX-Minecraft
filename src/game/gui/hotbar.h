@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef PSX_MINECRAFT_HOTBAR_H
-#define PSX_MINECRAFT_HOTBAR_H
+#ifndef PSXMC_HOTBAR_H
+#define PSXMC_HOTBAR_H
 
 #include "../../ui/ui.h"
 #include "../../structure/cvector.h"
@@ -45,4 +45,4 @@ void Hotbar_registerInputHandler(VSelf, Input* input, void* ctx);
 impl(IInputHandler, Hotbar);
 impl(IUI, Hotbar);
 
-#endif // PSX_MINECRAFT_HOTBAR_H
+#endif // PSXMC_HOTBAR_H

@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef PSX_MINECRAFT_PREPROCESSOR_H
-#define PSX_MINECRAFT_PREPROCESSOR_H
+#ifndef PSXMC_PREPROCESSOR_H
+#define PSXMC_PREPROCESSOR_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -155,4 +155,4 @@
     (p)->code[0] &= ~((u32) 3 << 5); \
     (p)->code[0] |= (st) << 5
 
-#endif // PSX_MINECRAFT_PREPROCESSOR_H
+#endif // PSXMC_PREPROCESSOR_H

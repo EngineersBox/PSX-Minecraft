@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef PSX_MINECRAFT_BLOCK_ID_H
-#define PSX_MINECRAFT_BLOCK_ID_H
+#ifndef PSXMC_BLOCK_ID_H
+#define PSXMC_BLOCK_ID_H
 
 #include "../../util/preprocessor.h"
 
@@ -36,4 +36,4 @@ extern const char* EBLOCKID_NAMES[];
 
 #define blockIdStringify(id) EBLOCKID_NAMES[(id)]
 
-#endif // PSX_MINECRAFT_BLOCK_ID_H
+#endif // PSXMC_BLOCK_ID_H

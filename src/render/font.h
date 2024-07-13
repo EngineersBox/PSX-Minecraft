@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef PSX_MINECRAFT_FONT_H
-#define PSX_MINECRAFT_FONT_H
+#ifndef PSXMC_FONT_H
+#define PSXMC_FONT_H
 
 #include <stdbool.h>
 
@@ -25,4 +25,4 @@ void* fontSort(u32* ordering_table, void* primitive, int x, int y, bool shadow, 
 int fontPrint(FontID id, const char* fmt, ...);
 void* fontFlush(FontID id);
 
-#endif // PSX_MINECRAFT_FONT_H
+#endif // PSXMC_FONT_H

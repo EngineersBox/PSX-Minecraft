@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef PSX_MINECRAFT_BLOCK_DIRT_H
-#define PSX_MINECRAFT_BLOCK_DIRT_H
+#ifndef PSXMC_BLOCK_DIRT_H
+#define PSXMC_BLOCK_DIRT_H
 
 #include <interface99.h>
 
@@ -42,4 +42,4 @@ ALLOC_CALL(itemDestroy, 1) IItem* DirtBlock_provideItem(VSelf);
 impl(IBlock, DirtBlock);
 
 
-#endif // PSX_MINECRAFT_BLOCK_DIRT_H
+#endif // PSXMC_BLOCK_DIRT_H

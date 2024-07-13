@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef PSX_MINECRAFT_COUNTERS_H
-#define PSX_MINECRAFT_COUNTERS_H
+#ifndef PSXMC_COUNTERS_H
+#define PSXMC_COUNTERS_H
 
 #include <stdint.h>
 #include <hwregs_c.h>
@@ -108,4 +108,4 @@ typedef union {
 typedef u32 Timestamp;
 extern volatile Timestamp time_ms;
 
-#endif // PSX_MINECRAFT_COUNTERS_H
+#endif // PSXMC_COUNTERS_H

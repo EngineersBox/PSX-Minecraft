@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef PSX_MINECRAFT_AXIS_H
-#define PSX_MINECRAFT_AXIS_H
+#ifndef PSXMC_AXIS_H
+#define PSXMC_AXIS_H
 
 #include "../render/render_context.h"
 #include "../render/transforms.h"
@@ -9,4 +9,4 @@
 
 void axisDraw(RenderContext* ctx, const Transforms* transforms, const Camera* camera);
 
-#endif // PSX_MINECRAFT_AXIS_H
+#endif // PSXMC_AXIS_H

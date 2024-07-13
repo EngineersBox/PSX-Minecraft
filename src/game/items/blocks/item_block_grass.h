@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef PSX_MINECRAFT_ITEM_BLOCK_GRASS_H
-#define PSX_MINECRAFT_ITEM_BLOCK_GRASS_H
+#ifndef PSXMC_ITEM_BLOCK_GRASS_H
+#define PSXMC_ITEM_BLOCK_GRASS_H
 
 #include <interface99.h>
 
@@ -58,4 +58,4 @@ impl(IItem, GrassItemBlock);
 
 ALLOC_CALL(GrassItemBlock_destroy, 1) GrassItemBlock* grassItemBlockCreate();
 
-#endif // PSX_MINECRAFT_ITEM_BLOCK_GRASS_H
+#endif // PSXMC_ITEM_BLOCK_GRASS_H

@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef PSX_MINECRAFT_INVENTORY_H
-#define PSX_MINECRAFT_INVENTORY_H
+#ifndef PSXMC_INVENTORY_H
+#define PSXMC_INVENTORY_H
 
 #include "slot.h"
 #include "hotbar.h"
@@ -89,4 +89,4 @@ void Inventory_registerInputHandler(VSelf, Input* input, void* ctx);
 impl(IInputHandler, Inventory);
 impl(IUI, Inventory);
 
-#endif // PSX_MINECRAFT_INVENTORY_H
+#endif // PSXMC_INVENTORY_H

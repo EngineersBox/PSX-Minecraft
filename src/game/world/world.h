@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef PSX_MINECRAFT_WORLD_H
-#define PSX_MINECRAFT_WORLD_H
+#ifndef PSXMC_WORLD_H
+#define PSXMC_WORLD_H
 
 #include <stdbool.h>
 
@@ -108,4 +108,4 @@ void worldSetLightValueChunkBlock(const World* world,
                                   u8 light_value,
                                   const LightType light_type);
 
-#endif // PSX_MINECRAFT_WORLD_H
+#endif // PSXMC_WORLD_H

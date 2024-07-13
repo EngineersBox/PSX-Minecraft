@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef PSX_MINECRAFT_POSITION_H
-#define PSX_MINECRAFT_POSITION_H
+#ifndef PSXMC_POSITION_H
+#define PSXMC_POSITION_H
 
 #include <psxgte.h>
 
@@ -13,4 +13,4 @@ typedef struct {
 ChunkBlockPosition worldToChunkBlockPosition(const VECTOR* position, int chunk_size);
 VECTOR chunkBlockToWorldPosition(const ChunkBlockPosition* position, int chunk_size);
 
-#endif // PSX_MINECRAFT_POSITION_H
+#endif // PSXMC_POSITION_H

@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef PSX_MINECRAFT_UI_H
-#define PSX_MINECRAFT_UI_H
+#ifndef PSXMC_UI_H
+#define PSXMC_UI_H
 
 #include <stdbool.h>
 #include <psxgte.h>
@@ -54,4 +54,4 @@ void uiRender(const UI* ui, RenderContext* ctx, Transforms* transforms);
 
 IUIComponent* uiAddComponent(UI* ui);
 
-#endif // PSX_MINECRAFT_UI_H
+#endif // PSXMC_UI_H

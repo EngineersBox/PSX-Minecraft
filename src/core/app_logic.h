@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef PSX_MINECRAFT_APP_LOGIC_H
-#define PSX_MINECRAFT_APP_LOGIC_H
+#ifndef PSXMC_APP_LOGIC_H
+#define PSXMC_APP_LOGIC_H
 
 #include <interface99.h>
 #include <stdint.h>
@@ -21,4 +21,4 @@ typedef struct {
 
 interface(AppLogic);
 
-#endif // PSX_MINECRAFT_APP_LOGIC_H
+#endif // PSXMC_APP_LOGIC_H

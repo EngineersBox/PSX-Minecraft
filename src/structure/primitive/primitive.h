@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef PSX_MINECRAFT_PRIMITIVE_H
-#define PSX_MINECRAFT_PRIMITIVE_H
+#ifndef PSXMC_PRIMITIVE_H
+#define PSXMC_PRIMITIVE_H
 
 #include <psxgpu.h>
 #include <stdbool.h>
@@ -24,4 +24,4 @@ void lineF2Render(const LINE_F2* line, int ot_entry, RenderContext* ctx);
 void polyF4Render(const POLY_F4* pol4, int ot_entry, RenderContext* ctx);
 void polyFT4Render(const POLY_FT4* pol4, int ot_entry, RenderContext* ctx);
 
-#endif //PSX_MINECRAFT_PRIMITIVE_H
+#endif //PSXMC_PRIMITIVE_H

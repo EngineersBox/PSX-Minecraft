@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef PSX_MINECRAFT_ITEM_BLOCK_DIRT_H
-#define PSX_MINECRAFT_ITEM_BLOCK_DIRT_H
+#ifndef PSXMC_ITEM_BLOCK_DIRT_H
+#define PSXMC_ITEM_BLOCK_DIRT_H
 
 #include <stddef.h>
 #include <interface99.h>
@@ -60,4 +60,4 @@ impl(IItem, DirtItemBlock);
 
 ALLOC_CALL(DirtItemBlock_destroy, 1) DirtItemBlock* dirtItemBlockCreate();
 
-#endif // PSX_MINECRAFT_ITEM_BLOCK_DIRT_H
+#endif // PSXMC_ITEM_BLOCK_DIRT_H

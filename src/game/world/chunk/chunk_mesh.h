@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef PSX_MINECRAFT_CHUNK_MESH_H
-#define PSX_MINECRAFT_CHUNK_MESH_H
+#ifndef PSXMC_CHUNK_MESH_H
+#define PSXMC_CHUNK_MESH_H
 
 #include <smd/smd.h>
 
@@ -55,4 +55,4 @@ void chunkMeshClear(ChunkMesh* mesh);
 void chunkMeshRenderFaceDirection(const Mesh* mesh, RenderContext* ctx, Transforms* transforms);
 void chunkMeshRender(const ChunkMesh* mesh, RenderContext* ctx, Transforms* transforms);
 
-#endif // PSX_MINECRAFT_CHUNK_MESH_H
+#endif // PSXMC_CHUNK_MESH_H

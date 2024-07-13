@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef PSX_MINECRAFT_CIRCULAR_BUFFER_H
-#define PSX_MINECRAFT_CIRCULAR_BUFFER_H
+#ifndef PSXMC_CIRCULAR_BUFFER_H
+#define PSXMC_CIRCULAR_BUFFER_H
 
 #include <stdint.h>
 
@@ -25,4 +25,4 @@ typedef struct {
 
 void circularBufferPush(CircularBuffer* buf, uint8_t data);
 
-#endif // PSX_MINECRAFT_CIRCULAR_BUFFER_H
+#endif // PSXMC_CIRCULAR_BUFFER_H

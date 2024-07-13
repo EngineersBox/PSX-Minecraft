@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef PSX_MINECRAFT_ITEM_H
-#define PSX_MINECRAFT_ITEM_H
+#ifndef PSXMC_ITEM_H
+#define PSXMC_ITEM_H
 
 #include <interface99.h>
 #include <stdint.h>
@@ -142,4 +142,4 @@ ALLOC_CALL(itemDestroy, 1) IItem* itemCreate();
 )
 #define declareSimpleItem(_id, _durability) declareSimpleItemMeta(_id, 0, _durability)
 
-#endif // PSX_MINECRAFT_ITEM_H
+#endif // PSXMC_ITEM_H

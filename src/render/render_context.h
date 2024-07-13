@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef PSX_MINECRAFT_RENDER_CONTEXT_H
-#define PSX_MINECRAFT_RENDER_CONTEXT_H
+#ifndef PSXMC_RENDER_CONTEXT_H
+#define PSXMC_RENDER_CONTEXT_H
 
 #include <psxgpu.h>
 #include <psxgte.h>
@@ -56,4 +56,4 @@ char* allocatePrimitive(RenderContext* ctx, size_t size);
 void freePrimitive(RenderContext* ctx, size_t size);
 uint32_t* allocateOrderingTable(RenderContext* ctx, size_t size);
 
-#endif // PSX_MINECRAFT_RENDER_CONTEXT_H
+#endif // PSXMC_RENDER_CONTEXT_H

@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef PSX_MINECRAFT_CLOCK_H
-#define PSX_MINECRAFT_CLOCK_H
+#ifndef PSXMC_CLOCK_H
+#define PSXMC_CLOCK_H
 
 #define OSCILLATOR_HZ 44100
 // As per:
@@ -13,4 +13,4 @@
 // Roughly 0x844d, which is smaller than 0xffff
 #define CPU_CYCLES_PER_MS (CPU_CLOCK_HZ / 1000)
 
-#endif // PSX_MINECRAFT_CLOCK_H
+#endif // PSXMC_CLOCK_H

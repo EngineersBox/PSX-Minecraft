@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef PSX_MINECRAFT_BINDINGS_H
-#define PSX_MINECRAFT_BINDINGS_H
+#ifndef PSXMC_BINDINGS_H
+#define PSXMC_BINDINGS_H
 
 #include <psxpad.h>
 
@@ -27,4 +27,4 @@ extern PadButton BINDING_NEXT;
 
 extern PadButton BINDING_PAUSE;
 
-#endif // PSX_MINECRAFT_BINDINGS_H
+#endif // PSXMC_BINDINGS_H

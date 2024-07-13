@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef _PSX_MINECRAFT__GAME_ITEMS__ITEM_BLOCK_COBBLESTONE_H_
-#define _PSX_MINECRAFT__GAME_ITEMS__ITEM_BLOCK_COBBLESTONE_H_
+#ifndef _PSXMC__GAME_ITEMS__ITEM_BLOCK_COBBLESTONE_H_
+#define _PSXMC__GAME_ITEMS__ITEM_BLOCK_COBBLESTONE_H_
 
 #include <stddef.h>
 #include <interface99.h>
@@ -60,4 +60,4 @@ impl(IItem, CobblestoneItemBlock);
 
 ALLOC_CALL(CobblestoneItemBlock_destroy, 1) CobblestoneItemBlock* cobblestoneItemBlockCreate();
 
-#endif // _PSX_MINECRAFT__GAME_ITEMS__ITEM_BLOCK_COBBLESTONE_H_
+#endif // _PSXMC__GAME_ITEMS__ITEM_BLOCK_COBBLESTONE_H_

@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef _PSX_MINECRAFT__GAME_WORLD_CHUNK__CHUNK_STRUCTURE_H_
-#define _PSX_MINECRAFT__GAME_WORLD_CHUNK__CHUNK_STRUCTURE_H_
+#ifndef _PSXMC__GAME_WORLD_CHUNK__CHUNK_STRUCTURE_H_
+#define _PSXMC__GAME_WORLD_CHUNK__CHUNK_STRUCTURE_H_
 
 #include "../../../structure/cvector.h"
 #include "chunk_mesh.h"
@@ -48,4 +48,4 @@ typedef struct Chunk {
     cvector(IItem*) dropped_items;
 } Chunk;
 
-#endif // _PSX_MINECRAFT__GAME_WORLD_CHUNK__CHUNK_STRUCTURE_H_
+#endif // _PSXMC__GAME_WORLD_CHUNK__CHUNK_STRUCTURE_H_

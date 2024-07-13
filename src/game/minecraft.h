@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef PSX_MINECRAFT_MINECRAFT_H
-#define PSX_MINECRAFT_MINECRAFT_H
+#ifndef PSXMC_MINECRAFT_H
+#define PSXMC_MINECRAFT_H
 
 #include <interface99.h>
 
@@ -41,4 +41,4 @@ void minecraftRender(VSelf, const Stats* stats);
 
 impl(AppLogic, Minecraft);
 
-#endif // PSX_MINECRAFT_MINECRAFT_H
+#endif // PSXMC_MINECRAFT_H

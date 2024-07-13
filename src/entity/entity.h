@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef PSX_MINECRAFT_ENTITY_H
-#define PSX_MINECRAFT_ENTITY_H
+#ifndef PSXMC_ENTITY_H
+#define PSXMC_ENTITY_H
 
 #include <interface99.h>
 #include <stdbool.h>
@@ -42,4 +42,4 @@ void IEntity_kill(VSelf);
 
 interface(IEntity);
 
-#endif // PSX_MINECRAFT_ENTITY_H
+#endif // PSXMC_ENTITY_H

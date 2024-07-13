@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef PSX_MINECRAFT_PHYSICS_OBJECT_H
-#define PSX_MINECRAFT_PHYSICS_OBJECT_H
+#ifndef PSXMC_PHYSICS_OBJECT_H
+#define PSXMC_PHYSICS_OBJECT_H
 
 #include <psxgte.h>
 #include <psxgpu.h>
@@ -116,4 +116,4 @@ void IPhysicsObject_moveFlying(VSelf, i32 move_strafe, i32 move_forward, const i
 
 interface(IPhysicsObject);
 
-#endif // PSX_MINECRAFT_PHYSICS_OBJECT_H
+#endif // PSXMC_PHYSICS_OBJECT_H

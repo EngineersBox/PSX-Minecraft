@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef PSX_MINECRAFT_PLAYER_H
-#define PSX_MINECRAFT_PLAYER_H
+#ifndef PSXMC_PLAYER_H
+#define PSXMC_PLAYER_H
 
 #include <psxgte.h>
 #include <stdbool.h>
@@ -57,4 +57,4 @@ void Player_registerInputHandler(VSelf, Input* input, void* ctx);
 
 impl(IInputHandler, Player);
 
-#endif // PSX_MINECRAFT_PLAYER_H
+#endif // PSXMC_PLAYER_H

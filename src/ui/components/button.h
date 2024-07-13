@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef PSX_MINECRAFT_BUTTON_H
-#define PSX_MINECRAFT_BUTTON_H
+#ifndef PSXMC_BUTTON_H
+#define PSXMC_BUTTON_H
 
 #include <stdbool.h>
 
@@ -20,4 +20,4 @@ void UIButton_render(VSelf, RenderContext* ctx, Transforms* transforms);
 
 impl(IUIComponent, UIButton);
 
-#endif // PSX_MINECRAFT_BUTTON_H
+#endif // PSXMC_BUTTON_H

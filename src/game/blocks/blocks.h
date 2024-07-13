@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef PSX_MINECRAFT_BLOCKS_H
-#define PSX_MINECRAFT_BLOCKS_H
+#ifndef PSXMC_BLOCKS_H
+#define PSXMC_BLOCKS_H
 
 #include "../../util/inttypes.h"
 #include "block_id.h"
@@ -39,4 +39,4 @@ bool blockCanHarvest(ToolType block_tool_type,
 
 void blocksInitialiseBuiltin();
 
-#endif // PSX_MINECRAFT_BLOCKS_H
+#endif // PSXMC_BLOCKS_H

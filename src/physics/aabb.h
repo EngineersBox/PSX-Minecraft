@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef PSX_MINECRAFT_AABB_H
-#define PSX_MINECRAFT_AABB_H
+#ifndef PSXMC_AABB_H
+#define PSXMC_AABB_H
 
 #include <stdbool.h>
 #include <psxgte.h>
@@ -22,4 +22,4 @@ i32 aabbZOffset(const AABB* source, const AABB* target, i32 z);
 
 bool aabbIntersects(const AABB* a, const AABB* b);
 
-#endif // PSX_MINECRAFT_AABB_H
+#endif // PSXMC_AABB_H

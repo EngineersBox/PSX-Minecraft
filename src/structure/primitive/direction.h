@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef _PSX_MINECRAFT__STRUCTURE_PRIMITIVE__DIRECTION_H_
-#define _PSX_MINECRAFT__STRUCTURE_PRIMITIVE__DIRECTION_H_
+#ifndef _PSXMC__STRUCTURE_PRIMITIVE__DIRECTION_H_
+#define _PSXMC__STRUCTURE_PRIMITIVE__DIRECTION_H_
 
 #include <psxgte.h>
 
@@ -72,4 +72,4 @@ FaceDirection faceDirectionRelative(FaceDirection target_direction,
                                     FaceDirection right_direction,
                                     FaceDirection up_direction);
 
-#endif // _PSX_MINECRAFT__STRUCTURE_PRIMITIVE__DIRECTION_H_
+#endif // _PSXMC__STRUCTURE_PRIMITIVE__DIRECTION_H_

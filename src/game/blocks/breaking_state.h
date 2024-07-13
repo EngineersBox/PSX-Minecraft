@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef _PSX_MINECRAFT__GAME_BLOCKS__BREAKING_STATE_H_
-#define _PSX_MINECRAFT__GAME_BLOCKS__BREAKING_STATE_H_
+#ifndef _PSXMC__GAME_BLOCKS__BREAKING_STATE_H_
+#define _PSXMC__GAME_BLOCKS__BREAKING_STATE_H_
 
 #include <psxgte.h>
 #include <stdbool.h>
@@ -114,4 +114,4 @@ void breakingStateCalculateVisibility(BreakingState* state, const World* world);
  */
 void breakingStateUpdateRenderTarget(BreakingState* state, RenderContext* ctx);
 
-#endif // _PSX_MINECRAFT__GAME_BLOCKS__BREAKING_STATE_H_
+#endif // _PSXMC__GAME_BLOCKS__BREAKING_STATE_H_

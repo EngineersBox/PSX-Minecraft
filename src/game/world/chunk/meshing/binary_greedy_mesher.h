@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef _PSX_MINECRAFT__GAME_WORLD_GENERATION__BINARY_GREEDY_MESHER_H_
-#define _PSX_MINECRAFT__GAME_WORLD_GENERATION__BINARY_GREEDY_MESHER_H_
+#ifndef _PSXMC__GAME_WORLD_GENERATION__BINARY_GREEDY_MESHER_H_
+#define _PSXMC__GAME_WORLD_GENERATION__BINARY_GREEDY_MESHER_H_
 
 #include "../chunk_structure.h"
 #include "../../../../util/inttypes.h"
@@ -25,4 +25,4 @@ void binaryGreedyMesherConstructPlane(Chunk* chunk,
 
 void binaryGreedyMesherConstructBreakingOverlay(Chunk* chunk, const BreakingState* breaking_state);
 
-#endif // _PSX_MINECRAFT__GAME_WORLD_GENERATION__BINARY_GREEDY_MESHER_H_
+#endif // _PSXMC__GAME_WORLD_GENERATION__BINARY_GREEDY_MESHER_H_

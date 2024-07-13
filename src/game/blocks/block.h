@@ -1,6 +1,6 @@
 
-#ifndef PSX_MINECRAFT_BLOCK_H
-#define PSX_MINECRAFT_BLOCK_H
+#ifndef PSXMC_BLOCK_H
+#define PSXMC_BLOCK_H
 
 #include <stdbool.h>
 #include <interface99.h>
@@ -158,4 +158,4 @@ typedef IBlock* (*BlockConstructor)(IItem* from_item);
     P99_PROTECT(face_attributes) \
 )
 
-#endif // PSX_MINECRAFT_BLOCK_H
+#endif // PSXMC_BLOCK_H

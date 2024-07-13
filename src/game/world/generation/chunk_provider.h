@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef PSX_MINECRAFT_CHUNK_PROVIDER_H
-#define PSX_MINECRAFT_CHUNK_PROVIDER_H
+#ifndef PSXMC_CHUNK_PROVIDER_H
+#define PSXMC_CHUNK_PROVIDER_H
 
 #include <interface99.h>
 #include <stdbool.h>
@@ -22,4 +22,4 @@ interface(IChunkProvider);
         __VA_ARGS__ \
     } name
 
-#endif // PSX_MINECRAFT_CHUNK_PROVIDER_H
+#endif // PSXMC_CHUNK_PROVIDER_H

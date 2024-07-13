@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef PSX_MINECRAFT_ITEM_BLOCK_STONE_H
-#define PSX_MINECRAFT_ITEM_BLOCK_STONE_H
+#ifndef PSXMC_ITEM_BLOCK_STONE_H
+#define PSXMC_ITEM_BLOCK_STONE_H
 
 #include <stddef.h>
 #include <interface99.h>
@@ -59,4 +59,4 @@ impl(IItem, StoneItemBlock);
 
 ALLOC_CALL(StoneItemBlock_destroy, 1) StoneItemBlock* stoneItemBlockCreate();
 
-#endif // PSX_MINECRAFT_ITEM_BLOCK_STONE_H
+#endif // PSXMC_ITEM_BLOCK_STONE_H

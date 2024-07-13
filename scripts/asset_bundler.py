@@ -187,11 +187,11 @@ def generate_defines(lzp_project: ET.Element) -> str:
         pack_index += 1
     return """#pragma once
 
-#ifndef PSX_MINECRAFT_ASSET_INDICES_H
-#define PSX_MINECRAFT_ASSET_INDICES_H
+#ifndef PSXMC_ASSET_INDICES_H
+#define PSXMC_ASSET_INDICES_H
 
 """ + defines + """
-#endif // PSX_MINECRAFT_ASSET_INDICES_H    
+#endif // PSXMC_ASSET_INDICES_H    
 """
 
 def main():

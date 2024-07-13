@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef PSX_MINECRAFT_ITEM_BLOCK_H
-#define PSX_MINECRAFT_ITEM_BLOCK_H
+#ifndef PSXMC_ITEM_BLOCK_H
+#define PSXMC_ITEM_BLOCK_H
 
 #include <stdint.h>
 
@@ -78,4 +78,4 @@ void itemBlockRenderHand(ItemBlock* item, RenderContext* ctx, Transforms* transf
 
 void itemBlockApplyInventoryRenderAttributes(ItemBlock* item);
 
-#endif // PSX_MINECRAFT_ITEM_BLOCK_H
+#endif // PSXMC_ITEM_BLOCK_H

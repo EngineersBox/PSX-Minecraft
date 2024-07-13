@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef _PSX_MINECRAFT__GAME_ITEMS__ITEMS_H_
-#define _PSX_MINECRAFT__GAME_ITEMS__ITEMS_H_
+#ifndef _PSXMC__GAME_ITEMS__ITEMS_H_
+#define _PSXMC__GAME_ITEMS__ITEMS_H_
 
 #include "item.h"
 // These includes allow for only including items.h
@@ -26,4 +26,4 @@ extern ItemAttributes item_attributes[ITEM_COUNT];
 
 void itemsInitialiseBuiltin();
 
-#endif // _PSX_MINECRAFT__GAME_ITEMS__ITEMS_H_
+#endif // _PSXMC__GAME_ITEMS__ITEMS_H_
