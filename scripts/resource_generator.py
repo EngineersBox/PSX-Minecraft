@@ -9,12 +9,15 @@ env = Environment(
 
 @dataclass
 class Block:
+    # Structure
     name: str
     orientation: str
     type: str
     face_attributes: str
     tinted_face_attributes: str
     opaque_bitset: str
+    light_level: int
+    # Attributes
     slipperiness: str
     hardness: str
     resistance: str
@@ -23,6 +26,7 @@ class Block:
     tool_material: str
     can_harvest_bitset: str
     has_use_action: bool
+    # Generator metadata
     generator: str = "block"
 
 @dataclass
@@ -36,6 +40,9 @@ class ItemBlock:
 def generateBlock(block: Block) -> None:
     if ((block.face_attributes != None) == (block.tinted_face_attributes != None)):
         print("[ERROR] Cannot have both tinted and non-tinted face attributes")
+        exit(1)
+    if (block.light_level != None and (block.light_level < 0 or block.light_level > 15)):
+        print(f"[ERROR] Light level must be in range [0..15], got: {block.light_level}")
         exit(1)
     render_parameters = {
         "name_snake_upper": caseconverter.macrocase(block.name),
@@ -137,6 +144,7 @@ def main():
     parser_block.add_argument("--hardness", type=str, default="BLOCK_DEFAULT_HARDNESS", help="How difficult it is to use the relevant tool on")
     parser_block.add_argument("--resistance", type=str, default="BLOCK_DEFAULT_RESISTANCE", help="How resistant it is to explosions")
     parser_block.add_argument("--opaque_bitset", type=str, help="Face specific opacity where 1=opaque and 0=transparent of the form '<down>,<up>,<left>,<right>,<front>,<back>'")
+    parser_block.add_argument("--light_level", type=int, help="Light level emitted by the block, by default blocks dont emit light. Must be in the range [0..15]")
     parser_block.add_argument("--stateful", type=bool, action=argparse.BooleanOptionalAction, default=False, help="Whether the block should maintain state or be static (single instance)")
     parser_block.add_argument(
         "--tool_type",

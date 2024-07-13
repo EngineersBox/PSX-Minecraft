@@ -4,13 +4,13 @@
 #include "block_id.h"
 #include "../items/item_block_{{ name_snake_lower }}.h"
 
-{% if stateful %}
+{% if stateful -%}
 DEFN_BLOCK_CONSTRUCTOR_IMPL_STATEFUL({{ name_lower }}) {
     TODO("Constructor for {{ name_lower }} block");
 }
-{% else %}
+{%- else -%}
 DEFN_BLOCK_CONSTRUCTOR_IMPL_STATELESS({{ name_lower }}, {{ name_snake_upper }})
-{% endif %}
+{%- endif %}
 
 void {{ name_lower }}BlockInit(VSelf) ALIAS("{{ name_capital }}Block_init");
 void {{ name_capital }}Block_init(VSelf) {
@@ -18,13 +18,18 @@ void {{ name_capital }}Block_init(VSelf) {
     self->block = declareBlock(
         BLOCKID_{{ name_snake_upper }},
         0,
-        {{ type }},
+        {% if light_level != None -%}
+        {{ light_level }},
+        {%- endif %}
+        {% if opaque_bitset != None -%}
+        opacityBitset({{ opaque_bitset }}),
+        {%- endif %}
         {{ orientation }},
-{% if face_attributes != None %}
-        declareFaceAttributes({{ face_attributes }})
-{% elif tinted_face_attributes != None %}
+        {% if face_attributes != None -%}
+        defaultFaceAttributes({{ face_attributes }})
+        {%- elif tinted_face_attributes != None -%}
         declareTintedFaceAttributes({{ tinted_face_attributes }})
-{% endif %}
+        {%- endif %}
     );
 }
 
@@ -55,23 +60,9 @@ IItem* {{ name_capital }}Block_provideItem(VSelf) {
     return item;
 }
 
-{% if has_use_action %}
+{% if has_use_action -%}
 bool {{ name_lower }}BlockUseAction(VSelf) ALIAS("{{ name_capital }}Block_useAction");
 bool {{ name_capital }}Block_useAction(VSelf) {
     TODO("Implement use action for {{ name_lower }} block");
 }
-{% endif %}
-
-{% if opaque_bitset != None %}
-static const u8 {{ name_snake_upper }}_OPAQUE_BITSET = opacityBitset({{ opaque_bitset }});
-
-bool {{ name_lower }}BlockIsOpaque(VSelf, FaceDirection face_dir) ALIAS("{{ name_capital }}Block_isOpaque");
-bool {{ name_capital }}Block_isOpaque(VSelf, const FaceDirection face_dir) {
-    return ({{ name_snake_upper }}_OPAQUE_BITSET >> face_dir) & 0x1;
-}
-
-u8 {{ name_lower }}BlockOpaqueBitset(VSelf) ALIAS("{{ name_capital }}Block_opaqueBitset");
-u8 {{ name_capital }}Block_opaqueBitset(VSelf) {
-    return {{ name_snake_upper }}_OPAQUE_BITSET;
-}
-{% endif %}
+{%- endif %}
