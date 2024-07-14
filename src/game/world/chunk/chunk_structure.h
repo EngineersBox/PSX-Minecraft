@@ -45,6 +45,7 @@ typedef struct Chunk {
     IBlock* blocks[CHUNK_DATA_SIZE];
     LightMap lightmap;
     ChunkUpdates updates;
+    bool is_top;
     cvector(IItem*) dropped_items;
 } Chunk;
 

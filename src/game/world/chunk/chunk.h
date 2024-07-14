@@ -68,7 +68,7 @@ void chunkRender(Chunk* chunk, BreakingState* breaking_state, RenderContext* ctx
 IBlock* chunkGetBlock(const Chunk* chunk, i32 x, i32 y, i32 z);
 IBlock* chunkGetBlockVec(const Chunk* chunk, const VECTOR* position);
 
-void chunkUpdate(const Chunk* chunk, const Player* player);
+void chunkUpdate(Chunk* chunk, const Player* player);
 
 u8 chunkGetLightValue(Chunk* chunk,
                       const VECTOR* position,
