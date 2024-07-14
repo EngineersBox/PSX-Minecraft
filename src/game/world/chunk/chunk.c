@@ -522,7 +522,10 @@ void chunkUpdateAddLight(Chunk* chunk) {
                 continue;
             }
             const Block* block = VCAST_PTR(Block*, iblock);
-            if (blockGetType(block->id) == BLOCKTYPE_SOLID) {
+            // Skip propogating light if we are facing a solid block
+            // and the face in that direction is opaque
+            if (blockCanLightNotPropagate(block->id)
+                && !blockIsFaceOpaque(block, faceDirectionOpposing(i))) {
                 continue;
             }
             const u8 neighbour_light_level = worldGetLightValue(
@@ -581,7 +584,10 @@ void chunkUpdateRemoveLight(Chunk* chunk) {
                 continue;
             }
             const Block* block = VCAST_PTR(Block*, iblock);
-            if (blockCanLightNotPropagate(block->id)) {
+            // Skip propogating light if we are facing a solid block
+            // and the face in that direction is opaque
+            if (blockCanLightNotPropagate(block->id)
+                && !blockIsFaceOpaque(block, faceDirectionOpposing(i))) {
                 continue;
             }
             const ChunkBlockPosition block_pos = worldToChunkBlockPosition(

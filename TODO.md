@@ -58,6 +58,7 @@
 * [X] Set block orientation relative to face placed against
 * [X] Lightmapping with flood fill algorithm using LUTs for block light (adding and removing)
 * [X] Add lightmap indexes into mesh generated from BGM
+* [X] Consider `opacity_bitmap` for blocks that are true for `blockCanLightNoPropagate(id)`
 * [ ] Camera far plane cutoff with fog relative to chunk render distance
 * [ ] Frustum and culling
 * [ ] Depth-first search culling through chunks
@@ -71,7 +72,6 @@
 * [ ] If we are breaking a block on the boundary of chunks, we should pass the breaking context to both the target and neighbouring chunk in order for the mesh generation to account for the missing faces on the chunk boundary.
 * [ ] Sunlight updates for chunks
 * [ ] Procedural texturing for each quad in chunk mesh by rendering texture and light maps to off screen TPage and then using that to render to world.
-* [ ] Consider `opacity_bitmap` for blocks that are true for `blockCanLightNoPropagate(id)`
 
 ## Refactor
 

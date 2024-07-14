@@ -41,13 +41,13 @@ Remake of Minecraft for PS1 with PSn00bSDK
 
 Configuring the project can be done with
 
-```shell
+```bash
 cmake --preset default .
 ```
 
 Then the CD image can be built with
 
-```shell
+```bash
 cmake --build ./build
 ```
 
@@ -78,7 +78,7 @@ tooling and build the SDK. The following are optional arguments you can provide:
 
 Using this, we can build as follows:
 
-```shell
+```bash
 docker build -t psxmc:latest -f Dockerfile .
 ```
 
@@ -88,7 +88,7 @@ Using the above image, the utility script `build_container.sh` can be used to bu
 and compile the project, it essentially does the work of running the image, mounting directories,
 passing the right flags, etc.
 
-```
+```bash
 Usage: ./build_container.sh [<options>]
 Options:
     -h | --help                Print this help message
@@ -97,10 +97,11 @@ Options:
     -i | --image=<image:tag>   Specify which image to use when building (default: psxmc:latest)
 ```
 
-Initially, you'll want to run it as `./build_container.sh --output=./build --rebuild`, but then for
-later rebuilds when making changes to code, just run `./build_container.sh`. Include `--output=<directory>`
-if you want to use a different directory than the default. Note that you'll need to use this option every
-time you run the command in that case.
+> [!NOTE]
+> Initially, you'll want to run it as `./build_container.sh --output=./build --rebuild`, but then for
+> later rebuilds when making changes to code, just run `./build_container.sh`. Include `--output=<directory>`
+> if you want to use a different directory than the default. Note that you'll need to use this option every
+> time you run the command in that case.
 
 ### CLion
 
