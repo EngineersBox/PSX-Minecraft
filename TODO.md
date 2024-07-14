@@ -21,6 +21,7 @@
 * [X] Chunks with a negative component in position don't generate meshes correctly (incorrect faces and textures)
 * [X] Texture attributes on block item rendering in world and picked up items in inventory
 * [X] Resource generation script does not contain new attributes for `ItemBlock` instances
+* [X] Propagating light should be considered for blocks that are not solid, not just whether they are `BLOCKTYPE_EMPTY`
 * [ ] Mesh vertices z-depth is inconsistent leading to faces drawn in wrong order and thus culling fails
 * [ ] Vertices are distorted (in their location) when very close to the camera
 * [ ] Textures in terrain tpage with any `u` and `v >= 16` rendering multiple interleaved textures from different points in terrain texture page
@@ -70,6 +71,7 @@
 * [ ] If we are breaking a block on the boundary of chunks, we should pass the breaking context to both the target and neighbouring chunk in order for the mesh generation to account for the missing faces on the chunk boundary.
 * [ ] Sunlight updates for chunks
 * [ ] Procedural texturing for each quad in chunk mesh by rendering texture and light maps to off screen TPage and then using that to render to world.
+* [ ] Consider `opacity_bitmap` for blocks that are true for `blockCanLightNoPropagate(id)`
 
 ## Refactor
 

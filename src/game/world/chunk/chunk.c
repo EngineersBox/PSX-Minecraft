@@ -93,9 +93,40 @@ void chunkGenerateMesh(Chunk* chunk) {
     chunkGenerateMeshWithBreakingState(chunk, NULL);
 }
 
+bool chunkIsTop(Chunk* chunk) {
+    TODO(
+        "Generate heightmap for each set of chunks in the Y axis, \n"
+        "determine if this chunk is the top chunk by checking if \n"
+        "this chunk's bottom + top coords are the range of the heighmap"
+    );
+    return true; // Temp for now
+}
+
 void chunkGenerateLightmap(Chunk* chunk) {
     // 1. Propogate sunlight
-    TODO("Propogate sunlight into lightmap");
+    if (chunkIsTop(chunk)) {
+        for (int x = 0; x < CHUNK_SIZE; x++) {
+            for (int z = 0; z < CHUNK_SIZE; z++) {
+                const VECTOR position = vec3_i32(
+                    x,
+                    CHUNK_SIZE - 1,
+                    z
+                );
+                const IBlock* iblock = chunkGetBlockVec(chunk, &position);
+                assert(iblock != NULL);
+                const Block* block = VCAST_PTR(Block*, iblock);
+                if (blockCanLightNotPropagate(block->id)) {
+                    continue;
+                }
+                chunkSetLightValue(
+                    chunk,
+                    &position,
+                    15,
+                    LIGHT_TYPE_SKY
+                );
+            }
+        }
+    }
     // 2. Process any pending add light updates
     chunkUpdateAddLight(chunk);
 }
@@ -550,7 +581,7 @@ void chunkUpdateRemoveLight(Chunk* chunk) {
                 continue;
             }
             const Block* block = VCAST_PTR(Block*, iblock);
-            if (blockGetType(block->id) == BLOCKTYPE_SOLID) {
+            if (blockCanLightNotPropagate(block->id)) {
                 continue;
             }
             const ChunkBlockPosition block_pos = worldToChunkBlockPosition(
