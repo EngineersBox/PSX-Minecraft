@@ -13,13 +13,14 @@
 #define CHUNK_DATA_SIZE (CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE)
 #define CHUNK_DIRECTIONS 3
 #define CHUNK_AXIS_NEIGHBOURS (CHUNK_DIRECTIONS * 2)
+#define CHUNK_LIGHT_MAP_SIZE (CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE)
 
 #define chunkBlockIndex(x, y, z) ((z) + ((y) * CHUNK_SIZE) + ((x) * CHUNK_SIZE * CHUNK_SIZE))
 
 // Forward declaration
 typedef struct World World;
 typedef struct Chunk Chunk;
-typedef u8 LightMap[CHUNK_SIZE * CHUNK_SIZE  * CHUNK_SIZE];
+typedef u8 LightMap[CHUNK_LIGHT_MAP_SIZE];
 
 typedef struct LightAddNode {
     VECTOR position;
@@ -40,12 +41,12 @@ typedef struct ChunkUpdates {
 
 typedef struct Chunk {
     World* world;
+    bool is_top;
     VECTOR position;
     ChunkMesh mesh;
     IBlock* blocks[CHUNK_DATA_SIZE];
     LightMap lightmap;
     ChunkUpdates updates;
-    bool is_top;
     cvector(IItem*) dropped_items;
 } Chunk;
 

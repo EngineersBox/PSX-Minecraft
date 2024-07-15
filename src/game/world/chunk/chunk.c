@@ -3,6 +3,7 @@
 #include <cube.h>
 #include <inline_c.h>
 #include <stdbool.h>
+#include <string.h>
 
 #include "../../../logging/logging.h"
 #include "../../../math/math_utils.h"
@@ -48,6 +49,11 @@ void chunkInit(Chunk* chunk) {
         .light_add_queue = NULL,
         .light_remove_queue = NULL
     };
+    memset(
+        chunk->lightmap,
+        0,
+        sizeof(*chunk->lightmap) * CHUNK_LIGHT_MAP_SIZE
+    );
     cvector_init(chunk->updates.sunlight_queue, 0 ,NULL);
     cvector_init(chunk->updates.light_add_queue, 0, NULL);
     cvector_init(chunk->updates.light_remove_queue, 0, NULL);

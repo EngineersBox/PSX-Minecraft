@@ -55,11 +55,10 @@ void worldInit(World* world, RenderContext* ctx) {
     for (i32 x = x_start; x <= x_end; x++) {
         for (i32 z = z_start; z <= z_end; z++) {
             for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
-                Chunk* chunk = worldLoadChunk(world, (VECTOR){
-                                                  .vx = x,
-                                                  .vy = y,
-                                                  .vz = z
-                                              });
+                Chunk* chunk = worldLoadChunk(
+                    world,
+                    vec3_i32(x,y,z)
+                );
                 world->chunks[arrayCoord(world, vz, z)]
                              [arrayCoord(world, vx, x)]
                              [y] = chunk;
