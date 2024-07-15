@@ -52,7 +52,7 @@ void chunkInit(Chunk* chunk) {
     memset(
         chunk->lightmap,
         0,
-        sizeof(*chunk->lightmap) * CHUNK_LIGHT_MAP_SIZE
+        sizeof(*chunk->lightmap) * CHUNK_DATA_SIZE
     );
     cvector_init(chunk->updates.sunlight_queue, 0 ,NULL);
     cvector_init(chunk->updates.light_add_queue, 0, NULL);
@@ -100,7 +100,9 @@ void chunkGenerateMesh(Chunk* chunk) {
 }
 
 void chunkGenerateLightmap(Chunk* chunk) {
-    u8 heightmap[CHUNK_SIZE * CHUNK_SIZE] = {CHUNK_SIZE};
+    u8 heightmap[CHUNK_SIZE * CHUNK_SIZE] = {
+        [0 ... (CHUNK_SIZE * CHUNK_SIZE) - 1] = CHUNK_SIZE
+    };
     bool sunlight_column_finished[CHUNK_SIZE * CHUNK_SIZE] = {false};
     chunk->is_top = true;
     for (i32 y = CHUNK_SIZE - 1; y >= 0; y--) {
@@ -119,6 +121,7 @@ void chunkGenerateLightmap(Chunk* chunk) {
                     // the lightmap value directly since we determine the
                     // horizontal propagation based on a sunlight columns
                     // that are next to no sunlight columns later.
+                    DEBUG_LOG("[CHUNK] Light map set sun column " VEC_PATTERN "\n", x, y, z);
                     lightMapSetValue(
                         chunk->lightmap,
                         position,
@@ -153,12 +156,14 @@ void chunkGenerateLightmap(Chunk* chunk) {
                         || face_position.vz < 0 || face_position.vz >= CHUNK_SIZE) {
                         // On the chunk boundary, propagate to neighbouring chunk
                         // if posible.
+                        DEBUG_LOG("[CHUNK] Set light in border " VEC_PATTERN " (BEFORE)\n", x, y, z);
                         chunkSetLightValue(
                             chunk,
                             &position,
                             15,
                             LIGHT_TYPE_SKY
                         );
+                        DEBUG_LOG("[CHUNK] Set light in border " VEC_PATTERN " (AFTER)\n", x, y, z);
                     } else if (heightmap[(face_position.vx * CHUNK_SIZE) + face_position.vz] < y) {
                         // Highest block in facing direction is lower than this
                         // block, so it's just sunlight. We don't need to propagate
@@ -174,12 +179,14 @@ void chunkGenerateLightmap(Chunk* chunk) {
                         // Light can propagate in this direction, so we have at
                         // least one valid direction. Add this block to the queue
                         // and skip the rest of the direction checks here.
+                        DEBUG_LOG("[CHUNK] Set light in chunk" VEC_PATTERN " (BEFORE)\n", x, y, z);
                         chunkSetLightValue(
                             chunk,
                             &position,
                             15,
                             LIGHT_TYPE_SKY
                         );
+                        DEBUG_LOG("[CHUNK] Set light in chunk" VEC_PATTERN " (AFTER)\n", x, y, z);
                         break;
                     }
                 } 
@@ -499,7 +506,9 @@ void chunkSetLightValue(Chunk* chunk,
     if (checkIndexOOB(position->vx, position->vy, position->vz)) {
         return;
     }
+    DEBUG_LOG("Before lightmap set light\n");
     lightMapSetValue(chunk->lightmap, *position, light_value, light_type);
+    DEBUG_LOG("After lightmap set light\n");
     // Switch explicitly here instead of just using a ternary to get the
     // queue pointer since we may increase the size of the queue which
     // will mean the pointer is updated and thus we need to set the
@@ -513,10 +522,12 @@ void chunkSetLightValue(Chunk* chunk,
             }));
             break;
         case LIGHT_TYPE_SKY:
+            DEBUG_LOG("Before enqueue: %p\n", chunk->updates.sunlight_queue);
             cvector_push_back(chunk->updates.sunlight_queue, ((LightAddNode) {
                 *position,
                 chunk
             }));
+            DEBUG_LOG("After enqueue: %p\n", chunk->updates.sunlight_queue);
             break;
     }
 }
@@ -617,9 +628,9 @@ void chunkUpdateAddLight(Chunk* chunk) {
     }
     // Sky light
     while (!cvector_empty(chunk->updates.sunlight_queue)) {
-        const VECTOR current_pos = chunk->updates.light_add_queue[0].position;
-        Chunk* current_chunk = chunk->updates.light_add_queue[0].chunk;
-        cvector_erase(chunk->updates.light_add_queue, 0);
+        const VECTOR current_pos = chunk->updates.sunlight_queue[0].position;
+        Chunk* current_chunk = chunk->updates.sunlight_queue[0].chunk;
+        cvector_erase(chunk->updates.sunlight_queue, 0);
         const u8 light_level = lightMapGetType(
             current_chunk->lightmap,
             current_pos,

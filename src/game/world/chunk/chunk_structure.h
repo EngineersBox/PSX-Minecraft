@@ -13,14 +13,13 @@
 #define CHUNK_DATA_SIZE (CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE)
 #define CHUNK_DIRECTIONS 3
 #define CHUNK_AXIS_NEIGHBOURS (CHUNK_DIRECTIONS * 2)
-#define CHUNK_LIGHT_MAP_SIZE (CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE)
 
 #define chunkBlockIndex(x, y, z) ((z) + ((y) * CHUNK_SIZE) + ((x) * CHUNK_SIZE * CHUNK_SIZE))
 
 // Forward declaration
 typedef struct World World;
 typedef struct Chunk Chunk;
-typedef u8 LightMap[CHUNK_LIGHT_MAP_SIZE];
+typedef u8 LightMap[CHUNK_DATA_SIZE];
 
 typedef struct LightAddNode {
     VECTOR position;
