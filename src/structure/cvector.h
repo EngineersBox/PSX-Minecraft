@@ -261,6 +261,7 @@ typedef struct cvector_metadata_t {
     do {                                                              \
         size_t cv_cap__ = cvector_capacity(vec);                      \
         if (cv_cap__ <= cvector_size(vec)) {                          \
+            printf("[CVECTOR] Grow: %d <= %d\n", cv_cap__ <= cvector_size(vec)); \
             cvector_grow((vec), cvector_compute_next_grow(cv_cap__)); \
         }                                                             \
         (vec)[cvector_size(vec)] = (value);                           \
@@ -387,6 +388,7 @@ typedef struct cvector_metadata_t {
         if (vec) {                                                                    \
             void* cv_p1__ = cvector_vec_to_base(vec);                                 \
             void* cv_p2__ = cvector_clib_realloc(cv_p1__, cv_sz__);                   \
+            printf("[CVECTOR] Realloc %p -> %p\n", cv_p1__, cv_p2__); \
             cvector_clib_assert(cv_p2__);                                             \
             (vec) = cvector_base_to_vec(cv_p2__);                                     \
         } else {                                                                      \

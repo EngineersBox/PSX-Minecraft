@@ -49,14 +49,14 @@ void chunkInit(Chunk* chunk) {
         .light_add_queue = NULL,
         .light_remove_queue = NULL
     };
-    memset(
-        chunk->lightmap,
-        0,
-        sizeof(*chunk->lightmap) * CHUNK_DATA_SIZE
-    );
     cvector_init(chunk->updates.sunlight_queue, 0 ,NULL);
     cvector_init(chunk->updates.light_add_queue, 0, NULL);
     cvector_init(chunk->updates.light_remove_queue, 0, NULL);
+    memset(
+        chunk->lightmap,
+        0,
+        sizeof(u8) * CHUNK_DATA_SIZE
+    );
     chunkMeshInit(&chunk->mesh);
     chunkClearMesh(chunk);
 }
@@ -150,6 +150,7 @@ void chunkGenerateLightmap(Chunk* chunk) {
                         vec3_i32(x, y, z),
                         FACE_DIRECTION_NORMALS[face_dir]
                     );
+                    DEBUG_LOG("Sunlight queue: %p\n", chunk->updates.sunlight_queue);
                     // Outside of chunk, propagate to neighbour chunk.
                     if (face_position.vx < 0 || face_position.vx >= CHUNK_SIZE
                         || face_position.vy < 0 || face_position.vy >= CHUNK_SIZE
@@ -168,6 +169,7 @@ void chunkGenerateLightmap(Chunk* chunk) {
                         // Highest block in facing direction is lower than this
                         // block, so it's just sunlight. We don't need to propagate
                         // sunlight there since we already did that.
+                        DEBUG_LOG("Skip, facing into sunlight column\n");
                         continue;
                     }
                     // Block in the facing direction is below the heightmap, so
@@ -189,6 +191,7 @@ void chunkGenerateLightmap(Chunk* chunk) {
                         DEBUG_LOG("[CHUNK] Set light in chunk" VEC_PATTERN " (AFTER)\n", x, y, z);
                         break;
                     }
+                    DEBUG_LOG("Nothing\n");
                 } 
             }
         }

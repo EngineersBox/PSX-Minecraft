@@ -84,6 +84,7 @@ Chunk* overworldPerlinProvideChunk(VSelf, const VECTOR position) ALIAS("Overworl
 Chunk* OverworldPerlinChunkProvider_provide(VSelf, const VECTOR position) {
     VSELF(OverworldPerlinChunkProvider);
     Chunk* chunk = malloc(sizeof(Chunk));
+    assert(chunk != NULL);
     chunk->position = position;
     chunkInit(chunk);
     VCALL(self->generator, generate, chunk);
