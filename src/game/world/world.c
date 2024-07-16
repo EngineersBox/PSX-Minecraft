@@ -181,7 +181,7 @@ void worldInit(World* world, RenderContext* ctx) {
                     CENTRE_X,
                     CENTRE_Y - ((FONT_CHARACTER_SPRITE_HEIGHT + 2) * 1) - 1,
                     10,
-                    "Building Mesh",
+                    "Generating Lightmap",
                     x, y, z
                 );
                 backgroundDraw(ctx, 2, 2 * BLOCK_TEXTURE_SIZE, 0 * BLOCK_TEXTURE_SIZE);
@@ -191,6 +191,7 @@ void worldInit(World* world, RenderContext* ctx) {
             }
         }
     }
+    DEBUG_LOG("[WORLD] Propagating Light");
     for (i32 x = x_start; x <= x_end; x++) {
         for (i32 z = z_start; z <= z_end; z++) {
             for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
@@ -219,7 +220,7 @@ void worldInit(World* world, RenderContext* ctx) {
                     CENTRE_X,
                     CENTRE_Y - ((FONT_CHARACTER_SPRITE_HEIGHT + 2) * 1) - 1,
                     10,
-                    "Building Mesh",
+                    "Propagating Light",
                     x, y, z
                 );
                 backgroundDraw(ctx, 2, 2 * BLOCK_TEXTURE_SIZE, 0 * BLOCK_TEXTURE_SIZE);

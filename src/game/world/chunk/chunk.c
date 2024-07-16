@@ -49,13 +49,13 @@ void chunkInit(Chunk* chunk) {
         .light_add_queue = NULL,
         .light_remove_queue = NULL
     };
-    cvector_init(chunk->updates.sunlight_queue, 0 ,NULL);
+    cvector_init(chunk->updates.sunlight_queue, 0, NULL);
     cvector_init(chunk->updates.light_add_queue, 0, NULL);
     cvector_init(chunk->updates.light_remove_queue, 0, NULL);
     memset(
         chunk->lightmap,
         0,
-        sizeof(u8) * CHUNK_DATA_SIZE
+        sizeof(*chunk->lightmap) * CHUNK_DATA_SIZE
     );
     chunkMeshInit(&chunk->mesh);
     chunkClearMesh(chunk);
@@ -78,7 +78,6 @@ void chunkGenerate3DHeightMap(Chunk* chunk, const VECTOR* position) {
                     y + position->vy,
                     z + position->vz
                 );
-                printf("Height: %d\n", height);
                 chunk->blocks[chunkBlockIndex(x, y, z)] = height >= 0
                     ? airBlockCreate(NULL)
                     : stoneBlockCreate(NULL);
@@ -121,7 +120,6 @@ void chunkGenerateLightmap(Chunk* chunk) {
                     // the lightmap value directly since we determine the
                     // horizontal propagation based on a sunlight columns
                     // that are next to no sunlight columns later.
-                    DEBUG_LOG("[CHUNK] Light map set sun column " VEC_PATTERN "\n", x, y, z);
                     lightMapSetValue(
                         chunk->lightmap,
                         position,
@@ -150,26 +148,22 @@ void chunkGenerateLightmap(Chunk* chunk) {
                         vec3_i32(x, y, z),
                         FACE_DIRECTION_NORMALS[face_dir]
                     );
-                    DEBUG_LOG("Sunlight queue: %p\n", chunk->updates.sunlight_queue);
                     // Outside of chunk, propagate to neighbour chunk.
                     if (face_position.vx < 0 || face_position.vx >= CHUNK_SIZE
                         || face_position.vy < 0 || face_position.vy >= CHUNK_SIZE
                         || face_position.vz < 0 || face_position.vz >= CHUNK_SIZE) {
                         // On the chunk boundary, propagate to neighbouring chunk
                         // if posible.
-                        DEBUG_LOG("[CHUNK] Set light in border " VEC_PATTERN " (BEFORE)\n", x, y, z);
                         chunkSetLightValue(
                             chunk,
                             &position,
                             15,
                             LIGHT_TYPE_SKY
                         );
-                        DEBUG_LOG("[CHUNK] Set light in border " VEC_PATTERN " (AFTER)\n", x, y, z);
                     } else if (heightmap[(face_position.vx * CHUNK_SIZE) + face_position.vz] < y) {
                         // Highest block in facing direction is lower than this
                         // block, so it's just sunlight. We don't need to propagate
                         // sunlight there since we already did that.
-                        DEBUG_LOG("Skip, facing into sunlight column\n");
                         continue;
                     }
                     // Block in the facing direction is below the heightmap, so
@@ -181,17 +175,14 @@ void chunkGenerateLightmap(Chunk* chunk) {
                         // Light can propagate in this direction, so we have at
                         // least one valid direction. Add this block to the queue
                         // and skip the rest of the direction checks here.
-                        DEBUG_LOG("[CHUNK] Set light in chunk" VEC_PATTERN " (BEFORE)\n", x, y, z);
                         chunkSetLightValue(
                             chunk,
                             &position,
                             15,
                             LIGHT_TYPE_SKY
                         );
-                        DEBUG_LOG("[CHUNK] Set light in chunk" VEC_PATTERN " (AFTER)\n", x, y, z);
                         break;
                     }
-                    DEBUG_LOG("Nothing\n");
                 } 
             }
         }
@@ -509,9 +500,7 @@ void chunkSetLightValue(Chunk* chunk,
     if (checkIndexOOB(position->vx, position->vy, position->vz)) {
         return;
     }
-    DEBUG_LOG("Before lightmap set light\n");
     lightMapSetValue(chunk->lightmap, *position, light_value, light_type);
-    DEBUG_LOG("After lightmap set light\n");
     // Switch explicitly here instead of just using a ternary to get the
     // queue pointer since we may increase the size of the queue which
     // will mean the pointer is updated and thus we need to set the
@@ -525,12 +514,10 @@ void chunkSetLightValue(Chunk* chunk,
             }));
             break;
         case LIGHT_TYPE_SKY:
-            DEBUG_LOG("Before enqueue: %p\n", chunk->updates.sunlight_queue);
             cvector_push_back(chunk->updates.sunlight_queue, ((LightAddNode) {
                 *position,
                 chunk
             }));
-            DEBUG_LOG("After enqueue: %p\n", chunk->updates.sunlight_queue);
             break;
     }
 }
@@ -599,7 +586,7 @@ void chunkUpdateAddLight(Chunk* chunk) {
             // Skip propogating light if we are facing a solid block
             // and the face in that direction is opaque
             if (blockCanLightNotPropagate(block->id)
-                && !blockIsFaceOpaque(block, faceDirectionOpposing(i))) {
+                && blockIsFaceOpaque(block, faceDirectionOpposing(i))) {
                 continue;
             }
             const u8 neighbour_light_level = worldGetLightValue(
@@ -637,7 +624,7 @@ void chunkUpdateAddLight(Chunk* chunk) {
         const u8 light_level = lightMapGetType(
             current_chunk->lightmap,
             current_pos,
-            LIGHT_TYPE_BLOCK
+            LIGHT_TYPE_SKY
         );
         VECTOR world_pos = vec3_add(
             current_pos,
@@ -646,6 +633,52 @@ void chunkUpdateAddLight(Chunk* chunk) {
                 CHUNK_SIZE
             )
         );
+        #pragma GCC unroll 6
+        for (FaceDirection i = FACE_DIR_DOWN; i <= FACE_DIR_FRONT; i++) {
+            const VECTOR query_pos = vec3_add(
+                world_pos,
+                FACE_DIRECTION_NORMALS[i]
+            );
+            const IBlock* iblock = worldGetBlock(
+                current_chunk->world,
+                &query_pos
+            );
+            if (iblock == NULL) {
+                continue;
+            }
+            const Block* block = VCAST_PTR(Block*, iblock);
+            // Skip propogating light if we are facing a solid block
+            // and the face in that direction is opaque
+            if (blockCanLightNotPropagate(block->id)) {
+                /*&& blockIsFaceOpaque(block, faceDirectionOpposing(i))) {*/
+                continue;
+            }
+            const u8 neighbour_light_level = worldGetLightValue(
+                current_chunk->world,
+                &query_pos,
+                LIGHT_TYPE_SKY
+            );
+            if (neighbour_light_level + 2 > light_level) {
+                continue;
+            }
+            worldSetLightValue(
+                current_chunk->world,
+                &query_pos,
+                light_level - 1,
+                LIGHT_TYPE_SKY
+            );
+            const ChunkBlockPosition block_pos = worldToChunkBlockPosition(
+                &query_pos,
+                CHUNK_SIZE
+            );
+            cvector_push_back(current_chunk->updates.sunlight_queue, ((LightAddNode) {
+                block_pos.block,
+                worldGetChunk(
+                    current_chunk->world,
+                    &block_pos.chunk
+                )
+            }));
+        }
     }
 }
 

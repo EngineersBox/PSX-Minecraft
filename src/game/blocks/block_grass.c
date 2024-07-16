@@ -45,7 +45,7 @@ IItem* GrassBlock_provideItem(VSelf) {
     DYN_PTR(item, GrassItemBlock, IItem, grass_item_block);
     VCALL(*item, init);
     itemBlockReplicateFaceAttributes(grass_item_block->item_block, self->block);
-    grass_item_block->item_block.item.stack_size = 64;
+    grass_item_block->item_block.item.stack_size = 1;
     grass_item_block->item_block.item.bob_direction = 1;
     return item;
 }

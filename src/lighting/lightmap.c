@@ -1,10 +1,13 @@
 #include "lightmap.h"
 
+#include "../logging/logging.h"
+#include "../util/preprocessor.h"
+
 void lightMapSetValue(LightMap lightmap,
                       const VECTOR position,
                       u8 light_value,
                       const LightType light_type) {
-    const u32 index = position.vx << 11 | position.vz << 7 | position.vy;
+    const u32 index = position.vx << 6 | position.vz << 3 | position.vy;
     if (light_type == LIGHT_TYPE_SKY) {
         lightmap[index] = (lightmap[index] & 0b1111) | (light_value << 4);
     } else {
