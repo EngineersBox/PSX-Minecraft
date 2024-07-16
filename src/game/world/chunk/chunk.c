@@ -649,8 +649,8 @@ void chunkUpdateAddLight(Chunk* chunk) {
             const Block* block = VCAST_PTR(Block*, iblock);
             // Skip propogating light if we are facing a solid block
             // and the face in that direction is opaque
-            if (blockCanLightNotPropagate(block->id)) {
-                /*&& blockIsFaceOpaque(block, faceDirectionOpposing(i))) {*/
+            if (blockCanLightNotPropagate(block->id)
+                && blockIsFaceOpaque(block, faceDirectionOpposing(i))) {
                 continue;
             }
             const u8 neighbour_light_level = worldGetLightValue(
