@@ -633,6 +633,9 @@ void chunkUpdateAddLight(Chunk* chunk) {
                 CHUNK_SIZE
             )
         );
+        // TODO: If the new light value is  15 (0b111) then we should propagate
+        //       down without decrementing light value, then handle the L/R/F/B
+        //       directions normally with decrementing light level
         #pragma GCC unroll 6
         for (FaceDirection i = FACE_DIR_DOWN; i <= FACE_DIR_FRONT; i++) {
             const VECTOR query_pos = vec3_add(
