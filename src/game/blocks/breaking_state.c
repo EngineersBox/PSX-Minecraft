@@ -142,7 +142,7 @@ void breakingStateUpdateRenderTarget(BreakingState* state,
     // Sort a textured polygon that covers the entire offscreem TPage
     // area and repeats the current stage of breaking texture over it
     // with 50% blending. This saves needing to do multiple SPRT prims
-    // to cover the same area
+    // to cover the same area.
     const TextureAttributes face_attribute = (TextureAttributes) {
         .u = (BLOCK_TEXTURE_SIZE * 2) + ((state->ticks_so_far / state->ticks_per_stage) * BLOCK_TEXTURE_SIZE),
         .v = BLOCK_TEXTURE_SIZE * 14,
