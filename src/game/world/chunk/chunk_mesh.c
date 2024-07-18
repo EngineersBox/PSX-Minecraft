@@ -183,8 +183,8 @@ static void renderQuad(const Mesh* mesh, MeshPrimitive* primitive, RenderContext
     // Set texture coords and dimensions
     setUVWH(
         pol4,
-        primitive->tu0,
-        primitive->tv0,
+        0,
+        0,
         primitive->tu1,
         primitive->tv1
     );
@@ -200,6 +200,14 @@ static void renderQuad(const Mesh* mesh, MeshPrimitive* primitive, RenderContext
         lightmap_merge_offscreen.y
     );
     pol4->clut = primitive->clut;
+    // Sort primitive to the ordering table
+    const u32* ot_entry = allocateOrderingTable(ctx, p);
+    addPrim(ot_entry, pol4);
+    // Reset texture window that will be enabled for applying lighting overlays
+    RECT tex_window = (RECT) {0, 0, 0, 0};
+    DR_TWIN* ptwin = (DR_TWIN*) allocatePrimitive(ctx, sizeof(DR_TWIN));
+    setTexWindow(ptwin, &tex_window);
+    addPrim(ot_entry, ptwin);
     /* ============================================= */
     /* ===  OFF-SCREEN PROCEDURAL LIGHT OVERLAY  === */
     /* ============================================= */
@@ -209,7 +217,6 @@ static void renderQuad(const Mesh* mesh, MeshPrimitive* primitive, RenderContext
     const DB* active = &ctx->db[ctx->active];
     const DB* inactive = &ctx->db[1 - ctx->active];
     setDrawArea(area, &inactive->draw_env.clip);
-    const u32* ot_entry = &active->ordering_table[p];
     addPrim(ot_entry, area);
     DR_OFFSET* offset = (DR_OFFSET*) allocatePrimitive(ctx, sizeof(DR_OFFSET));
     setDrawOffset(
@@ -217,14 +224,6 @@ static void renderQuad(const Mesh* mesh, MeshPrimitive* primitive, RenderContext
         inactive->draw_env.clip.x,
         inactive->draw_env.clip.y
     );
-    // Sort primitive to the ordering table
-    DEBUG_LOG("[CHUNK MESH] Pol4 loop\n");
-    addPrim(ot_entry, pol4);
-    // Reset texture window that will be enabled for applying lighting overlays
-    RECT tex_window = (RECT) {0, 0, 0, 0};
-    DR_TWIN* ptwin = (DR_TWIN*) allocatePrimitive(ctx, sizeof(DR_TWIN));
-    setTexWindow(ptwin, &tex_window);
-    addPrim(ot_entry, ptwin);
     // TODO: Add light overlay primitives
     const u32 prim_width = primitive->tu1;
     const u32 prim_height = primitive->tv1;
@@ -260,8 +259,20 @@ static void renderQuad(const Mesh* mesh, MeshPrimitive* primitive, RenderContext
             primitive->b
         );
     } else {
-        setRGB0(pol4, 0x80, 0x80, 0x80);
+        setRGB0(
+            pol4,
+            0x80,
+            0x80,
+            0x80
+        );
     }
+    setUVWH(
+        pol4,
+        primitive->tu0,
+        primitive->tv0,
+        primitive->tu1,
+        primitive->tv1
+    );
     pol4->tpage = primitive->tpage;
     pol4->clut = primitive->clut;
     addPrim(ot_entry, pol4);
@@ -274,6 +285,11 @@ static void renderQuad(const Mesh* mesh, MeshPrimitive* primitive, RenderContext
         .x = primitive->tu0 >> 3,
         .y = primitive->tv0 >> 3
     };
+    setTexWindow(ptwin, &tex_window);
+    addPrim(ot_entry, ptwin);
+    // Reset any previous windows
+    tex_window = (RECT) {0, 0, 0, 0};
+    ptwin = (DR_TWIN*) allocatePrimitive(ctx, sizeof(DR_TWIN));
     setTexWindow(ptwin, &tex_window);
     addPrim(ot_entry, ptwin);
     // Sort drawing bindings to ensure we target offscreen TPage area
