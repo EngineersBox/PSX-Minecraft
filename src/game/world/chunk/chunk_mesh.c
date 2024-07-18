@@ -214,7 +214,6 @@ static void renderQuad(const Mesh* mesh, MeshPrimitive* primitive, RenderContext
     // Sort drawing primitives to reset drawing area to default (OT is in reverse order so that's
     // why this is here and not after the loop).
     DR_AREA* area = (DR_AREA*) allocatePrimitive(ctx, sizeof(DR_AREA));
-    const DB* active = &ctx->db[ctx->active];
     const DB* inactive = &ctx->db[1 - ctx->active];
     setDrawArea(area, &inactive->draw_env.clip);
     addPrim(ot_entry, area);
@@ -231,6 +230,7 @@ static void renderQuad(const Mesh* mesh, MeshPrimitive* primitive, RenderContext
     /*    for (u32 y = 0; y < prim_height; y += BLOCK_TEXTURE_SIZE) {*/
     /*        TILE_16* tile = (TILE_16*) allocatePrimitive(ctx, sizeof(TILE_16));*/
     /*        setTile16(tile);*/
+    /*        setXY0(tile, x, y);*/
     /*        setRGB0(*/
     /*            tile,*/
     /*            (((x + y) << 4) % 3) * 0x80,*/
@@ -238,6 +238,15 @@ static void renderQuad(const Mesh* mesh, MeshPrimitive* primitive, RenderContext
     /*            ((((x + y) << 4) + 2) % 3) * 0x80*/
     /*        );*/
     /*        addPrim(ot_entry, tile);*/
+    /*        DR_TPAGE* tpage = (DR_TPAGE*) allocatePrimitive(ctx, sizeof(DR_TPAGE));*/
+    /*        setDrawTPage(*/
+    /*            tpage,*/
+    /*            1,*/
+    /*            0,*/
+    /*            0*/
+    /*        );*/
+    /*        // TODO: Set blend on DR_TPAGE*/
+    /*        addPrim(ot_entry, tpage);*/
     /*    }*/
     /*}*/
     // Bit quad texture to off-screen location
@@ -285,11 +294,6 @@ static void renderQuad(const Mesh* mesh, MeshPrimitive* primitive, RenderContext
         .x = primitive->tu0 >> 3,
         .y = primitive->tv0 >> 3
     };
-    setTexWindow(ptwin, &tex_window);
-    addPrim(ot_entry, ptwin);
-    // Reset any previous windows
-    tex_window = (RECT) {0, 0, 0, 0};
-    ptwin = (DR_TWIN*) allocatePrimitive(ctx, sizeof(DR_TWIN));
     setTexWindow(ptwin, &tex_window);
     addPrim(ot_entry, ptwin);
     // Sort drawing bindings to ensure we target offscreen TPage area
