@@ -8,6 +8,8 @@
 #include "../../blocks/block.h"
 #include "../../structure/primitive/clip.h"
 #include "../../logging/logging.h"
+#include "chunk_structure.h"
+#include "psxgpu.h"
 
 #ifndef QUAD_DUAL_TRI_NCLIP
 #define QUAD_DUAL_TRI_NCLIP 0
@@ -68,19 +70,19 @@ static void renderTriangle(MeshPrimitive* primitive, RenderContext* ctx, Transfo
     // TODO
 }
 
+const RECT lightmap_merge_offscreen = (RECT) {
+    .x = 832,
+    .y = 0,
+    .w = (CHUNK_SIZE * BLOCK_TEXTURE_SIZE),
+    .h = (CHUNK_SIZE * BLOCK_TEXTURE_SIZE)
+};
+
 static void renderQuad(const Mesh* mesh, MeshPrimitive* primitive, RenderContext* ctx, Transforms* transforms) {
     // TODO: Generalise for textured and non-textured
     int p;
     // int dp;
     cvector_iterator(SVECTOR) verticesIter = cvector_begin(mesh->p_verts);
     cvector_iterator(SVECTOR) normalsIter = cvector_begin(mesh->p_norms);
-    const RECT tex_window = (RECT){
-        // All in units of 8 pixels, hence right shift by 3
-        .w = BLOCK_TEXTURE_SIZE >> 3,
-        .h = BLOCK_TEXTURE_SIZE >> 3,
-        .x = primitive->tu0 >> 3,
-        .y = primitive->tv0 >> 3
-    };
     POLY_FT4* pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
 #if QUAD_DUAL_TRI_NCLIP
     // Initialize a textured quad primitive
@@ -175,12 +177,10 @@ static void renderQuad(const Mesh* mesh, MeshPrimitive* primitive, RenderContext
     }
     // Store result to the primitive
     gte_strgb(&pol4->r0);
+    /*gte_strgb(&pol4->r1);*/
+    /*gte_strgb(&pol4->r2);*/
+    /*gte_strgb(&pol4->r3);*/
     // Set texture coords and dimensions
-    // TODO: Blit texture to off-screen tpage and then apply lighting
-    //       changes for each 16x16 section of it. Finally reference
-    //       the off-screen tpage here as the target to draw to the
-    //       in-world poly. This is essentially procedural texturing,
-    //       the same as how the breaking overlay is done.
     setUVWH(
         pol4,
         primitive->tu0,
@@ -188,17 +188,105 @@ static void renderQuad(const Mesh* mesh, MeshPrimitive* primitive, RenderContext
         primitive->tu1,
         primitive->tv1
     );
-    // Bind texture page and colour look-up-table
-    pol4->tpage = primitive->tpage;
+    // Testing colour modulation with Gouraud shading
+    /*setRGB1(pol4, 128, 0, 0);*/
+    /*setRGB2(pol4, 0, 128, 0);*/
+    /*setRGB3(pol4, 0, 0, 128);;*/
+    // Bind off-screen merge texture page and colour look-up-table
+    pol4->tpage = getTPage(
+        2,
+        1,
+        lightmap_merge_offscreen.x,
+        lightmap_merge_offscreen.y
+    );
     pol4->clut = primitive->clut;
+    /* ============================================= */
+    /* ===  OFF-SCREEN PROCEDURAL LIGHT OVERLAY  === */
+    /* ============================================= */
+    // Sort drawing primitives to reset drawing area to default (OT is in reverse order so that's
+    // why this is here and not after the loop).
+    DR_AREA* area = (DR_AREA*) allocatePrimitive(ctx, sizeof(DR_AREA));
+    const DB* active = &ctx->db[ctx->active];
+    const DB* inactive = &ctx->db[1 - ctx->active];
+    setDrawArea(area, &inactive->draw_env.clip);
+    const u32* ot_entry = &active->ordering_table[p];
+    addPrim(ot_entry, area);
+    DR_OFFSET* offset = (DR_OFFSET*) allocatePrimitive(ctx, sizeof(DR_OFFSET));
+    setDrawOffset(
+        offset,
+        inactive->draw_env.clip.x,
+        inactive->draw_env.clip.y
+    );
     // Sort primitive to the ordering table
-    u32* ot_object = allocateOrderingTable(ctx, p);
-    addPrim(ot_object, pol4);
-    // Bind a texture window to ensure wrapping across merged block face primitives
+    DEBUG_LOG("[CHUNK MESH] Pol4 loop\n");
+    addPrim(ot_entry, pol4);
+    // Reset texture window that will be enabled for applying lighting overlays
+    RECT tex_window = (RECT) {0, 0, 0, 0};
     DR_TWIN* ptwin = (DR_TWIN*) allocatePrimitive(ctx, sizeof(DR_TWIN));
     setTexWindow(ptwin, &tex_window);
-    ot_object = allocateOrderingTable(ctx, p);
-    addPrim(ot_object, ptwin);
+    addPrim(ot_entry, ptwin);
+    // TODO: Add light overlay primitives
+    const u32 prim_width = primitive->tu1;
+    const u32 prim_height = primitive->tv1;
+    /*for (u32 x = 0; x < prim_width; x += BLOCK_TEXTURE_SIZE) {*/
+    /*    for (u32 y = 0; y < prim_height; y += BLOCK_TEXTURE_SIZE) {*/
+    /*        TILE_16* tile = (TILE_16*) allocatePrimitive(ctx, sizeof(TILE_16));*/
+    /*        setTile16(tile);*/
+    /*        setRGB0(*/
+    /*            tile,*/
+    /*            (((x + y) << 4) % 3) * 0x80,*/
+    /*            ((((x + y) << 4) + 1) % 3) * 0x80,*/
+    /*            ((((x + y) << 4) + 2) % 3) * 0x80*/
+    /*        );*/
+    /*        addPrim(ot_entry, tile);*/
+    /*    }*/
+    /*}*/
+    // Bit quad texture to off-screen location
+    pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
+    setPolyFT4(pol4);
+    setSemiTrans(pol4, 0);
+    setXYWH(
+        pol4,
+        0,
+        0,
+        prim_width,
+        prim_height
+    );
+    if (primitive->tint) {
+        setRGB0(
+            pol4,
+            primitive->r,
+            primitive->g,
+            primitive->b
+        );
+    } else {
+        setRGB0(pol4, 0x80, 0x80, 0x80);
+    }
+    pol4->tpage = primitive->tpage;
+    pol4->clut = primitive->clut;
+    addPrim(ot_entry, pol4);
+    // Bind a texture window to ensure wrapping across merged block face primitives
+    ptwin = (DR_TWIN*) allocatePrimitive(ctx, sizeof(DR_TWIN));
+    tex_window = (RECT){
+        // All in units of 8 pixels, hence right shift by 3
+        .w = BLOCK_TEXTURE_SIZE >> 3,
+        .h = BLOCK_TEXTURE_SIZE >> 3,
+        .x = primitive->tu0 >> 3,
+        .y = primitive->tv0 >> 3
+    };
+    setTexWindow(ptwin, &tex_window);
+    addPrim(ot_entry, ptwin);
+    // Sort drawing bindings to ensure we target offscreen TPage area
+    area = (DR_AREA*) allocatePrimitive(ctx, sizeof(DR_AREA));
+    setDrawArea(area, &lightmap_merge_offscreen);
+    addPrim(ot_entry, area);
+    offset = (DR_OFFSET*) allocatePrimitive(ctx, sizeof(DR_OFFSET));
+    setDrawOffset(
+        offset,
+        lightmap_merge_offscreen.x,
+        lightmap_merge_offscreen.y
+    );
+    addPrim(ot_entry, offset);
 }
 
 void chunkMeshRenderFaceDirection(const Mesh* mesh, RenderContext* ctx, Transforms* transforms) {
