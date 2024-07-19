@@ -7,6 +7,7 @@
 #include <smd/smd.h>
 #include <stdlib.h>
 
+#include "../logging/logging.h"
 #include "../math/math_utils.h"
 
 CVECTOR clear_colour = {
@@ -158,8 +159,7 @@ char* allocatePrimitive(RenderContext* ctx, const size_t size) {
     ptrdiff_t free_space = PACKET_BUFFER_LENGTH;
     free_space -= (uintptr_t) ctx->primitive - (uintptr_t) ctx->db[ctx->active].packet_buffer;
     if (free_space < size) {
-        printf("[ERROR] Not enough space in packet buffer: 0x%x < 0x%x\n", free_space, size);
-        abort();
+        errorAbort("[ERROR] Not enough space in packet buffer: 0x%x < 0x%x\n", free_space, size);
     }
     void* prev = ctx->primitive;
     ctx->primitive += size;
@@ -169,22 +169,18 @@ char* allocatePrimitive(RenderContext* ctx, const size_t size) {
 void freePrimitive(RenderContext* ctx, const size_t size) {
     const ptrdiff_t allocated_space = (uintptr_t) ctx->primitive - (uintptr_t) ctx->db[ctx->active].packet_buffer;
     if (allocated_space < size) {
-        printf(
+        errorAbort(
             "[ERROR] Free size is larger than allocated space in packet buffer: 0x%x < 0x%x\n",
             allocated_space,
             size
         );
-        abort();
     }
     ctx->primitive -= size;
 }
 
 uint32_t* allocateOrderingTable(RenderContext* ctx, const size_t size) {
-    ptrdiff_t free_space = ORDERING_TABLE_LENGTH;
-    free_space -= ((uintptr_t) ctx->db[ctx->active].ordering_table + size) - (uintptr_t) ctx->db[ctx->active].ordering_table;
-    if (free_space < size) {
-        printf("[ERROR] Not enough space in ordering table: 0x%x < 0x%x\n", free_space, size);
-        abort();
+    if (size >= ORDERING_TABLE_LENGTH) {
+        errorAbort("[ERROR] Not enough space in ordering table: 0x%x >= 0x%x\n", size, ORDERING_TABLE_LENGTH);
     }
     return ctx->db[ctx->active].ordering_table + size;
 }

@@ -8,6 +8,7 @@
 #include "../../blocks/block.h"
 #include "../../structure/primitive/clip.h"
 #include "../../logging/logging.h"
+#include "../../render/commands.h"
 #include "chunk_structure.h"
 #include "psxgpu.h"
 
@@ -74,7 +75,7 @@ const RECT lightmap_merge_offscreen = (RECT) {
     .x = 832,
     .y = 0,
     .w = (CHUNK_SIZE * BLOCK_TEXTURE_SIZE),
-    .h = (CHUNK_SIZE * BLOCK_TEXTURE_SIZE)
+    .h = ((CHUNK_SIZE + 1) * BLOCK_TEXTURE_SIZE) // Additional here is to account for breaking texture at top
 };
 
 static void renderQuad(const Mesh* mesh, MeshPrimitive* primitive, RenderContext* ctx, Transforms* transforms) {
@@ -184,7 +185,7 @@ static void renderQuad(const Mesh* mesh, MeshPrimitive* primitive, RenderContext
     setUVWH(
         pol4,
         0,
-        0,
+        BLOCK_TEXTURE_SIZE,
         primitive->tu1,
         primitive->tv1
     );
@@ -223,32 +224,25 @@ static void renderQuad(const Mesh* mesh, MeshPrimitive* primitive, RenderContext
         inactive->draw_env.clip.x,
         inactive->draw_env.clip.y
     );
+    addPrim(ot_entry, offset);
     // TODO: Add light overlay primitives
     const u32 prim_width = primitive->tu1;
     const u32 prim_height = primitive->tv1;
-    /*for (u32 x = 0; x < prim_width; x += BLOCK_TEXTURE_SIZE) {*/
-    /*    for (u32 y = 0; y < prim_height; y += BLOCK_TEXTURE_SIZE) {*/
-    /*        TILE_16* tile = (TILE_16*) allocatePrimitive(ctx, sizeof(TILE_16));*/
-    /*        setTile16(tile);*/
-    /*        setXY0(tile, x, y);*/
-    /*        setRGB0(*/
-    /*            tile,*/
-    /*            (((x + y) << 4) % 3) * 0x80,*/
-    /*            ((((x + y) << 4) + 1) % 3) * 0x80,*/
-    /*            ((((x + y) << 4) + 2) % 3) * 0x80*/
-    /*        );*/
-    /*        addPrim(ot_entry, tile);*/
-    /*        DR_TPAGE* tpage = (DR_TPAGE*) allocatePrimitive(ctx, sizeof(DR_TPAGE));*/
-    /*        setDrawTPage(*/
-    /*            tpage,*/
-    /*            1,*/
-    /*            0,*/
-    /*            0*/
-    /*        );*/
-    /*        // TODO: Set blend on DR_TPAGE*/
-    /*        addPrim(ot_entry, tpage);*/
-    /*    }*/
-    /*}*/
+    for (u32 x = 0; x < prim_width; x += BLOCK_TEXTURE_SIZE) {
+        for (u32 y = 0; y < prim_height; y += BLOCK_TEXTURE_SIZE) {
+            TILE_16* tile = (TILE_16*) allocatePrimitive(ctx, sizeof(TILE_16));
+            setTile16(tile);
+            setXY0(tile, x, y + BLOCK_TEXTURE_SIZE);
+            setRGB0(
+                tile,
+                (((x + y) << 4) % 3) * 0x80,
+                ((((x + y) << 4) + 1) % 3) * 0x80,
+                ((((x + y) << 4) + 2) % 3) * 0x80
+            );
+            addPrim(ot_entry, tile);
+            setTransparency(tile, true);
+        }
+    }
     // Bit quad texture to off-screen location
     pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
     setPolyFT4(pol4);
@@ -256,7 +250,7 @@ static void renderQuad(const Mesh* mesh, MeshPrimitive* primitive, RenderContext
     setXYWH(
         pol4,
         0,
-        0,
+        BLOCK_TEXTURE_SIZE,
         prim_width,
         prim_height
     );
