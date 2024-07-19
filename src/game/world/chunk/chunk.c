@@ -42,6 +42,9 @@ void chunkDestroyDroppedItem(void* elem) {
 }
 
 void chunkInit(Chunk* chunk) {
+    chunk->is_top = true;
+    chunk->lightmap_updated = false;
+    chunk->mesh_updated = false;
     chunk->dropped_items = NULL;
     cvector_init(chunk->dropped_items, 0, chunkDestroyDroppedItem);
     chunk->updates = (ChunkUpdates) {
@@ -92,6 +95,7 @@ void chunkClearMesh(Chunk* chunk) {
 
 INLINE static void chunkGenerateMeshWithBreakingState(Chunk* chunk, const BreakingState* breaking_state) {
     binaryGreedyMesherBuildMesh(chunk, breaking_state);
+    chunk->mesh_updated = true;
 }
 
 void chunkGenerateMesh(Chunk* chunk) {
@@ -233,6 +237,16 @@ void chunkRender(Chunk* chunk,
             chunkGenerateMesh(chunk);
             breakingStateReset(*breaking_state);
         }
+    }
+    if (chunk->lightmap_updated || chunk->mesh_updated) {
+        // TODO: Do a mini version of the binary greedy meshing for
+        //       lightmapping to generate a cached entry on each
+        //       mesh primitive taht is just a 2D array of final light
+        //       levels that can be applied when rendering the overalys
+        //       as TILE_16 by looping over the texture coords (x,y)
+        //       and indexing this cached map
+        chunk->lightmap_updated = false;
+        chunk->mesh_updated = false;
     }
     // if (chunkIsOutsideFrustum(chunk, &ctx->camera->frustum, transforms)) {
     //     DEBUG_LOG("[CHUNK " VEC_PATTERN "] Not visible\n", VEC_LAYOUT(chunk->position));
@@ -552,6 +566,8 @@ void chunkUpdateLight(Chunk* chunk) {
 }
 
 void chunkUpdateAddLight(Chunk* chunk) {
+    chunk->lightmap_updated = !cvector_empty(chunk->updates.light_add_queue)
+                           || !cvector_empty(chunk->updates.sunlight_queue);
     // Block light
     while (!cvector_empty(chunk->updates.light_add_queue)) {
         const VECTOR current_pos = chunk->updates.light_add_queue[0].position;
@@ -686,6 +702,7 @@ void chunkUpdateAddLight(Chunk* chunk) {
 }
 
 void chunkUpdateRemoveLight(Chunk* chunk) {
+    chunk->lightmap_updated = !cvector_empty(chunk->updates.light_remove_queue);
     while (!cvector_empty(chunk->updates.light_remove_queue)) {
         const VECTOR current_pos = chunk->updates.light_remove_queue[0].position;
         Chunk* current_chunk = chunk->updates.light_remove_queue[0].chunk;

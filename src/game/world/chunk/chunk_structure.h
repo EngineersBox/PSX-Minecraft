@@ -40,7 +40,10 @@ typedef struct ChunkUpdates {
 
 typedef struct Chunk {
     World* world;
-    bool is_top;
+    bool is_top: 1;
+    bool lightmap_updated: 1;
+    bool mesh_updated: 1;
+    u8 _pad: 6;
     VECTOR position;
     ChunkMesh mesh;
     IBlock* blocks[CHUNK_DATA_SIZE];
