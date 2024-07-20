@@ -616,7 +616,7 @@ void chunkSetLightValue(Chunk* chunk,
     };
     hashmap_set(queue, &node);
     if (hashmap_oom(queue)) {
-        errorAbort("[CHUNK] Failed to enqueue light update, hashmap OOM\n");
+        errorAbort("[CHUNK] Failed to enqueue light add update, hashmap OOM\n");
     }
 }
 
@@ -637,6 +637,9 @@ void chunkRemoveLightValue(Chunk* chunk,
         light_value
     };
     hashmap_set(chunk->updates.light_remove_queue, &node);
+    if (hashmap_oom(chunk->updates.light_remove_queue)) {
+        errorAbort("[CHUNK] Failed to enqueue light remove update, hashmap OOM");
+    }
     /*cvector_push_back(chunk->updates.light_remove_queue, ((LightRemoveNode) {*/
     /*    *position,*/
     /*    chunk,*/
@@ -646,7 +649,7 @@ void chunkRemoveLightValue(Chunk* chunk,
         chunk->lightmap,
         *position,
         0,
-        LIGHT_TYPE_BLOCK
+        light_type
     );
 }
 
