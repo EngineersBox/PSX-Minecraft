@@ -227,22 +227,22 @@ static void renderQuad(const Mesh* mesh, MeshPrimitive* primitive, RenderContext
     addPrim(ot_entry, offset);
     const u32 prim_width = primitive->tu1;
     const u32 prim_height = primitive->tv1;
-    for (u32 x = 0; x < prim_width; x += BLOCK_TEXTURE_SIZE) {
-        for (u32 y = 0; y < prim_height; y += BLOCK_TEXTURE_SIZE) {
-            TILE_16* tile = (TILE_16*) allocatePrimitive(ctx, sizeof(TILE_16));
-            setTile16(tile);
-            setXY0(tile, x, y + BLOCK_TEXTURE_SIZE);
-            // TODO: Query lightmap and set overlay colour based on light level
-            setRGB0(
-                tile,
-                (((x + y) << 4) % 3) * 0x80,
-                ((((x + y) << 4) + 1) % 3) * 0x80,
-                ((((x + y) << 4) + 2) % 3) * 0x80
-            );
-            addPrim(ot_entry, tile);
-            setTransparency(tile, true);
-        }
-    }
+    /*for (u32 x = 0; x < prim_width; x += BLOCK_TEXTURE_SIZE) {*/
+    /*    for (u32 y = 0; y < prim_height; y += BLOCK_TEXTURE_SIZE) {*/
+    /*        TILE_16* tile = (TILE_16*) allocatePrimitive(ctx, sizeof(TILE_16));*/
+    /*        setTile16(tile);*/
+    /*        setXY0(tile, x, y + BLOCK_TEXTURE_SIZE);*/
+    /*        // TODO: Query lightmap and set overlay colour based on light level*/
+    /*        setRGB0(*/
+    /*            tile,*/
+    /*            (((x + y) << 4) % 3) * 0x80,*/
+    /*            ((((x + y) << 4) + 1) % 3) * 0x80,*/
+    /*            ((((x + y) << 4) + 2) % 3) * 0x80*/
+    /*        );*/
+    /*        setTransparency(tile, true);*/
+    /*        addPrim(ot_entry, tile);*/
+    /*    }*/
+    /*}*/
     // Bit quad texture to off-screen location
     pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
     setPolyFT4(pol4);

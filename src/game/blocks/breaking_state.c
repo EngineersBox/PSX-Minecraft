@@ -9,6 +9,7 @@
 #include "../../structure/primitive/cube.h"
 #include "../../resources/assets.h"
 #include "../../resources/asset_indices.h"
+#include "../../render/commands.h"
 #include "../items/items.h"
 #include "blocks.h"
 
@@ -172,11 +173,12 @@ void breakingStateUpdateRenderTarget(BreakingState* state,
     setRGB0(pol4, 0x80, 0x80, 0x80);
     // TODO: Fix this blending to ensure that the overlay
     //       changes color according to the block texture
+    setTransparency(pol4, true);
     pol4->tpage = terrain_texture->tpage;
-    // Clear semi-transparency bits
-    pol4->tpage &= ~(0b11 << 5);
-    // Set custom semi-transparency
-    pol4->tpage |= 0b11 << 5;
+    /*// Clear semi-transparency bits*/
+    /*pol4->tpage &= ~(0b11 << 5);*/
+    /*// Set custom semi-transparency*/
+    /*pol4->tpage |= 0b11 << 5;*/
     pol4->clut = terrain_texture->clut;
     addPrim(ot_entry, pol4);
     // Texture window to ensure wrapping across offscreen TPage

@@ -8,6 +8,11 @@
 #include "../util/inttypes.h"
 #include "../game/world/chunk/chunk_structure.h"
 
+#define LIGHT_BLOCK_MASK 0b11110000
+#define LIGHT_SKY_MASK 0b1111
+// (0x80 * ONE) / 15
+#define LIGHT_FIXED_AMOUNT 34953
+
 typedef u8 LightMap[CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE];
 
 typedef enum LightType {
@@ -17,6 +22,8 @@ typedef enum LightType {
 
 void lightMapSetValue(LightMap lightmap, const VECTOR position, u8 light_value, const LightType light_type);
 u8 lightMapGetType(const LightMap lightmap, const VECTOR position, const LightType light_type);
-u16 lightMapGetValue(const LightMap lightmap, const VECTOR position);
+u8 lightMapGetValue(const LightMap lightmap, const VECTOR position);
+
+u8 lightLevelToOverlayColour(const u8 light_value);
 
 #endif // _PSXMC__LIGHTING__LIGHTMAP_H_
