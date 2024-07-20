@@ -42,5 +42,5 @@ u8 lightLevelToOverlayColour(const u8 light_value) {
     // value over by 15. We then right shift that result by 12,
     // which is the same as if we just left shifted the original
     // multiplier by 3. Hence, the same as the following:
-    return max_light << 3;
+    return (max_light + 1) << 3;
 }
