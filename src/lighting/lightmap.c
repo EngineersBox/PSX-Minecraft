@@ -34,8 +34,13 @@ u8 lightLevelToOverlayColour(const u8 light_value) {
     const u8 block = (light_value & LIGHT_BLOCK_MASK) >> 4;
     const u8 sky = light_value & LIGHT_SKY_MASK;
     const u8 max_light = max(block, sky);
-    return (LIGHT_FIXED_AMOUNT * max_light) >> FIXED_POINT_SHIFT;
+    // This is equivalent to doing the following:
+    // BASE: (128 * ONE) / 16 = 32768
+    // COLOUR: (36768 * (max_light + 1)) >> FIXED_POINT_SHIFT
+    // Since 32768 == 0b1000000000000000 == 1 << 15, this means
+    // multiplying it by any value is the same as shifting that
+    // value over by 15. We then right shift that result by 12,
+    // which is the same as if we just left shifted the original
+    // multiplier by 3. Hence, the same as the following:
+    return max_light << 3;
 }
-
-// (128 * 4096) >> 12
-// 34,952.5333333333
