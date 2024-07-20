@@ -658,18 +658,41 @@ void chunkUpdateLight(Chunk* chunk) {
     chunkUpdateAddLight(chunk);
 }
 
+#if CHUNK_LIGHT_ADD_BLOCK_UPDATES_PER_TICK >= 0
+#define lightAddBlockCheckLimit(iter) ((iter) < CHUNK_LIGHT_ADD_BLOCK_UPDATES_PER_TICK)
+#else
+#define lightAddBlockCheckLimit(iter) true
+#endif
+#if CHUNK_LIGHT_ADD_SKY_UPDATES_PER_TICK >= 0
+#define lightAddSkyCheckLimit(iter) ((iter) < CHUNK_LIGHT_ADD_SKY_UPDATES_PER_TICK)
+#else
+#define lightAddSkyCheckLimit(iter) true
+#endif
+#if CHUNK_LIGHT_REMOVE_UPDATES_PER_TICK >= 0
+#define lightRemoveCheckLimit(iter) ((iter) < CHUNK_LIGHT_REMOVE_UPDATES_PER_TICK)
+#else
+#define lightRemoveCheckLimit(iter) true
+#endif
+
 void chunkUpdateAddLight(Chunk* chunk) {
     chunk->lightmap_updated = !cvector_empty(chunk->updates.light_add_queue)
                            || !cvector_empty(chunk->updates.sunlight_queue);
     // Block light
     /*while (!cvector_empty(chunk->updates.light_add_queue)) {*/
+    size_t processed_updates = 0;
     size_t iter = 0;
     void* item;
-    while (hashmap_iter(chunk->updates.light_add_queue, &iter, &item)) {
+    while (lightAddBlockCheckLimit(processed_updates)
+            && hashmap_iter(chunk->updates.light_add_queue, &iter, &item)) {
         const LightAddNode* node = item;
         const VECTOR current_pos = node->position;
         const Chunk* current_chunk = node->chunk;
         hashmap_delete(chunk->updates.light_add_queue, node);
+        // Need to reset cursor as mandated by hashmap_iter docstring.
+        // Doesn't impact this loop since removing and element doesn't
+        // Change the rest of the items we need to process
+        iter = 0;
+        processed_updates++;
         /*const VECTOR current_pos = chunk->updates.light_add_queue[0].position;*/
         /*Chunk* current_chunk = chunk->updates.light_add_queue[0].chunk;*/
         /*cvector_erase(chunk->updates.light_add_queue, 0);*/
@@ -722,13 +745,17 @@ void chunkUpdateAddLight(Chunk* chunk) {
         }
     }
     iter = 0;
+    processed_updates = 0;
     // Sky light
     /*while (!cvector_empty(chunk->updates.sunlight_queue)) {*/
-    while (hashmap_iter(chunk->updates.sunlight_queue, &iter, &item)) {
+    while (lightAddSkyCheckLimit(processed_updates)
+            && hashmap_iter(chunk->updates.sunlight_queue, &iter, &item)) {
         const LightAddNode* node = item;
         const VECTOR current_pos = node->position;
         const Chunk* current_chunk = node->chunk;
         hashmap_delete(chunk->updates.light_add_queue, node);
+        iter = 0;
+        processed_updates++;
         /*const VECTOR current_pos = chunk->updates.sunlight_queue[0].position;*/
         /*Chunk* current_chunk = chunk->updates.sunlight_queue[0].chunk;*/
         /*cvector_erase(chunk->updates.sunlight_queue, 0);*/
@@ -788,13 +815,18 @@ void chunkUpdateAddLight(Chunk* chunk) {
 void chunkUpdateRemoveLight(Chunk* chunk) {
     chunk->lightmap_updated = !cvector_empty(chunk->updates.light_remove_queue);
     /*while (!cvector_empty(chunk->updates.light_remove_queue)) {*/
+    size_t processed_updates = 0;
     size_t iter;
     void* item;
-    while (hashmap_iter(chunk->updates.sunlight_queue, &iter, &item)) {
+    while (lightRemoveCheckLimit(processed_updates)
+            && hashmap_iter(chunk->updates.light_remove_queue, &iter, &item)) {
         const LightRemoveNode* node = item;
         const VECTOR current_pos = node->position;
         const Chunk* current_chunk = node->chunk;
         u8 light_level = node->light_value;
+        hashmap_delete(chunk->updates.light_remove_queue, node);
+        iter = 0;
+        processed_updates++;
         /*const VECTOR current_pos = chunk->updates.light_remove_queue[0].position;*/
         /*Chunk* current_chunk = chunk->updates.light_remove_queue[0].chunk;*/
         /*u8 light_level = chunk->updates.light_remove_queue[0].light_value;*/
