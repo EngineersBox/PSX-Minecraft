@@ -41,6 +41,9 @@ u8 lightLevelToOverlayColour(const u8 light_value) {
     // multiplying it by any value is the same as shifting that
     // value over by 15. We then right shift that result by 12,
     // which is the same as if we just left shifted the original
-    // multiplier by 3. Hence, the same as the following:
+    // multiplier by 3. Hence, (max_light + 1) << 3. Note that
+    // the + 1 is just to ensure that the lowest light level is
+    // not absolute back, which is the same as transparent on the
+    // PS1's GPU.
     return (max_light + 1) << 3;
 }
