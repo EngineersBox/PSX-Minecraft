@@ -16,6 +16,7 @@
 #include "../generation/noise.h"
 #include "chunk_structure.h"
 #include "meshing/binary_greedy_mesher.h"
+#include "psxapi.h"
 
 // Forward declaration
 FWD_DECL IBlock* worldGetBlock(const World* world, const VECTOR* position);
@@ -41,6 +42,38 @@ void chunkDestroyDroppedItem(void* elem) {
     itemDestroy(*iitem);
 }
 
+static u64 lightAddNodeDataHash(const void* item, u64 seed0, u64 seed1) {
+    const LightAddNode* node = item;
+    return hashmap_xxhash3(
+        &node->position,
+        sizeof(VECTOR),
+        seed0,
+        seed1
+    );
+}
+
+static u64 lightRemoveNodeDataHash(const void* item, u64 seed0, u64 seed1) {
+    const LightRemoveNode* node = item;
+    return hashmap_xxhash3(
+        &node->position,
+        sizeof(VECTOR),
+        seed0,
+        seed1
+    );
+}
+
+static int lightAddNodeCompare(const void* a, const void* b, void* ignored) {
+    const LightAddNode* node_a = a;
+    const LightAddNode* node_b = a;
+    return vec3_equal(node_a->position, node_b->position);
+}
+
+static int lightRemoveNodeCompare(const void* a, const void* b, void* ignored) {
+    const LightRemoveNode* node_a = a;
+    const LightRemoveNode* node_b = a;
+    return vec3_equal(node_a->position, node_b->position);
+}
+
 void chunkInit(Chunk* chunk) {
     chunk->is_top = true;
     chunk->lightmap_updated = false;
@@ -52,9 +85,39 @@ void chunkInit(Chunk* chunk) {
         .light_add_queue = NULL,
         .light_remove_queue = NULL
     };
-    cvector_init(chunk->updates.sunlight_queue, 0, NULL);
-    cvector_init(chunk->updates.light_add_queue, 0, NULL);
-    cvector_init(chunk->updates.light_remove_queue, 0, NULL);
+    chunk->updates.sunlight_queue = hashmap_new(
+        sizeof(LightAddNode),
+        1,
+        0,
+        0,
+        lightAddNodeDataHash,
+        lightAddNodeCompare,
+        NULL,
+        NULL
+    );
+    chunk->updates.light_add_queue = hashmap_new(
+        sizeof(LightAddNode),
+        1,
+        0,
+        0,
+        lightAddNodeDataHash,
+        lightAddNodeCompare,
+        NULL,
+        NULL
+    );
+    chunk->updates.light_remove_queue = hashmap_new(
+        sizeof(LightAddNode),
+        1,
+        0,
+        0,
+        lightRemoveNodeDataHash,
+        lightRemoveNodeCompare,
+        NULL,
+        NULL
+    );
+    /*cvector_init(chunk->updates.sunlight_queue, 0, NULL);*/
+    /*cvector_init(chunk->updates.light_add_queue, 0, NULL);*/
+    /*cvector_init(chunk->updates.light_remove_queue, 0, NULL);*/
     memset(
         chunk->lightmap,
         0,
@@ -67,9 +130,12 @@ void chunkInit(Chunk* chunk) {
 void chunkDestroy(const Chunk* chunk) {
     chunkMeshDestroy(&chunk->mesh);
     cvector_free(chunk->dropped_items);
-    cvector_free(chunk->updates.sunlight_queue);
-    cvector_free(chunk->updates.light_add_queue);
-    cvector_free(chunk->updates.light_remove_queue);
+    hashmap_free(chunk->updates.sunlight_queue);
+    hashmap_free(chunk->updates.light_add_queue);
+    hashmap_free(chunk->updates.light_remove_queue);
+    /*cvector_free(chunk->updates.sunlight_queue);*/
+    /*cvector_free(chunk->updates.light_add_queue);*/
+    /*cvector_free(chunk->updates.light_remove_queue);*/
 }
 
 void chunkGenerate3DHeightMap(Chunk* chunk, const VECTOR* position) {
@@ -509,30 +575,48 @@ u8 chunkGetLightValue(Chunk* chunk,
 
 void chunkSetLightValue(Chunk* chunk,
                         const VECTOR* position,
-                        const u8 light_value,
+                        u8 light_value,
                         const LightType light_type) {
     if (checkIndexOOB(position->vx, position->vy, position->vz)) {
         return;
     }
-    lightMapSetValue(chunk->lightmap, *position, light_value, light_type);
+    const u8 previous_light_value = lightMapGetType(chunk->lightmap, *position, light_type);
+    lightMapSetValue(
+        chunk->lightmap,
+        *position,
+        max(light_value, previous_light_value),
+        light_type
+    );
     // Switch explicitly here instead of just using a ternary to get the
     // queue pointer since we may increase the size of the queue which
     // will mean the pointer is updated and thus we need to set the
     // value on the struct, also because additional light types (not likely)
     // should have compile-time failures for places they should be used.
+    HashMap* queue = NULL;
     switch (light_type) {
         case LIGHT_TYPE_BLOCK:
-            cvector_push_back(chunk->updates.light_add_queue, ((LightAddNode) {
-                *position,
-                chunk
-            }));
+            queue = chunk->updates.light_add_queue;
+            /*cvector_push_back(chunk->updates.light_add_queue, ((LightAddNode) {*/
+            /*    *position,*/
+            /*    chunk*/
+            /*}));*/
             break;
         case LIGHT_TYPE_SKY:
-            cvector_push_back(chunk->updates.sunlight_queue, ((LightAddNode) {
-                *position,
-                chunk
-            }));
+            queue = chunk->updates.sunlight_queue;
+            /*cvector_push_back(chunk->updates.sunlight_queue, ((LightAddNode) {*/
+            /*    *position,*/
+            /*    chunk*/
+            /*}));*/
             break;
+    }
+    assert(queue != NULL);
+    const LightAddNode node = (LightAddNode) {
+        *position,
+        chunk
+    };
+    hashmap_set(queue, &node);
+    if (hashmap_oom(queue)) {
+        errorAbort("[CHUNK] Failed to enqueue light update, hashmap OOM\n");
     }
 }
 
@@ -547,11 +631,17 @@ void chunkRemoveLightValue(Chunk* chunk,
         *position,
         light_type
     );
-    cvector_push_back(chunk->updates.light_remove_queue, ((LightRemoveNode) {
+    const LightRemoveNode node = (LightRemoveNode) {
         *position,
         chunk,
         light_value
-    }));
+    };
+    hashmap_set(chunk->updates.light_remove_queue, &node);
+    /*cvector_push_back(chunk->updates.light_remove_queue, ((LightRemoveNode) {*/
+    /*    *position,*/
+    /*    chunk,*/
+    /*    light_value*/
+    /*}));*/
     lightMapSetValue(
         chunk->lightmap,
         *position,
@@ -569,10 +659,17 @@ void chunkUpdateAddLight(Chunk* chunk) {
     chunk->lightmap_updated = !cvector_empty(chunk->updates.light_add_queue)
                            || !cvector_empty(chunk->updates.sunlight_queue);
     // Block light
-    while (!cvector_empty(chunk->updates.light_add_queue)) {
-        const VECTOR current_pos = chunk->updates.light_add_queue[0].position;
-        Chunk* current_chunk = chunk->updates.light_add_queue[0].chunk;
-        cvector_erase(chunk->updates.light_add_queue, 0);
+    /*while (!cvector_empty(chunk->updates.light_add_queue)) {*/
+    size_t iter = 0;
+    void* item;
+    while (hashmap_iter(chunk->updates.light_add_queue, &iter, &item)) {
+        const LightAddNode* node = item;
+        const VECTOR current_pos = node->position;
+        const Chunk* current_chunk = node->chunk;
+        hashmap_delete(chunk->updates.light_add_queue, node);
+        /*const VECTOR current_pos = chunk->updates.light_add_queue[0].position;*/
+        /*Chunk* current_chunk = chunk->updates.light_add_queue[0].chunk;*/
+        /*cvector_erase(chunk->updates.light_add_queue, 0);*/
         const u8 light_level = lightMapGetType(
             current_chunk->lightmap,
             current_pos,
@@ -619,24 +716,19 @@ void chunkUpdateAddLight(Chunk* chunk) {
                 light_level - 1,
                 LIGHT_TYPE_BLOCK
             );
-            const ChunkBlockPosition block_pos = worldToChunkBlockPosition(
-                &query_pos,
-                CHUNK_SIZE
-            );
-            cvector_push_back(current_chunk->updates.light_add_queue, ((LightAddNode) {
-                block_pos.block,
-                worldGetChunk(
-                    current_chunk->world,
-                    &block_pos.chunk
-                )
-            }));
         }
     }
+    iter = 0;
     // Sky light
-    while (!cvector_empty(chunk->updates.sunlight_queue)) {
-        const VECTOR current_pos = chunk->updates.sunlight_queue[0].position;
-        Chunk* current_chunk = chunk->updates.sunlight_queue[0].chunk;
-        cvector_erase(chunk->updates.sunlight_queue, 0);
+    /*while (!cvector_empty(chunk->updates.sunlight_queue)) {*/
+    while (hashmap_iter(chunk->updates.sunlight_queue, &iter, &item)) {
+        const LightAddNode* node = item;
+        const VECTOR current_pos = node->position;
+        const Chunk* current_chunk = node->chunk;
+        hashmap_delete(chunk->updates.light_add_queue, node);
+        /*const VECTOR current_pos = chunk->updates.sunlight_queue[0].position;*/
+        /*Chunk* current_chunk = chunk->updates.sunlight_queue[0].chunk;*/
+        /*cvector_erase(chunk->updates.sunlight_queue, 0);*/
         const u8 light_level = lightMapGetType(
             current_chunk->lightmap,
             current_pos,
@@ -686,28 +778,24 @@ void chunkUpdateAddLight(Chunk* chunk) {
                 light_level - 1,
                 LIGHT_TYPE_SKY
             );
-            const ChunkBlockPosition block_pos = worldToChunkBlockPosition(
-                &query_pos,
-                CHUNK_SIZE
-            );
-            cvector_push_back(current_chunk->updates.sunlight_queue, ((LightAddNode) {
-                block_pos.block,
-                worldGetChunk(
-                    current_chunk->world,
-                    &block_pos.chunk
-                )
-            }));
         }
     }
 }
 
 void chunkUpdateRemoveLight(Chunk* chunk) {
     chunk->lightmap_updated = !cvector_empty(chunk->updates.light_remove_queue);
-    while (!cvector_empty(chunk->updates.light_remove_queue)) {
-        const VECTOR current_pos = chunk->updates.light_remove_queue[0].position;
-        Chunk* current_chunk = chunk->updates.light_remove_queue[0].chunk;
-        u8 light_level = chunk->updates.light_remove_queue[0].light_value;
-        cvector_erase(chunk->updates.light_remove_queue, 0);
+    /*while (!cvector_empty(chunk->updates.light_remove_queue)) {*/
+    size_t iter;
+    void* item;
+    while (hashmap_iter(chunk->updates.sunlight_queue, &iter, &item)) {
+        const LightRemoveNode* node = item;
+        const VECTOR current_pos = node->position;
+        const Chunk* current_chunk = node->chunk;
+        u8 light_level = node->light_value;
+        /*const VECTOR current_pos = chunk->updates.light_remove_queue[0].position;*/
+        /*Chunk* current_chunk = chunk->updates.light_remove_queue[0].chunk;*/
+        /*u8 light_level = chunk->updates.light_remove_queue[0].light_value;*/
+        /*cvector_erase(chunk->updates.light_remove_queue, 0);*/
         VECTOR world_pos = vec3_add(
             current_pos,
             vec3_const_mul(
@@ -751,22 +839,13 @@ void chunkUpdateRemoveLight(Chunk* chunk) {
                     0,
                     LIGHT_TYPE_BLOCK
                 );
-                cvector_push_back(current_chunk->updates.light_remove_queue, ((LightRemoveNode) {
-                    block_pos.block,
-                    worldGetChunk(
-                        current_chunk->world,
-                        &block_pos.chunk
-                    ),
-                    neighbour_level
-                }));
             } else if (neighbour_level >= light_level) {
-                cvector_push_back(current_chunk->updates.light_add_queue, ((LightAddNode) {
-                    block_pos.block,
-                    worldGetChunk(
-                        current_chunk->world,
-                        &block_pos.chunk
-                    ),
-                }));
+                worldSetLightValue(
+                    current_chunk->world,
+                    &query_pos,
+                    neighbour_level,
+                    LIGHT_TYPE_BLOCK
+                );
             }
         }
     }

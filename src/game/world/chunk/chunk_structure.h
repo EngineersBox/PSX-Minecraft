@@ -4,6 +4,7 @@
 #define _PSXMC__GAME_WORLD_CHUNK__CHUNK_STRUCTURE_H_
 
 #include "../../../structure/cvector.h"
+#include "../../../structure/hashmap.h"
 #include "chunk_mesh.h"
 #include "../position.h"
 #include "../../blocks/blocks.h"
@@ -33,9 +34,12 @@ typedef struct LightRemoveNode {
 } LightRemoveNode;
 
 typedef struct ChunkUpdates {
-    cvector(LightAddNode) sunlight_queue;
-    cvector(LightAddNode) light_add_queue;
-    cvector(LightRemoveNode) light_remove_queue;
+    /*cvector(LightAddNode) sunlight_queue;*/
+    /*cvector(LightAddNode) light_add_queue;*/
+    /*cvector(LightRemoveNode) light_remove_queue;*/
+    HashMap* sunlight_queue;
+    HashMap* light_add_queue;
+    HashMap* light_remove_queue;
 } ChunkUpdates;
 
 typedef struct Chunk {
