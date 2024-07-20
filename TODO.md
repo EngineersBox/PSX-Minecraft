@@ -22,9 +22,9 @@
 * [X] Texture attributes on block item rendering in world and picked up items in inventory
 * [X] Resource generation script does not contain new attributes for `ItemBlock` instances
 * [X] Propagating light should be considered for blocks that are not solid, not just whether they are `BLOCKTYPE_EMPTY`
+* [X] Textures in terrain tpage with any `u` and `v >= 16` rendering multiple interleaved textures from different points in terrain texture page (NOTE: Not a problem now since we blit to a framebuffer location for overlays before rendering to final framebuffer for lighting which seems to fix this. The issue seemed to be specific to `POLY_FT4` since `POLY_GT4` doesn't have this behaviour when I changed the primitive type)
 * [ ] Mesh vertices z-depth is inconsistent leading to faces drawn in wrong order and thus culling fails
 * [ ] Vertices are distorted (in their location) when very close to the camera
-* [ ] Textures in terrain tpage with any `u` and `v >= 16` rendering multiple interleaved textures from different points in terrain texture page
 * [ ] Movement tied to FPS
 * [ ] Move mesh generation to after all loading when updating world to avoid face generation on orthogonal axis to update axis
 * [ ] Cull faces on chunk edges that face outward on the render limit
