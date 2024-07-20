@@ -98,9 +98,9 @@
 * [X] Use custom mesh format for chunk meshes to avoid excessive overhead of unused fields with SMD structured
 * [X] Return `NULL` block/chunk when accessing block/chunk outside of loaded range
 * [X] Move light/add remove to be standalone methods to enqueue updates then have a separate chunk-internal method to process the lighting updates during a `chunkUpdate` call
+* [X] Light updates should be a queue with size limited to `CHUNK_SIZE ^ 3` (cubed) and ordered on recency of push. If a new update is going to overwrite and old one (at the same index) then the `max(old_light_level, new_light_level)` should be used as the value for addition and the `min(...)` for removal. Can probably just add forward/backward pointers to hashmap bucket implementation for this.
 * [ ] Move rendering handlers in `ChunkMesh` to standalone SMD renderer file
 * [ ] Turn these TODO list sections into tables instead of checkmark lists
 * [ ] Support other resolutions that aren't 320x240
 * [ ] Refactor vector operations to use `_Generic` C11 macro to perform type specific operations between any kind of two vector types or constant
 * [ ] Move assets to on-disk directories and files instead of packing them into the binary
-* [ ] Light updates should be a queue with size limited to `CHUNK_SIZE ^ 3` (cubed) and ordered on recency of push. If a new update is going to overwrite and old one (at the same index) then the `max(old_light_level, new_light_level)` should be used as the value for addition and the `min(...)` for removal. Can probably just add forward/backward pointers to hashmap bucket implementation for this.
