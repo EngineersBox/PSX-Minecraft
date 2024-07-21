@@ -134,9 +134,6 @@ void chunkInit(Chunk* chunk) {
         NULL,
         NULL
     );
-    /*cvector_init(chunk->updates.sunlight_queue, 0, NULL);*/
-    /*cvector_init(chunk->updates.light_add_queue, 0, NULL);*/
-    /*cvector_init(chunk->updates.light_remove_queue, 0, NULL);*/
     memset(
         chunk->lightmap,
         0,
@@ -152,9 +149,6 @@ void chunkDestroy(const Chunk* chunk) {
     hashmap_free(chunk->updates.sunlight_queue);
     hashmap_free(chunk->updates.light_add_queue);
     hashmap_free(chunk->updates.light_remove_queue);
-    /*cvector_free(chunk->updates.sunlight_queue);*/
-    /*cvector_free(chunk->updates.light_add_queue);*/
-    /*cvector_free(chunk->updates.light_remove_queue);*/
 }
 
 void chunkGenerate3DHeightMap(Chunk* chunk, const VECTOR* position) {
@@ -427,6 +421,7 @@ static void constructItemPosition(const Chunk* chunk, const VECTOR* block_positi
 
 INLINE static int modifyVoxel0(Chunk* chunk,
                                const VECTOR* position,
+                               const u8 new_light_value,
                                const bool drop_item,
                                IItem** item_result) {
     const i32 x = position->vx;
@@ -435,9 +430,30 @@ INLINE static int modifyVoxel0(Chunk* chunk,
     if (checkIndexOOB(x, y, z)) {
         return 2;
     }
-    const IBlock* old_block = chunk->blocks[chunkBlockIndex(x, y, z)];
-    const bool result = VCAST_PTR(Block*, old_block)->id != BLOCKID_AIR;
-    IItem* iitem = VCALL(*old_block, destroy, drop_item);
+    const IBlock* old_iblock = chunk->blocks[chunkBlockIndex(x, y, z)];
+    const Block* old_block = VCAST_PTR(Block*, old_iblock);
+    const bool old_is_air = old_block->id == BLOCKID_AIR;
+    if (old_block->light_level > 0 && new_light_value == 0) {
+        chunkRemoveLightValue(
+            chunk,
+            position,
+            LIGHT_TYPE_BLOCK
+        );
+    } else {
+        chunkSetLightValue(
+            chunk,
+            position,
+            new_light_value,
+            LIGHT_TYPE_BLOCK
+        );
+    }
+    chunkSetLightValue(
+        chunk,
+        position,
+        0,
+        LIGHT_TYPE_SKY
+    );
+    IItem* iitem = VCALL(*old_iblock, destroy, drop_item);
     if (iitem != NULL && iitem->self != NULL) {
         cvector_push_back(
             chunk->dropped_items,
@@ -448,12 +464,10 @@ INLINE static int modifyVoxel0(Chunk* chunk,
         if (item_result != NULL) {
             *item_result = iitem;
         }
-    } else {
-        if (item_result != NULL) {
-            *item_result = NULL;
-        }
+    } else if (item_result != NULL) {
+        *item_result = NULL;
     }
-    return result;
+    return !old_is_air;
 }
 
 bool chunkModifyVoxel(Chunk* chunk,
@@ -461,7 +475,14 @@ bool chunkModifyVoxel(Chunk* chunk,
                       IBlock* iblock,
                       const bool drop_item,
                       IItem** item_result) {
-    const int result = modifyVoxel0(chunk, position, drop_item, item_result);
+    const Block* block = VCAST_PTR(Block*, iblock);
+    const int result = modifyVoxel0(
+        chunk,
+        position,
+        block->light_level,
+        drop_item,
+        item_result
+    );
     if (result == 2) {
         return false;
     }
@@ -470,19 +491,6 @@ bool chunkModifyVoxel(Chunk* chunk,
         position->vy,
         position->vz
     )] = iblock;
-    /*const Block* block = VCAST_PTR(Block*, iblock);*/
-    /*if (blockGetType(block->id) != BLOCKTYPE_EMPTY) {*/
-    /*    chunkUpdateRemoveLight(chunk, position);*/
-    /*} else {*/
-    /*    // Adding a light level of 0 will trigger the lightmap*/
-    /*    // to be regenerated around this point*/
-    /*    chunkUpdateAddLight(*/
-    /*        chunk,*/
-    /*        position,*/
-    /*        0,*/
-    /*        LIGHT_TYPE_BLOCK*/
-    /*    );*/
-    /*}*/
     chunkClearMesh(chunk);
     chunkGenerateMesh(chunk);
     return true;
@@ -494,15 +502,24 @@ IBlock* chunkModifyVoxelConstructed(Chunk* chunk,
                                     IItem* from_item,
                                     const bool drop_item,
                                     IItem** item_result) {
-    const int result = modifyVoxel0(chunk, position, drop_item, item_result);
+    IBlock* iblock = block_constructor(from_item);
+    const Block* block = VCAST_PTR(Block*, iblock);
+    const int result = modifyVoxel0(
+        chunk,
+        position,
+        block->light_level,
+        drop_item,
+        item_result
+    );
     if (result == 2) {
+        VCALL(*iblock, destroy, true);
         return NULL;
     }
     IBlock* return_block = chunk->blocks[chunkBlockIndex(
         position->vx,
         position->vy,
         position->vz
-    )] = block_constructor(from_item);
+    )] = iblock;
     chunkClearMesh(chunk);
     chunkGenerateMesh(chunk);
     return return_block;

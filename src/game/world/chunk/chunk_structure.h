@@ -46,9 +46,6 @@ typedef struct LightRemoveNode {
 } LightRemoveNode;
 
 typedef struct ChunkUpdates {
-    /*cvector(LightAddNode) sunlight_queue;*/
-    /*cvector(LightAddNode) light_add_queue;*/
-    /*cvector(LightRemoveNode) light_remove_queue;*/
     HashMap* sunlight_queue;
     HashMap* light_add_queue;
     HashMap* light_remove_queue;
