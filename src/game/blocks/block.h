@@ -60,7 +60,9 @@ typedef struct BlockAttributes {
     ToolType tool_type: TOOL_TYPE_COUNT_BITS;
     ItemMaterial tool_material: ITEM_MATERIAL_COUNT_BITS;
     u8 can_harvest: TOOL_TYPE_COUNT;
-    u32 _pad: 15;
+    bool propagates_sunlight: 1;
+    bool propagates_blocklight: 1;
+    u32 _pad: 13;
     char* name;
 } BlockAttributes;
 

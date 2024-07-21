@@ -20,6 +20,8 @@ DEFN_BLOCK_CONSTRUCTOR(grass);
     .tool_type = TOOLTYPE_SHOVEL, \
     .tool_material = ITEMMATERIAL_WOOD, \
     .can_harvest = toolTypeBitset(1,1,1,1,1,1), \
+    .propagates_sunlight = false, \
+    .propagates_blocklight = false, \
     .name = "grass" \
 })
 

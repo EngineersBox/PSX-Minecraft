@@ -21,6 +21,8 @@ DEFN_BLOCK_CONSTRUCTOR(stone);
     .tool_type = TOOLTYPE_PICKAXE, \
     .tool_material = ITEMMATERIAL_WOOD, \
     .can_harvest = toolTypeBitset(0,1,0,0,0,0), \
+    .propagates_sunlight = false, \
+    .propagates_blocklight = false, \
     .name = "stone" \
 })
 

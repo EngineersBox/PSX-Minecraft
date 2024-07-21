@@ -19,6 +19,9 @@ DEFN_BLOCK_CONSTRUCTOR(air);
     .type = BLOCKTYPE_EMPTY, \
     .tool_type = TOOLTYPE_NONE, \
     .tool_material = ITEMMATERIAL_NONE, \
+    .can_harvest = toolTypeBitset(0,0,0,0,0,0), \
+    .propagates_sunlight = true, \
+    .propagates_blocklight = true, \
     .name = "air" \
 })
 
@@ -37,7 +40,6 @@ void AirBlock_update(VSelf);
 IItem* airBlockProvideItem(VSelf);
 IItem* AirBlock_provideItem(VSelf);
 
-#define AirBlock_isOpaque_CUSTOM ()
 impl(IBlock, AirBlock);
 
 #endif // PSXMC_BLOCK_AIR_H

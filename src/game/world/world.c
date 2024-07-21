@@ -191,7 +191,7 @@ void worldInit(World* world, RenderContext* ctx) {
             }
         }
     }
-    DEBUG_LOG("[WORLD] Propagating Light");
+    DEBUG_LOG("[WORLD] Propagating Light\n");
     for (i32 x = x_start; x <= x_end; x++) {
         for (i32 z = z_start; z <= z_end; z++) {
             for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
@@ -230,11 +230,11 @@ void worldInit(World* world, RenderContext* ctx) {
             }
         }
     }
-    DEBUG_LOG("[WORLD] Processing Light Updates");
+    DEBUG_LOG("[WORLD] Processing Light Updates\n");
     for (i32 x = x_start; x <= x_end; x++) {
         for (i32 z = z_start; z <= z_end; z++) {
             for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
-                DEBUG_LOG("[CHUNK: %d,%d,%d] Propagating Light\n", x, 0, z);
+                DEBUG_LOG("[CHUNK: %d,%d,%d] Processing Light Updates\n", x, 0, z);
                 Chunk* chunk = world->chunks[arrayCoord(world, vz, z)]
                                             [arrayCoord(world, vx, x)]
                                             [y];
@@ -421,6 +421,18 @@ void worldLoadChunksX(World* world, const i8 x_direction, const i8 z_direction) 
             chunkGenerateMesh(to_mesh[i++]);
         }
     }
+    i = 0;
+    for (i32 z_coord = z_start; z_coord <= z_end; z_coord++) {
+        for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
+            chunkGenerateLightmap(to_mesh[i++]);
+        }
+    }
+    i = 0;
+    for (i32 z_coord = z_start; z_coord <= z_end; z_coord++) {
+        for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
+            chunkPropagateLightmap(to_mesh[i++]);
+        }
+    }
     // Unload -x_direction chunks
     x_shift_zone = world->centre.vx + (LOADED_CHUNKS_RADIUS * -x_direction);
     for (i32 z_coord = z_start; z_coord <= z_end; z_coord++) {
@@ -468,6 +480,18 @@ void worldLoadChunksZ(World* world, const i8 x_direction, const i8 z_direction) 
             chunkGenerateMesh(to_mesh[i++]);
         }
     }
+    i = 0;
+    for (i32 x_coord = x_start; x_coord <= x_end; x_coord++) {
+        for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
+            chunkGenerateLightmap(to_mesh[i++]);
+        }
+    }
+    i = 0;
+    for (i32 x_coord = x_start; x_coord <= x_end; x_coord++) {
+        for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
+            chunkPropagateLightmap(to_mesh[i++]);
+        }
+    }
     // Unload -z_direction chunks
     z_shift_zone = world->centre.vz + (LOADED_CHUNKS_RADIUS * -z_direction);
     for (i32 x_coord = x_start; x_coord <= x_end; x_coord++) {
@@ -501,6 +525,12 @@ void worldLoadChunksXZ(World* world, const i8 x_direction, const i8 z_direction)
         //       have loaded chunks on all axis? Otherwise each axis may duplicate
         //       faces from, the orthogonal axis.
         chunkGenerateMesh(to_mesh[y]);
+    }
+    for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
+        chunkGenerateLightmap(to_mesh[y]);
+    }
+    for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
+        chunkPropagateLightmap(to_mesh[y]);
     }
     // Unload (-x_direction,-z_direction) chunk
     x_coord = world->centre.vx + (LOADED_CHUNKS_RADIUS * -x_direction);

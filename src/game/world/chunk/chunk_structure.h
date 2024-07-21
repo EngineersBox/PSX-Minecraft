@@ -55,7 +55,7 @@ typedef struct Chunk {
     VECTOR position;
     ChunkMesh mesh;
     IBlock* blocks[CHUNK_DATA_SIZE];
-    u8 heightmap[CHUNK_SIZE * CHUNK_SIZE];
+    u8 sunlight_heightmap[CHUNK_SIZE * CHUNK_SIZE];
     LightMap lightmap;
     ChunkUpdates updates;
     cvector(IItem*) dropped_items;
