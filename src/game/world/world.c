@@ -49,7 +49,7 @@ void worldInit(World* world, RenderContext* ctx) {
             .height = 4
         },
         .value = 0,
-        .maximum = ((x_end + 1) - x_start) * ((z_end + 1) - z_start) * WORLD_CHUNKS_HEIGHT * 4
+        .maximum = ((x_end + 1) - x_start) * ((z_end + 1) - z_start) * WORLD_CHUNKS_HEIGHT * 5
     };
     DEBUG_LOG("[WORLD] Loading chunks\n");
     for (i32 x = x_start; x <= x_end; x++) {
@@ -152,84 +152,123 @@ void worldInit(World* world, RenderContext* ctx) {
             }
         }
     }
-    /*DEBUG_LOG("[WORLD] Generating Lightmaps\n");*/
-    /*for (i32 x = x_start; x <= x_end; x++) {*/
-    /*    for (i32 z = z_start; z <= z_end; z++) {*/
-    /*        for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {*/
-    /*            DEBUG_LOG("[CHUNK: %d,%d,%d] Generating Lightmap\n", x, 0, z);*/
-    /*            Chunk* chunk = world->chunks[arrayCoord(world, vz, z)]*/
-    /*                                        [arrayCoord(world, vx, x)]*/
-    /*                                        [y];*/
-    /*            chunkGenerateLightmap(chunk);*/
-    /*            fontPrintCentreOffset(*/
-    /*                ctx,*/
-    /*                CENTRE_X,*/
-    /*                CENTRE_Y - ((FONT_CHARACTER_SPRITE_HEIGHT + 2) * 3),*/
-    /*                0,*/
-    /*                "Loading World"*/
-    /*            );*/
-    /*            fontPrintCentreOffset(*/
-    /*                ctx,*/
-    /*                CENTRE_X,*/
-    /*                CENTRE_Y - ((FONT_CHARACTER_SPRITE_HEIGHT + 2) * 2) - 1,*/
-    /*                10,*/
-    /*                "Chunk [%d,%d,%d]",*/
-    /*                x, y, z*/
-    /*            );*/
-    /*            fontPrintCentreOffset(*/
-    /*                ctx,*/
-    /*                CENTRE_X,*/
-    /*                CENTRE_Y - ((FONT_CHARACTER_SPRITE_HEIGHT + 2) * 1) - 1,*/
-    /*                10,*/
-    /*                "Generating Lightmap",*/
-    /*                x, y, z*/
-    /*            );*/
-    /*            backgroundDraw(ctx, 2, 2 * BLOCK_TEXTURE_SIZE, 0 * BLOCK_TEXTURE_SIZE);*/
-    /*            bar.value++;*/
-    /*            progressBarRender(&bar, 1, ctx);*/
-    /*            swapBuffers(ctx);*/
-    /*        }*/
-    /*    }*/
-    /*}*/
-    /*DEBUG_LOG("[WORLD] Propagating Light");*/
-    /*for (i32 x = x_start; x <= x_end; x++) {*/
-    /*    for (i32 z = z_start; z <= z_end; z++) {*/
-    /*        for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {*/
-    /*            DEBUG_LOG("[CHUNK: %d,%d,%d] Propagating Light\n", x, 0, z);*/
-    /*            Chunk* chunk = world->chunks[arrayCoord(world, vz, z)]*/
-    /*                                        [arrayCoord(world, vx, x)]*/
-    /*                                        [y];*/
-    /*            chunkUpdateAddLight(chunk);*/
-    /*            fontPrintCentreOffset(*/
-    /*                ctx,*/
-    /*                CENTRE_X,*/
-    /*                CENTRE_Y - ((FONT_CHARACTER_SPRITE_HEIGHT + 2) * 3),*/
-    /*                0,*/
-    /*                "Loading World"*/
-    /*            );*/
-    /*            fontPrintCentreOffset(*/
-    /*                ctx,*/
-    /*                CENTRE_X,*/
-    /*                CENTRE_Y - ((FONT_CHARACTER_SPRITE_HEIGHT + 2) * 2) - 1,*/
-    /*                10,*/
-    /*                "Chunk [%d,%d,%d]",*/
-    /*                x, y, z*/
-    /*            );*/
-    /*            fontPrintCentreOffset(*/
-    /*                ctx,*/
-    /*                CENTRE_X,*/
-    /*                CENTRE_Y - ((FONT_CHARACTER_SPRITE_HEIGHT + 2) * 1) - 1,*/
-    /*                10,*/
-    /*                "Propagating Light",*/
-    /*                x, y, z*/
-    /*            );*/
-    /*            backgroundDraw(ctx, 2, 2 * BLOCK_TEXTURE_SIZE, 0 * BLOCK_TEXTURE_SIZE);*/
-    /*            bar.value++;*/
-    /*            progressBarRender(&bar, 1, ctx);*/
-    /*            swapBuffers(ctx);*/
-    /*        }*/
-    /*    }*/
-    /*}*/
+    DEBUG_LOG("[WORLD] Generating Lightmaps\n");
+    for (i32 x = x_start; x <= x_end; x++) {
+        for (i32 z = z_start; z <= z_end; z++) {
+            for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
+                DEBUG_LOG("[CHUNK: %d,%d,%d] Generating Lightmap\n", x, 0, z);
+                Chunk* chunk = world->chunks[arrayCoord(world, vz, z)]
+                                            [arrayCoord(world, vx, x)]
+                                            [y];
+                chunkGenerateLightmap(chunk);
+                fontPrintCentreOffset(
+                    ctx,
+                    CENTRE_X,
+                    CENTRE_Y - ((FONT_CHARACTER_SPRITE_HEIGHT + 2) * 3),
+                    0,
+                    "Loading World"
+                );
+                fontPrintCentreOffset(
+                    ctx,
+                    CENTRE_X,
+                    CENTRE_Y - ((FONT_CHARACTER_SPRITE_HEIGHT + 2) * 2) - 1,
+                    10,
+                    "Chunk [%d,%d,%d]",
+                    x, y, z
+                );
+                fontPrintCentreOffset(
+                    ctx,
+                    CENTRE_X,
+                    CENTRE_Y - ((FONT_CHARACTER_SPRITE_HEIGHT + 2) * 1) - 1,
+                    10,
+                    "Generating Lightmap",
+                    x, y, z
+                );
+                backgroundDraw(ctx, 2, 2 * BLOCK_TEXTURE_SIZE, 0 * BLOCK_TEXTURE_SIZE);
+                bar.value++;
+                progressBarRender(&bar, 1, ctx);
+                swapBuffers(ctx);
+            }
+        }
+    }
+    DEBUG_LOG("[WORLD] Propagating Light");
+    for (i32 x = x_start; x <= x_end; x++) {
+        for (i32 z = z_start; z <= z_end; z++) {
+            for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
+                DEBUG_LOG("[CHUNK: %d,%d,%d] Propagating Light\n", x, 0, z);
+                Chunk* chunk = world->chunks[arrayCoord(world, vz, z)]
+                                            [arrayCoord(world, vx, x)]
+                                            [y];
+                chunkPropagateLightmap(chunk);
+                fontPrintCentreOffset(
+                    ctx,
+                    CENTRE_X,
+                    CENTRE_Y - ((FONT_CHARACTER_SPRITE_HEIGHT + 2) * 3),
+                    0,
+                    "Loading World"
+                );
+                fontPrintCentreOffset(
+                    ctx,
+                    CENTRE_X,
+                    CENTRE_Y - ((FONT_CHARACTER_SPRITE_HEIGHT + 2) * 2) - 1,
+                    10,
+                    "Chunk [%d,%d,%d]",
+                    x, y, z
+                );
+                fontPrintCentreOffset(
+                    ctx,
+                    CENTRE_X,
+                    CENTRE_Y - ((FONT_CHARACTER_SPRITE_HEIGHT + 2) * 1) - 1,
+                    10,
+                    "Propagating Light",
+                    x, y, z
+                );
+                backgroundDraw(ctx, 2, 2 * BLOCK_TEXTURE_SIZE, 0 * BLOCK_TEXTURE_SIZE);
+                bar.value++;
+                progressBarRender(&bar, 1, ctx);
+                swapBuffers(ctx);
+            }
+        }
+    }
+    DEBUG_LOG("[WORLD] Processing Light Updates");
+    for (i32 x = x_start; x <= x_end; x++) {
+        for (i32 z = z_start; z <= z_end; z++) {
+            for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
+                DEBUG_LOG("[CHUNK: %d,%d,%d] Propagating Light\n", x, 0, z);
+                Chunk* chunk = world->chunks[arrayCoord(world, vz, z)]
+                                            [arrayCoord(world, vx, x)]
+                                            [y];
+                chunkUpdateAddLight(chunk);
+                fontPrintCentreOffset(
+                    ctx,
+                    CENTRE_X,
+                    CENTRE_Y - ((FONT_CHARACTER_SPRITE_HEIGHT + 2) * 3),
+                    0,
+                    "Loading World"
+                );
+                fontPrintCentreOffset(
+                    ctx,
+                    CENTRE_X,
+                    CENTRE_Y - ((FONT_CHARACTER_SPRITE_HEIGHT + 2) * 2) - 1,
+                    10,
+                    "Chunk [%d,%d,%d]",
+                    x, y, z
+                );
+                fontPrintCentreOffset(
+                    ctx,
+                    CENTRE_X,
+                    CENTRE_Y - ((FONT_CHARACTER_SPRITE_HEIGHT + 2) * 1) - 1,
+                    10,
+                    "Processing Light Updates",
+                    x, y, z
+                );
+                backgroundDraw(ctx, 2, 2 * BLOCK_TEXTURE_SIZE, 0 * BLOCK_TEXTURE_SIZE);
+                bar.value++;
+                progressBarRender(&bar, 1, ctx);
+                swapBuffers(ctx);
+            }
+        }
+    }
     DEBUG_LOG("[WORLD] Finished loading\n");
 }
 

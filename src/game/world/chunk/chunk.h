@@ -33,6 +33,7 @@ void chunkClearMesh(Chunk* chunk);
 // and then applying any pending updates in the add light
 // queue. This should be caled after generating a chunk.
 void chunkGenerateLightmap(Chunk* chunk);
+void chunkPropagateLightmap(Chunk* chunk);
 
 /**
  * @brief Sets a block at a given location in the chunk, invoking the @code destroy@endcode

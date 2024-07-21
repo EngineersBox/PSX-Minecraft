@@ -15,9 +15,9 @@
 #define CHUNK_DIRECTIONS 3
 #define CHUNK_AXIS_NEIGHBOURS (CHUNK_DIRECTIONS * 2)
 // -1 = unlimited
-#define CHUNK_LIGHT_ADD_BLOCK_UPDATES_PER_TICK 20
-#define CHUNK_LIGHT_ADD_SKY_UPDATES_PER_TICK 20
-#define CHUNK_LIGHT_REMOVE_UPDATES_PER_TICK 20
+#define CHUNK_LIGHT_ADD_BLOCK_UPDATES_PER_TICK -1
+#define CHUNK_LIGHT_ADD_SKY_UPDATES_PER_TICK -1
+#define CHUNK_LIGHT_REMOVE_UPDATES_PER_TICK -1
 
 #define chunkBlockIndex(x, y, z) ((z) + ((y) * CHUNK_SIZE) + ((x) * CHUNK_SIZE * CHUNK_SIZE))
 
@@ -55,6 +55,7 @@ typedef struct Chunk {
     VECTOR position;
     ChunkMesh mesh;
     IBlock* blocks[CHUNK_DATA_SIZE];
+    u8 heightmap[CHUNK_SIZE * CHUNK_SIZE];
     LightMap lightmap;
     ChunkUpdates updates;
     cvector(IItem*) dropped_items;
