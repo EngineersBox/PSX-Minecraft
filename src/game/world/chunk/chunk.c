@@ -710,8 +710,8 @@ void chunkUpdateLight(Chunk* chunk) {
 #endif
 
 void chunkUpdateAddLight(Chunk* chunk) {
-    chunk->lightmap_updated = !cvector_empty(chunk->updates.light_add_queue)
-                           || !cvector_empty(chunk->updates.sunlight_queue);
+    chunk->lightmap_updated = hashmap_count(chunk->updates.light_add_queue) != 0
+                            || hashmap_count(chunk->updates.sunlight_queue) != 0;
     // Block light
     /*while (!cvector_empty(chunk->updates.light_add_queue)) {*/
     size_t processed_updates = 0;
@@ -848,7 +848,7 @@ void chunkUpdateAddLight(Chunk* chunk) {
 }
 
 void chunkUpdateRemoveLight(Chunk* chunk) {
-    chunk->lightmap_updated = !cvector_empty(chunk->updates.light_remove_queue);
+    chunk->lightmap_updated = hashmap_count(chunk->updates.light_remove_queue) != 0;
     /*while (!cvector_empty(chunk->updates.light_remove_queue)) {*/
     size_t processed_updates = 0;
     size_t iter;
