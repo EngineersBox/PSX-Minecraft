@@ -18,6 +18,13 @@
 #include "meshing/binary_greedy_mesher.h"
 #include "psxapi.h"
 
+const LightUpdateLimits chunk_light_update_limits = (LightUpdateLimits) {
+    .add_block = CHUNK_LIGHT_ADD_BLOCK_UPDATES_PER_TICK,
+    .add_sky = CHUNK_LIGHT_ADD_SKY_UPDATES_PER_TICK,
+    .remove_block = CHUNK_LIGHT_REMOVE_BLOCK_UPDATES_PER_TICK,
+    .remove_sky = CHUNK_LIGHT_REMOVE_SKY_UPDATES_PER_TICK
+};
+
 // Forward declaration
 FWD_DECL IBlock* worldGetBlock(const World* world, const VECTOR* position);
 FWD_DECL Chunk* worldGetChunk(const World* world, const VECTOR* position);
@@ -596,7 +603,7 @@ void chunkUpdate(Chunk* chunk, const Player* player) {
         }
         i++;
     }
-    chunkUpdateLight(chunk);
+    chunkUpdateLight(chunk, chunk_light_update_limits);
 }
 
 
@@ -688,28 +695,14 @@ void chunkRemoveLightValue(Chunk* chunk,
     );
 }
 
-void chunkUpdateLight(Chunk* chunk) {
-    chunkUpdateRemoveLight(chunk);
-    chunkUpdateAddLight(chunk);
+void chunkUpdateLight(Chunk* chunk, const LightUpdateLimits limits) {
+    chunkUpdateRemoveLight(chunk, limits);
+    chunkUpdateAddLight(chunk, limits);
 }
 
-#if CHUNK_LIGHT_ADD_BLOCK_UPDATES_PER_TICK >= 0
-#define lightAddBlockCheckLimit(iter) ((iter) < CHUNK_LIGHT_ADD_BLOCK_UPDATES_PER_TICK)
-#else
-#define lightAddBlockCheckLimit(iter) true
-#endif
-#if CHUNK_LIGHT_ADD_SKY_UPDATES_PER_TICK >= 0
-#define lightAddSkyCheckLimit(iter) ((iter) < CHUNK_LIGHT_ADD_SKY_UPDATES_PER_TICK)
-#else
-#define lightAddSkyCheckLimit(iter) true
-#endif
-#if CHUNK_LIGHT_REMOVE_UPDATES_PER_TICK >= 0
-#define lightRemoveCheckLimit(iter) ((iter) < CHUNK_LIGHT_REMOVE_UPDATES_PER_TICK)
-#else
-#define lightRemoveCheckLimit(iter) true
-#endif
+#define lightCheckLimit(limit, iter) ((limit) < 0 || (iter) < ((size_t) limit))
 
-void chunkUpdateAddLight(Chunk* chunk) {
+void chunkUpdateAddLight(Chunk* chunk, const LightUpdateLimits limits) {
     chunk->lightmap_updated = hashmap_count(chunk->updates.light_add_queue) != 0
                             || hashmap_count(chunk->updates.sunlight_queue) != 0;
     // Block light
@@ -718,7 +711,7 @@ void chunkUpdateAddLight(Chunk* chunk) {
     size_t iter = 0;
     void* item;
     /*DEBUG_LOG("[CHUNK] Add light queue: %d\n", hashmap_count(chunk->updates.light_add_queue));*/
-    while (lightAddBlockCheckLimit(processed_updates)
+    while (lightCheckLimit(limits.add_block, processed_updates)
             && hashmap_iter(chunk->updates.light_add_queue, &iter, &item)) {
         const LightAddNode* node = item;
         const VECTOR current_pos = node->position;
@@ -784,7 +777,7 @@ void chunkUpdateAddLight(Chunk* chunk) {
     /*DEBUG_LOG("[CHUNK] Add sunlight queue: %d\n", hashmap_count(chunk->updates.sunlight_queue));*/
     // Sky light
     /*while (!cvector_empty(chunk->updates.sunlight_queue)) {*/
-    while (lightAddSkyCheckLimit(processed_updates)
+    while (lightCheckLimit(limits.add_sky, processed_updates)
             && hashmap_iter(chunk->updates.sunlight_queue, &iter, &item)) {
         const LightAddNode* node = item;
         const VECTOR current_pos = node->position;
@@ -847,14 +840,14 @@ void chunkUpdateAddLight(Chunk* chunk) {
     }
 }
 
-void chunkUpdateRemoveLight(Chunk* chunk) {
+void chunkUpdateRemoveLight(Chunk* chunk, const LightUpdateLimits limits) {
     chunk->lightmap_updated = hashmap_count(chunk->updates.light_remove_queue) != 0;
     /*while (!cvector_empty(chunk->updates.light_remove_queue)) {*/
     size_t processed_updates = 0;
     size_t iter = 0;
     void* item;
     /*DEBUG_LOG("[CHUNK] Remove light queue: %d\n", hashmap_count(chunk->updates.light_remove_queue));*/
-    while (lightRemoveCheckLimit(processed_updates)
+    while (lightCheckLimit(limits.remove_block, processed_updates)
             && hashmap_iter(chunk->updates.light_remove_queue, &iter, &item)) {
         const LightRemoveNode* node = item;
         const VECTOR current_pos = node->position;

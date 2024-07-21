@@ -12,6 +12,14 @@
 #include "../ui/background.h"
 #include "../../logging/logging.h"
 #include "chunk/chunk.h"
+#include "chunk/chunk_structure.h"
+
+const LightUpdateLimits world_chunk_init_limits = (LightUpdateLimits) {
+    .add_block = 0,
+    .add_sky = 0,
+    .remove_block = 0,
+    .remove_sky = 0
+};
 
 // NOTE: Cast to i32 is necessary here since computing modulo of 0 - 1
 //       is actually computing modulo over 0u32 - 1 == u32::MAX so we end
@@ -163,7 +171,7 @@ void worldInit(World* world, RenderContext* ctx) {
                 Chunk* chunk = world->chunks[arrayCoord(world, vz, z)]
                                             [arrayCoord(world, vx, x)]
                                             [y];
-                chunkUpdateAddLight(chunk);
+                chunkUpdateLight(chunk, world_chunk_init_limits);
                 displayProgress("Processing Light Updates");
             }
         }

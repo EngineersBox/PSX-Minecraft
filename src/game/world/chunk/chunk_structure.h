@@ -15,9 +15,17 @@
 #define CHUNK_DIRECTIONS 3
 #define CHUNK_AXIS_NEIGHBOURS (CHUNK_DIRECTIONS * 2)
 // -1 = unlimited
+typedef struct {
+    i16 add_block;
+    i16 add_sky;
+    i16 remove_block;
+    i16 remove_sky;
+} LightUpdateLimits;
+extern const LightUpdateLimits chunk_light_update_limits;
 #define CHUNK_LIGHT_ADD_BLOCK_UPDATES_PER_TICK -1
 #define CHUNK_LIGHT_ADD_SKY_UPDATES_PER_TICK -1
-#define CHUNK_LIGHT_REMOVE_UPDATES_PER_TICK -1
+#define CHUNK_LIGHT_REMOVE_BLOCK_UPDATES_PER_TICK -1
+#define CHUNK_LIGHT_REMOVE_SKY_UPDATES_PER_TICK -1
 
 #define chunkBlockIndex(x, y, z) ((z) + ((y) * CHUNK_SIZE) + ((x) * CHUNK_SIZE * CHUNK_SIZE))
 
