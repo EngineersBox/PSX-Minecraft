@@ -51,6 +51,34 @@ void worldInit(World* world, RenderContext* ctx) {
         .value = 0,
         .maximum = ((x_end + 1) - x_start) * ((z_end + 1) - z_start) * WORLD_CHUNKS_HEIGHT * 5
     };
+#define displayProgress(msg) \
+    fontPrintCentreOffset( \
+        ctx, \
+        CENTRE_X, \
+        CENTRE_Y - ((FONT_CHARACTER_SPRITE_HEIGHT + 2) * 3), \
+        0, \
+        "Loading World" \
+    ); \
+    fontPrintCentreOffset( \
+        ctx, \
+        CENTRE_X, \
+        CENTRE_Y - ((FONT_CHARACTER_SPRITE_HEIGHT + 2) * 2) - 1, \
+        10, \
+        "Chunk [%d,%d,%d]", \
+        x, y, z \
+    ); \
+    fontPrintCentreOffset( \
+        ctx, \
+        CENTRE_X, \
+        CENTRE_Y - ((FONT_CHARACTER_SPRITE_HEIGHT + 2) * 1) - 1, \
+        10, \
+        msg, \
+        x, y, z \
+    ); \
+    backgroundDraw(ctx, 2, 2 * BLOCK_TEXTURE_SIZE, 0 * BLOCK_TEXTURE_SIZE); \
+    bar.value++; \
+    progressBarRender(&bar, 1, ctx); \
+    swapBuffers(ctx);
     DEBUG_LOG("[WORLD] Loading chunks\n");
     for (i32 x = x_start; x <= x_end; x++) {
         for (i32 z = z_start; z <= z_end; z++) {
@@ -62,32 +90,7 @@ void worldInit(World* world, RenderContext* ctx) {
                 world->chunks[arrayCoord(world, vz, z)]
                              [arrayCoord(world, vx, x)]
                              [y] = chunk;
-                fontPrintCentreOffset(
-                    ctx,
-                    CENTRE_X,
-                    CENTRE_Y - ((FONT_CHARACTER_SPRITE_HEIGHT + 2) * 3),
-                    0,
-                    "Loading World"
-                );
-                fontPrintCentreOffset(
-                    ctx,
-                    CENTRE_X,
-                    CENTRE_Y - ((FONT_CHARACTER_SPRITE_HEIGHT + 2) * 2) - 1,
-                    10,
-                    "Chunk [%d,%d,%d]",
-                    x, y, z
-                );
-                fontPrintCentreOffset(
-                    ctx,
-                    CENTRE_X,
-                    CENTRE_Y - ((FONT_CHARACTER_SPRITE_HEIGHT + 2) * 1) - 1,
-                    0,
-                    "Loading Chunk Data"
-                );
-                backgroundDraw(ctx, 2, 2 * BLOCK_TEXTURE_SIZE, 0 * BLOCK_TEXTURE_SIZE);
-                bar.value++;
-                progressBarRender(&bar, 1, ctx);
-                swapBuffers(ctx);
+                displayProgress("Loading Chunk Data");
             }
         }
     }
@@ -122,33 +125,7 @@ void worldInit(World* world, RenderContext* ctx) {
                     layoutMeshAttrs(n_norms)
                 );
                 #undef layoutMeshAttrs
-                fontPrintCentreOffset(
-                    ctx,
-                    CENTRE_X,
-                    CENTRE_Y - ((FONT_CHARACTER_SPRITE_HEIGHT + 2) * 3),
-                    0,
-                    "Loading World"
-                );
-                fontPrintCentreOffset(
-                    ctx,
-                    CENTRE_X,
-                    CENTRE_Y - ((FONT_CHARACTER_SPRITE_HEIGHT + 2) * 2) - 1,
-                    10,
-                    "Chunk [%d,%d,%d]",
-                    x, y, z
-                );
-                fontPrintCentreOffset(
-                    ctx,
-                    CENTRE_X,
-                    CENTRE_Y - ((FONT_CHARACTER_SPRITE_HEIGHT + 2) * 1) - 1,
-                    10,
-                    "Building Mesh",
-                    x, y, z
-                );
-                backgroundDraw(ctx, 2, 2 * BLOCK_TEXTURE_SIZE, 0 * BLOCK_TEXTURE_SIZE);
-                bar.value++;
-                progressBarRender(&bar, 1, ctx);
-                swapBuffers(ctx);
+                displayProgress("Building Mesh");
             }
         }
     }
@@ -161,33 +138,7 @@ void worldInit(World* world, RenderContext* ctx) {
                                             [arrayCoord(world, vx, x)]
                                             [y];
                 chunkGenerateLightmap(chunk);
-                fontPrintCentreOffset(
-                    ctx,
-                    CENTRE_X,
-                    CENTRE_Y - ((FONT_CHARACTER_SPRITE_HEIGHT + 2) * 3),
-                    0,
-                    "Loading World"
-                );
-                fontPrintCentreOffset(
-                    ctx,
-                    CENTRE_X,
-                    CENTRE_Y - ((FONT_CHARACTER_SPRITE_HEIGHT + 2) * 2) - 1,
-                    10,
-                    "Chunk [%d,%d,%d]",
-                    x, y, z
-                );
-                fontPrintCentreOffset(
-                    ctx,
-                    CENTRE_X,
-                    CENTRE_Y - ((FONT_CHARACTER_SPRITE_HEIGHT + 2) * 1) - 1,
-                    10,
-                    "Generating Lightmap",
-                    x, y, z
-                );
-                backgroundDraw(ctx, 2, 2 * BLOCK_TEXTURE_SIZE, 0 * BLOCK_TEXTURE_SIZE);
-                bar.value++;
-                progressBarRender(&bar, 1, ctx);
-                swapBuffers(ctx);
+                displayProgress("Generating Lightmap");
             }
         }
     }
@@ -200,33 +151,7 @@ void worldInit(World* world, RenderContext* ctx) {
                                             [arrayCoord(world, vx, x)]
                                             [y];
                 chunkPropagateLightmap(chunk);
-                fontPrintCentreOffset(
-                    ctx,
-                    CENTRE_X,
-                    CENTRE_Y - ((FONT_CHARACTER_SPRITE_HEIGHT + 2) * 3),
-                    0,
-                    "Loading World"
-                );
-                fontPrintCentreOffset(
-                    ctx,
-                    CENTRE_X,
-                    CENTRE_Y - ((FONT_CHARACTER_SPRITE_HEIGHT + 2) * 2) - 1,
-                    10,
-                    "Chunk [%d,%d,%d]",
-                    x, y, z
-                );
-                fontPrintCentreOffset(
-                    ctx,
-                    CENTRE_X,
-                    CENTRE_Y - ((FONT_CHARACTER_SPRITE_HEIGHT + 2) * 1) - 1,
-                    10,
-                    "Propagating Light",
-                    x, y, z
-                );
-                backgroundDraw(ctx, 2, 2 * BLOCK_TEXTURE_SIZE, 0 * BLOCK_TEXTURE_SIZE);
-                bar.value++;
-                progressBarRender(&bar, 1, ctx);
-                swapBuffers(ctx);
+                displayProgress("Propagating Light");
             }
         }
     }
@@ -239,36 +164,11 @@ void worldInit(World* world, RenderContext* ctx) {
                                             [arrayCoord(world, vx, x)]
                                             [y];
                 chunkUpdateAddLight(chunk);
-                fontPrintCentreOffset(
-                    ctx,
-                    CENTRE_X,
-                    CENTRE_Y - ((FONT_CHARACTER_SPRITE_HEIGHT + 2) * 3),
-                    0,
-                    "Loading World"
-                );
-                fontPrintCentreOffset(
-                    ctx,
-                    CENTRE_X,
-                    CENTRE_Y - ((FONT_CHARACTER_SPRITE_HEIGHT + 2) * 2) - 1,
-                    10,
-                    "Chunk [%d,%d,%d]",
-                    x, y, z
-                );
-                fontPrintCentreOffset(
-                    ctx,
-                    CENTRE_X,
-                    CENTRE_Y - ((FONT_CHARACTER_SPRITE_HEIGHT + 2) * 1) - 1,
-                    10,
-                    "Processing Light Updates",
-                    x, y, z
-                );
-                backgroundDraw(ctx, 2, 2 * BLOCK_TEXTURE_SIZE, 0 * BLOCK_TEXTURE_SIZE);
-                bar.value++;
-                progressBarRender(&bar, 1, ctx);
-                swapBuffers(ctx);
+                displayProgress("Processing Light Updates");
             }
         }
     }
+#undef displayProgress
     DEBUG_LOG("[WORLD] Finished loading\n");
 }
 

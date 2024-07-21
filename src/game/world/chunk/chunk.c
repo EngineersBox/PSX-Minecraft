@@ -851,7 +851,7 @@ void chunkUpdateRemoveLight(Chunk* chunk) {
     chunk->lightmap_updated = hashmap_count(chunk->updates.light_remove_queue) != 0;
     /*while (!cvector_empty(chunk->updates.light_remove_queue)) {*/
     size_t processed_updates = 0;
-    size_t iter;
+    size_t iter = 0;
     void* item;
     /*DEBUG_LOG("[CHUNK] Remove light queue: %d\n", hashmap_count(chunk->updates.light_remove_queue));*/
     while (lightRemoveCheckLimit(processed_updates)
@@ -875,10 +875,10 @@ void chunkUpdateRemoveLight(Chunk* chunk) {
             )
         );
         #pragma GCC unroll 6
-        for (FaceDirection i = FACE_DIR_DOWN; i <= FACE_DIR_FRONT; i++) {
+        for (FaceDirection face_dir = FACE_DIR_DOWN; face_dir <= FACE_DIR_FRONT; face_dir++) {
             const VECTOR query_pos = vec3_add(
                 world_pos,
-                FACE_DIRECTION_NORMALS[i]
+                FACE_DIRECTION_NORMALS[face_dir]
             );
             const IBlock* iblock = worldGetBlock(
                 current_chunk->world,
@@ -891,7 +891,7 @@ void chunkUpdateRemoveLight(Chunk* chunk) {
             // Skip propogating light if we are facing a solid block
             // and the face in that direction is opaque
             if (blockCanPropagateBlocklight(block->id)
-                || blockIsFaceOpaque(block, faceDirectionOpposing(i))) {
+                || blockIsFaceOpaque(block, faceDirectionOpposing(face_dir))) {
                 continue;
             }
             const ChunkBlockPosition block_pos = worldToChunkBlockPosition(
