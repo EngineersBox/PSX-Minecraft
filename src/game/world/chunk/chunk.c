@@ -94,7 +94,7 @@ void chunkInit(Chunk* chunk) {
     chunk->mesh_updated = false;
     memset(
         chunk->sunlight_heightmap,
-        CHUNK_SIZE - 1,
+        CHUNK_SIZE,
         sizeof(*chunk->sunlight_heightmap) * CHUNK_SIZE * CHUNK_SIZE
     );
     chunk->dropped_items = NULL;
@@ -220,7 +220,7 @@ void chunkGenerateLightmap(Chunk* chunk) {
             if (y == CHUNK_SIZE - 1) {
                 // We have all solid blocks at the top layer
                 // so we can just skip all sunlight generation.
-                chunk->is_top = true;
+                chunk->is_top = false;
             }
             break;
         }
@@ -254,26 +254,21 @@ void chunkPropagateLightmap(Chunk* chunk) {
                         &cb_pos,
                         CHUNK_SIZE
                     );
-                    DEBUG_LOG(
-                        "[CHUNK] Pos: " VEC_PATTERN " Face Pos: " VEC_PATTERN "\n",
-                        VEC_LAYOUT(position),
-                        VEC_LAYOUT(face_position)
-                    );
                     cb_pos = worldToChunkBlockPosition(&query_pos, CHUNK_SIZE);
                     const Chunk* query_chunk = worldGetChunkFromChunkBlock(
                         chunk->world,
                         &cb_pos
                     );
                     if (query_chunk == NULL
-                        || getSunlight(query_chunk, cb_pos.block.vx, cb_pos.block.vz) < y) {
-                        // Highest block in facing direction is lower than this
-                        // block, so it's just sunlight. We don't need to propagate
+                        || getSunlight(query_chunk, cb_pos.block.vx, cb_pos.block.vz) <= y) {
+                        // Highest sunlight-propagating block in facing direction is lower
+                        // than this block, so it's just sunlight. We don't need to propagate
                         // sunlight there since we already did that.
                         continue;
                     }
                     // Block in the facing direction is below the heightmap, so
                     // can potentially propagate skylight.
-                    const IBlock* iblock = chunkGetBlockVec(chunk, &query_pos);
+                    const IBlock* iblock = chunkGetBlockVec(query_chunk, &cb_pos.block);
                     assert(iblock != NULL);
                     const Block* block = VCAST_PTR(Block*, iblock);
                     if (blockCanPropagateSunlight(block->id)
@@ -281,7 +276,6 @@ void chunkPropagateLightmap(Chunk* chunk) {
                         // Light can propagate in this direction, so we have at
                         // least one valid direction. Add this block to the queue
                         // and skip the rest of the direction checks here.
-                        DEBUG_LOG("[CHUNK] Can propagate to %s\n", blockGetName(block->id));
                         chunkSetLightValue(
                             chunk,
                             &position,
