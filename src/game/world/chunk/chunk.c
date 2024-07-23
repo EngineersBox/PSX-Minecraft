@@ -184,15 +184,11 @@ void chunkGenerateMesh(Chunk* chunk) {
 #define getSunlight(chunk, x, z) (chunk)->sunlight_heightmap[((x) * CHUNK_SIZE) + (z)]
 
 void chunkGenerateLightmap(Chunk* chunk) {
-    bool sunlight_column_finished[CHUNK_SIZE * CHUNK_SIZE] = {false};
-    u32 finished_count = 0;
+    bool is_top = true;
     chunk->is_top = true;
-    for (i32 y = CHUNK_SIZE - 1; y >= 0; y--) {
-        for (i32 x = 0; x < CHUNK_SIZE; x++) {
-            for (i32 z = 0; z < CHUNK_SIZE; z++) {
-                if (sunlight_column_finished[(x * CHUNK_SIZE) + z]) {
-                    continue;
-                }
+    for (i32 x = 0; x < CHUNK_SIZE; x++) {
+        for (i32 z = 0; z < CHUNK_SIZE; z++) {
+            for (i32 y = CHUNK_SIZE - 1; y >= 0; y--) {
                 const VECTOR position = vec3_i32(x, y, z);
                 const IBlock* iblock = chunkGetBlockVec(chunk, &position);
                 assert(iblock != NULL);
@@ -211,20 +207,17 @@ void chunkGenerateLightmap(Chunk* chunk) {
                     );
                     getSunlight(chunk, x, z)--;
                 } else {
-                    sunlight_column_finished[(x * CHUNK_SIZE) + z] = true;
-                    finished_count++;
+                    // NOTE: We are at the top so long as there is at least
+                    // one air block at the top of the chunk (for now). In
+                    // future this will be based on whether the chunk Y range
+                    // is within the heighmap for this column of chunks.
+                    is_top &= y == CHUNK_SIZE - 1;
+                    break;
                 }
             }
         }
-        if (finished_count >= CHUNK_SIZE * CHUNK_SIZE) {
-            if (y == CHUNK_SIZE - 1) {
-                // We have all solid blocks at the top layer
-                // so we can just skip all sunlight generation.
-                chunk->is_top = false;
-            }
-            break;
-        }
     }
+    chunk->is_top = is_top;
 }
 
 void chunkPropagateLightmap(Chunk* chunk) {
