@@ -229,7 +229,7 @@ void chunkPropagateLightmap(Chunk* chunk) {
             // We only want to determine if the sunlight
             // columns have visible neighbours that are
             // not in sunlight, so we skip any blocks that
-            // are not in the sunlight columns
+            // are not in the sunlight columns.
             const i32 sunlight_col_end = getSunlight(chunk, x, z);
             for (i32 y = CHUNK_SIZE - 1; y >= sunlight_col_end; y--) {
                 const VECTOR position = vec3_i32(x, y, z);
@@ -259,8 +259,9 @@ void chunkPropagateLightmap(Chunk* chunk) {
                         // sunlight there since we already did that.
                         continue;
                     }
-                    // Block in the facing direction is below the heightmap, so
-                    // can potentially propagate skylight.
+                    // Block in the facing direction is below the sunlight column, so
+                    // can potentially propagate skylight. We check that to determine
+                    // whether propagation is necessary.
                     const IBlock* iblock = chunkGetBlockVec(query_chunk, &cb_pos.block);
                     assert(iblock != NULL);
                     const Block* block = VCAST_PTR(Block*, iblock);
