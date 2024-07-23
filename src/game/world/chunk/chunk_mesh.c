@@ -198,7 +198,7 @@ static void renderQuad(const Mesh* mesh,
     // Testing colour modulation with Gouraud shading
     /*setRGB1(pol4, 128, 0, 0);*/
     /*setRGB2(pol4, 0, 128, 0);*/
-    /*setRGB3(pol4, 0, 0, 128);;*/
+    /*setRGB3(pol4, 0, 0, 128);*/
     // Bind off-screen merge texture page and colour look-up-table
     pol4->tpage = getTPage(
         2,

@@ -9,7 +9,7 @@
 #include "../game/world/chunk/chunk_structure.h"
 
 #define LIGHT_BLOCK_MASK 0b11110000
-#define LIGHT_SKY_MASK 0b1111
+#define LIGHT_SKY_MASK 0b00001111
 
 typedef u8 LightMap[CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE];
 
