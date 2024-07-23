@@ -15,7 +15,7 @@
 #define CHUNK_DIRECTIONS 3
 #define CHUNK_AXIS_NEIGHBOURS (CHUNK_DIRECTIONS * 2)
 // -1 = unlimited
-typedef struct {
+typedef struct LightUpdateLimits {
     i16 add_block;
     i16 add_sky;
     i16 remove_block;
@@ -30,9 +30,9 @@ extern const LightUpdateLimits chunk_light_update_limits;
 #define chunkBlockIndex(x, y, z) ((z) + ((y) * CHUNK_SIZE) + ((x) * CHUNK_SIZE * CHUNK_SIZE))
 
 // Forward declaration
-typedef struct World World;
-typedef struct Chunk Chunk;
-typedef u8 LightMap[CHUNK_DATA_SIZE];
+FWD_DECL typedef struct World World;
+FWD_DECL typedef struct Chunk Chunk;
+FWD_DECL typedef u8 LightMap[CHUNK_DATA_SIZE];
 
 typedef struct LightAddNode {
     VECTOR position;
