@@ -181,6 +181,8 @@ void chunkGenerateMesh(Chunk* chunk) {
     chunkGenerateMeshWithBreakingState(chunk, NULL);
 }
 
+#define getSunlight(chunk, x, z) (chunk)->sunlight_heightmap[((x) * CHUNK_SIZE) + (z)]
+
 void chunkGenerateLightmap(Chunk* chunk) {
     bool sunlight_column_finished[CHUNK_SIZE * CHUNK_SIZE] = {false};
     u32 finished_count = 0;
@@ -207,7 +209,7 @@ void chunkGenerateLightmap(Chunk* chunk) {
                         15,
                         LIGHT_TYPE_SKY
                     );
-                    chunk->sunlight_heightmap[(x * CHUNK_SIZE) + z]--;
+                    getSunlight(chunk, x, z)--;
                 } else {
                     sunlight_column_finished[(x * CHUNK_SIZE) + z] = true;
                     finished_count++;
@@ -229,16 +231,14 @@ void chunkPropagateLightmap(Chunk* chunk) {
     if (!chunk->is_top) {
         return;
     }
-    for (i32 y = CHUNK_SIZE - 1; y >= 0; y--) {
-        for (i32 x = 0; x < CHUNK_SIZE; x++) {
-            for (i32 z = 0; z < CHUNK_SIZE; z++) {
-                if (chunk->sunlight_heightmap[(x *CHUNK_SIZE) + z] <= y) {
-                    // We only want to determine if the sunlight
-                    // columns have visible neighbours that are
-                    // not in sunlight, so we skip any blocks that
-                    // are not in the sunlight columns
-                    continue;
-                }
+    for (i32 x = 0; x < CHUNK_SIZE; x++) {
+        for (i32 z = 0; z < CHUNK_SIZE; z++) {
+            // We only want to determine if the sunlight
+            // columns have visible neighbours that are
+            // not in sunlight, so we skip any blocks that
+            // are not in the sunlight columns
+            const i32 sunlight_col_end = getSunlight(chunk, x, z);
+            for (i32 y = CHUNK_SIZE - 1; y >= sunlight_col_end; y--) {
                 const VECTOR position = vec3_i32(x, y, z);
                 // Left, right, back, front
                 for (FaceDirection face_dir = FACE_DIR_LEFT; face_dir <= FACE_DIR_FRONT; face_dir++) {
@@ -265,7 +265,7 @@ void chunkPropagateLightmap(Chunk* chunk) {
                         &cb_pos
                     );
                     if (query_chunk == NULL
-                        || query_chunk->sunlight_heightmap[(cb_pos.block.vx * CHUNK_SIZE) + cb_pos.block.vz] < y) {
+                        || getSunlight(query_chunk, cb_pos.block.vx, cb_pos.block.vz) < y) {
                         // Highest block in facing direction is lower than this
                         // block, so it's just sunlight. We don't need to propagate
                         // sunlight there since we already did that.
@@ -295,6 +295,8 @@ void chunkPropagateLightmap(Chunk* chunk) {
         }
     }
 }
+
+#undef getSunlight
 
 static void chunkRenderDroppedItems(const Chunk* chunk, RenderContext* ctx, Transforms* transforms) {
     IItem** item;
