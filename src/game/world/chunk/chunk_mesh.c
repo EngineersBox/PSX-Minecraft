@@ -2,6 +2,7 @@
 
 #include <inline_c.h>
 #include <stdlib.h>
+#include <psxgpu.h>
 
 #include "../../structure/cvector.h"
 #include "../../structure/cvector_utils.h"
@@ -10,7 +11,9 @@
 #include "../../logging/logging.h"
 #include "../../render/commands.h"
 #include "chunk_structure.h"
-#include "psxgpu.h"
+
+FWD_DECL u8 lightMapGetValue(const LightMap lightmap, const VECTOR position);
+FWD_DECL u8 lightLevelToOverlayColour(const u8 light_value);
 
 #ifndef QUAD_DUAL_TRI_NCLIP
 #define QUAD_DUAL_TRI_NCLIP 0
@@ -62,7 +65,6 @@ void chunkMeshClear(ChunkMesh* mesh) {
     }
 }
 
-// TODO: Move these to SMD renderer file as general methods
 static void renderLine(MeshPrimitive* primitive, RenderContext* ctx, Transforms* transforms) {
     // TODO
 }
@@ -78,7 +80,11 @@ const RECT lightmap_merge_offscreen = (RECT) {
     .h = ((CHUNK_SIZE + 1) * BLOCK_TEXTURE_SIZE) // Additional here is to account for breaking texture at top
 };
 
-static void renderQuad(const Mesh* mesh, MeshPrimitive* primitive, RenderContext* ctx, Transforms* transforms) {
+static void renderQuad(const Mesh* mesh,
+                       const MeshPrimitive* primitive,
+                       const LightMap lightmap,
+                       RenderContext* ctx,
+                       Transforms* transforms) {
     // TODO: Generalise for textured and non-textured
     int p;
     // int dp;
@@ -226,23 +232,47 @@ static void renderQuad(const Mesh* mesh, MeshPrimitive* primitive, RenderContext
     );
     addPrim(ot_entry, offset);
     const u32 prim_width = primitive->tu1;
+    const u32 prim_tex_width = prim_width >> 4; // Div by BLOCK_TEXTURE_SIZE
     const u32 prim_height = primitive->tv1;
-    /*for (u32 x = 0; x < prim_width; x += BLOCK_TEXTURE_SIZE) {*/
-    /*    for (u32 y = 0; y < prim_height; y += BLOCK_TEXTURE_SIZE) {*/
-    /*        TILE_16* tile = (TILE_16*) allocatePrimitive(ctx, sizeof(TILE_16));*/
-    /*        setTile16(tile);*/
-    /*        setXY0(tile, x, y + BLOCK_TEXTURE_SIZE);*/
-    /*        // TODO: Query lightmap and set overlay colour based on light level*/
-    /*        setRGB0(*/
-    /*            tile,*/
-    /*            (((x + y) << 4) % 3) * 0x80,*/
-    /*            ((((x + y) << 4) + 1) % 3) * 0x80,*/
-    /*            ((((x + y) << 4) + 2) % 3) * 0x80*/
-    /*        );*/
-    /*        setTransparency(tile, true);*/
-    /*        addPrim(ot_entry, tile);*/
-    /*    }*/
-    /*}*/
+    const u32 prim_tex_height = prim_height >> 4;
+#define lightmapPos(x, y, z) vec3_i32( \
+    primitive->lightmap.x, \
+    primitive->lightmap.y, \
+    primitive->lightmap.z \
+);
+    for (u32 x = 0; x < prim_tex_width; x++) {
+        for (u32 y = 0; y < prim_tex_height; y++) {
+            TILE_16* tile = (TILE_16*) allocatePrimitive(ctx, sizeof(TILE_16));
+            setTile16(tile);
+            setXY0(tile, x * BLOCK_TEXTURE_SIZE, (y + 1) * BLOCK_TEXTURE_SIZE);
+            VECTOR query_pos = vec3_i32_all(0);
+            switch (primitive->lightmap.face_dir) {
+                case FACE_DIR_DOWN: query_pos = lightmapPos(x + x, axis, y + y); break;
+                case FACE_DIR_UP: query_pos = lightmapPos(x + x, axis + 1, y + y); break;
+                case FACE_DIR_LEFT: query_pos = lightmapPos(axis, y + y, x + x); break;
+                case FACE_DIR_RIGHT: query_pos = lightmapPos(axis + 1, y + y, x + x); break;
+                case FACE_DIR_BACK: query_pos = lightmapPos(x + x, y + y, axis); break;
+                case FACE_DIR_FRONT: query_pos = lightmapPos(x + x, y + y, axis + 1); break;
+            }
+            const u8 light_level = lightMapGetValue(lightmap, query_pos);
+            const u8 light_colour = lightLevelToOverlayColour(light_level);
+            setRGB0(
+                tile,
+                light_colour,
+                light_colour,
+                light_colour
+            );
+            /*setRGB0(*/
+            /*    tile,*/
+            /*    (((x + y) << 4) % 3) * 0x80,*/
+            /*    ((((x + y) << 4) + 1) % 3) * 0x80,*/
+            /*    ((((x + y) << 4) + 2) % 3) * 0x80*/
+            /*);*/
+            setTransparency(tile, true);
+            addPrim(ot_entry, tile);
+        }
+    }
+#undef lightmapPos
     // Bit quad texture to off-screen location
     pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
     setPolyFT4(pol4);
@@ -303,7 +333,10 @@ static void renderQuad(const Mesh* mesh, MeshPrimitive* primitive, RenderContext
     addPrim(ot_entry, offset);
 }
 
-void chunkMeshRenderFaceDirection(const Mesh* mesh, RenderContext* ctx, Transforms* transforms) {
+void chunkMeshRenderFaceDirection(const Mesh* mesh,
+                                  const LightMap lightmap,
+                                  RenderContext* ctx,
+                                  Transforms* transforms) {
     MeshPrimitive* p_prims = (MeshPrimitive*) mesh->p_prims;
     cvector_iterator(MeshPrimitive) primitive;
     cvector_for_each_in(primitive, p_prims) {
@@ -315,7 +348,7 @@ void chunkMeshRenderFaceDirection(const Mesh* mesh, RenderContext* ctx, Transfor
                 renderTriangle(primitive, ctx, transforms);
                 break;
             case MESH_PRIM_TYPE_QUAD:
-                renderQuad(mesh, primitive, ctx, transforms);
+                renderQuad(mesh, primitive, lightmap, ctx, transforms);
                 break;
             default:
                 printf(
@@ -333,7 +366,10 @@ UNUSED bool faceDirectionHidden(RenderContext* ctx, FaceDirection face_dir) {
     return false;
 }
 
-void chunkMeshRender(const ChunkMesh* mesh, RenderContext* ctx, Transforms* transforms) {
+void chunkMeshRender(const ChunkMesh* mesh,
+                     const LightMap lightmap,
+                     RenderContext* ctx,
+                     Transforms* transforms) {
     // bool skip_check[6] = {false};
     #pragma GCC unroll 6
     for (int i = 0; i < FACE_DIRECTION_COUNT; i++) {
@@ -352,6 +388,7 @@ void chunkMeshRender(const ChunkMesh* mesh, RenderContext* ctx, Transforms* tran
         // }
         chunkMeshRenderFaceDirection(
             &mesh->face_meshes[i],
+            lightmap,
             ctx,
             transforms
         );

@@ -10,6 +10,10 @@
 #include "../../../structure/primitive/direction.h"
 #include "../../../math/vector.h"
 
+// TODO: Move this to global defines file
+#define CHUNK_SIZE 8
+FWD_DECL typedef u8 LightMap[CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE];
+
 #define MESH_PRIMITIVE_TYPE_COUNT 3
 #define MESH_PRIMITIVE_TYPE_BIN_COUNT 2
 typedef enum MeshPrimitiveType {
@@ -18,15 +22,19 @@ typedef enum MeshPrimitiveType {
     MESH_PRIM_TYPE_QUAD
 } MeshPrimitiveType;
 
+typedef struct MeshPrimitiveLightmap {
+    u8 x;
+    u8 y;
+    u8 axis;
+    FaceDirection face_dir;
+} MeshPrimitiveLightmap;
+
 typedef struct MeshPrimitive {
     MeshPrimitiveType type: MESH_PRIMITIVE_TYPE_BIN_COUNT;
     u8 _pad: 8 - MESH_PRIMITIVE_TYPE_BIN_COUNT;
     u16 v0, v1, v2, v3; // Vertex indices
     u16 n0, n1, n2, n3; // Normal indices
-    struct {
-        BVECTOR from_position;
-        BVECTOR to_position;
-    } lightmap;
+    MeshPrimitiveLightmap lightmap;
     u8 r, g, b, tint;
     u8 tu0, tv0;
     u8 tu1, tv1;
@@ -52,7 +60,13 @@ void chunkMeshInit(ChunkMesh* mesh);
 void chunkMeshDestroy(const ChunkMesh* mesh);
 void chunkMeshClear(ChunkMesh* mesh);
 
-void chunkMeshRenderFaceDirection(const Mesh* mesh, RenderContext* ctx, Transforms* transforms);
-void chunkMeshRender(const ChunkMesh* mesh, RenderContext* ctx, Transforms* transforms);
+void chunkMeshRenderFaceDirection(const Mesh* mesh,
+                                  const LightMap lightmap,
+                                  RenderContext* ctx,
+                                  Transforms* transforms);
+void chunkMeshRender(const ChunkMesh* mesh,
+                     const LightMap lightmap,
+                     RenderContext* ctx,
+                     Transforms* transforms);
 
 #endif // PSXMC_CHUNK_MESH_H

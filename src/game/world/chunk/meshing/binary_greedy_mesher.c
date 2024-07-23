@@ -233,7 +233,7 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk, const BreakingState* breaking_sta
                     const VECTOR world_block_position = vec3_add(
                         vec3_const_mul(
                             chunk_block_position.chunk,
-                            CHUNK_SIZE
+        CHUNK_SIZE
                         ),
                         chunk_block_position.block
                     );
@@ -330,20 +330,26 @@ static MeshPrimitive* createPrimitive(ChunkMesh* mesh,
     primitive->r = attributes->tint.r;
     primitive->g = attributes->tint.g;
     primitive->b = attributes->tint.b;
-    primitive->tint= attributes->tint.cd;
-#define setLightmap(from_x, from_y, from_z, to_x, to_y, to_z) ({ \
-    primitive->lightmap.from_position = vec3_u8(from_x, from_y, from_z); \
-    primitive->lightmap.to_position = vec3_u8(to_x, to_y, to_z); \
-})
-    switch (face_dir) {
-        case FACE_DIR_DOWN: setLightmap(x, axis, y, width, 0, height); break;
-        case FACE_DIR_UP: setLightmap(x, axis + 1, y, width, 0, height); break;
-        case FACE_DIR_LEFT: setLightmap(axis, y, x, 0, height, width); break;
-        case FACE_DIR_RIGHT: setLightmap(axis + 1, y, x, 0, height, width); break;
-        case FACE_DIR_BACK: setLightmap(x, y, axis, width, height, 0); break;
-        case FACE_DIR_FRONT: setLightmap(x, y, axis + 1, width, height, 0); break;
-    }
-#undef setLightmap
+    primitive->tint = attributes->tint.cd;
+    primitive->lightmap = (MeshPrimitiveLightmap) {
+        x,
+        y,
+        axis,
+        face_dir
+    };
+/*#define setLightmap(from_x, from_y, from_z, to_x, to_y, to_z) ({ \*/
+/*    primitive->lightmap.from_position = vec3_u8(from_x, from_y, from_z); \*/
+/*    primitive->lightmap.to_position = vec3_u8(to_x, to_y, to_z); \*/
+/*})*/
+/*    switch (face_dir) {*/
+/*        case FACE_DIR_DOWN: setLightmap(x, axis, y, x + width, axis, y + height); break;*/
+/*        case FACE_DIR_UP: setLightmap(x, axis + 1, y, x + width, axis + 1, y + height); break;*/
+/*        case FACE_DIR_LEFT: setLightmap(axis, y, x, axis, y + height, x + width); break;*/
+/*        case FACE_DIR_RIGHT: setLightmap(axis + 1, y, x, axis + 1, y + height, x + width); break;*/
+/*        case FACE_DIR_BACK: setLightmap(x, y, axis, x + width, y + height, axis); break;*/
+/*        case FACE_DIR_FRONT: setLightmap(x, y, axis + 1, x + width, y + height, axis + 1); break;*/
+/*    }*/
+/*#undef setLightmap*/
     return primitive;
 }
 

@@ -366,7 +366,7 @@ void chunkRender(Chunk* chunk,
     gte_SetRotMatrix(&omtx);
     gte_SetTransMatrix(&omtx);
     // Sort + render mesh
-    chunkMeshRender(&chunk->mesh, ctx, transforms);
+    chunkMeshRender(&chunk->mesh, chunk->lightmap, ctx, transforms);
     // Restore matrix
     PopMatrix();
     chunkRenderDroppedItems(chunk, ctx, transforms);
