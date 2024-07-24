@@ -6,6 +6,7 @@
 #include <psxgte.h>
 
 #include "../util/inttypes.h"
+#include "../math/math_utils.h"
 #include "../game/world/chunk/chunk_structure.h"
 
 #define LIGHT_BLOCK_MASK 0b11110000
@@ -23,5 +24,7 @@ u8 lightMapGetType(const LightMap lightmap, const VECTOR position, const LightTy
 u8 lightMapGetValue(const LightMap lightmap, const VECTOR position);
 
 u8 lightLevelToOverlayColour(const u8 light_value);
+u8 lightLevelApplicable(const u8 light_value);
+
 
 #endif // _PSXMC__LIGHTING__LIGHTMAP_H_

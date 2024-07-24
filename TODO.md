@@ -59,6 +59,8 @@
 * [X] Lightmapping with flood fill algorithm using LUTs for block light (adding and removing)
 * [X] Add lightmap indexes into mesh generated from BGM
 * [X] Consider `opacity_bitmap` for blocks that are true for `blockCanLightNoPropagate(id)`
+* [X] Initial sunlight propagation for chunks
+* [X] Procedural texturing for each quad in chunk mesh by rendering texture and light maps to off screen TPage and then using that to render to world.
 * [ ] Camera far plane cutoff with fog relative to chunk render distance
 * [ ] Frustum and culling
 * [ ] Depth-first search culling through chunks
@@ -70,8 +72,7 @@
 * [ ] Retrieve face attributes based on block orientation during meshing
 * [ ] Sub-block intersection tests for raycast to handling interacting with blocks like doors and piston heads
 * [ ] If we are breaking a block on the boundary of chunks, we should pass the breaking context to both the target and neighbouring chunk in order for the mesh generation to account for the missing faces on the chunk boundary.
-* [ ] Sunlight updates for chunks
-* [ ] Procedural texturing for each quad in chunk mesh by rendering texture and light maps to off screen TPage and then using that to render to world.
+* [ ] Remove block sunlight updates
 * [ ] Day/night cycle does not need to have lighting recalculated for each time the lighting changes. Everything can be static, instead the skylight 4 bits of the lightmap entries applied to mesh quads is capped based on the time of day before we determine the light value between the skylight upper 4 bits and block light lower 4 bits. This allows for seemless day/night transitions in lightlevels without needing to recalculate.
 * [ ] Do a mini version of the binary greedy meshing for lightmapping to generate a cached entry on each mesh primitive taht is just a 2D array of final light levels that can be applied when rendering the overalys as `TILE_16` by looping over the texture coords (x,y) and indexing this cached map
 

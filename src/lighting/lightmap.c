@@ -30,10 +30,13 @@ INLINE u8 lightMapGetType(const LightMap lightmap,
         : (lightmap[index] >> 4) & 0b1111;
 }
 
-INLINE u8 lightLevelToOverlayColour(const u8 light_value) {
+INLINE u8 lightLevelApplicable(const u8 light_value) {
     const u8 block = (light_value & LIGHT_BLOCK_MASK) >> 4;
     const u8 sky = light_value & LIGHT_SKY_MASK;
-    const u8 max_light = max(block, sky);
+    return max(block, sky);
+}
+
+INLINE u8 lightLevelToOverlayColour(const u8 light_value) {
     // This is equivalent to doing the following:
     // BASE: (128 * ONE) / 16 = 32768
     // COLOUR: (36768 * (max_light + 1)) >> FIXED_POINT_SHIFT
@@ -45,5 +48,5 @@ INLINE u8 lightLevelToOverlayColour(const u8 light_value) {
     // the + 1 is just to ensure that the lowest light level is
     // not absolute black, which is the same as transparent on the
     // PS1's GPU.
-    return (max_light + 1) << 3;
+    return (lightLevelApplicable(light_value) + 1) << 3;
 }

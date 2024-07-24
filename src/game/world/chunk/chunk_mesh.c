@@ -13,7 +13,7 @@
 #include "chunk_structure.h"
 
 FWD_DECL u8 lightMapGetValue(const LightMap lightmap, const VECTOR position);
-FWD_DECL u8 lightLevelToOverlayColour(const u8 light_value);
+FWD_DECL u8 lightLevelApplicable(const u8 light_value);
 
 #ifndef QUAD_DUAL_TRI_NCLIP
 #define QUAD_DUAL_TRI_NCLIP 0
@@ -245,9 +245,6 @@ static void renderQuad(const Mesh* mesh,
     //       cached entries with parameterised x,y,axis,face_dir
     for (u32 x = 0; x < prim_tex_width; x++) {
         for (u32 y = 0; y < prim_tex_height; y++) {
-            /*TILE_16* tile = (TILE_16*) allocatePrimitive(ctx, sizeof(TILE_16));*/
-            /*setTile16(tile);*/
-            /*setXY0(tile, x * BLOCK_TEXTURE_SIZE, (y + 1) * BLOCK_TEXTURE_SIZE);*/
             VECTOR query_pos = vec3_i32_all(0);
             switch (primitive->lightmap.face_dir) {
                 case FACE_DIR_DOWN: query_pos = lightmapPos(x + x, axis - 1, y + y); break;
@@ -257,33 +254,21 @@ static void renderQuad(const Mesh* mesh,
                 case FACE_DIR_BACK: query_pos = lightmapPos(x + x, y + y, axis - 1); break;
                 case FACE_DIR_FRONT: query_pos = lightmapPos(x + x, y + y, axis + 1); break;
             }
-            u8 light_colour;
+            // ((4096 << 12) / (16 << 12))
+            #define SCALE_PER_LIGHT_LEVEL 256
+            u16 light_colour_scalar;
             if (query_pos.vx < 0 || query_pos.vx >= CHUNK_SIZE
                 || query_pos.vy < 0 || query_pos.vy >= CHUNK_SIZE
                 || query_pos.vz < 0 || query_pos.vz >= CHUNK_SIZE) {
-                light_colour = 0x80;
+                light_colour_scalar = ONE;
             } else {
-                const u8 light_level = lightMapGetValue(lightmap, query_pos);
-                light_colour = lightLevelToOverlayColour(light_level);
+                const u16 light_level = (u16) lightMapGetValue(lightmap, query_pos);
+                light_colour_scalar = SCALE_PER_LIGHT_LEVEL * (u16) lightLevelApplicable(
+                    light_level
+                );
             }
-            DEBUG_LOG("Pos: " VEC_PATTERN " Colour: %d\n", VEC_LAYOUT(query_pos), light_colour);
-            /*setRGB0(*/
-            /*    tile,*/
-            /*    light_colour,*/
-            /*    light_colour,*/
-            /*    light_colour*/
-            /*);*/
-            /*setRGB0(*/
-            /*    tile,*/
-            /*    (((x + y) << 4) % 3) * 0x80,*/
-            /*    ((((x + y) << 4) + 1) % 3) * 0x80,*/
-            /*    ((((x + y) << 4) + 2) % 3) * 0x80*/
-            /*);*/
-            /*setTransparency(tile, true);*/
-            /*addPrim(ot_entry, tile);*/
             pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
             setPolyFT4(pol4);
-            /*setSemiTrans(pol4, 0);*/
             setXYWH(
                 pol4,
                 x * BLOCK_TEXTURE_SIZE,
@@ -292,14 +277,14 @@ static void renderQuad(const Mesh* mesh,
                 BLOCK_TEXTURE_SIZE
             );
             if (primitive->tint) {
-                // TODO: Apply light colour to tint
                 setRGB0(
                     pol4,
-                    primitive->r,
-                    primitive->g,
-                    primitive->b
+                    fixedMul(primitive->r, light_colour_scalar),
+                    fixedMul(primitive->g, light_colour_scalar),
+                    fixedMul(primitive->b, light_colour_scalar)
                 );
             } else {
+                const u8 light_colour = fixedMul(0x80, light_colour_scalar);
                 setRGB0(
                     pol4,
                     light_colour,
