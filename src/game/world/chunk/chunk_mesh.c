@@ -202,7 +202,7 @@ static void renderQuad(const Mesh* mesh,
     // Bind off-screen merge texture page and colour look-up-table
     pol4->tpage = getTPage(
         2,
-        1,
+        0,
         lightmap_merge_offscreen.x,
         lightmap_merge_offscreen.y
     );
@@ -240,75 +240,122 @@ static void renderQuad(const Mesh* mesh,
     primitive->lightmap.y, \
     primitive->lightmap.z \
 );
+    // TODO: Pre-merge faces based on light map entries instead of 
+    //       computing here every time. Then just iterate over the
+    //       cached entries with parameterised x,y,axis,face_dir
     for (u32 x = 0; x < prim_tex_width; x++) {
         for (u32 y = 0; y < prim_tex_height; y++) {
-            TILE_16* tile = (TILE_16*) allocatePrimitive(ctx, sizeof(TILE_16));
-            setTile16(tile);
-            setXY0(tile, x * BLOCK_TEXTURE_SIZE, (y + 1) * BLOCK_TEXTURE_SIZE);
+            /*TILE_16* tile = (TILE_16*) allocatePrimitive(ctx, sizeof(TILE_16));*/
+            /*setTile16(tile);*/
+            /*setXY0(tile, x * BLOCK_TEXTURE_SIZE, (y + 1) * BLOCK_TEXTURE_SIZE);*/
             VECTOR query_pos = vec3_i32_all(0);
             switch (primitive->lightmap.face_dir) {
-                case FACE_DIR_DOWN: query_pos = lightmapPos(x + x, axis, y + y); break;
+                case FACE_DIR_DOWN: query_pos = lightmapPos(x + x, axis - 1, y + y); break;
                 case FACE_DIR_UP: query_pos = lightmapPos(x + x, axis + 1, y + y); break;
-                case FACE_DIR_LEFT: query_pos = lightmapPos(axis, y + y, x + x); break;
+                case FACE_DIR_LEFT: query_pos = lightmapPos(axis - 1, y + y, x + x); break;
                 case FACE_DIR_RIGHT: query_pos = lightmapPos(axis + 1, y + y, x + x); break;
-                case FACE_DIR_BACK: query_pos = lightmapPos(x + x, y + y, axis); break;
+                case FACE_DIR_BACK: query_pos = lightmapPos(x + x, y + y, axis - 1); break;
                 case FACE_DIR_FRONT: query_pos = lightmapPos(x + x, y + y, axis + 1); break;
             }
-            const u8 light_level = lightMapGetValue(lightmap, query_pos);
-            const u8 light_colour = lightLevelToOverlayColour(light_level);
-            setRGB0(
-                tile,
-                light_colour,
-                light_colour,
-                light_colour
-            );
+            u8 light_colour;
+            if (query_pos.vx < 0 || query_pos.vx >= CHUNK_SIZE
+                || query_pos.vy < 0 || query_pos.vy >= CHUNK_SIZE
+                || query_pos.vz < 0 || query_pos.vz >= CHUNK_SIZE) {
+                light_colour = 0x80;
+            } else {
+                const u8 light_level = lightMapGetValue(lightmap, query_pos);
+                light_colour = lightLevelToOverlayColour(light_level);
+            }
+            DEBUG_LOG("Pos: " VEC_PATTERN " Colour: %d\n", VEC_LAYOUT(query_pos), light_colour);
+            /*setRGB0(*/
+            /*    tile,*/
+            /*    light_colour,*/
+            /*    light_colour,*/
+            /*    light_colour*/
+            /*);*/
             /*setRGB0(*/
             /*    tile,*/
             /*    (((x + y) << 4) % 3) * 0x80,*/
             /*    ((((x + y) << 4) + 1) % 3) * 0x80,*/
             /*    ((((x + y) << 4) + 2) % 3) * 0x80*/
             /*);*/
-            setTransparency(tile, true);
-            addPrim(ot_entry, tile);
+            /*setTransparency(tile, true);*/
+            /*addPrim(ot_entry, tile);*/
+            pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
+            setPolyFT4(pol4);
+            /*setSemiTrans(pol4, 0);*/
+            setXYWH(
+                pol4,
+                x * BLOCK_TEXTURE_SIZE,
+                (y + 1) * BLOCK_TEXTURE_SIZE,
+                BLOCK_TEXTURE_SIZE,
+                BLOCK_TEXTURE_SIZE
+            );
+            if (primitive->tint) {
+                // TODO: Apply light colour to tint
+                setRGB0(
+                    pol4,
+                    primitive->r,
+                    primitive->g,
+                    primitive->b
+                );
+            } else {
+                setRGB0(
+                    pol4,
+                    light_colour,
+                    light_colour,
+                    light_colour
+                );
+            }
+            setUVWH(
+                pol4,
+                0,
+                0,
+                BLOCK_TEXTURE_SIZE,
+                BLOCK_TEXTURE_SIZE
+            );
+            pol4->tpage = primitive->tpage;
+            pol4->clut = primitive->clut;
+            addPrim(ot_entry, pol4);
         }
     }
 #undef lightmapPos
-    // Bit quad texture to off-screen location
-    pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
-    setPolyFT4(pol4);
-    setSemiTrans(pol4, 0);
-    setXYWH(
-        pol4,
-        0,
-        BLOCK_TEXTURE_SIZE,
-        prim_width,
-        prim_height
-    );
-    if (primitive->tint) {
-        setRGB0(
-            pol4,
-            primitive->r,
-            primitive->g,
-            primitive->b
-        );
-    } else {
-        setRGB0(
-            pol4,
-            0x80,
-            0x80,
-            0x80
-        );
-    }
-    setUVWH(
-        pol4,
-        primitive->tu0,
-        primitive->tv0,
-        primitive->tu1,
-        primitive->tv1
-    );
-    pol4->tpage = primitive->tpage;
-    pol4->clut = primitive->clut;
-    addPrim(ot_entry, pol4);
+    /*// Bit quad texture to off-screen location*/
+    /*pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));*/
+    /*setPolyFT4(pol4);*/
+    /*setSemiTrans(pol4, 0);*/
+    /*setXYWH(*/
+    /*    pol4,*/
+    /*    0,*/
+    /*    BLOCK_TEXTURE_SIZE,*/
+    /*    prim_width,*/
+    /*    prim_height*/
+    /*);*/
+    /*if (primitive->tint) {*/
+    /*    setRGB0(*/
+    /*        pol4,*/
+    /*        primitive->r,*/
+    /*        primitive->g,*/
+    /*        primitive->b*/
+    /*    );*/
+    /*} else {*/
+    /*    setRGB0(*/
+    /*        pol4,*/
+    /*        0x8,*/
+    /*        0x8,*/
+    /*        0x8*/
+    /*    );*/
+    /*}*/
+    /*setUVWH(*/
+    /*    pol4,*/
+    /*    primitive->tu0,*/
+    /*    primitive->tv0,*/
+    /*    primitive->tu1,*/
+    /*    primitive->tv1*/
+    /*);*/
+    /*pol4->tpage = primitive->tpage;*/
+    /*pol4->clut = primitive->clut;*/
+    /*addPrim(ot_entry, pol4);*/
     // Bind a texture window to ensure wrapping across merged block face primitives
     ptwin = (DR_TWIN*) allocatePrimitive(ctx, sizeof(DR_TWIN));
     tex_window = (RECT){
