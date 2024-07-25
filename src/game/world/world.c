@@ -704,7 +704,7 @@ u8 worldGetLightValue(const World* world,
         return 0;
     }
     const ChunkBlockPosition chunk_block_position = worldToChunkBlockPosition(position, CHUNK_SIZE);
-    worldGetLightValueChunkBlock(
+    return worldGetLightValueChunkBlock(
         world,
         &chunk_block_position,
         light_type
