@@ -318,6 +318,7 @@ void chunkRender(Chunk* chunk,
                  RenderContext* ctx,
                  Transforms* transforms) {
     if (breaking_state != NULL) {
+        // TODO: Move these updates to mesh to the chunkUpdate method
         if (breaking_state->chunk_remesh_trigger) {
             // (In meshing) if the block matches the breaking state ensure it has unique mesh primitives
             // with correct tpage and texture window into the render target
@@ -332,13 +333,6 @@ void chunkRender(Chunk* chunk,
         }
     }
     if (chunk->lightmap_updated || chunk->mesh_updated) {
-        // TODO: Do a mini version of the binary greedy meshing for
-        //       lightmapping to generate a cached entry on each
-        //       mesh primitive taht is just a 2D array of final light
-        //       levels that can be applied when rendering the overalys
-        //       as TILE_16 by looping over the texture coords (x,y)
-        //       and indexing this cached map
-        chunk->lightmap_updated = false;
         chunk->mesh_updated = false;
     }
     // if (chunkIsOutsideFrustum(chunk, &ctx->camera->frustum, transforms)) {
