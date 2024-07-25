@@ -550,6 +550,9 @@ bool itemPickupValidator(const Item* item, void* ctx) {
 }
 
 void chunkUpdate(Chunk* chunk, const Player* player) {
+    // TODO: Check world time to see if sunlight needs to be updated,
+    //       if so trigger remeshing flag and pass world time to
+    //       mesher to alter sunlight values.
     Inventory* inventory = VCAST(Inventory*, player->inventory);
     // We are using chunk relative coords in absolute units and not in
     // fixed point format since item positons only need to be relatively

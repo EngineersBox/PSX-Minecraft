@@ -191,11 +191,6 @@ static void renderQuad(const Mesh* mesh,
     // Store result to the primitive
     gte_strgb(&pol4->r0);
     // Set texture coords and dimensions
-    // TODO: Blit texture to off-screen tpage and then apply lighting
-    //       changes for each 16x16 section of it. Finally reference
-    //       the off-screen tpage here as the target to draw to the
-    //       in-world poly. This is essentially procedural texturing,
-    //       the same as how the breaking overlay is done.
     setUVWH(
         pol4,
         primitive->tu0,
