@@ -16,6 +16,13 @@ typedef struct _BVECTOR {
     u8 pad;
 } BVECTOR;
 
+typedef struct _IBVECTOR {
+    i8 vx;
+    i8 vy;
+    i8 vz;
+    i8 pad;
+} IBVECTOR;
+
 // Long vector
 typedef struct _LVECTOR {
     i64 vx;
@@ -63,9 +70,10 @@ MATRIX* InvRotMatrix(const SVECTOR* r, MATRIX* m);
 #define vec3_i64(x, y, z) ((LVECTOR) { _vec3_layout(x, y, z) })
 #define vec3_i32(x, y, z) ((VECTOR) { _vec3_layout(x, y, z) })
 #define vec3_i16(x, y, z) ((SVECTOR) { _vec3_layout(x, y, z) })
-#define vec3_i8(_r, _g, _b) ((CVECTOR) { .r = (_r), .g = (_b), .b = (_b) })
+#define vec3_i8(x, y, z) ((IBVECTOR) { _vec3_layout(x, y, z) })
 #define vec3_u8(x, y, z) ((BVECTOR) { _vec3_layout(x, y, z) })
 #define vec2_i16(x, y) ((DVECTOR) { _vec2_layout(x, y) })
+#define vec3_rgb(_r, _g, _b) ((CVECTOR) { .r = (_r), .g = (_b), .b = (_b) })
 
 // Unified vector init
 
