@@ -82,7 +82,6 @@ const RECT lightmap_merge_offscreen = (RECT) {
 
 static void renderQuad(const Mesh* mesh,
                        const MeshPrimitive* primitive,
-                       const LightMap lightmap,
                        RenderContext* ctx,
                        Transforms* transforms) {
     // TODO: Generalise for textured and non-textured
@@ -90,6 +89,13 @@ static void renderQuad(const Mesh* mesh,
     // int dp;
     cvector_iterator(SVECTOR) verticesIter = cvector_begin(mesh->p_verts);
     cvector_iterator(SVECTOR) normalsIter = cvector_begin(mesh->p_norms);
+    const RECT tex_window = (RECT){
+        // All in units of 8 pixels, hence right shift by 3
+        .w = BLOCK_TEXTURE_SIZE >> 3,
+        .h = BLOCK_TEXTURE_SIZE >> 3,
+        .x = primitive->tu0 >> 3,
+        .y = primitive->tv0 >> 3
+    };
     POLY_FT4* pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
 #if QUAD_DUAL_TRI_NCLIP
     // Initialize a textured quad primitive
@@ -184,191 +190,33 @@ static void renderQuad(const Mesh* mesh,
     }
     // Store result to the primitive
     gte_strgb(&pol4->r0);
-    /*gte_strgb(&pol4->r1);*/
-    /*gte_strgb(&pol4->r2);*/
-    /*gte_strgb(&pol4->r3);*/
     // Set texture coords and dimensions
+    // TODO: Blit texture to off-screen tpage and then apply lighting
+    //       changes for each 16x16 section of it. Finally reference
+    //       the off-screen tpage here as the target to draw to the
+    //       in-world poly. This is essentially procedural texturing,
+    //       the same as how the breaking overlay is done.
     setUVWH(
         pol4,
-        0,
-        BLOCK_TEXTURE_SIZE,
+        primitive->tu0,
+        primitive->tv0,
         primitive->tu1,
         primitive->tv1
     );
-    // Testing colour modulation with Gouraud shading
-    /*setRGB1(pol4, 128, 0, 0);*/
-    /*setRGB2(pol4, 0, 128, 0);*/
-    /*setRGB3(pol4, 0, 0, 128);*/
-    // Bind off-screen merge texture page and colour look-up-table
-    pol4->tpage = getTPage(
-        2,
-        0,
-        lightmap_merge_offscreen.x,
-        lightmap_merge_offscreen.y
-    );
+    // Bind texture page and colour look-up-table
+    pol4->tpage = primitive->tpage;
     pol4->clut = primitive->clut;
     // Sort primitive to the ordering table
-    const u32* ot_entry = allocateOrderingTable(ctx, p);
-    addPrim(ot_entry, pol4);
-    // Reset texture window that will be enabled for applying lighting overlays
-    RECT tex_window = (RECT) {0, 0, 0, 0};
+    u32* ot_object = allocateOrderingTable(ctx, p);
+    addPrim(ot_object, pol4);
+    // Bind a texture window to ensure wrapping across merged block face primitives
     DR_TWIN* ptwin = (DR_TWIN*) allocatePrimitive(ctx, sizeof(DR_TWIN));
     setTexWindow(ptwin, &tex_window);
-    addPrim(ot_entry, ptwin);
-    /* ============================================= */
-    /* ===  OFF-SCREEN PROCEDURAL LIGHT OVERLAY  === */
-    /* ============================================= */
-    // Sort drawing primitives to reset drawing area to default (OT is in reverse order so that's
-    // why this is here and not after the loop).
-    DR_AREA* area = (DR_AREA*) allocatePrimitive(ctx, sizeof(DR_AREA));
-    const DB* inactive = &ctx->db[1 - ctx->active];
-    setDrawArea(area, &inactive->draw_env.clip);
-    addPrim(ot_entry, area);
-    DR_OFFSET* offset = (DR_OFFSET*) allocatePrimitive(ctx, sizeof(DR_OFFSET));
-    setDrawOffset(
-        offset,
-        inactive->draw_env.clip.x,
-        inactive->draw_env.clip.y
-    );
-    addPrim(ot_entry, offset);
-    const u32 prim_width = primitive->tu1;
-    const u32 prim_tex_width = prim_width >> 4; // Div by BLOCK_TEXTURE_SIZE
-    const u32 prim_height = primitive->tv1;
-    const u32 prim_tex_height = prim_height >> 4;
-#define lightmapPos(x, y, z) vec3_i32( \
-    primitive->lightmap.x, \
-    primitive->lightmap.y, \
-    primitive->lightmap.z \
-);
-    // TODO: Pre-merge faces based on light map entries instead of 
-    //       computing here every time. Then just iterate over the
-    //       cached entries with parameterised x,y,axis,face_dir
-    for (u32 x = 0; x < prim_tex_width; x++) {
-        for (u32 y = 0; y < prim_tex_height; y++) {
-            VECTOR query_pos = vec3_i32_all(0);
-            switch (primitive->lightmap.face_dir) {
-                case FACE_DIR_DOWN: query_pos = lightmapPos(x + x, axis - 1, y + y); break;
-                case FACE_DIR_UP: query_pos = lightmapPos(x + x, axis + 1, y + y); break;
-                case FACE_DIR_LEFT: query_pos = lightmapPos(axis - 1, y + y, x + x); break;
-                case FACE_DIR_RIGHT: query_pos = lightmapPos(axis + 1, y + y, x + x); break;
-                case FACE_DIR_BACK: query_pos = lightmapPos(x + x, y + y, axis - 1); break;
-                case FACE_DIR_FRONT: query_pos = lightmapPos(x + x, y + y, axis + 1); break;
-            }
-            // ((4096 << 12) / (16 << 12))
-            #define SCALE_PER_LIGHT_LEVEL 256
-            u16 light_colour_scalar;
-            if (query_pos.vx < 0 || query_pos.vx >= CHUNK_SIZE
-                || query_pos.vy < 0 || query_pos.vy >= CHUNK_SIZE
-                || query_pos.vz < 0 || query_pos.vz >= CHUNK_SIZE) {
-                light_colour_scalar = ONE;
-            } else {
-                const u16 light_level = (u16) lightMapGetValue(lightmap, query_pos);
-                light_colour_scalar = SCALE_PER_LIGHT_LEVEL * (u16) lightLevelApplicable(
-                    light_level
-                );
-            }
-            pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
-            setPolyFT4(pol4);
-            setXYWH(
-                pol4,
-                x * BLOCK_TEXTURE_SIZE,
-                (y + 1) * BLOCK_TEXTURE_SIZE,
-                BLOCK_TEXTURE_SIZE,
-                BLOCK_TEXTURE_SIZE
-            );
-            if (primitive->tint) {
-                setRGB0(
-                    pol4,
-                    fixedMul(primitive->r, light_colour_scalar),
-                    fixedMul(primitive->g, light_colour_scalar),
-                    fixedMul(primitive->b, light_colour_scalar)
-                );
-            } else {
-                const u8 light_colour = fixedMul(0x80, light_colour_scalar);
-                setRGB0(
-                    pol4,
-                    light_colour,
-                    light_colour,
-                    light_colour
-                );
-            }
-            setUVWH(
-                pol4,
-                0,
-                0,
-                BLOCK_TEXTURE_SIZE,
-                BLOCK_TEXTURE_SIZE
-            );
-            pol4->tpage = primitive->tpage;
-            pol4->clut = primitive->clut;
-            addPrim(ot_entry, pol4);
-        }
-    }
-#undef lightmapPos
-    /*// Bit quad texture to off-screen location*/
-    /*pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));*/
-    /*setPolyFT4(pol4);*/
-    /*setSemiTrans(pol4, 0);*/
-    /*setXYWH(*/
-    /*    pol4,*/
-    /*    0,*/
-    /*    BLOCK_TEXTURE_SIZE,*/
-    /*    prim_width,*/
-    /*    prim_height*/
-    /*);*/
-    /*if (primitive->tint) {*/
-    /*    setRGB0(*/
-    /*        pol4,*/
-    /*        primitive->r,*/
-    /*        primitive->g,*/
-    /*        primitive->b*/
-    /*    );*/
-    /*} else {*/
-    /*    setRGB0(*/
-    /*        pol4,*/
-    /*        0x8,*/
-    /*        0x8,*/
-    /*        0x8*/
-    /*    );*/
-    /*}*/
-    /*setUVWH(*/
-    /*    pol4,*/
-    /*    primitive->tu0,*/
-    /*    primitive->tv0,*/
-    /*    primitive->tu1,*/
-    /*    primitive->tv1*/
-    /*);*/
-    /*pol4->tpage = primitive->tpage;*/
-    /*pol4->clut = primitive->clut;*/
-    /*addPrim(ot_entry, pol4);*/
-    // Bind a texture window to ensure wrapping across merged block face primitives
-    ptwin = (DR_TWIN*) allocatePrimitive(ctx, sizeof(DR_TWIN));
-    tex_window = (RECT){
-        // All in units of 8 pixels, hence right shift by 3
-        .w = BLOCK_TEXTURE_SIZE >> 3,
-        .h = BLOCK_TEXTURE_SIZE >> 3,
-        .x = primitive->tu0 >> 3,
-        .y = primitive->tv0 >> 3
-    };
-    setTexWindow(ptwin, &tex_window);
-    addPrim(ot_entry, ptwin);
-    // Sort drawing bindings to ensure we target offscreen TPage area
-    area = (DR_AREA*) allocatePrimitive(ctx, sizeof(DR_AREA));
-    setDrawArea(area, &lightmap_merge_offscreen);
-    addPrim(ot_entry, area);
-    offset = (DR_OFFSET*) allocatePrimitive(ctx, sizeof(DR_OFFSET));
-    setDrawOffset(
-        offset,
-        lightmap_merge_offscreen.x,
-        lightmap_merge_offscreen.y
-    );
-    addPrim(ot_entry, offset);
+    ot_object = allocateOrderingTable(ctx, p);
+    addPrim(ot_object, ptwin);
 }
 
-void chunkMeshRenderFaceDirection(const Mesh* mesh,
-                                  const LightMap lightmap,
-                                  RenderContext* ctx,
-                                  Transforms* transforms) {
+void chunkMeshRenderFaceDirection(const Mesh* mesh, RenderContext* ctx, Transforms* transforms) {
     MeshPrimitive* p_prims = (MeshPrimitive*) mesh->p_prims;
     cvector_iterator(MeshPrimitive) primitive;
     cvector_for_each_in(primitive, p_prims) {
@@ -380,7 +228,7 @@ void chunkMeshRenderFaceDirection(const Mesh* mesh,
                 renderTriangle(primitive, ctx, transforms);
                 break;
             case MESH_PRIM_TYPE_QUAD:
-                renderQuad(mesh, primitive, lightmap, ctx, transforms);
+                renderQuad(mesh, primitive, ctx, transforms);
                 break;
             default:
                 printf(
@@ -398,10 +246,7 @@ UNUSED bool faceDirectionHidden(RenderContext* ctx, FaceDirection face_dir) {
     return false;
 }
 
-void chunkMeshRender(const ChunkMesh* mesh,
-                     const LightMap lightmap,
-                     RenderContext* ctx,
-                     Transforms* transforms) {
+void chunkMeshRender(const ChunkMesh* mesh, RenderContext* ctx, Transforms* transforms) {
     // bool skip_check[6] = {false};
     #pragma GCC unroll 6
     for (int i = 0; i < FACE_DIRECTION_COUNT; i++) {
@@ -420,7 +265,6 @@ void chunkMeshRender(const ChunkMesh* mesh,
         // }
         chunkMeshRenderFaceDirection(
             &mesh->face_meshes[i],
-            lightmap,
             ctx,
             transforms
         );

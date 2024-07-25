@@ -60,13 +60,7 @@ void chunkMeshInit(ChunkMesh* mesh);
 void chunkMeshDestroy(const ChunkMesh* mesh);
 void chunkMeshClear(ChunkMesh* mesh);
 
-void chunkMeshRenderFaceDirection(const Mesh* mesh,
-                                  const LightMap lightmap,
-                                  RenderContext* ctx,
-                                  Transforms* transforms);
-void chunkMeshRender(const ChunkMesh* mesh,
-                     const LightMap lightmap,
-                     RenderContext* ctx,
-                     Transforms* transforms);
+void chunkMeshRenderFaceDirection(const Mesh* mesh, RenderContext* ctx, Transforms* transforms);
+void chunkMeshRender(const ChunkMesh* mesh, RenderContext* ctx, Transforms* transforms);
 
 #endif // PSXMC_CHUNK_MESH_H

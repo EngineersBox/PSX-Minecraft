@@ -6,7 +6,7 @@
 
 void lightMapSetValue(LightMap lightmap,
                       const VECTOR position,
-                      u8 light_value,
+                      LightLevel light_value,
                       const LightType light_type) {
     const u32 index = position.vx << 6 | position.vz << 3 | position.vy;
     if (light_type == LIGHT_TYPE_SKY) {
@@ -16,12 +16,12 @@ void lightMapSetValue(LightMap lightmap,
     }
 }
 
-INLINE u8 lightMapGetValue(const LightMap lightmap, const VECTOR position) {
+INLINE LightLevel lightMapGetValue(const LightMap lightmap, const VECTOR position) {
     const u32 index = position.vx << 6 | position.vz << 3 | position.vy;
     return lightmap[index];
 }
 
-INLINE u8 lightMapGetType(const LightMap lightmap,
+INLINE LightLevel lightMapGetType(const LightMap lightmap,
                           const VECTOR position,
                           const LightType light_type) {
     const u32 index = position.vx << 6 | position.vz << 3 | position.vy;
@@ -30,13 +30,13 @@ INLINE u8 lightMapGetType(const LightMap lightmap,
         : (lightmap[index] >> 4) & 0b1111;
 }
 
-INLINE u8 lightLevelApplicable(const u8 light_value) {
-    const u8 block = (light_value & LIGHT_BLOCK_MASK) >> 4;
-    const u8 sky = light_value & LIGHT_SKY_MASK;
+INLINE LightLevel lightLevelApplicable(const LightLevel light_value) {
+    const LightLevel block = (light_value & LIGHT_BLOCK_MASK) >> 4;
+    const LightLevel sky = light_value & LIGHT_SKY_MASK;
     return max(block, sky);
 }
 
-INLINE u8 lightLevelToOverlayColour(const u8 light_value) {
+INLINE LightLevel lightLevelToOverlayColour(const LightLevel light_value) {
     // This is equivalent to doing the following:
     // BASE: (128 * ONE) / 16 = 32768
     // COLOUR: (36768 * (max_light + 1)) >> FIXED_POINT_SHIFT

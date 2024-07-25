@@ -18,5 +18,5 @@ int plane_meshing_data_compare(const void* a, const void* b, void* ignored) {
 
 u64 plane_meshing_data_hash(const void* item, u64 seed0, u64 seed1) {
     const PlaneMeshingData* data = item;
-    return hashmap_xxhash3(&data->key, sizeof(data->key), seed0, seed1);
+    return hashmap_xxhash3(&data->key, sizeof(PlaneMeshingDataKey), seed0, seed1);
 }

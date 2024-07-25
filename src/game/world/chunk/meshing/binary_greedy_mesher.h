@@ -17,10 +17,7 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk, const BreakingState* breaking_sta
 // lod_size here should be a value in the interval [0,CHUNK_SIZE]
 // where CHUNK_SIZE as a value indicates 1:1 with every block
 void binaryGreedyMesherConstructPlane(Chunk* chunk,
-                                      const FaceDirection face_dir,
-                                      const u32 axis,
-                                      const Block* block,
-                                      BinaryMeshPlane plane,
+                                      PlaneMeshingData* data,
                                       const u32 lod_size);
 
 void binaryGreedyMesherConstructBreakingOverlay(Chunk* chunk, const BreakingState* breaking_state);

@@ -12,19 +12,23 @@
 #define LIGHT_BLOCK_MASK 0b11110000
 #define LIGHT_SKY_MASK 0b00001111
 
-typedef u8 LightMap[CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE];
+typedef u8 LightLevel;
+typedef LightLevel LightMap[CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE];
 
 typedef enum LightType {
     LIGHT_TYPE_SKY = 0,
     LIGHT_TYPE_BLOCK
 } LightType;
 
-void lightMapSetValue(LightMap lightmap, const VECTOR position, u8 light_value, const LightType light_type);
-u8 lightMapGetType(const LightMap lightmap, const VECTOR position, const LightType light_type);
-u8 lightMapGetValue(const LightMap lightmap, const VECTOR position);
+void lightMapSetValue(LightMap lightmap,
+                      const VECTOR position,
+                      LightLevel light_value,
+                      const LightType light_type);
+LightLevel lightMapGetType(const LightMap lightmap, const VECTOR position, const LightType light_type);
+LightLevel lightMapGetValue(const LightMap lightmap, const VECTOR position);
 
-u8 lightLevelToOverlayColour(const u8 light_value);
-u8 lightLevelApplicable(const u8 light_value);
+LightLevel lightLevelToOverlayColour(const LightLevel light_value);
+LightLevel lightLevelApplicable(const LightLevel light_value);
 
 
 #endif // _PSXMC__LIGHTING__LIGHTMAP_H_

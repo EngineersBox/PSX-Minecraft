@@ -13,6 +13,7 @@
 #include "../../../resources/assets.h"
 #include "../../../structure/primitive/cube.h"
 #include "../../position.h"
+#include "plane_meshing_data.h"
 
 // Forward declarations
 FWD_DECL typedef struct World World;
@@ -30,6 +31,21 @@ FWD_DECL void chunkSetLightValue(Chunk* chunk,
 static const u32 AXIAL_EDGES[AXIAL_EDGES_COUNT] = { 0, CHUNK_SIZE_PADDED - 1 };
 
 typedef u32 FacesColumns[FACE_DIRECTION_COUNT][CHUNK_SIZE_PADDED][CHUNK_SIZE_PADDED];
+
+// ((4096 << 12) / (16 << 12))
+#define SCALE_PER_LIGHT_LEVEL 256
+
+u16 constructLightScalar(const LightMap lightmap, const VECTOR* query_pos) {
+    if (query_pos->vx < 0 || query_pos->vx >= CHUNK_SIZE
+        || query_pos->vy < 0 || query_pos->vy >= CHUNK_SIZE
+        || query_pos->vz < 0 || query_pos->vz >= CHUNK_SIZE) {
+        return ONE;
+    }
+    const u16 light_level = (u16) lightMapGetValue(lightmap, *query_pos);
+    return SCALE_PER_LIGHT_LEVEL * (u16) lightLevelApplicable(
+        light_level
+    );
+}
 
 INLINE void addVoxelToFaceColumns(FacesColumns axis_cols,
                                   FacesColumns axis_cols_opaque,
@@ -226,14 +242,13 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk, const BreakingState* breaking_sta
                             break;
                         case FACE_DIR_BACK:
                         case FACE_DIR_FRONT:
-                        default:
                             chunk_block_position.block = vec3_i32(x, z, y);
                             break;
                     }
                     const VECTOR world_block_position = vec3_add(
                         vec3_const_mul(
                             chunk_block_position.chunk,
-        CHUNK_SIZE
+                            CHUNK_SIZE
                         ),
                         chunk_block_position.block
                     );
@@ -245,7 +260,10 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk, const BreakingState* breaking_sta
                         // z fighting between mesh faces and overlay faces.
                         continue;
                     }
-                    IBlock* current_block = worldGetChunkBlock(chunk->world, &chunk_block_position);
+                    IBlock* current_block = worldGetChunkBlock(
+                        chunk->world,
+                        &chunk_block_position
+                    );
                     if (current_block == NULL) {
                         errorAbort(
                             "[BINARY GREEDY MESHER] Null block returned while constructing mask [Face: %d] [Chunk: " VEC_PATTERN "] [Block: " VEC_PATTERN "]\n",
@@ -265,8 +283,21 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk, const BreakingState* breaking_sta
                         );
                         continue;
                     }
+                    const VECTOR light_query_pos = vec3_add(
+                        chunk_block_position.block,
+                        FACE_DIRECTION_NORMALS[face]
+                    );
+                    const u16 light_level_colour_scalar = constructLightScalar(
+                        chunk->lightmap,
+                        &light_query_pos
+                    );
                     const PlaneMeshingData query = (PlaneMeshingData) {
-                        .key = (PlaneMeshingDataKey) { face, y, block },
+                        .key = (PlaneMeshingDataKey) {
+                            face,
+                            y,
+                            light_level_colour_scalar,
+                            block
+                        },
                         .plane = {0},
                     };
                     PlaneMeshingData* current = (PlaneMeshingData*) hashmap_get(data, &query);
@@ -286,10 +317,7 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk, const BreakingState* breaking_sta
         PlaneMeshingData* elem = item;
         binaryGreedyMesherConstructPlane(
             chunk,
-            elem->key.face,
-            elem->key.axis,
-            elem->key.block,
-            elem->plane,
+            elem,
             CHUNK_SIZE
         );
     }
@@ -300,16 +328,14 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk, const BreakingState* breaking_sta
 }
 
 static MeshPrimitive* createPrimitive(ChunkMesh* mesh,
-                                      const Block* block,
-                                      const FaceDirection face_dir,
+                                      const PlaneMeshingDataKey* data,
                                       const u32 x,
                                       const u32 y,
-                                      const u32 axis,
                                       const u32 width,
                                       const u32 height,
                                       const Texture* texture_override,
                                       const TextureAttributes texture_attributes_override[FACE_DIRECTION_COUNT]) {
-    Mesh* face_dir_mesh = &mesh->face_meshes[face_dir];
+    Mesh* face_dir_mesh = &mesh->face_meshes[data->face];
     cvector(MeshPrimitive) prims = face_dir_mesh->p_prims;
     cvector_push_back(prims, (MeshPrimitive){});
     face_dir_mesh->p_prims = prims;
@@ -321,35 +347,19 @@ static MeshPrimitive* createPrimitive(ChunkMesh* mesh,
     primitive->tpage = texture->tpage;
     primitive->clut = texture->clut;
     const TextureAttributes* attributes = texture_attributes_override != NULL
-        ? &texture_attributes_override[face_dir]
-        : &block->face_attributes[face_dir];
+        ? &texture_attributes_override[data->face]
+        : &data->block->face_attributes[data->face];
     primitive->tu0 = attributes->u;
     primitive->tv0 = attributes->v;
     primitive->tu1 = BLOCK_TEXTURE_SIZE * width;
     primitive->tv1 = BLOCK_TEXTURE_SIZE * height;
-    primitive->r = attributes->tint.r;
-    primitive->g = attributes->tint.g;
-    primitive->b = attributes->tint.b;
-    primitive->tint = attributes->tint.cd;
-    primitive->lightmap = (MeshPrimitiveLightmap) {
-        x,
-        y,
-        axis,
-        face_dir
-    };
-/*#define setLightmap(from_x, from_y, from_z, to_x, to_y, to_z) ({ \*/
-/*    primitive->lightmap.from_position = vec3_u8(from_x, from_y, from_z); \*/
-/*    primitive->lightmap.to_position = vec3_u8(to_x, to_y, to_z); \*/
-/*})*/
-/*    switch (face_dir) {*/
-/*        case FACE_DIR_DOWN: setLightmap(x, axis, y, x + width, axis, y + height); break;*/
-/*        case FACE_DIR_UP: setLightmap(x, axis + 1, y, x + width, axis + 1, y + height); break;*/
-/*        case FACE_DIR_LEFT: setLightmap(axis, y, x, axis, y + height, x + width); break;*/
-/*        case FACE_DIR_RIGHT: setLightmap(axis + 1, y, x, axis + 1, y + height, x + width); break;*/
-/*        case FACE_DIR_BACK: setLightmap(x, y, axis, x + width, y + height, axis); break;*/
-/*        case FACE_DIR_FRONT: setLightmap(x, y, axis + 1, x + width, y + height, axis + 1); break;*/
-/*    }*/
-/*#undef setLightmap*/
+    const CVECTOR tint = attributes->tint.cd
+        ? attributes->tint
+        : vec3_i8(0x80, 0x80, 0x80);
+    primitive->r = fixedMul(tint.r, data->light_level_colour_scalar);
+    primitive->g = fixedMul(tint.g, data->light_level_colour_scalar);
+    primitive->b = fixedMul(tint.b, data->light_level_colour_scalar);
+    primitive->tint = true;
     return primitive;
 }
 
@@ -443,9 +453,7 @@ static void createNormal(ChunkMesh* mesh,
 }
 
 static void createQuad(Chunk* chunk,
-                       const FaceDirection face_dir,
-                       const u32 axis,
-                       const Block* block,
+                       const PlaneMeshingDataKey* data,
                        const Texture* texture_override,
                        const TextureAttributes* texture_attributes_override,
                        const u32 x,
@@ -454,11 +462,9 @@ static void createQuad(Chunk* chunk,
                        const u32 h) {
     MeshPrimitive* primitive = createPrimitive(
         &chunk->mesh,
-        block,
-        face_dir,
+        data,
         x,
         y,
-        axis,
         w,
         h,
         texture_override,
@@ -467,8 +473,8 @@ static void createQuad(Chunk* chunk,
     createVertices(
         chunk,
         primitive,
-        face_dir,
-        axis,
+        data->face,
+        data->axis,
         x,
         y,
         w,
@@ -477,25 +483,22 @@ static void createQuad(Chunk* chunk,
     createNormal(
         &chunk->mesh,
         primitive,
-        face_dir
+        data->face
     );
 }
 
 void binaryGreedyMesherConstructPlane(Chunk* chunk,
-                                      const FaceDirection face_dir,
-                                      const u32 axis,
-                                      const Block* block,
-                                      BinaryMeshPlane plane,
+                                      PlaneMeshingData* data,
                                       const u32 lod_size) {
     for (u32 row = 0; row < CHUNK_SIZE; row++) {
         u32 y = 0;
         while (y < lod_size) {
-            y += trailing_zeros(plane[row] >> y);
+            y += trailing_zeros(data->plane[row] >> y);
             if (y >= lod_size) {
                 // At top
                 continue;
             }
-            const u32 h = trailing_ones(plane[row] >> y);
+            const u32 h = trailing_ones(data->plane[row] >> y);
             // 1 = 0b1, 2 = 0b11, 4 = 0b1111
             const u32 h_as_mask = h < 32
                 ? (1 << h) - 1
@@ -505,20 +508,18 @@ void binaryGreedyMesherConstructPlane(Chunk* chunk,
             u32 w = 1;
             while (row + w < lod_size) {
                 // Fetch bits spanning height in the next row
-                const u32 next_row_h = (plane[row + w] >> y) & h_as_mask;
+                const u32 next_row_h = (data->plane[row + w] >> y) & h_as_mask;
                 if (next_row_h != h_as_mask) {
                     // Cannot grow further horizontally
                     break;
                 }
                 // Unset the bits we expanded into
-                plane[row + w] &= ~mask;
+                data->plane[row + w] &= ~mask;
                 w++;
             }
             createQuad(
                 chunk,
-                face_dir,
-                axis,
-                block,
+                &data->key,
                 NULL,
                 NULL,
                 row,
@@ -590,14 +591,26 @@ void binaryGreedyMesherConstructBreakingOverlay(Chunk* chunk, const BreakingStat
                 pos(z, x, y);
                 break;
         }
-        createQuad(
-            chunk,
-            current_face_dir,
+        const VECTOR light_query_pos = vec3_add(
+            chunk_block_position.block,
+            FACE_DIRECTION_NORMALS[current_face_dir]
+        );
+        const u16 light_level_colour_scalar = constructLightScalar(
+            chunk->lightmap,
+            &light_query_pos
+        );
+        const PlaneMeshingDataKey key = (PlaneMeshingDataKey) {
+            .face = current_face_dir,
             // This should be the coordinate value for which ever axis stays constant
             // in the facing direction, i.e. in the UP direction the Y coord doesn't
             // change at each vertex, that would be the value here.
-            axis,
-            block,
+            .axis = axis,
+            .light_level_colour_scalar = light_level_colour_scalar,
+            .block = block
+        };
+        createQuad(
+            chunk,
+            &key,
             &texture,
             texture_attributes,
             // These should be in winding order, see <src/structure/primitive/cube_layout.md>

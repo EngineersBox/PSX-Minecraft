@@ -32,7 +32,8 @@ extern const LightUpdateLimits chunk_light_update_limits;
 // Forward declaration
 FWD_DECL typedef struct World World;
 FWD_DECL typedef struct Chunk Chunk;
-FWD_DECL typedef u8 LightMap[CHUNK_DATA_SIZE];
+FWD_DECL typedef u8 LightLevel;
+FWD_DECL typedef LightLevel LightMap[CHUNK_DATA_SIZE];
 
 typedef struct LightAddNode {
     VECTOR position;
@@ -42,7 +43,7 @@ typedef struct LightAddNode {
 typedef struct LightRemoveNode {
     VECTOR position;
     Chunk* chunk;
-    u8 light_value;
+    LightLevel light_value;
 } LightRemoveNode;
 
 typedef struct ChunkUpdates {
