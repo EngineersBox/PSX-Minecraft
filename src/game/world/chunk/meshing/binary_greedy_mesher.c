@@ -33,16 +33,6 @@ static const u32 AXIAL_EDGES[AXIAL_EDGES_COUNT] = { 0, CHUNK_SIZE_PADDED - 1 };
 
 typedef u32 FacesColumns[FACE_DIRECTION_COUNT][CHUNK_SIZE_PADDED][CHUNK_SIZE_PADDED];
 
-// ((4096 << 12) / (16 << 12))
-#define SCALE_PER_LIGHT_LEVEL 256
-
-u16 constructLightScalar(const Chunk* chunk, const VECTOR* query_pos) {
-    const LightLevel light_level = worldGetLightValue(chunk->world, query_pos);
-    return SCALE_PER_LIGHT_LEVEL * (u16) lightLevelApplicable(
-        light_level
-    );
-}
-
 INLINE void addVoxelToFaceColumns(FacesColumns axis_cols,
                                   FacesColumns axis_cols_opaque,
                                   const IBlock* iblock,
@@ -292,16 +282,19 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk, const BreakingState* breaking_sta
                         );
                         continue;
                     }
-                    const VECTOR light_query_pos = chunkBlockToWorldPosition(&light_cb_pos, CHUNK_SIZE);
-                    const u16 light_level_colour_scalar = constructLightScalar(
-                        chunk,
+                    const VECTOR light_query_pos = chunkBlockToWorldPosition(
+                        &light_cb_pos,
+                        CHUNK_SIZE
+                    );
+                    const LightLevel light_level = worldGetLightValue(
+                        chunk->world,
                         &light_query_pos
                     );
                     const PlaneMeshingData query = (PlaneMeshingData) {
                         .key = (PlaneMeshingDataKey) {
                             face,
                             y,
-                            light_level_colour_scalar,
+                            light_level,
                             block
                         },
                         .plane = {0},
@@ -362,10 +355,10 @@ static MeshPrimitive* createPrimitive(ChunkMesh* mesh,
     const CVECTOR tint = attributes->tint.cd
         ? attributes->tint
         : vec3_rgb(0x80, 0x80, 0x80);
-    primitive->r = fixedMul(tint.r, data->light_level_colour_scalar);
-    primitive->g = fixedMul(tint.g, data->light_level_colour_scalar);
-    primitive->b = fixedMul(tint.b, data->light_level_colour_scalar);
-    primitive->tint = true;
+    primitive->r = tint.r;
+    primitive->g = tint.g;
+    primitive->b = tint.b;
+    primitive->light_level = data->light_level;
     return primitive;
 }
 
@@ -601,17 +594,13 @@ void binaryGreedyMesherConstructBreakingOverlay(Chunk* chunk, const BreakingStat
             breaking_state->position,
             FACE_DIRECTION_NORMALS[current_face_dir]
         );
-        const u16 light_level_colour_scalar = constructLightScalar(
-            chunk,
-            &light_query_pos
-        );
         const PlaneMeshingDataKey key = (PlaneMeshingDataKey) {
             .face = current_face_dir,
             // This should be the coordinate value for which ever axis stays constant
             // in the facing direction, i.e. in the UP direction the Y coord doesn't
             // change at each vertex, that would be the value here.
             .axis = axis,
-            .light_level_colour_scalar = light_level_colour_scalar,
+            .light_level= worldGetLightValue(chunk->world, &light_query_pos),
             .block = block
         };
         createQuad(

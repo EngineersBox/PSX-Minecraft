@@ -43,6 +43,7 @@ typedef struct World {
         u32 vx;
         u32 vz;
     } head; // Top left, effective (0,0) of 2D array of chunks
+    LightLevel internal_light_level;
     IChunkProvider chunk_provider;
     // X, Z, Y
     Chunk* chunks[AXIS_CHUNKS][AXIS_CHUNKS][WORLD_CHUNKS_HEIGHT];
@@ -111,5 +112,7 @@ void worldSetLightValueChunkBlock(const World* world,
                                   const ChunkBlockPosition* position,
                                   const LightLevel light_value,
                                   const LightType light_type);
+
+LightLevel worldGetInternalLightLevel(const World* world);
 
 #endif // PSXMC_WORLD_H

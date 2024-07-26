@@ -18,7 +18,7 @@
 typedef struct {
     const u8 face;
     const u8 axis;
-    const u16 light_level_colour_scalar;
+    const LightLevel light_level;
     const Block* block;
 } PlaneMeshingDataKey;
 

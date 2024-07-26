@@ -81,6 +81,7 @@ const RECT lightmap_merge_offscreen = (RECT) {
 };
 
 static void renderQuad(const Mesh* mesh,
+                       const LightLevel internal_light_level,
                        const MeshPrimitive* primitive,
                        RenderContext* ctx,
                        Transforms* transforms) {
@@ -164,11 +165,15 @@ static void renderQuad(const Mesh* mesh,
         freePrimitive(ctx, sizeof(POLY_FT4));
         return;
     }
+    const u16 light_level_colour_scalar = SCALE_PER_LIGHT_LEVEL * (u16) lightLevelApplicable(
+        internal_light_level,
+        primitive->light_level
+    );
     setRGB0(
         pol4,
-        primitive->r,
-        primitive->g,
-        primitive->b
+        fixedMul(primitive->r, light_level_colour_scalar),
+        fixedMul(primitive->g, light_level_colour_scalar),
+        fixedMul(primitive->b, light_level_colour_scalar)
     );
     // Load primitive color even though gte_ncs() doesn't use it.
     // This is so the GTE will output a color result with the
@@ -179,13 +184,8 @@ static void renderQuad(const Mesh* mesh,
     // gte_lddp(&dp);
     // Apply RGB tinting to lighting calculation result on the basis
     // that it is enabled.
-    if (primitive->tint) {
-        // Normal Color Column Single
-        gte_nccs();
-    } else {
-        // Normal Color Single
-        gte_ncs();
-    }
+    // Normal Color Column Single
+    gte_nccs();
     // Store result to the primitive
     gte_strgb(&pol4->r0);
     // Set texture coords and dimensions
@@ -209,7 +209,10 @@ static void renderQuad(const Mesh* mesh,
     addPrim(ot_object, ptwin);
 }
 
-void chunkMeshRenderFaceDirection(const Mesh* mesh, RenderContext* ctx, Transforms* transforms) {
+void chunkMeshRenderFaceDirection(const Mesh* mesh,
+                                  const LightLevel internal_light_level,
+                                  RenderContext* ctx,
+                                  Transforms* transforms) {
     MeshPrimitive* p_prims = (MeshPrimitive*) mesh->p_prims;
     cvector_iterator(MeshPrimitive) primitive;
     cvector_for_each_in(primitive, p_prims) {
@@ -221,7 +224,7 @@ void chunkMeshRenderFaceDirection(const Mesh* mesh, RenderContext* ctx, Transfor
                 renderTriangle(primitive, ctx, transforms);
                 break;
             case MESH_PRIM_TYPE_QUAD:
-                renderQuad(mesh, primitive, ctx, transforms);
+                renderQuad(mesh, internal_light_level, primitive, ctx, transforms);
                 break;
             default:
                 printf(
@@ -239,7 +242,10 @@ UNUSED bool faceDirectionHidden(RenderContext* ctx, FaceDirection face_dir) {
     return false;
 }
 
-void chunkMeshRender(const ChunkMesh* mesh, RenderContext* ctx, Transforms* transforms) {
+void chunkMeshRender(const ChunkMesh* mesh,
+                     const LightLevel internal_light_level,
+                     RenderContext* ctx,
+                     Transforms* transforms) {
     // bool skip_check[6] = {false};
     #pragma GCC unroll 6
     for (int i = 0; i < FACE_DIRECTION_COUNT; i++) {
@@ -258,6 +264,7 @@ void chunkMeshRender(const ChunkMesh* mesh, RenderContext* ctx, Transforms* tran
         // }
         chunkMeshRenderFaceDirection(
             &mesh->face_meshes[i],
+            internal_light_level,
             ctx,
             transforms
         );

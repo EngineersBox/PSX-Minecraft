@@ -29,17 +29,18 @@ const LightUpdateLimits chunk_light_update_limits = (LightUpdateLimits) {
 FWD_DECL IBlock* worldGetBlock(const World* world, const VECTOR* position);
 FWD_DECL Chunk* worldGetChunk(const World* world, const VECTOR* position);
 FWD_DECL Chunk* worldGetChunkFromChunkBlock(const World* world, const ChunkBlockPosition* position);
-FWD_DECL u8 worldGetLightValue(const World* world,
-                               const VECTOR* position,
-                               const LightType light_type);
+FWD_DECL LightLevel worldGetLightType(const World* world,
+                                      const VECTOR* position,
+                                      const LightType light_type);
 FWD_DECL void worldSetLightValue(const World* world,
-                        const VECTOR* position,
-                        u8 light_value,
-                        const LightType light_type);
+                                 const VECTOR* position,
+                                 LightLevel light_value,
+                                 const LightType light_type);
 FWD_DECL void worldSetLightValueChunkBlock(const World* world,
                                            const ChunkBlockPosition* position,
                                            u8 light_value,
                                            const LightType light_type);
+FWD_DECL LightLevel worldGetInternalLightLevel(const World* world);
 
 void chunkDestroyDroppedItem(void* elem) {
     IItem** iitem = (IItem**) elem;
@@ -360,7 +361,12 @@ void chunkRender(Chunk* chunk,
     gte_SetRotMatrix(&omtx);
     gte_SetTransMatrix(&omtx);
     // Sort + render mesh
-    chunkMeshRender(&chunk->mesh, ctx, transforms);
+    chunkMeshRender(
+        &chunk->mesh,
+        worldGetInternalLightLevel(chunk->world),
+        ctx,
+        transforms
+    );
     // Restore matrix
     PopMatrix();
     chunkRenderDroppedItems(chunk, ctx, transforms);
@@ -768,7 +774,7 @@ void chunkUpdateAddLight(Chunk* chunk, const LightUpdateLimits limits) {
                 || blockIsFaceOpaque(block, faceDirectionOpposing(i))) {
                 continue;
             }
-            const u8 neighbour_light_level = worldGetLightValue(
+            const u8 neighbour_light_level = worldGetLightType(
                 current_chunk->world,
                 &query_pos,
                 LIGHT_TYPE_BLOCK
@@ -834,7 +840,7 @@ void chunkUpdateAddLight(Chunk* chunk, const LightUpdateLimits limits) {
                 || blockIsFaceOpaque(block, faceDirectionOpposing(i))) {
                 continue;
             }
-            const u8 neighbour_light_level = worldGetLightValue(
+            const u8 neighbour_light_level = worldGetLightType(
                 current_chunk->world,
                 &query_pos,
                 LIGHT_TYPE_SKY
@@ -902,7 +908,7 @@ void chunkUpdateRemoveLight(Chunk* chunk, const LightUpdateLimits limits) {
                 &query_pos,
                 CHUNK_SIZE
             );
-            const u8 neighbour_level = worldGetLightValue(
+            const u8 neighbour_level = worldGetLightType(
                 current_chunk->world,
                 &query_pos,
                 LIGHT_TYPE_BLOCK

@@ -6,14 +6,10 @@
 #include "../../../structure/cvector.h"
 #include "../../../structure/hashmap.h"
 #include "chunk_mesh.h"
+#include "chunk_defines.h"
 #include "../position.h"
 #include "../../blocks/blocks.h"
 
-#define CHUNK_SIZE 8
-#define CHUNK_BLOCK_SIZE (CHUNK_SIZE * BLOCK_SIZE)
-#define CHUNK_DATA_SIZE (CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE)
-#define CHUNK_DIRECTIONS 3
-#define CHUNK_AXIS_NEIGHBOURS (CHUNK_DIRECTIONS * 2)
 // -1 = unlimited
 typedef struct LightUpdateLimits {
     i16 add_block;
@@ -22,10 +18,6 @@ typedef struct LightUpdateLimits {
     i16 remove_sky;
 } LightUpdateLimits;
 extern const LightUpdateLimits chunk_light_update_limits;
-#define CHUNK_LIGHT_ADD_BLOCK_UPDATES_PER_TICK -1
-#define CHUNK_LIGHT_ADD_SKY_UPDATES_PER_TICK -1
-#define CHUNK_LIGHT_REMOVE_BLOCK_UPDATES_PER_TICK -1
-#define CHUNK_LIGHT_REMOVE_SKY_UPDATES_PER_TICK -1
 
 #define chunkBlockIndex(x, y, z) ((z) + ((y) * CHUNK_SIZE) + ((x) * CHUNK_SIZE * CHUNK_SIZE))
 

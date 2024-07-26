@@ -30,10 +30,11 @@ INLINE LightLevel lightMapGetType(const LightMap lightmap,
         : (lightmap[index] >> 4) & 0b1111;
 }
 
-INLINE LightLevel lightLevelApplicable(const LightLevel light_value) {
+INLINE LightLevel lightLevelApplicable(const LightLevel internal_light_level, const LightLevel light_value) {
     const LightLevel block = (light_value & LIGHT_BLOCK_MASK) >> 4;
     const LightLevel sky = light_value & LIGHT_SKY_MASK;
-    return max(block, sky);
+    const LightLevel internal_sky = internal_light_level & LIGHT_SKY_MASK;
+    return max(block, min(sky, internal_sky));
 }
 
 INLINE LightLevel lightLevelToOverlayColour(const LightLevel light_value) {
@@ -48,5 +49,5 @@ INLINE LightLevel lightLevelToOverlayColour(const LightLevel light_value) {
     // the + 1 is just to ensure that the lowest light level is
     // not absolute black, which is the same as transparent on the
     // PS1's GPU.
-    return (lightLevelApplicable(light_value) + 1) << 3;
+    return (lightLevelApplicable(15, light_value) + 1) << 3;
 }
