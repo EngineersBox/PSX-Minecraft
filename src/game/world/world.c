@@ -320,17 +320,6 @@ void worldLoadChunksX(World* world, const i8 x_direction, const i8 z_direction) 
                          [y] = to_mesh[i++] = chunk;
         }
     }
-    // We need to generate the mesh after creating all the chunks
-    // since each chunk needs to index into it's neighbours to
-    // determine if a mesh face should be created on the border.
-    // So if the neighbour doesn't exit yet we get more quads in
-    // a chunk mesh than are actually necessary.
-    i = 0;
-    for (i32 z_coord = z_start; z_coord <= z_end; z_coord++) {
-        for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
-            chunkGenerateMesh(to_mesh[i++]);
-        }
-    }
     i = 0;
     for (i32 z_coord = z_start; z_coord <= z_end; z_coord++) {
         for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
@@ -341,6 +330,17 @@ void worldLoadChunksX(World* world, const i8 x_direction, const i8 z_direction) 
     for (i32 z_coord = z_start; z_coord <= z_end; z_coord++) {
         for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
             chunkPropagateLightmap(to_mesh[i++]);
+        }
+    }
+    // We need to generate the mesh after creating all the chunks
+    // since each chunk needs to index into it's neighbours to
+    // determine if a mesh face should be created on the border.
+    // So if the neighbour doesn't exit yet we get more quads in
+    // a chunk mesh than are actually necessary.
+    i = 0;
+    for (i32 z_coord = z_start; z_coord <= z_end; z_coord++) {
+        for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
+            chunkGenerateMesh(to_mesh[i++]);
         }
     }
     // Unload -x_direction chunks
@@ -379,17 +379,6 @@ void worldLoadChunksZ(World* world, const i8 x_direction, const i8 z_direction) 
                          [y] = to_mesh[i++] = chunk;
         }
     }
-    // We need to generate the mesh after creating all the chunks
-    // since each chunk needs to index into it's neighbours to
-    // determine if a mesh face should be created on the border.
-    // So if the neighbour doesn't exit yet we get more quads in
-    // a chunk mesh than are actually necessary.
-    i = 0;
-    for (i32 x_coord = x_start; x_coord <= x_end; x_coord++) {
-        for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
-            chunkGenerateMesh(to_mesh[i++]);
-        }
-    }
     i = 0;
     for (i32 x_coord = x_start; x_coord <= x_end; x_coord++) {
         for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
@@ -400,6 +389,17 @@ void worldLoadChunksZ(World* world, const i8 x_direction, const i8 z_direction) 
     for (i32 x_coord = x_start; x_coord <= x_end; x_coord++) {
         for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
             chunkPropagateLightmap(to_mesh[i++]);
+        }
+    }
+    // We need to generate the mesh after creating all the chunks
+    // since each chunk needs to index into it's neighbours to
+    // determine if a mesh face should be created on the border.
+    // So if the neighbour doesn't exit yet we get more quads in
+    // a chunk mesh than are actually necessary.
+    i = 0;
+    for (i32 x_coord = x_start; x_coord <= x_end; x_coord++) {
+        for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
+            chunkGenerateMesh(to_mesh[i++]);
         }
     }
     // Unload -z_direction chunks
@@ -425,6 +425,12 @@ void worldLoadChunksXZ(World* world, const i8 x_direction, const i8 z_direction)
                      [arrayCoord(world, vx, x_coord)]
                      [y] = to_mesh[y] = loaded_chunk;
     }
+    for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
+        chunkGenerateLightmap(to_mesh[y]);
+    }
+    for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
+        chunkPropagateLightmap(to_mesh[y]);
+    }
     // We need to generate the mesh after creating all the chunks
     // since each chunk needs to index into it's neighbours to
     // determine if a mesh face should be created on the border.
@@ -435,12 +441,6 @@ void worldLoadChunksXZ(World* world, const i8 x_direction, const i8 z_direction)
         //       have loaded chunks on all axis? Otherwise each axis may duplicate
         //       faces from, the orthogonal axis.
         chunkGenerateMesh(to_mesh[y]);
-    }
-    for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
-        chunkGenerateLightmap(to_mesh[y]);
-    }
-    for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
-        chunkPropagateLightmap(to_mesh[y]);
     }
     // Unload (-x_direction,-z_direction) chunk
     x_coord = world->centre.vx + (LOADED_CHUNKS_RADIUS * -x_direction);
@@ -684,7 +684,7 @@ LightLevel worldGetLightValueChunkBlock(const World* world,
         || position->chunk.vy >= WORLD_CHUNKS_HEIGHT) {
         return createLightLevel(0, world->internal_light_level);
     }
-    Chunk* chunk = world->chunks[arrayCoord(world, vz, position->chunk.vz)]
+    const Chunk* chunk = world->chunks[arrayCoord(world, vz, position->chunk.vz)]
                                 [arrayCoord(world, vx, position->chunk.vx)]
                                 [position->chunk.vy];
     if (chunk == NULL) {
@@ -718,7 +718,7 @@ LightLevel worldGetLightTypeChunkBlock(const World* world,
         || position->chunk.vy >= WORLD_CHUNKS_HEIGHT) {
         return createLightLevel(0, world->internal_light_level);
     }
-    Chunk* chunk = world->chunks[arrayCoord(world, vz, position->chunk.vz)]
+    const Chunk* chunk = world->chunks[arrayCoord(world, vz, position->chunk.vz)]
                                 [arrayCoord(world, vx, position->chunk.vx)]
                                 [position->chunk.vy];
     if (chunk == NULL) {
