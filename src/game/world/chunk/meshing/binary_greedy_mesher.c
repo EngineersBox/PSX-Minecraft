@@ -354,7 +354,7 @@ static MeshPrimitive* createPrimitive(ChunkMesh* mesh,
     primitive->tv1 = BLOCK_TEXTURE_SIZE * height;
     const CVECTOR tint = attributes->tint.cd
         ? attributes->tint
-        : vec3_rgb(0x80, 0x80, 0x80);
+        : vec3_rgb(0xFF, 0xFF, 0xFF);
     primitive->r = tint.r;
     primitive->g = tint.g;
     primitive->b = tint.b;
