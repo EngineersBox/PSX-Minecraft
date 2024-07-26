@@ -63,6 +63,8 @@
 * [X] ~~Procedural texturing for each quad in chunk mesh by rendering texture and light maps to off screen TPage and then using that to render to world.~~
 * [X] Bake lighting into mesh
 * [X] ~~Do a mini version of the binary greedy meshing for lightmapping to generate a cached entry on each mesh primitive taht is just a 2D array of final light levels that can be applied when rendering the overalys as `TILE_16` by looping over the texture coords (x,y) and indexing this cached map~~ (Lighting now baked into mesh, this isn't needed)
+* [X] Day/night cycle does not need to have lighting recalculated for each time the lighting changes. Everything can be static, instead the skylight 4 bits of the lightmap entries applied to mesh quads is capped based on the time of day before we determine the light value between the skylight upper 4 bits and block light lower 4 bits. This allows for seemless day/night transitions in lightlevels without needing to recalculate.
+* [X] Hold an internal global light level on the world that changes with time to be used in adjusting sky lighting when it changes
 * [ ] Add time-of-day sunlight adjustment into baked lighting
 * [ ] Camera far plane cutoff with fog relative to chunk render distance
 * [ ] Frustum and culling
@@ -76,8 +78,6 @@
 * [ ] Sub-block intersection tests for raycast to handling interacting with blocks like doors and piston heads
 * [ ] If we are breaking a block on the boundary of chunks, we should pass the breaking context to both the target and neighbouring chunk in order for the mesh generation to account for the missing faces on the chunk boundary.
 * [ ] Remove block sunlight updates
-* [X] Day/night cycle does not need to have lighting recalculated for each time the lighting changes. Everything can be static, instead the skylight 4 bits of the lightmap entries applied to mesh quads is capped based on the time of day before we determine the light value between the skylight upper 4 bits and block light lower 4 bits. This allows for seemless day/night transitions in lightlevels without needing to recalculate.
-* [X] Hold an internal global light level on the world that changes with time to be used in adjusting sky lighting when it changes
 * [ ] Calculate time-of-day as the tick count up to `20t * 20m * 60s = 24000t` ticks  and update world internal light level at various thresholds
 
 ## Refactor
@@ -104,9 +104,9 @@
 * [X] Return `NULL` block/chunk when accessing block/chunk outside of loaded range
 * [X] Move light/add remove to be standalone methods to enqueue updates then have a separate chunk-internal method to process the lighting updates during a `chunkUpdate` call
 * [X] Light updates should be a queue with size limited to `CHUNK_SIZE ^ 3` (cubed) and ordered on recency of push. If a new update is going to overwrite and old one (at the same index) then the `max(old_light_level, new_light_level)` should be used as the value for addition and the `min(...)` for removal. Can probably just add forward/backward pointers to hashmap bucket implementation for this. (Just using a hashmap keyed on pos vector was sufficient)
+* [X] Change default return of `15` to world light in out-of-bounds cases for world and chunk light retrieval for the sky subset of bits only.
 * [ ] Move rendering handlers in `ChunkMesh` to standalone SMD renderer file
 * [ ] Support other resolutions that aren't 320x240
 * [ ] Refactor vector operations to use `_Generic` C11 macro to perform type specific operations between any kind of two vector types or constant
 * [ ] Move assets to on-disk directories and files instead of packing them into the binary
 * [ ] Move remesh trigger handling for lighting and breaking overlay from `chunkRender` into `chunkUpdate`
-* [X] Change default return of `15` to world light in out-of-bounds cases for world and chunk light retrieval for the sky subset of bits only.

@@ -162,6 +162,19 @@ static void renderQuad(const Mesh* mesh,
         freePrimitive(ctx, sizeof(POLY_FT4));
         return;
     }
+    // NOTE: A downside of not re-meshing with updated sky light
+    //       levels when the time-of-day changes is that the chance
+    //       to merge with local block light values or dark regions
+    //       is lost. However, these chances would be very unlikely
+    //       to occur since block light or low light areas are generally
+    //       not uniform (degrades in level each block further away
+    //       from source) or are more likely to not be in sunlight
+    //       anyway (save for cave entraces or around builds for
+    //       instance) are are more lightly to be affected by chunk
+    //       boundaries on light maps anyway. So the fact we do the
+    //       adjustment of sunlight at each rendered frame is fine
+    //       and we really don't gain much from the cost of remeshing
+    //       as an alternative.
     const u16 light_level_colour_scalar = SCALE_PER_LIGHT_LEVEL * (u16) lightLevelApplicable(
         internal_light_level,
         primitive->light_level
