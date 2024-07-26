@@ -282,6 +282,9 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk, const BreakingState* breaking_sta
                         );
                         continue;
                     }
+                    // TODO: For blocks that are transparent to sunlight, we should
+                    //       look up the position of the block without the direction
+                    //       offset applied.
                     const VECTOR light_query_pos = chunkBlockToWorldPosition(
                         &light_cb_pos,
                         CHUNK_SIZE
@@ -410,6 +413,10 @@ static void createVertices(Chunk* chunk,
                            const i32 y,
                            const i32 w,
                            const i32 h) {
+    // TODO: This should create sets of vertices based on the
+    //       block type (implying the model). It will need to
+    //       be able to create more than 4 vertices for some
+    //       such as stairs.
     Mesh* const mesh = &chunk->mesh.face_meshes[face_dir];
     // Construct vertices relative to chunk mesh bottom left origin
     const i32 chunk_origin_x = chunk->position.vx * CHUNK_SIZE;
@@ -443,6 +450,11 @@ static void createVertices(Chunk* chunk,
 static void createNormal(ChunkMesh* mesh,
                          MeshPrimitive* primitive,
                          const FaceDirection face_dir) {
+    // TODO: When supporting general block models based on the type
+    //       this will need to generate potentially multiple normals
+    //       for each set of vertices that make up a face. It will
+    //       also need to address models that are not axially aligned
+    //       such as sugar cane.
     SVECTOR* norm = nextRenderAttribute(&mesh->face_meshes[face_dir], p_norms, n0, n_norms);
 #undef nextRenderAttribute
     *norm = vec3_const_mul(
@@ -451,7 +463,7 @@ static void createNormal(ChunkMesh* mesh,
     );
 }
 
-static void createQuad(Chunk* chunk,
+static void createMesh(Chunk* chunk,
                        const PlaneMeshingDataKey* data,
                        const Texture* texture_override,
                        const TextureAttributes* texture_attributes_override,
@@ -516,7 +528,7 @@ void binaryGreedyMesherConstructPlane(Chunk* chunk,
                 data->plane[row + w] &= ~mask;
                 w++;
             }
-            createQuad(
+            createMesh(
                 chunk,
                 &data->key,
                 NULL,
@@ -603,7 +615,7 @@ void binaryGreedyMesherConstructBreakingOverlay(Chunk* chunk, const BreakingStat
             .light_level= worldGetLightValue(chunk->world, &light_query_pos),
             .block = block
         };
-        createQuad(
+        createMesh(
             chunk,
             &key,
             &texture,
