@@ -680,13 +680,13 @@ LightLevel worldGetLightValueChunkBlock(const World* world,
     // World is void below 0 on y-axis and nothing above height limit
     if ((position->chunk.vy <= 0 && position->block.vy < 0)
         || position->chunk.vy >= WORLD_CHUNKS_HEIGHT) {
-        return 0;
+        return createLightLevel(0, 15);
     }
     Chunk* chunk = world->chunks[arrayCoord(world, vz, position->chunk.vz)]
                                 [arrayCoord(world, vx, position->chunk.vx)]
                                 [position->chunk.vy];
     if (chunk == NULL) {
-        return 0;
+        return createLightLevel(0, 15);
     }
     return chunkGetLightValue(
         chunk,
@@ -698,7 +698,7 @@ LightLevel worldGetLightValue(const World* world,
                               const VECTOR* position) {
     // World is void below 0 and above world-height on y-axis
     if (position->vy < 0 || position->vy >= WORLD_HEIGHT) {
-        return 0;
+        return createLightLevel(0, 15);
     }
     const ChunkBlockPosition chunk_block_position = worldToChunkBlockPosition(position, CHUNK_SIZE);
     return worldGetLightValueChunkBlock(
@@ -714,13 +714,13 @@ LightLevel worldGetLightTypeChunkBlock(const World* world,
     // World is void below 0 on y-axis and nothing above height limit
     if ((position->chunk.vy <= 0 && position->block.vy < 0)
         || position->chunk.vy >= WORLD_CHUNKS_HEIGHT) {
-        return 0;
+        return createLightLevel(0, 15);
     }
     Chunk* chunk = world->chunks[arrayCoord(world, vz, position->chunk.vz)]
                                 [arrayCoord(world, vx, position->chunk.vx)]
                                 [position->chunk.vy];
     if (chunk == NULL) {
-        return 0;
+        return createLightLevel(0, 15);
     }
     return chunkGetLightType(
         chunk,
@@ -734,7 +734,7 @@ LightLevel worldGetLightType(const World* world,
                              const LightType light_type) {
     // World is void below 0 and above world-height on y-axis
     if (position->vy < 0 || position->vy >= WORLD_HEIGHT) {
-        return 0;
+        return createLightLevel(0, 15);
     }
     const ChunkBlockPosition chunk_block_position = worldToChunkBlockPosition(position, CHUNK_SIZE);
     return worldGetLightTypeChunkBlock(

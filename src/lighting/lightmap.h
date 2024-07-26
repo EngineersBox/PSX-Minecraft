@@ -11,6 +11,7 @@
 
 #define LIGHT_BLOCK_MASK 0b11110000
 #define LIGHT_SKY_MASK 0b00001111
+#define createLightLevel(block, sky) ((((block) << 4) & LIGHT_BLOCK_MASK) | ((sky) & LIGHT_SKY_MASK))
 
 typedef u8 LightLevel;
 typedef LightLevel LightMap[CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE];

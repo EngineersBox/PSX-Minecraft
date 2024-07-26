@@ -613,7 +613,7 @@ void chunkUpdate(Chunk* chunk, const Player* player) {
 LightLevel chunkGetLightValue(const Chunk* chunk,
                               const VECTOR* position) {
     if (checkIndexOOB(position->vx, position->vy, position->vz)) {
-        return 0;
+        return createLightLevel(0, 15);
     }
     return lightMapGetValue(chunk->lightmap, *position);
 }
@@ -622,7 +622,7 @@ LightLevel chunkGetLightType(const Chunk* chunk,
                              const VECTOR* position,
                              const LightType light_type) {
     if (checkIndexOOB(position->vx, position->vy, position->vz)) {
-        return 0;
+        return createLightLevel(0, 15);
     }
     return lightMapGetType(chunk->lightmap, *position, light_type);
 }

@@ -93,9 +93,9 @@
 })
 
 /**
- * @brief Retrieve the sign (1 for positive, 0 for negative) of a number
+ * @brief Retrieve the sign (1 for positive, 0 for negative and zero) of a number
  * @param v - number to apply to
- * @return 1 if v >= 0, otherwise 0
+ * @return 1 if v > 0, otherwise 0
  */
 #define sign(v) cmp(0, v)
 

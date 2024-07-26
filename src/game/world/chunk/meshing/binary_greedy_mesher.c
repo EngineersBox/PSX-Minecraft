@@ -37,13 +37,7 @@ typedef u32 FacesColumns[FACE_DIRECTION_COUNT][CHUNK_SIZE_PADDED][CHUNK_SIZE_PAD
 #define SCALE_PER_LIGHT_LEVEL 256
 
 u16 constructLightScalar(const Chunk* chunk, const VECTOR* query_pos) {
-    if (query_pos->vx < 0 || query_pos->vx >= CHUNK_SIZE
-        || query_pos->vy < 0 || query_pos->vy >= CHUNK_SIZE
-        || query_pos->vz < 0 || query_pos->vz >= CHUNK_SIZE) {
-        return ONE;
-    }
     const LightLevel light_level = worldGetLightValue(chunk->world, query_pos);
-    DEBUG_LOG(VEC_PATTERN " Light level: %d\n", VEC_LAYOUT(*query_pos), light_level);
     return SCALE_PER_LIGHT_LEVEL * (u16) lightLevelApplicable(
         light_level
     );
@@ -233,18 +227,34 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk, const BreakingState* breaking_sta
                         .block = vec3_i32_all(0),
                         .chunk = chunk->position
                     };
+                    ChunkBlockPosition light_cb_pos = {
+                        .block = vec3_i32_all(0),
+                        .chunk = chunk->position
+                    };
                     switch (face) {
                         case FACE_DIR_DOWN:
+                            chunk_block_position.block = vec3_i32(x, y, z);
+                            light_cb_pos.block = vec3_i32(x, y - 1, z);
+                            break;
                         case FACE_DIR_UP:
                             chunk_block_position.block = vec3_i32(x, y, z);
+                            light_cb_pos.block = vec3_i32(x, y + 1, z);
                             break;
                         case FACE_DIR_LEFT:
+                            chunk_block_position.block = vec3_i32(y, z, x);
+                            light_cb_pos.block = vec3_i32(y - 1, z, x);
+                            break;
                         case FACE_DIR_RIGHT:
                             chunk_block_position.block = vec3_i32(y, z, x);
+                            light_cb_pos.block = vec3_i32(y + 1, z, x);
                             break;
                         case FACE_DIR_BACK:
+                            chunk_block_position.block = vec3_i32(x, z, y);
+                            light_cb_pos.block = vec3_i32(x, z, y - 1);
+                            break;
                         case FACE_DIR_FRONT:
                             chunk_block_position.block = vec3_i32(x, z, y);
+                            light_cb_pos.block = vec3_i32(x, z, y + 1);
                             break;
                     }
                     const VECTOR world_block_position = chunkBlockToWorldPosition(
@@ -282,10 +292,7 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk, const BreakingState* breaking_sta
                         );
                         continue;
                     }
-                    const VECTOR light_query_pos = vec3_add(
-                        world_block_position,
-                        FACE_DIRECTION_NORMALS[face]
-                    );
+                    const VECTOR light_query_pos = chunkBlockToWorldPosition(&light_cb_pos, CHUNK_SIZE);
                     const u16 light_level_colour_scalar = constructLightScalar(
                         chunk,
                         &light_query_pos
