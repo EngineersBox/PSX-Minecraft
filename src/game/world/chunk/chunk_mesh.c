@@ -12,9 +12,6 @@
 #include "../../render/commands.h"
 #include "chunk_structure.h"
 
-FWD_DECL u8 lightMapGetValue(const LightMap lightmap, const VECTOR position);
-FWD_DECL u8 lightLevelApplicable(const u8 light_value);
-
 #ifndef QUAD_DUAL_TRI_NCLIP
 #define QUAD_DUAL_TRI_NCLIP 0
 #endif

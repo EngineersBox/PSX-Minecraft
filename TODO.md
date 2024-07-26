@@ -76,8 +76,9 @@
 * [ ] Sub-block intersection tests for raycast to handling interacting with blocks like doors and piston heads
 * [ ] If we are breaking a block on the boundary of chunks, we should pass the breaking context to both the target and neighbouring chunk in order for the mesh generation to account for the missing faces on the chunk boundary.
 * [ ] Remove block sunlight updates
-* [ ] Day/night cycle does not need to have lighting recalculated for each time the lighting changes. Everything can be static, instead the skylight 4 bits of the lightmap entries applied to mesh quads is capped based on the time of day before we determine the light value between the skylight upper 4 bits and block light lower 4 bits. This allows for seemless day/night transitions in lightlevels without needing to recalculate.
-* [ ] Hold an internal global light level on the world that changes with time to be used in adjusting sky lighting when it changes
+* [X] Day/night cycle does not need to have lighting recalculated for each time the lighting changes. Everything can be static, instead the skylight 4 bits of the lightmap entries applied to mesh quads is capped based on the time of day before we determine the light value between the skylight upper 4 bits and block light lower 4 bits. This allows for seemless day/night transitions in lightlevels without needing to recalculate.
+* [X] Hold an internal global light level on the world that changes with time to be used in adjusting sky lighting when it changes
+* [ ] Calculate time-of-day as the tick count up to `20t * 20m * 60s = 24000t` ticks  and update world internal light level at various thresholds
 
 ## Refactor
 
@@ -108,4 +109,4 @@
 * [ ] Refactor vector operations to use `_Generic` C11 macro to perform type specific operations between any kind of two vector types or constant
 * [ ] Move assets to on-disk directories and files instead of packing them into the binary
 * [ ] Move remesh trigger handling for lighting and breaking overlay from `chunkRender` into `chunkUpdate`
-* [ ] Change default return of `15` to world light in out-of-bounds cases for world and chunk light retrieval for the sky subset of bits only.
+* [X] Change default return of `15` to world light in out-of-bounds cases for world and chunk light retrieval for the sky subset of bits only.
