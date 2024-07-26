@@ -164,17 +164,15 @@ static void renderQuad(const Mesh* mesh,
         freePrimitive(ctx, sizeof(POLY_FT4));
         return;
     }
+    setRGB0(
+        pol4,
+        primitive->r,
+        primitive->g,
+        primitive->b
+    );
     // Load primitive color even though gte_ncs() doesn't use it.
     // This is so the GTE will output a color result with the
     // correct primitive code.
-    if (primitive->tint) {
-        setRGB0(
-            pol4,
-            primitive->r,
-            primitive->g,
-            primitive->b
-        );
-    }
     gte_ldrgb(&pol4->r0);
     // Load the face normal
     gte_ldv0(&normalsIter[primitive->n0]);

@@ -22,8 +22,9 @@ FWD_DECL IBlock* worldGetChunkBlock(const World* world, const ChunkBlockPosition
 FWD_DECL IBlock* chunkGetBlock(const Chunk* chunk, i32 x, i32 y, i32 z);
 FWD_DECL void chunkSetLightValue(Chunk* chunk,
                                  const VECTOR* position,
-                                 const u8 light_value,
+                                 const LightLevel light_value,
                                  const LightType light_type);
+FWD_DECL LightLevel worldGetLightValue(const World* world, const VECTOR* position);
 
 #define CHUNK_SIZE_PADDED (CHUNK_SIZE + 2)
 #define AXIS_COUNT 3
@@ -35,13 +36,14 @@ typedef u32 FacesColumns[FACE_DIRECTION_COUNT][CHUNK_SIZE_PADDED][CHUNK_SIZE_PAD
 // ((4096 << 12) / (16 << 12))
 #define SCALE_PER_LIGHT_LEVEL 256
 
-u16 constructLightScalar(const LightMap lightmap, const VECTOR* query_pos) {
+u16 constructLightScalar(const Chunk* chunk, const VECTOR* query_pos) {
     if (query_pos->vx < 0 || query_pos->vx >= CHUNK_SIZE
         || query_pos->vy < 0 || query_pos->vy >= CHUNK_SIZE
         || query_pos->vz < 0 || query_pos->vz >= CHUNK_SIZE) {
         return ONE;
     }
-    const u16 light_level = (u16) lightMapGetValue(lightmap, *query_pos);
+    const LightLevel light_level = worldGetLightValue(chunk->world, query_pos);
+    DEBUG_LOG(VEC_PATTERN " Light level: %d\n", VEC_LAYOUT(*query_pos), light_level);
     return SCALE_PER_LIGHT_LEVEL * (u16) lightLevelApplicable(
         light_level
     );
@@ -245,12 +247,9 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk, const BreakingState* breaking_sta
                             chunk_block_position.block = vec3_i32(x, z, y);
                             break;
                     }
-                    const VECTOR world_block_position = vec3_add(
-                        vec3_const_mul(
-                            chunk_block_position.chunk,
-                            CHUNK_SIZE
-                        ),
-                        chunk_block_position.block
+                    const VECTOR world_block_position = chunkBlockToWorldPosition(
+                        &chunk_block_position,
+                        CHUNK_SIZE
                     );
                     if (breaking_state != NULL
                         && breaking_state->block != NULL
@@ -284,11 +283,11 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk, const BreakingState* breaking_sta
                         continue;
                     }
                     const VECTOR light_query_pos = vec3_add(
-                        chunk_block_position.block,
+                        world_block_position,
                         FACE_DIRECTION_NORMALS[face]
                     );
                     const u16 light_level_colour_scalar = constructLightScalar(
-                        chunk->lightmap,
+                        chunk,
                         &light_query_pos
                     );
                     const PlaneMeshingData query = (PlaneMeshingData) {
@@ -592,11 +591,11 @@ void binaryGreedyMesherConstructBreakingOverlay(Chunk* chunk, const BreakingStat
                 break;
         }
         const VECTOR light_query_pos = vec3_add(
-            chunk_block_position.block,
+            breaking_state->position,
             FACE_DIRECTION_NORMALS[current_face_dir]
         );
         const u16 light_level_colour_scalar = constructLightScalar(
-            chunk->lightmap,
+            chunk,
             &light_query_pos
         );
         const PlaneMeshingDataKey key = (PlaneMeshingDataKey) {

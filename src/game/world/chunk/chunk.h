@@ -71,12 +71,14 @@ IBlock* chunkGetBlockVec(const Chunk* chunk, const VECTOR* position);
 
 void chunkUpdate(Chunk* chunk, const Player* player);
 
-u8 chunkGetLightValue(Chunk* chunk,
-                      const VECTOR* position,
-                      const LightType light_type);
+LightLevel chunkGetLightType(const Chunk* chunk,
+                             const VECTOR* position,
+                             const LightType light_type);
+LightLevel chunkGetLightValue(const Chunk* chunk,
+                              const VECTOR* position);
 void chunkSetLightValue(Chunk* chunk,
                         const VECTOR* position,
-                        const u8 light_value,
+                        const LightLevel light_value,
                         const LightType light_type);
 void chunkRemoveLightValue(Chunk* chunk,
                            const VECTOR* position,

@@ -93,19 +93,23 @@ IBlock* worldModifyVoxelConstructed(const World* world,
                                     bool drop_item,
                                     IItem** item_result);
 
-u8 worldGetLightValue(const World* world,
-                      const VECTOR* position,
-                      const LightType light_type);
-u8 worldGetLightValueChunkBlock(const World* world,
-                                const ChunkBlockPosition* position,
-                                const LightType light_type);
+LightLevel worldGetLightType(const World* world,
+                     const VECTOR* position,
+                     const LightType light_type);
+LightLevel worldGetLightTypeChunkBlock(const World* world,
+                               const ChunkBlockPosition* position,
+                               const LightType light_type);
+LightLevel worldGetLightValue(const World* world,
+                              const VECTOR* position);
+LightLevel worldGetLightValueChunkBlock(const World* world,
+                                        const ChunkBlockPosition* position);
 void worldSetLightValue(const World* world,
                         const VECTOR* position,
-                        u8 light_value,
+                        const LightLevel light_value,
                         const LightType light_type);
 void worldSetLightValueChunkBlock(const World* world,
                                   const ChunkBlockPosition* position,
-                                  u8 light_value,
+                                  const LightLevel light_value,
                                   const LightType light_type);
 
 #endif // PSXMC_WORLD_H

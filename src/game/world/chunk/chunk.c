@@ -610,10 +610,17 @@ void chunkUpdate(Chunk* chunk, const Player* player) {
     chunkUpdateLight(chunk, chunk_light_update_limits);
 }
 
+LightLevel chunkGetLightValue(const Chunk* chunk,
+                              const VECTOR* position) {
+    if (checkIndexOOB(position->vx, position->vy, position->vz)) {
+        return 0;
+    }
+    return lightMapGetValue(chunk->lightmap, *position);
+}
 
-u8 chunkGetLightValue(Chunk* chunk,
-                      const VECTOR* position,
-                      const LightType light_type) {
+LightLevel chunkGetLightType(const Chunk* chunk,
+                             const VECTOR* position,
+                             const LightType light_type) {
     if (checkIndexOOB(position->vx, position->vy, position->vz)) {
         return 0;
     }
@@ -622,7 +629,7 @@ u8 chunkGetLightValue(Chunk* chunk,
 
 void chunkSetLightValue(Chunk* chunk,
                         const VECTOR* position,
-                        u8 light_value,
+                        const LightLevel light_value,
                         const LightType light_type) {
     if (checkIndexOOB(position->vx, position->vy, position->vz)) {
         return;
