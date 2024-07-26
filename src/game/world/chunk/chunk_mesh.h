@@ -28,7 +28,6 @@ typedef struct MeshPrimitive {
     u16 v0, v1, v2, v3; // Vertex indices
     u16 n0, n1, n2, n3; // Normal indices
     LightLevel light_level;
-    CVECTOR colour;
     u8 r, g, b;
     u8 tu0, tv0;
     u8 tu1, tv1;
