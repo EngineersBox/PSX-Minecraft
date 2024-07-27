@@ -65,6 +65,7 @@
 * [X] ~~Do a mini version of the binary greedy meshing for lightmapping to generate a cached entry on each mesh primitive taht is just a 2D array of final light levels that can be applied when rendering the overalys as `TILE_16` by looping over the texture coords (x,y) and indexing this cached map~~ (Lighting now baked into mesh, this isn't needed)
 * [X] Day/night cycle does not need to have lighting recalculated for each time the lighting changes. Everything can be static, instead the skylight 4 bits of the lightmap entries applied to mesh quads is capped based on the time of day before we determine the light value between the skylight upper 4 bits and block light lower 4 bits. This allows for seemless day/night transitions in lightlevels without needing to recalculate.
 * [X] Hold an internal global light level on the world that changes with time to be used in adjusting sky lighting when it changes
+* [X] Remove block sunlight updates
 * [ ] Camera far plane cutoff with fog relative to chunk render distance
 * [ ] Frustum and culling
 * [ ] Depth-first search culling through chunks
@@ -76,7 +77,6 @@
 * [ ] Retrieve face attributes based on block orientation during meshing
 * [ ] Sub-block intersection tests for raycast to handling interacting with blocks like doors and piston heads
 * [ ] If we are breaking a block on the boundary of chunks, we should pass the breaking context to both the target and neighbouring chunk in order for the mesh generation to account for the missing faces on the chunk boundary.
-* [X] Remove block sunlight updates
 * [ ] Calculate time-of-day as the tick count up to `20t * 20m * 60s = 24000t` ticks  and update world internal light level at various thresholds
 * [ ] Add support in chunk provider for providing a list of named stages for chunk loading (e.g. gen terrain, prop lighting, construct mesh), then use these for dynamically loading chunks as well as normal world initialisation
 * [ ] Support more general mesh generation based on block types including multiple normals
