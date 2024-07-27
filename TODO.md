@@ -111,4 +111,4 @@
 * [ ] Refactor vector operations to use `_Generic` C11 macro to perform type specific operations between any kind of two vector types or constant
 * [ ] Move assets to on-disk directories and files instead of packing them into the binary
 * [ ] Move remesh trigger handling for lighting and breaking overlay from `chunkRender` into `chunkUpdate`
-* [ ] Change light levels scalar (calculated) to return values that scale down by `80%` on each level. I.e. level 14 is 80% of level 15, level 13 is 80% of level 14, etc.
+* [X] Change light levels scalar (calculated) to return values that scale down by `80%` on each level. I.e. level 14 is 80% of level 15, level 13 is 80% of level 14, etc.

@@ -175,7 +175,7 @@ static void renderQuad(const Mesh* mesh,
     //       adjustment of sunlight at each rendered frame is fine
     //       and we really don't gain much from the cost of remeshing
     //       as an alternative.
-    const u16 light_level_colour_scalar = SCALE_PER_LIGHT_LEVEL * (u16) lightLevelApplicable(
+    const u16 light_level_colour_scalar = lightLevelColourScalar(
         internal_light_level,
         primitive->light_level
     );

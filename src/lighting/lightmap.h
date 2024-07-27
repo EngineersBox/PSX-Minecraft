@@ -18,6 +18,8 @@
 typedef u8 LightLevel;
 typedef LightLevel LightMap[CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE];
 
+extern const u16 LIGHT_LEVEL_COLOUR_SCALARS[16];
+
 typedef enum LightType {
     LIGHT_TYPE_SKY = 0,
     LIGHT_TYPE_BLOCK
@@ -30,7 +32,7 @@ void lightMapSetValue(LightMap lightmap,
 LightLevel lightMapGetType(const LightMap lightmap, const VECTOR position, const LightType light_type);
 LightLevel lightMapGetValue(const LightMap lightmap, const VECTOR position);
 
-LightLevel lightLevelToOverlayColour(const LightLevel light_value);
+u16 lightLevelColourScalar(const LightLevel internal_light_level, const LightLevel light_value);
 LightLevel lightLevelApplicable(const LightLevel internal_light_level, const LightLevel light_value);
 
 

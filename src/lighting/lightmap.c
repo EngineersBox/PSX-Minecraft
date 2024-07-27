@@ -4,6 +4,25 @@
 #include "../math/math_utils.h"
 #include "../util/preprocessor.h"
 
+const u16 LIGHT_LEVEL_COLOUR_SCALARS[16] = {
+    [0]=144,
+    [1]=180,
+    [2]=225,
+    [3]=281,
+    [4]=351,
+    [5]=439,
+    [6]=549,
+    [7]=687,
+    [8]=858,
+    [9]=1073,
+    [10]=1342,
+    [11]=1677,
+    [12]=2097,
+    [13]=2621,
+    [14]=3276,
+    [15]=4096
+};
+
 void lightMapSetValue(LightMap lightmap,
                       const VECTOR position,
                       const LightLevel light_value,
@@ -37,17 +56,9 @@ INLINE LightLevel lightLevelApplicable(const LightLevel internal_light_level, co
     return max(block, min(sky, internal_sky));
 }
 
-INLINE LightLevel lightLevelToOverlayColour(const LightLevel light_value) {
-    // This is equivalent to doing the following:
-    // BASE: (128 * ONE) / 16 = 32768
-    // COLOUR: (36768 * (max_light + 1)) >> FIXED_POINT_SHIFT
-    // Since 32768 == 0b1000000000000000 == 1 << 15, this means
-    // multiplying it by any value is the same as shifting that
-    // value over by 15. We then right shift that result by 12,
-    // which is the same as if we just left shifted the original
-    // multiplier by 3. Hence, (max_light + 1) << 3. Note that
-    // the + 1 is just to ensure that the lowest light level is
-    // not absolute black, which is the same as transparent on the
-    // PS1's GPU.
-    return (lightLevelApplicable(15, light_value) + 1) << 3;
+INLINE u16 lightLevelColourScalar(const LightLevel internal_light_level, const LightLevel light_value) {
+    return LIGHT_LEVEL_COLOUR_SCALARS[lightLevelApplicable(
+        internal_light_level,
+        light_value
+    )];
 }
