@@ -106,9 +106,9 @@
 * [X] Move light/add remove to be standalone methods to enqueue updates then have a separate chunk-internal method to process the lighting updates during a `chunkUpdate` call
 * [X] Light updates should be a queue with size limited to `CHUNK_SIZE ^ 3` (cubed) and ordered on recency of push. If a new update is going to overwrite and old one (at the same index) then the `max(old_light_level, new_light_level)` should be used as the value for addition and the `min(...)` for removal. Can probably just add forward/backward pointers to hashmap bucket implementation for this. (Just using a hashmap keyed on pos vector was sufficient)
 * [X] Change default return of `15` to world light in out-of-bounds cases for world and chunk light retrieval for the sky subset of bits only.
+* [X] Change light levels scalar (calculated) to return values that scale down by `80%` on each level. I.e. level 14 is 80% of level 15, level 13 is 80% of level 14, etc.
 * [ ] Move rendering handlers in `ChunkMesh` to standalone SMD renderer file
 * [ ] Support other resolutions that aren't 320x240
 * [ ] Refactor vector operations to use `_Generic` C11 macro to perform type specific operations between any kind of two vector types or constant
 * [ ] Move assets to on-disk directories and files instead of packing them into the binary
 * [ ] Move remesh trigger handling for lighting and breaking overlay from `chunkRender` into `chunkUpdate`
-* [X] Change light levels scalar (calculated) to return values that scale down by `80%` on each level. I.e. level 14 is 80% of level 15, level 13 is 80% of level 14, etc.
