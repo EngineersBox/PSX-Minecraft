@@ -551,7 +551,7 @@ void binaryGreedyMesherConstructBreakingOverlay(Chunk* chunk, const BreakingStat
     const u8 visible_sides_bitset = breaking_state->visible_sides_bitset;
     const Block* block = VCAST_PTR(Block*, breaking_state->block);
     TextureAttributes texture_attributes[FACE_DIRECTION_COUNT] = {0};
-    #pragma GCC unroll 6
+    /*#pragma GCC unroll 6*/
     for (FaceDirection face_dir = 0; face_dir < FACE_DIRECTION_COUNT; face_dir++) {
         if (((visible_sides_bitset >> face_dir) & 0b1) == 0) {
             continue;
@@ -575,7 +575,7 @@ void binaryGreedyMesherConstructBreakingOverlay(Chunk* chunk, const BreakingStat
         const Texture texture = (Texture) {
             .tpage = getTPage(
                 2,
-                1,
+                0,
                 breaking_texture_offscreen.x,
                 breaking_texture_offscreen.y
             ),
@@ -588,24 +588,41 @@ void binaryGreedyMesherConstructBreakingOverlay(Chunk* chunk, const BreakingStat
             axis = chunk_block_position.block.v##_axis; \
             x = chunk_block_position.block.v##_x; \
             y = chunk_block_position.block.v##_y
+        ChunkBlockPosition light_cb_pos = (ChunkBlockPosition) {
+            .block = vec3_i32_all(0),
+            .chunk = chunk->position
+        };
+        #define lightPos(_x, _y, _z) \
+            light_cb_pos.block.vx = _x, \
+            light_cb_pos.block.vy = _y, \
+            light_cb_pos.block.vz = _z
         switch (current_face_dir) {
             case FACE_DIR_DOWN:
+                pos(y, x, z);
+                lightPos(x, axis - 1, y);
+                break;
             case FACE_DIR_UP:
                 pos(y, x, z);
+                lightPos(x, axis + 1, y);
                 break;
             case FACE_DIR_LEFT:
+                pos(x, z, y);
+                lightPos(axis - 1, y, x);
+                break;
             case FACE_DIR_RIGHT:
                 pos(x, z, y);
+                lightPos(axis + 1, y, x);
                 break;
             case FACE_DIR_BACK:
+                pos(z, x, y);
+                lightPos(x, y, axis - 1);
+                break;
             case FACE_DIR_FRONT:
                 pos(z, x, y);
+                lightPos(x, y, axis + 1);
                 break;
         }
-        const VECTOR light_query_pos = vec3_add(
-            breaking_state->position,
-            FACE_DIRECTION_NORMALS[current_face_dir]
-        );
+        const VECTOR light_query_pos = chunkBlockToWorldPosition(&light_cb_pos, CHUNK_SIZE);
         const PlaneMeshingDataKey key = (PlaneMeshingDataKey) {
             .face = current_face_dir,
             // This should be the coordinate value for which ever axis stays constant

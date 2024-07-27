@@ -97,9 +97,9 @@ void Minecraft_init(VSelf, void* ctx) {
     self->world->centre_next = vec3_i32_all(0);
     DYN_PTR(
         &self->world->chunk_provider,
-        OverworldPerlinChunkProvider,
+        OverworldFlatlandChunkProvider,
         IChunkProvider,
-        malloc(sizeof(OverworldPerlinChunkProvider))
+        malloc(sizeof(OverworldFlatlandChunkProvider))
     );
     worldInit(self->world, &self->internals.ctx);
     world = self->world;
@@ -109,7 +109,7 @@ void Minecraft_init(VSelf, void* ctx) {
     player->camera = &self->internals.camera;
     const VECTOR player_positon = vec3_i32(0, (CHUNK_BLOCK_SIZE + (BLOCK_SIZE * 2)) << 12, 0);
     iPhysicsObjectSetPosition(&player->physics_object, &player_positon);
-    player->physics_object.flags.no_clip = true;
+    player->physics_object.flags.no_clip = false;
     player_handler = DYN(Player, IInputHandler, player);
     VCALL(player_handler, registerInputHandler, &self->internals.input, world);
     // Register handlers

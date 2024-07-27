@@ -203,7 +203,7 @@ void breakingStateUpdateRenderTarget(BreakingState* state,
         }
         pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
         setPolyFT4(pol4);
-        setSemiTrans(pol4, 0);
+        setSemiTrans(pol4, true);
         const TextureAttributes* attribute = &attributes[face_dir];
         setXYWH(
             pol4,
