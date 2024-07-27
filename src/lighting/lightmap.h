@@ -25,7 +25,7 @@ typedef enum LightType {
 
 void lightMapSetValue(LightMap lightmap,
                       const VECTOR position,
-                      LightLevel light_value,
+                      const LightLevel light_value,
                       const LightType light_type);
 LightLevel lightMapGetType(const LightMap lightmap, const VECTOR position, const LightType light_type);
 LightLevel lightMapGetValue(const LightMap lightmap, const VECTOR position);

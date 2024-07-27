@@ -40,6 +40,9 @@ FWD_DECL void worldSetLightValueChunkBlock(const World* world,
                                            const ChunkBlockPosition* position,
                                            u8 light_value,
                                            const LightType light_type);
+FWD_DECL LightLevel worldGetLightTypeChunkBlock(const World* world,
+                                                const ChunkBlockPosition* position,
+                                                const LightType light_type);
 FWD_DECL LightLevel worldGetInternalLightLevel(const World* world);
 
 void chunkDestroyDroppedItem(void* elem) {
@@ -100,12 +103,7 @@ void chunkInit(Chunk* chunk) {
     );
     chunk->dropped_items = NULL;
     cvector_init(chunk->dropped_items, 0, chunkDestroyDroppedItem);
-    chunk->updates = (ChunkUpdates) {
-        .sunlight_queue = NULL,
-        .light_add_queue = NULL,
-        .light_remove_queue = NULL
-    };
-    chunk->updates.sunlight_queue = hashmap_new(
+    chunk->updates.sunlight_add_queue = hashmap_new(
         sizeof(LightAddNode),
         1,
         0,
@@ -126,7 +124,17 @@ void chunkInit(Chunk* chunk) {
         NULL
     );
     chunk->updates.light_remove_queue = hashmap_new(
-        sizeof(LightAddNode),
+        sizeof(LightRemoveNode),
+        1,
+        0,
+        0,
+        lightRemoveNodeDataHash,
+        lightRemoveNodeCompare,
+        NULL,
+        NULL
+    );
+    chunk->updates.sunlight_remove_queue = hashmap_new(
+        sizeof(LightRemoveNode),
         1,
         0,
         0,
@@ -147,8 +155,9 @@ void chunkInit(Chunk* chunk) {
 void chunkDestroy(const Chunk* chunk) {
     chunkMeshDestroy(&chunk->mesh);
     cvector_free(chunk->dropped_items);
-    hashmap_free(chunk->updates.sunlight_queue);
+    hashmap_free(chunk->updates.sunlight_add_queue);
     hashmap_free(chunk->updates.light_add_queue);
+    hashmap_free(chunk->updates.sunlight_remove_queue);
     hashmap_free(chunk->updates.light_remove_queue);
 }
 
@@ -206,6 +215,7 @@ void chunkGenerateLightmap(Chunk* chunk) {
                         15,
                         LIGHT_TYPE_SKY
                     );
+                    /*DEBUG_LOG("Set sunlight " VEC_PATTERN " Level 15\n", VEC_LAYOUT(position));*/
                     getSunlight(chunk, x, z)--;
                 } else {
                     // NOTE: We are at the top so long as there is at least
@@ -238,7 +248,7 @@ void chunkPropagateLightmap(Chunk* chunk) {
                 for (FaceDirection face_dir = FACE_DIR_LEFT; face_dir <= FACE_DIR_FRONT; face_dir++) {
                     const VECTOR face_position = vec3_add(
                         vec3_i32(x, y, z),
-                        FACE_DIRECTION_NORMALS[face_dir]
+                        WORLD_FACE_DIRECTION_NORMALS[face_dir]
                     );
                     ChunkBlockPosition cb_pos = (ChunkBlockPosition) {
                         .chunk = chunk->position,
@@ -409,9 +419,41 @@ static void constructItemPosition(const Chunk* chunk, const VECTOR* block_positi
     item_position->vz = (chunk_origin_z + block_position->vz) * BLOCK_SIZE + HALF_BLOCK_SIZE;
 }
 
+static LightLevel inferSunlightValueFromNeighbours(const Chunk* chunk,
+                                                   const VECTOR* position) {
+    ChunkBlockPosition cb_pos = (ChunkBlockPosition) {
+        .chunk = chunk->position,
+        .block = vec3_i32_all(0)
+    };
+    LightLevel current_max = 0;
+    #pragma GCC unroll 6
+    for (FaceDirection face_dir = FACE_DIR_DOWN; face_dir <= FACE_DIR_FRONT; face_dir++) {
+        cb_pos.block = vec3_add(
+            *position,
+            WORLD_FACE_DIRECTION_NORMALS[face_dir]
+        );
+        const LightLevel neighbour_light_level = worldGetLightTypeChunkBlock(
+            chunk->world,
+            &cb_pos,
+            LIGHT_TYPE_SKY
+        );
+        DEBUG_LOG(
+            "Chunk: " VEC_PATTERN " Block: " VEC_PATTERN " Level: %d\n",
+            VEC_LAYOUT(cb_pos.chunk),
+            VEC_LAYOUT(cb_pos.block),
+            neighbour_light_level
+        );
+        if (face_dir == FACE_DIR_UP && neighbour_light_level == 15) {
+            return 15;
+        }
+        current_max = max(current_max, neighbour_light_level);
+    }
+    return max(0, current_max - 1);
+}
+
 INLINE static int modifyVoxel0(Chunk* chunk,
                                const VECTOR* position,
-                               const u8 new_light_value,
+                               const Block* new_block,
                                const bool drop_item,
                                IItem** item_result) {
     const i32 x = position->vx;
@@ -423,7 +465,7 @@ INLINE static int modifyVoxel0(Chunk* chunk,
     const IBlock* old_iblock = chunk->blocks[chunkBlockIndex(x, y, z)];
     const Block* old_block = VCAST_PTR(Block*, old_iblock);
     const bool old_is_air = old_block->id == BLOCKID_AIR;
-    if (old_block->light_level > 0 && new_light_value == 0) {
+    if (old_block->light_level > 0 && new_block->light_level == 0) {
         chunkRemoveLightValue(
             chunk,
             position,
@@ -433,16 +475,29 @@ INLINE static int modifyVoxel0(Chunk* chunk,
         chunkSetLightValue(
             chunk,
             position,
-            new_light_value,
+            new_block->light_level,
             LIGHT_TYPE_BLOCK
         );
     }
-    chunkSetLightValue(
-        chunk,
-        position,
-        0,
-        LIGHT_TYPE_SKY
-    );
+    if (blockCanPropagateSunlight(new_block->id)) {
+        const LightLevel new_light_level = inferSunlightValueFromNeighbours(
+            chunk,
+            position
+        );
+        DEBUG_LOG("Inferred light level: %d\n", new_light_level);
+        chunkSetLightValue(
+            chunk,
+            position,
+            new_light_level,
+            LIGHT_TYPE_SKY
+        );
+    } else {
+        chunkRemoveLightValue(
+            chunk,
+            position,
+            LIGHT_TYPE_SKY
+        );
+    }
     IItem* iitem = VCALL(*old_iblock, destroy, drop_item);
     if (iitem != NULL && iitem->self != NULL) {
         cvector_push_back(
@@ -469,7 +524,7 @@ bool chunkModifyVoxel(Chunk* chunk,
     const int result = modifyVoxel0(
         chunk,
         position,
-        block->light_level,
+        block,
         drop_item,
         item_result
     );
@@ -497,7 +552,7 @@ IBlock* chunkModifyVoxelConstructed(Chunk* chunk,
     const int result = modifyVoxel0(
         chunk,
         position,
-        block->light_level,
+        block,
         drop_item,
         item_result
     );
@@ -630,6 +685,7 @@ LightLevel chunkGetLightType(const Chunk* chunk,
     if (checkIndexOOB(position->vx, position->vy, position->vz)) {
         return createLightLevel(0, worldGetInternalLightLevel(chunk->world));
     }
+    DEBUG_LOG("[CHUNK] Position: " VEC_PATTERN "\n", VEC_LAYOUT(*position));
     return lightMapGetType(chunk->lightmap, *position, light_type);
 }
 
@@ -655,17 +711,9 @@ void chunkSetLightValue(Chunk* chunk,
     switch (light_type) {
         case LIGHT_TYPE_BLOCK:
             queue = chunk->updates.light_add_queue;
-            /*cvector_push_back(chunk->updates.light_add_queue, ((LightAddNode) {*/
-            /*    *position,*/
-            /*    chunk*/
-            /*}));*/
             break;
         case LIGHT_TYPE_SKY:
-            queue = chunk->updates.sunlight_queue;
-            /*cvector_push_back(chunk->updates.sunlight_queue, ((LightAddNode) {*/
-            /*    *position,*/
-            /*    chunk*/
-            /*}));*/
+            queue = chunk->updates.sunlight_add_queue;
             break;
     }
     assert(queue != NULL);
@@ -685,7 +733,7 @@ void chunkRemoveLightValue(Chunk* chunk,
     if (checkIndexOOB(position->vx, position->vy, position->vz)) {
         return;
     }
-    const u8 light_value = lightMapGetType(
+    const LightLevel light_value = lightMapGetType(
         chunk->lightmap,
         *position,
         light_type
@@ -695,15 +743,19 @@ void chunkRemoveLightValue(Chunk* chunk,
         chunk,
         light_value
     };
-    hashmap_set(chunk->updates.light_remove_queue, &node);
-    if (hashmap_oom(chunk->updates.light_remove_queue)) {
+    HashMap* queue = NULL;
+    switch (light_type) {
+        case LIGHT_TYPE_BLOCK:
+            queue = chunk->updates.light_remove_queue;
+            break;
+        case LIGHT_TYPE_SKY:
+            queue = chunk->updates.sunlight_remove_queue;
+            break;
+    }
+    hashmap_set(queue,  &node);
+    if (hashmap_oom(queue)) {
         errorAbort("[CHUNK] Failed to enqueue light remove update, hashmap OOM");
     }
-    /*cvector_push_back(chunk->updates.light_remove_queue, ((LightRemoveNode) {*/
-    /*    *position,*/
-    /*    chunk,*/
-    /*    light_value*/
-    /*}));*/
     lightMapSetValue(
         chunk->lightmap,
         *position,
@@ -721,9 +773,8 @@ void chunkUpdateLight(Chunk* chunk, const LightUpdateLimits limits) {
 
 void chunkUpdateAddLight(Chunk* chunk, const LightUpdateLimits limits) {
     chunk->lightmap_updated = hashmap_count(chunk->updates.light_add_queue) != 0
-                            || hashmap_count(chunk->updates.sunlight_queue) != 0;
+                            || hashmap_count(chunk->updates.sunlight_add_queue) != 0;
     // Block light
-    /*while (!cvector_empty(chunk->updates.light_add_queue)) {*/
     size_t processed_updates = 0;
     size_t iter = 0;
     void* item;
@@ -739,15 +790,12 @@ void chunkUpdateAddLight(Chunk* chunk, const LightUpdateLimits limits) {
         // Change the rest of the items we need to process
         iter = 0;
         processed_updates++;
-        /*const VECTOR current_pos = chunk->updates.light_add_queue[0].position;*/
-        /*Chunk* current_chunk = chunk->updates.light_add_queue[0].chunk;*/
-        /*cvector_erase(chunk->updates.light_add_queue, 0);*/
-        const u8 light_level = lightMapGetType(
+        const LightLevel light_level = lightMapGetType(
             current_chunk->lightmap,
             current_pos,
             LIGHT_TYPE_BLOCK
         );
-        VECTOR world_pos = vec3_add(
+        const VECTOR world_pos = vec3_add(
             current_pos,
             vec3_const_mul(
                 current_chunk->position,
@@ -758,7 +806,7 @@ void chunkUpdateAddLight(Chunk* chunk, const LightUpdateLimits limits) {
         for (FaceDirection i = FACE_DIR_DOWN; i <= FACE_DIR_FRONT; i++) {
             const VECTOR query_pos = vec3_add(
                 world_pos,
-                FACE_DIRECTION_NORMALS[i]
+                WORLD_FACE_DIRECTION_NORMALS[i]
             );
             const IBlock* iblock = worldGetBlock(
                 current_chunk->world,
@@ -770,11 +818,11 @@ void chunkUpdateAddLight(Chunk* chunk, const LightUpdateLimits limits) {
             const Block* block = VCAST_PTR(Block*, iblock);
             // Skip propogating light if we are facing a solid block
             // and the face in that direction is opaque
-            if (blockCanPropagateBlocklight(block->id)
+            if (!blockCanPropagateBlocklight(block->id)
                 || blockIsFaceOpaque(block, faceDirectionOpposing(i))) {
                 continue;
             }
-            const u8 neighbour_light_level = worldGetLightType(
+            const LightLevel neighbour_light_level = worldGetLightType(
                 current_chunk->world,
                 &query_pos,
                 LIGHT_TYPE_BLOCK
@@ -793,38 +841,31 @@ void chunkUpdateAddLight(Chunk* chunk, const LightUpdateLimits limits) {
     processed_updates = 0;
     /*DEBUG_LOG("[CHUNK] Add sunlight queue: %d\n", hashmap_count(chunk->updates.sunlight_queue));*/
     // Sky light
-    /*while (!cvector_empty(chunk->updates.sunlight_queue)) {*/
     while (lightCheckLimit(limits.add_sky, processed_updates)
-            && hashmap_iter(chunk->updates.sunlight_queue, &iter, &item)) {
+            && hashmap_iter(chunk->updates.sunlight_add_queue, &iter, &item)) {
         const LightAddNode* node = item;
         const VECTOR current_pos = node->position;
         const Chunk* current_chunk = node->chunk;
-        hashmap_delete(chunk->updates.sunlight_queue, node);
+        hashmap_delete(chunk->updates.sunlight_add_queue, node);
         iter = 0;
         processed_updates++;
-        /*const VECTOR current_pos = chunk->updates.sunlight_queue[0].position;*/
-        /*Chunk* current_chunk = chunk->updates.sunlight_queue[0].chunk;*/
-        /*cvector_erase(chunk->updates.sunlight_queue, 0);*/
-        const u8 light_level = lightMapGetType(
+        const LightLevel light_level = lightMapGetType(
             current_chunk->lightmap,
             current_pos,
             LIGHT_TYPE_SKY
         );
-        VECTOR world_pos = vec3_add(
+        const VECTOR world_pos = vec3_add(
             current_pos,
             vec3_const_mul(
                 current_chunk->position,
                 CHUNK_SIZE
             )
         );
-        // TODO: If the new light value is  15 (0b111) then we should propagate
-        //       down without decrementing light value, then handle the L/R/F/B
-        //       directions normally with decrementing light level
-        #pragma GCC unroll 6
-        for (FaceDirection i = FACE_DIR_DOWN; i <= FACE_DIR_FRONT; i++) {
+        #pragma GCC unroll 2
+        for (FaceDirection i = FACE_DIR_DOWN; i <= FACE_DIR_UP; i++) {
             const VECTOR query_pos = vec3_add(
                 world_pos,
-                FACE_DIRECTION_NORMALS[i]
+                WORLD_FACE_DIRECTION_NORMALS[i]
             );
             const IBlock* iblock = worldGetBlock(
                 current_chunk->world,
@@ -836,11 +877,52 @@ void chunkUpdateAddLight(Chunk* chunk, const LightUpdateLimits limits) {
             const Block* block = VCAST_PTR(Block*, iblock);
             // Skip propogating light if we are facing a solid block
             // and the face in that direction is opaque
-            if (blockCanPropagateSunlight(block->id)
+            if (!blockCanPropagateSunlight(block->id)
                 || blockIsFaceOpaque(block, faceDirectionOpposing(i))) {
                 continue;
             }
-            const u8 neighbour_light_level = worldGetLightType(
+            const LightLevel neighbour_light_level = worldGetLightType(
+                current_chunk->world,
+                &query_pos,
+                LIGHT_TYPE_SKY
+            );
+            if (light_level == 15 && neighbour_light_level < 15) {
+                worldSetLightValue(
+                    current_chunk->world,
+                    &query_pos,
+                    light_level,
+                    LIGHT_TYPE_SKY
+                );
+            } else if (light_level < 15 && neighbour_light_level + 2 <= light_level) {
+                worldSetLightValue(
+                    current_chunk->world,
+                    &query_pos,
+                    light_level - 1,
+                    LIGHT_TYPE_SKY
+                );
+            }
+        }
+        #pragma GCC unroll 4
+        for (FaceDirection i = FACE_DIR_LEFT; i <= FACE_DIR_FRONT; i++) {
+            const VECTOR query_pos = vec3_add(
+                world_pos,
+                WORLD_FACE_DIRECTION_NORMALS[i]
+            );
+            const IBlock* iblock = worldGetBlock(
+                current_chunk->world,
+                &query_pos
+            );
+            if (iblock == NULL) {
+                continue;
+            }
+            const Block* block = VCAST_PTR(Block*, iblock);
+            // Skip propogating light if we are facing a solid block
+            // and the face in that direction is opaque
+            if (!blockCanPropagateSunlight(block->id)
+                || blockIsFaceOpaque(block, faceDirectionOpposing(i))) {
+                continue;
+            }
+            const LightLevel neighbour_light_level = worldGetLightType(
                 current_chunk->world,
                 &query_pos,
                 LIGHT_TYPE_SKY
@@ -858,8 +940,8 @@ void chunkUpdateAddLight(Chunk* chunk, const LightUpdateLimits limits) {
 }
 
 void chunkUpdateRemoveLight(Chunk* chunk, const LightUpdateLimits limits) {
-    chunk->lightmap_updated = hashmap_count(chunk->updates.light_remove_queue) != 0;
-    /*while (!cvector_empty(chunk->updates.light_remove_queue)) {*/
+    chunk->lightmap_updated = hashmap_count(chunk->updates.light_remove_queue) != 0
+                            || hashmap_count(chunk->updates.sunlight_remove_queue) != 0;
     size_t processed_updates = 0;
     size_t iter = 0;
     void* item;
@@ -869,15 +951,11 @@ void chunkUpdateRemoveLight(Chunk* chunk, const LightUpdateLimits limits) {
         const LightRemoveNode* node = item;
         const VECTOR current_pos = node->position;
         const Chunk* current_chunk = node->chunk;
-        u8 light_level = node->light_value;
+        const LightLevel light_level = node->light_value;
         hashmap_delete(chunk->updates.light_remove_queue, node);
         iter = 0;
         processed_updates++;
-        /*const VECTOR current_pos = chunk->updates.light_remove_queue[0].position;*/
-        /*Chunk* current_chunk = chunk->updates.light_remove_queue[0].chunk;*/
-        /*u8 light_level = chunk->updates.light_remove_queue[0].light_value;*/
-        /*cvector_erase(chunk->updates.light_remove_queue, 0);*/
-        VECTOR world_pos = vec3_add(
+        const VECTOR world_pos = vec3_add(
             current_pos,
             vec3_const_mul(
                 current_chunk->position,
@@ -888,7 +966,7 @@ void chunkUpdateRemoveLight(Chunk* chunk, const LightUpdateLimits limits) {
         for (FaceDirection face_dir = FACE_DIR_DOWN; face_dir <= FACE_DIR_FRONT; face_dir++) {
             const VECTOR query_pos = vec3_add(
                 world_pos,
-                FACE_DIRECTION_NORMALS[face_dir]
+                WORLD_FACE_DIRECTION_NORMALS[face_dir]
             );
             const IBlock* iblock = worldGetBlock(
                 current_chunk->world,
@@ -900,7 +978,7 @@ void chunkUpdateRemoveLight(Chunk* chunk, const LightUpdateLimits limits) {
             const Block* block = VCAST_PTR(Block*, iblock);
             // Skip propogating light if we are facing a solid block
             // and the face in that direction is opaque
-            if (blockCanPropagateBlocklight(block->id)
+            if (!blockCanPropagateBlocklight(block->id)
                 || blockIsFaceOpaque(block, faceDirectionOpposing(face_dir))) {
                 continue;
             }
@@ -908,7 +986,7 @@ void chunkUpdateRemoveLight(Chunk* chunk, const LightUpdateLimits limits) {
                 &query_pos,
                 CHUNK_SIZE
             );
-            const u8 neighbour_level = worldGetLightType(
+            const LightLevel neighbour_level = worldGetLightType(
                 current_chunk->world,
                 &query_pos,
                 LIGHT_TYPE_BLOCK
@@ -926,6 +1004,115 @@ void chunkUpdateRemoveLight(Chunk* chunk, const LightUpdateLimits limits) {
                     &query_pos,
                     neighbour_level,
                     LIGHT_TYPE_BLOCK
+                );
+            }
+        }
+    }
+    processed_updates = 0;
+    iter = 0;
+    while (lightCheckLimit(limits.remove_sky, processed_updates)
+           && hashmap_iter(chunk->updates.sunlight_remove_queue, &iter, &item)) {
+        DEBUG_LOG("Remove sunlight: %d\n", processed_updates);
+        const LightRemoveNode* node = item;
+        const VECTOR current_pos = node->position;
+        const Chunk* current_chunk = node->chunk;
+        const LightLevel light_level = node->light_value;
+        hashmap_delete(chunk->updates.sunlight_remove_queue, node);
+        iter = 0;
+        processed_updates++;
+        const VECTOR world_pos = vec3_add(
+            current_pos,
+            vec3_const_mul(
+                current_chunk->position,
+                CHUNK_SIZE
+            )
+        );
+        #pragma GCC unroll 2
+        for (FaceDirection face_dir = FACE_DIR_DOWN; face_dir <= FACE_DIR_UP; face_dir++) {
+            if (face_dir == FACE_DIR_UP && light_level == 15) {
+                // Remove sunlight column below if the current level
+                // is maxed, implying direct sunlight. Otherwise
+                // perform the normal logic for removing light
+                continue;
+            }
+            const VECTOR query_pos = vec3_add(
+                world_pos,
+                WORLD_FACE_DIRECTION_NORMALS[face_dir]
+            );
+            const IBlock* iblock = worldGetBlock(
+                current_chunk->world,
+                &query_pos
+            );
+            if (iblock == NULL) {
+                continue;
+            }
+            const Block* block = VCAST_PTR(Block*, iblock);
+            // Skip propogating light if we are facing a solid block
+            // and the face in that direction is opaque
+            if (!blockCanPropagateSunlight(block->id)
+                || blockIsFaceOpaque(block, faceDirectionOpposing(face_dir))) {
+                continue;
+            }
+            const LightLevel neighbour_level = worldGetLightType(
+                current_chunk->world,
+                &query_pos,
+                LIGHT_TYPE_SKY
+            );
+            DEBUG_LOG("Dir: %d Current light: %d Neighbour light: %d\n", face_dir, light_level, neighbour_level);
+            if ((light_level == 15 && neighbour_level == 15) || (neighbour_level != 0 && neighbour_level < light_level)) {
+                worldSetLightValue(
+                    current_chunk->world,
+                    &query_pos,
+                    0,
+                    LIGHT_TYPE_SKY
+                );
+            } else if (light_level != 15 && neighbour_level >= light_level) {
+                worldSetLightValue(
+                    current_chunk->world,
+                    &query_pos,
+                    neighbour_level,
+                    LIGHT_TYPE_SKY
+                );
+            }
+        }
+        #pragma GCC unroll 4
+        for (FaceDirection face_dir = FACE_DIR_LEFT; face_dir <= FACE_DIR_FRONT; face_dir++) {
+            const VECTOR query_pos = vec3_add(
+                world_pos,
+                WORLD_FACE_DIRECTION_NORMALS[face_dir]
+            );
+            const IBlock* iblock = worldGetBlock(
+                current_chunk->world,
+                &query_pos
+            );
+            if (iblock == NULL) {
+                continue;
+            }
+            const Block* block = VCAST_PTR(Block*, iblock);
+            // Skip propogating light if we are facing a solid block
+            // and the face in that direction is opaque
+            if (!blockCanPropagateSunlight(block->id)
+                || blockIsFaceOpaque(block, faceDirectionOpposing(face_dir))) {
+                continue;
+            }
+            const LightLevel neighbour_level = worldGetLightType(
+                current_chunk->world,
+                &query_pos,
+                LIGHT_TYPE_SKY
+            );
+            if (neighbour_level != 0 && neighbour_level < light_level) {
+                worldSetLightValue(
+                    current_chunk->world,
+                    &query_pos,
+                    0,
+                    LIGHT_TYPE_SKY
+                );
+            } else if (neighbour_level >= light_level) {
+                worldSetLightValue(
+                    current_chunk->world,
+                    &query_pos,
+                    neighbour_level,
+                    LIGHT_TYPE_SKY
                 );
             }
         }

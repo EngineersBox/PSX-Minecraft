@@ -98,8 +98,8 @@ LightLevel worldGetLightType(const World* world,
                      const VECTOR* position,
                      const LightType light_type);
 LightLevel worldGetLightTypeChunkBlock(const World* world,
-                               const ChunkBlockPosition* position,
-                               const LightType light_type);
+                                       const ChunkBlockPosition* position,
+                                       const LightType light_type);
 LightLevel worldGetLightValue(const World* world,
                               const VECTOR* position);
 LightLevel worldGetLightValueChunkBlock(const World* world,

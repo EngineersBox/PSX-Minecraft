@@ -76,7 +76,7 @@
 * [ ] Retrieve face attributes based on block orientation during meshing
 * [ ] Sub-block intersection tests for raycast to handling interacting with blocks like doors and piston heads
 * [ ] If we are breaking a block on the boundary of chunks, we should pass the breaking context to both the target and neighbouring chunk in order for the mesh generation to account for the missing faces on the chunk boundary.
-* [ ] Remove block sunlight updates
+* [X] Remove block sunlight updates
 * [ ] Calculate time-of-day as the tick count up to `20t * 20m * 60s = 24000t` ticks  and update world internal light level at various thresholds
 * [ ] Add support in chunk provider for providing a list of named stages for chunk loading (e.g. gen terrain, prop lighting, construct mesh), then use these for dynamically loading chunks as well as normal world initialisation
 * [ ] Support more general mesh generation based on block types including multiple normals

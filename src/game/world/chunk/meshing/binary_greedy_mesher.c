@@ -593,8 +593,8 @@ void binaryGreedyMesherConstructBreakingOverlay(Chunk* chunk, const BreakingStat
             .chunk = chunk->position
         };
         #define lightPos(_x, _y, _z) \
-            light_cb_pos.block.vx = _x, \
-            light_cb_pos.block.vy = _y, \
+            light_cb_pos.block.vx = _x; \
+            light_cb_pos.block.vy = _y; \
             light_cb_pos.block.vz = _z
         switch (current_face_dir) {
             case FACE_DIR_DOWN:

@@ -19,6 +19,7 @@ typedef enum {
 #define FACE_DIRECTION_COUNT 6
 
 extern const SVECTOR FACE_DIRECTION_NORMALS[FACE_DIRECTION_COUNT];
+extern const SVECTOR WORLD_FACE_DIRECTION_NORMALS[FACE_DIRECTION_COUNT];
 
 /**
  * @brief Computes the direction opposing the given one. I.e returns

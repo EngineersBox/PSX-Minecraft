@@ -6,13 +6,13 @@
 
 void lightMapSetValue(LightMap lightmap,
                       const VECTOR position,
-                      LightLevel light_value,
+                      const LightLevel light_value,
                       const LightType light_type) {
     const u32 index = position.vx << 6 | position.vz << 3 | position.vy;
     if (light_type == LIGHT_TYPE_SKY) {
-        lightmap[index] = (lightmap[index] & LIGHT_SKY_MASK) | (light_value << 4);
-    } else {
         lightmap[index] = (lightmap[index] & LIGHT_BLOCK_MASK) | (light_value & LIGHT_SKY_MASK);
+    } else {
+        lightmap[index] = (lightmap[index] & LIGHT_SKY_MASK) | (light_value << 4);
     }
 }
 
@@ -22,12 +22,12 @@ INLINE LightLevel lightMapGetValue(const LightMap lightmap, const VECTOR positio
 }
 
 INLINE LightLevel lightMapGetType(const LightMap lightmap,
-                          const VECTOR position,
-                          const LightType light_type) {
+                                  const VECTOR position,
+                                  const LightType light_type) {
     const u32 index = position.vx << 6 | position.vz << 3 | position.vy;
     return light_type == LIGHT_TYPE_SKY
-        ? lightmap[index] & 0b1111
-        : (lightmap[index] >> 4) & 0b1111;
+        ? lightmap[index] & LIGHT_SKY_MASK
+        : (lightmap[index] & LIGHT_BLOCK_MASK) >> 4;
 }
 
 INLINE LightLevel lightLevelApplicable(const LightLevel internal_light_level, const LightLevel light_value) {
