@@ -160,8 +160,12 @@ Lightmapping and procedural texturing for chunk meshes to apply lighting during 
 
 #### Item Drops
 
-![PSXMC](./docs/PSXMC-1.png)
+![Item Drops](./docs/item_drops.png)
 
 #### Inventory
 
-![PSXMC](./docs/PSXMC-2.png)
+![Inventory](./docs/inventory.png)
+
+#### Sunlight Propagation
+
+![Sunlight Propagation](./docs/sunlight.png)
