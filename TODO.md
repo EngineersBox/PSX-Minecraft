@@ -111,4 +111,4 @@
 * [ ] Support other resolutions that aren't 320x240
 * [ ] Refactor vector operations to use `_Generic` C11 macro to perform type specific operations between any kind of two vector types or constant
 * [ ] Move assets to on-disk directories and files instead of packing them into the binary
-* [ ] Move remesh trigger handling for lighting and breaking overlay from `chunkRender` into `chunkUpdate`
+* [ ] Move remesh trigger handling for lighting and breaking overlay from `chunkRender` into `chunkUpdate` so that changes that don't directly invoke a re-mesh, but stil need one can do it in an update cycle
