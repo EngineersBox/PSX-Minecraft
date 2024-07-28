@@ -20,6 +20,7 @@
 #include "items/blocks/item_block_stone.h"
 #include "level/overworld_flatland.h"
 #include "level/overworld_perlin.h"
+#include "stdlib.h"
 
 // Reference texture data
 extern const uint32_t tim_texture[];
@@ -172,6 +173,17 @@ void Minecraft_update(VSelf, const Stats* stats) {
     VSELF(Minecraft);
     worldUpdate(self->world, player);
     playerUpdate(player, world);
+    // TODO: Convert to memory usage stats in UI overlay
+    /*HeapUsage* usage;*/
+    /*GetHeapUsage(usage);*/
+    /*DEBUG_LOG(*/
+    /*    "Memory Total: %d Heap Size: %d Heap Used: %d Max Heap Used: %d Stack: %d\n",*/
+    /*    usage->total,*/
+    /*    usage->heap,*/
+    /*    usage->alloc,*/
+    /*    usage->alloc_max,*/
+    /*    usage->stack*/
+    /*);*/
 }
 
 void minecraftRender(VSelf, const Stats* stats) ALIAS("Minecraft_render");

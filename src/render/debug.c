@@ -3,6 +3,9 @@
 #include "../math/math_utils.h"
 #include "../primitive/primitive.h"
 #include "../game/blocks/block.h"
+#include "../util/memory.h"
+#include "psxgpu.h"
+#include "stdlib.h"
 
 DEFINE_CIRCULAR_BUFFER(ordering_table_usage, SAMPLE_WINDOW_SIZE);
 #define OT_DATA_POINT_PER_PIXEL (ORDERING_TABLE_LENGTH / SAMPLE_MAX_VALUE)
@@ -70,7 +73,7 @@ void debugDrawPBUsageGraph(RenderContext* ctx, const uint16_t base_screen_x, con
 
 #define isOverlayEnabled(suffix) (isDebugEnabled() && defined(PSXMC_DEBUG_OVERLAY_##suffix) && PSXMC_DEBUG_OVERLAY_##suffix)
 
-void drawDebugText(const Stats* stats, const Camera* camera) {
+void drawLeftDebugText(const Stats* stats, const Camera* camera) {
 #if isOverlayEnabled(FPS)
     FntPrint(0, "FPS=%d TPS=%d\n", stats->fps, stats->tps);
 #endif
@@ -131,4 +134,47 @@ void drawDebugText(const Stats* stats, const Camera* camera) {
 #endif
 }
 
+void drawRightDebugText(const Stats* stats) {
+#if isOverlayEnabled(MEM)
+    HeapUsage* usage = {0};
+    GetHeapUsage(usage);
+    char* suffix;
+    u32 whole;
+    u32 frac;
+    humanSize(usage->total, &suffix, &whole, &frac);
+    FntPrint(
+        0,
+        "Memory: %d.%d%s\n",
+        whole, frac, suffix
+    );
+    char* suffix2;
+    u32 whole2;
+    u32 frac2;
+    humanSize(usage->heap, &suffix, &whole, &frac);
+    humanSize(usage->alloc, &suffix2, &whole2, &frac2);
+    FntPrint(
+        0,
+        "Heap: %d.%d%s / %d.%d%s\n",
+        whole2, frac2, suffix2,
+        whole, frac, suffix
+    );
+    humanSize(usage->alloc_max, &suffix, &whole, &frac);
+    FntPrint(
+        0,
+        "Max Heap: %d.%d%s\n",
+        whole, frac, suffix
+    );
+    humanSize(usage->stack, &suffix, &whole, &frac);
+    FntPrint(
+        0,
+        "Stack: %d.%d%s\n",
+        whole, frac, suffix
+    );
+#endif
+}
+
+void drawDebugText(const Stats* stats, const Camera* camera) {
+    drawLeftDebugText(stats, camera);
+    drawRightDebugText(stats);
+}
 #undef isOverlayEnabled

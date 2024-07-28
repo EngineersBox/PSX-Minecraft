@@ -11,5 +11,7 @@
 // #define PSXMC_DEBUG_OVERLAY_POS 1
 // Render direction debug overlay (1 = enabled, 0 = disabled)
 // #define PSXMC_DEBUG_OVERLAY_DIR 0
+// Render memory usage debug overlay (1 = enabled, 0 = disabled)
+// #define PSXMC_DEBUG_OVERLAY_MEM 1
 
 #endif // _PSXMC__RENDER__DEBUG_DEFINES_H_

@@ -76,7 +76,7 @@ RUN apt update \
     && apt-get clean
 
 ADD scripts/requirements.txt /opt/requirements.txt
-RUN python3 -m pip -r /opt/requirements
+RUN python3 -m pip install -r /opt/requirements.txt
 
 # Add cclangd script for LSPs
 ADD cclangd /usr/local/bin/cclangd
