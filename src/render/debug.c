@@ -114,7 +114,7 @@ void drawLeftDebugText(const Stats* stats, const Camera* camera) {
     );
 #endif
 #if isOverlayEnabled(FACING)
-    char facing = 'B';
+    char facing;
     switch (faceDirectionClosestNormal(direction)) {
         // NOTE: Up and down are swapping since the above function
         //       returns a value based world position, not camera
