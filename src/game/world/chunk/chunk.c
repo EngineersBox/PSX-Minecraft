@@ -331,26 +331,8 @@ static bool chunkIsOutsideFrustum(const Chunk* chunk, const Frustum* frustum, co
 }
 
 void chunkRender(Chunk* chunk,
-                 BreakingState* breaking_state,
                  RenderContext* ctx,
                  Transforms* transforms) {
-    if (breaking_state != NULL) {
-        // TODO: Move these updates to mesh to the chunkUpdate method to avoid flickering
-        //       in the breaking texture caused by mesh updates with and without breaking
-        //       state passed to it.
-        if (breaking_state->chunk_remesh_trigger) {
-            // (In meshing) if the block matches the breaking state ensure it has unique mesh primitives
-            // with correct tpage and texture window into the render target
-            chunkClearMesh(chunk);
-            chunkGenerateMeshWithBreakingState(chunk, breaking_state);
-            breaking_state->chunk_remesh_trigger = false;
-        }
-        if (breaking_state->reset_trigger) {
-            chunkClearMesh(chunk);
-            chunkGenerateMesh(chunk);
-            breakingStateReset(*breaking_state);
-        }
-    }
     // if (chunkIsOutsideFrustum(chunk, &ctx->camera->frustum, transforms)) {
     //     DEBUG_LOG("[CHUNK " VEC_PATTERN "] Not visible\n", VEC_LAYOUT(chunk->position));
     //     // return;
@@ -604,7 +586,7 @@ bool itemPickupValidator(const Item* item, void* ctx) {
     return true;
 }
 
-void chunkUpdate(Chunk* chunk, const Player* player) {
+void chunkUpdate(Chunk* chunk, const Player* player, BreakingState* breaking_state) {
     // TODO: Check world time to see if sunlight needs to be updated,
     //       if so trigger remeshing flag and pass world time to
     //       mesher to alter sunlight values.
@@ -669,7 +651,27 @@ void chunkUpdate(Chunk* chunk, const Player* player) {
         i++;
     }
     chunkUpdateLight(chunk, chunk_light_update_limits);
-    if (chunk->mesh_updated || chunk->lightmap_updated) {
+    if (breaking_state != NULL) {
+        // TODO: Move these updates to mesh to the chunkUpdate method to avoid flickering
+        //       in the breaking texture caused by mesh updates with and without breaking
+        //       state passed to it.
+        if (breaking_state->chunk_remesh_trigger) {
+            // (In meshing) if the block matches the breaking state ensure it has unique mesh primitives
+            // with correct tpage and texture window into the render target
+            chunkClearMesh(chunk);
+            chunkGenerateMeshWithBreakingState(chunk, breaking_state);
+            breaking_state->chunk_remesh_trigger = false;
+            chunk->mesh_updated = false;
+            chunk->lightmap_updated = false;
+        }
+        if (breaking_state->reset_trigger) {
+            chunkClearMesh(chunk);
+            chunkGenerateMesh(chunk);
+            breakingStateReset(*breaking_state);
+            chunk->mesh_updated = false;
+            chunk->lightmap_updated = false;
+        }
+    } else if (chunk->mesh_updated || chunk->lightmap_updated) {
         chunkClearMesh(chunk);
         chunkGenerateMesh(chunk);
         chunk->mesh_updated = false;

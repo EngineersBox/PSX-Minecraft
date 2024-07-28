@@ -209,10 +209,8 @@ void worldDestroy(World* world) {
 }
 
 void worldRender(const World* world,
-                 BreakingState* breaking_state,
                  RenderContext* ctx,
                  Transforms* transforms) {
-    const VECTOR chunk_position = worldToChunkBlockPosition(&breaking_state->position, CHUNK_SIZE).chunk;
     // PERF: Revamp with BFS for visible chunks occlusion (use frustum culling too?)
     const i32 x_start = world->centre.vx - LOADED_CHUNKS_RADIUS;
     const i32 x_end = world->centre.vx + LOADED_CHUNKS_RADIUS;
@@ -222,50 +220,20 @@ void worldRender(const World* world,
     //       if there are still bits that are missing traverse to next chunks in the direction
     //       the player is facing and render them. Stop drawing if screen is full and/or there
     //       are no more loaded chunks to traverse to.
-    if (breaking_state->block == NULL) {
-        // Optimised to skip coords checks when we aren't breaking anything
-        for (i32 x = x_start; x <= x_end; x++) {
-            for (i32 z = z_start; z <= z_end; z++) {
-                for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
-                    chunkRender(
-                        world->chunks[arrayCoord(world, vz, z)]
-                                     [arrayCoord(world, vx, x)]
-                                     [y],
-                        NULL,
-                        ctx,
-                        transforms
-                    );
-                }
-            }
-        }
-        return;
-    }
-    u8 coords_check = 0b000; // XYZ
-    #define updateCoordBit(index, axis) ({ \
-        if (axis == chunk_position.v##axis) { \
-            coords_check |= 1 << (index); \
-        } else { \
-            coords_check &= ~(1 << index); \
-        } \
-    })
     for (i32 x = x_start; x <= x_end; x++) {
-        updateCoordBit(2, x);
         for (i32 z = z_start; z <= z_end; z++) {
-            updateCoordBit(0, z);
             for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
-                updateCoordBit(1, y);
                 chunkRender(
                     world->chunks[arrayCoord(world, vz, z)]
                                  [arrayCoord(world, vx, x)]
                                  [y],
-                    coords_check == 0b111 ? breaking_state : NULL,
                     ctx,
                     transforms
                 );
             }
         }
     }
-    #undef updateCoordBit
+    return;
 }
 
 // NOTE: Should this just take i32 x,y,z params instead of a
@@ -485,7 +453,7 @@ void worldLoadChunks(World* world, const VECTOR* player_chunk_pos) {
     world->centre = world->centre_next;
 }
 
-void worldUpdate(World* world, Player* player) {
+void worldUpdate(World* world, Player* player, BreakingState* breaking_state) {
     static i32 prevx = 0;
     static i32 prevy = 0;
     static i32 prevz = 0;
@@ -514,22 +482,56 @@ void worldUpdate(World* world, Player* player) {
         //     DEBUG_LOG("\n");
         // }
     }
+    const VECTOR chunk_position = worldToChunkBlockPosition(
+        &breaking_state->position,
+        CHUNK_SIZE
+    ).chunk;
     const i32 x_start = world->centre.vx - LOADED_CHUNKS_RADIUS;
     const i32 x_end = world->centre.vx + LOADED_CHUNKS_RADIUS;
     const i32 z_start = world->centre.vz - LOADED_CHUNKS_RADIUS;
     const i32 z_end = world->centre.vz + LOADED_CHUNKS_RADIUS;
+    if (breaking_state->block == NULL) {
+        // Optimised to skip coords checks when we aren't breaking anything
+        for (i32 x = x_start; x <= x_end; x++) {
+            for (i32 z = z_start; z <= z_end; z++) {
+                for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
+                    chunkUpdate(
+                        world->chunks[arrayCoord(world, vz, z)]
+                                     [arrayCoord(world, vx, x)]
+                                     [y],
+                        player,
+                        NULL
+                    );
+                }
+            }
+        }
+        return;
+    }
+    u8 coords_check = 0b000; // XYZ
+    #define updateCoordBit(index, axis) ({ \
+        if (axis == chunk_position.v##axis) { \
+            coords_check |= 1 << (index); \
+        } else { \
+            coords_check &= ~(1 << index); \
+        } \
+    })
     for (i32 x = x_start; x <= x_end; x++) {
+        updateCoordBit(2, x);
         for (i32 z = z_start; z <= z_end; z++) {
+            updateCoordBit(0, z);
             for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
+                updateCoordBit(1, y);
                 chunkUpdate(
                     world->chunks[arrayCoord(world, vz, z)]
                                  [arrayCoord(world, vx, x)]
                                  [y],
-                    player
+                    player,
+                    coords_check == 0b111 ? breaking_state : NULL
                 );
             }
         }
     }
+    #undef updateCoordBit
 }
 
 INLINE Chunk* worldGetChunkFromChunkBlock(const World* world, const ChunkBlockPosition* position) {

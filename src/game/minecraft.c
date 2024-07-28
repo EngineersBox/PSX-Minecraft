@@ -171,7 +171,7 @@ void Minecraft_input(VSelf, const Stats* stats) {
 void minecraftUpdate(VSelf, const Stats* stats) ALIAS("Minecraft_update");
 void Minecraft_update(VSelf, const Stats* stats) {
     VSELF(Minecraft);
-    worldUpdate(self->world, player);
+    worldUpdate(self->world, player, &player->breaking);
     playerUpdate(player, world);
     // TODO: Convert to memory usage stats in UI overlay
     /*HeapUsage* usage;*/
@@ -195,7 +195,6 @@ void Minecraft_render(VSelf, const Stats* stats) {
     frustumTransform(&self->internals.ctx.camera->frustum, &self->internals.transforms);
     worldRender(
         self->world,
-        &player->breaking,
         &self->internals.ctx,
         &self->internals.transforms
     );

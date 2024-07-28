@@ -52,7 +52,7 @@ typedef struct World {
 void worldInit(World* world, RenderContext* ctx);
 void worldDestroy(World* world);
 
-void worldRender(const World* world, BreakingState* breaking_state, RenderContext* ctx, Transforms* transforms);
+void worldRender(const World* world, RenderContext* ctx, Transforms* transforms);
 
 void worldUnloadChunk(const World* world, Chunk* chunk);
 ALLOC_CALL(worldUnloadChunk, 2) Chunk* worldLoadChunk(World* world, VECTOR chunk_position);
@@ -62,7 +62,7 @@ void worldLoadChunksXZ(World* world, i8 x_direction, i8 z_direction);
 void worldShiftChunks(World* world, i8 x_direction, i8 z_direction);
 void worldLoadChunks(World* world, const VECTOR* player_chunk_pos);
 
-void worldUpdate(World* world, Player* player);
+void worldUpdate(World* world, Player* player, BreakingState* breaking_state);
 
 Chunk* worldGetChunkFromChunkBlock(const World* world, const ChunkBlockPosition* position);
 Chunk* worldGetChunk(const World* world, const VECTOR* position);
