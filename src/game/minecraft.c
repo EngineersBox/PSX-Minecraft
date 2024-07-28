@@ -173,17 +173,6 @@ void Minecraft_update(VSelf, const Stats* stats) {
     VSELF(Minecraft);
     worldUpdate(self->world, player, &player->breaking);
     playerUpdate(player, world);
-    // TODO: Convert to memory usage stats in UI overlay
-    /*HeapUsage* usage;*/
-    /*GetHeapUsage(usage);*/
-    /*DEBUG_LOG(*/
-    /*    "Memory Total: %d Heap Size: %d Heap Used: %d Max Heap Used: %d Stack: %d\n",*/
-    /*    usage->total,*/
-    /*    usage->heap,*/
-    /*    usage->alloc,*/
-    /*    usage->alloc_max,*/
-    /*    usage->stack*/
-    /*);*/
 }
 
 void minecraftRender(VSelf, const Stats* stats) ALIAS("Minecraft_render");
