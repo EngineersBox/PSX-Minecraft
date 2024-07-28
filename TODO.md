@@ -114,3 +114,4 @@
 * [ ] Refactor vector operations to use `_Generic` C11 macro to perform type specific operations between any kind of two vector types or constant
 * [ ] Move assets to on-disk directories and files instead of packing them into the binary
 * [ ] Move remesh trigger handling for lighting and breaking overlay from `chunkRender` into `chunkUpdate` so that changes that don't directly invoke a re-mesh, but stil need one can do it in an update cycle
+* [ ] Refactor the `chunkRemoveLightType` call into the `chunkSetLightType` when the light value is `0` and update the necessary logic changes to accomodate this (seems to cause infinite lighting update loops if this is done at the moment)

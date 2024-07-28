@@ -335,7 +335,9 @@ void chunkRender(Chunk* chunk,
                  RenderContext* ctx,
                  Transforms* transforms) {
     if (breaking_state != NULL) {
-        // TODO: Move these updates to mesh to the chunkUpdate method
+        // TODO: Move these updates to mesh to the chunkUpdate method to avoid flickering
+        //       in the breaking texture caused by mesh updates with and without breaking
+        //       state passed to it.
         if (breaking_state->chunk_remesh_trigger) {
             // (In meshing) if the block matches the breaking state ensure it has unique mesh primitives
             // with correct tpage and texture window into the render target
@@ -348,9 +350,6 @@ void chunkRender(Chunk* chunk,
             chunkGenerateMesh(chunk);
             breakingStateReset(*breaking_state);
         }
-    }
-    if (chunk->lightmap_updated || chunk->mesh_updated) {
-        chunk->mesh_updated = false;
     }
     // if (chunkIsOutsideFrustum(chunk, &ctx->camera->frustum, transforms)) {
     //     DEBUG_LOG("[CHUNK " VEC_PATTERN "] Not visible\n", VEC_LAYOUT(chunk->position));
@@ -542,8 +541,9 @@ bool chunkModifyVoxel(Chunk* chunk,
         position->vy,
         position->vz
     )] = iblock;
-    chunkClearMesh(chunk);
-    chunkGenerateMesh(chunk);
+    chunk->mesh_updated = true;
+    /*chunkClearMesh(chunk);*/
+    /*chunkGenerateMesh(chunk);*/
     return true;
 }
 
@@ -571,8 +571,9 @@ IBlock* chunkModifyVoxelConstructed(Chunk* chunk,
         position->vy,
         position->vz
     )] = iblock;
-    chunkClearMesh(chunk);
-    chunkGenerateMesh(chunk);
+    chunk->mesh_updated = true;
+    /*chunkClearMesh(chunk);*/
+    /*chunkGenerateMesh(chunk);*/
     return return_block;
 }
 
@@ -675,6 +676,12 @@ void chunkUpdate(Chunk* chunk, const Player* player) {
         i++;
     }
     chunkUpdateLight(chunk, chunk_light_update_limits);
+    if (chunk->mesh_updated || chunk->lightmap_updated) {
+        chunkClearMesh(chunk);
+        chunkGenerateMesh(chunk);
+        chunk->mesh_updated = false;
+        chunk->lightmap_updated = false;
+    }
 }
 
 LightLevel chunkGetLightValue(const Chunk* chunk,
