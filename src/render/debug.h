@@ -17,7 +17,7 @@
 extern CircularBuffer ordering_table_usage;
 extern CircularBuffer packet_buffer_usage;
 
-void debugDrawPBUsageGraph(RenderContext* ctx, uint16_t base_screen_x, uint16_t base_screen_y);
+void debugDrawPBUsageGraph(RenderContext* ctx, u16 base_screen_x, u16 base_screen_y);
 void drawDebugText(const Stats* stats, const Camera* camera);
 
 #endif // PSXMC_DEBUG_H
