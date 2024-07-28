@@ -786,6 +786,43 @@ void worldSetLightValue(const World* world,
     );
 }
 
+void worldRemoveLightType(const World* world,
+                          const VECTOR* position,
+                          const LightType light_type) {
+    // World is void below 0 and above world-height on y-axis
+    if (position->vy < 0 || position->vy >= WORLD_HEIGHT) {
+        return;
+    }
+    const ChunkBlockPosition chunk_block_position = worldToChunkBlockPosition(position, CHUNK_SIZE);
+    worldRemoveLightTypeChunkBlock(
+        world,
+        &chunk_block_position,
+        light_type
+    );
+}
+
+void worldRemoveLightTypeChunkBlock(const World* world,
+                                    const ChunkBlockPosition* position,
+                                    const LightType light_type) {
+
+    // World is void below 0 on y-axis and nothing above height limit
+    if ((position->chunk.vy <= 0 && position->block.vy < 0)
+        || position->chunk.vy >= WORLD_CHUNKS_HEIGHT) {
+        return;
+    }
+    Chunk* chunk = world->chunks[arrayCoord(world, vz, position->chunk.vz)]
+                                [arrayCoord(world, vx, position->chunk.vx)]
+                                [position->chunk.vy];
+    if (chunk == NULL) {
+        return;
+    }
+    chunkRemoveLightValue(
+        chunk,
+        &position->block,
+        light_type
+    );
+}
+
 INLINE LightLevel worldGetInternalLightLevel(const World* world) {
     return world->internal_light_level;
 }

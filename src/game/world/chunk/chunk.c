@@ -43,6 +43,12 @@ FWD_DECL void worldSetLightValueChunkBlock(const World* world,
 FWD_DECL LightLevel worldGetLightTypeChunkBlock(const World* world,
                                                 const ChunkBlockPosition* position,
                                                 const LightType light_type);
+FWD_DECL void worldRemoveLightType(const World* world,
+                                   const VECTOR* position,
+                                   const LightType light_type);
+FWD_DECL void worldRemoveLightTypeChunkBlock(const World* world,
+                                             const ChunkBlockPosition* position,
+                                             const LightType light_type);
 FWD_DECL LightLevel worldGetInternalLightLevel(const World* world);
 
 void chunkDestroyDroppedItem(void* elem) {
@@ -992,10 +998,9 @@ void chunkUpdateRemoveLight(Chunk* chunk, const LightUpdateLimits limits) {
                 LIGHT_TYPE_BLOCK
             );
             if (neighbour_level != 0 && neighbour_level < light_level) {
-                worldSetLightValueChunkBlock(
+                worldRemoveLightTypeChunkBlock(
                     current_chunk->world,
                     &block_pos,
-                    0,
                     LIGHT_TYPE_BLOCK
                 );
             } else if (neighbour_level >= light_level) {
@@ -1060,12 +1065,12 @@ void chunkUpdateRemoveLight(Chunk* chunk, const LightUpdateLimits limits) {
             );
             DEBUG_LOG("Dir: %d Current light: %d Neighbour light: %d\n", face_dir, light_level, neighbour_level);
             if ((light_level == 15 && neighbour_level == 15) || (neighbour_level != 0 && neighbour_level < light_level)) {
-                worldSetLightValue(
+                worldRemoveLightType(
                     current_chunk->world,
                     &query_pos,
-                    0,
                     LIGHT_TYPE_SKY
                 );
+                DEBUG_LOG("Pos: " VEC_PATTERN " Set to 0\n", VEC_LAYOUT(query_pos));
             } else if (light_level != 15 && neighbour_level >= light_level) {
                 worldSetLightValue(
                     current_chunk->world,
@@ -1101,10 +1106,9 @@ void chunkUpdateRemoveLight(Chunk* chunk, const LightUpdateLimits limits) {
                 LIGHT_TYPE_SKY
             );
             if (neighbour_level != 0 && neighbour_level < light_level) {
-                worldSetLightValue(
+                worldRemoveLightType(
                     current_chunk->world,
                     &query_pos,
-                    0,
                     LIGHT_TYPE_SKY
                 );
             } else if (neighbour_level >= light_level) {

@@ -112,6 +112,12 @@ void worldSetLightValueChunkBlock(const World* world,
                                   const ChunkBlockPosition* position,
                                   const LightLevel light_value,
                                   const LightType light_type);
+void worldRemoveLightType(const World* world,
+                          const VECTOR* position,
+                          const LightType light_type);
+void worldRemoveLightTypeChunkBlock(const World* world,
+                                    const ChunkBlockPosition* position,
+                                    const LightType light_type);
 
 LightLevel worldGetInternalLightLevel(const World* world);
 
