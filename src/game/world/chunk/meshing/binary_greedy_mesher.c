@@ -76,6 +76,8 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk, const BreakingState* breaking_sta
             for (u32 y = 0; y < CHUNK_SIZE; y++) {
                 const IBlock* iblock = chunkGetBlock(chunk, x, y, z);
                 if (iblock != NULL) {
+                    // Initialise light map with block light, which
+                    // will be propagated later during chunk updates
                     const Block* block = VCAST_PTR(Block*, iblock);
                     if (block->light_level != 0) {
                         const VECTOR position = vec3_i32(x, y, z);
@@ -372,12 +374,12 @@ static MeshPrimitive* createPrimitive(ChunkMesh* mesh,
 })
 
 static const INDEX INDICES[FACE_DIRECTION_COUNT] = {
-    {3,2,1,0},
-    {1,0,3,2},
-    {3,2,1,0},
-    {2,3,0,1},
-    {2,3,0,1},
-    {3,2,1,0}
+    [0]={3,2,1,0},
+    [1]={1,0,3,2},
+    [2]={3,2,1,0},
+    [3]={2,3,0,1},
+    [4]={2,3,0,1},
+    [5]={3,2,1,0}
 };
 
 static SVECTOR createVertex(const i32 chunk_origin_x,
