@@ -8,6 +8,7 @@
 #include "../core/app_logic.h"
 #include "../core/camera.h"
 #include "debug_defines.h"
+#include "../util/inttypes.h"
 
 #define SAMPLE_MAX_VALUE 50
 #define SAMPLE_WINDOW_SIZE 80
