@@ -61,7 +61,13 @@ void debugDrawPBUsageGraph(RenderContext* ctx, const u16 base_screen_x, const u1
     static int sampledPB = 0;
     if (sampledPB < SAMPLE_RATE) {
         sampledPB++;
-        renderBlackBackground(ctx, base_screen_x, base_screen_y, SAMPLE_WINDOW_SIZE, SAMPLE_MAX_VALUE);
+        renderBlackBackground(
+            ctx,
+            base_screen_x,
+            base_screen_y,
+            SAMPLE_WINDOW_SIZE,
+            SAMPLE_MAX_VALUE
+        );
         renderUsageGraph(ctx, &packet_buffer_usage, base_screen_x, base_screen_y);
         return;
     }
