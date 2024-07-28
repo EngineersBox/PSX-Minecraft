@@ -41,17 +41,16 @@ void renderUsageGraph(RenderContext* ctx,  const CircularBuffer* buffer, const u
     }
 }
 
-void renderBlackBackground(RenderContext* ctx, const uint16_t base_screen_x, const uint16_t base_screen_y, const uint16_t width, const uint16_t height) {
-    POLY_F4* pol4 = (POLY_F4*) allocatePrimitive(ctx, sizeof(POLY_F4));
-    setXY4(
-        pol4,
-        base_screen_x, base_screen_y,
-        base_screen_x + width, base_screen_y,
-        base_screen_x, base_screen_y - height,
-        base_screen_x + width, base_screen_y - height
-    );
-    setRGB0(pol4, 1, 1, 1);
-    polyF4Render(pol4, 1, ctx);
+void renderBlackBackground(RenderContext* ctx,
+                           const uint16_t base_screen_x,
+                           const uint16_t base_screen_y,
+                           const uint16_t width,
+                           const uint16_t height) {
+    TILE* tile = (TILE*) allocatePrimitive(ctx, sizeof(TILE));
+    setXY0(tile, base_screen_x, base_screen_y - height);
+    setWH(tile, width, height);
+    setRGB0(tile, 1, 1, 1);
+    tileRender(tile, 1, ctx);
 }
 
 void debugDrawPBUsageGraph(RenderContext* ctx, const uint16_t base_screen_x, const uint16_t base_screen_y) {
@@ -59,7 +58,7 @@ void debugDrawPBUsageGraph(RenderContext* ctx, const uint16_t base_screen_x, con
     if (sampledPB < SAMPLE_RATE) {
         sampledPB++;
         renderBlackBackground(ctx, base_screen_x, base_screen_y, SAMPLE_WINDOW_SIZE, SAMPLE_MAX_VALUE);
-        renderUsageGraph(ctx, &packet_buffer_usage, base_screen_x, base_screen_y);
+        renderUsageGraph(ctx, &packet_buffer_usage, base_screen_x, base_screen_y - 1);
         return;
     }
     sampledPB = 0;
@@ -67,8 +66,14 @@ void debugDrawPBUsageGraph(RenderContext* ctx, const uint16_t base_screen_x, con
     used /= sizeof(char);
     used /= PB_DATA_POINT_PER_PIXEL;
     circularBufferPush(&packet_buffer_usage, used);
-    renderBlackBackground(ctx, base_screen_x, base_screen_y, SAMPLE_WINDOW_SIZE, SAMPLE_MAX_VALUE);
-    renderUsageGraph(ctx, &packet_buffer_usage, base_screen_x, base_screen_y);
+    renderBlackBackground(
+        ctx,
+        base_screen_x,
+        base_screen_y,
+        SAMPLE_WINDOW_SIZE,
+        SAMPLE_MAX_VALUE
+    );
+    renderUsageGraph(ctx, &packet_buffer_usage, base_screen_x, base_screen_y - 1);
 }
 
 #define isOverlayEnabled(suffix) (isDebugEnabled() && defined(PSXMC_DEBUG_OVERLAY_##suffix) && PSXMC_DEBUG_OVERLAY_##suffix)

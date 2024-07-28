@@ -66,6 +66,7 @@
 * [X] Day/night cycle does not need to have lighting recalculated for each time the lighting changes. Everything can be static, instead the skylight 4 bits of the lightmap entries applied to mesh quads is capped based on the time of day before we determine the light value between the skylight upper 4 bits and block light lower 4 bits. This allows for seemless day/night transitions in lightlevels without needing to recalculate.
 * [X] Hold an internal global light level on the world that changes with time to be used in adjusting sky lighting when it changes
 * [X] Remove block sunlight updates
+* [X] Memory usage stats in debug UI overlay
 * [ ] Camera far plane cutoff with fog relative to chunk render distance
 * [ ] Frustum and culling
 * [ ] Depth-first search culling through chunks
@@ -81,7 +82,6 @@
 * [ ] Add support in chunk provider for providing a list of named stages for chunk loading (e.g. gen terrain, prop lighting, construct mesh), then use these for dynamically loading chunks as well as normal world initialisation
 * [ ] Support more general mesh generation based on block types including multiple normals
 * [ ] Block light should have a slight tint towards red for a warmer colour.
-* [X] Memory usage stats in debug UI overlay
 
 ## Refactor
 
