@@ -442,12 +442,6 @@ static LightLevel inferSunlightValueFromNeighbours(const Chunk* chunk,
             &cb_pos,
             LIGHT_TYPE_SKY
         );
-        DEBUG_LOG(
-            "Chunk: " VEC_PATTERN " Block: " VEC_PATTERN " Level: %d\n",
-            VEC_LAYOUT(cb_pos.chunk),
-            VEC_LAYOUT(cb_pos.block),
-            neighbour_light_level
-        );
         if (face_dir == FACE_DIR_UP && neighbour_light_level == 15) {
             return 15;
         }
@@ -489,7 +483,6 @@ INLINE static int modifyVoxel0(Chunk* chunk,
             chunk,
             position
         );
-        DEBUG_LOG("Inferred light level: %d\n", new_light_level);
         chunkSetLightValue(
             chunk,
             position,
@@ -698,7 +691,6 @@ LightLevel chunkGetLightType(const Chunk* chunk,
     if (checkIndexOOB(position->vx, position->vy, position->vz)) {
         return createLightLevel(0, worldGetInternalLightLevel(chunk->world));
     }
-    DEBUG_LOG("[CHUNK] Position: " VEC_PATTERN "\n", VEC_LAYOUT(*position));
     return lightMapGetType(chunk->lightmap, *position, light_type);
 }
 
@@ -1070,8 +1062,8 @@ void chunkUpdateRemoveLight(Chunk* chunk, const LightUpdateLimits limits) {
                 &query_pos,
                 LIGHT_TYPE_SKY
             );
-            DEBUG_LOG("Dir: %d Current light: %d Neighbour light: %d\n", face_dir, light_level, neighbour_level);
-            if ((light_level == 15 && neighbour_level == 15) || (neighbour_level != 0 && neighbour_level < light_level)) {
+            if ((light_level == 15 && neighbour_level == 15)
+                || (neighbour_level != 0 && neighbour_level < light_level)) {
                 worldRemoveLightType(
                     current_chunk->world,
                     &query_pos,
