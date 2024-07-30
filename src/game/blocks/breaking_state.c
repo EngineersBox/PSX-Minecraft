@@ -121,8 +121,8 @@ void breakingStateUpdateRenderTarget(BreakingState* state,
     // Sort drawing primitives to reset drawing area to default (OT is in reverse order so that's
     // why this is here and not after the loop).
     DR_AREA* area = (DR_AREA*) allocatePrimitive(ctx, sizeof(DR_AREA));
-    const DB* active = &ctx->db[ctx->active];
-    const DB* inactive = &ctx->db[1 - ctx->active];
+    const Framebuffer* active = &ctx->db[ctx->active];
+    const Framebuffer* inactive = &ctx->db[1 - ctx->active];
     const size_t ot_index = ORDERING_TABLE_LENGTH - 1;
     setDrawArea(area, &inactive->draw_env.clip);
     const u32* ot_entry = &active->ordering_table[ot_index];

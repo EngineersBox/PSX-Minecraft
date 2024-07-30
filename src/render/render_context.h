@@ -8,7 +8,7 @@
 
 #include "../core/camera.h"
 
-// DB struct array sizes
+// Framebuffer struct array sizes
 #define ORDERING_TABLE_LENGTH (1 << 13)
 #define PACKET_BUFFER_LENGTH (1 << 16)
 
@@ -35,12 +35,12 @@ typedef struct {
     DRAWENV draw_env;
     uint32_t ordering_table[ORDERING_TABLE_LENGTH];
     char packet_buffer[PACKET_BUFFER_LENGTH];
-} DB;
+} Framebuffer;
 
 typedef struct {
     char* primitive;
     RECT screen_clip;
-    DB db[2];
+    Framebuffer db[2];
     uint8_t active;
     Camera* camera;
 } RenderContext;
