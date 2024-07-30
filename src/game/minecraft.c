@@ -86,7 +86,7 @@ void Minecraft_init(VSelf, void* ctx) {
     inputInit(&self->internals.input);
     // Load font and open a text stream
     FntLoad(960, 0);
-    FntOpen(0, 8, 320, 216, 0, 150);
+    FntOpen(0, 8, 320, 216, 0, 160);
     // Unpack LZP archive and load assets
     assetsLoad();
     fontLoad();
@@ -98,9 +98,9 @@ void Minecraft_init(VSelf, void* ctx) {
     self->world->centre_next = vec3_i32_all(0);
     DYN_PTR(
         &self->world->chunk_provider,
-        OverworldFlatlandChunkProvider,
+        OverworldPerlinChunkProvider,
         IChunkProvider,
-        malloc(sizeof(OverworldFlatlandChunkProvider))
+        malloc(sizeof(OverworldPerlinChunkProvider))
     );
     worldInit(self->world, &self->internals.ctx);
     world = self->world;

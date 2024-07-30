@@ -30,6 +30,7 @@ void iPhysicsObjectInit(PhysicsObject* physics_object,
     physics_object->fall_distance = 0;
     physics_object->aabb = (AABB) {0};
     physics_object->flags = (PhysicsObjectFlags) {0};
+    physics_object->flags.on_ground = true;
     physics_object->config = config;
     physics_object->update_handlers = update_handlers;
     iPhysicsObjectSetPosition(physics_object, NULL);
