@@ -12,7 +12,7 @@ Remake of Minecraft for PS1 with PSn00bSDK
   * [Building](#building)
   * [Docker Environment](#docker-environment)
     * [Utility Build Script](#utility-build-script)
-  * [Development Environment]
+  * [Development Environment](#development-environment)
     * [CLion](#clion)
     * [Neovim Clangd](#neovim-clangd)
   * [Git Hooks](#git-hooks)
