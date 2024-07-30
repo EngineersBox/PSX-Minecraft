@@ -9,6 +9,7 @@
 #include "chunk_defines.h"
 #include "../position.h"
 #include "../../blocks/blocks.h"
+#include "../../../lighting/lightmap.h"
 
 // -1 = unlimited
 typedef struct LightUpdateLimits {
@@ -24,8 +25,6 @@ extern const LightUpdateLimits chunk_light_update_limits;
 // Forward declaration
 FWD_DECL typedef struct World World;
 FWD_DECL typedef struct Chunk Chunk;
-FWD_DECL typedef u8 LightLevel;
-FWD_DECL typedef LightLevel LightMap[CHUNK_DATA_SIZE];
 
 typedef struct LightAddNode {
     VECTOR position;
