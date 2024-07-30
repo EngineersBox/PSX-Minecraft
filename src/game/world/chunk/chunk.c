@@ -652,9 +652,6 @@ void chunkUpdate(Chunk* chunk, const Player* player, BreakingState* breaking_sta
     }
     chunkUpdateLight(chunk, chunk_light_update_limits);
     if (breaking_state != NULL) {
-        // TODO: Move these updates to mesh to the chunkUpdate method to avoid flickering
-        //       in the breaking texture caused by mesh updates with and without breaking
-        //       state passed to it.
         if (breaking_state->chunk_remesh_trigger) {
             // (In meshing) if the block matches the breaking state ensure it has unique mesh primitives
             // with correct tpage and texture window into the render target
@@ -785,7 +782,6 @@ void chunkUpdateAddLight(Chunk* chunk, const LightUpdateLimits limits) {
     size_t processed_updates = 0;
     size_t iter = 0;
     void* item;
-    /*DEBUG_LOG("[CHUNK] Add light queue: %d\n", hashmap_count(chunk->updates.light_add_queue));*/
     while (lightCheckLimit(limits.add_block, processed_updates)
             && hashmap_iter(chunk->updates.light_add_queue, &iter, &item)) {
         const LightAddNode* node = item;
@@ -846,7 +842,6 @@ void chunkUpdateAddLight(Chunk* chunk, const LightUpdateLimits limits) {
     }
     iter = 0;
     processed_updates = 0;
-    /*DEBUG_LOG("[CHUNK] Add sunlight queue: %d\n", hashmap_count(chunk->updates.sunlight_queue));*/
     // Sky light
     while (lightCheckLimit(limits.add_sky, processed_updates)
             && hashmap_iter(chunk->updates.sunlight_add_queue, &iter, &item)) {
@@ -952,7 +947,6 @@ void chunkUpdateRemoveLight(Chunk* chunk, const LightUpdateLimits limits) {
     size_t processed_updates = 0;
     size_t iter = 0;
     void* item;
-    /*DEBUG_LOG("[CHUNK] Remove light queue: %d\n", hashmap_count(chunk->updates.light_remove_queue));*/
     while (lightCheckLimit(limits.remove_block, processed_updates)
             && hashmap_iter(chunk->updates.light_remove_queue, &iter, &item)) {
         const LightRemoveNode* node = item;
@@ -1018,7 +1012,6 @@ void chunkUpdateRemoveLight(Chunk* chunk, const LightUpdateLimits limits) {
     iter = 0;
     while (lightCheckLimit(limits.remove_sky, processed_updates)
            && hashmap_iter(chunk->updates.sunlight_remove_queue, &iter, &item)) {
-        DEBUG_LOG("Remove sunlight: %d\n", processed_updates);
         const LightRemoveNode* node = item;
         const VECTOR current_pos = node->position;
         const Chunk* current_chunk = node->chunk;
@@ -1071,7 +1064,6 @@ void chunkUpdateRemoveLight(Chunk* chunk, const LightUpdateLimits limits) {
                     &query_pos,
                     LIGHT_TYPE_SKY
                 );
-                DEBUG_LOG("Pos: " VEC_PATTERN " Set to 0\n", VEC_LAYOUT(query_pos));
             } else if (light_level != 15 && neighbour_level >= light_level) {
                 worldSetLightValue(
                     current_chunk->world,

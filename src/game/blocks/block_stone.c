@@ -14,6 +14,7 @@ void StoneBlock_init(VSelf) {
         BLOCKID_STONE,
         defaultFaceAttributes(1)
     );
+    self->block.light_level = 15;
 }
 
 void stoneBlockAccess(VSelf) ALIAS("StoneBlock_access");

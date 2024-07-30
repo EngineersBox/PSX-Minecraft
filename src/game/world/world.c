@@ -35,7 +35,7 @@ const LightUpdateLimits world_chunk_init_limits = (LightUpdateLimits) {
 // World should be loaded before invoking this method
 void worldInit(World* world, RenderContext* ctx) {
     // TODO: Set light level based on time of day
-    world->internal_light_level = createLightLevel(0, 15);
+    world->internal_light_level = createLightLevel(0, 2);
     VCALL(world->chunk_provider, init);
     // Clear the chunks first to ensure they are all NULL upon initialisation
     for (i32 x = 0; x < AXIS_CHUNKS; x++) {
