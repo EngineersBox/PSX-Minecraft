@@ -130,16 +130,16 @@ void Minecraft_init(VSelf, void* ctx) {
     Inventory* inventory = VCAST(Inventory*, player->inventory);
     Slot* slot = inventoryFindFreeSlot(inventory, 0);
     IItem* item = itemCreate();
-    StoneItemBlock* stone_item_block = stoneItemBlockCreate();
-    DYN_PTR(item, StoneItemBlock, IItem, stone_item_block);
+    GrassItemBlock* grass_item_block = grassItemBlockCreate();
+    DYN_PTR(item, GrassItemBlock, IItem, grass_item_block);
     VCALL(*item, init);
-    stone_item_block->item_block.item.stack_size = 26;
+    grass_item_block->item_block.item.stack_size = 26;
     inventorySlotSetItem(slot, item);
     VCALL_SUPER(*item, Renderable, applyInventoryRenderAttributes);
     // ==== TESTING: Inventory ====
     slot = &inventory->slots[INVENTORY_SLOT_STORAGE_OFFSET + 2];
     item = itemCreate();
-    GrassItemBlock* grass_item_block = grassItemBlockCreate();
+    grass_item_block = grassItemBlockCreate();
     DYN_PTR(item, GrassItemBlock, IItem, grass_item_block);
     VCALL(*item, init);
     grass_item_block->item_block.item.stack_size = 13;

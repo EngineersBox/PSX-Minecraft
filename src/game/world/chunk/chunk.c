@@ -517,8 +517,6 @@ bool chunkModifyVoxel(Chunk* chunk,
         position->vz
     )] = iblock;
     chunk->mesh_updated = true;
-    /*chunkClearMesh(chunk);*/
-    /*chunkGenerateMesh(chunk);*/
     return true;
 }
 
@@ -547,8 +545,6 @@ IBlock* chunkModifyVoxelConstructed(Chunk* chunk,
         position->vz
     )] = iblock;
     chunk->mesh_updated = true;
-    /*chunkClearMesh(chunk);*/
-    /*chunkGenerateMesh(chunk);*/
     return return_block;
 }
 
@@ -587,9 +583,6 @@ bool itemPickupValidator(const Item* item, void* ctx) {
 }
 
 void chunkUpdate(Chunk* chunk, const Player* player, BreakingState* breaking_state) {
-    // TODO: Check world time to see if sunlight needs to be updated,
-    //       if so trigger remeshing flag and pass world time to
-    //       mesher to alter sunlight values.
     Inventory* inventory = VCAST(Inventory*, player->inventory);
     // We are using chunk relative coords in absolute units and not in
     // fixed point format since item positons only need to be relatively
