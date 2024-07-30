@@ -196,7 +196,6 @@ void chunkGenerateMesh(Chunk* chunk) {
 
 void chunkGenerateLightmap(Chunk* chunk, ChunkGenerationContext* gen_ctx) {
     bool is_top = true;
-    chunk->is_top = true;
     for (i32 x = 0; x < CHUNK_SIZE; x++) {
         for (i32 z = 0; z < CHUNK_SIZE; z++) {
             for (i32 y = CHUNK_SIZE - 1; y >= 0; y--) {
@@ -228,6 +227,7 @@ void chunkGenerateLightmap(Chunk* chunk, ChunkGenerationContext* gen_ctx) {
             }
         }
     }
+    // NOTE: This will change, being moved into the chunk generator instead
     chunk->is_top = is_top;
 }
 
