@@ -12,7 +12,9 @@ Remake of Minecraft for PS1 with PSn00bSDK
   * [Building](#building)
   * [Docker Environment](#docker-environment)
     * [Utility Build Script](#utility-build-script)
+  * [Development Environment]
     * [CLion](#clion)
+    * [Neovim Clangd](#neovim-clangd)
   * [Git Hooks](#git-hooks)
   * [Progress](#progress)
     * [Goal](#goal)
@@ -103,7 +105,9 @@ Options:
 > if you want to use a different directory than the default. Note that you'll need to use this option every
 > time you run the command in that case.
 
-### CLion
+### Development Environment
+
+#### CLion
 
 You can use the Dockerfile to double as a build environment for CLion so that you can run
 CMake within the Docker context attached to CLion. To the following to set this up:
@@ -119,6 +123,11 @@ CMake within the Docker context attached to CLion. To the following to set this 
 9. Exit settings
 10. Verify that the Docker daemon is running on your local
 11. Reload CMake project
+
+#### Neovim Clangd
+
+> [!TODO]
+> Finish these instructions
 
 ## Git Hooks
 
@@ -169,3 +178,11 @@ Lightmapping and procedural texturing for chunk meshes to apply lighting during 
 #### Sunlight Propagation
 
 ![Sunlight Propagation](./docs/sunlight.png)
+
+#### Single Source Block Light
+
+![Single Source Block Light](./docs/blocklight_single_source.png)
+
+#### Multiple Source Block Light
+
+![Multiple Source Block Light](./docs/blocklight_multiple_source.png)
