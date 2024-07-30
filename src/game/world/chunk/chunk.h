@@ -32,8 +32,8 @@ void chunkClearMesh(Chunk* chunk);
 // Initialise the lightmap, first by propogating sunlight
 // and then applying any pending updates in the add light
 // queue. This should be caled after generating a chunk.
-void chunkGenerateLightmap(Chunk* chunk);
-void chunkPropagateLightmap(Chunk* chunk);
+void chunkGenerateLightmap(Chunk* chunk, ChunkGenerationContext* gen_ctx);
+void chunkPropagateLightmap(Chunk* chunk, ChunkGenerationContext* gen_ctx);
 
 /**
  * @brief Sets a block at a given location in the chunk, invoking the @code destroy@endcode

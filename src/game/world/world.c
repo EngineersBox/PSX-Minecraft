@@ -38,13 +38,12 @@ void worldInit(World* world, RenderContext* ctx) {
     world->internal_light_level = createLightLevel(0, 15);
     VCALL(world->chunk_provider, init);
     // Clear the chunks first to ensure they are all NULL upon initialisation
-    for (i32 x = 0; x < AXIS_CHUNKS; x++) {
-        for (i32 z = 0; z < AXIS_CHUNKS; z++) {
-            for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
-                world->chunks[z][x][y] = NULL;
-            }
-        }
-    }
+    memset(
+        world->chunks,
+        0,
+        sizeof(Chunk*) * WORLD_CHUNKS_COUNT
+    );
+    ChunkGenerationContext gen_ctx[AXIS_CHUNKS][AXIS_CHUNKS][WORLD_CHUNKS_HEIGHT] = {0};
     const i32 x_start = world->centre.vx - LOADED_CHUNKS_RADIUS;
     const i32 x_end = world->centre.vx + LOADED_CHUNKS_RADIUS;
     const i32 z_start = world->centre.vz - LOADED_CHUNKS_RADIUS;
@@ -109,10 +108,10 @@ void worldInit(World* world, RenderContext* ctx) {
         for (i32 z = z_start; z <= z_end; z++) {
             for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
                 DEBUG_LOG("[CHUNK: %d,%d,%d] Generating Lightmap\n", x, 0, z);
-                Chunk* chunk = world->chunks[arrayCoord(world, vz, z)]
-                                            [arrayCoord(world, vx, x)]
-                                            [y];
-                chunkGenerateLightmap(chunk);
+                const u16 array_x = arrayCoord(world, vx, x);
+                const u16 array_z = arrayCoord(world, vz, z);
+                Chunk* chunk = world->chunks[array_z][array_x][y];
+                chunkGenerateLightmap(chunk, &gen_ctx[array_z][array_z][y]);
                 displayProgress("Generating Lightmap");
             }
         }
@@ -122,10 +121,10 @@ void worldInit(World* world, RenderContext* ctx) {
         for (i32 z = z_start; z <= z_end; z++) {
             for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
                 DEBUG_LOG("[CHUNK: %d,%d,%d] Propagating Light\n", x, 0, z);
-                Chunk* chunk = world->chunks[arrayCoord(world, vz, z)]
-                                            [arrayCoord(world, vx, x)]
-                                            [y];
-                chunkPropagateLightmap(chunk);
+                const u16 array_x = arrayCoord(world, vx, x);
+                const u16 array_z = arrayCoord(world, vz, z);
+                Chunk* chunk = world->chunks[array_z][array_x][y];
+                chunkPropagateLightmap(chunk, &gen_ctx[array_z][array_x][y]);
                 displayProgress("Propagating Light");
             }
         }
@@ -279,6 +278,7 @@ void worldLoadChunksX(World* world, const i8 x_direction, const i8 z_direction) 
         z_start += SHIFT_ZONE;
     }
     Chunk* to_mesh[(z_end + 1 - z_start) * WORLD_CHUNKS_HEIGHT];
+    ChunkGenerationContext gen_ctx[(z_end + 1 - z_start) * WORLD_CHUNKS_HEIGHT];
     u32 i = 0;
     for (i32 z_coord = z_start; z_coord <= z_end; z_coord++) {
         for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
@@ -291,13 +291,15 @@ void worldLoadChunksX(World* world, const i8 x_direction, const i8 z_direction) 
     i = 0;
     for (i32 z_coord = z_start; z_coord <= z_end; z_coord++) {
         for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
-            chunkGenerateLightmap(to_mesh[i++]);
+            chunkGenerateLightmap(to_mesh[i], &gen_ctx[i]);
+            i++;
         }
     }
     i = 0;
     for (i32 z_coord = z_start; z_coord <= z_end; z_coord++) {
         for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
-            chunkPropagateLightmap(to_mesh[i++]);
+            chunkPropagateLightmap(to_mesh[i], &gen_ctx[i]);
+            i++;
         }
     }
     // We need to generate the mesh after creating all the chunks
@@ -338,6 +340,7 @@ void worldLoadChunksZ(World* world, const i8 x_direction, const i8 z_direction) 
         x_start += SHIFT_ZONE;
     }
     Chunk* to_mesh[(x_end + 1 - x_start) * WORLD_CHUNKS_HEIGHT];
+    ChunkGenerationContext gen_ctx[(x_end + 1 - x_start) * WORLD_CHUNKS_HEIGHT];
     u32 i = 0;
     for (i32 x_coord = x_start; x_coord <= x_end; x_coord++) {
         for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
@@ -350,13 +353,15 @@ void worldLoadChunksZ(World* world, const i8 x_direction, const i8 z_direction) 
     i = 0;
     for (i32 x_coord = x_start; x_coord <= x_end; x_coord++) {
         for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
-            chunkGenerateLightmap(to_mesh[i++]);
+            chunkGenerateLightmap(to_mesh[i], &gen_ctx[i]);
+            i++;
         }
     }
     i = 0;
     for (i32 x_coord = x_start; x_coord <= x_end; x_coord++) {
         for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
-            chunkPropagateLightmap(to_mesh[i++]);
+            chunkPropagateLightmap(to_mesh[i], &gen_ctx[i]);
+            i++;
         }
     }
     // We need to generate the mesh after creating all the chunks
@@ -387,6 +392,7 @@ void worldLoadChunksXZ(World* world, const i8 x_direction, const i8 z_direction)
     i32 x_coord = world->centre.vx + ((LOADED_CHUNKS_RADIUS + SHIFT_ZONE) * x_direction);
     i32 z_coord = world->centre.vz + ((LOADED_CHUNKS_RADIUS + SHIFT_ZONE) * z_direction);
     Chunk* to_mesh[WORLD_CHUNKS_HEIGHT] = {0};
+    ChunkGenerationContext gen_ctx[WORLD_CHUNKS_HEIGHT] = {0};
     for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
         Chunk* loaded_chunk = worldLoadChunk(world, vec3_i32(x_coord, y, z_coord));
         world->chunks[arrayCoord(world, vz, z_coord)]
@@ -394,10 +400,10 @@ void worldLoadChunksXZ(World* world, const i8 x_direction, const i8 z_direction)
                      [y] = to_mesh[y] = loaded_chunk;
     }
     for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
-        chunkGenerateLightmap(to_mesh[y]);
+        chunkGenerateLightmap(to_mesh[y], &gen_ctx[y]);
     }
     for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
-        chunkPropagateLightmap(to_mesh[y]);
+        chunkPropagateLightmap(to_mesh[y], &gen_ctx[y]);
     }
     // We need to generate the mesh after creating all the chunks
     // since each chunk needs to index into it's neighbours to
@@ -497,8 +503,8 @@ void worldUpdate(World* world, Player* player, BreakingState* breaking_state) {
                 for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
                     chunkUpdate(
                         world->chunks[arrayCoord(world, vz, z)]
-                                     [arrayCoord(world, vx, x)]
-                                     [y],
+                                            [arrayCoord(world, vx, x)]
+                                            [y],
                         player,
                         NULL
                     );

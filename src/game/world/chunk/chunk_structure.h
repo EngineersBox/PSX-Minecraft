@@ -45,6 +45,10 @@ typedef struct ChunkUpdates {
     HashMap* light_remove_queue;
 } ChunkUpdates;
 
+typedef struct ChunkGenerationContext {
+    u8 sunlight_heightmap[CHUNK_SIZE * CHUNK_SIZE];
+} ChunkGenerationContext;
+
 typedef struct Chunk {
     World* world;
     bool is_top: 1;
@@ -54,7 +58,6 @@ typedef struct Chunk {
     VECTOR position;
     ChunkMesh mesh;
     IBlock* blocks[CHUNK_DATA_SIZE];
-    u8 sunlight_heightmap[CHUNK_SIZE * CHUNK_SIZE];
     LightMap lightmap;
     ChunkUpdates updates;
     cvector(IItem*) dropped_items;

@@ -35,6 +35,7 @@
 #else
 #define AXIS_CHUNKS (((LOADED_CHUNKS_RADIUS + SHIFT_ZONE) * 2) + CENTER)
 #endif
+#define WORLD_CHUNKS_COUNT (AXIS_CHUNKS * AXIS_CHUNKS * WORLD_CHUNKS_HEIGHT)
 
 typedef struct World {
     VECTOR centre;

@@ -102,11 +102,6 @@ void chunkInit(Chunk* chunk) {
     chunk->is_top = true;
     chunk->lightmap_updated = false;
     chunk->mesh_updated = false;
-    memset(
-        chunk->sunlight_heightmap,
-        CHUNK_SIZE,
-        sizeof(*chunk->sunlight_heightmap) * CHUNK_SIZE * CHUNK_SIZE
-    );
     chunk->dropped_items = NULL;
     cvector_init(chunk->dropped_items, 0, chunkDestroyDroppedItem);
     chunk->updates.sunlight_add_queue = hashmap_new(
@@ -197,9 +192,9 @@ void chunkGenerateMesh(Chunk* chunk) {
     chunkGenerateMeshWithBreakingState(chunk, NULL);
 }
 
-#define getSunlight(chunk, x, z) (chunk)->sunlight_heightmap[((x) * CHUNK_SIZE) + (z)]
+#define getSunlight(gen_ctx, x, z) (gen_ctx)->sunlight_heightmap[((x) * CHUNK_SIZE) + (z)]
 
-void chunkGenerateLightmap(Chunk* chunk) {
+void chunkGenerateLightmap(Chunk* chunk, ChunkGenerationContext* gen_ctx) {
     bool is_top = true;
     chunk->is_top = true;
     for (i32 x = 0; x < CHUNK_SIZE; x++) {
@@ -221,8 +216,7 @@ void chunkGenerateLightmap(Chunk* chunk) {
                         15,
                         LIGHT_TYPE_SKY
                     );
-                    /*DEBUG_LOG("Set sunlight " VEC_PATTERN " Level 15\n", VEC_LAYOUT(position));*/
-                    getSunlight(chunk, x, z)--;
+                    getSunlight(gen_ctx, x, z)--;
                 } else {
                     // NOTE: We are at the top so long as there is at least
                     // one air block at the top of the chunk (for now). In
@@ -237,7 +231,7 @@ void chunkGenerateLightmap(Chunk* chunk) {
     chunk->is_top = is_top;
 }
 
-void chunkPropagateLightmap(Chunk* chunk) {
+void chunkPropagateLightmap(Chunk* chunk, ChunkGenerationContext* gen_ctx) {
     if (!chunk->is_top) {
         return;
     }
@@ -247,7 +241,7 @@ void chunkPropagateLightmap(Chunk* chunk) {
             // columns have visible neighbours that are
             // not in sunlight, so we skip any blocks that
             // are not in the sunlight columns.
-            const i32 sunlight_col_end = getSunlight(chunk, x, z);
+            const i32 sunlight_col_end = getSunlight(gen_ctx, x, z);
             for (i32 y = CHUNK_SIZE - 1; y >= sunlight_col_end; y--) {
                 const VECTOR position = vec3_i32(x, y, z);
                 // Left, right, back, front
@@ -270,7 +264,7 @@ void chunkPropagateLightmap(Chunk* chunk) {
                         &cb_pos
                     );
                     if (query_chunk == NULL
-                        || getSunlight(query_chunk, cb_pos.block.vx, cb_pos.block.vz) <= y) {
+                        || getSunlight(gen_ctx, cb_pos.block.vx, cb_pos.block.vz) <= y) {
                         // Highest sunlight-propagating block in facing direction is lower
                         // than this block, so it's just sunlight. We don't need to propagate
                         // sunlight there since we already did that.
