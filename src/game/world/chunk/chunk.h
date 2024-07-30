@@ -29,6 +29,8 @@ void chunkDestroy(const Chunk* chunk);
 void chunkGenerateMesh(Chunk* chunk);
 void chunkClearMesh(Chunk* chunk);
 
+extern int test(void* mem);
+
 // Initialise the lightmap, first by propogating sunlight
 // and then applying any pending updates in the add light
 // queue. This should be caled after generating a chunk.

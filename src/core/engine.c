@@ -1,6 +1,7 @@
 #include "engine.h"
 
 #include <psxetc.h>
+#include <psxapi.h>
 
 #include "../math/math_utils.h"
 #include "../hardware/counters.h"
@@ -25,7 +26,9 @@ void engineInit(Engine* engine, void* ctx) {
     };
     setCounterMode(COUNTER_2_ID, mode);
     setCounterTarget(COUNTER_2_ID, CPU_CYCLES_PER_MS);
+    EnterCriticalSection();
     InterruptCallback(IRQ_TIMER2, &irqCallbackTimeMsIncrement);
+    ExitCriticalSection();
 }
 
 void engineRun(Engine* engine) {
