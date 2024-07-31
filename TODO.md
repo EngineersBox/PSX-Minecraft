@@ -82,6 +82,7 @@
 * [ ] Add support in chunk provider for providing a list of named stages for chunk loading (e.g. gen terrain, prop lighting, construct mesh), then use these for dynamically loading chunks as well as normal world initialisation
 * [ ] Support more general mesh generation based on block types including multiple normals
 * [ ] Block light should have a slight tint towards red for a warmer colour.
+* [ ] Loading new chunks should only happen when the player is in the bordering chunks and beyond the middle of the chunk (with respect to the centre of the world chunk grid).
 
 ## Refactor
 
