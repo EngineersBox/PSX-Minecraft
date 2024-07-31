@@ -462,11 +462,9 @@ void worldLoadChunks(World* world, const VECTOR* player_chunk_pos) {
 }
 
 bool isPlayerInEdgeChunks(const World* world, const ChunkBlockPosition* player_pos) {
-    // TODO: This doesn't work properly, the commented out code in the
-    //       worldUpdate method does though. Figure out why.
     static i32 prev_pos_chunk_y = 0;
 #define inEdge(axis, delta) absv(player_pos->chunk.axis - world->centre.axis) == (delta)
-    const bool result =inEdge(vx, LOADED_CHUNKS_RADIUS)
+    const bool result = inEdge(vx, LOADED_CHUNKS_RADIUS)
         || inEdge(vz, LOADED_CHUNKS_RADIUS)
         || prev_pos_chunk_y != player_pos->chunk.vy;
 #undef inEdge
@@ -475,22 +473,15 @@ bool isPlayerInEdgeChunks(const World* world, const ChunkBlockPosition* player_p
 }
 
 void worldUpdate(World* world, Player* player, BreakingState* breaking_state) {
-    const VECTOR player_world_pos = vec3_const_div(
-        vec3_const_rshift(
-            player->physics_object.position,
-            FIXED_POINT_SHIFT
-        ),
-        BLOCK_SIZE
+    const VECTOR player_world_pos = vec3_i32(
+        fixedFloor(player->physics_object.position.vx, ONE_BLOCK) / ONE_BLOCK,
+        fixedFloor(player->physics_object.position.vy, ONE_BLOCK) / ONE_BLOCK,
+        fixedFloor(player->physics_object.position.vz, ONE_BLOCK) / ONE_BLOCK
     );
     const ChunkBlockPosition player_pos = worldToChunkBlockPosition(
         &player_world_pos,
         CHUNK_SIZE
     );
-    /*const VECTOR player_chunk_pos = vec3_i32(*/
-    /*    ((player->physics_object.position.vx >> FIXED_POINT_SHIFT) / CHUNK_BLOCK_SIZE) - (player->physics_object.position.vx < 0),*/
-    /*    ((player->physics_object.position.vy >> FIXED_POINT_SHIFT) / CHUNK_BLOCK_SIZE) - (player->physics_object.position.vy < 0),*/
-    /*    ((player->physics_object.position.vz >> FIXED_POINT_SHIFT) / CHUNK_BLOCK_SIZE) - (player->physics_object.position.vz < 0)*/
-    /*);*/
     if (isPlayerInEdgeChunks(world, &player_pos)) {
         // DEBUG_LOG("Player chunk pos: %d,%d,%d\n", VEC_LAYOUT(player_chunk_pos));
         worldLoadChunks(world, &player_pos.chunk);

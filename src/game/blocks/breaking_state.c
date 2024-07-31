@@ -173,7 +173,7 @@ void breakingStateUpdateRenderTarget(BreakingState* state,
     setRGB0(pol4, 0x80, 0x80, 0x80);
     // TODO: Fix this blending to ensure that the overlay
     //       changes color according to the block texture
-    setTransparency(pol4, true);
+    setSemiTrans(pol4, true);
     pol4->tpage = terrain_texture->tpage;
     /*// Clear semi-transparency bits*/
     /*pol4->tpage &= ~(0b11 << 5);*/
