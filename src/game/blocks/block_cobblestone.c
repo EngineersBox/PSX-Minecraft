@@ -15,18 +15,10 @@ void CobblestoneBlock_init(VSelf) {
     );
 }
 
-void cobblestoneBlockAccess(VSelf) ALIAS("CobblestoneBlock_access");
-void CobblestoneBlock_access(VSelf) {
-}
-
 IItem* cobblestoneBlockDestroy(VSelf, bool drop_item) ALIAS("CobblestoneBlock_destroy");
 IItem* CobblestoneBlock_destroy(VSelf, const bool drop_item) {
     VSELF(CobblestoneBlock);
     return drop_item ? cobblestoneBlockProvideItem(self) : NULL;
-}
-
-void cobblestoneBlockUpdate(VSelf) ALIAS("CobblestoneBlock_update");
-void CobblestoneBlock_update(VSelf) {
 }
 
 IItem* cobblestoneBlockProvideItem(VSelf) ALIAS("CobblestoneBlock_provideItem");

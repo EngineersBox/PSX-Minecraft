@@ -16,18 +16,10 @@ void DirtBlock_init(VSelf) {
     );
 }
 
-void dirtBlockAccess(VSelf) ALIAS("DirtBlock_access");
-void DirtBlock_access(VSelf) {
-}
-
 IItem* dirtBlockDestroy(VSelf, bool drop_item) ALIAS("DirtBlock_destroy");
 IItem* DirtBlock_destroy(VSelf, const bool drop_item) {
     VSELF(DirtBlock);
     return drop_item ? dirtBlockProvideItem(self) : NULL;
-}
-
-void dirtBlockUpdate(VSelf) ALIAS("DirtBlock_update");
-void DirtBlock_update(VSelf) {
 }
 
 IItem* dirtBlockProvideItem(VSelf) ALIAS("DirtBlock_provideItem");

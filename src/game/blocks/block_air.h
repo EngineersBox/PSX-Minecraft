@@ -28,14 +28,8 @@ DEFN_BLOCK_CONSTRUCTOR(air);
 void airBlockInit(VSelf);
 void AirBlock_init(VSelf);
 
-void airBlockAccess(VSelf);
-void AirBlock_access(VSelf);
-
 IItem* airBlockDestroy(VSelf, bool drop_item);
 IItem* AirBlock_destroy(VSelf, bool drop_item);
-
-void airBlockUpdate(VSelf);
-void AirBlock_update(VSelf);
 
 IItem* airBlockProvideItem(VSelf);
 IItem* AirBlock_provideItem(VSelf);

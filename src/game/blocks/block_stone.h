@@ -29,14 +29,8 @@ DEFN_BLOCK_CONSTRUCTOR(stone);
 void stoneBlockInit(VSelf);
 void StoneBlock_init(VSelf);
 
-void stoneBlockAccess(VSelf);
-void StoneBlock_access(VSelf);
-
 ALLOC_CALL(itemDestroy, 1) IItem* stoneBlockDestroy(VSelf, bool drop_item);
 ALLOC_CALL(itemDestroy, 1) IItem* StoneBlock_destroy(VSelf, bool drop_item);
-
-void stoneBlockUpdate(VSelf);
-void StoneBlock_update(VSelf);
 
 ALLOC_CALL(itemDestroy, 1) IItem* stoneBlockProvideItem(VSelf);
 ALLOC_CALL(itemDestroy, 1) IItem* StoneBlock_provideItem(VSelf);

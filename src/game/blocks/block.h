@@ -71,8 +71,8 @@ typedef struct Block {
     u8 metadata_id;
     u8 light_level: 4;
     u8 opacity_bitset: FACE_DIRECTION_COUNT;
-    u8 _pad: 6;
-    FaceDirection orientation;
+    FaceDirection orientation: FACE_DIRECTION_COUNT_BITS;
+    u8 _pad: 3;
     TextureAttributes face_attributes[BLOCK_FACES];
 } Block;
 
@@ -89,11 +89,15 @@ typedef struct Block {
 
 #define IBlock_IFACE \
     vfunc(void, init, VSelf) \
-    vfunc(void, access, VSelf) \
     vfunc(IItem*, destroy, VSelf, bool drop_item) \
-    vfunc(void, update, VSelf) \
+    /* Updates from world events like redstone */ \
+    vfuncDefault(void, update, VSelf) \
+    /* Player right clicking */ \
     vfuncDefault(bool, useAction, VSelf) \
     vfunc(IItem*, provideItem, VSelf)
+
+void iblockUpdate(VSelf);
+void IBlock_update(VSelf);
 
 bool iBlockUseAction(VSelf);
 bool IBlock_useAction(VSelf);

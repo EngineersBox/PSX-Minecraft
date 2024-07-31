@@ -27,14 +27,8 @@ DEFN_BLOCK_CONSTRUCTOR(cobblestone);
 void cobblestoneBlockInit(VSelf);
 void CobblestoneBlock_init(VSelf);
 
-void cobblestoneBlockAccess(VSelf);
-void CobblestoneBlock_access(VSelf);
-
 ALLOC_CALL(itemDestroy, 1) IItem* cobblestoneBlockDestroy(VSelf, bool drop_item);
 ALLOC_CALL(itemDestroy, 1) IItem* CobblestoneBlock_destroy(VSelf, bool drop_item);
-
-void cobblestoneBlockUpdate(VSelf);
-void CobblestoneBlock_update(VSelf);
 
 ALLOC_CALL(itemDestroy, 1) IItem* cobblestoneBlockProvideItem(VSelf);
 ALLOC_CALL(itemDestroy, 1) IItem* CobblestoneBlock_provideItem(VSelf);

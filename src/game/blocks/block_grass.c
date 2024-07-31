@@ -23,18 +23,10 @@ void GrassBlock_init(VSelf) {
     );
 }
 
-void grassBlockAccess(VSelf) ALIAS("GrassBlock_access");
-void GrassBlock_access(VSelf) {
-}
-
 IItem* grassBlockDestroy(VSelf, bool drop_item) ALIAS("GrassBlock_destroy");
 IItem* GrassBlock_destroy(VSelf, const bool drop_item) {
     VSELF(GrassBlock);
     return drop_item ? grassBlockProvideItem(self) : NULL;
-}
-
-void grassBlockUpdate(VSelf) ALIAS("GrassBlock_update");
-void GrassBlock_update(VSelf) {
 }
 
 IItem* grassBlockProvideItem(VSelf) ALIAS("GrassBlock_provideItem");
