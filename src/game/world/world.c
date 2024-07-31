@@ -463,13 +463,11 @@ void worldLoadChunks(World* world, const VECTOR* player_chunk_pos) {
 
 bool isPlayerInEdgeChunks(const World* world, const ChunkBlockPosition* player_pos) {
     static i32 prev_pos_chunk_y = 0;
-    // TODO: Determine if play is in outer ring of blocks in
-    //       the chunk if they are in the edge chunk. This is
-    //       directional based on relative position to the
-    //       world centre.
-#define inEdge(axis, delta) absv(player_pos->chunk.axis - world->centre.axis) == (delta)
-    const bool result = inEdge(vx, LOADED_CHUNKS_RADIUS)
-        || inEdge(vz, LOADED_CHUNKS_RADIUS)
+#define inChunkEdge(axis, last) (player_pos->block.axis == \
+    ((player_pos->chunk.axis - world->centre.axis >= 0) * (last)))
+#define inEdge(axis, delta) (absv(player_pos->chunk.axis - world->centre.axis) == (delta))
+    const bool result = (inEdge(vx, LOADED_CHUNKS_RADIUS) && inChunkEdge(vx, CHUNK_SIZE - 1))
+        || (inEdge(vz, LOADED_CHUNKS_RADIUS) && inChunkEdge(vz, CHUNK_SIZE - 1))
         || prev_pos_chunk_y != player_pos->chunk.vy;
 #undef inEdge
     prev_pos_chunk_y = player_pos->chunk.vy;
