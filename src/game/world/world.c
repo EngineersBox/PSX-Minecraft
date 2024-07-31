@@ -12,7 +12,9 @@
 #include "../ui/background.h"
 #include "../../logging/logging.h"
 #include "chunk/chunk.h"
+#include "chunk/chunk_mesh.h"
 #include "chunk/chunk_structure.h"
+#include "position.h"
 
 const LightUpdateLimits world_chunk_init_limits = (LightUpdateLimits) {
     .add_block = 0,
@@ -459,23 +461,39 @@ void worldLoadChunks(World* world, const VECTOR* player_chunk_pos) {
     world->centre = world->centre_next;
 }
 
+bool isPlayerInEdgeChunks(const World* world, const ChunkBlockPosition* player_pos) {
+    // TODO: This doesn't work properly, the commented out code in the
+    //       worldUpdate method does though. Figure out why.
+    static i32 prev_pos_chunk_y = 0;
+#define inEdge(axis, delta) absv(player_pos->chunk.axis - world->centre.axis) == (delta)
+    const bool result =inEdge(vx, LOADED_CHUNKS_RADIUS)
+        || inEdge(vz, LOADED_CHUNKS_RADIUS)
+        || prev_pos_chunk_y != player_pos->chunk.vy;
+#undef inEdge
+    prev_pos_chunk_y = player_pos->chunk.vy;
+    return result;
+}
+
 void worldUpdate(World* world, Player* player, BreakingState* breaking_state) {
-    static i32 prevx = 0;
-    static i32 prevy = 0;
-    static i32 prevz = 0;
-    const VECTOR player_chunk_pos = vec3_i32(
-        ((player->physics_object.position.vx >> FIXED_POINT_SHIFT) / CHUNK_BLOCK_SIZE) - (player->physics_object.position.vx < 0),
-        ((player->physics_object.position.vy >> FIXED_POINT_SHIFT) / CHUNK_BLOCK_SIZE) - (player->physics_object.position.vy < 0),
-        ((player->physics_object.position.vz >> FIXED_POINT_SHIFT) / CHUNK_BLOCK_SIZE) - (player->physics_object.position.vz < 0)
+    const VECTOR player_world_pos = vec3_const_div(
+        vec3_const_rshift(
+            player->physics_object.position,
+            FIXED_POINT_SHIFT
+        ),
+        BLOCK_SIZE
     );
-    if (player_chunk_pos.vx != prevx
-        || player_chunk_pos.vy != prevy
-        || player_chunk_pos.vz != prevz) {
-        prevx = player_chunk_pos.vx;
-        prevy = player_chunk_pos.vy;
-        prevz = player_chunk_pos.vz;
+    const ChunkBlockPosition player_pos = worldToChunkBlockPosition(
+        &player_world_pos,
+        CHUNK_SIZE
+    );
+    /*const VECTOR player_chunk_pos = vec3_i32(*/
+    /*    ((player->physics_object.position.vx >> FIXED_POINT_SHIFT) / CHUNK_BLOCK_SIZE) - (player->physics_object.position.vx < 0),*/
+    /*    ((player->physics_object.position.vy >> FIXED_POINT_SHIFT) / CHUNK_BLOCK_SIZE) - (player->physics_object.position.vy < 0),*/
+    /*    ((player->physics_object.position.vz >> FIXED_POINT_SHIFT) / CHUNK_BLOCK_SIZE) - (player->physics_object.position.vz < 0)*/
+    /*);*/
+    if (isPlayerInEdgeChunks(world, &player_pos)) {
         // DEBUG_LOG("Player chunk pos: %d,%d,%d\n", VEC_LAYOUT(player_chunk_pos));
-        worldLoadChunks(world, &player_chunk_pos);
+        worldLoadChunks(world, &player_pos.chunk);
         // DEBUG_LOG(
         //     "[WORLD] Head { x: %d, z: %d } Centre { x: %d, z: %d}\n",
         //     world->head.vx, world->head.vz,
