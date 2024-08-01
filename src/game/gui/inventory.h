@@ -38,7 +38,7 @@
     } while (0); \
 })
 
-#define MK_INVENTORY_STORE_RESULT_LSIT(f) \
+#define MK_INVENTORY_STORE_RESULT_LIST(f) \
     f(INVENTORY_STORE_RESULT_ADDED_ALL) \
     f(INVENTORY_STORE_RESULT_ADDED_SOME) \
     f(INVENTORY_STORE_RESULT_NO_SPACE) \
@@ -53,12 +53,12 @@
 // Added to new slot, didn't free iitem
 // - INVENTORY_STORE_RESULT_ADDED_NEW_SLOT
 typedef enum {
-    MK_INVENTORY_STORE_RESULT_LSIT(P99_ENUM_ENTRY)
+    MK_INVENTORY_STORE_RESULT_LIST(P99_ENUM_ENTRY)
 } InventoryStoreResult;
 
-extern const char* INVENTORY_STORE_RESULT_NAMES[];
+/*extern const char* INVENTORY_STORE_RESULT_NAMES[];*/
 
-#define inventoryStoreResultStringify(id) INVENTORY_STORE_RESULT_NAMES[(id)]
+/*#define inventoryStoreResultStringify(id) INVENTORY_STORE_RESULT_NAMES[(id)]*/
 
 #define INVENTORY_DEBOUNCE_MS 200
 

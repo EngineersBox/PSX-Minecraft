@@ -263,8 +263,7 @@ void chunkPropagateLightmap(Chunk* chunk, ChunkGenerationContext* gen_ctx) {
                         chunk->world,
                         &cb_pos
                     );
-                    if (query_chunk == NULL
-                        || getSunlight(gen_ctx, cb_pos.block.vx, cb_pos.block.vz) <= y) {
+                    if (query_chunk == NULL || getSunlight(gen_ctx, cb_pos.block.vx, cb_pos.block.vz) <= y) {
                         // Highest sunlight-propagating block in facing direction is lower
                         // than this block, so it's just sunlight. We don't need to propagate
                         // sunlight there since we already did that.

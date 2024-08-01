@@ -2,6 +2,7 @@
 
 #include <psxgpu.h>
 
+#include "../../logging/logging.h"
 #include "../../structure/primitive/primitive.h"
 #include "../../util/preprocessor.h"
 
@@ -16,6 +17,13 @@ void UIBackground_render(VSelf, RenderContext* ctx, Transforms* transforms) {
     POLY_FT4* pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
     setXYWH(
         pol4,
+        self->component.position.vx,
+        self->component.position.vy,
+        self->component.dimensions.vx,
+        self->component.dimensions.vy
+    );
+    DEBUG_LOG(
+        "(%d,%d) -> (%d,%d)\n",
         self->component.position.vx,
         self->component.position.vy,
         self->component.dimensions.vx,

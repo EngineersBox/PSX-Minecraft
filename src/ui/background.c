@@ -55,13 +55,6 @@ void backgroundDraw(RenderContext* ctx,
         .w = BLOCK_TEXTURE_SIZE >> 3,
         .h = BLOCK_TEXTURE_SIZE >> 3
     };
-    printf(
-        "Window: (%d,%d,%d,%d)\n",
-        tex_window.x,
-        tex_window.y,
-        tex_window.w,
-        tex_window.h
-    );
     setTexWindow(ptwin, &tex_window);
     uint32_t* ot_object = allocateOrderingTable(ctx, ot_entry);
     addPrim(ot_object, ptwin);

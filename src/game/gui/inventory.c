@@ -6,9 +6,9 @@
 #include "../../ui/components/background.h"
 #include "../../util/interface99_extensions.h"
 
-const char* INVENTORY_STORE_RESULT_NAMES[] = {
-    MK_INVENTORY_STORE_RESULT_LSIT(P99_STRING_ARRAY_INDEX)
-};
+/*const char* INVENTORY_STORE_RESULT_NAMES[] = {*/
+/*    MK_INVENTORY_STORE_RESULT_LIST(P99_STRING_ARRAY_INDEX)*/
+/*};*/
 
 #define createSlot(offset, _index, name) ({ \
     cvector_push_back(inventory->slots, (Slot){}); \
@@ -70,8 +70,8 @@ void inventoryInit(Inventory* inventory, Hotbar* hotbar) {
     IUIComponent* component = uiAddComponent(&inventory->ui);
     UIBackground* background = (UIBackground*) malloc(sizeof(UIBackground));
     background->component.position = (DVECTOR) {
-        .vx = CENTRE_X - (INVENTORY_WIDTH / 2),
-        .vy = CENTRE_Y - (INVENTORY_HEIGHT / 2)
+        .vx = CENTRE_X - (INVENTORY_WIDTH >> 1),
+        .vy = CENTRE_Y - (INVENTORY_HEIGHT >> 1)
     };
     background->component.dimensions = (DVECTOR) {
         .vx = INVENTORY_WIDTH,
@@ -79,7 +79,7 @@ void inventoryInit(Inventory* inventory, Hotbar* hotbar) {
     };
     background->texture_coords = (DVECTOR) {
         .vx = 0,
-        .vy = 82
+        .vy = 0
     };
     background->texture_width = (DVECTOR) {
         .vx = INVENTORY_WIDTH,
@@ -262,7 +262,11 @@ void Inventory_open(VSelf) {
     }
     self->ui.active = true;
     const UIBackground* background = VCAST(UIBackground*, self->ui.components[0]);
-    if (assetLoadTextureDirect(GUI_BUNDLE_NAME, INVENTORY_TEXTURE_NAME, background->texture)) {
+    if (assetLoadTextureDirect(
+        GUI_BUNDLE_NAME,
+        INVENTORY_TEXTURE_NAME,
+        background->texture
+    )) {
         printf("[INVENTORY] Failed to load texture\n");
     }
 }
