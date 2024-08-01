@@ -596,21 +596,7 @@ void chunkUpdate(Chunk* chunk, const Player* player, BreakingState* breaking_sta
         }
         Item* item = VCAST(Item*, *iitem);
         if (itemUpdate(item, &pos, inventory, itemPickupValidator)) {
-            // BUG: Something causes invalid address read when picking up new blocks.
-            //      Hotbar:
-            //        - 0: x26 Grass
-            //        - 1: x64 Grass
-            //        - 2: x1 Stone
-            //        - 3: x1 Dirt
-            //      At this point another Stone or Dirt block got picked up then an
-            //      invalid read occurred at 0x00000004 with result INVENTORY_STORE_RESULT_ADDED_ALL
-            //      This could possible be an error when invoking VCALL(**iitem, destroy)
-            //      or itemDestroy(*item). But that could be a red herring as it falls through
-            //      to the cvector_erase(...) in the INVENTORY_STORE_RESULT_ADDED_NEW_SLOT
-            //      case block.
-            printf("[ITEM] Picked up: %s x%d\n", itemGetName(item->id), item->stack_size);
             const InventoryStoreResult result = inventoryStoreItem(inventory, iitem);
-            printf("[ITEM] Result: %s\n", inventoryStoreResultStringify(result));
             switch (result) {
                 case INVENTORY_STORE_RESULT_ADDED_SOME:
                     // Do nothing, already updated iitem that was picked up as dropped.
@@ -765,7 +751,6 @@ void chunkUpdateLight(Chunk* chunk, const LightUpdateLimits limits) {
 void chunkUpdateAddLight(Chunk* chunk, const LightUpdateLimits limits) {
     chunk->lightmap_updated = hashmap_count(chunk->updates.light_add_queue) != 0
                             || hashmap_count(chunk->updates.sunlight_add_queue) != 0;
-    // Block light
     size_t processed_updates = 0;
     size_t iter = 0;
     void* item;
@@ -829,7 +814,6 @@ void chunkUpdateAddLight(Chunk* chunk, const LightUpdateLimits limits) {
     }
     iter = 0;
     processed_updates = 0;
-    // Sky light
     while (lightCheckLimit(limits.add_sky, processed_updates)
             && hashmap_iter(chunk->updates.sunlight_add_queue, &iter, &item)) {
         const LightAddNode* node = item;
