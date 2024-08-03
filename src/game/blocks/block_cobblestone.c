@@ -18,6 +18,9 @@ void CobblestoneBlock_init(VSelf) {
 IItem* cobblestoneBlockDestroy(VSelf, bool drop_item) ALIAS("CobblestoneBlock_destroy");
 IItem* CobblestoneBlock_destroy(VSelf, const bool drop_item) {
     VSELF(CobblestoneBlock);
+    if (!drop_item) {
+        return NULL;
+    }
     return drop_item ? cobblestoneBlockProvideItem(self) : NULL;
 }
 

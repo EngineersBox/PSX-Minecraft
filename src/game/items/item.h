@@ -1,5 +1,6 @@
 #pragma once
 
+#include "psxapi.h"
 #ifndef PSXMC_ITEM_H
 #define PSXMC_ITEM_H
 
@@ -13,6 +14,8 @@
 #include "../../math/vector.h"
 #include "../../util/preprocessor.h"
 #include "tools/tool_type.h"
+#include "../../entity/entity.h"
+#include "../../physics/physics_object.h"
 
 #define PICKUP_DISTANCE 154
 #define PICKUP_DISTANCE_SQUARED (PICKUP_DISTANCE * PICKUP_DISTANCE)
@@ -71,6 +74,11 @@ typedef enum ItemActionState {
     ITEM_ACTION_STATE_USED
 } ItemActionState;
 
+extern const u32 item_collision_intervals_height[];
+extern const u32 item_collision_intervals_radius[];
+extern const PhysicsObjectConfig item_physics_object_config;
+extern const PhysicsObjectUpdateHandlers item_physics_object_update_handlers;
+
 typedef struct Item {
     ItemID id;
     u8 metadata_id;
@@ -78,11 +86,18 @@ typedef struct Item {
     u8 stack_size;
     u8 bob_offset;
     u8 bob_direction;
-    bool picked_up; // TODO: Probably best to rename to in_world and invert dependent logic
-    // World position or screen position conditional on picked_up
+    bool in_world;
+    // World position or screen position
+    // conditional on in_world being false
     VECTOR position;
     SVECTOR rotation;
+    // Only present (non-NULL) when the
+    // in_world flag is true
+    PhysicsObject* world_physics_object;
+    Entity* world_entity;
 } Item;
+
+FWD_DECL typedef struct World World;
 
 /**
  * @brief Determine if an item can be picked up
@@ -92,7 +107,12 @@ typedef struct Item {
  */
 typedef bool (*ItemPickupValidator)(const Item* item, void* ctx);
 
-bool itemUpdate(Item* item, const VECTOR* player_position, void* ctx, const ItemPickupValidator validator);
+bool itemUpdate(Item* item,
+                World* world,
+                const VECTOR* player_position,
+                void* ctx,
+                const ItemPickupValidator validator);
+void itemSetWorldState(Item* item, const bool in_world);
 
 #define IItem_IFACE \
     vfunc(void, init, VSelf) \
@@ -120,14 +140,14 @@ ALLOC_CALL(itemDestroy, 1) IItem* itemCreate();
         __VA_ARGS__ \
     } name;
 
-#define declareItem(_id, _metadata_id, _durability, _stack_size, _picked_up, _position, _rotation) ((Item) { \
+#define declareItem(_id, _metadata_id, _durability, _stack_size, _in_world, _position, _rotation) ((Item) { \
     .id = (_id), \
     .metadata_id = (_metadata_id), \
     .durability = (_durability), \
     .stack_size = (_stack_size), \
     .bob_offset = 0, \
     .bob_direction = 0, \
-    .picked_up = (_picked_up), \
+    .in_world = (_in_world), \
     .position = (_position), \
     .rotation = (_rotation) \
 })

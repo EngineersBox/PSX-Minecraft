@@ -71,7 +71,13 @@ void IPhysicsObject_update(VSelf, World* world, void* ctx) {
     }
     self->move.strafe = fixedMul(self->move.strafe, 4014); // ONE * 0.98 = 4014
     self->move.forward = fixedMul(self->move.forward, 4014); // ONE * 0.98 = 4014
-    iPhysicsObjectMoveWithHeading(self, world, self->move.strafe, self->move.forward, ctx);
+    iPhysicsObjectMoveWithHeading(
+        self,
+        world,
+        self->move.strafe,
+        self->move.forward,
+        ctx
+    );
 }
 
 i32 resolveGroundAcceleration(const PhysicsObject* physics_object,
@@ -204,7 +210,12 @@ void updateFallState(PhysicsObject* physics_object, const i32 velocity_y, void* 
     }
 }
 
-void collideWithWorld(PhysicsObject* physics_object, const World* world, i32 vel_x, i32 vel_y, i32 vel_z, void* ctx) {
+void collideWithWorld(PhysicsObject* physics_object,
+                      const World* world,
+                      i32 vel_x,
+                      i32 vel_y,
+                      i32 vel_z,
+                      void* ctx) {
     const i32 curr_vel_x = vel_x;
     const i32 curr_vel_y = vel_y;
     const i32 curr_vel_z = vel_z;
@@ -229,12 +240,15 @@ void collideWithWorld(PhysicsObject* physics_object, const World* world, i32 vel
     aabbOffset(&physics_object->aabb, 0, 0, vel_z);
     // Make the new position at the bottom centre of the AABB
     physics_object->position.vx = (physics_object->aabb.min.vx + physics_object->aabb.max.vx) >> 1;
-    physics_object->position.vy = physics_object->aabb.min.vy + physics_object->config->y_offset - physics_object->y_size;
+    physics_object->position.vy = physics_object->aabb.min.vy
+                                + physics_object->config->y_offset
+                                - physics_object->y_size;
     physics_object->position.vz = (physics_object->aabb.min.vz + physics_object->aabb.max.vz) >> 1;
     physics_object->flags.collided_horizontal = curr_vel_x != vel_x || curr_vel_z != vel_z;
     physics_object->flags.collided_vertical = curr_vel_y != vel_y;
     physics_object->flags.on_ground = curr_vel_y != vel_y && curr_vel_y < 0;
-    physics_object->flags.collided = physics_object->flags.collided_horizontal || physics_object->flags.collided_vertical;
+    physics_object->flags.collided = physics_object->flags.collided_horizontal
+                                    || physics_object->flags.collided_vertical;
     updateFallState(physics_object, vel_y, ctx);
     if (curr_vel_x != vel_x) {
         physics_object->velocity.vx = 0;
@@ -248,8 +262,17 @@ void collideWithWorld(PhysicsObject* physics_object, const World* world, i32 vel
     cvector_free(collided_aabbs);
 }
 
-void iPhysicsObjectMove(VSelf, World* world, const i32 velocity_x, const i32 velocity_y, const i32 velocity_z, void* ctx) ALIAS("IPhysicsObject_move");
-void IPhysicsObject_move(VSelf, World* world, const i32 velocity_x, const i32 velocity_y, const i32 velocity_z, void* ctx) {
+void iPhysicsObjectMove(VSelf, World* world,
+                        const i32 velocity_x,
+                        const i32 velocity_y,
+                        const i32 velocity_z,
+                        void* ctx) ALIAS("IPhysicsObject_move");
+void IPhysicsObject_move(VSelf,
+                         World* world,
+                         const i32 velocity_x,
+                         const i32 velocity_y,
+                         const i32 velocity_z,
+                         void* ctx) {
     VSELF(PhysicsObject);
     if (self->flags.no_clip) {
         aabbOffset(&self->aabb, velocity_x, velocity_y, velocity_z);

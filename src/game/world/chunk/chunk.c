@@ -4,6 +4,7 @@
 #include <inline_c.h>
 #include <stdbool.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "../../../logging/logging.h"
 #include "../../../math/math_utils.h"
@@ -386,17 +387,37 @@ IBlock* chunkGetBlockVec(const Chunk* chunk, const VECTOR* position) {
 
 #define HALF_BLOCK_SIZE (BLOCK_SIZE / 2)
 
-static void constructItemPosition(const Chunk* chunk, const VECTOR* block_position, VECTOR* item_position) {
+static void applyItemWorldState(const Chunk* chunk,
+                                Item* item,
+                                const VECTOR* block_position) {
     // Construct vertices relative to chunk mesh bottom left origin
     const i16 chunk_origin_x = chunk->position.vx * CHUNK_SIZE;
     // Offset by 1 to ensure bottom block of bottom chunk starts at Y = 0
     const i16 chunk_origin_y = -chunk->position.vy * CHUNK_SIZE;
     const i16 chunk_origin_z = chunk->position.vz * CHUNK_SIZE;
+    // Mark the item as in world and create physics object +
+    // entity structures
+    itemSetWorldState(item, true);
     // Positions only need to be somewhat accurate, so we will convert the position
     // to be in whole units, not fractional world space units. AKA just >> FIXED_POINT_SHIFT
-    item_position->vx = (chunk_origin_x + block_position->vx) * BLOCK_SIZE + HALF_BLOCK_SIZE;
-    item_position->vy = (chunk_origin_y - block_position->vy) * BLOCK_SIZE - HALF_BLOCK_SIZE;
-    item_position->vz = (chunk_origin_z + block_position->vz) * BLOCK_SIZE + HALF_BLOCK_SIZE;
+    const VECTOR item_position = vec3_i32(
+        (chunk_origin_x + block_position->vx) * BLOCK_SIZE + HALF_BLOCK_SIZE,
+        (chunk_origin_y - block_position->vy) * BLOCK_SIZE - HALF_BLOCK_SIZE,
+        (chunk_origin_z + block_position->vz) * BLOCK_SIZE + HALF_BLOCK_SIZE
+    );
+    iPhysicsObjectSetPosition(
+        item->world_physics_object,
+        &item_position
+    );
+    const VECTOR velocity = vec3_i32(
+        (rand() % ONE) - FIXED_1_2,
+        (rand() % ONE) - FIXED_1_2,
+        (rand() % ONE) - FIXED_1_2
+    );
+    iPhysicsObjectSetVelocity(
+        item->world_physics_object,
+        velocity
+    );
 }
 
 static LightLevel inferSunlightValueFromNeighbours(const Chunk* chunk,
@@ -478,7 +499,7 @@ INLINE static int modifyVoxel0(Chunk* chunk,
             iitem
         );
         Item* item = VCAST(Item*, *iitem);
-        constructItemPosition(chunk, position, &item->position);
+        applyItemWorldState(chunk, item, position);
         if (item_result != NULL) {
             *item_result = iitem;
         }
@@ -594,7 +615,11 @@ void chunkUpdate(Chunk* chunk, const Player* player, BreakingState* breaking_sta
             continue;
         }
         Item* item = VCAST(Item*, *iitem);
-        if (itemUpdate(item, &pos, inventory, itemPickupValidator)) {
+        if (itemUpdate(item,
+                       chunk->world,
+                       &pos,
+                       inventory,
+                       itemPickupValidator)) {
             const InventoryStoreResult result = inventoryStoreItem(inventory, iitem);
             switch (result) {
                 case INVENTORY_STORE_RESULT_ADDED_SOME:

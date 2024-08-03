@@ -201,11 +201,11 @@ void renderItemBlock(ItemBlock* item,
 }
 
 void itemBlockRenderWorld(ItemBlock* item, RenderContext* ctx, Transforms* transforms) {
-    VECTOR position = {
-        .vx = item->item.position.vx,
-        .vy = item->item.position.vy + ITEM_BLOCK_ANIM_LUT[item->item.bob_offset],
-        .vz = item->item.position.vz
-    };
+    VECTOR position = vec3_const_rshift(
+        item->item.world_physics_object->position,
+        FIXED_POINT_SHIFT
+    );
+    position.vx += ITEM_BLOCK_ANIM_LUT[item->item.bob_offset];
     // Object and light matrix for object
     MATRIX omtx, olmtx;
     // Set object rotation and position
@@ -263,18 +263,20 @@ void itemBlockRenderWorld(ItemBlock* item, RenderContext* ctx, Transforms* trans
         for (int i = 0; i < 5; i++) {
             renderItemBlock(
                 item,
-                ctx,
+                NULL, // This goes to the fall state update call, items don't need it
                 &item_stack_render_offsets[i]
             );
         }
     }
     item->item.rotation.vy = (item->item.rotation.vy + ITEM_ROTATION_QUANTA) % ONE;
-    if (item->item.bob_offset <= 0) {
-        item->item.bob_direction = 1;
-    } else if (item->item.bob_offset >= ITEM_BLOCK_BOB_ANIM_SAMPLES) {
-        item->item.bob_direction = -1;
+    if (item->item.world_physics_object->flags.on_ground) {
+        if (item->item.bob_offset <= 0) {
+            item->item.bob_direction = 1;
+        } else if (item->item.bob_offset >= ITEM_BLOCK_BOB_ANIM_SAMPLES) {
+            item->item.bob_direction = -1;
+        }
+        item->item.bob_offset += item->item.bob_direction;
     }
-    item->item.bob_offset += item->item.bob_direction;
     PopMatrix();
 }
 
