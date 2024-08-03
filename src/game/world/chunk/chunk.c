@@ -385,26 +385,27 @@ IBlock* chunkGetBlockVec(const Chunk* chunk, const VECTOR* position) {
     )];
 }
 
-#define HALF_BLOCK_SIZE (BLOCK_SIZE / 2)
+#define HALF_BLOCK_SIZE (BLOCK_SIZE >> 1)
 
 static void applyItemWorldState(const Chunk* chunk,
                                 Item* item,
                                 const VECTOR* block_position) {
     // Construct vertices relative to chunk mesh bottom left origin
     const i16 chunk_origin_x = chunk->position.vx * CHUNK_SIZE;
-    // Offset by 1 to ensure bottom block of bottom chunk starts at Y = 0
     const i16 chunk_origin_y = -chunk->position.vy * CHUNK_SIZE;
     const i16 chunk_origin_z = chunk->position.vz * CHUNK_SIZE;
     // Mark the item as in world and create physics object +
     // entity structures
     itemSetWorldState(item, true);
-    // Positions only need to be somewhat accurate, so we will convert the position
-    // to be in whole units, not fractional world space units. AKA just >> FIXED_POINT_SHIFT
-    const VECTOR item_position = vec3_i32(
-        (chunk_origin_x + block_position->vx) * BLOCK_SIZE + HALF_BLOCK_SIZE,
-        (chunk_origin_y - block_position->vy) * BLOCK_SIZE - HALF_BLOCK_SIZE,
-        (chunk_origin_z + block_position->vz) * BLOCK_SIZE + HALF_BLOCK_SIZE
+    const VECTOR item_position = vec3_const_lshift(
+        vec3_i32(
+            (chunk_origin_x + block_position->vx) * BLOCK_SIZE + HALF_BLOCK_SIZE,
+            (chunk_origin_y - block_position->vy) * BLOCK_SIZE - HALF_BLOCK_SIZE,
+            (chunk_origin_z + block_position->vz) * BLOCK_SIZE + HALF_BLOCK_SIZE
+        ),
+        FIXED_POINT_SHIFT
     );
+    DEBUG_LOG("Initial position: " VEC_PATTERN "\n", VEC_LAYOUT(item_position));
     iPhysicsObjectSetPosition(
         item->world_physics_object,
         &item_position
@@ -416,7 +417,8 @@ static void applyItemWorldState(const Chunk* chunk,
     );
     iPhysicsObjectSetVelocity(
         item->world_physics_object,
-        velocity
+        vec3_i32(0, 0, 0)
+        /*velocity*/
     );
 }
 

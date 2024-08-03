@@ -9,6 +9,7 @@
 #include "../../structure/primitive/cube.h"
 #include "../../resources/asset_indices.h"
 #include "../../resources/assets.h"
+#include "../../logging/logging.h"
 #include "../gui/slot.h"
 
 #define VERTICES_COUNT 8
@@ -205,7 +206,8 @@ void itemBlockRenderWorld(ItemBlock* item, RenderContext* ctx, Transforms* trans
         item->item.world_physics_object->position,
         FIXED_POINT_SHIFT
     );
-    position.vx += ITEM_BLOCK_ANIM_LUT[item->item.bob_offset];
+    DEBUG_LOG("Item position: " VEC_PATTERN "\n", VEC_LAYOUT(position));
+    position.vy += ITEM_BLOCK_ANIM_LUT[item->item.bob_offset];
     // Object and light matrix for object
     MATRIX omtx, olmtx;
     // Set object rotation and position
