@@ -30,6 +30,7 @@
 * [ ] Cull faces on chunk edges that face outward on the render limit
 * [ ] Core engine ticks can go higher than 20, redo the engine cycle system
 * [ ] Inventory opens correctly and renders the items, however the background/overlay has an incorrect TPage position, pointing to `(0,0)` instead of `(576,240)`
+* [ ] Item world position is incorrect causing rendering issues and physics seems to cause items to rise into the air despite no collision
 
 ## Implement
 
@@ -68,6 +69,7 @@
 * [X] Hold an internal global light level on the world that changes with time to be used in adjusting sky lighting when it changes
 * [X] Remove block sunlight updates
 * [X] Memory usage stats in debug UI overlay
+* [X] Add `PhysicsObject` and `Entity` sub-structues to `Item` conditional on being `in_world`. Refactor the rendering to make the item bob only when on the ground and handle initialisation in `modifyVoxel0` function.
 * [ ] Camera far plane cutoff with fog relative to chunk render distance
 * [ ] Frustum and culling
 * [ ] Depth-first search culling through chunks
