@@ -8,7 +8,7 @@
 const u32 item_collision_intervals_height[HEIGHT_INTERVALS] = { 0, 71680 };
 const u32 item_collision_intervals_radius[RADIUS_INTERVALS] = { 0, 35840 };
 const PhysicsObjectConfig item_physics_object_config = (PhysicsObjectConfig) {
-    .jump_height = 1, // Items can't jump
+    .jump_height = 0, // Items can't jump
     .radius = 35840, // Width: 0.25 => Radius: ONE_BLOCK * 0.125 = 35840
     .height = 71680, // ONE_BLOCK * 0.25 = 71680
     .step_height = 0,

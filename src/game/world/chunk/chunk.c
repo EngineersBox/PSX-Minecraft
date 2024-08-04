@@ -420,17 +420,10 @@ static void applyItemWorldState(const Chunk* chunk,
         item->world_physics_object,
         &item_position
     );
-    /*item->world_physics_object->flags.on_ground = false;*/
-    const VECTOR velocity = vec3_i32(
-        (rand() % ONE) - FIXED_1_2,
-        (rand() % ONE) - FIXED_1_2,
-        (rand() % ONE) - FIXED_1_2
-    );
-    iPhysicsObjectSetVelocity(
-        item->world_physics_object,
-        /*vec3_i32(0, 0, 0)*/
-        velocity
-    );
+    item->world_physics_object->rotation.yaw = rand() % 32768;
+    item->world_physics_object->rotation.pitch  = rand() % 32768;
+    item->world_physics_object->move.forward = positiveModulo(rand(), (ONE * 2)) - ONE;
+    item->world_physics_object->move.strafe = positiveModulo(rand(), (ONE * 2)) - ONE;
 }
 
 static LightLevel inferSunlightValueFromNeighbours(const Chunk* chunk,
