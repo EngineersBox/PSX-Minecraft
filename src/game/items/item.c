@@ -5,10 +5,10 @@
 
 #define HEIGHT_INTERVALS 2
 #define RADIUS_INTERVALS 2
-const u32 item_collision_intervals_height[HEIGHT_INTERVALS] = { 0, 258048, 516096 };
-const u32 item_collision_intervals_radius[RADIUS_INTERVALS] = { 0, 57344 };
+const u32 item_collision_intervals_height[HEIGHT_INTERVALS] = { 0, 71680 };
+const u32 item_collision_intervals_radius[RADIUS_INTERVALS] = { 0, 35840 };
 const PhysicsObjectConfig item_physics_object_config = (PhysicsObjectConfig) {
-    .jump_height = 0, // Items can't jump
+    .jump_height = 1, // Items can't jump
     .radius = 35840, // Width: 0.25 => Radius: ONE_BLOCK * 0.125 = 35840
     .height = 71680, // ONE_BLOCK * 0.25 = 71680
     .step_height = 0,
@@ -63,7 +63,7 @@ bool itemUpdate(Item* item,
             ctx
         );
     }
-    const int32_t sq_dist = squareDistance(player_position, &item->position);
+    const i32 sq_dist = squareDistance(player_position, &item->position);
     if (sq_dist > PICKUP_DISTANCE_SQUARED) {
         return false;
     }
@@ -77,9 +77,9 @@ bool itemUpdate(Item* item,
     } else if (sq_dist <= PICKUP_TO_INV_DISTANCE_SQUARED) {
         return true;
     }
-    const int32_t sign_x = sign(player_position->vx - item->position.vx);
-    const int32_t sign_y = sign(player_position->vy - item->position.vy);
-    const int32_t sign_z = sign(player_position->vz - item->position.vz);
+    const i32 sign_x = sign(player_position->vx - item->position.vx);
+    const i32 sign_y = sign(player_position->vy - item->position.vy);
+    const i32 sign_z = sign(player_position->vz - item->position.vz);
     item->position.vx += sign_x * PICKUP_MOVE_ANIM_DISTANCE;
     item->position.vy += sign_y * PICKUP_MOVE_ANIM_DISTANCE;
     item->position.vz += sign_z * PICKUP_MOVE_ANIM_DISTANCE;

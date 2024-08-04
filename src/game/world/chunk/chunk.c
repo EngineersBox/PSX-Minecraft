@@ -391,25 +391,36 @@ static void applyItemWorldState(const Chunk* chunk,
                                 Item* item,
                                 const VECTOR* block_position) {
     // Construct vertices relative to chunk mesh bottom left origin
-    const i16 chunk_origin_x = chunk->position.vx * CHUNK_SIZE;
-    const i16 chunk_origin_y = -chunk->position.vy * CHUNK_SIZE;
-    const i16 chunk_origin_z = chunk->position.vz * CHUNK_SIZE;
+    const i32 chunk_origin_x = chunk->position.vx * CHUNK_SIZE;
+    const i32 chunk_origin_y = chunk->position.vy * CHUNK_SIZE;
+    const i32 chunk_origin_z = chunk->position.vz * CHUNK_SIZE;
     // Mark the item as in world and create physics object +
     // entity structures
     itemSetWorldState(item, true);
     const VECTOR item_position = vec3_const_lshift(
         vec3_i32(
             (chunk_origin_x + block_position->vx) * BLOCK_SIZE + HALF_BLOCK_SIZE,
-            (chunk_origin_y - block_position->vy) * BLOCK_SIZE - HALF_BLOCK_SIZE,
+            (chunk_origin_y + block_position->vy) * BLOCK_SIZE + HALF_BLOCK_SIZE,
             (chunk_origin_z + block_position->vz) * BLOCK_SIZE + HALF_BLOCK_SIZE
         ),
         FIXED_POINT_SHIFT
+    );
+    /*const VECTOR item_position = vec3_i32(*/
+    /*    0,*/
+    /*    2867200,*/
+    /*    0*/
+    /*);*/
+    DEBUG_LOG(
+        "Chunk: " VEC_PATTERN " Block: " VEC_PATTERN "\n",
+        VEC_LAYOUT(chunk->position),
+        VEC_LAYOUT(*block_position)
     );
     DEBUG_LOG("Initial position: " VEC_PATTERN "\n", VEC_LAYOUT(item_position));
     iPhysicsObjectSetPosition(
         item->world_physics_object,
         &item_position
     );
+    /*item->world_physics_object->flags.on_ground = false;*/
     const VECTOR velocity = vec3_i32(
         (rand() % ONE) - FIXED_1_2,
         (rand() % ONE) - FIXED_1_2,
@@ -417,8 +428,8 @@ static void applyItemWorldState(const Chunk* chunk,
     );
     iPhysicsObjectSetVelocity(
         item->world_physics_object,
-        vec3_i32(0, 0, 0)
-        /*velocity*/
+        /*vec3_i32(0, 0, 0)*/
+        velocity
     );
 }
 

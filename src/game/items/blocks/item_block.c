@@ -207,7 +207,7 @@ void itemBlockRenderWorld(ItemBlock* item, RenderContext* ctx, Transforms* trans
         FIXED_POINT_SHIFT
     );
     DEBUG_LOG("Item position: " VEC_PATTERN "\n", VEC_LAYOUT(position));
-    position.vy += ITEM_BLOCK_ANIM_LUT[item->item.bob_offset];
+    position.vy = -position.vy - ITEM_BLOCK_ANIM_LUT[item->item.bob_offset];
     // Object and light matrix for object
     MATRIX omtx, olmtx;
     // Set object rotation and position
@@ -278,6 +278,7 @@ void itemBlockRenderWorld(ItemBlock* item, RenderContext* ctx, Transforms* trans
             item->item.bob_direction = -1;
         }
         item->item.bob_offset += item->item.bob_direction;
+        DEBUG_LOG("Bob offset: %d\n", item->item.bob_offset);
     }
     PopMatrix();
 }
