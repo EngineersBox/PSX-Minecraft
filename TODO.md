@@ -24,6 +24,7 @@
 * [X] Propagating light should be considered for blocks that are not solid, not just whether they are `BLOCKTYPE_EMPTY`
 * [X] Textures in terrain tpage with any `u` and `v >= 16` rendering multiple interleaved textures from different points in terrain texture page (NOTE: Not a problem now since we blit to a framebuffer location for overlays before rendering to final framebuffer for lighting which seems to fix this. The issue seemed to be specific to `POLY_FT4` since `POLY_GT4` doesn't have this behaviour when I changed the primitive type)
 * [X] Item world position is incorrect causing rendering issues and physics seems to cause items to rise into the air despite no collision
+* [X] Block item base position currently uses `AABB->max`, however we should use `AABB->min` and fix the render offsets + bobbing since it intersects with the block below
 * [ ] Mesh vertices z-depth is inconsistent leading to faces drawn in wrong order and thus culling fails
 * [ ] Vertices are distorted (in their location) when very close to the camera
 * [ ] Movement tied to FPS
@@ -31,7 +32,6 @@
 * [ ] Cull faces on chunk edges that face outward on the render limit
 * [ ] Core engine ticks can go higher than 20, redo the engine cycle system
 * [ ] Inventory opens correctly and renders the items, however the background/overlay has an incorrect TPage position, pointing to `(0,0)` instead of `(576,240)`
-* [ ] Block item base position currently uses `AABB->max`, however we should use `AABB->min` and fix the render offsets + bobbing since it intersects with the block below
 
 ## Implement
 
@@ -87,6 +87,7 @@
 * [ ] Add support in chunk provider for providing a list of named stages for chunk loading (e.g. gen terrain, prop lighting, construct mesh), then use these for dynamically loading chunks as well as normal world initialisation.
 * [ ] Support more general mesh generation based on block types including multiple normals
 * [ ] Block light should have a slight tint towards red for a warmer colour.
+* [ ] Check block place raycast result intersection with player AABB, preventing placement if coordinates overlap.
 
 ## Refactor
 
