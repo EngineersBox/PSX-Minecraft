@@ -31,6 +31,7 @@
 * [ ] Cull faces on chunk edges that face outward on the render limit
 * [ ] Core engine ticks can go higher than 20, redo the engine cycle system
 * [ ] Inventory opens correctly and renders the items, however the background/overlay has an incorrect TPage position, pointing to `(0,0)` instead of `(576,240)`
+* [ ] Block item base position currently uses `AABB->max`, however we should use `AABB->min` and fix the render offsets + bobbing since it intersects with the block below
 
 ## Implement
 
