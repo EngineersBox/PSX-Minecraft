@@ -23,6 +23,7 @@
 * [X] Resource generation script does not contain new attributes for `ItemBlock` instances
 * [X] Propagating light should be considered for blocks that are not solid, not just whether they are `BLOCKTYPE_EMPTY`
 * [X] Textures in terrain tpage with any `u` and `v >= 16` rendering multiple interleaved textures from different points in terrain texture page (NOTE: Not a problem now since we blit to a framebuffer location for overlays before rendering to final framebuffer for lighting which seems to fix this. The issue seemed to be specific to `POLY_FT4` since `POLY_GT4` doesn't have this behaviour when I changed the primitive type)
+* [X] Item world position is incorrect causing rendering issues and physics seems to cause items to rise into the air despite no collision
 * [ ] Mesh vertices z-depth is inconsistent leading to faces drawn in wrong order and thus culling fails
 * [ ] Vertices are distorted (in their location) when very close to the camera
 * [ ] Movement tied to FPS
@@ -30,7 +31,6 @@
 * [ ] Cull faces on chunk edges that face outward on the render limit
 * [ ] Core engine ticks can go higher than 20, redo the engine cycle system
 * [ ] Inventory opens correctly and renders the items, however the background/overlay has an incorrect TPage position, pointing to `(0,0)` instead of `(576,240)`
-* [ ] Item world position is incorrect causing rendering issues and physics seems to cause items to rise into the air despite no collision
 
 ## Implement
 
@@ -70,6 +70,7 @@
 * [X] Remove block sunlight updates
 * [X] Memory usage stats in debug UI overlay
 * [X] Add `PhysicsObject` and `Entity` sub-structues to `Item` conditional on being `in_world`. Refactor the rendering to make the item bob only when on the ground and handle initialisation in `modifyVoxel0` function.
+* [X] Loading new chunks should only happen when the player is in the bordering chunks and beyond the middle of the chunk (with respect to the centre of the world chunk grid).
 * [ ] Camera far plane cutoff with fog relative to chunk render distance
 * [ ] Frustum and culling
 * [ ] Depth-first search culling through chunks
@@ -82,10 +83,9 @@
 * [ ] Sub-block intersection tests for raycast to handling interacting with blocks like doors and piston heads
 * [ ] If we are breaking a block on the boundary of chunks, we should pass the breaking context to both the target and neighbouring chunk in order for the mesh generation to account for the missing faces on the chunk boundary.
 * [ ] Calculate time-of-day as the tick count up to `20t * 20m * 60s = 24000t` ticks  and update world internal light level at various thresholds
-* [ ] Add support in chunk provider for providing a list of named stages for chunk loading (e.g. gen terrain, prop lighting, construct mesh), then use these for dynamically loading chunks as well as normal world initialisation
+* [ ] Add support in chunk provider for providing a list of named stages for chunk loading (e.g. gen terrain, prop lighting, construct mesh), then use these for dynamically loading chunks as well as normal world initialisation.
 * [ ] Support more general mesh generation based on block types including multiple normals
 * [ ] Block light should have a slight tint towards red for a warmer colour.
-* [ ] Loading new chunks should only happen when the player is in the bordering chunks and beyond the middle of the chunk (with respect to the centre of the world chunk grid).
 
 ## Refactor
 
