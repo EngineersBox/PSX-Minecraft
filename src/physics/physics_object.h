@@ -23,10 +23,10 @@ typedef struct PhysicsObjectConfig {
     // Fixed point block size (ONE * BLOCK_SIZE == single block)
     u32 step_height;
     // Height of the bounding box extending from the position Y
-    u32 height;
+    i32 height;
     // Radius of the bounding box extending from the position X
     // and Z
-    u32 radius;
+    i32 radius;
     // Provide a set of descrete intervals to use when determining
     // collision with this physics object. The count is the length
     // of the two arrays. The arrays contain descrete intervals from
@@ -36,8 +36,8 @@ typedef struct PhysicsObjectConfig {
     struct {
         u8 height_count;
         u8 radius_count;
-        const u32* height;
-        const u32* radius;
+        const i32* height;
+        const i32* radius;
     } collision_intervals;
     // Offset from the minimum y value of the AABB to use as the
     // y position

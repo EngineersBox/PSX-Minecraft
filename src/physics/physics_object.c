@@ -33,6 +33,7 @@ void iPhysicsObjectInit(PhysicsObject* physics_object,
     physics_object->flags.on_ground = true;
     physics_object->config = config;
     physics_object->update_handlers = update_handlers;
+    physics_object->y_size = 0;
     iPhysicsObjectSetPosition(physics_object, NULL);
 }
 
@@ -41,12 +42,12 @@ void iPhysicsObjectSetPosition(PhysicsObject* physics_object, const VECTOR* posi
     physics_object->aabb = (AABB) {
         .min = vec3_i32(
             physics_object->position.vx - physics_object->config->radius,
-            physics_object->position.vy - physics_object->config->y_offset + physics_object->y_size,
+            physics_object->position.vy - physics_object->config->y_offset,
             physics_object->position.vz - physics_object->config->radius
         ),
         .max = vec3_i32(
             physics_object->position.vx + physics_object->config->radius,
-            physics_object->position.vy - physics_object->config->y_offset + physics_object->y_size + physics_object->config->height,
+            physics_object->position.vy - physics_object->config->y_offset + physics_object->config->height,
             physics_object->position.vz + physics_object->config->radius
         ),
     };

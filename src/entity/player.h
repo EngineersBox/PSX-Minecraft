@@ -14,8 +14,8 @@
 #include "../game/blocks/breaking_state.h"
 #include "entity.h"
 
-extern const u32 player_collision_intervals_height[];
-extern const u32 player_collision_intervals_radius[];
+extern const i32 player_collision_intervals_height[];
+extern const i32 player_collision_intervals_radius[];
 extern const PhysicsObjectConfig player_physics_object_config;
 extern const PhysicsObjectUpdateHandlers player_physics_object_update_handlers;
 

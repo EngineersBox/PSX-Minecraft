@@ -410,12 +410,6 @@ static void applyItemWorldState(const Chunk* chunk,
     /*    2867200,*/
     /*    0*/
     /*);*/
-    DEBUG_LOG(
-        "Chunk: " VEC_PATTERN " Block: " VEC_PATTERN "\n",
-        VEC_LAYOUT(chunk->position),
-        VEC_LAYOUT(*block_position)
-    );
-    DEBUG_LOG("Initial position: " VEC_PATTERN "\n", VEC_LAYOUT(item_position));
     iPhysicsObjectSetPosition(
         item->world_physics_object,
         &item_position
@@ -423,7 +417,7 @@ static void applyItemWorldState(const Chunk* chunk,
     item->world_physics_object->rotation.yaw = rand() % 32768;
     item->world_physics_object->rotation.pitch  = rand() % 32768;
     item->world_physics_object->move.forward = positiveModulo(rand(), (ONE * 2)) - ONE;
-    item->world_physics_object->move.strafe = positiveModulo(rand(), (ONE * 2)) - ONE;
+    /*item->world_physics_object->move.strafe = positiveModulo(rand(), (ONE * 2)) - ONE;*/
 }
 
 static LightLevel inferSunlightValueFromNeighbours(const Chunk* chunk,

@@ -22,8 +22,8 @@ FWD_DECL bool worldModifyVoxel(const World* world,
 
 #define HEIGHT_INTERVALS 3
 #define RADIUS_INTERVALS 2
-const u32 player_collision_intervals_height[HEIGHT_INTERVALS] = { 0, 258048, 516096 };
-const u32 player_collision_intervals_radius[RADIUS_INTERVALS] = { 0, 57344 };
+const i32 player_collision_intervals_height[HEIGHT_INTERVALS] = { 0, 258048, 516096 };
+const i32 player_collision_intervals_radius[RADIUS_INTERVALS] = { 0, 57344 };
 const PhysicsObjectConfig player_physics_object_config = (PhysicsObjectConfig) {
     .jump_height = 120422, // ONE_BLOCK * 0.42 = 120422
     .radius = 57344, // Width: 0.6 => Radius: ONE_BLOCK * 0.3 = 86016

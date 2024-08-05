@@ -74,8 +74,8 @@ typedef enum ItemActionState {
     ITEM_ACTION_STATE_USED
 } ItemActionState;
 
-extern const u32 item_collision_intervals_height[];
-extern const u32 item_collision_intervals_radius[];
+extern const i32 item_collision_intervals_height[];
+extern const i32 item_collision_intervals_radius[];
 extern const PhysicsObjectConfig item_physics_object_config;
 extern const PhysicsObjectUpdateHandlers item_physics_object_update_handlers;
 
