@@ -32,6 +32,7 @@
 * [ ] Cull faces on chunk edges that face outward on the render limit
 * [ ] Core engine ticks can go higher than 20, redo the engine cycle system
 * [ ] Inventory opens correctly and renders the items, however the background/overlay has an incorrect TPage position, pointing to `(0,0)` instead of `(576,240)`
+* [ ] Dropped items don't have world lighting correctly applied to them. We should also query the lightmap to determine how lit the item should be scaled by world lighting the same way that terrain is lit.
 
 ## Implement
 
