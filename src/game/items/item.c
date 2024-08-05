@@ -9,7 +9,7 @@ const i32 item_collision_intervals_height[HEIGHT_INTERVALS] = { 0, 71680 };
 const i32 item_collision_intervals_radius[RADIUS_INTERVALS] = { 0, 35840 };
 const PhysicsObjectConfig item_physics_object_config = (PhysicsObjectConfig) {
     .jump_height = 0, // Items can't jump
-    .radius = 35840, // Width: 0.25 => Radius: ONE_BLOCK * 0.125 = 35840
+    .radius = 35840, // Width: 0.25 => Radius: ONE_BLOCK * (0.25 / 2) = 35840
     .height = 71680, // ONE_BLOCK * 0.25 = 71680
     .step_height = 0,
     .gravity = 22937, // ONE_BLOCK * 0.08 = 22937
@@ -19,7 +19,7 @@ const PhysicsObjectConfig item_physics_object_config = (PhysicsObjectConfig) {
         .height = item_collision_intervals_height,
         .radius = item_collision_intervals_radius
     },
-    .y_offset = 35840,
+    .y_offset = 43008, // ONE_BLOCK * (0.25 * 0.6)
 };
 const PhysicsObjectUpdateHandlers item_physics_object_update_handlers = (PhysicsObjectUpdateHandlers) {
     .fall_handler = NULL
