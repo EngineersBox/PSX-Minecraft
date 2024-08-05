@@ -19,7 +19,7 @@ const PhysicsObjectConfig item_physics_object_config = (PhysicsObjectConfig) {
         .height = item_collision_intervals_height,
         .radius = item_collision_intervals_radius
     },
-    .y_offset = 0,
+    .y_offset = 35840,
 };
 const PhysicsObjectUpdateHandlers item_physics_object_update_handlers = (PhysicsObjectUpdateHandlers) {
     .fall_handler = NULL

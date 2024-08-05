@@ -203,7 +203,7 @@ void renderItemBlock(ItemBlock* item,
 
 void itemBlockRenderWorld(ItemBlock* item, RenderContext* ctx, Transforms* transforms) {
     VECTOR position = vec3_const_rshift(
-        item->item.world_physics_object->aabb.max,
+        item->item.world_physics_object->position,
         FIXED_POINT_SHIFT
     );
     position.vy = -position.vy - ITEM_BLOCK_ANIM_LUT[item->item.bob_offset];
