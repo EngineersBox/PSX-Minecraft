@@ -13,7 +13,7 @@
 #include "../../util/inttypes.h"
 
 #define ITEM_BLOCK_FACES 6
-#define ITEM_BLOCK_SIZE 10
+#define ITEM_BLOCK_SIZE 9
 #define ITEM_BLOCK_INVENTORY_SIZE 4
 // TODO: Adjust this so it's within the entire slot of 16x16 (old: size = 3, scaling = 120)
 #define ITEM_BLOCK_INVENTORY_SCALING 110

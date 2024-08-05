@@ -101,7 +101,7 @@ void renderItemBlock(ItemBlock* item,
         POLY_FT4* pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
         #define createVert(_v) vec3_i16( \
             convertToVertex(CUBE_INDICES[i]._v, 0, ITEM_BLOCK_SIZE) + position_offset->vx, \
-            convertToVertex(CUBE_INDICES[i]._v, 1, ITEM_BLOCK_SIZE) + position_offset->vy, \
+            convertToVertex(CUBE_INDICES[i]._v, 1, ITEM_BLOCK_SIZE) - position_offset->vy, \
             convertToVertex(CUBE_INDICES[i]._v, 2, ITEM_BLOCK_SIZE) + position_offset->vz \
         )
         SVECTOR current_verts[4] = {
@@ -203,10 +203,10 @@ void renderItemBlock(ItemBlock* item,
 
 void itemBlockRenderWorld(ItemBlock* item, RenderContext* ctx, Transforms* transforms) {
     VECTOR position = vec3_const_rshift(
-        item->item.world_physics_object->position,
+        item->item.world_physics_object->aabb.max,
         FIXED_POINT_SHIFT
     );
-    position.vy = -position.vy + ITEM_BLOCK_ANIM_LUT[item->item.bob_offset];
+    position.vy = -position.vy - ITEM_BLOCK_ANIM_LUT[item->item.bob_offset];
     // Object and light matrix for object
     MATRIX omtx, olmtx;
     // Set object rotation and position
