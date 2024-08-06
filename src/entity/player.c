@@ -6,6 +6,7 @@
 #include "../game/world/world_raycast.h"
 #include "../game/blocks/blocks.h"
 #include "../game/items/items.h"
+#include "../game/world/chunk/chunk_structure.h"
 
 // Forward declaration
 FWD_DECL IBlock* worldModifyVoxelConstructed(const World* world,
@@ -19,6 +20,7 @@ FWD_DECL bool worldModifyVoxel(const World* world,
                                IBlock* block,
                                bool drop_item,
                                IItem** item_result);
+FWD_DECL Chunk* worldGetChunk(const World* world, const VECTOR* position);
 
 #define HEIGHT_INTERVALS 3
 #define RADIUS_INTERVALS 2
@@ -102,6 +104,10 @@ void updateBreakingState(Player* player, const RayCastResult* result, const Worl
     BreakingState* state = &player->breaking;
     if ((state->block == NULL && result->block != NULL)
         || (state->block != NULL && result->block != NULL && !vec3_equal(state->position, result->pos))) {
+        // Trigger remesh on old block chunk since the previous block
+        // being targetted will still show being broken in world
+        Chunk* chunk = worldGetChunk(world, &state->position);
+        chunk->mesh_updated = true;
         *state = (BreakingState) {
             .position = result->pos,
             .block = result->block
