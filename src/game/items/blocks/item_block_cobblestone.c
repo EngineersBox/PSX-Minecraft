@@ -16,10 +16,16 @@ void CobblestoneItemBlock_destroy(VSelf) {
     free(self);
 }
 
-void cobblestoneItemBlockRenderWorld(VSelf, RenderContext* ctx, Transforms* transforms) ALIAS("CobblestoneItemBlock_renderWorld");
-void CobblestoneItemBlock_renderWorld(VSelf, RenderContext* ctx, Transforms* transforms) {
+void cobblestoneItemBlockRenderWorld(VSelf,
+                                     const Chunk* chunk,
+                                     RenderContext* ctx,
+                                     Transforms* transforms) ALIAS("CobblestoneItemBlock_renderWorld");
+void CobblestoneItemBlock_renderWorld(VSelf,
+                                      const Chunk* chunk,
+                                      RenderContext* ctx,
+                                      Transforms* transforms) {
     VSELF(CobblestoneItemBlock);
-    itemBlockRenderWorld(&self->item_block, ctx, transforms);
+    itemBlockRenderWorld(&self->item_block, chunk, ctx, transforms);
 }
 
 void cobblestoneItemBlockRenderInventory(VSelf, RenderContext* ctx, Transforms* transforms) ALIAS("CobblestoneItemBlock_renderInventory");

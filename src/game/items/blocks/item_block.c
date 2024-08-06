@@ -11,6 +11,11 @@
 #include "../../resources/assets.h"
 #include "../../logging/logging.h"
 #include "../gui/slot.h"
+#include "../../../lighting/lightmap.h"
+
+FWD_DECL typedef struct World World;
+FWD_DECL LightLevel worldGetInternalLightLevel(const World* world);
+FWD_DECL LightLevel worldGetLightValue(const World* world, const VECTOR* position);
 
 #define VERTICES_COUNT 8
 SVECTOR item_block_verts[VERTICES_COUNT] = {
@@ -84,6 +89,7 @@ const u8 ISOMETRIC_BLOCK_FACE_INDICES[ISOMETRIC_BLOCK_FACE_INDICES_COUNT] = {1, 
 #define convertToVertex(v, shift, size) (size * (-1 + ((((v) & (1 << (shift))) >> (shift)) << 1)))
 
 void renderItemBlock(ItemBlock* item,
+                     const u16 light_level_colour_scalar,
                      RenderContext* ctx,
                      const VECTOR* position_offset) {
     int p;
@@ -159,23 +165,25 @@ void renderItemBlock(ItemBlock* item,
         if (face_attribute->tint.cd) {
             setRGB0(
                 pol4,
-                face_attribute->tint.r,
-                face_attribute->tint.g,
-                face_attribute->tint.b
+                fixedMul(face_attribute->tint.r, light_level_colour_scalar),
+                fixedMul(face_attribute->tint.g, light_level_colour_scalar),
+                fixedMul(face_attribute->tint.b, light_level_colour_scalar)
             );
+        } else {
+           setRGB0(
+                pol4,
+                fixedMul(0xFF, light_level_colour_scalar),
+                fixedMul(0xFF, light_level_colour_scalar),
+                fixedMul(0xFF, light_level_colour_scalar)
+            ); 
         }
         gte_ldrgb(&pol4->r0);
         // Load the face normal
         gte_ldv0(&FACE_DIRECTION_NORMALS[i]);
         // Apply RGB tinting to lighting calculation result on the basis
         // that it is enabled.
-        if (face_attribute->tint.cd) {
-            // Normal Color Column Single
-            gte_nccs();
-        } else {
-            // Normal Color Single
-            gte_ncs();
-        }
+        // Normal Color Column Single
+        gte_nccs();
         // Store result to the primitive
         gte_strgb(&pol4->r0);
         // Set texture coords and dimensions
@@ -201,12 +209,21 @@ void renderItemBlock(ItemBlock* item,
     }
 }
 
-void itemBlockRenderWorld(ItemBlock* item, RenderContext* ctx, Transforms* transforms) {
+void itemBlockRenderWorld(ItemBlock* item,
+                          const Chunk* chunk,
+                          RenderContext* ctx,
+                          Transforms* transforms) {
     VECTOR position = vec3_const_rshift(
         item->item.world_physics_object->position,
         FIXED_POINT_SHIFT
     );
+    const VECTOR world_position = vec3_const_div(position, BLOCK_SIZE);
     position.vy = -position.vy - ITEM_BLOCK_ANIM_LUT[item->item.bob_offset];
+    // Calculate light level
+    const u16 light_level_colour_scalar = lightLevelColourScalar(
+        worldGetInternalLightLevel(chunk->world),
+        worldGetLightValue(chunk->world, &world_position)
+    );
     // Object and light matrix for object
     MATRIX omtx, olmtx;
     // Set object rotation and position
@@ -229,6 +246,7 @@ void itemBlockRenderWorld(ItemBlock* item, RenderContext* ctx, Transforms* trans
     if (item->item.stack_size <= 1) {
         renderItemBlock(
             item,
+            light_level_colour_scalar,
             ctx,
             &item_stack_render_offsets[0]
         );
@@ -237,6 +255,7 @@ void itemBlockRenderWorld(ItemBlock* item, RenderContext* ctx, Transforms* trans
         for (int i = 0; i < 2; i++) {
             renderItemBlock(
                 item,
+                light_level_colour_scalar,
                 ctx,
                 &item_stack_render_offsets[i]
             );
@@ -246,6 +265,7 @@ void itemBlockRenderWorld(ItemBlock* item, RenderContext* ctx, Transforms* trans
         for (int i = 0; i < 3; i++) {
             renderItemBlock(
                 item,
+                light_level_colour_scalar,
                 ctx,
                 &item_stack_render_offsets[i]
             );
@@ -255,6 +275,7 @@ void itemBlockRenderWorld(ItemBlock* item, RenderContext* ctx, Transforms* trans
         for (int i = 0; i < 4; i++) {
             renderItemBlock(
                 item,
+                light_level_colour_scalar,
                 ctx,
                 &item_stack_render_offsets[i]
             );
@@ -264,7 +285,8 @@ void itemBlockRenderWorld(ItemBlock* item, RenderContext* ctx, Transforms* trans
         for (int i = 0; i < 5; i++) {
             renderItemBlock(
                 item,
-                NULL, // This goes to the fall state update call, items don't need it
+                light_level_colour_scalar,
+                ctx,
                 &item_stack_render_offsets[i]
             );
         }

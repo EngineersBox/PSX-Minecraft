@@ -8,8 +8,10 @@
 #include "render_context.h"
 #include "transforms.h"
 
+FWD_DECL typedef struct Chunk Chunk;
+
 #define Renderable_IFACE \
-    vfunc(void, renderWorld, VSelf, RenderContext* ctx, Transforms* transforms) \
+    vfunc(void, renderWorld, VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms) \
     vfunc(void, applyWorldRenderAttributes, VSelf) \
     vfunc(void, renderInventory, VSelf, RenderContext* ctx, Transforms* transforms) \
     vfunc(void, applyInventoryRenderAttributes, VSelf) \

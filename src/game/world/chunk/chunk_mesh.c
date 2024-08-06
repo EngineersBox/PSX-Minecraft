@@ -170,7 +170,7 @@ static void renderQuad(const Mesh* mesh,
     //       not uniform (degrades in level each block further away
     //       from source) or are more likely to not be in sunlight
     //       anyway (save for cave entraces or around builds for
-    //       instance) are are more lightly to be affected by chunk
+    //      instance) are are more lightly to be affected by chunk
     //       boundaries on light maps anyway. So the fact we do the
     //       adjustment of sunlight at each rendered frame is fine
     //       and we really don't gain much from the cost of remeshing

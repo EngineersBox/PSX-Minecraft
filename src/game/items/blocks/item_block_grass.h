@@ -19,8 +19,8 @@ DEFN_ITEM_BLOCK(GrassItemBlock);
     .name = "grass" \
 })
 
-void grassItemBlockRenderWorld(VSelf, RenderContext* ctx, Transforms* transforms);
-void GrassItemBlock_renderWorld(VSelf, RenderContext* ctx, Transforms* transforms);
+void grassItemBlockRenderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms);
+void GrassItemBlock_renderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms);
 
 void grassItemBlockRenderInventory(VSelf, RenderContext* ctx, Transforms* transforms);
 void GrassItemBlock_renderInventory(VSelf, RenderContext* ctx, Transforms* transforms);

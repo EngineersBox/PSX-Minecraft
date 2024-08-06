@@ -14,10 +14,16 @@ void DirtItemBlock_destroy(VSelf) {
     free(self);
 }
 
-void dirtItemBlockRenderWorld(VSelf, RenderContext* ctx, Transforms* transforms) ALIAS("DirtItemBlock_renderWorld");
-void DirtItemBlock_renderWorld(VSelf, RenderContext* ctx, Transforms* transforms) {
+void dirtItemBlockRenderWorld(VSelf,
+                              const Chunk* chunk,
+                              RenderContext* ctx,
+                              Transforms* transforms) ALIAS("DirtItemBlock_renderWorld");
+void DirtItemBlock_renderWorld(VSelf,
+                               const Chunk* chunk,
+                               RenderContext* ctx,
+                               Transforms* transforms) {
     VSELF(DirtItemBlock);
-    itemBlockRenderWorld(&self->item_block, ctx, transforms);
+    itemBlockRenderWorld(&self->item_block, chunk, ctx, transforms);
 }
 
 void dirtItemBlockRenderInventory(VSelf, RenderContext* ctx, Transforms* transforms) ALIAS("DirtItemBlock_renderInventory");

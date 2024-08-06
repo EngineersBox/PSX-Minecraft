@@ -20,8 +20,8 @@ DEFN_ITEM_BLOCK(StoneItemBlock);
     .name = "stone" \
 })
 
-void stoneItemBlockRenderWorld(VSelf, RenderContext* ctx, Transforms* transforms);
-void StoneItemBlock_renderWorld(VSelf, RenderContext* ctx, Transforms* transforms);
+void stoneItemBlockRenderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms);
+void StoneItemBlock_renderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms);
 
 void stoneItemBlockRenderInventory(VSelf, RenderContext* ctx, Transforms* transforms);
 void StoneItemBlock_renderInventory(VSelf, RenderContext* ctx, Transforms* transforms);

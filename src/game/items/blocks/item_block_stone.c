@@ -14,10 +14,16 @@ void StoneItemBlock_destroy(VSelf) {
     free(self);
 }
 
-void stoneItemBlockRenderWorld(VSelf, RenderContext* ctx, Transforms* transforms) ALIAS("StoneItemBlock_renderWorld");
-void StoneItemBlock_renderWorld(VSelf, RenderContext* ctx, Transforms* transforms) {
+void stoneItemBlockRenderWorld(VSelf,
+                               const Chunk* chunk,
+                               RenderContext* ctx,
+                               Transforms* transforms) ALIAS("StoneItemBlock_renderWorld");
+void StoneItemBlock_renderWorld(VSelf,
+                                const Chunk* chunk,
+                                RenderContext* ctx,
+                                Transforms* transforms) {
     VSELF(StoneItemBlock);
-    itemBlockRenderWorld(&self->item_block, ctx, transforms);
+    itemBlockRenderWorld(&self->item_block, chunk, ctx, transforms);
 }
 
 void stoneItemBlockRenderInventory(VSelf, RenderContext* ctx, Transforms* transforms) ALIAS("StoneItemBlock_renderInventory");

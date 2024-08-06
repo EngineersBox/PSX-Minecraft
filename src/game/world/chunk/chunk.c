@@ -303,7 +303,7 @@ static void chunkRenderDroppedItems(const Chunk* chunk, RenderContext* ctx, Tran
         if (*item == NULL) {
             continue;
         }
-        VCALL_SUPER(**item, Renderable, renderWorld, ctx, transforms);
+        VCALL_SUPER(**item, Renderable, renderWorld, chunk, ctx, transforms);
     }
 }
 

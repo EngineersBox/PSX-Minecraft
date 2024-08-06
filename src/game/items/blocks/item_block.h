@@ -7,10 +7,11 @@
 
 #include "../blocks/block.h"
 #include "item.h"
-#include "../../resources/texture.h"
-#include "../../render/render_context.h"
-#include "../../render/transforms.h"
-#include "../../util/inttypes.h"
+#include "../../../resources/texture.h"
+#include "../../../render/render_context.h"
+#include "../../../render/transforms.h"
+#include "../../../util/inttypes.h"
+#include "../../world/chunk/chunk_structure.h"
 
 #define ITEM_BLOCK_FACES 6
 #define ITEM_BLOCK_SIZE 9
@@ -72,7 +73,9 @@ typedef struct {
     (_item_block_to).face_attributes[4] = (_block_from).face_attributes[4]; \
     (_item_block_to).face_attributes[5] = (_block_from).face_attributes[5];
 
-void itemBlockRenderWorld(ItemBlock* item, RenderContext* ctx, Transforms* transforms);
+void itemBlockRenderWorld(ItemBlock* item,
+                          const Chunk* chunk,
+                          RenderContext* ctx, Transforms* transforms);
 void itemBlockRenderInventory(ItemBlock* item, RenderContext* ctx, Transforms* transforms);
 void itemBlockRenderHand(ItemBlock* item, RenderContext* ctx, Transforms* transforms);
 

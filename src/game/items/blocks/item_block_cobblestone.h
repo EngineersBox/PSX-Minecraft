@@ -21,8 +21,8 @@ DEFN_ITEM_BLOCK(CobblestoneItemBlock);
     .name = "cobblestone" \
 })
 
-void cobblestoneItemBlockRenderWorld(VSelf, RenderContext* ctx, Transforms* transforms);
-void CobblestoneItemBlock_renderWorld(VSelf, RenderContext* ctx, Transforms* transforms);
+void cobblestoneItemBlockRenderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms);
+void CobblestoneItemBlock_renderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms);
 
 void cobblestoneItemBlockRenderInventory(VSelf, RenderContext* ctx, Transforms* transforms);
 void CobblestoneItemBlock_renderInventory(VSelf, RenderContext* ctx, Transforms* transforms);

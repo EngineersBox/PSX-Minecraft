@@ -14,10 +14,16 @@ void GrassItemBlock_destroy(VSelf) {
     free(self);
 }
 
-void grassItemBlockRenderWorld(VSelf, RenderContext* ctx, Transforms* transforms) ALIAS("GrassItemBlock_renderWorld");
-void GrassItemBlock_renderWorld(VSelf, RenderContext* ctx, Transforms* transforms) {
+void grassItemBlockRenderWorld(VSelf,
+                               const Chunk* chunk,
+                               RenderContext* ctx,
+                               Transforms* transforms) ALIAS("GrassItemBlock_renderWorld");
+void GrassItemBlock_renderWorld(VSelf,
+                                const Chunk* chunk,
+                                RenderContext* ctx,
+                                Transforms* transforms) {
     VSELF(GrassItemBlock);
-    itemBlockRenderWorld(&self->item_block, ctx, transforms);
+    itemBlockRenderWorld(&self->item_block, chunk, ctx, transforms);
 }
 
 void grassItemBlockRenderInventory(VSelf, RenderContext* ctx, Transforms* transforms) ALIAS("GrassItemBlock_renderInventory");

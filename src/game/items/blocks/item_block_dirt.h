@@ -21,8 +21,8 @@ DEFN_ITEM_BLOCK(DirtItemBlock);
     .name = "dirt" \
 })
 
-void dirtItemBlockRenderWorld(VSelf, RenderContext* ctx, Transforms* transforms);
-void DirtItemBlock_renderWorld(VSelf, RenderContext* ctx, Transforms* transforms);
+void dirtItemBlockRenderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms);
+void DirtItemBlock_renderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms);
 
 void dirtItemBlockRenderInventory(VSelf, RenderContext* ctx, Transforms* transforms);
 void DirtItemBlock_renderInventory(VSelf, RenderContext* ctx, Transforms* transforms);
