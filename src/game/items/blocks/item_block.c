@@ -218,7 +218,6 @@ void itemBlockRenderWorld(ItemBlock* item,
         FIXED_POINT_SHIFT
     );
     const VECTOR world_position = vec3_const_div(position, BLOCK_SIZE);
-    DEBUG_LOG("World pos: " VEC_PATTERN "\n", VEC_LAYOUT(world_position));
     position.vy = -position.vy - ITEM_BLOCK_ANIM_LUT[item->item.bob_offset];
     // Calculate light level
     const u16 light_level_colour_scalar = lightLevelColourScalar(

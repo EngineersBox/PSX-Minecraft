@@ -90,6 +90,7 @@
 * [ ] Support more general mesh generation based on block types including multiple normals
 * [ ] Block light should have a slight tint towards red for a warmer colour.
 * [ ] Check block place raycast result intersection with player AABB, preventing placement if coordinates overlap.
+* [ ] Items that go from one chunk to another (thrown, dropped, block beneath broken, etc) need to transition in ownership from the current chunk to the new chunk.
 
 ## Refactor
 
