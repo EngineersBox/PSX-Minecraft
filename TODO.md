@@ -92,6 +92,7 @@
 * [ ] Support more general mesh generation based on block types including multiple normals
 * [ ] Block light should have a slight tint towards red for a warmer colour.
 * [ ] Check block place raycast result intersection with player AABB, preventing placement if coordinates overlap.
+* [ ] Support smooth lighting by optionally switching to an alternate `ChunkMesh` render handler that uses `POLY_GT4`. Vertex colours should be calculated by querying the light level for each vertex (with some adjustment for direction since left to right is not the same as right to left when getting lighting values).
 
 ## Refactor
 
