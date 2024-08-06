@@ -598,7 +598,7 @@ bool itemPickupValidator(const Item* item, void* ctx) {
 }
 
 void updateItemChunkOwnership(const Chunk* chunk,
-                              const IItem* iitem,
+                              IItem* iitem,
                               const u32 index) {
     // NOTE: This could be callback invoked from the PhysicsObject
     //       when there is movement as opposed to an explicit check
