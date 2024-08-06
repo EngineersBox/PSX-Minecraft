@@ -1,4 +1,4 @@
-#! /bin/sh
+#!/bin/sh
 
 CONTAINER_NAME="psxmc"
 PROJECT_ROOT_PATH="$(pwd)"

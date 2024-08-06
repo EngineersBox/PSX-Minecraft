@@ -9,13 +9,6 @@ Remake of Minecraft for PS1 with PSn00bSDK
 * [PSX-Minecraft](#psx-minecraft)
   * [Dependencies](#dependencies)
   * [References](#references)
-  * [Building](#building)
-  * [Docker Environment](#docker-environment)
-    * [Utility Build Script](#utility-build-script)
-  * [Development Environment](#development-environment)
-    * [CLion](#clion)
-    * [Neovim Clangd](#neovim-clangd)
-  * [Git Hooks](#git-hooks)
   * [Progress](#progress)
     * [Goal](#goal)
     * [Screenshots](#screenshots)
@@ -23,6 +16,13 @@ Remake of Minecraft for PS1 with PSn00bSDK
       * [Placing Blocks](#placing-blocks)
       * [Item Drops](#item-drops)
       * [Inventory](#inventory)
+  * [Building](#building)
+  * [Docker Environment](#docker-environment)
+    * [Utility Build Script](#utility-build-script)
+  * [Development Environment](#development-environment)
+    * [CLion](#clion)
+    * [Neovim Clangd](#neovim-clangd)
+  * [Git Hooks](#git-hooks)
 
 <!-- TOC -->
 
@@ -38,6 +38,42 @@ Remake of Minecraft for PS1 with PSn00bSDK
 * [Playstation specifications psx-spx](https://psx-spx.consoledev.net/kernelbios/)
   (Everything from hardware to software in great detail)
 * [PsyQ Docs and examples](https://psx.arthus.net/sdk/Psy-Q/)
+
+## Progress
+
+### Goal
+
+ Current work is implementing frustum culling and ordered visibility culling with ordered mesh generation during binary greedy meshing for offset based culling.
+
+### Screenshots
+
+#### Breaking Blocks
+
+![Breaking Overlay](./docs/breaking_overlay.png)
+
+#### Placing Blocks
+
+![Placing Blocks](./docs/placing_blocks.png)
+
+#### Item Drops
+
+![Item Drops](./docs/item_drops.png)
+
+#### Inventory
+
+![Inventory](./docs/inventory.png)
+
+#### Sunlight Propagation
+
+![Sunlight Propagation](./docs/sunlight.png)
+
+#### Single Source Block Light
+
+![Single Source Block Light](./docs/blocklight_single_source.png)
+
+#### Multiple Source Block Light
+
+![Multiple Source Block Light](./docs/blocklight_multiple_source.png)
 
 ## Building
 
@@ -126,8 +162,111 @@ CMake within the Docker context attached to CLion. To the following to set this 
 
 #### Neovim Clangd
 
-> [!TODO]
-> Finish these instructions
+This assumes you are using the `clangd` LSP using `nvim-lspconfig`, as it takes advantage
+of being able to customise the LSP instantiation command.
+
+We will be modifying a standard configuration for customising the cmd provided by the
+`nvim-lspconfig` repo for running [LSPs in containers](https://github.com/neovim/nvim-lspconfig/wiki/Running-language-servers-in-containers).
+
+Using the below configuration for the LSP, we will detect the project name, as the directory
+name of the highest level git repo (where `.git` is) from where the LSP is being instantiated
+from within neovim.
+
+```lua
+local root_pattern = lspconfig.util.root_pattern('.git')
+local function file_exists(name)
+   local f=io.open(name,"r")
+   if f ~= nil then io.close(f) return true else return false end
+end
+-- Might be cleaner to try to expose this as a pattern from `lspconfig.util`, as
+-- really it is just stolen from part of the `clangd` config
+local function format_clangd_command()
+    -- Turn the name of the current file into the name of an expected container, assuming that
+    -- the container running/building this file is named the same as the basename of the project
+    -- that the file is in
+    --
+    -- The name of the current buffer
+    local bufname = vim.api.nvim_buf_get_name(0)
+    -- Project root
+    local project_root = vim.loop.cwd()
+    -- Turned into a filename
+    local filename = lspconfig.util.path.is_absolute(bufname) and bufname or lspconfig.util.path.join(project_root, bufname)
+    -- Then the directory of the project
+    local project_dirname = root_pattern(filename) or lspconfig.util.path.dirname(filename)
+    -- And finally perform what is essentially a `basename` on this directory
+    local basename = vim.fn.fnamemodify(lspconfig.util.find_git_ancestor(project_dirname), ':t')
+    if (basename == nil) then
+        return nil
+    end
+    local name, _ = string.gsub(
+        string.lower(basename),
+        "-",
+        "_"
+    )
+    if (file_exists(project_root .. "/cclangd")) then
+        return { project_root .. "/cclangd" }
+    else
+        return { "/usr/local/bin/cclangd", name, project_root }
+    end
+end
+lspconfig["clangd"].setup({
+    on_attach = on_attach,
+    cmd = format_clangd_command(),
+})
+```
+
+There are some changes here to determine if the repo has a custom `cclangd` script, which allows us to create custom LSP configurations per-repo but also maintain a global behaviour with the script expected to be at `/usr/local/bin/cclangd`.
+
+```bash
+#!/bin/sh
+
+CONTAINER_NAME="psxmc"
+PROJECT_ROOT_PATH="$(pwd)"
+
+# Verify that a contianer by this name actually exists, and is running
+if [ -z "$(docker ps -q -f name="$CONTAINER_NAME" -f status=running)" ]; then
+    echo "[cclangd] No container running, determining existance of 'start_clangd.sh' script in project root"
+    if [ -e "$PROJECT_ROOT_PATH/start_clangd.sh" ]; then
+        echo "[cclangd] Start script exists in project root, invoking it to start container"
+        exec "$PROJECT_ROOT_PATH/start_clangd.sh" "$CONTAINER_NAME" "$PROJECT_ROOT_PATH"
+    else
+        echo "[cclangd] No start script exists in project root, starting on host"
+        clangd --background-index
+    fi
+else
+    echo "[cclangd] Container running, executing inside it"
+    # Important part here is both the '-i' and the redirection of STDERR
+    docker exec -i "$1" /usr/bin/clangd --background-index 2>/dev/null
+fi
+```
+
+In the custom `cclangd` script (within this repo and above), there is additional logic to launch the custom container context through `start_clangd.sh` with a custom container name (to avoid using hyphens with the current name and also cause I don't want to change the project name).
+
+```bash
+
+#!/bin/sh
+
+CONTAINER_NAME="$1"
+PROJECT_ROOT_PATH="$2"
+
+docker run \
+    -i \
+    --rm \
+    -v"$PROJECT_ROOT_PATH:$PROJECT_ROOT_PATH" \
+    -w "$PROJECT_ROOT_PATH" \
+    -e PSN00BSDK_LIBS=/opt/psn00bsdk/lib/libpsn00b \
+    --name "$CONTAINER_NAME" \
+    psxmc:latest \
+    /bin/bash -c "ln -s $PROJECT_ROOT_PATH /tmp/PSX-Minecraft \
+    && ln -s $PROJECT_ROOT_PATH/.clangd /opt/psn00bsdk/include/libpsn00b/.clangd \
+    && /usr/bin/clangd \
+    --compile-commands-dir=\"${PROJECT_ROOT_PATH}/build\" \
+    --background-index"
+```
+
+So assuming you have build the container image as per the instructions eariler in this README and named it `psxmc:latest`, this will launch `clangd` within a container using that image.
+
+At this point your LSP configuration should work with `PSn00bSDK` (assuming the container paths match your local paths for the SDK) and the project sources without issue.
 
 ## Git Hooks
 
@@ -148,41 +287,3 @@ You can of course also run these manually if you'd like to instead:
 ```shell
 ./.githooks/pre-commit
 ```
-
-## Progress
-
-### Goal
-
-<!-- Current work is implementing frustum culling and ordered visibility culling with ordered mesh generation during binary greedy meshing for offset based culling.-->
-
-Lightmapping and procedural texturing for chunk meshes to apply lighting during rendering
-
-### Screenshots
-
-#### Breaking Blocks
-
-![Breaking Overlay](./docs/breaking_overlay.png)
-
-#### Placing Blocks
-
-![Placing Blocks](./docs/placing_blocks.png)
-
-#### Item Drops
-
-![Item Drops](./docs/item_drops.png)
-
-#### Inventory
-
-![Inventory](./docs/inventory.png)
-
-#### Sunlight Propagation
-
-![Sunlight Propagation](./docs/sunlight.png)
-
-#### Single Source Block Light
-
-![Single Source Block Light](./docs/blocklight_single_source.png)
-
-#### Multiple Source Block Light
-
-![Multiple Source Block Light](./docs/blocklight_multiple_source.png)
