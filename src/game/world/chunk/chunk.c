@@ -648,7 +648,10 @@ void chunkUpdate(Chunk* chunk, const Player* player, BreakingState* breaking_sta
         -player->physics_object.position.vy >> FIXED_POINT_SHIFT,
         player->physics_object.position.vz >> FIXED_POINT_SHIFT
     );
-    
+    // NOTE: I've made the cvector size and capacity fields
+    //       volatile so that any usage in a loop that mutates
+    //       the cvector will not run into issues with compiler
+    //       optimisations around reads in loop conditions.
     for (u32 i = 0; i < cvector_size(chunk->dropped_items);) {
         IItem* iitem = chunk->dropped_items[i];
         if (iitem == NULL) {
