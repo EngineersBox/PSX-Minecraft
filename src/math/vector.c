@@ -5,6 +5,7 @@
 #include "fixed_point.h"
 #include "../logging/logging.h"
 
+const VECTOR VEC3_I32_ZERO = vec3_i32_all(0);
 const SVECTOR VEC3_I16_ZERO = vec3_i16_all(0);
 
 VECTOR rotationToDirection(const VECTOR* rotation) {

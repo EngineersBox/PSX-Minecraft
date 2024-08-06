@@ -44,8 +44,8 @@
 typedef void (*cvector_elem_destructor_t)(void *elem);
 
 typedef struct cvector_metadata_t {
-    size_t size;
-    size_t capacity;
+    volatile size_t size;
+    volatile size_t capacity;
     cvector_elem_destructor_t elem_destructor;
 } cvector_metadata_t;
 

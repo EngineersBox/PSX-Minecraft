@@ -15,6 +15,7 @@
 #include "../../../util/interface99_extensions.h"
 #include "../../items/items.h"
 #include "../generation/noise.h"
+#include "chunk_mesh.h"
 #include "chunk_structure.h"
 #include "meshing/binary_greedy_mesher.h"
 #include "psxapi.h"
@@ -596,6 +597,45 @@ bool itemPickupValidator(const Item* item, void* ctx) {
     return true;
 }
 
+void updateItemChunkOwnership(const Chunk* chunk,
+                              const IItem* iitem,
+                              const u32 index) {
+    // NOTE: This could be callback invoked from the PhysicsObject
+    //       when there is movement as opposed to an explicit check
+    //       here every time we update an item. The tradeoff there
+    //       is that we need to maintain context in memory for every
+    //       item that exists to pass to a callback registered when
+    //       creating the item. That adds unnecessary memory overhead
+    //       and extra complexity (headers + linkage wise) to the
+    //       item definition that just isn't worth it. So this exists
+    //       to do the update check every time, checking the velocity
+    //       to determine if the item has moved on each update cycle
+    //       (as a precondition for checking the chunk ownership) is
+    //       substantially cheaper.
+    const Item* item = VCAST_PTR(Item*, iitem);
+    if (!vec3_equal(item->world_physics_object->velocity, VEC3_I32_ZERO)) {
+        // No velocity implies no movement, so we can't have changed
+        // chunks since we last checked
+        return;
+    }
+    const VECTOR item_world_pos = vec3_const_div(
+        item->world_physics_object->position,
+        ONE_BLOCK
+    );
+    const ChunkBlockPosition cb_pos = worldToChunkBlockPosition(
+        &item_world_pos,
+        CHUNK_SIZE
+    );
+    if (vec3_equal(chunk->position, cb_pos.chunk)) {
+        // Still in same chunk, don't do anything
+        return;
+    }
+    // Has moved to different chunk
+    cvector_erase(chunk->dropped_items, index);
+    Chunk* new_chunk = worldGetChunkFromChunkBlock(chunk->world, &cb_pos);
+    cvector_push_back(new_chunk->dropped_items, iitem);
+}
+
 void chunkUpdate(Chunk* chunk, const Player* player, BreakingState* breaking_state) {
     Inventory* inventory = VCAST(Inventory*, player->inventory);
     // We are using chunk relative coords in absolute units and not in
@@ -608,6 +648,7 @@ void chunkUpdate(Chunk* chunk, const Player* player, BreakingState* breaking_sta
         -player->physics_object.position.vy >> FIXED_POINT_SHIFT,
         player->physics_object.position.vz >> FIXED_POINT_SHIFT
     );
+    
     for (u32 i = 0; i < cvector_size(chunk->dropped_items);) {
         IItem* iitem = chunk->dropped_items[i];
         if (iitem == NULL) {
@@ -628,7 +669,6 @@ void chunkUpdate(Chunk* chunk, const Player* player, BreakingState* breaking_sta
                     // Do nothing since we can't pick it up (don't think this will ever
                     // actually occur since we already check in itemPickupValidator for
                     // this case when determining which to items to consider.
-                    i++;
                     break;
                 case INVENTORY_STORE_RESULT_ADDED_ALL:
                     // Nuke it, added all so this item instance is not needed any more.
@@ -641,10 +681,11 @@ void chunkUpdate(Chunk* chunk, const Player* player, BreakingState* breaking_sta
                     // free it, just remove the array entry (no element destructor set
                     // on the cvector instance)
                     cvector_erase(chunk->dropped_items, i);
+                    continue;
                     break;
             }
-            continue;
         }
+        updateItemChunkOwnership(chunk, iitem, i);
         i++;
     }
     chunkUpdateLight(chunk, chunk_light_update_limits);

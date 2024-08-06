@@ -34,6 +34,7 @@
 * [ ] Core engine ticks can go higher than 20, redo the engine cycle system
 * [ ] Inventory opens correctly and renders the items, however the background/overlay has an incorrect TPage position, pointing to `(0,0)` instead of `(576,240)`
 * [ ] Lighting on dropped items is pure black sometimes despite being in light (possibly bad world position when retrieving light value)
+* [ ] If target block changes while holding down break, both new and old block have breaking animation but only new block actually breaks
 
 ## Implement
 
@@ -74,6 +75,7 @@
 * [X] Memory usage stats in debug UI overlay
 * [X] Add `PhysicsObject` and `Entity` sub-structues to `Item` conditional on being `in_world`. Refactor the rendering to make the item bob only when on the ground and handle initialisation in `modifyVoxel0` function.
 * [X] Loading new chunks should only happen when the player is in the bordering chunks and beyond the middle of the chunk (with respect to the centre of the world chunk grid).
+* [X] Items that go from one chunk to another (thrown, dropped, block beneath broken, etc) need to transition in ownership from the current chunk to the new chunk.
 * [ ] Camera far plane cutoff with fog relative to chunk render distance
 * [ ] Frustum and culling
 * [ ] Depth-first search culling through chunks
@@ -90,7 +92,6 @@
 * [ ] Support more general mesh generation based on block types including multiple normals
 * [ ] Block light should have a slight tint towards red for a warmer colour.
 * [ ] Check block place raycast result intersection with player AABB, preventing placement if coordinates overlap.
-* [ ] Items that go from one chunk to another (thrown, dropped, block beneath broken, etc) need to transition in ownership from the current chunk to the new chunk.
 
 ## Refactor
 

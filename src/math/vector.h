@@ -304,6 +304,7 @@ VECTOR rotationToDirection5o(const VECTOR* rotation);
 
 // ==== COMMON DEFINITIONS ====
 
+extern const VECTOR VEC3_I32_ZERO;
 extern const SVECTOR VEC3_I16_ZERO;
 
 #endif // _PSXMC__MATH__VECTOR_H_
