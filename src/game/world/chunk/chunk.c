@@ -388,6 +388,9 @@ IBlock* chunkGetBlockVec(const Chunk* chunk, const VECTOR* position) {
 
 #define HALF_BLOCK_SIZE (BLOCK_SIZE >> 1)
 
+#define randMax(_max) (positiveModulo(rand(), ((_max) << 1)) - (_max)) 
+#define randBounded(bound) ((rand() % 2 ? 1 : -1) * (positiveModulo(rand(), (bound)) + ONE))
+
 static void applyItemWorldState(const Chunk* chunk,
                                 Item* item,
                                 const VECTOR* block_position) {
@@ -406,19 +409,14 @@ static void applyItemWorldState(const Chunk* chunk,
         ),
         FIXED_POINT_SHIFT
     );
-    /*const VECTOR item_position = vec3_i32(*/
-    /*    0,*/
-    /*    2867200,*/
-    /*    0*/
-    /*);*/
     iPhysicsObjectSetPosition(
         item->world_physics_object,
         &item_position
     );
     item->world_physics_object->rotation.yaw = rand() % 32768;
     item->world_physics_object->rotation.pitch  = rand() % 32768;
-    item->world_physics_object->move.forward = positiveModulo(rand(), (ONE * 2)) - ONE;
-    /*item->world_physics_object->move.strafe = positiveModulo(rand(), (ONE * 2)) - ONE;*/
+    item->world_physics_object->move.forward = randBounded(FIXED_1_2);
+    item->world_physics_object->move.strafe = randBounded(FIXED_1_2);
 }
 
 static LightLevel inferSunlightValueFromNeighbours(const Chunk* chunk,

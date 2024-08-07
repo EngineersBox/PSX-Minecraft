@@ -299,7 +299,6 @@ void itemBlockRenderWorld(ItemBlock* item,
             item->item.bob_direction = -1;
         }
         item->item.bob_offset += item->item.bob_direction;
-        DEBUG_LOG("Bob offset: %d\n", item->item.bob_offset);
     }
     PopMatrix();
 }
