@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdlib.h>
+#include <psxapi.h>
 
 #include "../../../logging/logging.h"
 #include "../../../math/math_utils.h"
@@ -18,7 +19,6 @@
 #include "chunk_mesh.h"
 #include "chunk_structure.h"
 #include "meshing/binary_greedy_mesher.h"
-#include "psxapi.h"
 
 const LightUpdateLimits chunk_light_update_limits = (LightUpdateLimits) {
     .add_block = CHUNK_LIGHT_ADD_BLOCK_UPDATES_PER_TICK,
