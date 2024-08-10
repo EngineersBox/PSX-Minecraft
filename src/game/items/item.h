@@ -17,7 +17,8 @@
 #include "../../entity/entity.h"
 #include "../../physics/physics_object.h"
 
-#define PICKUP_DISTANCE 70
+// BLOCK_SIZE * 1.5
+#define PICKUP_DISTANCE 105
 #define PICKUP_DISTANCE_SQUARED (PICKUP_DISTANCE * PICKUP_DISTANCE)
 #define PICKUP_TO_INV_DISTANCE 25
 #define PICKUP_TO_INV_DISTANCE_SQUARED (PICKUP_TO_INV_DISTANCE * PICKUP_TO_INV_DISTANCE)

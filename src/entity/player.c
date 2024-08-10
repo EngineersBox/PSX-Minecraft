@@ -38,7 +38,7 @@ const PhysicsObjectConfig player_physics_object_config = (PhysicsObjectConfig) {
         .height = player_collision_intervals_height,
         .radius = player_collision_intervals_radius
     },
-    .y_offset = 0// ONE_BLOCK * 1.62
+    .y_offset = 464486// ONE_BLOCK * 1.62
 };
 const PhysicsObjectUpdateHandlers player_physics_object_update_handlers = (PhysicsObjectUpdateHandlers) {
     .fall_handler = (PhysicsObjectFall) playerFallHandler
@@ -74,7 +74,7 @@ void playerUpdateCamera(const Player* player) {
     camera->rotation.vx = physics_object->rotation.pitch;
     camera->rotation.vy = physics_object->rotation.yaw;
     camera->position.vx = physics_object->position.vx;
-    camera->position.vy = -physics_object->position.vy - PLAYER_CAMERA_OFFSET;
+    camera->position.vy = -physics_object->aabb.min.vy - PLAYER_CAMERA_OFFSET;
     camera->position.vz = physics_object->position.vz;
 }
 

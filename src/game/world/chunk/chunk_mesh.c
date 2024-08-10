@@ -191,7 +191,6 @@ static void renderQuad(const Mesh* mesh,
     gte_ldrgb(&pol4->r0);
     // Load the face normal
     gte_ldv0(&normalsIter[primitive->n0]);
-    // gte_lddp(&dp);
     // Apply RGB tinting to lighting calculation result on the basis
     // that it is enabled.
     // Normal Color Column Single
