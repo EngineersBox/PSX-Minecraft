@@ -17,7 +17,7 @@
 #include "../../entity/entity.h"
 #include "../../physics/physics_object.h"
 
-#define PICKUP_DISTANCE 154
+#define PICKUP_DISTANCE 70
 #define PICKUP_DISTANCE_SQUARED (PICKUP_DISTANCE * PICKUP_DISTANCE)
 #define PICKUP_TO_INV_DISTANCE 25
 #define PICKUP_TO_INV_DISTANCE_SQUARED (PICKUP_TO_INV_DISTANCE * PICKUP_TO_INV_DISTANCE)
@@ -89,6 +89,8 @@ typedef struct Item {
     bool in_world;
     // World position or screen position
     // conditional on in_world being false
+    // When the item is in world, this is
+    // used for animation
     VECTOR position;
     SVECTOR rotation;
     // Only present (non-NULL) when the

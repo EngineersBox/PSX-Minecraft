@@ -219,6 +219,11 @@ void itemBlockRenderWorld(ItemBlock* item,
     );
     const VECTOR world_position = vec3_const_div(position, BLOCK_SIZE);
     position.vy = -position.vy - ITEM_BLOCK_ANIM_LUT[item->item.bob_offset];
+    // Include any distance animation for pickups
+    position = vec3_add(
+        position,
+        item->item.position
+    );
     // Calculate light level
     const u16 light_level_colour_scalar = lightLevelColourScalar(
         worldGetInternalLightLevel(chunk->world),

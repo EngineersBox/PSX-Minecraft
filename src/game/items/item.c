@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+#include "../../logging/logging.h"
+
 #define HEIGHT_INTERVALS 2
 #define RADIUS_INTERVALS 2
 const i32 item_collision_intervals_height[HEIGHT_INTERVALS] = { 0, 71680 };
@@ -49,6 +51,7 @@ void itemSetWorldState(Item* item, const bool in_world) {
     // In inventory
     free(item->world_physics_object);
     free(item->world_entity);
+    item->position = vec3_i32_all(0);
 }
 
 bool itemUpdate(Item* item,
@@ -63,7 +66,15 @@ bool itemUpdate(Item* item,
             ctx
         );
     }
-    const i32 sq_dist = squareDistance(player_position, &item->position);
+    const VECTOR item_pos = vec3_add(
+        vec3_i32(
+            (item->world_physics_object->position.vx) >> FIXED_POINT_SHIFT,
+            (-item->world_physics_object->position.vy) >> FIXED_POINT_SHIFT,
+            (item->world_physics_object->position.vz) >> FIXED_POINT_SHIFT
+        ),
+        item->position
+    );
+    const i32 sq_dist = squareDistance(player_position, &item_pos);
     if (sq_dist > PICKUP_DISTANCE_SQUARED) {
         return false;
     }
@@ -71,15 +82,15 @@ bool itemUpdate(Item* item,
     if (!validator(item, ctx)) {
         return false;
     }
-    if (item->in_world) {
-        itemSetWorldState(item, false);
-        return false;
-    } else if (sq_dist <= PICKUP_TO_INV_DISTANCE_SQUARED) {
+    if (sq_dist <= PICKUP_TO_INV_DISTANCE_SQUARED) {
+        if (item->in_world) {
+            itemSetWorldState(item, false);
+        }
         return true;
     }
-    const i32 sign_x = sign(player_position->vx - item->position.vx);
-    const i32 sign_y = sign(player_position->vy - item->position.vy);
-    const i32 sign_z = sign(player_position->vz - item->position.vz);
+    const i32 sign_x = sign(player_position->vx - item_pos.vx);
+    const i32 sign_y = sign(player_position->vy - item_pos.vy);
+    const i32 sign_z = sign(player_position->vz - item_pos.vz);
     item->position.vx += sign_x * PICKUP_MOVE_ANIM_DISTANCE;
     item->position.vy += sign_y * PICKUP_MOVE_ANIM_DISTANCE;
     item->position.vz += sign_z * PICKUP_MOVE_ANIM_DISTANCE;
