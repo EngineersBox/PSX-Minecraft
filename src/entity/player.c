@@ -179,6 +179,31 @@ remove_world_block:;
     breakingStateReset(*state);
 }
 
+INLINE static bool blockIntersectsPlayer(const Player* player,
+                                         const VECTOR* pos) {
+    const AABB aabb = (AABB) {
+        .min = vec3_const_mul(*pos, ONE_BLOCK),
+        .max = vec3_const_mul(
+            vec3_const_add(*pos, 1),
+            ONE_BLOCK
+        )
+    };
+    DEBUG_LOG(
+        "[PLAYER] Min: " VEC_PATTERN " Max: " VEC_PATTERN "\n",
+        VEC_LAYOUT(player->physics_object.aabb.min),
+        VEC_LAYOUT(player->physics_object.aabb.max)
+    );
+    DEBUG_LOG(
+        "[BLOCK] Min: " VEC_PATTERN " Max: " VEC_PATTERN "\n",
+        VEC_LAYOUT(aabb.min),
+        VEC_LAYOUT(aabb.max)
+    );
+    return aabbIntersects(
+        &player->physics_object.aabb,
+        &aabb
+    );
+}
+
 INLINE static bool playerInputHandlerAttack(const PlayerInputHandlerContext* ctx) {
     Player* player= ctx->player;
     // NOTE: This will probably hit framerate a decent bit
@@ -286,6 +311,9 @@ INLINE static void playerInputHandlerUse(const PlayerInputHandlerContext* ctx) {
                 return;
             }
             const VECTOR place_position = vec3_add(result.pos, result.face);
+            if (blockIntersectsPlayer(player, &place_position)) {
+                return;
+            }
             const IBlock* modify_result = worldModifyVoxelConstructed(
                 ctx->world,
                 &place_position,
