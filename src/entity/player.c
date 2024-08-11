@@ -188,16 +188,6 @@ INLINE static bool blockIntersectsPlayer(const Player* player,
             ONE_BLOCK
         )
     };
-    DEBUG_LOG(
-        "[PLAYER] Min: " VEC_PATTERN " Max: " VEC_PATTERN "\n",
-        VEC_LAYOUT(player->physics_object.aabb.min),
-        VEC_LAYOUT(player->physics_object.aabb.max)
-    );
-    DEBUG_LOG(
-        "[BLOCK] Min: " VEC_PATTERN " Max: " VEC_PATTERN "\n",
-        VEC_LAYOUT(aabb.min),
-        VEC_LAYOUT(aabb.max)
-    );
     return aabbIntersects(
         &player->physics_object.aabb,
         &aabb
