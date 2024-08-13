@@ -90,7 +90,7 @@ end
 local sections = ordered_table.new({});
 local current_section = "";
 local current_content = "";
-local current_checked = false;
+local current_checked = "";
 
 local todo_or_empty_line_pattern = "(^#%s)|(^[%s]+$)";
 local section_header_pattern = "^##";
@@ -106,22 +106,27 @@ for l in infile:lines("*l") do
         ordered_table.insert(
             sections,
             current_section, {
-              checked = {},
-              unchecked = {}
+                checked = {},
+                pending = {},
+                unchecked = {}
             }
         );
     elseif l:find(list_item_pattern) ~= nil then
-        current_checked = string.lower(l[4]) == "x"
+        current_checked = string.lower(l[4])
         local c = "unchecked";
-        if current_checked then
+        if current_checked == "x" then
             c = "checked"
+        elseif current_checked == "-" then
+            c = "pending"
         end
         current_content = stringTrim(l, "\r");
         table.insert(sections[current_section][c], current_content);
     elseif l:find(list_item_continuation_pattern) ~= nil then
         local c = "unchecked";
-        if current_checked then
+        if current_checked == "x" then
             c = "checked"
+        elseif current_checked == "-" then
+            c = "pending"
         end
         local target_section = sections[current_section][c];
         target_section[#target_section] = current_content .. " " .. stringTrim(stringTrim(l, "%s"), "\r");
@@ -134,11 +139,20 @@ local outfile = assert(io.open("TODO.md", "w+b"), "Unable to open TODO.md to wri
 outfile:write("# TODO\n");
 for section_name, section in pairs(sections) do
     outfile:write("\n" .. section_name .. "\n\n");
-    for _, checked in ipairs(section.checked) do
-        outfile:write(checked .. "\n");
+    if section.checked ~= nil then
+        for _, checked in ipairs(section.checked) do
+            outfile:write(checked .. "\n");
+        end
     end
-    for _, unchecked in ipairs(section.unchecked) do
-        outfile:write(unchecked .. "\n");
+    if section.pending ~= nil then
+        for _, pending in ipairs(section.pending) do
+            outfile:write(pending .. "\n");
+        end
+    end
+    if section.unchecked ~= nil then
+        for _, unchecked in ipairs(section.unchecked) do
+            outfile:write(unchecked .. "\n");
+        end
     end
 end
 outfile:close();
