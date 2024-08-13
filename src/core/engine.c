@@ -32,6 +32,44 @@ void engineInit(Engine* engine, void* ctx) {
 }
 
 void engineRun(Engine* engine) {
+    const u32 ms_per_update = 1000 / engine->target_tps;
+    engine->running = true;
+    u32 previous = time_ms;
+    u32 lag = 0;
+    Stats stats = {
+        .fps = 0,
+        .tps = 0,
+        .diff_ms = 0
+    };
+    u32 frames = 0;
+    u32 ticks = 0;
+    u32 total_elapsed = 0;
+    while (engine->running) {
+        u32 current = time_ms;
+        u32 elapsed = positiveModulo(current - previous, FIXED_POINT_MAX);
+        previous = current;
+        lag += elapsed;
+        total_elapsed += elapsed;
+        VCALL(*engine->app_logic, input, &stats);
+        while (lag >= ms_per_update) {
+            VCALL(*engine->app_logic, update, &stats);
+            lag -= ms_per_update;
+            ticks++;
+        }
+        VCALL(*engine->app_logic, render, &stats);
+        frames++;
+        if (total_elapsed >= 1000) {
+            stats.fps = frames;
+            stats.tps = ticks;
+            frames = 0;
+            ticks = 0;
+            total_elapsed = 0;
+        }
+    }
+    VCALL(*engine->app_logic, cleanup);
+}
+
+void engineRunOld(Engine* engine) {
     engine->running = true;
     uint32_t seconds = 0;
     uint16_t initial_time = time_ms;
