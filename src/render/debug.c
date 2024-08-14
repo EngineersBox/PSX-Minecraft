@@ -90,7 +90,7 @@ void debugDrawPBUsageGraph(RenderContext* ctx, const u16 base_screen_x, const u1
 
 void drawLeftDebugText(const Stats* stats, const Camera* camera) {
 #if isOverlayEnabled(FPS)
-    FntPrint(0, "FPS=%d TPS=%d\n", stats->fps, stats->tps);
+    FntPrint(0, "FT=%dms FPS=%d TPS=%d\n", stats->frame_diff_ms, stats->fps, stats->tps);
 #endif
 #if isOverlayEnabled(POS)
     const i32 x = camera->position.vx / BLOCK_SIZE;
@@ -102,8 +102,8 @@ void drawLeftDebugText(const Stats* stats, const Camera* camera) {
         0,
         ""
         "X=%d.%05d\n"
-        "Y=%d.%05d (DOWN)\n"
-        "Y=%d.%05d (UP)\n"
+        "Y=%d.%05d (D)\n"
+        "Y=%d.%05d (U)\n"
         "Z=%d.%05d\n",
         fixedGetWhole(x), fracToFloat(fixedGetFractional(x)),
         fixedGetWhole(y_down), fracToFloat(fixedGetFractional(y_down)),
