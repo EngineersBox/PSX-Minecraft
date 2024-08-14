@@ -27,13 +27,13 @@
 * [X] Dropped items don't have world lighting correctly applied to them. We should also query the lightmap to determine how lit the item should be scaled by world lighting the same way that terrain is lit.
 * [X] If target block changes while holding down break, both new and old block have breaking animation but only new block actually breaks
 * [X] Items don't consider new world position when checking updates, so they cannot be picked up
-* [-] Cull faces on chunk edges that face outward on the render limit
+* [-] Core engine ticks can go higher than 20, redo the engine cycle system
+* [ ] Cull faces on chunk edges that face outward on the render limit
 * [ ] Textures in terrain tpage with any `u` and `v >= 16` rendering multiple interleaved textures from different points in terrain texture page (NOTE: The issue seems to be specific to `POLY_FT4` since `POLY_GT4` doesn't have this behaviour when I changed the primitive type)
 * [ ] Mesh vertices z-depth is inconsistent leading to faces drawn in wrong order and thus culling fails
 * [ ] Vertices are distorted (in their location) when very close to the camera
 * [ ] Movement tied to FPS
 * [ ] Move mesh generation to after all loading when updating world to avoid face generation on orthogonal axis to update axis
-* [ ] Core engine ticks can go higher than 20, redo the engine cycle system
 * [ ] Inventory opens correctly and renders the items, however the background/overlay has an incorrect TPage position, pointing to `(0,0)` instead of `(576,240)`
 * [ ] Lighting on dropped items is pure black sometimes despite being in light (possibly bad world position when retrieving light value)
 
