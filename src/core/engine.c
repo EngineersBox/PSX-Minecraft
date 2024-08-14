@@ -6,7 +6,7 @@
 #include "../math/math_utils.h"
 #include "../hardware/counters.h"
 
-volatile uint32_t time_ms = 0;
+volatile u32 time_ms = 0;
 
 void irqCallbackTimeMsIncrement() {
     time_ms++;
@@ -32,28 +32,27 @@ void engineInit(Engine* engine, void* ctx) {
 }
 
 void engineRun(Engine* engine) {
-    const u32 ms_per_update = 1000 / engine->target_tps;
+    const Timestamp ms_per_tick = 1000 / engine->target_tps;
     engine->running = true;
-    u32 previous = time_ms;
-    u32 lag = 0;
+    Timestamp previous = time_ms;
+    u32 delta = 0;
     Stats stats = {
         .fps = 0,
         .tps = 0,
-        .diff_ms = 0
+        .frame_diff_ms = 0
     };
     u32 frames = 0;
     u32 ticks = 0;
-    u32 total_elapsed = 0;
+    Timestamp total_elapsed = 0;
     while (engine->running) {
-        u32 current = time_ms;
-        u32 elapsed = positiveModulo(current - previous, FIXED_POINT_MAX);
+        const Timestamp current = time_ms;
+        const Timestamp elapsed = positiveModulo(current - previous, FIXED_POINT_MAX);
         previous = current;
-        lag += elapsed;
+        delta += elapsed;
         total_elapsed += elapsed;
         VCALL(*engine->app_logic, input, &stats);
-        while (lag >= ms_per_update) {
+        for (; delta >= ms_per_tick; delta -= ms_per_tick) {
             VCALL(*engine->app_logic, update, &stats);
-            lag -= ms_per_update;
             ticks++;
         }
         VCALL(*engine->app_logic, render, &stats);
@@ -61,6 +60,7 @@ void engineRun(Engine* engine) {
         if (total_elapsed >= 1000) {
             stats.fps = frames;
             stats.tps = ticks;
+            stats.frame_diff_ms = elapsed;
             frames = 0;
             ticks = 0;
             total_elapsed = 0;
@@ -71,22 +71,22 @@ void engineRun(Engine* engine) {
 
 void engineRunOld(Engine* engine) {
     engine->running = true;
-    uint32_t seconds = 0;
-    uint16_t initial_time = time_ms;
-    const uint32_t time_t = 1000 / engine->target_tps;
-    const uint32_t time_f = engine->target_fps > 0 ? 1000 / engine->target_fps : 0;
-    uint32_t delta_update = 0;
-    uint32_t delta_fps = 0;
+    u32 seconds = 0;
+    Timestamp initial_time = time_ms;
+    const u32 time_t = 1000 / engine->target_tps;
+    const u32 time_f = engine->target_fps > 0 ? 1000 / engine->target_fps : 0;
+    u32 delta_update = 0;
+    u32 delta_fps = 0;
     Stats stats = {
         .fps = 0,
         .tps = 0,
-        .diff_ms = 0
+        .frame_diff_ms = 0
     };
-    uint32_t frames = 0;
-    uint32_t ticks = 0;
+    u32 frames = 0;
+    u32 ticks = 0;
     while (engine->running) {
-        const uint32_t now  = time_ms;
-        const uint32_t diff = positiveModulo(now - initial_time, FIXED_POINT_MAX) << FIXED_POINT_SHIFT;
+        const Timestamp now  = time_ms;
+        const Timestamp diff = positiveModulo(now - initial_time, FIXED_POINT_MAX) << FIXED_POINT_SHIFT;
         delta_update += diff / time_t;
         delta_fps += diff / time_f;
         if (engine->target_fps <= 0 || delta_fps >= ONE) {
@@ -106,7 +106,7 @@ void engineRunOld(Engine* engine) {
         if (seconds + 1 == now / 1000) {
             stats.fps = frames;
             stats.tps = ticks;
-            stats.diff_ms = diff;
+            stats.frame_diff_ms = diff >> FIXED_POINT_SHIFT;
             frames = 0;
             ticks = 0;
             seconds++;

@@ -4,12 +4,14 @@
 #define PSXMC_APP_LOGIC_H
 
 #include <interface99.h>
-#include <stdint.h>
+
+#include "../util/inttypes.h"
+#include "../hardware/counters.h"
 
 typedef struct {
-    uint32_t fps;
-    uint32_t tps;
-    uint32_t diff_ms;
+    u32 fps;
+    u32 tps;
+    Timestamp frame_diff_ms;
 } Stats;
 
 #define AppLogic_IFACE \
