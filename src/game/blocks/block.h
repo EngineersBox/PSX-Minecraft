@@ -63,6 +63,11 @@ typedef struct BlockAttributes {
     bool propagates_sunlight: 1;
     bool propagates_blocklight: 1;
     u32 _pad: 13;
+    // This is a variable length array with length
+    // a multiple of 6, where each 6 entries will
+    // correspond to a metadata_id grouping of
+    // textures
+    TextureAttributes* face_attributes;
     char* name;
 } BlockAttributes;
 
@@ -106,11 +111,15 @@ interface(IBlock);
 
 typedef IBlock* (*BlockConstructor)(IItem* from_item);
 
-#define DEFN_BLOCK_STATEFUL(name, ...) \
+#define DEFN_BLOCK_FACE_ATTRIBUTES(extern_name) \
+    extern TextureAttributes* extern_name##_FACE_ATTRIBUTES
+
+#define DEFN_BLOCK_STATEFUL(name, extern_name, ...) \
     typedef struct {\
         Block block; \
         __VA_ARGS__ \
-    } name
+    } name; \
+    DEFN_BLOCK_FACE_ATTRIBUTES(extern_name)
 
 #define DEFN_BLOCK_STATELESS(name, extern_name, ...) \
     DEFN_BLOCK_STATEFUL(name, P99_PROTECT(__VA_ARGS__)); \
