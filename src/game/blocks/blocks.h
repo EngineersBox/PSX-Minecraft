@@ -32,10 +32,6 @@ extern BlockConstructor block_constructors[BLOCK_COUNT];
 #define blockGetItemCanHarvest(id, tool_type) ((blockGetCanHarvestBitSet(id) >> (tool_type)) & 0b1)
 #define blockCanPropagateSunlight(id) blockGetAttribute(id, propagates_sunlight)
 #define blockCanPropagateBlocklight(id) blockGetAttribute(id, propagates_blocklight)
-/*#define blockCanSunLightPropagate(id) ((id) < BLOCKTYPE_SOLID || (id) > BLOCKTYPE_SLAB)*/
-/*#define blockCanSunLightNotPropagate(id) ((id) >= BLOCKTYPE_SOLID && (id) <= BLOCKTYPE_SLAB)*/
-/*#define blockCanBlockLightPropagate(id) ((id) < BLOCKTYPE_SOLID || (id) > BLOCKTYPE_SLAB)*/
-/*#define blockCanBlockLightNotPropagate(id) ((id) >= BLOCKTYPE_SOLID && (id) <= BLOCKTYPE_SLAB)*/
 
 bool blockCanHarvest(ToolType block_tool_type,
                      ItemMaterial block_tool_material,
