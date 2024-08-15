@@ -85,7 +85,7 @@ void inventoryInit(Inventory* inventory, Hotbar* hotbar) {
         .vx = INVENTORY_WIDTH,
         .vy = INVENTORY_HEIGHT
     };
-    background->texture = NULL;
+    background->texture = (Texture) {0};
     DYN_PTR(component, UIBackground, IUIComponent, background);
     inventory->hotbar = hotbar;
     inventory->slots = NULL;
@@ -261,11 +261,11 @@ void Inventory_open(VSelf) {
         return;
     }
     self->ui.active = true;
-    const UIBackground* background = VCAST(UIBackground*, self->ui.components[0]);
+    UIBackground* background = VCAST(UIBackground*, self->ui.components[0]);
     if (assetLoadTextureDirect(
         GUI_BUNDLE_NAME,
         INVENTORY_TEXTURE_NAME,
-        background->texture
+        &background->texture
     )) {
         printf("[INVENTORY] Failed to load texture\n");
     }
@@ -279,7 +279,7 @@ void Inventory_close(VSelf) {
     }
     self->ui.active = false;
     UIBackground* background = VCAST(UIBackground*, self->ui.components[0]);
-    background->texture = NULL;
+    background->texture = (Texture) {0};
 }
 
 static bool debounce(Inventory* inventory) {

@@ -34,7 +34,7 @@
 * [ ] Vertices are distorted (in their location) when very close to the camera
 * [ ] Movement tied to FPS
 * [ ] Move mesh generation to after all loading when updating world to avoid face generation on orthogonal axis to update axis
-* [ ] Inventory opens correctly and renders the items, however the background/overlay has an incorrect TPage position, pointing to `(0,0)` instead of `(576,240)`
+* [X] Inventory opens correctly and renders the items, however the background/overlay has an incorrect TPage position, pointing to `(0,0)` instead of `(576,240)`
 * [ ] Lighting on dropped items is pure black sometimes despite being in light (possibly bad world position when retrieving light value)
 
 ## Implement

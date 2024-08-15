@@ -12,7 +12,7 @@
 
 DEFN_UI_COMPONENT(
     UIBackground,
-    Texture* texture;
+    Texture texture;
     DVECTOR texture_coords;
     DVECTOR texture_width;
 );

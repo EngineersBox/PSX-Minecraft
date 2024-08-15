@@ -38,7 +38,7 @@ void hotbarInit(Hotbar* hotbar) {
         .vx = HOTBAR_WIDTH,
         .vy = HOTBAR_HEIGHT
     };
-    background->texture = &textures[ASSET_TEXTURES_GUI_INDEX];
+    background->texture = textures[ASSET_TEXTURES_GUI_INDEX];
     DYN_PTR(component, UIBackground, IUIComponent, background);
 }
 
