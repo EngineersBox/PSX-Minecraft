@@ -22,13 +22,6 @@ void UIBackground_render(VSelf, RenderContext* ctx, Transforms* transforms) {
         self->component.dimensions.vx,
         self->component.dimensions.vy
     );
-    /*DEBUG_LOG(*/
-    /*    "(%d,%d) -> (%d,%d)\n",*/
-    /*    self->component.position.vx,*/
-    /*    self->component.position.vy,*/
-    /*    self->component.dimensions.vx,*/
-    /*    self->component.dimensions.vy*/
-    /*);*/
     setUVWH(
         pol4,
         self->texture_coords.vx,
