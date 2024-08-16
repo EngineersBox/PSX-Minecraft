@@ -65,13 +65,14 @@ typedef struct {
         __VA_ARGS__ \
     } name;
 
+#define blockFaceAttributes(_block) blockGetFaceAttributes((_block).id, (_block).metadata_id)
 #define itemBlockReplicateFaceAttributes(_item_block_to, _block_from) \
-    (_item_block_to).face_attributes[0] = (_block_from).face_attributes[0]; \
-    (_item_block_to).face_attributes[1] = (_block_from).face_attributes[1]; \
-    (_item_block_to).face_attributes[2] = (_block_from).face_attributes[2]; \
-    (_item_block_to).face_attributes[3] = (_block_from).face_attributes[3]; \
-    (_item_block_to).face_attributes[4] = (_block_from).face_attributes[4]; \
-    (_item_block_to).face_attributes[5] = (_block_from).face_attributes[5];
+    (_item_block_to).face_attributes[0] = blockFaceAttributes(_block_from)[0]; \
+    (_item_block_to).face_attributes[1] = blockFaceAttributes(_block_from)[1]; \
+    (_item_block_to).face_attributes[2] = blockFaceAttributes(_block_from)[2]; \
+    (_item_block_to).face_attributes[3] = blockFaceAttributes(_block_from)[3]; \
+    (_item_block_to).face_attributes[4] = blockFaceAttributes(_block_from)[4]; \
+    (_item_block_to).face_attributes[5] = blockFaceAttributes(_block_from)[5];
 
 void itemBlockRenderWorld(ItemBlock* item,
                           const Chunk* chunk,

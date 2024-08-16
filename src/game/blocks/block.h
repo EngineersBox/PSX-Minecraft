@@ -78,7 +78,6 @@ typedef struct Block {
     u8 opacity_bitset: FACE_DIRECTION_COUNT;
     FaceDirection orientation: FACE_DIRECTION_COUNT_BITS;
     u8 _pad: 3;
-    TextureAttributes face_attributes[BLOCK_FACES];
 } Block;
 
 #define BLOCK_DEFAULT_OPACITY_BITSET ((u8) 0b111111)
@@ -112,7 +111,7 @@ interface(IBlock);
 typedef IBlock* (*BlockConstructor)(IItem* from_item);
 
 #define DEFN_BLOCK_FACE_ATTRIBUTES(extern_name) \
-    extern TextureAttributes* extern_name##_FACE_ATTRIBUTES
+    extern TextureAttributes extern_name##_FACE_ATTRIBUTES[]
 
 #define DEFN_BLOCK_STATEFUL(name, extern_name, ...) \
     typedef struct {\
@@ -137,22 +136,20 @@ typedef IBlock* (*BlockConstructor)(IItem* from_item);
 #define DEFN_BLOCK_CONSTRUCTOR_IMPL_STATEFUL(name) DEFN_BLOCK_CONSTRUCTOR(name)
 
 // Declare a Block instance
-#define declareBlock(_id, _metadata_id, _light_level, _opacity_bitset, _orientation, _face_attributes) ((Block) {\
+#define declareBlock(_id, _metadata_id, _light_level, _opacity_bitset, _orientation) ((Block) {\
     .id = (BlockID) _id,\
     .metadata_id = _metadata_id,\
     .light_level = _light_level, \
     .opacity_bitset = _opacity_bitset, \
-    .orientation = (FaceDirection) _orientation,\
-    .face_attributes = _face_attributes\
+    .orientation = (FaceDirection) _orientation \
 })
 // Declare a Block
-#define declareSimpleBlock(_id, face_attributes) declareBlock( \
+#define declareSimpleBlock(_id) declareBlock( \
     _id, \
     0, \
     0, \
     BLOCK_DEFAULT_OPACITY_BITSET, \
-    FACE_DIR_RIGHT, \
-    P99_PROTECT(face_attributes) \
+    FACE_DIR_RIGHT \
 )
 // Declare a Block with a light level
 #define declareLightBlock(_id, _light_level) declareBlock( \
@@ -160,17 +157,15 @@ typedef IBlock* (*BlockConstructor)(IItem* from_item);
     0, \
     _light_level, \
     BLOCK_DEFAULT_OPACITY_BITSET, \
-    FACE_DIR_RIGHT, \
-    P99_PROTECT(face_attributes) \
+    FACE_DIR_RIGHT \
 )
 // Declare a Block with a metadata ID
-#define declareSimpleBlockMeta(_id, _metadata_id, face_attributes) declareBlock( \
+#define declareSimpleBlockMeta(_id, _metadata_id) declareBlock( \
     _id, \
     _metadata_id, \
     0, \
     BLOCK_DEFAULT_OPACITY_BITSET, \
-    FACE_DIR_RIGHT, \
-    P99_PROTECT(face_attributes) \
+    FACE_DIR_RIGHT \
 )
 
 #endif // PSXMC_BLOCK_H

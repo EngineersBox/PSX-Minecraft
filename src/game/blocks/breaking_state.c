@@ -196,7 +196,7 @@ void breakingStateUpdateRenderTarget(BreakingState* state,
     //    This must be sorted before any other chunk rendering takes place to ensure that the texture is
     //    updated correctly in time
     const Block* block = VCAST_PTR(Block*, state->block);
-    const TextureAttributes* attributes = block->face_attributes;
+    const TextureAttributes* attributes = blockGetFaceAttributes(block->id, block->metadata_id);
     for (FaceDirection face_dir = 0; face_dir < FACE_DIRECTION_COUNT; face_dir++) {
         if (((state->visible_sides_bitset >> face_dir) & 0b1) == 0) {
             continue;

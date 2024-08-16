@@ -338,7 +338,7 @@ static MeshPrimitive* createPrimitive(ChunkMesh* mesh,
     primitive->clut = texture->clut;
     const TextureAttributes* attributes = texture_attributes_override != NULL
         ? &texture_attributes_override[data->face]
-        : &data->block->face_attributes[data->face];
+        : &blockGetFaceAttributes(data->block->id, data->block->metadata_id)[data->face];
     primitive->tu0 = attributes->u;
     primitive->tv0 = attributes->v;
     primitive->tu1 = BLOCK_TEXTURE_SIZE * width;
@@ -559,7 +559,7 @@ void binaryGreedyMesherConstructBreakingOverlay(Chunk* chunk, const BreakingStat
         attributes->v = 0;
         attributes->w = BLOCK_TEXTURE_SIZE;
         attributes->h = BLOCK_TEXTURE_SIZE;
-        attributes->tint = block->face_attributes[face_dir].tint;
+        attributes->tint = blockGetFaceAttributes(block->id, block->metadata_id)[face_dir].tint;
         const Texture texture = (Texture) {
             .tpage = getTPage(
                 2,

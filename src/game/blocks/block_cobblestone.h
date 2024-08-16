@@ -21,8 +21,10 @@ DEFN_BLOCK_CONSTRUCTOR(cobblestone);
     .can_harvest = toolTypeBitset(0,1,0,0,0,0), \
     .propagates_sunlight = false, \
     .propagates_blocklight = false, \
+    .face_attributes = COBBLESTONE_FACE_ATTRIBUTES, \
     .name = "cobblestone" \
 })
+#define cobblestoneBlockFaceAttrbutes() P99_PROTECT({ defaultFaceAttributes(16) })
 
 void cobblestoneBlockInit(VSelf);
 void CobblestoneBlock_init(VSelf);

@@ -23,8 +23,10 @@ DEFN_BLOCK_CONSTRUCTOR(stone);
     .can_harvest = toolTypeBitset(0,1,0,0,0,0), \
     .propagates_sunlight = false, \
     .propagates_blocklight = false, \
+    .face_attributes = STONE_FACE_ATTRIBUTES, \
     .name = "stone" \
 })
+#define stoneBlockFaceAttributes() { defaultFaceAttributes(1) }
 
 void stoneBlockInit(VSelf);
 void StoneBlock_init(VSelf);

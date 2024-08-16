@@ -3,55 +3,55 @@
 #include "../../util/interface99_extensions.h"
 #include "../../logging/logging.h"
 #include "block_air.h"
+#include "block_cobblestone.h"
+#include "block_dirt.h"
+#include "block_grass.h"
 
 BlockAttributes block_attributes[BLOCK_COUNT] = {0};
 BlockConstructor block_constructors[BLOCK_COUNT] = {0};
 
 // Stateless blocks
-#define DECL_STATELESS_BLOCK(type, name) \
-    type name##_BLOCK_SINGLETON = {}; \
-    IBlock name##_IBLOCK_SINGLETON; \
-    TextureAttributes* name##_FACE_ATTRIBUTES
+#define DECL_STATELESS_METADATA_BLOCK(type, extern_name, metadata_variant_count, face_attributes) \
+    type extern_name##_BLOCK_SINGLETON = {}; \
+    IBlock extern_name##_IBLOCK_SINGLETON; \
+    TextureAttributes extern_name##_FACE_ATTRIBUTES[(metadata_variant_count) * FACE_DIRECTION_COUNT] = face_attributes
 
-DECL_STATELESS_BLOCK(AirBlock, AIR);
-DECL_STATELESS_BLOCK(StoneBlock, STONE);
-DECL_STATELESS_BLOCK(GrassBlock, GRASS);
-DECL_STATELESS_BLOCK(DirtBlock, DIRT);
-DECL_STATELESS_BLOCK(CobblestoneBlock, COBBLESTONE);
+#define DECL_STATELESS_BLOCK(type, extern_name, face_attributes) \
+    DECL_STATELESS_METADATA_BLOCK(type, extern_name, 1, P99_PROTECT(face_attributes))
 
-#define initBlockSingleton(type, extern_name, id, attributes, constructor, face_attributes) ({ \
+DECL_STATELESS_BLOCK(AirBlock, AIR, airBlockFaceAttributes()); 
+DECL_STATELESS_BLOCK(StoneBlock, STONE, stoneBlockFaceAttributes());
+DECL_STATELESS_BLOCK(GrassBlock, GRASS, grassBlockFaceAttributes());
+DECL_STATELESS_BLOCK(DirtBlock, DIRT, dirtBlockFaceAttributes());
+DECL_STATELESS_BLOCK(CobblestoneBlock, COBBLESTONE, cobblestoneBlockFaceAttrbutes());
+
+#define initBlockSingleton(type, extern_name, id, attributes, constructor) ({ \
     extern_name##_IBLOCK_SINGLETON = DYN(type, IBlock, &extern_name##_BLOCK_SINGLETON); \
     VCALL(extern_name##_IBLOCK_SINGLETON, init); \
     block_attributes[(id)] = attributes; \
     block_constructors[(id)] = constructor; \
-    extern_name##_FACE_ATTRIBUTES = face_attributes; \
 })
 
 void blocksInitialiseBuiltin() {
     initBlockSingleton(
         AirBlock, AIR, BLOCKID_AIR,
-        airBlockCreateAttributes(), airBlockCreate,
-        NULL
+        airBlockCreateAttributes(), airBlockCreate
     );
     initBlockSingleton(
         StoneBlock, STONE, BLOCKID_STONE,
-        stoneBlockCreateAttributes(), stoneBlockCreate,
-        NULL /* TODO: Implement this*/
+        stoneBlockCreateAttributes(), stoneBlockCreate
     );
     initBlockSingleton(
         GrassBlock, GRASS, BLOCKID_GRASS,
-        grassBlockCreateAttributes(), grassBlockCreate,
-        NULL /* TODO: Implement this */
+        grassBlockCreateAttributes(), grassBlockCreate
     );
     initBlockSingleton(
         DirtBlock, DIRT, BLOCKID_DIRT,
-        dirtBlockCreateAttributes(), dirtBlockCreate,
-        NULL /* TODO: Implement this */
+        dirtBlockCreateAttributes(), dirtBlockCreate
     );
     initBlockSingleton(
         CobblestoneBlock, COBBLESTONE, BLOCKID_COBBLESTONE,
-        cobblestoneBlockCreateAttributes(), cobblestoneBlockCreate,
-        NULL /* TODO: Implement this */
+        cobblestoneBlockCreateAttributes(), cobblestoneBlockCreate
     );
 }
 

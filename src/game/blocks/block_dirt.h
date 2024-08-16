@@ -23,8 +23,10 @@ DEFN_BLOCK_CONSTRUCTOR(dirt);
     .can_harvest = toolTypeBitset(1,1,1,1,1,1), \
     .propagates_sunlight = false, \
     .propagates_blocklight = false, \
+    .face_attributes = DIRT_FACE_ATTRIBUTES, \
     .name = "dirt" \
 })
+#define dirtBlockFaceAttributes() P99_PROTECT({ defaultFaceAttributes(2) })
 
 void dirtBlockInit(VSelf);
 void DirtBlock_init(VSelf);

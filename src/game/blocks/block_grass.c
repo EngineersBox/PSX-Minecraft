@@ -10,17 +10,7 @@ void grassBlockInit(VSelf) ALIAS("GrassBlock_init");
 void GrassBlock_init(VSelf) {
     // TODO: Can make this VSELF(Block) since GrassBlock composes Block as the first struct element
     VSELF(GrassBlock);
-    self->block = declareSimpleBlock(
-        BLOCKID_GRASS,
-        declareTintedFaceAttributes(
-            2 /*49*/, NO_TINT,
-            0 /*49*/, /*NO_TINT,*/ faceTint(91, 139, 50, 1),
-            3 /*49*/, NO_TINT,
-            3 /*49*/, NO_TINT,
-            3 /*49*/, NO_TINT,
-            3 /*49*/, NO_TINT
-        )
-    );
+    self->block = declareSimpleBlock(BLOCKID_GRASS);
 }
 
 IItem* grassBlockDestroy(VSelf, bool drop_item) ALIAS("GrassBlock_destroy");

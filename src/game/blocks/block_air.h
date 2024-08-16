@@ -22,8 +22,10 @@ DEFN_BLOCK_CONSTRUCTOR(air);
     .can_harvest = toolTypeBitset(0,0,0,0,0,0), \
     .propagates_sunlight = true, \
     .propagates_blocklight = true, \
+    .face_attributes = AIR_FACE_ATTRIBUTES, \
     .name = "air" \
 })
+#define airBlockFaceAttributes() {}
 
 void airBlockInit(VSelf);
 void AirBlock_init(VSelf);

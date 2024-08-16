@@ -22,8 +22,17 @@ DEFN_BLOCK_CONSTRUCTOR(grass);
     .can_harvest = toolTypeBitset(1,1,1,1,1,1), \
     .propagates_sunlight = false, \
     .propagates_blocklight = false, \
+    .face_attributes = GRASS_FACE_ATTRIBUTES, \
     .name = "grass" \
 })
+#define grassBlockFaceAttributes() P99_PROTECT({ declareTintedFaceAttributes( \
+    2 /*49*/, NO_TINT, \
+    0 /*49*/, /*NO_TINT,*/ faceTint(91, 139, 50, 1), \
+    3 /*49*/, NO_TINT, \
+    3 /*49*/, NO_TINT, \
+    3 /*49*/, NO_TINT, \
+    3 /*49*/, NO_TINT \
+) })
 
 void grassBlockInit(VSelf);
 void GrassBlock_init(VSelf);

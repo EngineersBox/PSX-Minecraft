@@ -6,6 +6,7 @@
 #include <psxgte.h>
 
 #include "../util/inttypes.h"
+#include "../math/vector.h"
 
 typedef struct {
     u16 tpage;
@@ -20,12 +21,12 @@ typedef struct {
     CVECTOR tint;
 } TextureAttributes;
 
-#define declareTintedFaceAttribute(pos, tint) { \
-    ((pos) % 16) * BLOCK_TEXTURE_SIZE, \
-    ((pos) / 16) * BLOCK_TEXTURE_SIZE, \
-    BLOCK_TEXTURE_SIZE, \
-    BLOCK_TEXTURE_SIZE, \
-    tint \
+#define declareTintedFaceAttribute(pos, _tint) (TextureAttributes) { \
+    .u = ((pos) % 16) * BLOCK_TEXTURE_SIZE, \
+    .v = ((pos) / 16) * BLOCK_TEXTURE_SIZE, \
+    .w = BLOCK_TEXTURE_SIZE, \
+    .h = BLOCK_TEXTURE_SIZE, \
+    .tint = _tint \
 }
 
 // Order
@@ -42,14 +43,14 @@ typedef struct {
     pos_x, pos_x_tint, \
     pos_z, pos_z_tint, \
     neg_z, neg_z_tint \
-) { \
+) \
     declareTintedFaceAttribute(pos_y, P99_PROTECT(pos_y_tint)), \
     declareTintedFaceAttribute(neg_y, P99_PROTECT(neg_y_tint)), \
     declareTintedFaceAttribute(neg_x, P99_PROTECT(neg_x_tint)), \
     declareTintedFaceAttribute(pos_x, P99_PROTECT(pos_x_tint)), \
     declareTintedFaceAttribute(pos_z, P99_PROTECT(pos_z_tint)), \
-    declareTintedFaceAttribute(neg_z, P99_PROTECT(neg_z_tint)) \
-}
+    declareTintedFaceAttribute(neg_z, P99_PROTECT(neg_z_tint))
+
 #define faceTint(r,g,b,cd) P99_PROTECT({r,g,b,cd})
 #define NO_TINT faceTint(128,128,128,0)
 #define declareFaceAttributes(pos_y, neg_y, neg_x, pos_x, pos_z, neg_z) declareTintedFaceAttributes( \
