@@ -29,11 +29,11 @@
 * [X] Items don't consider new world position when checking updates, so they cannot be picked up
 * [X] Core engine ticks can go higher than 20, redo the engine cycle system
 * [X] Inventory opens correctly and renders the items, however the background/overlay has an incorrect TPage position, pointing to `(0,0)` instead of `(576,240)`
+* [X] Movement tied to FPS
 * [ ] Cull faces on chunk edges that face outward on the render limit
 * [ ] Textures in terrain tpage with any `u` and `v >= 16` rendering multiple interleaved textures from different points in terrain texture page (NOTE: The issue seems to be specific to `POLY_FT4` since `POLY_GT4` doesn't have this behaviour when I changed the primitive type)
 * [ ] Mesh vertices z-depth is inconsistent leading to faces drawn in wrong order and thus culling fails
 * [ ] Vertices are distorted (in their location) when very close to the camera
-* [ ] Movement tied to FPS
 * [ ] Move mesh generation to after all loading when updating world to avoid face generation on orthogonal axis to update axis
 * [ ] Lighting on dropped items is pure black sometimes despite being in light (possibly bad world position when retrieving light value)
 
@@ -125,7 +125,8 @@
 * [X] Move remesh trigger handling for lighting and breaking overlay from `chunkRender` into `chunkUpdate` so that changes that don't directly invoke a re-mesh, but stil need one can do it in an update cycle
 * [X] Move to PSn00bSDK critical handlers and properly mark initialisation of timers.
 * [X] ~~Refactor vector operations to use `_Generic` C11 macro to perform type specific operations between any kind of two vector types or constant.~~ (Refactor was done with vec/const specific macros on naming basis).
+* [X] Move field `face_attributes` in `Block` to `BlockAttributes`, moving from a fixed sized array to a pointer, allowing for variable length arrays indexed by `metadata_id * FACE_DIRECTION_COUNT`. This can then be an alias to an array of texture refs that all blocks of the same type can use and simultaneously allow for many variants based on `metadat_id`.
 * [ ] Support other resolutions that aren't 320x240
 * [ ] Move assets to on-disk directories and files instead of packing them into the binary
 * [ ] Refactor the `chunkRemoveLightType` call into the `chunkSetLightType` when the light value is `0` and update the necessary logic changes to accomodate this (seems to cause infinite lighting update loops if this is done at the moment)
-* [X] Move field `face_attributes` in `Block` to `BlockAttributes`, moving from a fixed sized array to a pointer, allowing for variable length arrays indexed by `metadata_id * FACE_DIRECTION_COUNT`. This can then be an alias to an array of texture refs that all blocks of the same type can use and simultaneously allow for many variants based on `metadat_id`.
+* [ ] Change block equality check to account for both `id` and `metadata_id` fields in all relevant places (i.e. binary greedy mesher)

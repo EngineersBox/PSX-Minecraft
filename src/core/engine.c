@@ -44,14 +44,18 @@ void engineRun(Engine* engine) {
     u32 frames = 0;
     u32 ticks = 0;
     Timestamp total_elapsed = 0;
+    // TODO: Figure out why this is needed when the
+    //       input call is moved within the for loop
+    //       inside this engine loop.
+    VCALL(*engine->app_logic, input, &stats);
     while (engine->running) {
         const Timestamp current = time_ms;
         const Timestamp elapsed = positiveModulo(current - previous, FIXED_POINT_MAX);
         previous = current;
         delta += elapsed;
         total_elapsed += elapsed;
-        VCALL(*engine->app_logic, input, &stats);
         for (; delta >= ms_per_tick; delta -= ms_per_tick) {
+            VCALL(*engine->app_logic, input, &stats);
             VCALL(*engine->app_logic, update, &stats);
             ticks++;
         }
