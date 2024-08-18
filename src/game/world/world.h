@@ -20,6 +20,8 @@
 
 #define WORLD_CHUNKS_HEIGHT 1
 #define WORLD_HEIGHT (CHUNK_SIZE * WORLD_CHUNKS_HEIGHT)
+// 20 min * 60 sec * 20 ticks
+#define WORLD_TIME_CYCLE 24000
 
 // TODO: Make these properties configurable as externs
 //       to be accessible via some options interface
@@ -45,6 +47,7 @@ typedef struct World {
         u32 vz;
     } head; // Top left, effective (0,0) of 2D array of chunks
     LightLevel internal_light_level;
+    Timestamp time;
     IChunkProvider chunk_provider;
     // X, Z, Y
     Chunk* chunks[AXIS_CHUNKS][AXIS_CHUNKS][WORLD_CHUNKS_HEIGHT];

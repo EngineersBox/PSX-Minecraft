@@ -38,6 +38,7 @@ const LightUpdateLimits world_chunk_init_limits = (LightUpdateLimits) {
 void worldInit(World* world, RenderContext* ctx) {
     // TODO: Set light level based on time of day
     world->internal_light_level = createLightLevel(0, 15);
+    world->time = 0;
     VCALL(world->chunk_provider, init);
     // Clear the chunks first to ensure they are all NULL upon initialisation
     memset(
@@ -475,6 +476,7 @@ bool isPlayerInEdgeChunks(const World* world, const ChunkBlockPosition* player_p
 }
 
 void worldUpdate(World* world, Player* player, BreakingState* breaking_state) {
+    world->time = positiveModulo(world->time + 1, WORLD_TIME_CYCLE);
     const VECTOR player_world_pos = vec3_i32(
         fixedFloor(player->physics_object.position.vx, ONE_BLOCK) / ONE_BLOCK,
         fixedFloor(player->physics_object.position.vy, ONE_BLOCK) / ONE_BLOCK,
