@@ -510,7 +510,7 @@ void worldUpdateInternalLightLevelNew(World* world) {
     scaled = fixedMul(scaled, ONE - (fixedMul(rainStrength(world), ONE * 5) >> 4)); // Same as div 16
     scaled = fixedMul(scaled, ONE - (fixedMul(rainStrength(world), ONE * 5) >> 4));
     scaled = ONE - scaled;
-    world->internal_light_level = createLightLevel(0, fixedMul(scaled, 11 * ONE));
+    world->internal_light_level = createLightLevel(0, fixedMul(scaled, 11 * ONE) >> FIXED_POINT_SHIFT);
     DEBUG_LOG("[WORLD] Light: %d\n", world->internal_light_level);
 }
 

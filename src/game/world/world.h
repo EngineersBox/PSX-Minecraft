@@ -20,8 +20,13 @@
 
 #define WORLD_CHUNKS_HEIGHT 1
 #define WORLD_HEIGHT (CHUNK_SIZE * WORLD_CHUNKS_HEIGHT)
+
 // 20 min * 60 sec * 20 ticks
 #define WORLD_TIME_CYCLE 24000
+#define WORLD_TIME_NOON 6000
+#define WORLD_TIME_DUSK 12000
+#define WORLD_TIME_MIDNIGHT 18000
+#define WORLD_TIME_DAWN 24000
 
 // TODO: Make these properties configurable as externs
 //       to be accessible via some options interface
