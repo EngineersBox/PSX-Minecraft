@@ -475,6 +475,7 @@ bool isPlayerInEdgeChunks(const World* world, const ChunkBlockPosition* player_p
     return result;
 }
 
+// See: https://minecraft.wiki/w/Light#Internal_light_level
 void worldUpdateInternalLightLevel(World* world) {
     LightLevel internal_light_level = createLightLevel(0, 15);
     #define setLevel(level) internal_light_level = createLightLevel(0, level)
@@ -522,7 +523,7 @@ void worldUpdateInternalLightLevel(World* world) {
         case 12041 ... 12209:
             setLevel(14);
             break;
-        case 23961 ... 23999:
+        case 23961 ... 24000:
         case 0 ... 12040:
             setLevel(15);
             break;
