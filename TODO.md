@@ -78,6 +78,7 @@
 * [X] Loading new chunks should only happen when the player is in the bordering chunks and beyond the middle of the chunk (with respect to the centre of the world chunk grid).
 * [X] Items that go from one chunk to another (thrown, dropped, block beneath broken, etc) need to transition in ownership from the current chunk to the new chunk.
 * [X] Check block place raycast result intersection with player AABB, preventing placement if coordinates overlap.
+* [X] Calculate time-of-day as the tick count up to `20t * 20m * 60s = 24000t` ticks  and update world internal light level at various thresholds
 * [ ] Camera far plane cutoff with fog relative to chunk render distance
 * [ ] Frustum and culling
 * [ ] Depth-first search culling through chunks
@@ -89,7 +90,6 @@
 * [ ] Retrieve face attributes based on block orientation during meshing
 * [ ] Sub-block intersection tests for raycast to handling interacting with blocks like doors and piston heads
 * [ ] If we are breaking a block on the boundary of chunks, we should pass the breaking context to both the target and neighbouring chunk in order for the mesh generation to account for the missing faces on the chunk boundary.
-* [X] Calculate time-of-day as the tick count up to `20t * 20m * 60s = 24000t` ticks  and update world internal light level at various thresholds
 * [ ] Add support in chunk provider for providing a list of named stages for chunk loading (e.g. gen terrain, prop lighting, construct mesh), then use these for dynamically loading chunks as well as normal world initialisation.
 * [ ] Support more general mesh generation based on block types including multiple normals
 * [ ] Block light should have a slight tint towards red for a warmer colour.

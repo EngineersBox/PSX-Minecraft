@@ -527,7 +527,6 @@ void worldUpdateInternalLightLevel(World* world) {
             setLevel(15);
             break;
     }
-    DEBUG_LOG("[World] Time: %d Light: %d\n", world->time_ticks, world->internal_light_level);
     world->internal_light_level = internal_light_level;
     world->time_ticks = positiveModulo(world->time_ticks + 1, WORLD_TIME_CYCLE);
 }
