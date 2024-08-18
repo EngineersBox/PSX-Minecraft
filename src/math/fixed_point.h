@@ -10,6 +10,7 @@
  */
 #define FIXED_POINT_SHIFT 12
 #define TRIG_5TH_ORDER_REDUCTION 9
+#define FIXED_PI 16384
 /**
  * Implements the 5th-order polynomial approximation to sin(x).
  *

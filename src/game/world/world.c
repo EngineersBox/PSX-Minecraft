@@ -475,6 +475,45 @@ bool isPlayerInEdgeChunks(const World* world, const ChunkBlockPosition* player_p
     return result;
 }
 
+fixedi32 calculateCelestialAngle(u16 time_ticks) {
+    fixedi32 scaled = (((time_ticks + 1) << 12) / WORLD_TIME_CYCLE) - FIXED_1_4;
+    if (scaled < 0) {
+        scaled += ONE;
+    }
+    if (scaled > ONE) {
+        scaled -= ONE;
+    }
+    fixedi32 cached_scaled = scaled;
+    scaled = ONE - ((cos5o(fixedMul(scaled, FIXED_PI)) + ONE) >> 1);
+    scaled = cached_scaled + ((scaled - cached_scaled) / 3);
+    return scaled;
+}
+
+fixedi32 rainStrength(World* world) {
+    return 0;
+}
+
+fixedi32 stormStrength(World* world) {
+    return 0;
+}
+
+void worldUpdateInternalLightLevelNew(World* world) {
+    fixedi32 celestial_angle = calculateCelestialAngle(world->time_ticks);
+    fixedi32 scaled = ONE - (cos5o(fixedMul(celestial_angle, fixedMul(FIXED_PI, ONE << 1)) + FIXED_1_2));
+    if (scaled < 0) {
+        scaled = 0;
+    }
+    if (scaled > 1) {
+        scaled = ONE;
+    }
+    scaled = ONE - scaled;
+    scaled = fixedMul(scaled, ONE - (fixedMul(rainStrength(world), ONE * 5) >> 4)); // Same as div 16
+    scaled = fixedMul(scaled, ONE - (fixedMul(rainStrength(world), ONE * 5) >> 4));
+    scaled = ONE - scaled;
+    world->internal_light_level = createLightLevel(0, fixedMul(scaled, 11 * ONE));
+    DEBUG_LOG("[WORLD] Light: %d\n", world->internal_light_level);
+}
+
 // See: https://minecraft.wiki/w/Light#Internal_light_level
 void worldUpdateInternalLightLevel(World* world) {
     LightLevel internal_light_level = createLightLevel(0, 15);
