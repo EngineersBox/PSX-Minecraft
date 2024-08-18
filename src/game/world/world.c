@@ -38,7 +38,7 @@ const LightUpdateLimits world_chunk_init_limits = (LightUpdateLimits) {
 void worldInit(World* world, RenderContext* ctx) {
     // TODO: Set light level based on time of day
     world->internal_light_level = createLightLevel(0, 15);
-    world->time = 0;
+    world->time_ticks = 22331; // WORLD_TIME_CYCLE >> 1;
     VCALL(world->chunk_provider, init);
     // Clear the chunks first to ensure they are all NULL upon initialisation
     memset(
@@ -475,8 +475,65 @@ bool isPlayerInEdgeChunks(const World* world, const ChunkBlockPosition* player_p
     return result;
 }
 
+void worldUpdateInternalLightLevel(World* world) {
+    LightLevel internal_light_level = createLightLevel(0, 15);
+    #define setLevel(level) internal_light_level = createLightLevel(0, level)
+    switch (world->time_ticks) {
+        case 13670 ... 22330:
+            setLevel(4);
+            break;
+        case 22331 ... 22491:
+        case 13509 ... 13669:
+            setLevel(5);
+            break;
+        case 22492 ... 22652:
+        case 13348 ... 13508:
+            setLevel(6);
+            break;
+        case 22653 ... 22812:
+        case 13188 ... 13347:
+            setLevel(7);
+            break;
+        case 22813 ... 22973:
+        case 13027 ... 13187:
+            setLevel(8);
+            break;
+        case 22974 ... 23134:
+        case 12867 ... 13026:
+            setLevel(9);
+            break;
+        case 23135 ... 23296:
+        case 12705 ... 12866:
+            setLevel(10);
+            break;
+        case 23297 ... 23459:
+        case 12542 ... 12704:
+            setLevel(11);
+            break;
+        case 23460 ... 23623:
+        case 12377 ... 12541:
+            setLevel(12);
+            break;
+        case 23624 ... 23790:
+        case 12210 ... 12376:
+            setLevel(13);
+            break;
+        case 23791 ... 23960:
+        case 12041 ... 12209:
+            setLevel(14);
+            break;
+        case 23961 ... 23999:
+        case 0 ... 12040:
+            setLevel(15);
+            break;
+    }
+    DEBUG_LOG("[World] Time: %d Light: %d\n", world->time_ticks, world->internal_light_level);
+    world->internal_light_level = internal_light_level;
+    world->time_ticks = positiveModulo(world->time_ticks + 1, WORLD_TIME_CYCLE);
+}
+
 void worldUpdate(World* world, Player* player, BreakingState* breaking_state) {
-    world->time = positiveModulo(world->time + 1, WORLD_TIME_CYCLE);
+    worldUpdateInternalLightLevel(world);
     const VECTOR player_world_pos = vec3_i32(
         fixedFloor(player->physics_object.position.vx, ONE_BLOCK) / ONE_BLOCK,
         fixedFloor(player->physics_object.position.vy, ONE_BLOCK) / ONE_BLOCK,
