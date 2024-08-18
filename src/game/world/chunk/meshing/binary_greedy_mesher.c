@@ -270,11 +270,13 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk, const BreakingState* breaking_sta
                         );
                         continue;
                     }
-                    // TODO: For blocks that are transparent to sunlight, we should
+                    // NOTE: For blocks that are transparent to sunlight, we should
                     //       look up the position of the block without the direction
                     //       offset applied.
                     const VECTOR light_query_pos = chunkBlockToWorldPosition(
-                        &light_cb_pos,
+                        blockIsFaceOpaque(block, face)
+                            ? &chunk_block_position
+                            : &light_cb_pos,
                         CHUNK_SIZE
                     );
                     const LightLevel light_level = worldGetLightValue(
