@@ -47,33 +47,55 @@ Remake of Minecraft for PS1 with PSn00bSDK
 
 ### Screenshots
 
-#### Breaking Blocks
+<details>
+<summary><h4>Breaking Blocks</h4></summary>
 
 ![Breaking Overlay](./docs/breaking_overlay.png)
 
-#### Placing Blocks
+</details>
+
+<details>
+<summary><h4>Placing Blocks</h4></summary>
 
 ![Placing Blocks](./docs/placing_blocks.png)
 
-#### Item Drops
+</details>
+
+<details>
+<summary><h4>Item Drops</h4></summary>
 
 ![Item Drops](./docs/item_drops.png)
 
-#### Inventory
+</details>
+
+<details>
+<summary><h4>Inventory</h4></summary>
+
 
 ![Inventory](./docs/inventory.png)
 
-#### Sunlight Propagation
+</details>
+
+<details>
+<summary><h4>Sunlight Propagation</h4></summary>
 
 ![Sunlight Propagation](./docs/sunlight.png)
 
-#### Single Source Block Light
+</details>
+
+<details>
+<summary><h4>Single Source Block Light</h4></summary>
 
 ![Single Source Block Light](./docs/blocklight_single_source.png)
 
-#### Multiple Source Block Light
+</details>
+
+<details>
+<summary><h4>Multiple Source Block Light</h4></summary>
 
 ![Multiple Source Block Light](./docs/blocklight_multiple_source.png)
+
+</details>
 
 ## Building
 
