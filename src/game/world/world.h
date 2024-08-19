@@ -53,6 +53,7 @@ typedef struct World {
     } head; // Top left, effective (0,0) of 2D array of chunks
     LightLevel internal_light_level;
     u16 time_ticks;
+    fixedi32 celestial_angle;
     IChunkProvider chunk_provider;
     // X, Z, Y
     Chunk* chunks[AXIS_CHUNKS][AXIS_CHUNKS][WORLD_CHUNKS_HEIGHT];

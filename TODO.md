@@ -94,7 +94,8 @@
 * [ ] Support more general mesh generation based on block types including multiple normals
 * [ ] Block light should have a slight tint towards red for a warmer colour.
 * [ ] Support smooth lighting by optionally switching to an alternate `ChunkMesh` render handler that uses `POLY_GT4`. Vertex colours should be calculated by querying the light level for each vertex (with some adjustment for direction since left to right is not the same as right to left when getting lighting values).
-* [ ] Limit world internal lighting level based on rain and thunder strength.
+* [X] Limit world internal lighting level based on rain and thunder strength.
+* [ ] Add snow/rain rendering in scene as several orthogonal planes that are positioned at player position.
 
 ## Refactor
 

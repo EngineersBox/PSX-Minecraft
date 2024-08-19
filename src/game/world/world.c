@@ -505,6 +505,7 @@ void worldUpdateInternalLightLevel(World* world) {
     scaled = fixedMul(scaled, ONE - ((stormStrength(world) * 5) >> 4));
     scaled = ONE - scaled;
     world->internal_light_level = createLightLevel(0, 15 - ((scaled * 11) >> FIXED_POINT_SHIFT));
+    world->celestial_angle = celestial_angle;
     DEBUG_LOG("[WORLD] Time: %d Light: %d\n", world->time_ticks, world->internal_light_level);
 }
 
