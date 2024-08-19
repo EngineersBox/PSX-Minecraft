@@ -18,6 +18,9 @@
 #include "level/overworld_flatland.h"
 #include "level/overworld_perlin.h"
 
+// ONE * 0.01 = 40.96
+#define WEATHER_STRENGTH_INCREMENT 41
+
 typedef struct Weather {
     // Value in range [0, ONE] aka [0, 4096]
     fixedi16 rain_strength;

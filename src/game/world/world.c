@@ -564,8 +564,6 @@ void worldUpdateInternalLightLevelOld(World* world) {
     world->internal_light_level = internal_light_level;
 }
 
-// ONE * 0.01 = 40.96
-#define WEATHER_STRENGTH_INCREMENT 41
 
 void worldUpdateWeather(Weather* weather) {
     if (weather->storm_time_ticks <= 0) {
