@@ -38,7 +38,7 @@ const LightUpdateLimits world_chunk_init_limits = (LightUpdateLimits) {
 void worldInit(World* world, RenderContext* ctx) {
     // TODO: Set light level based on time of day
     world->internal_light_level = createLightLevel(0, 15);
-    world->time_ticks = 22331; // WORLD_TIME_CYCLE >> 1;
+    world->time_ticks = WORLD_TIME_DAWN;
     VCALL(world->chunk_provider, init);
     // Clear the chunks first to ensure they are all NULL upon initialisation
     memset(
@@ -497,19 +497,19 @@ fixedi32 stormStrength(World* world) {
     return 0;
 }
 
-void worldUpdateInternalLightLevelNew(World* world) {
+void worldUpdateInternalLightLevel(World* world) {
     fixedi32 celestial_angle = calculateCelestialAngle(world->time_ticks);
     fixedi32 scaled = ONE - ((cos5o(fixedMul(celestial_angle, FIXED_PI << 1)) << 1) + FIXED_1_2);
     scaled = ONE - min(ONE, max(0, scaled));
     scaled = fixedMul(scaled, ONE - ((rainStrength(world) * 5) >> 4)); // Same as div 16
     scaled = fixedMul(scaled, ONE - ((stormStrength(world) * 5) >> 4));
     scaled = ONE - scaled;
-    world->internal_light_level = createLightLevel(0, (scaled * 11) >> FIXED_POINT_SHIFT);
-    DEBUG_LOG("[WORLD] Light: %d\n", world->internal_light_level);
+    world->internal_light_level = createLightLevel(0, 15 - ((scaled * 11) >> FIXED_POINT_SHIFT));
+    DEBUG_LOG("[WORLD] Time: %d Light: %d\n", world->time_ticks, world->internal_light_level);
 }
 
 // See: https://minecraft.wiki/w/Light#Internal_light_level
-void worldUpdateInternalLightLevel(World* world) {
+void worldUpdateInternalLightLevelOld(World* world) {
     LightLevel internal_light_level = createLightLevel(0, 15);
     #define setLevel(level) internal_light_level = createLightLevel(0, level)
     switch (world->time_ticks) {
@@ -562,11 +562,11 @@ void worldUpdateInternalLightLevel(World* world) {
             break;
     }
     world->internal_light_level = internal_light_level;
-    world->time_ticks = positiveModulo(world->time_ticks + 1, WORLD_TIME_CYCLE);
 }
 
 void worldUpdate(World* world, Player* player, BreakingState* breaking_state) {
     worldUpdateInternalLightLevel(world);
+    world->time_ticks = positiveModulo(world->time_ticks + 1, WORLD_TIME_CYCLE);
     const VECTOR player_world_pos = vec3_i32(
         fixedFloor(player->physics_object.position.vx, ONE_BLOCK) / ONE_BLOCK,
         fixedFloor(player->physics_object.position.vy, ONE_BLOCK) / ONE_BLOCK,

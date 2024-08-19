@@ -274,7 +274,7 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk, const BreakingState* breaking_sta
                     //       look up the position of the block without the direction
                     //       offset applied.
                     const VECTOR light_query_pos = chunkBlockToWorldPosition(
-                        blockIsFaceOpaque(block, face)
+                        !blockIsFaceOpaque(block, face)
                             ? &chunk_block_position
                             : &light_cb_pos,
                         CHUNK_SIZE

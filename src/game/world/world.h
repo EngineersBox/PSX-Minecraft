@@ -26,7 +26,7 @@
 #define WORLD_TIME_NOON 6000
 #define WORLD_TIME_DUSK 12000
 #define WORLD_TIME_MIDNIGHT 18000
-#define WORLD_TIME_DAWN 24000
+#define WORLD_TIME_DAWN 0
 
 // TODO: Make these properties configurable as externs
 //       to be accessible via some options interface
