@@ -499,18 +499,12 @@ fixedi32 stormStrength(World* world) {
 
 void worldUpdateInternalLightLevelNew(World* world) {
     fixedi32 celestial_angle = calculateCelestialAngle(world->time_ticks);
-    fixedi32 scaled = ONE - (cos5o(fixedMul(celestial_angle, fixedMul(FIXED_PI, ONE << 1)) + FIXED_1_2));
-    if (scaled < 0) {
-        scaled = 0;
-    }
-    if (scaled > 1) {
-        scaled = ONE;
-    }
+    fixedi32 scaled = ONE - ((cos5o(fixedMul(celestial_angle, FIXED_PI << 1)) << 1) + FIXED_1_2);
+    scaled = ONE - min(ONE, max(0, scaled));
+    scaled = fixedMul(scaled, ONE - ((rainStrength(world) * 5) >> 4)); // Same as div 16
+    scaled = fixedMul(scaled, ONE - ((stormStrength(world) * 5) >> 4));
     scaled = ONE - scaled;
-    scaled = fixedMul(scaled, ONE - (fixedMul(rainStrength(world), ONE * 5) >> 4)); // Same as div 16
-    scaled = fixedMul(scaled, ONE - (fixedMul(rainStrength(world), ONE * 5) >> 4));
-    scaled = ONE - scaled;
-    world->internal_light_level = createLightLevel(0, fixedMul(scaled, 11 * ONE) >> FIXED_POINT_SHIFT);
+    world->internal_light_level = createLightLevel(0, (scaled * 11) >> FIXED_POINT_SHIFT);
     DEBUG_LOG("[WORLD] Light: %d\n", world->internal_light_level);
 }
 
