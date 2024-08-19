@@ -39,6 +39,14 @@ void worldInit(World* world, RenderContext* ctx) {
     // TODO: Set light level based on time of day
     world->internal_light_level = createLightLevel(0, 15);
     world->time_ticks = WORLD_TIME_DAWN;
+    world->weather = (Weather) {
+        .rain_strength = 0,
+        .storm_strength = 0,
+        .rain_time_ticks = 0,
+        .storm_time_ticks = 0,
+        .raining = false,
+        .storming = false
+    };
     VCALL(world->chunk_provider, init);
     // Clear the chunks first to ensure they are all NULL upon initialisation
     memset(
@@ -489,31 +497,15 @@ fixedi32 calculateCelestialAngle(u16 time_ticks) {
     return scaled;
 }
 
-// Value in range [0, ONE] aka [0, 4096]
-fixedi32 rainStrength(World* world) {
-    // NOTE: Use this to as opacity for planes in
-    //       world to render rain/snow. When value
-    //       is greater than 0, rendering should
-    //       start and when it returns to 0 rendering
-    //       should stop
-    return 0;
-}
-
-// Value in range [0, ONE] aka [0, 4096]
-fixedi32 stormStrength(World* world) {
-    return 0;
-}
-
 void worldUpdateInternalLightLevel(World* world) {
     fixedi32 celestial_angle = calculateCelestialAngle(world->time_ticks);
     fixedi32 scaled = ONE - ((cos5o(fixedMul(celestial_angle, FIXED_PI << 1)) << 1) + FIXED_1_2);
-    scaled = ONE - min(ONE, max(0, scaled));
-    scaled = fixedMul(scaled, ONE - ((rainStrength(world) * 5) >> 4)); // Same as div 16
-    scaled = fixedMul(scaled, ONE - ((stormStrength(world) * 5) >> 4));
+    scaled = ONE - clamp(scaled, 0, ONE);
+    scaled = fixedMul(scaled, ONE - (((fixedi32) world->weather.rain_strength * 5) >> 4)); // Same as div 16
+    scaled = fixedMul(scaled, ONE - (((fixedi32) world->weather.storm_strength * 5) >> 4));
     scaled = ONE - scaled;
     world->internal_light_level = createLightLevel(0, 15 - ((scaled * 11) >> FIXED_POINT_SHIFT));
     world->celestial_angle = celestial_angle;
-    DEBUG_LOG("[WORLD] Time: %d Light: %d\n", world->time_ticks, world->internal_light_level);
 }
 
 // See: https://minecraft.wiki/w/Light#Internal_light_level
@@ -572,7 +564,42 @@ void worldUpdateInternalLightLevelOld(World* world) {
     world->internal_light_level = internal_light_level;
 }
 
+// ONE * 0.01 = 40.96
+#define WEATHER_STRENGTH_INCREMENT 41
+
+void worldUpdateWeather(Weather* weather) {
+    if (weather->storm_time_ticks <= 0) {
+        if (weather->storm_strength > 0) {
+            weather->storm_time_ticks = (rand() % 12000) + 3600;
+        } else {
+            weather->storm_time_ticks = (rand() % 16800) + 12000;
+        }
+    } else {
+        if (--weather->storm_time_ticks <= 0) {
+            weather->storming = !weather->storming;
+        }
+    }
+    const fixedi16 storm_strength = weather->storm_strength
+        + (weather->storming ? WEATHER_STRENGTH_INCREMENT : -WEATHER_STRENGTH_INCREMENT);
+    weather->storm_strength = clamp(storm_strength, 0, ONE);
+    if (weather->rain_time_ticks <= 0) {
+        if (weather->rain_strength > 0) {
+            weather->rain_time_ticks = (rand() % 12000) + 12000;
+        } else {
+            weather->rain_time_ticks = (rand() % 16800) + 12000;
+        }
+    } else {
+        if (--weather->rain_time_ticks <= 0) {
+            weather->raining = !weather->raining;
+        }
+    }
+    const fixedi16 rain_strength = weather->rain_strength
+        + (weather->raining ? WEATHER_STRENGTH_INCREMENT : -WEATHER_STRENGTH_INCREMENT);
+    weather->rain_strength = clamp(rain_strength, 0, ONE);
+}
+
 void worldUpdate(World* world, Player* player, BreakingState* breaking_state) {
+    worldUpdateWeather(&world->weather);
     worldUpdateInternalLightLevel(world);
     world->time_ticks = positiveModulo(world->time_ticks + 1, WORLD_TIME_CYCLE);
     const VECTOR player_world_pos = vec3_i32(

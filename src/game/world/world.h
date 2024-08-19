@@ -18,6 +18,18 @@
 #include "level/overworld_flatland.h"
 #include "level/overworld_perlin.h"
 
+typedef struct Weather {
+    // Value in range [0, ONE] aka [0, 4096]
+    fixedi16 rain_strength;
+    // Value in range [0, ONE] aka [0, 4096]
+    fixedi16 storm_strength;
+    u32 rain_time_ticks;
+    u32 storm_time_ticks;
+    bool raining: 1;
+    bool storming: 1;
+    u8 _pad: 6;
+} Weather;
+
 #define WORLD_CHUNKS_HEIGHT 1
 #define WORLD_HEIGHT (CHUNK_SIZE * WORLD_CHUNKS_HEIGHT)
 
@@ -54,6 +66,7 @@ typedef struct World {
     LightLevel internal_light_level;
     u16 time_ticks;
     fixedi32 celestial_angle;
+    Weather weather;
     IChunkProvider chunk_provider;
     // X, Z, Y
     Chunk* chunks[AXIS_CHUNKS][AXIS_CHUNKS][WORLD_CHUNKS_HEIGHT];

@@ -80,6 +80,7 @@
 * [X] Check block place raycast result intersection with player AABB, preventing placement if coordinates overlap.
 * [X] Calculate time-of-day as the tick count up to `20t * 20m * 60s = 24000t` ticks  and update world internal light level at various thresholds
 * [X] Limit world internal lighting level based on rain and thunder strength.
+* [ ] Weather cycle at random intervals with varying strength.
 * [ ] Camera far plane cutoff with fog relative to chunk render distance
 * [ ] Frustum and culling
 * [ ] Depth-first search culling through chunks
