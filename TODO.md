@@ -79,6 +79,7 @@
 * [X] Items that go from one chunk to another (thrown, dropped, block beneath broken, etc) need to transition in ownership from the current chunk to the new chunk.
 * [X] Check block place raycast result intersection with player AABB, preventing placement if coordinates overlap.
 * [X] Calculate time-of-day as the tick count up to `20t * 20m * 60s = 24000t` ticks  and update world internal light level at various thresholds
+* [X] Limit world internal lighting level based on rain and thunder strength.
 * [ ] Camera far plane cutoff with fog relative to chunk render distance
 * [ ] Frustum and culling
 * [ ] Depth-first search culling through chunks
@@ -94,7 +95,6 @@
 * [ ] Support more general mesh generation based on block types including multiple normals
 * [ ] Block light should have a slight tint towards red for a warmer colour.
 * [ ] Support smooth lighting by optionally switching to an alternate `ChunkMesh` render handler that uses `POLY_GT4`. Vertex colours should be calculated by querying the light level for each vertex (with some adjustment for direction since left to right is not the same as right to left when getting lighting values).
-* [X] Limit world internal lighting level based on rain and thunder strength.
 * [ ] Add snow/rain rendering in scene as several orthogonal planes that are positioned at player position.
 
 ## Refactor
