@@ -489,10 +489,17 @@ fixedi32 calculateCelestialAngle(u16 time_ticks) {
     return scaled;
 }
 
+// Value in range [0, ONE] aka [0, 4096]
 fixedi32 rainStrength(World* world) {
+    // NOTE: Use this to as opacity for planes in
+    //       world to render rain/snow. When value
+    //       is greater than 0, rendering should
+    //       start and when it returns to 0 rendering
+    //       should stop
     return 0;
 }
 
+// Value in range [0, ONE] aka [0, 4096]
 fixedi32 stormStrength(World* world) {
     return 0;
 }
