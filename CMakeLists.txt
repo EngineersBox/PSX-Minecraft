@@ -95,7 +95,8 @@ target_compile_definitions(PSXMC PUBLIC -DPSXMC_DEBUG_OVERLAY_FPS=1)
 target_compile_definitions(PSXMC PUBLIC -DPSXMC_DEBUG_OVERLAY_POS=1)
 target_compile_definitions(PSXMC PUBLIC -DPSXMC_DEBUG_OVERLAY_DIR=0)
 target_compile_definitions(PSXMC PUBLIC -DPSXMC_DEBUG_OVERLAY_FACING=1)
-target_compile_definitions(PSXMC PUBLIC -DPSXMC_DEBUG_OVERLAY_MEM=1)
+target_compile_definitions(PSXMC PUBLIC -DPSXMC_DEBUG_OVERLAY_WORLD=1)
+target_compile_definitions(PSXMC PUBLIC -DPSXMC_DEBUG_OVERLAY_MEM=0)
 
 # Include assets in binary
 if (NOT (asset_count EQUAL 0))

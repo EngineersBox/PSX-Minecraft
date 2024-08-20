@@ -13,5 +13,9 @@
 // #define PSXMC_DEBUG_OVERLAY_DIR 0
 // Render memory usage debug overlay (1 = enabled, 0 = disabled)
 // #define PSXMC_DEBUG_OVERLAY_MEM 1
+// Render facing direction (1 = enabled, 0 = disabled)
+// #define PSXMC_DEBUG_OVERLAY_FACING 0
+// Render world data like day count, time of day and weather (1 = enabled, 0 = disabled)
+// #define PSXMC_DEBUG_OVERLAY_WORLD 1
 
 #endif // _PSXMC__RENDER__DEBUG_DEFINES_H_

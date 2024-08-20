@@ -88,7 +88,7 @@ void debugDrawPBUsageGraph(RenderContext* ctx, const u16 base_screen_x, const u1
 
 #define isOverlayEnabled(suffix) (isDebugEnabled() && defined(PSXMC_DEBUG_OVERLAY_##suffix) && PSXMC_DEBUG_OVERLAY_##suffix)
 
-void drawLeftDebugText(const Stats* stats, const Camera* camera) {
+void drawLeftDebugText(const Stats* stats, const Camera* camera, const World* world) {
 #if isOverlayEnabled(FPS)
     FntPrint(0, "FT=%dms FPS=%d TPS=%d\n", stats->frame_diff_ms, stats->fps, stats->tps);
 #endif
@@ -147,6 +147,23 @@ void drawLeftDebugText(const Stats* stats, const Camera* camera) {
         facing
     );
 #endif
+#if isOverlayEnabled(WORLD)
+    char* weather;
+    if (world->weather.storming) {
+        weather = "storming";
+    } else if (world->weather.raining) {
+        weather = "raining";
+    } else {
+        weather = "clear";
+    }
+    FntPrint(
+        0,
+        "Day=%d Time=%d\nWeather=%s\n",
+        world->day_count,
+        world->time_ticks,
+        weather
+    );
+#endif
 }
 
 void drawRightDebugText(const Stats* stats) {
@@ -158,7 +175,7 @@ void drawRightDebugText(const Stats* stats) {
     u32 frac;
     humanSize(usage->total, &suffix, &whole, &frac);
     FntPrint(
-        0,
+        1,
         "Memory: %d.%d%s\n",
         whole, frac, suffix
     );
@@ -168,28 +185,28 @@ void drawRightDebugText(const Stats* stats) {
     humanSize(usage->heap, &suffix, &whole, &frac);
     humanSize(usage->alloc, &suffix2, &whole2, &frac2);
     FntPrint(
-        0,
+        1,
         "Heap: %d.%d%s / %d.%d%s\n",
         whole2, frac2, suffix2,
         whole, frac, suffix
     );
     humanSize(usage->alloc_max, &suffix, &whole, &frac);
     FntPrint(
-        0,
+        1,
         "Max Heap: %d.%d%s\n",
         whole, frac, suffix
     );
     humanSize(usage->stack, &suffix, &whole, &frac);
     FntPrint(
-        0,
+        1,
         "Stack: %d.%d%s\n",
         whole, frac, suffix
     );
 #endif
 }
 
-void drawDebugText(const Stats* stats, const Camera* camera) {
-    drawLeftDebugText(stats, camera);
+void drawDebugText(const Stats* stats, const Camera* camera, const World* world) {
+    drawLeftDebugText(stats, camera, world);
     drawRightDebugText(stats);
 }
 #undef isOverlayEnabled

@@ -87,6 +87,14 @@ void Minecraft_init(VSelf, void* ctx) {
     // Load font and open a text stream
     FntLoad(960, 0);
     FntOpen(0, 8, 320, 216, 0, 160);
+    FntOpen(
+        SCREEN_XRES >> 1,
+        8,
+        SCREEN_XRES >> 1,
+        216,
+        0,
+        (SCREEN_XRES / FONT_SPRITE_WIDTH) * 6
+    );
     // Unpack LZP archive and load assets
     assetsLoad();
     fontLoad();
@@ -193,7 +201,7 @@ void Minecraft_render(VSelf, const Stats* stats) {
     // Render UI
     playerRender(player, &self->internals.ctx, &self->internals.transforms);
     // crosshairDraw(&render_context);
-    drawDebugText(stats, &camera);
+    drawDebugText(stats, &camera, world);
     axisDraw(&self->internals.ctx, &self->internals.transforms, &camera);
     debugDrawPBUsageGraph(
         &self->internals.ctx,
