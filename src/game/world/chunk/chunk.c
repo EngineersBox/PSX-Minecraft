@@ -18,6 +18,7 @@
 #include "../generation/noise.h"
 #include "chunk_mesh.h"
 #include "chunk_structure.h"
+#include "heightmap.h"
 #include "meshing/binary_greedy_mesher.h"
 
 const LightUpdateLimits chunk_light_update_limits = (LightUpdateLimits) {
@@ -52,6 +53,7 @@ FWD_DECL void worldRemoveLightTypeChunkBlock(const World* world,
                                              const ChunkBlockPosition* position,
                                              const LightType light_type);
 FWD_DECL LightLevel worldGetInternalLightLevel(const World* world);
+FWD_DECL ChunkHeightmap* worldGetChunkHeightmap(World* world, const VECTOR* position);
 
 void chunkDestroyDroppedItem(void* elem) {
     IItem** iitem = (IItem**) elem;
@@ -198,6 +200,7 @@ void chunkGenerateMesh(Chunk* chunk) {
 
 void chunkGenerateLightmap(Chunk* chunk, ChunkGenerationContext* gen_ctx) {
     bool is_top = true;
+    ChunkHeightmap* heightmap = worldGetChunkHeightmap(chunk->world, &chunk->position);
     for (i32 x = 0; x < CHUNK_SIZE; x++) {
         for (i32 z = 0; z < CHUNK_SIZE; z++) {
             for (i32 y = CHUNK_SIZE - 1; y >= 0; y--) {
@@ -224,6 +227,8 @@ void chunkGenerateLightmap(Chunk* chunk, ChunkGenerationContext* gen_ctx) {
                     // future this will be based on whether the chunk Y range
                     // is within the heighmap for this column of chunks.
                     is_top &= y == CHUNK_SIZE - 1;
+                    const u32 current = (*heightmap)[chunkHeightmapIndex(x, z)];
+                    (*heightmap)[chunkHeightmapIndex(x, z)] = min(current, (u32) y);
                     break;
                 }
             }

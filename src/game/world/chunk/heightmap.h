@@ -7,6 +7,8 @@
 #include "../world_defines.h"
 #include "../../../util/inttypes.h"
 
+#define chunkHeightmapIndex(x, z) (((x) * CHUNK_SIZE) + z)
+
 typedef u32 ChunkHeightmap[CHUNK_SIZE * CHUNK_SIZE];
 typedef ChunkHeightmap Heightmap[AXIS_CHUNKS][AXIS_CHUNKS];
 
