@@ -201,8 +201,9 @@ void Minecraft_render(VSelf, const Stats* stats) {
     // Render UI
     playerRender(player, &self->internals.ctx, &self->internals.transforms);
     // crosshairDraw(&render_context);
-    drawDebugText(stats, &camera, world);
     axisDraw(&self->internals.ctx, &self->internals.transforms, &camera);
+    FntPrint(0, PSXMC_VERSION_STRING "\n");
+    drawDebugText(stats, &camera, world);
     debugDrawPBUsageGraph(
         &self->internals.ctx,
         0,

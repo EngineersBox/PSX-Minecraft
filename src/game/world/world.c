@@ -970,3 +970,12 @@ void worldRemoveLightTypeChunkBlock(const World* world,
 INLINE LightLevel worldGetInternalLightLevel(const World* world) {
     return world->internal_light_level;
 }
+
+ChunkHeightmap* worldGetChunkHeightmap(World* world, const VECTOR* position) {
+    return &world->heightmap[arrayCoord(world, vz, position->vz)]
+                            [arrayCoord(world, vx, position->vx)];
+}
+
+Heightmap* worldGetHeightmap(World* world) {
+    return &world->heightmap;
+}

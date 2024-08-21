@@ -89,6 +89,7 @@ elseif(CMAKE_C_COMPILER_ID STREQUAL "GNU")
 	target_compile_options(PSXMC PRIVATE -ftrack-macro-expansion=0)
 endif()
 
+target_compile_definitions(PSXMC PUBLIC -DPSXMC_VERSION_STRING="PSXMC Infdev")
 target_compile_definitions(PSXMC PUBLIC -DFPT_BITS=32 -DFPT_WBITS=20)
 target_compile_definitions(PSXMC PUBLIC -DPSXMC_DEBUG=1)
 target_compile_definitions(PSXMC PUBLIC -DPSXMC_DEBUG_OVERLAY_FPS=1)

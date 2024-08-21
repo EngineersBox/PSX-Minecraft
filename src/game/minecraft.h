@@ -12,6 +12,10 @@
 #include "../render/transforms.h"
 #include "world/world.h"
 
+#ifndef PSXMC_VERSION_STRING
+#define PSXMC_VERSION_STRING "PSXMC Infdev"
+#endif
+
 typedef struct {
     RenderContext ctx;
     Transforms transforms;

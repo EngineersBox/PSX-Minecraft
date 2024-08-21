@@ -97,6 +97,7 @@
 * [ ] Block light should have a slight tint towards red for a warmer colour.
 * [ ] Support smooth lighting by optionally switching to an alternate `ChunkMesh` render handler that uses `POLY_GT4`. Vertex colours should be calculated by querying the light level for each vertex (with some adjustment for direction since left to right is not the same as right to left when getting lighting values).
 * [ ] Add snow/rain rendering in scene as several orthogonal planes that are positioned at player position.
+* [ ] Sound for rain as inside/outside variant should be based on whether player is below the top block in the heightmap. More specifically within a chunk that is at or below the top and within a some distance from nearest exposed (to top) blocks.
 
 ## Refactor
 

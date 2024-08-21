@@ -1,5 +1,6 @@
 #pragma once
 
+#include "chunk/heightmap.h"
 #ifndef PSXMC_WORLD_H
 #define PSXMC_WORLD_H
 
@@ -89,5 +90,10 @@ void worldRemoveLightTypeChunkBlock(const World* world,
                                     const LightType light_type);
 
 LightLevel worldGetInternalLightLevel(const World* world);
+
+// This is a transient pointer that can change after an update cycle,
+// as such it should not be persisted.
+ChunkHeightmap* worldGetChunkHeightmap(World* world, const VECTOR* position);
+Heightmap* worldGetHeightmap(World* world);
 
 #endif // PSXMC_WORLD_H

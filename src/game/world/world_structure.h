@@ -10,6 +10,7 @@
 #include "../../lighting/lightmap.h"
 #include "../../util/inttypes.h"
 #include "world_defines.h"
+#include "chunk/heightmap.h"
 
 typedef struct Weather {
     // Value in range [0, ONE] aka [0, 4096]
@@ -36,6 +37,7 @@ typedef struct World {
     fixedi32 celestial_angle;
     Weather weather;
     IChunkProvider chunk_provider;
+    Heightmap heightmap;
     // X, Z, Y
     Chunk* chunks[AXIS_CHUNKS][AXIS_CHUNKS][WORLD_CHUNKS_HEIGHT];
 } World;
