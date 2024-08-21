@@ -208,6 +208,10 @@ void chunkGenerateLightmap(Chunk* chunk, ChunkGenerationContext* gen_ctx) {
                 const IBlock* iblock = chunkGetBlockVec(chunk, &position);
                 assert(iblock != NULL);
                 const Block* block = VCAST_PTR(Block*, iblock);
+                if (block->id != BLOCKID_AIR) {
+                    const u32 current = (*heightmap)[chunkHeightmapIndex(x, z)];
+                    (*heightmap)[chunkHeightmapIndex(x, z)] = min(current, (u32) y);
+                }
                 if (blockCanPropagateSunlight(block->id)
                     && !blockIsFaceOpaque(block, FACE_DIR_UP)) {
                     // Note we don't queue updates here, instead just set
@@ -227,8 +231,6 @@ void chunkGenerateLightmap(Chunk* chunk, ChunkGenerationContext* gen_ctx) {
                     // future this will be based on whether the chunk Y range
                     // is within the heighmap for this column of chunks.
                     is_top &= y == CHUNK_SIZE - 1;
-                    const u32 current = (*heightmap)[chunkHeightmapIndex(x, z)];
-                    (*heightmap)[chunkHeightmapIndex(x, z)] = min(current, (u32) y);
                     break;
                 }
             }
