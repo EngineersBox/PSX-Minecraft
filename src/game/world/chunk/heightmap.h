@@ -8,9 +8,9 @@
 #include "../../../util/inttypes.h"
 
 #define chunkHeightmapIndex(x, z) (((x) * CHUNK_SIZE) + z)
-#define getChunkHeightmap(Heightmap, x, z) (*heightmap)[chunkHeightmapIndex(x, z)]
 
 typedef u32 ChunkHeightmap[CHUNK_SIZE * CHUNK_SIZE];
+// Z,X
 typedef ChunkHeightmap Heightmap[AXIS_CHUNKS][AXIS_CHUNKS];
 
 #endif // _PSXMC__GAME_WORLD_CHUNK__HEIGHTMAP_H_

@@ -24,11 +24,12 @@ void OverworldFlatlandChunkGenerator_destroy(VSelf) {
     // Do nothing
 }
 
-void overworldFlatlandGeneneratorGenerate(VSelf, Chunk* chunk) ALIAS("OverworldFlatlandChunkGenerator_generate");
-void OverworldFlatlandChunkGenerator_generate(VSelf, Chunk* chunk) {
+void overworldFlatlandGeneneratorGenerate(VSelf, Chunk* chunk, ChunkHeightmap* heightmap) ALIAS("OverworldFlatlandChunkGenerator_generate");
+void OverworldFlatlandChunkGenerator_generate(VSelf, Chunk* chunk, ChunkHeightmap* heightmap) {
     for (i32 x = 0; x < CHUNK_SIZE; x++) {
         for (i32 z = 0; z < CHUNK_SIZE; z++) {
             for (i32 y = 0; y < CHUNK_SIZE; y++) {
+                const u32 world_y = (chunk->position.vy * CHUNK_SIZE) + y;
                 IBlock* iblock;
                 if (y < 2) {
                     iblock = chunk->blocks[chunkBlockIndex(x, y, z)] = stoneBlockCreate(NULL);
@@ -56,6 +57,12 @@ void OverworldFlatlandChunkGenerator_generate(VSelf, Chunk* chunk) {
                         LIGHT_TYPE_BLOCK
                     );
                 }
+                // Update heightmap
+                if (block->id != BLOCKID_AIR) {
+                    const u32 index = chunkHeightmapIndex(x, z);
+                    const u32 top = (*heightmap)[index];
+                    (*heightmap)[index] = max(top, world_y);
+                }
             }
         }
     }
@@ -82,14 +89,14 @@ void OverworldFlatlandChunkProvider_destroy(VSelf) {
     free(self->generator.self);
 }
 
-Chunk* overworldFlatlandProvideChunk(VSelf, const VECTOR position) ALIAS("OverworldFlatlandChunkProvider_provide");
-Chunk* OverworldFlatlandChunkProvider_provide(VSelf, const VECTOR position) {
+Chunk* overworldFlatlandProvideChunk(VSelf, const VECTOR position, ChunkHeightmap* heightmap) ALIAS("OverworldFlatlandChunkProvider_provide");
+Chunk* OverworldFlatlandChunkProvider_provide(VSelf, const VECTOR position, ChunkHeightmap* heightmap) {
     VSELF(OverworldFlatlandChunkProvider);
     Chunk* chunk = malloc(sizeof(Chunk));
     assert(chunk != NULL);
     chunk->position = position;
     chunkInit(chunk);
-    VCALL(self->generator, generate, chunk);
+    VCALL(self->generator, generate, chunk, heightmap);
     return chunk;
 }
 

@@ -7,11 +7,12 @@
 #include <stdbool.h>
 
 #include "chunk_generator.h"
+#include "../chunk/heightmap.h"
 
 #define IChunkProvider_IFACE \
     vfunc(void, init, VSelf) \
     vfunc(void, destroy, VSelf) \
-    vfunc(Chunk*, provide, VSelf, const VECTOR position) \
+    vfunc(Chunk*, provide, VSelf, const VECTOR position, ChunkHeightmap* heightmap) \
     vfunc(bool, save, VSelf, Chunk* chunk)
 
 interface(IChunkProvider);

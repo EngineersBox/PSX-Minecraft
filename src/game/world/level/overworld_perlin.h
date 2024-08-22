@@ -16,8 +16,8 @@ void OverworldPerlinChunkGenerator_init(VSelf);
 void overworldPerlinChunkGeneratorDestroy(VSelf);
 void OverworldPerlinChunkGenerator_destroy(VSelf);
 
-void overworldPerlinGeneneratorGenerate(VSelf, Chunk* chunk);
-void OverworldPerlinChunkGenerator_generate(VSelf, Chunk* chunk);
+void overworldPerlinGeneneratorGenerate(VSelf, Chunk* chunk, ChunkHeightmap* heightmap);
+void OverworldPerlinChunkGenerator_generate(VSelf, Chunk* chunk, ChunkHeightmap* heightmap);
 
 impl(IChunkGenerator, OverworldPerlinChunkGenerator);
 
@@ -29,8 +29,8 @@ void OverworldPerlinChunkProvider_init(VSelf);
 void overworldPerlinChunkProviderDestroy(VSelf);
 void OverworldPerlinChunkProvider_destroy(VSelf);
 
-Chunk* overworldPerlinProvideChunk(VSelf, const VECTOR position);
-Chunk* OverworldPerlinChunkProvider_provide(VSelf, const VECTOR position);
+Chunk* overworldPerlinProvideChunk(VSelf, const VECTOR position, ChunkHeightmap* heightmap);
+Chunk* OverworldPerlinChunkProvider_provide(VSelf, const VECTOR position, ChunkHeightmap* heightmap);
 
 bool overworldPerlinSaveChunk(VSelf, Chunk* chunk);
 bool OverworldPerlinChunkProvider_save(VSelf, Chunk* chunk);

@@ -15,6 +15,7 @@
 #include "chunk/chunk_mesh.h"
 #include "chunk/chunk_structure.h"
 #include "position.h"
+#include "world_defines.h"
 
 const LightUpdateLimits world_chunk_init_limits = (LightUpdateLimits) {
     .add_block = 0,
@@ -47,6 +48,11 @@ void worldInit(World* world, RenderContext* ctx) {
         .raining = false,
         .storming = false
     };
+    memset(
+        world->heightmap,
+        '\0',
+        sizeof(u32) * AXIS_CHUNKS * AXIS_CHUNKS * CHUNK_SIZE * CHUNK_SIZE
+    );
     VCALL(world->chunk_provider, init);
     // Clear the chunks first to ensure they are all NULL upon initialisation
     memset(
@@ -249,7 +255,13 @@ void worldRender(const World* world,
 // NOTE: Should this just take i32 x,y,z params instead of a
 //       a VECTOR struct to avoid creating needless stack objects?
 Chunk* worldLoadChunk(World* world, const VECTOR chunk_position) {
-    Chunk* chunk = VCALL(world->chunk_provider, provide, chunk_position);
+    Chunk* chunk = VCALL(
+        world->chunk_provider,
+        provide,
+        chunk_position,
+        &world->heightmap[arrayCoord(world, vz, chunk_position.vz)]
+                         [arrayCoord(world, vx, chunk_position.vx)]
+    );
     assert(chunk != NULL);
     // DEBUG_LOG(
     //     "[CHUNK: %d,%d,%d, INDEX: %d,%d,%d] Generating heightmap and terrain\n",

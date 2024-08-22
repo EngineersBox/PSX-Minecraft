@@ -200,7 +200,6 @@ void chunkGenerateMesh(Chunk* chunk) {
 
 void chunkGenerateLightmap(Chunk* chunk, ChunkGenerationContext* gen_ctx) {
     bool is_top = true;
-    ChunkHeightmap* heightmap = worldGetChunkHeightmap(chunk->world, &chunk->position);
     for (i32 x = 0; x < CHUNK_SIZE; x++) {
         for (i32 z = 0; z < CHUNK_SIZE; z++) {
             for (i32 y = CHUNK_SIZE - 1; y >= 0; y--) {
@@ -208,10 +207,6 @@ void chunkGenerateLightmap(Chunk* chunk, ChunkGenerationContext* gen_ctx) {
                 const IBlock* iblock = chunkGetBlockVec(chunk, &position);
                 assert(iblock != NULL);
                 const Block* block = VCAST_PTR(Block*, iblock);
-                if (block->id != BLOCKID_AIR) {
-                    const u32 current = (*heightmap)[chunkHeightmapIndex(x, z)];
-                    (*heightmap)[chunkHeightmapIndex(x, z)] = min(current, (u32) y);
-                }
                 if (blockCanPropagateSunlight(block->id)
                     && !blockIsFaceOpaque(block, FACE_DIR_UP)) {
                     // Note we don't queue updates here, instead just set
@@ -538,7 +533,7 @@ static int modifyVoxel0(Chunk* chunk,
     ChunkHeightmap* heightmap = worldGetChunkHeightmap(chunk->world, &chunk->position);
     const u32 index = chunkHeightmapIndex(x, z);
     const u32 top = (*heightmap)[index];
-    const u32 world_y = chunk->position.vx + y;
+    const u32 world_y = chunk->position.vy + y;
     const bool new_is_air = new_block->id == BLOCKID_AIR;
     if (top == world_y && new_is_air) {
         // NOTE: Depending on how many chunks are loaded vertically,

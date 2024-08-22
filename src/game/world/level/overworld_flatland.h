@@ -16,8 +16,8 @@ void OverworldFlatlandChunkGenerator_init(VSelf);
 void overworldFlatlandChunkGeneratorDestroy(VSelf);
 void OverworldFlatlandChunkGenerator_destroy(VSelf);
 
-void overworldFlatlandGeneneratorGenerate(VSelf, Chunk* chunk);
-void OverworldFlatlandChunkGenerator_generate(VSelf, Chunk* chunk);
+void overworldFlatlandGeneneratorGenerate(VSelf, Chunk* chunk, ChunkHeightmap* heightmap);
+void OverworldFlatlandChunkGenerator_generate(VSelf, Chunk* chunk, ChunkHeightmap* heightmap);
 
 impl(IChunkGenerator, OverworldFlatlandChunkGenerator);
 
@@ -29,8 +29,8 @@ void OverworldFlatlandChunkProvider_init(VSelf);
 void overworldFlatlandChunkProviderDestroy(VSelf);
 void OverworldFlatlandChunkProvider_destroy(VSelf);
 
-Chunk* overworldFlatlandProvideChunk(VSelf, const VECTOR position);
-Chunk* OverworldFlatlandChunkProvider_provide(VSelf, const VECTOR position);
+Chunk* overworldFlatlandProvideChunk(VSelf, const VECTOR position, ChunkHeightmap* heightmap);
+Chunk* OverworldFlatlandChunkProvider_provide(VSelf, const VECTOR position, ChunkHeightmap* heightmap);
 
 bool overworldFlatlandSaveChunk(VSelf, Chunk* chunk);
 bool OverworldFlatlandChunkProvider_save(VSelf, Chunk* chunk);

@@ -23,8 +23,8 @@ void OverworldPerlinChunkGenerator_destroy(VSelf) {
     // Do nothing
 }
 
-void overworldPerlinGeneneratorGenerate(VSelf, Chunk* chunk) ALIAS("OverworldPerlinChunkGenerator_generate");
-void OverworldPerlinChunkGenerator_generate(VSelf, Chunk* chunk) {
+void overworldPerlinGeneneratorGenerate(VSelf, Chunk* chunk, ChunkHeightmap* heightmap) ALIAS("OverworldPerlinChunkGenerator_generate");
+void OverworldPerlinChunkGenerator_generate(VSelf, Chunk* chunk, ChunkHeightmap* heightmap) {
     const VECTOR* position = &chunk->position;
     for (i32 x = 0; x < CHUNK_SIZE; x++) {
         for (i32 z = 0; z < CHUNK_SIZE; z++) {
@@ -37,20 +37,21 @@ void OverworldPerlinChunkGenerator_generate(VSelf, Chunk* chunk) {
             //     0,
             //     Size
             // );
-            const int height = noise2d(xPos * ONE, zPos * ONE) >> 1; // Div by 2
+            const int height = noise2d(xPos * ONE, zPos * ONE) >> 1;
             // clamp(
             //     noise,
             //     0,
             //     CHUNK_SIZE
             // );
             for (i32 y = 0; y < CHUNK_SIZE; y++) {
-                const i32 worldY = (position->vy * CHUNK_SIZE) + y + (CHUNK_SIZE * 6); // !IMPORTANT: TESTING OFFSET
+                const i32 world_y = (position->vy * CHUNK_SIZE) + y;
+                const i32 offset_world_y = world_y + (CHUNK_SIZE * 6); // !IMPORTANT: TESTING OFFSET
                 IBlock* iblock;
-                if (worldY < height - 3) {
+                if (offset_world_y < height - 3) {
                     iblock = chunk->blocks[chunkBlockIndex(x, y, z)] = stoneBlockCreate(NULL);
-                } else if (worldY < height - 1) {
+                } else if (offset_world_y < height - 1) {
                     iblock = chunk->blocks[chunkBlockIndex(x, y, z)] = cobblestoneBlockCreate(NULL);
-                } else if (worldY == height - 1) {
+                } else if (offset_world_y == height - 1) {
                     iblock = chunk->blocks[chunkBlockIndex(x, y, z)] = grassBlockCreate(NULL);
                 } else {
                     iblock = chunk->blocks[chunkBlockIndex(x, y, z)] = airBlockCreate(NULL);
@@ -64,6 +65,12 @@ void OverworldPerlinChunkGenerator_generate(VSelf, Chunk* chunk) {
                         block->light_level,
                         LIGHT_TYPE_BLOCK
                     );
+                }
+                // Update heightmap
+                if (block->id != BLOCKID_AIR) {
+                    const u32 index = chunkHeightmapIndex(x, z);
+                    const u32 top = (*heightmap)[index];
+                    (*heightmap)[index] = max(top, (u32) world_y);
                 }
             }
         }
@@ -91,14 +98,14 @@ void OverworldPerlinChunkProvider_destroy(VSelf) {
     free(self->generator.self);
 }
 
-Chunk* overworldPerlinProvideChunk(VSelf, const VECTOR position) ALIAS("OverworldPerlinChunkProvider_provide");
-Chunk* OverworldPerlinChunkProvider_provide(VSelf, const VECTOR position) {
+Chunk* overworldPerlinProvideChunk(VSelf, const VECTOR position, ChunkHeightmap* heightmap) ALIAS("OverworldPerlinChunkProvider_provide");
+Chunk* OverworldPerlinChunkProvider_provide(VSelf, const VECTOR position, ChunkHeightmap* heightmap) {
     VSELF(OverworldPerlinChunkProvider);
     Chunk* chunk = malloc(sizeof(Chunk));
     assert(chunk != NULL);
     chunk->position = position;
     chunkInit(chunk);
-    VCALL(self->generator, generate, chunk);
+    VCALL(self->generator, generate, chunk, heightmap);
     return chunk;
 }
 

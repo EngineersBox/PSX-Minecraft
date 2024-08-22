@@ -7,11 +7,12 @@
 #include <interface99.h>
 
 #include "../chunk/chunk.h"
+#include "../chunk/heightmap.h"
 
 #define IChunkGenerator_IFACE \
     vfunc(void, init, VSelf) \
     vfunc(void, destroy, VSelf) \
-    vfunc(void, generate, VSelf, Chunk* chunk)
+    vfunc(void, generate, VSelf, Chunk* chunk, ChunkHeightmap* heightmap)
 
 interface(IChunkGenerator);
 
