@@ -452,11 +452,34 @@ static LightLevel inferSunlightValueFromNeighbours(const Chunk* chunk,
     return max(0, current_max - 1);
 }
 
-INLINE static int modifyVoxel0(Chunk* chunk,
-                               const VECTOR* position,
-                               const Block* new_block,
-                               const bool drop_item,
-                               IItem** item_result) {
+static u32 findClosestBlockBelow(Chunk* chunk,
+                                 const u32 x,
+                                 u32 y,
+                                 const u32 z) {
+    VECTOR chunk_position = chunk->position;
+    while (true) {
+        if (y == 0) {
+            if (chunk_position.vy == 0) {
+                return 0;
+            }
+            chunk_position.vy--;
+            chunk = worldGetChunk(chunk->world, &chunk_position);
+            y = CHUNK_SIZE;
+        }
+        y--;
+        const IBlock* iblock = chunk->blocks[chunkBlockIndex(x, y, z)];
+        const Block* block = VCAST_PTR(Block*, iblock);
+        if (block->id != BLOCKID_AIR) {
+            return chunk_position.vy + y;
+        }
+    }
+}
+
+static int modifyVoxel0(Chunk* chunk,
+                        const VECTOR* position,
+                        const Block* new_block,
+                        const bool drop_item,
+                        IItem** item_result) {
     const i32 x = position->vx;
     const i32 y = position->vy;
     const i32 z = position->vz;
@@ -511,6 +534,22 @@ INLINE static int modifyVoxel0(Chunk* chunk,
         }
     } else if (item_result != NULL) {
         *item_result = NULL;
+    }
+    ChunkHeightmap* heightmap = worldGetChunkHeightmap(chunk->world, &chunk->position);
+    const u32 index = chunkHeightmapIndex(x, z);
+    const u32 top = (*heightmap)[index];
+    const u32 world_y = chunk->position.vx + y;
+    const bool new_is_air = new_block->id == BLOCKID_AIR;
+    if (top == world_y && new_is_air) {
+        // NOTE: Depending on how many chunks are loaded vertically,
+        //       this could be quite expensive, meaning it might be
+        //       better to have a queue for heightmap updates that
+        //       we only do a certain amount of each tick in the same
+        //       manner as lighting to armortise the performance
+        //       impact.
+        (*heightmap)[index] = findClosestBlockBelow(chunk, x, y, z);
+    } else if (top < world_y && !new_is_air) {
+        (*heightmap)[index] = world_y;
     }
     return !old_is_air;
 }
