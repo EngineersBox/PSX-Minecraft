@@ -4,6 +4,7 @@
   </create>
   <create packname="textures.qlp" format="qlp">
     <file alias="gui">${ASSETS_DIR}/gui.tim</file>
+    <file alias="items">${ASSETS_DIR}/items.tim</file>
     <file alias="terrain">${ASSETS_DIR}/terrain.tim</file>
     <file alias="font">${ASSETS_DIR}/font.tim</file>
   </create>
