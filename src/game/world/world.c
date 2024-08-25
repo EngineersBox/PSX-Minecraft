@@ -40,6 +40,8 @@ void worldInit(World* world, RenderContext* ctx) {
     // TODO: Set light level based on time of day
     world->internal_light_level = createLightLevel(0, 15);
     world->time_ticks = WORLD_TIME_DAWN;
+    world->day_count = 0;
+    world->celestial_angle = 0;
     world->weather = (Weather) {
         .rain_strength = 0,
         .storm_strength = 0,
