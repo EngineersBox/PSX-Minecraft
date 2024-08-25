@@ -1,5 +1,10 @@
 #include "weather.h"
 
+#include <psxgpu.h>
+#include <psxgte.h>
+
+#include "../resources/assets.h"
+#include "../resources/asset_indices.h"
 #include "../util/preprocessor.h"
 #include "../game/world/position.h"
 
@@ -14,6 +19,7 @@ void renderWeatherOverlay(const World* world,
         player->physics_object.position.vz >> FIXED_POINT_SHIFT
     );
     ChunkBlockPosition cb_pos;
+    const Texture* texture = &textures[ASSET_TEXTURES_WEATHER_INDEX];
     for (i32 x = player_pos.vx - WEATHER_RENDER_RADIUS; x < player_pos.vx + WEATHER_RENDER_RADIUS; x++) {
         for (i32 z = player_pos.vz - WEATHER_RENDER_RADIUS; z < player_pos.vz + WEATHER_RENDER_RADIUS; z++) {
             const VECTOR pos = vec3_add(player_pos, vec3_i32(x, 0, z));
@@ -29,6 +35,12 @@ void renderWeatherOverlay(const World* world,
                 continue;
             }
             // TODO: render quads based on xz with y_bottom and y_top as limits
+            POLY_FT4* pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
+            setPolyFT4(pol4);
+
+            pol4->tpage = texture->tpage;
+            pol4->clut = textures->clut;
         }
     }
 }
+
