@@ -194,8 +194,8 @@ void* fontFlush(FontID id) {
 			setXY0(sprite, stream_x, stream_y);
 			setUV0(
 				sprite,
-				(c % FONT_SPRITE_WIDTH) * FONT_CHARACTER_SPRITE_WIDTH + texture_offset,
-				(c / FONT_SPRITE_HEIGHT) * FONT_CHARACTER_SPRITE_HEIGHT
+				((c % FONT_SPRITE_WIDTH) * FONT_CHARACTER_SPRITE_WIDTH) + texture_offset,
+				((c / FONT_SPRITE_HEIGHT) * FONT_CHARACTER_SPRITE_HEIGHT) + FONT_SPRITE_V_OFFSET
 			);
 			sprite->clut = tex_ref->clut;
 			setaddr(primitive, sprite);
@@ -244,8 +244,8 @@ void* fontSort(u32* ordering_table,
 			setXY0(sprite, stream_x, stream_y);
 			setUV0(
 				sprite,
-				(i % FONT_SPRITE_WIDTH) * FONT_CHARACTER_SPRITE_WIDTH + texture_offset,
-				(i / FONT_SPRITE_HEIGHT) * FONT_CHARACTER_SPRITE_HEIGHT
+				((i % FONT_SPRITE_WIDTH) * FONT_CHARACTER_SPRITE_WIDTH) + texture_offset,
+				((i / FONT_SPRITE_HEIGHT) * FONT_CHARACTER_SPRITE_HEIGHT) + FONT_SPRITE_V_OFFSET
 			);
 			sprite->clut = tex_ref->clut;
 			addPrim(ordering_table, sprite);

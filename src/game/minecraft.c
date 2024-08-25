@@ -84,6 +84,9 @@ void Minecraft_init(VSelf, void* ctx) {
     gte_SetGeomScreen(100);
     initRenderContext(&self->internals.ctx);
     inputInit(&self->internals.input);
+    // Unpack LZP archive and load assets
+    assetsLoad();
+    fontLoad();
     // Load font and open a text stream
     FntLoad(960, 0);
     FntOpen(0, 8, 320, 216, 0, 160);
@@ -95,9 +98,6 @@ void Minecraft_init(VSelf, void* ctx) {
         0,
         (SCREEN_XRES / FONT_SPRITE_WIDTH) * 6
     );
-    // Unpack LZP archive and load assets
-    assetsLoad();
-    fontLoad();
     // Initialise world
     self->world = (World*) malloc(sizeof(World));
     self->world->head.vx = 0;
