@@ -82,9 +82,10 @@ POLY_FT4* createQuad(const SVECTOR vertices[4],
     return pol4;
 }
 
-void renderWeatherOverlay(const World* world,
-                          const Player* player,
-                          RenderContext* ctx) {
+void weatherRender(const World* world,
+                   const Player* player,
+                   RenderContext* ctx,
+                   Transforms* transforms) {
     static u16 render_ticks = 0;
     const VECTOR player_pos = vec3_i32(
         player->physics_object.position.vx >> FIXED_POINT_SHIFT,
@@ -96,6 +97,24 @@ void renderWeatherOverlay(const World* world,
     bool previous_is_snow = false;
     int p;
     u32 offset = 0;
+    // Object and light matrix for object
+    MATRIX omtx, olmtx;
+    // Set object rotation and position
+    RotMatrix(&VEC3_I16_ZERO, &omtx);
+    TransMatrix(&omtx, &VEC3_I32_ZERO);
+    // Multiply light matrix to object matrix
+    MulMatrix0(&transforms->lighting_mtx, &omtx, &olmtx);
+    // Set result to GTE light matrix
+    gte_SetLightMatrix(&olmtx);
+    // Composite coordinate matrix transform, so object will be rotated and
+    // positioned relative to camera matrix (mtx), so it'll appear as
+    // world-space relative.
+    CompMatrixLV(&transforms->geometry_mtx, &omtx, &omtx);
+    // Save matrix
+    PushMatrix();
+    // Set matrices
+    gte_SetRotMatrix(&omtx);
+    gte_SetTransMatrix(&omtx);
     for (i32 x = player_pos.vx - WEATHER_RENDER_RADIUS; x < player_pos.vx + WEATHER_RENDER_RADIUS; x++) {
         for (i32 z = player_pos.vz - WEATHER_RENDER_RADIUS; z < player_pos.vz + WEATHER_RENDER_RADIUS; z++) {
             if (offset++ % 2 == 0) {
@@ -223,5 +242,7 @@ void renderWeatherOverlay(const World* world,
     u32* ot_object = allocateOrderingTable(ctx, p);
     addPrim(ot_object, ptwin);
     render_ticks = (render_ticks + 1) % WEATHER_TEXTURE_HEIGHT;
+    // Restore matrix
+    PopMatrix();
 }
 
