@@ -2,17 +2,90 @@
 
 #include <psxgpu.h>
 #include <psxgte.h>
+#include <inline_c.h>
 
 #include "../resources/assets.h"
 #include "../resources/asset_indices.h"
 #include "../util/preprocessor.h"
 #include "../game/world/position.h"
+#include "../structure/primitive/clip.h"
+#include "../structure/primitive/direction.h"
+#include "../math/math_utils.h"
 
 FWD_DECL ChunkHeightmap* worldGetChunkHeightmap(World* world, const VECTOR* position);
+
+POLY_FT4* createQuad(const SVECTOR vertices[4],
+                     const SVECTOR normal,
+                     RenderContext* ctx) {
+    int p = 0;
+    POLY_FT4* pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
+    gte_ldv3(
+        &vertices[0],
+        &vertices[1],
+        &vertices[2]
+    );
+    // Rotation, Translation and Perspective Triple
+    gte_rtpt();
+    gte_nclip();
+    gte_stopz(&p);
+    // gte_stdp(&dp);
+    // Avoid negative depth (behind camera) and zero
+    // for constraint clearing primitive in OT
+    if (p <= 0) {
+        freePrimitive(ctx, sizeof(POLY_FT4));
+        return NULL;
+    }
+    // Average screen Z result for three vertices
+    gte_avsz3();
+    gte_stotz(&p);
+    if (p <= 0 || p >= ORDERING_TABLE_LENGTH) {
+        freePrimitive(ctx, sizeof(POLY_FT4));
+        return NULL;
+    }
+#if !QUAD_DUAL_TRI_NCLIP
+    // Initialize a textured quad primitive
+    setPolyFT4(pol4);
+#endif
+    // Set the projected vertices to the primitive
+    gte_stsxy0(&pol4->x0);
+    gte_stsxy1(&pol4->x1);
+    gte_stsxy2(&pol4->x2);
+#if !QUAD_DUAL_TRI_NCLIP
+    // Compute the last vertex and set the result
+    gte_ldv0(&vertices[3]);
+    gte_rtps();
+    gte_stsxy(&pol4->x3);
+#endif
+    // Test if quad is off-screen, discard if so
+    if (quadClip(
+        &ctx->screen_clip,
+        (DVECTOR*) &pol4->x0,
+        (DVECTOR*) &pol4->x1,
+        (DVECTOR*) &pol4->x2,
+        (DVECTOR*) &pol4->x3)) {
+        freePrimitive(ctx, sizeof(POLY_FT4));
+        return NULL;
+    }
+    setRGB0(pol4, 0x80, 0x80, 0x80);
+    // Load primitive color even though gte_ncs() doesn't use it.
+    // This is so the GTE will output a color result with the
+    // correct primitive code.
+    gte_ldrgb(&pol4->r0);
+    // Load the face normal
+    gte_ldv0(&normal);
+    // Apply RGB tinting to lighting calculation result on the basis
+    // that it is enabled.
+    // Normal Color Column Single
+    gte_nccs();
+    // Store result to the primitive
+    gte_strgb(&pol4->r0);
+    return pol4;
+}
 
 void renderWeatherOverlay(const World* world,
                           const Player* player,
                           RenderContext* ctx) {
+    static u16 render_ticks = 0;
     const VECTOR player_pos = vec3_i32(
         player->physics_object.position.vx >> FIXED_POINT_SHIFT,
         -player->physics_object.position.vy >> FIXED_POINT_SHIFT,
@@ -20,8 +93,14 @@ void renderWeatherOverlay(const World* world,
     );
     ChunkBlockPosition cb_pos;
     const Texture* texture = &textures[ASSET_TEXTURES_WEATHER_INDEX];
+    bool previous_is_snow = false;
+    int p;
+    u32 offset = 0;
     for (i32 x = player_pos.vx - WEATHER_RENDER_RADIUS; x < player_pos.vx + WEATHER_RENDER_RADIUS; x++) {
         for (i32 z = player_pos.vz - WEATHER_RENDER_RADIUS; z < player_pos.vz + WEATHER_RENDER_RADIUS; z++) {
+            if (offset++ % 2 == 0) {
+                continue;
+            }
             const VECTOR pos = vec3_add(player_pos, vec3_i32(x, 0, z));
             cb_pos = worldToChunkBlockPosition(&pos, CHUNK_SIZE);
             ChunkHeightmap* heightmap = worldGetChunkHeightmap((World*) world, &cb_pos.chunk);
@@ -34,13 +113,115 @@ void renderWeatherOverlay(const World* world,
             if (y_bottom == y_top) {
                 continue;
             }
-            // TODO: render quads based on xz with y_bottom and y_top as limits
-            POLY_FT4* pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
-            setPolyFT4(pol4);
-
+            bool current_is_snow = false; // TODO: Set this to true if we are in a tiaga biome
+            if (current_is_snow != previous_is_snow) {
+                const RECT tex_window = (RECT) {
+                    .w = WEATHER_TEXTURE_WIDTH >> 3,
+                    .h = WEATHER_TEXTURE_HEIGHT >> 3,
+                    // Use the second half of the texture for snow
+                    .x = previous_is_snow ? (WEATHER_TEXTURE_WIDTH >> 3) : 0,
+                    .y = 0
+                };
+                DR_TWIN* ptwin = (DR_TWIN*) allocatePrimitive(ctx, sizeof(DR_TWIN));
+                setTexWindow(ptwin, &tex_window);
+                u32* ot_object = allocateOrderingTable(ctx, p);
+                addPrim(ot_object, ptwin);
+            }
+            // UV offsets
+            srand(x * x * 3121 + x * 45238971 + z * z * 418711 + z * 13761);
+            const u32 u_rand_offset = positiveModulo(rand(), WEATHER_TEXTURE_WIDTH);
+            const u32 v_rand_offset = (render_ticks + (y_bottom * BLOCK_TEXTURE_SIZE)) % WEATHER_TEXTURE_HEIGHT;
+            SVECTOR vertices[4];
+            // X-axis
+            vertices[0] = vec3_i16(
+                x * ONE_BLOCK,
+                -y_top * ONE_BLOCK,
+                (z * ONE_BLOCK) + (ONE_BLOCK >> 1)
+            );
+            vertices[1] = vec3_i16(
+                (x + 1) * ONE_BLOCK,
+                -y_top * ONE_BLOCK,
+                (z * ONE_BLOCK) + (ONE_BLOCK >> 1)
+            );
+            vertices[2] = vec3_i16(
+                x * ONE_BLOCK,
+                -y_bottom * ONE_BLOCK,
+                (z * ONE_BLOCK) + (ONE_BLOCK >> 1)
+            );
+            vertices[3] = vec3_i16(
+                (x + 1) * ONE_BLOCK,
+                -y_bottom * ONE_BLOCK,
+                (z * ONE_BLOCK) + (ONE_BLOCK >> 1)
+            );
+            POLY_FT4* pol4 = createQuad(
+                vertices,
+                FACE_DIRECTION_NORMALS[x < player_pos.vx ? FACE_DIR_RIGHT : FACE_DIR_LEFT],
+                ctx
+            );
+            setUVWH(
+                pol4,
+                u_rand_offset,
+                v_rand_offset,
+                WEATHER_TEXTURE_WIDTH,
+                WEATHER_TEXTURE_HEIGHT
+            );
+            // Bind texture page and colour look-up-table
             pol4->tpage = texture->tpage;
             pol4->clut = textures->clut;
+            // Sort primitive to the ordering table
+            u32* ot_object = allocateOrderingTable(ctx, p);
+            // Z-axis
+            vertices[0] = vec3_i16(
+                (x * ONE_BLOCK) + (ONE_BLOCK >> 1),
+                -y_top * ONE_BLOCK,
+                z * ONE_BLOCK
+            );
+            vertices[1] = vec3_i16(
+                (x * ONE_BLOCK) + (ONE_BLOCK >> 1),
+                -y_top * ONE_BLOCK,
+                (z + 1) * ONE_BLOCK
+            );
+            vertices[2] = vec3_i16(
+                (x * ONE_BLOCK) + (ONE_BLOCK >> 1),
+                -y_bottom * ONE_BLOCK,
+                z * ONE_BLOCK
+            );
+            vertices[3] = vec3_i16(
+                (x * ONE_BLOCK) + (ONE_BLOCK >> 1),
+                -y_bottom * ONE_BLOCK,
+                (z + 1) * ONE_BLOCK
+            );
+            pol4 = createQuad(
+                vertices,
+                FACE_DIRECTION_NORMALS[z < player_pos.vz ? FACE_DIR_BACK : FACE_DIR_FRONT],
+                ctx
+            );
+            setUVWH(
+                pol4,
+                u_rand_offset,
+                v_rand_offset,
+                WEATHER_TEXTURE_WIDTH,
+                WEATHER_TEXTURE_HEIGHT
+            );
+            // Bind texture page and colour look-up-table
+            pol4->tpage = texture->tpage;
+            pol4->clut = textures->clut;
+            // Sort primitive to the ordering table
+            ot_object = allocateOrderingTable(ctx, p);
+            addPrim(ot_object, pol4);
         }
     }
+    const RECT tex_window = (RECT) {
+        .w = WEATHER_TEXTURE_WIDTH >> 3,
+        .h = WEATHER_TEXTURE_HEIGHT >> 3,
+        // Use the second half of the texture for snow
+        .x = previous_is_snow ? (WEATHER_TEXTURE_WIDTH >> 3) : 0,
+        .y = 0
+    };
+    DR_TWIN* ptwin = (DR_TWIN*) allocatePrimitive(ctx, sizeof(DR_TWIN));
+    setTexWindow(ptwin, &tex_window);
+    u32* ot_object = allocateOrderingTable(ctx, p);
+    addPrim(ot_object, ptwin);
+    render_ticks = (render_ticks + 1) % WEATHER_TEXTURE_HEIGHT;
 }
 

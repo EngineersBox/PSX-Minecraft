@@ -3,6 +3,7 @@
 #include <inline_c.h>
 #include <psxgpu.h>
 #include <psxgte.h>
+#include <stdlib.h>
 
 #include "../ui/axis.h"
 #include "../structure/primitive/cube.h"
@@ -20,7 +21,7 @@
 #include "items/blocks/item_block_stone.h"
 #include "level/overworld_flatland.h"
 #include "level/overworld_perlin.h"
-#include "stdlib.h"
+#include "../weather/weather.h"
 
 // Reference texture data
 extern const uint32_t tim_texture[];
@@ -196,6 +197,11 @@ void Minecraft_render(VSelf, const Stats* stats) {
         &self->internals.transforms
     );
     frustumRestore(&self->internals.ctx.camera->frustum);
+    renderWeatherOverlay(
+        self->world,
+        player,
+        &self->internals.ctx
+    );
     // Clear window constraints
     renderClearConstraints(&self->internals.ctx);
     // Render UI

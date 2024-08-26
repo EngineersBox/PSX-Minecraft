@@ -13,6 +13,9 @@
 #define WEATHER_RENDER_RADIUS 4
 #endif
 
+#define WEATHER_TEXTURE_WIDTH 64
+#define WEATHER_TEXTURE_HEIGHT 256
+
 void renderWeatherOverlay(const World* world, const Player* player, RenderContext* ctx);
 
 #endif // _PSXMC__WEATHER__WEATHER_H_
