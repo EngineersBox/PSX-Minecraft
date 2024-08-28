@@ -105,7 +105,7 @@ Remake of Minecraft for PS1 with PSn00bSDK
 <details>
 <summary><h4>Weather Raining</h4></summary>
 
-![Weather Raining](./docs/weather_rain.png.png)
+![Weather Raining](./docs/weather_rain.png)
 
 </details>
 
