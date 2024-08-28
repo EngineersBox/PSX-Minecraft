@@ -54,15 +54,15 @@ POLY_FT4* createQuad(const SVECTOR vertices[4],
     gte_rtps();
     gte_stsxy(&pol4->x3);
     // Test if quad is off-screen, discard if so
-    if (quadClip(
-        &ctx->screen_clip,
-        (DVECTOR*) &pol4->x0,
-        (DVECTOR*) &pol4->x1,
-        (DVECTOR*) &pol4->x2,
-        (DVECTOR*) &pol4->x3)) {
-        freePrimitive(ctx, sizeof(POLY_FT4));
-        return NULL;
-    }
+    /*if (quadClip(*/
+    /*    &ctx->screen_clip,*/
+    /*    (DVECTOR*) &pol4->x0,*/
+    /*    (DVECTOR*) &pol4->x1,*/
+    /*    (DVECTOR*) &pol4->x2,*/
+    /*    (DVECTOR*) &pol4->x3)) {*/
+    /*    freePrimitive(ctx, sizeof(POLY_FT4));*/
+    /*    return NULL;*/
+    /*}*/
     setRGB0(pol4, 0xFF, 0xFF, 0xFF);
     // Load primitive color even though gte_ncs() doesn't use it.
     // This is so the GTE will output a color result with the
@@ -138,22 +138,22 @@ void weatherRender(const World* world,
             vertices[0] = vec3_i16(
                 x * BLOCK_SIZE,
                 -y_top * BLOCK_SIZE,
-                (z * BLOCK_SIZE) + (BLOCK_SIZE >> 1)
+                (z * BLOCK_SIZE) - (BLOCK_SIZE >> 1)
             );
             vertices[1] = vec3_i16(
                 (x + 1) * BLOCK_SIZE,
                 -y_top * BLOCK_SIZE,
-                (z * BLOCK_SIZE) + (BLOCK_SIZE >> 1)
+                (z * BLOCK_SIZE) - (BLOCK_SIZE >> 1)
             );
             vertices[2] = vec3_i16(
                 x * BLOCK_SIZE,
                 -y_bottom * BLOCK_SIZE,
-                (z * BLOCK_SIZE) + (BLOCK_SIZE >> 1)
+                (z * BLOCK_SIZE) - (BLOCK_SIZE >> 1)
             );
             vertices[3] = vec3_i16(
                 (x + 1) * BLOCK_SIZE,
                 -y_bottom * BLOCK_SIZE,
-                (z * BLOCK_SIZE) + (BLOCK_SIZE >> 1)
+                (z * BLOCK_SIZE) - (BLOCK_SIZE >> 1)
             );
             POLY_FT4* pol4 = createQuad(
                 vertices,
@@ -190,22 +190,22 @@ void weatherRender(const World* world,
             }
             // Z-axis
             vertices[0] = vec3_i16(
-                (x * BLOCK_SIZE) + (BLOCK_SIZE >> 1),
+                (x * BLOCK_SIZE) - (BLOCK_SIZE >> 1),
                 -y_top * BLOCK_SIZE,
                 z * BLOCK_SIZE
             );
             vertices[1] = vec3_i16(
-                (x * BLOCK_SIZE) + (BLOCK_SIZE >> 1),
+                (x * BLOCK_SIZE) - (BLOCK_SIZE >> 1),
                 -y_top * BLOCK_SIZE,
                 (z + 1) * BLOCK_SIZE
             );
             vertices[2] = vec3_i16(
-                (x * BLOCK_SIZE) + (BLOCK_SIZE >> 1),
+                (x * BLOCK_SIZE) - (BLOCK_SIZE >> 1),
                 -y_bottom * BLOCK_SIZE,
                 z * BLOCK_SIZE
             );
             vertices[3] = vec3_i16(
-                (x * BLOCK_SIZE) + (BLOCK_SIZE >> 1),
+                (x * BLOCK_SIZE) - (BLOCK_SIZE >> 1),
                 -y_bottom * BLOCK_SIZE,
                 (z + 1) * BLOCK_SIZE
             );
