@@ -63,7 +63,7 @@ POLY_FT4* createQuad(const SVECTOR vertices[4],
         freePrimitive(ctx, sizeof(POLY_FT4));
         return NULL;
     }
-    setRGB0(pol4, 0xFF, 0x00, 0x00);
+    setRGB0(pol4, 0x80, 0x80, 0x80);
     // Load primitive color even though gte_ncs() doesn't use it.
     // This is so the GTE will output a color result with the
     // correct primitive code.
@@ -143,7 +143,7 @@ void weatherRender(const World* world,
                 /*addPrim(ot_object, ptwin);*/
             }
             // UV offsets
-            srand(x * x * 3121 + x * 45238971 + z * z * 418711 + z * 13761);
+            /*srand(x * x * 3121 + x * 45238971 + z * z * 418711 + z * 13761);*/
             const u32 u_rand_offset = positiveModulo(rand(), WEATHER_TEXTURE_WIDTH);
             const u32 v_rand_offset = (render_ticks + (y_bottom * BLOCK_TEXTURE_SIZE)) % WEATHER_TEXTURE_HEIGHT;
             SVECTOR vertices[4];
