@@ -19,6 +19,7 @@ Remake of Minecraft for PS1 with PSn00bSDK
       * [Sunlight Propagation](#sunlight-propagation)
       * [Single Source Block Light](#single-source-block-light)
       * [Multiple Source Block Light](#multiple-source-block-light)
+      * [Weather Raining](#weather-raining)
   * [Building](#building)
   * [Docker Environment](#docker-environment)
     * [Utility Build Script](#utility-build-script)
@@ -97,6 +98,14 @@ Remake of Minecraft for PS1 with PSn00bSDK
 <summary><h4>Multiple Source Block Light</h4></summary>
 
 ![Multiple Source Block Light](./docs/blocklight_multiple_source.png)
+
+</details>
+
+
+<details>
+<summary><h4>Weather Raining</h4></summary>
+
+![Weather Raining](./docs/weather_rain.png.png)
 
 </details>
 
