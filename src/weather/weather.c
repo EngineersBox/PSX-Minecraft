@@ -63,7 +63,7 @@ POLY_FT4* createQuad(const SVECTOR vertices[4],
     /*    freePrimitive(ctx, sizeof(POLY_FT4));*/
     /*    return NULL;*/
     /*}*/
-    setRGB0(pol4, 0x80, 0x80, 0x80);
+    setRGB0(pol4, 0xFF, 0xFF, 0xFF);
     // Load primitive color even though gte_ncs() doesn't use it.
     // This is so the GTE will output a color result with the
     // correct primitive code.
