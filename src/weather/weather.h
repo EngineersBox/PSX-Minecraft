@@ -14,7 +14,7 @@
 #endif
 
 #define WEATHER_TEXTURE_WIDTH 64
-#define WEATHER_TEXTURE_HEIGHT 256
+#define WEATHER_TEXTURE_HEIGHT 240
 
 void weatherRender(const World* world,
                    const Player* player,

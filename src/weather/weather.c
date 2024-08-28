@@ -54,15 +54,15 @@ POLY_FT4* createQuad(const SVECTOR vertices[4],
     gte_rtps();
     gte_stsxy(&pol4->x3);
     // Test if quad is off-screen, discard if so
-    /*if (quadClip(*/
-    /*    &ctx->screen_clip,*/
-    /*    (DVECTOR*) &pol4->x0,*/
-    /*    (DVECTOR*) &pol4->x1,*/
-    /*    (DVECTOR*) &pol4->x2,*/
-    /*    (DVECTOR*) &pol4->x3)) {*/
-    /*    freePrimitive(ctx, sizeof(POLY_FT4));*/
-    /*    return NULL;*/
-    /*}*/
+    if (quadClip(
+        &ctx->screen_clip,
+        (DVECTOR*) &pol4->x0,
+        (DVECTOR*) &pol4->x1,
+        (DVECTOR*) &pol4->x2,
+        (DVECTOR*) &pol4->x3)) {
+        freePrimitive(ctx, sizeof(POLY_FT4));
+        return NULL;
+    }
     setRGB0(pol4, 0xFF, 0xFF, 0xFF);
     // Load primitive color even though gte_ncs() doesn't use it.
     // This is so the GTE will output a color result with the
@@ -90,7 +90,6 @@ void weatherRender(const World* world,
     );
     ChunkBlockPosition cb_pos;
     const Texture* texture = &textures[ASSET_TEXTURES_WEATHER_INDEX];
-    bool previous_is_snow = false;
     int p = 0;
     u32 offset = 0;
     // Object and light matrix for object
@@ -113,9 +112,9 @@ void weatherRender(const World* world,
     gte_SetTransMatrix(&omtx);
     for (i32 x = player_pos.vx - WEATHER_RENDER_RADIUS; x <= player_pos.vx + WEATHER_RENDER_RADIUS; x++) {
         for (i32 z = player_pos.vz - WEATHER_RENDER_RADIUS; z <= player_pos.vz + WEATHER_RENDER_RADIUS; z++) {
-            if (offset++ % 2 == 0) {
-                continue;
-            }
+            /*if (offset++ % 2 == 0) {*/
+            /*    continue;*/
+            /*}*/
             const VECTOR pos = vec3_add(player_pos, vec3_i32(x, 0, z));
             cb_pos = worldToChunkBlockPosition(&pos, CHUNK_SIZE);
             ChunkHeightmap* heightmap = worldGetChunkHeightmap((World*) world, &cb_pos.chunk);
@@ -128,24 +127,12 @@ void weatherRender(const World* world,
             if (y_bottom == y_top) {
                 continue;
             }
-            bool current_is_snow = false; // TODO: Set this to true if we are in a tiaga biome
-            if (current_is_snow != previous_is_snow) {
-                /*const RECT tex_window = (RECT) {*/
-                /*    .w = WEATHER_TEXTURE_WIDTH >> 3,*/
-                /*    .h = WEATHER_TEXTURE_HEIGHT >> 3,*/
-                /*    // Use the second half of the texture for snow*/
-                /*    .x = previous_is_snow ? (WEATHER_TEXTURE_WIDTH >> 3) : 0,*/
-                /*    .y = 0*/
-                /*};*/
-                /*DR_TWIN* ptwin = (DR_TWIN*) allocatePrimitive(ctx, sizeof(DR_TWIN));*/
-                /*setTexWindow(ptwin, &tex_window);*/
-                /*u32* ot_object = allocateOrderingTable(ctx, p);*/
-                /*addPrim(ot_object, ptwin);*/
-            }
+            const bool current_is_snow = false; // TODO: Set this to true if we are in a tiaga biome
             // UV offsets
             srand(x * x * 3121 + x * 45238971 + z * z * 418711 + z * 13761);
             const u32 u_rand_offset = positiveModulo(rand(), WEATHER_TEXTURE_WIDTH);
-            const u32 v_rand_offset = (render_ticks + (y_bottom * BLOCK_TEXTURE_SIZE)) % WEATHER_TEXTURE_HEIGHT;
+            const u32 v_rand_offset = (positiveModulo(rand(), WEATHER_TEXTURE_HEIGHT) + render_ticks) % WEATHER_TEXTURE_HEIGHT;
+            /*const u32 v_rand_offset = ((render_ticks >> 2) + (y_bottom * BLOCK_TEXTURE_SIZE)) % WEATHER_TEXTURE_HEIGHT;*/
             SVECTOR vertices[4];
             // X-axis
             vertices[0] = vec3_i16(
@@ -193,7 +180,7 @@ void weatherRender(const World* world,
                     .w = WEATHER_TEXTURE_WIDTH >> 3,
                     .h = WEATHER_TEXTURE_HEIGHT >> 3,
                     // Use the second half of the texture for snow
-                    .x = previous_is_snow ? (WEATHER_TEXTURE_WIDTH >> 3) : 0,
+                    .x = current_is_snow ? (WEATHER_TEXTURE_WIDTH >> 3) : 0,
                     .y = 0
                 };
                 DR_TWIN* ptwin = (DR_TWIN*) allocatePrimitive(ctx, sizeof(DR_TWIN));
@@ -246,7 +233,7 @@ void weatherRender(const World* world,
                     .w = WEATHER_TEXTURE_WIDTH >> 3,
                     .h = WEATHER_TEXTURE_HEIGHT >> 3,
                     // Use the second half of the texture for snow
-                    .x = previous_is_snow ? (WEATHER_TEXTURE_WIDTH >> 3) : 0,
+                    .x = current_is_snow ? (WEATHER_TEXTURE_WIDTH >> 3) : 0,
                     .y = 0
                 };
                 DR_TWIN* ptwin = (DR_TWIN*) allocatePrimitive(ctx, sizeof(DR_TWIN));
