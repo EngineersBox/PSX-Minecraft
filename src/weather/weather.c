@@ -28,7 +28,7 @@ POLY_FT4* createQuad(const SVECTOR vertices[4],
     // Rotation, Translation and Perspective Triple
     gte_rtpt();
     gte_nclip();
-    gte_stopz(&p);
+    gte_stopz(p);
     // gte_stdp(&dp);
     // Avoid negative depth (behind camera) and zero
     // for constraint clearing primitive in OT
@@ -38,7 +38,7 @@ POLY_FT4* createQuad(const SVECTOR vertices[4],
     }
     // Average screen Z result for three vertices
     gte_avsz3();
-    gte_stotz(&p);
+    gte_stotz(p);
     if (*p <= 0 || *p >= ORDERING_TABLE_LENGTH) {
         freePrimitive(ctx, sizeof(POLY_FT4));
         return NULL;
@@ -54,15 +54,15 @@ POLY_FT4* createQuad(const SVECTOR vertices[4],
     gte_rtps();
     gte_stsxy(&pol4->x3);
     // Test if quad is off-screen, discard if so
-    if (quadClip(
-        &ctx->screen_clip,
-        (DVECTOR*) &pol4->x0,
-        (DVECTOR*) &pol4->x1,
-        (DVECTOR*) &pol4->x2,
-        (DVECTOR*) &pol4->x3)) {
-        freePrimitive(ctx, sizeof(POLY_FT4));
-        return NULL;
-    }
+    /*if (quadClip(*/
+    /*    &ctx->screen_clip,*/
+    /*    (DVECTOR*) &pol4->x0,*/
+    /*    (DVECTOR*) &pol4->x1,*/
+    /*    (DVECTOR*) &pol4->x2,*/
+    /*    (DVECTOR*) &pol4->x3)) {*/
+    /*    freePrimitive(ctx, sizeof(POLY_FT4));*/
+    /*    return NULL;*/
+    /*}*/
     setRGB0(pol4, 0x80, 0x80, 0x80);
     // Load primitive color even though gte_ncs() doesn't use it.
     // This is so the GTE will output a color result with the
@@ -111,8 +111,8 @@ void weatherRender(const World* world,
     // Set matrices
     gte_SetRotMatrix(&omtx);
     gte_SetTransMatrix(&omtx);
-    for (i32 x = player_pos.vx - WEATHER_RENDER_RADIUS; x < player_pos.vx + WEATHER_RENDER_RADIUS; x++) {
-        for (i32 z = player_pos.vz - WEATHER_RENDER_RADIUS; z < player_pos.vz + WEATHER_RENDER_RADIUS; z++) {
+    for (i32 x = player_pos.vx - WEATHER_RENDER_RADIUS; x <= player_pos.vx + WEATHER_RENDER_RADIUS; x++) {
+        for (i32 z = player_pos.vz - WEATHER_RENDER_RADIUS; z <= player_pos.vz + WEATHER_RENDER_RADIUS; z++) {
             if (offset++ % 2 == 0) {
                 continue;
             }
@@ -143,30 +143,30 @@ void weatherRender(const World* world,
                 /*addPrim(ot_object, ptwin);*/
             }
             // UV offsets
-            /*srand(x * x * 3121 + x * 45238971 + z * z * 418711 + z * 13761);*/
+            srand(x * x * 3121 + x * 45238971 + z * z * 418711 + z * 13761);
             const u32 u_rand_offset = positiveModulo(rand(), WEATHER_TEXTURE_WIDTH);
             const u32 v_rand_offset = (render_ticks + (y_bottom * BLOCK_TEXTURE_SIZE)) % WEATHER_TEXTURE_HEIGHT;
             SVECTOR vertices[4];
             // X-axis
             vertices[0] = vec3_i16(
-                x * ONE_BLOCK,
-                -y_top * ONE_BLOCK,
-                (z * ONE_BLOCK) + (ONE_BLOCK >> 1)
+                x * BLOCK_SIZE,
+                -y_top * BLOCK_SIZE,
+                (z * BLOCK_SIZE) + (BLOCK_SIZE >> 1)
             );
             vertices[1] = vec3_i16(
-                (x + 1) * ONE_BLOCK,
-                -y_top * ONE_BLOCK,
-                (z * ONE_BLOCK) + (ONE_BLOCK >> 1)
+                (x + 1) * BLOCK_SIZE,
+                -y_top * BLOCK_SIZE,
+                (z * BLOCK_SIZE) + (BLOCK_SIZE >> 1)
             );
             vertices[2] = vec3_i16(
-                x * ONE_BLOCK,
-                -y_bottom * ONE_BLOCK,
-                (z * ONE_BLOCK) + (ONE_BLOCK >> 1)
+                x * BLOCK_SIZE,
+                -y_bottom * BLOCK_SIZE,
+                (z * BLOCK_SIZE) + (BLOCK_SIZE >> 1)
             );
             vertices[3] = vec3_i16(
-                (x + 1) * ONE_BLOCK,
-                -y_bottom * ONE_BLOCK,
-                (z * ONE_BLOCK) + (ONE_BLOCK >> 1)
+                (x + 1) * BLOCK_SIZE,
+                -y_bottom * BLOCK_SIZE,
+                (z * BLOCK_SIZE) + (BLOCK_SIZE >> 1)
             );
             POLY_FT4* pol4 = createQuad(
                 vertices,
@@ -184,7 +184,8 @@ void weatherRender(const World* world,
                 );
                 // Bind texture page and colour look-up-table
                 pol4->tpage = texture->tpage;
-                pol4->clut = textures->clut;
+                pol4->clut = texture->clut;
+                setSemiTrans(pol4, 0);
                 // Sort primitive to the ordering table
                 const u32* ot_object = allocateOrderingTable(ctx, p);
                 addPrim(ot_object, pol4);
@@ -202,24 +203,24 @@ void weatherRender(const World* world,
             }
             // Z-axis
             vertices[0] = vec3_i16(
-                (x * ONE_BLOCK) + (ONE_BLOCK >> 1),
-                -y_top * ONE_BLOCK,
-                z * ONE_BLOCK
+                (x * BLOCK_SIZE) + (BLOCK_SIZE >> 1),
+                -y_top * BLOCK_SIZE,
+                z * BLOCK_SIZE
             );
             vertices[1] = vec3_i16(
-                (x * ONE_BLOCK) + (ONE_BLOCK >> 1),
-                -y_top * ONE_BLOCK,
-                (z + 1) * ONE_BLOCK
+                (x * BLOCK_SIZE) + (BLOCK_SIZE >> 1),
+                -y_top * BLOCK_SIZE,
+                (z + 1) * BLOCK_SIZE
             );
             vertices[2] = vec3_i16(
-                (x * ONE_BLOCK) + (ONE_BLOCK >> 1),
-                -y_bottom * ONE_BLOCK,
-                z * ONE_BLOCK
+                (x * BLOCK_SIZE) + (BLOCK_SIZE >> 1),
+                -y_bottom * BLOCK_SIZE,
+                z * BLOCK_SIZE
             );
             vertices[3] = vec3_i16(
-                (x * ONE_BLOCK) + (ONE_BLOCK >> 1),
-                -y_bottom * ONE_BLOCK,
-                (z + 1) * ONE_BLOCK
+                (x * BLOCK_SIZE) + (BLOCK_SIZE >> 1),
+                -y_bottom * BLOCK_SIZE,
+                (z + 1) * BLOCK_SIZE
             );
             pol4 = createQuad(
                 vertices,
@@ -237,7 +238,7 @@ void weatherRender(const World* world,
                 );
                 // Bind texture page and colour look-up-table
                 pol4->tpage = texture->tpage;
-                pol4->clut = textures->clut;
+                pol4->clut = texture->clut;
                 // Sort primitive to the ordering table
                 u32* ot_object = allocateOrderingTable(ctx, p);
                 addPrim(ot_object, pol4);
