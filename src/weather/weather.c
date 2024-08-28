@@ -123,12 +123,9 @@ void weatherRender(const World* world,
                 cb_pos.block.vx,
                 cb_pos.block.vz
             )];
-            DEBUG_LOG("[WEATHER] Pos: " VEC_PATTERN " Top: %d\n", VEC_LAYOUT(pos), top_solid_block_y);
             const i32 y_bottom = max(player_pos.vy - WEATHER_RENDER_RADIUS, top_solid_block_y);
             const i32 y_top = max(player_pos.vy + WEATHER_RENDER_RADIUS, top_solid_block_y);
-            DEBUG_LOG("[WEATHER] Bottom: %d Top: %d\n", y_bottom, y_top);
             if (y_bottom == y_top) {
-                DEBUG_LOG("[WEATHER] SKIPPED!\n");
                 continue;
             }
             bool current_is_snow = false; // TODO: Set this to true if we are in a tiaga biome
