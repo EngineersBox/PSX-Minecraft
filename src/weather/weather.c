@@ -133,31 +133,32 @@ void weatherRender(const World* world,
             const u32 u_rand_offset = positiveModulo(rand(), WEATHER_TEXTURE_WIDTH);
             const u32 v_rand_offset = (positiveModulo(rand(), WEATHER_TEXTURE_HEIGHT) + render_ticks) % WEATHER_TEXTURE_HEIGHT;
             /*const u32 v_rand_offset = ((render_ticks >> 2) + (y_bottom * BLOCK_TEXTURE_SIZE)) % WEATHER_TEXTURE_HEIGHT;*/
+            const bool x_dir = x >= player_pos.vx;
             SVECTOR vertices[4];
             // X-axis
-            vertices[0] = vec3_i16(
+            vertices[(0 + x_dir) % 2] = vec3_i16(
                 x * BLOCK_SIZE,
                 -y_top * BLOCK_SIZE,
                 (z * BLOCK_SIZE) - (BLOCK_SIZE >> 1)
             );
-            vertices[1] = vec3_i16(
+            vertices[(1 + x_dir) % 2] = vec3_i16(
                 (x + 1) * BLOCK_SIZE,
                 -y_top * BLOCK_SIZE,
                 (z * BLOCK_SIZE) - (BLOCK_SIZE >> 1)
             );
-            vertices[2] = vec3_i16(
+            vertices[2 + ((0 + x_dir) % 2)] = vec3_i16(
                 x * BLOCK_SIZE,
                 -y_bottom * BLOCK_SIZE,
                 (z * BLOCK_SIZE) - (BLOCK_SIZE >> 1)
             );
-            vertices[3] = vec3_i16(
+            vertices[2 + ((1 + x_dir) % 2)] = vec3_i16(
                 (x + 1) * BLOCK_SIZE,
                 -y_bottom * BLOCK_SIZE,
                 (z * BLOCK_SIZE) - (BLOCK_SIZE >> 1)
             );
             POLY_FT4* pol4 = createQuad(
                 vertices,
-                FACE_DIRECTION_NORMALS[x < player_pos.vx ? FACE_DIR_RIGHT : FACE_DIR_LEFT],
+                FACE_DIRECTION_NORMALS[x_dir ? FACE_DIR_RIGHT : FACE_DIR_LEFT],
                 ctx,
                 &p
             );
@@ -189,29 +190,30 @@ void weatherRender(const World* world,
                 addPrim(ot_object, ptwin);
             }
             // Z-axis
-            vertices[0] = vec3_i16(
+            const bool z_dir = z >= player_pos.vz;
+            vertices[(0 + z_dir) % 2] = vec3_i16(
                 (x * BLOCK_SIZE) - (BLOCK_SIZE >> 1),
                 -y_top * BLOCK_SIZE,
                 z * BLOCK_SIZE
             );
-            vertices[1] = vec3_i16(
+            vertices[(1 + z_dir) % 2] = vec3_i16(
                 (x * BLOCK_SIZE) - (BLOCK_SIZE >> 1),
                 -y_top * BLOCK_SIZE,
                 (z + 1) * BLOCK_SIZE
             );
-            vertices[2] = vec3_i16(
+            vertices[2 + ((0 + z_dir) % 2)] = vec3_i16(
                 (x * BLOCK_SIZE) - (BLOCK_SIZE >> 1),
                 -y_bottom * BLOCK_SIZE,
                 z * BLOCK_SIZE
             );
-            vertices[3] = vec3_i16(
+            vertices[2 + ((1 + z_dir) % 2)] = vec3_i16(
                 (x * BLOCK_SIZE) - (BLOCK_SIZE >> 1),
                 -y_bottom * BLOCK_SIZE,
                 (z + 1) * BLOCK_SIZE
             );
             pol4 = createQuad(
                 vertices,
-                FACE_DIRECTION_NORMALS[z < player_pos.vz ? FACE_DIR_BACK : FACE_DIR_FRONT],
+                FACE_DIRECTION_NORMALS[z_dir ? FACE_DIR_BACK : FACE_DIR_FRONT],
                 ctx,
                 &p
             );
