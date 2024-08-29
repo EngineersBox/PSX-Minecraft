@@ -121,7 +121,7 @@ void weatherRender(const World* world,
             const i32 top_solid_block_y = (*heightmap)[chunkHeightmapIndex(
                 cb_pos.block.vx,
                 cb_pos.block.vz
-            )];
+            )] + 1;
             const i32 y_bottom = max(player_pos.vy - WEATHER_RENDER_RADIUS, top_solid_block_y);
             const i32 y_top = max(player_pos.vy + WEATHER_RENDER_RADIUS, top_solid_block_y);
             if (y_bottom == y_top) {
@@ -158,7 +158,7 @@ void weatherRender(const World* world,
             );
             POLY_FT4* pol4 = createQuad(
                 vertices,
-                FACE_DIRECTION_NORMALS[x_dir ? FACE_DIR_RIGHT : FACE_DIR_LEFT],
+                FACE_DIRECTION_NORMALS[FACE_DIR_RIGHT + x_dir],
                 ctx,
                 &p
             );
@@ -167,21 +167,20 @@ void weatherRender(const World* world,
                     pol4,
                     u_rand_offset,
                     v_rand_offset,
-                    WEATHER_TEXTURE_WIDTH,
+                    WEATHER_TEXTURE_HALF_WIDTH,
                     WEATHER_TEXTURE_HEIGHT
                 );
                 // Bind texture page and colour look-up-table
                 pol4->tpage = texture->tpage;
                 pol4->clut = texture->clut;
-                setSemiTrans(pol4, 0);
                 // Sort primitive to the ordering table
                 const u32* ot_object = allocateOrderingTable(ctx, p);
                 addPrim(ot_object, pol4);
                 const RECT tex_window = (RECT) {
-                    .w = WEATHER_TEXTURE_WIDTH >> 3,
+                    .w = WEATHER_TEXTURE_HALF_WIDTH >> 3,
                     .h = WEATHER_TEXTURE_HEIGHT >> 3,
                     // Use the second half of the texture for snow
-                    .x = current_is_snow ? (WEATHER_TEXTURE_WIDTH >> 3) : 0,
+                    .x = current_is_snow ? (WEATHER_TEXTURE_HALF_WIDTH >> 3) : 0,
                     .y = 0
                 };
                 DR_TWIN* ptwin = (DR_TWIN*) allocatePrimitive(ctx, sizeof(DR_TWIN));
@@ -213,7 +212,7 @@ void weatherRender(const World* world,
             );
             pol4 = createQuad(
                 vertices,
-                FACE_DIRECTION_NORMALS[z_dir ? FACE_DIR_BACK : FACE_DIR_FRONT],
+                FACE_DIRECTION_NORMALS[FACE_DIR_BACK + z_dir],
                 ctx,
                 &p
             );
@@ -222,7 +221,7 @@ void weatherRender(const World* world,
                     pol4,
                     u_rand_offset,
                     v_rand_offset,
-                    WEATHER_TEXTURE_WIDTH,
+                    WEATHER_TEXTURE_HALF_WIDTH,
                     WEATHER_TEXTURE_HEIGHT
                 );
                 // Bind texture page and colour look-up-table
@@ -232,10 +231,10 @@ void weatherRender(const World* world,
                 u32* ot_object = allocateOrderingTable(ctx, p);
                 addPrim(ot_object, pol4);
                 const RECT tex_window = (RECT) {
-                    .w = WEATHER_TEXTURE_WIDTH >> 3,
+                    .w = WEATHER_TEXTURE_HALF_WIDTH >> 3,
                     .h = WEATHER_TEXTURE_HEIGHT >> 3,
                     // Use the second half of the texture for snow
-                    .x = current_is_snow ? (WEATHER_TEXTURE_WIDTH >> 3) : 0,
+                    .x = current_is_snow ? (WEATHER_TEXTURE_HALF_WIDTH >> 3) : 0,
                     .y = 0
                 };
                 DR_TWIN* ptwin = (DR_TWIN*) allocatePrimitive(ctx, sizeof(DR_TWIN));
