@@ -151,8 +151,9 @@
 
 // ==== PRIMITIVE OPERANDS ====
 
-#define setTPageSemiTrans(p, st) \
-    (p)->code[0] &= ~((u32) 3 << 5); \
-    (p)->code[0] |= (st) << 5
+#define setTPageSemiTrans_T(p, st) \
+    (p) &= ~((u32) 3 << 5); \
+    (p) |= (st) << 5
+#define setTPageSemiTrans(p, st) setTPageSemiTrans_T((p)->code[0], st)
 
 #endif // PSXMC_PREPROCESSOR_H
