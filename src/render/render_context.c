@@ -110,13 +110,28 @@ void initRenderContext(RenderContext* ctx) {
     // Initialise the GTE
     InitGeom();
     // Set screen depth (basically FOV control, W/2 works best)
-    gte_SetGeomScreen(CENTRE_X);
+    gte_SetGeomScreen(FOV);
     // Set GTE offset (reccomended method of centering)
     if (video_mode == MODE_NTSC) {
         gte_SetGeomOffset(CENTRE_X, CENTRE_Y);
     } else {
         gte_SetGeomOffset(CENTRE_X, CENTRE_Y + 2);
     }
+    // Colour used for faces with normal away from
+    // light source
+    gte_SetBackColor(
+        back_colour.r,
+        back_colour.g,
+        back_colour.b
+    );
+    // Tint to fog colour
+    gte_SetFarColor(
+        far_colour.r,
+        far_colour.g,
+        far_colour.b
+    );
+    // Set light ambient color and light colorma trix
+    gte_SetColorMatrix(&lighting_colour);
 }
 
 void swapBuffers(RenderContext* ctx) {

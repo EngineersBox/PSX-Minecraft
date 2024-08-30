@@ -23,6 +23,8 @@
 #define CENTRE_X (SCREEN_XRES >> 1)
 #define CENTRE_Y (SCREEN_YRES >> 1)
 
+#define FOV (SCREEN_XRES >> 1)
+
 extern CVECTOR clear_colour;
 extern CVECTOR back_colour;
 extern CVECTOR far_colour;

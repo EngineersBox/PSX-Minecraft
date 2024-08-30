@@ -89,7 +89,7 @@ static void renderQuad(const Mesh* mesh,
     cvector_iterator(SVECTOR) normalsIter = cvector_begin(mesh->p_norms);
     const RECT tex_window = (RECT){
         // All in units of 8 pixels, hence right shift by 3
-        .w = BLOCK_TEXTURE_SIZE >> 3,
+        .w = BLOCK_TEXTURE_SIZE>> 3,
         .h = BLOCK_TEXTURE_SIZE >> 3,
         .x = primitive->tu0 >> 3,
         .y = primitive->tv0 >> 3

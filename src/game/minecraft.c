@@ -69,20 +69,6 @@ void Minecraft_init(VSelf, void* ctx) {
     camera = cameraCreate(&self->internals.transforms);
     DYN_PTR(&self->internals.camera, Camera, IInputHandler, &camera);
     self->internals.ctx.camera = VCAST(Camera*, self->internals.camera);
-    gte_SetBackColor(
-        back_colour.r,
-        back_colour.g,
-        back_colour.b
-    );
-    gte_SetFarColor(
-        far_colour.r,
-        far_colour.g,
-        far_colour.b
-    );
-    // Set light ambient color and light colorma trix
-    gte_SetColorMatrix(&lighting_colour);
-    // FOV?
-    gte_SetGeomScreen(100);
     initRenderContext(&self->internals.ctx);
     inputInit(&self->internals.input);
     // Unpack LZP archive and load assets
