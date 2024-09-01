@@ -54,15 +54,15 @@ POLY_FT4* createQuad(const SVECTOR vertices[4],
     gte_rtps();
     gte_stsxy(&pol4->x3);
     // Test if quad is off-screen, discard if so
-    /*if (quadClip(*/
-    /*    &ctx->screen_clip,*/
-    /*    (DVECTOR*) &pol4->x0,*/
-    /*    (DVECTOR*) &pol4->x1,*/
-    /*    (DVECTOR*) &pol4->x2,*/
-    /*    (DVECTOR*) &pol4->x3)) {*/
-    /*    freePrimitive(ctx, sizeof(POLY_FT4));*/
-    /*    return NULL;*/
-    /*}*/
+    if (quadClip(
+        &ctx->screen_clip,
+        (DVECTOR*) &pol4->x0,
+        (DVECTOR*) &pol4->x1,
+        (DVECTOR*) &pol4->x2,
+        (DVECTOR*) &pol4->x3)) {
+        freePrimitive(ctx, sizeof(POLY_FT4));
+        return NULL;
+    }
     setRGB0(pol4, 0xFF, 0xFF, 0xFF);
     // Load primitive color even though gte_ncs() doesn't use it.
     // This is so the GTE will output a color result with the
@@ -112,9 +112,6 @@ void weatherRender(const World* world,
     gte_SetTransMatrix(&omtx);
     for (i32 x = player_pos.vx - WEATHER_RENDER_RADIUS; x <= player_pos.vx + WEATHER_RENDER_RADIUS; x++) {
         for (i32 z = player_pos.vz - WEATHER_RENDER_RADIUS; z <= player_pos.vz + WEATHER_RENDER_RADIUS; z++) {
-            /*if (offset++ % 2 == 0) {*/
-            /*    continue;*/
-            /*}*/
             const VECTOR pos = vec3_add(player_pos, vec3_i32(x, 0, z));
             cb_pos = worldToChunkBlockPosition(&pos, CHUNK_SIZE);
             ChunkHeightmap* heightmap = worldGetChunkHeightmap((World*) world, &cb_pos.chunk);

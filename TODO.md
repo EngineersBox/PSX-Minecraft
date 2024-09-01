@@ -36,6 +36,7 @@
 * [ ] Vertices are distorted (in their location) when very close to the camera
 * [ ] Move mesh generation to after all loading when updating world to avoid face generation on orthogonal axis to update axis
 * [ ] Lighting on dropped items is pure black sometimes despite being in light (possibly bad world position when retrieving light value)
+* [ ] Rain heightmap indexing produces incorrect results after loading chunks when moving.
 
 ## Implement
 
@@ -80,7 +81,7 @@
 * [X] Check block place raycast result intersection with player AABB, preventing placement if coordinates overlap.
 * [X] Calculate time-of-day as the tick count up to `20t * 20m * 60s = 24000t` ticks  and update world internal light level at various thresholds
 * [X] Limit world internal lighting level based on rain and thunder strength.
-* [ ] Weather cycle at random intervals with varying strength.
+* [X] Weather cycle at random intervals with varying strength.
 * [ ] Camera far plane cutoff with fog relative to chunk render distance
 * [ ] Frustum and culling
 * [ ] Depth-first search culling through chunks
@@ -96,7 +97,7 @@
 * [ ] Support more general mesh generation based on block types including multiple normals
 * [ ] Block light should have a slight tint towards red for a warmer colour.
 * [ ] Support smooth lighting by optionally switching to an alternate `ChunkMesh` render handler that uses `POLY_GT4`. Vertex colours should be calculated by querying the light level for each vertex (with some adjustment for direction since left to right is not the same as right to left when getting lighting values).
-* [ ] Add snow/rain rendering in scene as several orthogonal planes that are positioned at player position.
+* [X] Add snow/rain rendering in scene as several orthogonal planes that are positioned at player position.
 * [ ] Sound for rain as inside/outside variant should be based on whether player is below the top block in the heightmap. More specifically within a chunk that is at or below the top and within a some distance from nearest exposed (to top) blocks.
 * [ ] Handle non-uniform block models when generating meshes (i.e. stairs), including orientation where only some faces can be merged.
 

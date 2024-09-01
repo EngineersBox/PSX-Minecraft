@@ -34,10 +34,10 @@
 
 #include "clip.h"
 
-#define CLIP_LEFT 1
-#define CLIP_RIGHT 2
-#define CLIP_TOP 4
-#define CLIP_BOTTOM	8
+#define CLIP_LEFT 0b1
+#define CLIP_RIGHT 0b10
+#define CLIP_TOP 0b100
+#define CLIP_BOTTOM	0b1000
 
 int testClip(const RECT* clip,
 			  const int16_t x,
@@ -47,13 +47,13 @@ int testClip(const RECT* clip,
 	if (x < clip->x) {
 		result |= CLIP_LEFT;
 	}
-	if (x >= clip->x + (clip->w - 1)) {
+	if (x >= (clip->x + (clip->w - 1))) {
 		result |= CLIP_RIGHT;
 	}
 	if (y < clip->y) {
 		result |= CLIP_TOP;
 	}
-	if (y >= clip->y + (clip->h - 1)) {
+	if (y >= (clip->y + (clip->h - 1))) {
 		result |= CLIP_BOTTOM;
 	}
 	return result;

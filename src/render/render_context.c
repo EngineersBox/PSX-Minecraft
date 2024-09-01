@@ -171,7 +171,7 @@ void renderClearConstraints(RenderContext* ctx) {
 }
 
 char* allocatePrimitive(RenderContext* ctx, const size_t size) {
-    ptrdiff_t free_space = PACKET_BUFFER_LENGTH;
+    size_t free_space = PACKET_BUFFER_LENGTH;
     free_space -= (uintptr_t) ctx->primitive - (uintptr_t) ctx->db[ctx->active].packet_buffer;
     if (free_space < size) {
         errorAbort("[ERROR] Not enough space in packet buffer: 0x%x < 0x%x\n", free_space, size);
@@ -182,7 +182,8 @@ char* allocatePrimitive(RenderContext* ctx, const size_t size) {
 }
 
 void freePrimitive(RenderContext* ctx, const size_t size) {
-    const ptrdiff_t allocated_space = (uintptr_t) ctx->primitive - (uintptr_t) ctx->db[ctx->active].packet_buffer;
+    const size_t allocated_space = (uintptr_t) ctx->primitive
+        - (uintptr_t) ctx->db[ctx->active].packet_buffer;
     if (allocated_space < size) {
         errorAbort(
             "[ERROR] Free size is larger than allocated space in packet buffer: 0x%x < 0x%x\n",

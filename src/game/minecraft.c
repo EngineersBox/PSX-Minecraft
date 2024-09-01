@@ -183,12 +183,14 @@ void Minecraft_render(VSelf, const Stats* stats) {
         &self->internals.transforms
     );
     frustumRestore(&self->internals.ctx.camera->frustum);
-    weatherRender(
-        self->world,
-        player,
-        &self->internals.ctx,
-        &self->internals.transforms
-    );
+    if (world->weather.raining || world->weather.storming) {
+        weatherRender(
+            self->world,
+            player,
+            &self->internals.ctx,
+            &self->internals.transforms
+        );
+    }
     // Clear window constraints
     renderClearConstraints(&self->internals.ctx);
     // Render UI
