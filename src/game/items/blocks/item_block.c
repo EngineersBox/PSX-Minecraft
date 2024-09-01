@@ -350,14 +350,14 @@ void renderItemBlockInventory(ItemBlock* item,
         gte_ldv0(&current_verts[3]);
         gte_rtps();
         gte_stsxy(&pol4->x3);
-        #define applyoffset(_idx) \
+        #define applyOffset(_idx) \
             pol4->x##_idx += offset_screen_x; \
             pol4->y##_idx += offset_screen_y
-        applyoffset(0);
-        applyoffset(1);
-        applyoffset(2);
-        applyoffset(3);
-        #undef applyoffset
+        applyOffset(0);
+        applyOffset(1);
+        applyOffset(2);
+        applyOffset(3);
+        #undef applyOffset
         // Load primitive color even though gte_ncs() doesn't use it.
         // This is so the GTE will output a color result with the
         // correct primitive code.
@@ -435,11 +435,7 @@ MATRIX inventory_item_block_lighting_direction = {
     }
 };
 void itemBlockRenderInventory(ItemBlock* item, RenderContext* ctx, Transforms* transforms) {
-    VECTOR position = {
-        .vx = 0,
-        .vy = 0,
-        .vz = item->item.position.vz,
-    };
+    VECTOR position = vec3_i32(0, 0, item->item.position.vz);
     // Object and light matrix for object
     MATRIX omtx, olmtx;
     // Set object rotation and position
@@ -456,11 +452,11 @@ void itemBlockRenderInventory(ItemBlock* item, RenderContext* ctx, Transforms* t
     gte_SetTransMatrix(&omtx);
     gte_SetBackColor(128, 128, 128);
     gte_SetFarColor(1, 1, 1);
-    VECTOR screen_position = {
-        .vx = item->item.position.vx + (INV_SLOT_POS_DELTA / 2),
-        .vy = item->item.position.vy + (INV_SLOT_POS_DELTA / 2),
-        .vz = 0
-    };
+    VECTOR screen_position = vec3_i32(
+        item->item.position.vx + (INV_SLOT_POS_DELTA / 2),
+        item->item.position.vy + (INV_SLOT_POS_DELTA / 2),
+        0
+    );
     renderItemBlockInventory(
         item,
         ctx,
