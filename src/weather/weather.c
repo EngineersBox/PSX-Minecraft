@@ -112,14 +112,17 @@ void weatherRender(const World* world,
     gte_SetTransMatrix(&omtx);
     for (i32 x = player_pos.vx - WEATHER_RENDER_RADIUS; x <= player_pos.vx + WEATHER_RENDER_RADIUS; x++) {
         for (i32 z = player_pos.vz - WEATHER_RENDER_RADIUS; z <= player_pos.vz + WEATHER_RENDER_RADIUS; z++) {
-            const VECTOR pos = vec3_add(player_pos, vec3_i32(x, 0, z));
+            const VECTOR pos = vec3_i32(x, 0, z);
             cb_pos = worldToChunkBlockPosition(&pos, CHUNK_SIZE);
             ChunkHeightmap* heightmap = worldGetChunkHeightmap((World*) world, &cb_pos.chunk);
             const i32 top_solid_block_y = (*heightmap)[chunkHeightmapIndex(
                 cb_pos.block.vx,
                 cb_pos.block.vz
             )] + 1;
-            const i32 y_bottom = max(player_pos.vy - WEATHER_RENDER_RADIUS, top_solid_block_y);
+            // Extra -1 here is to make the radius start from the
+            // player's head and feat, to make it feel uniform
+            // in down direction
+            const i32 y_bottom = max(player_pos.vy - WEATHER_RENDER_RADIUS - 1, top_solid_block_y);
             const i32 y_top = max(player_pos.vy + WEATHER_RENDER_RADIUS, top_solid_block_y);
             if (y_bottom == y_top) {
                 continue;
@@ -129,7 +132,6 @@ void weatherRender(const World* world,
             srand(x * x * 3121 + x * 45238971 + z * z * 418711 + z * 13761);
             const u32 u_rand_offset = positiveModulo(rand(), WEATHER_TEXTURE_WIDTH);
             const u32 v_rand_offset = (positiveModulo(rand(), WEATHER_TEXTURE_HEIGHT) + render_ticks) % WEATHER_TEXTURE_HEIGHT;
-            /*const u32 v_rand_offset = ((render_ticks >> 2) + (y_bottom * BLOCK_TEXTURE_SIZE)) % WEATHER_TEXTURE_HEIGHT;*/
             const bool x_dir = x >= player_pos.vx;
             SVECTOR vertices[4];
             // X-axis
