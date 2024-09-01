@@ -170,6 +170,30 @@ void renderClearConstraints(RenderContext* ctx) {
     renderClearConstraintsIndex(ctx, 0);
 }
 
+void renderCtxBindMatrix(RenderContext* ctx,
+                         Transforms* transforms,
+                         const SVECTOR* rotation,
+                         const VECTOR* translation) {
+    // Object and light matrix for object
+    MATRIX omtx, olmtx;
+    // Set object rotation and position
+    RotMatrix(rotation, &omtx);
+    TransMatrix(&omtx, translation);
+    // Multiply light matrix to object matrix
+    MulMatrix0(&transforms->lighting_mtx, &omtx, &olmtx);
+    // Set result to GTE light matrix
+    gte_SetLightMatrix(&olmtx);
+    // Composite coordinate matrix transform, so object will be rotated and
+    // positioned relative to camera matrix (mtx), so it'll appear as
+    // world-space relative.
+    CompMatrixLV(&transforms->geometry_mtx, &omtx, &omtx);
+    // Save matrix
+    PushMatrix();
+    // Set matrices
+    gte_SetRotMatrix(&omtx);
+    gte_SetTransMatrix(&omtx);
+}
+
 char* allocatePrimitive(RenderContext* ctx, const size_t size) {
     size_t free_space = PACKET_BUFFER_LENGTH;
     free_space -= (uintptr_t) ctx->primitive - (uintptr_t) ctx->db[ctx->active].packet_buffer;

@@ -7,6 +7,7 @@
 #include <psxgte.h>
 
 #include "../core/camera.h"
+#include "transforms.h"
 
 // Framebuffer struct array sizes
 #define ORDERING_TABLE_LENGTH (1 << 13)
@@ -52,7 +53,15 @@ void initRenderContext(RenderContext* ctx);
 void swapBuffers(RenderContext* ctx);
 
 void renderClearConstraintsIndex(RenderContext* ctx, uint32_t index);
-void renderClearConstraints(RenderContext* ctx);
+ void renderClearConstraints(RenderContext* ctx);
+
+void renderCtxBindMatrix(RenderContext* ctx,
+                         Transforms* transforms,
+                         const SVECTOR* rotation,
+                         const VECTOR* translation);
+INLINE void renderCtxUnbindMatrix() {
+    PopMatrix();
+}
 
 char* allocatePrimitive(RenderContext* ctx, size_t size);
 void freePrimitive(RenderContext* ctx, size_t size);

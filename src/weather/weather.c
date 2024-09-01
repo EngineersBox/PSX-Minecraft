@@ -91,25 +91,12 @@ void weatherRender(const World* world,
     ChunkBlockPosition cb_pos;
     const Texture* texture = &textures[ASSET_TEXTURES_WEATHER_INDEX];
     int p = 0;
-    u32 offset = 0;
-    // Object and light matrix for object
-    MATRIX omtx, olmtx;
-    // Set object rotation and position
-    RotMatrix(&VEC3_I16_ZERO, &omtx);
-    TransMatrix(&omtx, &VEC3_I32_ZERO);
-    // Multiply light matrix to object matrix
-    MulMatrix0(&transforms->lighting_mtx, &omtx, &olmtx);
-    // Set result to GTE light matrix
-    gte_SetLightMatrix(&olmtx);
-    // Composite coordinate matrix transform, so object will be rotated and
-    // positioned relative to camera matrix (mtx), so it'll appear as
-    // world-space relative.
-    CompMatrixLV(&transforms->geometry_mtx, &omtx, &omtx);
-    // Save matrix
-    PushMatrix();
-    // Set matrices
-    gte_SetRotMatrix(&omtx);
-    gte_SetTransMatrix(&omtx);
+    renderCtxBindMatrix(
+        ctx,
+        transforms,
+        &VEC3_I16_ZERO,
+        &VEC3_I32_ZERO
+    );
     for (i32 x = player_pos.vx - WEATHER_RENDER_RADIUS; x <= player_pos.vx + WEATHER_RENDER_RADIUS; x++) {
         for (i32 z = player_pos.vz - WEATHER_RENDER_RADIUS; z <= player_pos.vz + WEATHER_RENDER_RADIUS; z++) {
             const VECTOR pos = vec3_i32(x, 0, z);
@@ -244,7 +231,6 @@ void weatherRender(const World* world,
         }
     }
     render_ticks = (render_ticks + 1) % WEATHER_TEXTURE_HEIGHT;
-    // Restore matrix
-    PopMatrix();
+    renderCtxUnbindMatrix();
 }
 

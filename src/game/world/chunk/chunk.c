@@ -336,24 +336,12 @@ void chunkRender(Chunk* chunk,
     // } else {
     //     DEBUG_LOG("[CHUNK " VEC_PATTERN "] Visible\n", VEC_LAYOUT(chunk->position));
     // }
-    // Object and light matrix for object
-    MATRIX omtx, olmtx;
-    // Set object rotation and position
-    RotMatrix(&VEC3_I16_ZERO, &omtx);
-    TransMatrix(&omtx, &chunk->position);
-    // Multiply light matrix to object matrix
-    MulMatrix0(&transforms->lighting_mtx, &omtx, &olmtx);
-    // Set result to GTE light matrix
-    gte_SetLightMatrix(&olmtx);
-    // Composite coordinate matrix transform, so object will be rotated and
-    // positioned relative to camera matrix (mtx), so it'll appear as
-    // world-space relative.
-    CompMatrixLV(&transforms->geometry_mtx, &omtx, &omtx);
-    // Save matrix
-    PushMatrix();
-    // Set matrices
-    gte_SetRotMatrix(&omtx);
-    gte_SetTransMatrix(&omtx);
+    renderCtxBindMatrix(
+        ctx,
+        transforms,
+        &VEC3_I16_ZERO,
+        &chunk->position
+    );
     // Sort + render mesh
     chunkMeshRender(
         &chunk->mesh,
@@ -361,8 +349,7 @@ void chunkRender(Chunk* chunk,
         ctx,
         transforms
     );
-    // Restore matrix
-    PopMatrix();
+    renderCtxUnbindMatrix();
     chunkRenderDroppedItems(chunk, ctx, transforms);
 }
 
