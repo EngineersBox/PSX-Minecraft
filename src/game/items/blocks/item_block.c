@@ -229,25 +229,12 @@ void itemBlockRenderWorld(ItemBlock* item,
         worldGetInternalLightLevel(chunk->world),
         worldGetLightValue(chunk->world, &world_position)
     );
-    // Object and light matrix for object
-    MATRIX omtx, olmtx;
-    // Set object rotation and position
-    RotMatrix(&item->item.rotation, &omtx);
-    ApplyMatrixLV(&omtx, &transforms->translation_position, &transforms->translation_position);
-    TransMatrix(&omtx, &position);
-    // Multiply light matrix to object matrix
-    MulMatrix0(&transforms->lighting_mtx, &omtx, &olmtx);
-    // Set result to GTE light matrix
-    gte_SetLightMatrix(&olmtx);
-    // Composite coordinate matrix transform, so object will be rotated and
-    // positioned relative to camera matrix (mtx), so it'll appear as
-    // world-space relative.
-    CompMatrixLV(&transforms->geometry_mtx, &omtx, &omtx);
-    // Save matrix
-    PushMatrix();
-    // Set matrices
-    gte_SetRotMatrix(&omtx);
-    gte_SetTransMatrix(&omtx);
+    renderCtxBindMatrix(
+        ctx,
+        transforms,
+        &item->item.rotation,
+        &position
+    );
     if (item->item.stack_size <= 1) {
         renderItemBlock(
             item,
@@ -305,7 +292,7 @@ void itemBlockRenderWorld(ItemBlock* item,
         }
         item->item.bob_offset += item->item.bob_direction;
     }
-    PopMatrix();
+    renderCtxUnbindMatrix();
 }
 
 void renderItemBlockInventory(ItemBlock* item,
