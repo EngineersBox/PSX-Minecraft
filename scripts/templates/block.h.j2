@@ -22,8 +22,26 @@ DEFN_BLOCK_CONSTRUCTOR({{ name_lower }});
     .tool_type = {{ tool_type }}, \
     .tool_material = {{ tool_material }}, \
     .can_harvest = toolTypeBitset({{ can_harvest_bitset }}), \
+    .propagates_sunlight = {% if propagates_sunlight %} true {% else %} false {% endif %}, \
+    .propagates_blocklight = {% if propagates_blocklight %} true {% else %} false {% endif %}, \
+    {% if face_attributes -%}
+    .face_attributes {{ name_snake_upper }}_FACE_ATTRIBUTES, \
+    {%- endif %}
     .name = "{{ name_snake_lower }}" \
 })
+
+{% if face_attributes -%}
+#define {{ name_lower }}BlockFaceAttributes() P99_PROTECT({\
+{% for attr in face_attributes -%}
+    {% if attr.tinted -%}
+    defaultTintedFaceAttributes({{ attr.value }})
+    {%- else -%}
+    defaultFaceAttributes({{ attr.value }})
+    {%- endif %}
+    {%- if not loop.last -%} ,
+    {%- endif %} \
+{% endfor %}})
+{%- endif %}
 
 void {{ name_lower }}BlockInit(VSelf);
 void {{ name_capital }}Block_init(VSelf);

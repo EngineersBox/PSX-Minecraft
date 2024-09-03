@@ -8,13 +8,15 @@ env = Environment(
 )
 
 @dataclass
+class FaceAttribute:
+    tinted: bool
+    value: str
+
+@dataclass
 class Block:
     # Structure
-    name: str
     orientation: str
     type: str
-    face_attributes: str
-    tinted_face_attributes: str
     opaque_bitset: str
     light_level: int
     # Attributes
@@ -25,7 +27,11 @@ class Block:
     tool_type: str
     tool_material: str
     can_harvest_bitset: str
+    propagates_sunlight: bool
+    propagates_blocklight: bool
     has_use_action: bool
+    face_attributes: list[str]
+    name: str
     # Generator metadata
     generator: str = "block"
 
@@ -38,12 +44,25 @@ class ItemBlock:
     generator: str = "itemblock"
 
 def generateBlock(block: Block) -> None:
-    if ((block.face_attributes != None) == (block.tinted_face_attributes != None)):
-        print("[ERROR] Cannot have both tinted and non-tinted face attributes")
-        exit(1)
     if (block.light_level != None and (block.light_level < 0 or block.light_level > 15)):
         print(f"[ERROR] Light level must be in range [0..15], got: {block.light_level}")
         exit(1)
+    if (len(block.face_attributes) > 0):
+        print(block.face_attributes)
+        face_attributes = []
+        for attr in block.face_attributes:
+            indices = attr.split(",")
+            if len(indices) != 1 and len(indices) != 6:
+                print(f"[ERROR] Expected 1 or 6 face attributes, got {len(indices)} with {attr}")
+                exit(1)
+            for index in indices:
+                try:
+                    int(index)
+                except:
+                    print(f"[ERROR] Invalid face attribute index: {index}")
+                    exit(1)
+            face_attributes.append(FaceAttribute(len(indices) == 6, attr))
+        block.face_attributes = face_attributes
     render_parameters = {
         "name_snake_upper": caseconverter.macrocase(block.name),
         "name_snake_lower": caseconverter.snakecase(block.name),
@@ -138,8 +157,7 @@ def main():
         ],
         help="Block type to determine mesh and characteristics"
     )
-    parser_block.add_argument("--face_attributes", type=int, default=None, help="Texture page index for 16x16 face texture on all sides [NOTE: Exclusive with --tinited_face_attributes]")
-    parser_block.add_argument("--tinted_face_attributes", type=str, default=None, help="Per-face (6) texture page indices and optional tint formatted as '<down>,<up>,<left>,<right>,<front>,<back>'. Where each entry is comma separated and of the form '<index>, NO_TINT' or '<index>, faceTint(r,g,b,cd)' [NOTE: Exclusive with --face_attributes]")
+    parser_block.add_argument("--face_attributes", type=str, default=[], nargs="*", help="Textures to use for each metadata variant. Each use of this argument is either a single texture page index (one integer) for a 16x16 texture for all sides, otherwise a set of 6 per-face texture page indices of the format '<down>,<up>,<left>,<right>,<front>,<back>'")
     parser_block.add_argument("--slipperiness", type=str, default="BLOCK_DEFAULT_SLIPPERINESS", help="How much physics objects slide on the block (player, items, mobs, etc)")
     parser_block.add_argument("--hardness", type=str, default="BLOCK_DEFAULT_HARDNESS", help="How difficult it is to use the relevant tool on")
     parser_block.add_argument("--resistance", type=str, default="BLOCK_DEFAULT_RESISTANCE", help="How resistant it is to explosions")
@@ -176,6 +194,8 @@ def main():
     )
     parser_block.add_argument("--can_harvest_bitset", type=str, required=True, help="Tool specific flags to determine if the tool can mine the block where 1=true and 0=false of the form '<none>,<pickaxe>,<axe>,<sword>,<shovel>,<hoe>'")
     parser_block.add_argument("--has_use_action", type=bool, action=argparse.BooleanOptionalAction, default=False, help="Whether the block should respond to use actions")
+    parser_block.add_argument("--propagates_sunlight", type=bool, action=argparse.BooleanOptionalAction, default=False, help="Block should propagate sunlight")
+    parser_block.add_argument("--propagates_blocklight", type=bool, action=argparse.BooleanOptionalAction, default=False, help="Block should propagate blocklight")
 
     # ==== ITEM BLOCK ====
     parser_itemblock = sub_parsers.add_parser("itemblock", help="itemblock help")

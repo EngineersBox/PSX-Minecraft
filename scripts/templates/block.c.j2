@@ -24,12 +24,7 @@ void {{ name_capital }}Block_init(VSelf) {
         {% if opaque_bitset != None -%}
         opacityBitset({{ opaque_bitset }}),
         {%- endif %}
-        {{ orientation }},
-        {% if face_attributes != None -%}
-        defaultFaceAttributes({{ face_attributes }})
-        {%- elif tinted_face_attributes != None -%}
-        declareTintedFaceAttributes({{ tinted_face_attributes }})
-        {%- endif %}
+        {{ orientation }}
     );
 }
 
