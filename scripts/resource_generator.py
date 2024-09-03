@@ -157,7 +157,7 @@ def main():
         ],
         help="Block type to determine mesh and characteristics"
     )
-    parser_block.add_argument("--face_attributes", type=str, default=[], nargs="*", help="Textures to use for each metadata variant. Each use of this argument is either a single texture page index (one integer) for a 16x16 texture for all sides, otherwise a set of 6 per-face texture page indices of the format '<down>,<up>,<left>,<right>,<front>,<back>'")
+    parser_block.add_argument("--face_attributes", type=str, default=[], nargs="+", help="Textures to use for each metadata variant. Each use of this argument is either a single texture page index (one integer) for a 16x16 texture for all sides, otherwise a set of 6 per-face texture page indices of the format '<down>,<up>,<left>,<right>,<front>,<back>'")
     parser_block.add_argument("--slipperiness", type=str, default="BLOCK_DEFAULT_SLIPPERINESS", help="How much physics objects slide on the block (player, items, mobs, etc)")
     parser_block.add_argument("--hardness", type=str, default="BLOCK_DEFAULT_HARDNESS", help="How difficult it is to use the relevant tool on")
     parser_block.add_argument("--resistance", type=str, default="BLOCK_DEFAULT_RESISTANCE", help="How resistant it is to explosions")
