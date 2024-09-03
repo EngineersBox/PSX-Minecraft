@@ -158,7 +158,7 @@ void renderItemBlock(ItemBlock* item,
             (DVECTOR*) &pol4->x3)) {
             freePrimitive(ctx, sizeof(POLY_FT4));
             continue;
-            }
+        }
         // Load primitive color even though gte_ncs() doesn't use it.
         // This is so the GTE will output a color result with the
         // correct primitive code.
@@ -217,7 +217,20 @@ void itemBlockRenderWorld(ItemBlock* item,
         item->item.world_physics_object->position,
         FIXED_POINT_SHIFT
     );
-    const VECTOR world_position = vec3_const_div(position, BLOCK_SIZE);
+    // FIXME: The physics object position for items isn't
+    //        properly aligned to the bounding box since
+    //        the position (which should be the centre of
+    //        the AABB) isn't aligned properly and thus when
+    //        converting to world position and querying the
+    //        light level, it can query the next block over
+    //        (in the direction that the item moved when
+    //        it was dropped) and thus can get a light level
+    //        of 0 and the item is rendered as black in the
+    //        world.
+    const VECTOR world_position = vec3_const_div(
+        position,
+        BLOCK_SIZE
+    );
     position.vy = -position.vy - ITEM_BLOCK_ANIM_LUT[item->item.bob_offset];
     // Include any distance animation for pickups
     position = vec3_add(
@@ -225,9 +238,18 @@ void itemBlockRenderWorld(ItemBlock* item,
         item->item.position
     );
     // Calculate light level
+    const LightLevel internal_light_level = worldGetInternalLightLevel(chunk->world);
+    const LightLevel light_level = worldGetLightValue(chunk->world, &world_position);
     const u16 light_level_colour_scalar = lightLevelColourScalar(
-        worldGetInternalLightLevel(chunk->world),
-        worldGetLightValue(chunk->world, &world_position)
+        internal_light_level,
+        light_level
+    );
+    DEBUG_LOG(
+        "[ITEM] World pos: " VEC_PATTERN " Internal: %d Light: %d Scalar: %d\n",
+        VEC_LAYOUT(world_position),
+        internal_light_level,
+        light_level,
+        light_level_colour_scalar
     );
     renderCtxBindMatrix(
         ctx,
