@@ -125,22 +125,22 @@ void weatherRender(const World* world,
             vertices[(0 + x_dir) % 2] = vec3_i16(
                 x * BLOCK_SIZE,
                 -y_top * BLOCK_SIZE,
-                (z * BLOCK_SIZE) - (BLOCK_SIZE >> 1)
+                (z * BLOCK_SIZE) + (BLOCK_SIZE >> 1)
             );
             vertices[(1 + x_dir) % 2] = vec3_i16(
                 (x + 1) * BLOCK_SIZE,
                 -y_top * BLOCK_SIZE,
-                (z * BLOCK_SIZE) - (BLOCK_SIZE >> 1)
+                (z * BLOCK_SIZE) + (BLOCK_SIZE >> 1)
             );
             vertices[2 + ((0 + x_dir) % 2)] = vec3_i16(
                 x * BLOCK_SIZE,
                 -y_bottom * BLOCK_SIZE,
-                (z * BLOCK_SIZE) - (BLOCK_SIZE >> 1)
+                (z * BLOCK_SIZE) + (BLOCK_SIZE >> 1)
             );
             vertices[2 + ((1 + x_dir) % 2)] = vec3_i16(
                 (x + 1) * BLOCK_SIZE,
                 -y_bottom * BLOCK_SIZE,
-                (z * BLOCK_SIZE) - (BLOCK_SIZE >> 1)
+                (z * BLOCK_SIZE) + (BLOCK_SIZE >> 1)
             );
             POLY_FT4* pol4 = createQuad(
                 vertices,
@@ -177,22 +177,22 @@ void weatherRender(const World* world,
             // Z-axis
             const bool z_dir = z >= player_pos.vz;
             vertices[(0 + z_dir) % 2] = vec3_i16(
-                (x * BLOCK_SIZE) - (BLOCK_SIZE >> 1),
+                (x * BLOCK_SIZE) + (BLOCK_SIZE >> 1),
                 -y_top * BLOCK_SIZE,
                 z * BLOCK_SIZE
             );
             vertices[(1 + z_dir) % 2] = vec3_i16(
-                (x * BLOCK_SIZE) - (BLOCK_SIZE >> 1),
+                (x * BLOCK_SIZE) + (BLOCK_SIZE >> 1),
                 -y_top * BLOCK_SIZE,
                 (z + 1) * BLOCK_SIZE
             );
             vertices[2 + ((0 + z_dir) % 2)] = vec3_i16(
-                (x * BLOCK_SIZE) - (BLOCK_SIZE >> 1),
+                (x * BLOCK_SIZE) + (BLOCK_SIZE >> 1),
                 -y_bottom * BLOCK_SIZE,
                 z * BLOCK_SIZE
             );
             vertices[2 + ((1 + z_dir) % 2)] = vec3_i16(
-                (x * BLOCK_SIZE) - (BLOCK_SIZE >> 1),
+                (x * BLOCK_SIZE) + (BLOCK_SIZE >> 1),
                 -y_bottom * BLOCK_SIZE,
                 (z + 1) * BLOCK_SIZE
             );
