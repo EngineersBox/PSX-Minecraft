@@ -131,7 +131,7 @@
 * [X] Move remesh trigger handling for lighting and breaking overlay from `chunkRender` into `chunkUpdate` so that changes that don't directly invoke a re-mesh, but stil need one can do it in an update cycle
 * [X] Move to PSn00bSDK critical handlers and properly mark initialisation of timers.
 * [X] ~~Refactor vector operations to use `_Generic` C11 macro to perform type specific operations between any kind of two vector types or constant.~~ (Refactor was done with vec/const specific macros on naming basis).
-* [X] Move field `face_attributes` in `Block` to `BlockAttributes`, moving from a fixed sized array to a pointer, allowing for variable length arrays indexed by `metadata_id * FACE_DIRECTION_COUNT`. This can then be an alias to an array of texture refs that all blocks of the same type can use and simultaneously allow for many variants based on `metadat_id`.
+* [X] Move field `face_attributes` in `Block` to `BlockAttributes`, moving from a fixed sized array to a pointer, allowing for variable length arrays indexed by `metadata_id * FACE_DIRECTION_COUNT`. This can then be an alias to an array of texture refs that all blocks of the same type can use and simultaneously allow for many variants based on `metadata_id`.
 * [ ] Support other resolutions that aren't 320x240
 * [ ] Move assets to on-disk directories and files instead of packing them into the binary
 * [ ] Refactor the `chunkRemoveLightType` call into the `chunkSetLightType` when the light value is `0` and update the necessary logic changes to accomodate this (seems to cause infinite lighting update loops if this is done at the moment)

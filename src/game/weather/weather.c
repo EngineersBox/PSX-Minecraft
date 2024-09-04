@@ -4,14 +4,14 @@
 #include <psxgte.h>
 #include <inline_c.h>
 
-#include "../resources/assets.h"
-#include "../resources/asset_indices.h"
-#include "../util/preprocessor.h"
-#include "../game/world/position.h"
-#include "../structure/primitive/clip.h"
-#include "../structure/primitive/direction.h"
-#include "../math/math_utils.h"
-#include "../logging/logging.h"
+#include "../../resources/assets.h"
+#include "../../resources/asset_indices.h"
+#include "../../util/preprocessor.h"
+#include "../world/position.h"
+#include "../../structure/primitive/clip.h"
+#include "../../structure/primitive/direction.h"
+#include "../../math/math_utils.h"
+#include "../../logging/logging.h"
 
 FWD_DECL ChunkHeightmap* worldGetChunkHeightmap(World* world, const VECTOR* position);
 

@@ -3,9 +3,9 @@
 #ifndef _PSXMC__WEATHER__WEATHER_H_
 #define _PSXMC__WEATHER__WEATHER_H_
 
-#include "../game/world/world_structure.h"
-#include "../entity/player.h"
-#include "../render/render_context.h"
+#include "../world/world_structure.h"
+#include "../../entity/player.h"
+#include "../../render/render_context.h"
 
 // Number of blocks in each direction (excluding the centre)
 // that weather is rendered in

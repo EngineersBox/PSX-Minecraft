@@ -20,6 +20,7 @@
 extern BlockAttributes block_attributes[BLOCK_COUNT];
 extern BlockConstructor block_constructors[BLOCK_COUNT];
 
+#define blockEqual(b0, b1) ((b0)->id == (b1)->id && (b0)->metadata_id == (b1)->metadata_id)
 #define blockGetAttribute(id, attr) (block_attributes[(id)].attr)
 #define blockGetName(id) blockGetAttribute(id, name)
 #define blockGetType(id) blockGetAttribute(id, type)
