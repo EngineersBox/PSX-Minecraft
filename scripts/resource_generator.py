@@ -29,9 +29,11 @@ class Block:
     can_harvest_bitset: str
     propagates_sunlight: bool
     propagates_blocklight: bool
-    has_use_action: bool
     face_attributes: list[str]
     name: str
+    # Overrides
+    has_use_action: bool
+    has_update: bool
     # Generator metadata
     generator: str = "block"
 
@@ -86,7 +88,8 @@ def generateBlock(block: Block) -> None:
     print(f" - \"src/game/blocks/blocks.h\" to add the include via '#include \"block_{render_parameters["name_snake_lower"]}.h\"'")
     if (not block.stateful):
         print(" - \"src/game/blocks/blocks.c\" to declare a static instance of the block")
-    print("[INFO] If required, generate or create an associated item block to match this in \"src/game/items\"")
+    print(f" - \"src/game/blocks/blocks.c\" to declare {render_parameters["name_snake_upper"]}_FACE_ATTRIBUTES using {render_parameters["name_lower"]}BlockFaceAttributes")
+    print("[INFO] If required, generate or create an associated item block to match this in \"src/game/items/blocks\"")
 
 def generateItemBlock(itemblock: ItemBlock) -> None:
     if ((itemblock.face_attributes != None) == (itemblock.tinted_face_attributes != None)):
@@ -161,8 +164,8 @@ def main():
     parser_block.add_argument("--slipperiness", type=str, default="BLOCK_DEFAULT_SLIPPERINESS", help="How much physics objects slide on the block (player, items, mobs, etc)")
     parser_block.add_argument("--hardness", type=str, default="BLOCK_DEFAULT_HARDNESS", help="How difficult it is to use the relevant tool on")
     parser_block.add_argument("--resistance", type=str, default="BLOCK_DEFAULT_RESISTANCE", help="How resistant it is to explosions")
-    parser_block.add_argument("--opaque_bitset", type=str, help="Face specific opacity where 1=opaque and 0=transparent of the form '<down>,<up>,<left>,<right>,<front>,<back>'")
-    parser_block.add_argument("--light_level", type=int, help="Light level emitted by the block, by default blocks dont emit light. Must be in the range [0..15]")
+    parser_block.add_argument("--opaque_bitset", type=str, default="1,0,0,0,0,0", help="Face specific opacity where 1=opaque and 0=transparent of the form '<down>,<up>,<left>,<right>,<front>,<back>'")
+    parser_block.add_argument("--light_level", type=int, default=0, choices=range(16), help="Light level emitted by the block, by default blocks dont emit light. Must be in the range [0..15]")
     parser_block.add_argument("--stateful", type=bool, action=argparse.BooleanOptionalAction, default=False, help="Whether the block should maintain state or be static (single instance)")
     parser_block.add_argument(
         "--tool_type",
@@ -194,6 +197,7 @@ def main():
     )
     parser_block.add_argument("--can_harvest_bitset", type=str, required=True, help="Tool specific flags to determine if the tool can mine the block where 1=true and 0=false of the form '<none>,<pickaxe>,<axe>,<sword>,<shovel>,<hoe>'")
     parser_block.add_argument("--has_use_action", type=bool, action=argparse.BooleanOptionalAction, default=False, help="Whether the block should respond to use actions")
+    parser_block.add_argument("--has_update", type=bool, action=argparse.BooleanOptionalAction, default=False, help="Whether the block should respond to tick updates")
     parser_block.add_argument("--propagates_sunlight", type=bool, action=argparse.BooleanOptionalAction, default=False, help="Block should propagate sunlight")
     parser_block.add_argument("--propagates_blocklight", type=bool, action=argparse.BooleanOptionalAction, default=False, help="Block should propagate blocklight")
 

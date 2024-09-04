@@ -44,23 +44,21 @@ DEFN_BLOCK_CONSTRUCTOR({{ name_lower }});
 void {{ name_lower }}BlockInit(VSelf);
 void {{ name_capital }}Block_init(VSelf);
 
-void {{ name_lower }}BlockAccess(VSelf);
-void {{ name_capital }}Block_access(VSelf);
-
 ALLOC_CALL(itemDestroy, 1) IItem* {{ name_lower }}BlockDestroy(VSelf, bool drop_item);
 ALLOC_CALL(itemDestroy, 1) IItem* {{ name_capital }}Block_destroy(VSelf, bool drop_item);
-
-void {{ name_lower }}BlockUpdate(VSelf);
-void {{ name_capital }}Block_update(VSelf);
 
 ALLOC_CALL(itemDestroy, 1) IItem* {{ name_lower }}BlockProvideItem(VSelf);
 ALLOC_CALL(itemDestroy, 1) IItem* {{ name_capital }}Block_provideItem(VSelf);
 
-{% if has_use_action -%}
+{%- if has_update %}
+void {{ name_lower }}BlockUpdate(VSelf);
+void {{ name_capital }}Block_update(VSelf);
+{% endif -%}
+{%- if has_use_action %}
 #define {{ name_capital }}Block_useAction_CUSTOM ()
 bool {{ name_lower }}BlockUseAction(VSelf);
 bool {{ name_capital }}Block_useAction(VSelf);
-{%- endif %}
+{% endif -%}
 
 impl(IBlock, {{ name_capital }}Block);
 

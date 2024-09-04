@@ -2,7 +2,7 @@
 
 #include "../../util/interface99_extensions.h"
 #include "block_id.h"
-#include "../items/item_block_{{ name_snake_lower }}.h"
+#include "../items/blocks/item_block_{{ name_snake_lower }}.h"
 
 {% if stateful -%}
 DEFN_BLOCK_CONSTRUCTOR_IMPL_STATEFUL({{ name_lower }}) {
@@ -28,18 +28,10 @@ void {{ name_capital }}Block_init(VSelf) {
     );
 }
 
-void {{ name_lower }}BlockAccess(VSelf) ALIAS("{{ name_capital }}Block_access");
-void {{ name_capital }}Block_access(VSelf) {
-}
-
 IItem* {{ name_lower }}BlockDestroy(VSelf, bool drop_item) ALIAS("{{ name_capital }}Block_destroy");
 IItem* {{ name_capital }}Block_destroy(VSelf, bool drop_item) {
     VSELF({{ name_capital }}Block);
     return drop_item ? {{ name_lower }}BlockProvideItem(self) : NULL;
-}
-
-void {{ name_lower }}BlockUpdate(VSelf) ALIAS("{{ name_capital }}Block_update");
-void {{ name_capital }}Block_update(VSelf) {
 }
 
 IItem* {{ name_lower }}BlockProvideItem(VSelf) ALIAS("{{ name_capital }}Block_provideItem");
@@ -50,14 +42,22 @@ IItem* {{ name_capital }}Block_provideItem(VSelf) {
     DYN_PTR(item, {{ name_capital }}ItemBlock, IItem, item_block);
     VCALL(*item, init);
     itemBlockReplicateFaceAttributes(item_block->item_block, self->block);
-    item_block->item_item.stack_size = 1;
-    item_block->item_item.bob_direction = 1;
+    item_block->item_block.item.stack_size = 1;
+    item_block->item_block.item.bob_direction = 1;
     return item;
 }
+
+{% if has_update -%}
+void {{ name_lower }}BlockUpdate(VSelf) ALIAS("{{ name_capital }}Block_update");
+void {{ name_capital }}Block_update(VSelf) {
+    UNIMPLEMENTED("Implement {{ name_capital }}Block_update");
+}
+{%- endif %}
 
 {% if has_use_action -%}
 bool {{ name_lower }}BlockUseAction(VSelf) ALIAS("{{ name_capital }}Block_useAction");
 bool {{ name_capital }}Block_useAction(VSelf) {
-    TODO("Implement use action for {{ name_lower }} block");
+    UNIMPLEMENTED("Implement {{ name_capital }}Block_useAction");
+    return false;
 }
 {%- endif %}
