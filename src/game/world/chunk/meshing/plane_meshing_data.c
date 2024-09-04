@@ -15,7 +15,7 @@ int plane_meshing_data_compare(const void* a, const void* b, void* ignored) {
         return axis;
     } else if (block_id) {
         return 0;
-    } else if (light_level!= 0) {
+    } else if (light_level != 0) {
         return light_level;
     }
     return y;
