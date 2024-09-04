@@ -50,7 +50,6 @@ def generateBlock(block: Block) -> None:
         print(f"[ERROR] Light level must be in range [0..15], got: {block.light_level}")
         exit(1)
     if (len(block.face_attributes) > 0):
-        print(block.face_attributes)
         face_attributes = []
         for attr in block.face_attributes:
             indices = attr.split(",")
