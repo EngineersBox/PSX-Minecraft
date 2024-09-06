@@ -75,16 +75,16 @@ void Minecraft_init(VSelf, void* ctx) {
     assetsLoad();
     fontLoad();
     // Load font and open a text stream
-    FntLoad(960, 0);
+    FntLoad(960, 256);
     FntOpen(0, 8, 320, 216, 0, 160);
-    FntOpen(
-        SCREEN_XRES >> 1,
-        8,
-        SCREEN_XRES >> 1,
-        216,
-        0,
-        (SCREEN_XRES / FONT_SPRITE_WIDTH) * 6
-    );
+    /*FntOpen(*/
+    /*    SCREEN_XRES >> 1,*/
+    /*    8,*/
+    /*    SCREEN_XRES >> 1,*/
+    /*    216,*/
+    /*    0,*/
+    /*    (SCREEN_XRES / FONT_SPRITE_WIDTH) * 6*/
+    /*);*/
     // Initialise world
     self->world = (World*) malloc(sizeof(World));
     self->world->head.vx = 0;

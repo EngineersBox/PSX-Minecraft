@@ -167,7 +167,7 @@ void weatherRender(const World* world,
                     .h = WEATHER_TEXTURE_HEIGHT >> 3,
                     // Use the second half of the texture for snow
                     .x = current_is_snow ? (WEATHER_TEXTURE_HALF_WIDTH >> 3) : 0,
-                    .y = 240 >> 3
+                    .y = 240 >> 3 
                 };
                 DR_TWIN* ptwin = (DR_TWIN*) allocatePrimitive(ctx, sizeof(DR_TWIN));
                 setTexWindow(ptwin, &tex_window);
@@ -217,11 +217,11 @@ void weatherRender(const World* world,
                 u32* ot_object = allocateOrderingTable(ctx, p);
                 addPrim(ot_object, pol4);
                 const RECT tex_window = (RECT) {
-                    .w = WEATHER_TEXTURE_HALF_WIDTH>> 3,
+                    .w = WEATHER_TEXTURE_HALF_WIDTH >> 3,
                     .h = WEATHER_TEXTURE_HEIGHT >> 3,
                     // Use the second half of the texture for snow
                     .x = current_is_snow ? (WEATHER_TEXTURE_HALF_WIDTH >> 3) : 0,
-                    .y = 240 >> 3
+                    .y = 0
                 };
                 DR_TWIN* ptwin = (DR_TWIN*) allocatePrimitive(ctx, sizeof(DR_TWIN));
                 setTexWindow(ptwin, &tex_window);
