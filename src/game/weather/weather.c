@@ -107,7 +107,7 @@ void weatherRender(const World* world,
                 cb_pos.block.vz
             )] + 1;
             // Extra -1 here is to make the radius start from the
-            // player's head and feat, to make it feel uniform
+            // player's head and feet, to make it feel uniform
             // in down direction
             const i32 y_bottom = max(player_pos.vy - WEATHER_RENDER_RADIUS - 1, top_solid_block_y);
             const i32 y_top = max(player_pos.vy + WEATHER_RENDER_RADIUS, top_solid_block_y);
