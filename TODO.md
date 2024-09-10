@@ -83,10 +83,10 @@
 * [X] Limit world internal lighting level based on rain and thunder strength.
 * [X] Weather cycle at random intervals with varying strength.
 * [X] Add snow/rain rendering in scene as several orthogonal planes that are positioned at player position.
+* [X] ~~Check if camera not moving then ray cast once to get block targeted and draw outline around if in reach range~~
 * [ ] Camera far plane cutoff with fog relative to chunk render distance
 * [ ] Frustum and culling
 * [ ] Depth-first search culling through chunks
-* [X] ~~Check if camera not moving then ray cast once to get block targeted and draw outline around if in reach range~~
 * [ ] Thread scheduler using hardware timers for IRQ interleaved execution
 * [ ] Update queue for operations on the world
 * [ ] D-pad or analogue stick controlled cursor in UIs with item movement between slots being held by cursor
