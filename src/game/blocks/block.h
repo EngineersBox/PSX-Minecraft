@@ -11,6 +11,7 @@
 #include "../items/item.h"
 #include "../items/tools/item_tool.h"
 #include "../../structure/primitive/direction.h"
+#include "../../physics/aabb.h"
 
 #define BLOCK_SIZE 70
 #define BLOCK_FACES 6
@@ -80,6 +81,8 @@ typedef struct Block {
     u8 _pad: 3;
 } Block;
 
+typedef struct World World;
+
 #define BLOCK_DEFAULT_OPACITY_BITSET ((u8) 0b111111)
 #define opacityBitset(down, up, left, right, back, front) (\
       ((down) << FACE_DIR_DOWN) \
@@ -98,6 +101,8 @@ typedef struct Block {
     vfuncDefault(void, update, VSelf) \
     /* Player right clicking */ \
     vfuncDefault(bool, useAction, VSelf) \
+    /* Can block be placed */ \
+    vfuncDefault(bool, canPlace, VSelf, const World* world, const VECTOR* position, const AABB* player_aabb) \
     vfunc(IItem*, provideItem, VSelf)
 
 void iblockUpdate(VSelf);
@@ -105,6 +110,9 @@ void IBlock_update(VSelf);
 
 bool iBlockUseAction(VSelf);
 bool IBlock_useAction(VSelf);
+
+bool iBlockCanPlace(VSelf, const World* world, const VECTOR* position, const AABB* player_aabb);
+bool IBlock_canPlace(VSelf, const World* world, const VECTOR* position, const AABB* player_aabb);
 
 interface(IBlock);
 

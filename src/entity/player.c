@@ -300,20 +300,20 @@ INLINE static void playerInputHandlerUse(const PlayerInputHandlerContext* ctx) {
                 );
                 return;
             }
+            IBlock* iblock = block_constructor(iitem);
             const VECTOR place_position = vec3_add(result.pos, result.face);
-            if (blockIntersectsPlayer(player, &place_position)) {
+            if (!VCALL(*iblock, canPlace, ctx->world, &place_position, &player->physics_object.aabb)) {
                 return;
             }
-            const IBlock* modify_result = worldModifyVoxelConstructed(
+            const bool modify_result = worldModifyVoxel(
                 ctx->world,
                 &place_position,
-                block_constructor,
-                iitem,
+                iblock,
                 false,
                 NULL
             );
-            if (modify_result != NULL) {
-                Block* block = VCAST_PTR(Block*, modify_result);
+            if (modify_result) {
+                Block* block = VCAST_PTR(Block*, iblock);
                 const Camera* camera = VCAST_PTR(Camera*, player->camera);
                 // Compute the closest normal to the direction the camera
                 // is facing, noting only the horizontal (x/z) axis since
