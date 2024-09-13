@@ -303,6 +303,7 @@ INLINE static void playerInputHandlerUse(const PlayerInputHandlerContext* ctx) {
             IBlock* iblock = block_constructor(iitem);
             const VECTOR place_position = vec3_add(result.pos, result.face);
             if (!VCALL(*iblock, canPlace, ctx->world, &place_position, &player->physics_object.aabb)) {
+                VCALL(*iblock, destroy, false);
                 return;
             }
             const bool modify_result = worldModifyVoxel(
@@ -335,6 +336,8 @@ INLINE static void playerInputHandlerUse(const PlayerInputHandlerContext* ctx) {
                     slot->data.item = NULL;
                     return;
                 }
+            } else {
+                VCALL(*iblock, destroy, false);
             }
             break;
         case ITEMTYPE_TOOL:;
