@@ -103,6 +103,7 @@ typedef struct World World;
     vfuncDefault(bool, useAction, VSelf) \
     /* Can block be placed */ \
     vfuncDefault(bool, canPlace, VSelf, const World* world, const VECTOR* position, const AABB* player_aabb) \
+    /* Provide an item instance corresponding to this block */ \
     vfunc(IItem*, provideItem, VSelf)
 
 void iblockUpdate(VSelf);
