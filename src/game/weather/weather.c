@@ -29,7 +29,6 @@ static POLY_FT4* createQuad(const SVECTOR vertices[4],
     gte_rtpt();
     gte_nclip();
     gte_stopz(p);
-    // gte_stdp(&dp);
     // Avoid negative depth (behind camera) and zero
     // for constraint clearing primitive in OT
     if (*p <= 0) {
