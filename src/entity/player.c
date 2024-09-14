@@ -179,21 +179,6 @@ remove_world_block:;
     breakingStateReset(*state);
 }
 
-INLINE static bool blockIntersectsPlayer(const Player* player,
-                                         const VECTOR* pos) {
-    const AABB aabb = (AABB) {
-        .min = vec3_const_mul(*pos, ONE_BLOCK),
-        .max = vec3_const_mul(
-            vec3_const_add(*pos, 1),
-            ONE_BLOCK
-        )
-    };
-    return aabbIntersects(
-        &player->physics_object.aabb,
-        &aabb
-    );
-}
-
 INLINE static bool playerInputHandlerAttack(const PlayerInputHandlerContext* ctx) {
     Player* player= ctx->player;
     // NOTE: This will probably hit framerate a decent bit
