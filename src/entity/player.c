@@ -277,7 +277,7 @@ INLINE static void playerInputHandlerUse(const PlayerInputHandlerContext* ctx) {
     if (iitem == NULL) {
         goto block_update;
     }
-    const Item* item = VCAST_PTR(Item*, iitem);
+    Item* item = VCAST_PTR(Item*, iitem);
     switch (itemGetType(item->id)) {
         case ITEMTYPE_BLOCK:
             if (result.block == NULL) {
@@ -303,6 +303,7 @@ INLINE static void playerInputHandlerUse(const PlayerInputHandlerContext* ctx) {
             IBlock* iblock = block_constructor(iitem);
             const VECTOR place_position = vec3_add(result.pos, result.face);
             if (!VCALL(*iblock, canPlace, ctx->world, &place_position, &player->physics_object.aabb)) {
+                item->stack_size++;
                 VCALL(*iblock, destroy, false);
                 return;
             }

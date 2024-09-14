@@ -28,16 +28,6 @@ bool IBlock_canPlace(VSelf,
             ONE_BLOCK
         )
     };
-    DEBUG_LOG(
-        "Player [Min: " VEC_PATTERN "] [Max: " VEC_PATTERN "]",
-        VEC_LAYOUT(player_aabb->min),
-        VEC_LAYOUT(player_aabb->max)
-    );
-    DEBUG_LOG(
-        "AABB [Min: " VEC_PATTERN "] [Max: " VEC_PATTERN "]",
-        VEC_LAYOUT(aabb.min),
-        VEC_LAYOUT(aabb.max)
-    );
     return !aabbIntersects(
         player_aabb,
         &aabb
