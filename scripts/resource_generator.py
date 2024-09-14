@@ -34,6 +34,7 @@ class Block:
     # Overrides
     has_use_action: bool
     has_update: bool
+    has_can_place: bool
     # Generator metadata
     generator: str = "block"
 
@@ -197,6 +198,7 @@ def main():
     parser_block.add_argument("--can_harvest_bitset", type=str, required=True, help="Tool specific flags to determine if the tool can mine the block where 1=true and 0=false of the form '<none>,<pickaxe>,<axe>,<sword>,<shovel>,<hoe>'")
     parser_block.add_argument("--has_use_action", type=bool, action=argparse.BooleanOptionalAction, default=False, help="Whether the block should respond to use actions")
     parser_block.add_argument("--has_update", type=bool, action=argparse.BooleanOptionalAction, default=False, help="Whether the block should respond to tick updates")
+    parser_block.add_argument("--has_can_place", type=bool, action=argparse.BooleanOptionalAction, default=False, help="Block should have a custom handler to determine valid placement")
     parser_block.add_argument("--propagates_sunlight", type=bool, action=argparse.BooleanOptionalAction, default=False, help="Block should propagate sunlight")
     parser_block.add_argument("--propagates_blocklight", type=bool, action=argparse.BooleanOptionalAction, default=False, help="Block should propagate blocklight")
 

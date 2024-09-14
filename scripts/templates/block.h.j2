@@ -59,6 +59,11 @@ void {{ name_capital }}Block_update(VSelf);
 bool {{ name_lower }}BlockUseAction(VSelf);
 bool {{ name_capital }}Block_useAction(VSelf);
 {% endif -%}
+{%- if has_can_place %}
+#define {{ name_capital }}Block_canPlace_CUSTOM ()
+bool {{ name_lower }}BlockCanPlace(VSelf, const World* world, const VECTOR* position, const AABB* player_aabb);
+bool {{ name_capital }}Block_canPlace(VSelf, const World* world, const VECTOR* position, const AABB* player_aabb);
+{% endif -%}
 
 impl(IBlock, {{ name_capital }}Block);
 
