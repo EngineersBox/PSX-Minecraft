@@ -334,6 +334,10 @@ INLINE static void playerInputHandlerUse(const PlayerInputHandlerContext* ctx) {
             // which gives us the orientation the block should face in the
             // world according to how the camera was orientated when placing.
             block->orientation = faceDirectionOpposing(block->orientation);
+            /* NOTE: Checking equal to 0 and not less than or equal to 0
+             *       allows for the bug that means a a stack size of 2^31 - 1
+             *       which is effectively infinite
+             */
             if (item->stack_size == 0) {
                 VCALL(*iitem, destroy);
                 itemDestroy(iitem);
