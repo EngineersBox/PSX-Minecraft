@@ -15,7 +15,7 @@
 
 FWD_DECL ChunkHeightmap* worldGetChunkHeightmap(World* world, const VECTOR* position);
 
-POLY_FT4* createQuad(const SVECTOR vertices[4],
+static POLY_FT4* createQuad(const SVECTOR vertices[4],
                      const SVECTOR normal,
                      RenderContext* ctx,
                      int* p) {
