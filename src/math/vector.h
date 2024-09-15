@@ -23,6 +23,11 @@ typedef struct _IBVECTOR {
     i8 pad;
 } IBVECTOR;
 
+typedef struct _BDVECTOR {
+    u8 u;
+    u8 v;
+} BDVECTOR;
+
 // Long vector
 typedef struct _LVECTOR {
     i64 vx;

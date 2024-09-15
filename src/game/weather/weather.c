@@ -116,8 +116,9 @@ void weatherRender(const World* world,
             const bool current_is_snow = false; // TODO: Set this to true if we are in a tiaga biome
             // UV offsets
             srand(x * x * 3121 + x * 45238971 + z * z * 418711 + z * 13761);
-            const u32 u_rand_offset = positiveModulo(rand(), WEATHER_TEXTURE_HALF_WIDTH);
-            const u32 v_rand_offset = positiveModulo(positiveModulo(rand(), WEATHER_TEXTURE_HEIGHT) + render_ticks - (BLOCK_SIZE * y_top), WEATHER_TEXTURE_HEIGHT);
+            const u32 u_rand_offset = 0; //positiveModulo(rand(), WEATHER_TEXTURE_HALF_WIDTH);
+            const u32 v_rand_offset = positiveModulo(positiveModulo(rand(), WEATHER_TEXTURE_HEIGHT) + render_ticks, WEATHER_TEXTURE_HEIGHT);
+            //const u32 v_rand_offset = positiveModulo(positiveModulo(rand(), WEATHER_TEXTURE_HEIGHT) + render_ticks - (BLOCK_SIZE * y_top), WEATHER_TEXTURE_HEIGHT);
             const bool x_dir = x >= player_pos.vx;
             SVECTOR vertices[4];
             // X-axis
