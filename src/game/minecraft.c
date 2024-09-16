@@ -171,6 +171,7 @@ void Minecraft_render(VSelf, const Stats* stats) {
     frustumTransform(&self->internals.ctx.camera->frustum, &self->internals.transforms);
     worldRender(
         self->world,
+        (const Player*) &player,
         &self->internals.ctx,
         &self->internals.transforms
     );

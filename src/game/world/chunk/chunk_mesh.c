@@ -80,6 +80,7 @@ const RECT lightmap_merge_offscreen = (RECT) {
 static void renderQuad(const Mesh* mesh,
                        const LightLevel internal_light_level,
                        const MeshPrimitive* primitive,
+                       bool subdivide,
                        RenderContext* ctx,
                        Transforms* transforms) {
     // TODO: Generalise for textured and non-textured
@@ -198,6 +199,7 @@ static void renderQuad(const Mesh* mesh,
 
 void chunkMeshRenderFaceDirection(const Mesh* mesh,
                                   const LightLevel internal_light_level,
+                                  bool subdivide,
                                   RenderContext* ctx,
                                   Transforms* transforms) {
     MeshPrimitive* p_prims = (MeshPrimitive*) mesh->p_prims;
@@ -211,7 +213,13 @@ void chunkMeshRenderFaceDirection(const Mesh* mesh,
                 renderTriangle(primitive, ctx, transforms);
                 break;
             case MESH_PRIM_TYPE_QUAD:
-                renderQuad(mesh, internal_light_level, primitive, ctx, transforms);
+                renderQuad(
+                    mesh,
+                    internal_light_level,
+                    primitive,
+                    subdivide,
+                    ctx,
+                    transforms);
                 break;
             default:
                 printf(
@@ -231,6 +239,7 @@ UNUSED bool faceDirectionHidden(RenderContext* ctx, FaceDirection face_dir) {
 
 void chunkMeshRender(const ChunkMesh* mesh,
                      const LightLevel internal_light_level,
+                     bool subdivide,
                      RenderContext* ctx,
                      Transforms* transforms) {
     // bool skip_check[6] = {false};
@@ -252,6 +261,7 @@ void chunkMeshRender(const ChunkMesh* mesh,
         chunkMeshRenderFaceDirection(
             &mesh->face_meshes[i],
             internal_light_level,
+            subdivide,
             ctx,
             transforms
         );

@@ -35,8 +35,6 @@ typedef struct MeshPrimitive {
 } MeshPrimitive;
 
 typedef struct Mesh {
-	u8  version;
-	u16 flags;
 	u16 n_verts;
 	u16 n_norms;
 	u16 n_prims;
@@ -55,10 +53,12 @@ void chunkMeshClear(ChunkMesh* mesh);
 
 void chunkMeshRenderFaceDirection(const Mesh* mesh,
                                   const LightLevel internal_light_level,
+                                  bool subdivide,
                                   RenderContext* ctx,
                                   Transforms* transforms);
 void chunkMeshRender(const ChunkMesh* mesh,
                      const LightLevel internal_light_level,
+                     bool subdivide,
                      RenderContext* ctx,
                      Transforms* transforms);
 

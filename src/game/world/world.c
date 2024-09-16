@@ -227,8 +227,18 @@ void worldDestroy(World* world) {
 }
 
 void worldRender(const World* world,
+                 const Player* player,
                  RenderContext* ctx,
                  Transforms* transforms) {
+    const VECTOR player_world_pos = vec3_i32(
+        fixedFloor(player->physics_object.position.vx, ONE_BLOCK) / ONE_BLOCK,
+        fixedFloor(player->physics_object.position.vy, ONE_BLOCK) / ONE_BLOCK,
+        fixedFloor(player->physics_object.position.vz, ONE_BLOCK) / ONE_BLOCK
+    );
+    const VECTOR player_chunk_pos = worldToChunkBlockPosition(
+        &player_world_pos,
+        CHUNK_SIZE
+    ).chunk;
     // PERF: Revamp with BFS for visible chunks occlusion (use frustum culling too?)
     const i32 x_start = world->centre.vx - LOADED_CHUNKS_RADIUS;
     const i32 x_end = world->centre.vx + LOADED_CHUNKS_RADIUS;
@@ -245,6 +255,9 @@ void worldRender(const World* world,
                     world->chunks[arrayCoord(world, vz, z)]
                                  [arrayCoord(world, vx, x)]
                                  [y],
+                    player_chunk_pos.vx == x
+                        && player_chunk_pos.vz == z
+                        && player_chunk_pos.vy == y,
                     ctx,
                     transforms
                 );

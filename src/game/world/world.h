@@ -22,7 +22,7 @@
 void worldInit(World* world, RenderContext* ctx);
 void worldDestroy(World* world);
 
-void worldRender(const World* world, RenderContext* ctx, Transforms* transforms);
+void worldRender(const World* world, const Player* player, RenderContext* ctx, Transforms* transforms);
 
 void worldUnloadChunk(const World* world, Chunk* chunk);
 ALLOC_CALL(worldUnloadChunk, 2) Chunk* worldLoadChunk(World* world, VECTOR chunk_position);

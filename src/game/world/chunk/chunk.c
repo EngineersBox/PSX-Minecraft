@@ -328,6 +328,7 @@ static bool chunkIsOutsideFrustum(const Chunk* chunk, const Frustum* frustum, co
 }
 
 void chunkRender(Chunk* chunk,
+                 bool subdivide,
                  RenderContext* ctx,
                  Transforms* transforms) {
     // if (chunkIsOutsideFrustum(chunk, &ctx->camera->frustum, transforms)) {
@@ -346,6 +347,7 @@ void chunkRender(Chunk* chunk,
     chunkMeshRender(
         &chunk->mesh,
         worldGetInternalLightLevel(chunk->world),
+        subdivide,
         ctx,
         transforms
     );
