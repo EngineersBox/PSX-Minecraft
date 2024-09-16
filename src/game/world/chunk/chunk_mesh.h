@@ -43,7 +43,7 @@ typedef struct Mesh {
 	void* p_prims;
 } Mesh;
 
-typedef struct {
+typedef struct ChunkMesh {
     Mesh face_meshes[FACE_DIRECTION_COUNT];
 } ChunkMesh;
 

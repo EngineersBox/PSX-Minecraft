@@ -2,7 +2,7 @@
 #include "psxgpu.h"
 #include "render_context.h"
 
-typedef struct _DvisionLayout {
+typedef struct DivsionLayout {
     u32 x_top;
     u32 x_bottom;
     u32 y_left;

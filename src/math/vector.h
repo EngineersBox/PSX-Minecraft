@@ -9,27 +9,27 @@
 #include "../util/inttypes.h"
 
 // Byte vector
-typedef struct _BVECTOR {
+typedef struct BVECTOR {
     u8 vx;
     u8 vy;
     u8 vz;
     u8 pad;
 } BVECTOR;
 
-typedef struct _IBVECTOR {
+typedef struct IBVECTOR {
     i8 vx;
     i8 vy;
     i8 vz;
     i8 pad;
 } IBVECTOR;
 
-typedef struct _BDVECTOR {
+typedef struct DVECTOR {
     u8 u;
     u8 v;
 } BDVECTOR;
 
 // Long vector
-typedef struct _LVECTOR {
+typedef struct LVECTOR {
     i64 vx;
     i64 vy;
     i64 vz;
