@@ -26,8 +26,8 @@ void subdividePolyFT4(SVECTOR* v0, SVECTOR* v1, SVECTOR* v2, SVECTOR* v3,
         (uv2->v - uv0->v) / divp->n_div_x,
         (uv3->v - uv1->v) / divp->n_div_x
     };
-    for (u32 i = 1; i < divp->n_div_x; i++) {
-        for (u32 j = 1; j < divp->n_div_y; j++) {
+    for (u32 i = 1; i <= divp->n_div_x; i++) {
+        for (u32 j = 1; j <= divp->n_div_y; j++) {
             POLY_FT4* pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
             setPolyFT4(pol4);
             setXY4(
