@@ -50,14 +50,14 @@ IItem* {{ name_capital }}Block_provideItem(VSelf) {
 
 void {{ name_lower }}BlockUpdate(VSelf) ALIAS("{{ name_capital }}Block_update");
 void {{ name_capital }}Block_update(VSelf) {
-    UNIMPLEMENTED("Implement {{ name_capital }}Block_update\n");
+    UNIMPLEMENTED();
 }
 {% endif %}
 {%- if has_use_action %}
 
 bool {{ name_lower }}BlockUseAction(VSelf) ALIAS("{{ name_capital }}Block_useAction");
 bool {{ name_capital }}Block_useAction(VSelf) {
-    UNIMPLEMENTED("Implement {{ name_capital }}Block_useAction\n");
+    UNIMPLEMENTED();
     return false;
 }
 {% endif %}
@@ -65,6 +65,6 @@ bool {{ name_capital }}Block_useAction(VSelf) {
 
 bool {{ name_lower }}BlockCanPlace(VSelf, const World* world, const VECTOR* position, const AABB* player_aabb) ALIAS("{{ name_capital }}Block_canPlace");
 bool {{ name_capital }}Block_canPlace(VSelf, const World* world, const VECTOR* position, const AABB* player_aabb){
-    UNIMPLEMENTED("Implement {{ name_capital }}Block_canPlace\n");
+    UNIMPLEMENTED();
 }
 {% endif %}
