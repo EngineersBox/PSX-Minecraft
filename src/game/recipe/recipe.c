@@ -4,7 +4,7 @@ INLINE bool dimensionEquals(const Dimension* a, const Dimension* b) {
     return a->width == b->width && a->height == b->height; 
 }
 
-RecipeNode* patternNodeGetNext(const RecipeNode* node, const EItemID item) {
+RecipeNode* recipeNodeGetNext(const RecipeNode* node, const EItemID item) {
     if (node->nodes == NULL || node->node_count == 0) {
         return NULL;
     }
@@ -28,7 +28,7 @@ RecipeNode* patternNodeGetNext(const RecipeNode* node, const EItemID item) {
     return NULL;
 }
 
-EItemID patternNodeGetRecipeResult(const RecipeNode* node, const Dimension* dimension) {
+EItemID recipeNodeGetRecipeResult(const RecipeNode* node, const Dimension* dimension) {
     if (node->results == NULL || node->result_count == 0) {
         return ITEMID_AIR;
     }
@@ -41,7 +41,7 @@ EItemID patternNodeGetRecipeResult(const RecipeNode* node, const Dimension* dime
     return ITEMID_AIR;
 }
 
-EItemID patternTreeSearch(const RecipeNode* root, const RecipePattern pattern) {
+EItemID recipeSearch(const RecipeNode* root, const RecipePattern pattern) {
     u8 right = 0;
     u8 bottom = 0;
     u8 top = 3;
@@ -59,7 +59,7 @@ EItemID patternTreeSearch(const RecipeNode* root, const RecipePattern pattern) {
     RecipeNode const* current = root;
     for (u8 y = top; y <= bottom; y++) {
         for (u8 x = left; x <= right; x++) {
-            current = patternNodeGetNext(current, pattern[(y * 3) + x]);
+            current = recipeNodeGetNext(current, pattern[(y * 3) + x]);
             if (current == NULL) {
                 return ITEMID_AIR;
             }
@@ -69,5 +69,5 @@ EItemID patternTreeSearch(const RecipeNode* root, const RecipePattern pattern) {
         .width = right - left + 1,
         .height = bottom - top + 1
     };
-    return patternNodeGetRecipeResult(current, &dimension);
+    return recipeNodeGetRecipeResult(current, &dimension);
 }

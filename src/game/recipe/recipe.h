@@ -64,9 +64,9 @@ typedef struct RecipeNode {
 
 typedef EItemID RecipePattern[9];
 
-RecipeNode* patternNodeGetNext(const RecipeNode* node, const EItemID item);
-EItemID patternNodeGetRecipeResult(const RecipeNode* node, const Dimension* dimension);
-EItemID patternTreeSearch(const RecipeNode* root, const RecipePattern pattern);
+RecipeNode* recipeNodeGetNext(const RecipeNode* node, const EItemID item);
+EItemID recipeNodeGetRecipeResult(const RecipeNode* node, const Dimension* dimension);
+EItemID recipeSearch(const RecipeNode* root, const RecipePattern pattern);
 
 #define RECIPE_LIST (RecipeNode*[])
 #define RECIPE_ITEM &(RecipeNode)
