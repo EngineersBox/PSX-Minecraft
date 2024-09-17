@@ -75,9 +75,12 @@ PatternNode* patternNodeGetNext(const PatternNode* node, const EItemId item) {
         printf("No nodes\n");
         return NULL;
     }
-    u32 lower = 0;
-    u32 mid;
-    u32 upper = node->node_count - 1;
+    // NOTE: These need to be signed otherwise we can get upper to
+    // be u32::MAX if there is only one element in the array and it
+    // doesn't match the item
+    i32 lower = 0;
+    i32 mid;
+    i32 upper = node->node_count - 1;
     while (lower <= upper) {
         mid = (lower + upper) >> 1;
         printf("Mid: %d\n", mid);
