@@ -62,15 +62,15 @@ typedef struct Terminator {
     Dimension dimension;
 } Terminator;
 
-typedef struct PatternNode {
+typedef struct RecipeNode {
     EItemId item;
     u8 node_count;
     u8 terminator_count;
     Terminator** terminators;
-    struct PatternNode** nodes; // Must be in item order
-} PatternNode;
+    struct RecipeNode** nodes; // Must be in item order
+} RecipeNode;
 
-PatternNode* patternNodeGetNext(const PatternNode* node, const EItemId item) {
+RecipeNode* patternNodeGetNext(const RecipeNode* node, const EItemId item) {
     if (node->nodes == NULL || node->node_count == 0) {
         printf("No nodes\n");
         return NULL;
@@ -84,7 +84,7 @@ PatternNode* patternNodeGetNext(const PatternNode* node, const EItemId item) {
     while (lower <= upper) {
         mid = (lower + upper) >> 1;
         printf("Mid: %d\n", mid);
-        PatternNode* next_node = node->nodes[mid];
+        RecipeNode* next_node = node->nodes[mid];
         if (next_node->item == item) {
             return next_node;
         } else if (next_node->item > item) {
@@ -96,7 +96,7 @@ PatternNode* patternNodeGetNext(const PatternNode* node, const EItemId item) {
     return NULL;
 }
 
-EItemId patternNodeGetTerminator(const PatternNode* node, const Dimension* dimension) {
+EItemId patternNodeGetTerminator(const RecipeNode* node, const Dimension* dimension) {
     if (node->terminators == NULL || node->terminator_count == 0) {
         printf("No terminators\n");
         return NONE;
@@ -118,7 +118,7 @@ EItemId patternNodeGetTerminator(const PatternNode* node, const Dimension* dimen
 
 typedef EItemId Pattern[9];
 
-EItemId patternTreeSearch(const PatternNode* root, const Pattern pattern) {
+EItemId patternTreeSearch(const RecipeNode* root, const Pattern pattern) {
     u8 right = 0;
     u8 bottom = 0;
     u8 top = 3;
@@ -134,7 +134,7 @@ EItemId patternTreeSearch(const PatternNode* root, const Pattern pattern) {
         }
     }
     printf("Right: %d Bottom: %d Top: %d Left: %d\n", right, bottom, top, left);
-    PatternNode const* current = root;
+    RecipeNode const* current = root;
     for (u8 y = top; y <= bottom; y++) {
         for (u8 x = left; x <= right; x++) {
             current = patternNodeGetNext(current, pattern[(y * 3) + x]);
@@ -151,13 +151,13 @@ EItemId patternTreeSearch(const PatternNode* root, const Pattern pattern) {
     return patternNodeGetTerminator(current, &dimension);
 }
 
-#define PATTERN_LIST (PatternNode*[])
-#define PATTERN_ITEM &(PatternNode)
+#define PATTERN_LIST (RecipeNode*[])
+#define PATTERN_ITEM &(RecipeNode)
 
 #define TERMINATOR_LIST (Terminator*[])
 #define TERMINATOR_ITEM &(Terminator)
 
-const PatternNode* root = PATTERN_ITEM {
+const RecipeNode* root = PATTERN_ITEM {
     .item = NONE,
     .node_count = 3,
     .terminator_count = 0,
