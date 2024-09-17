@@ -32,7 +32,7 @@ typedef struct RecipeResult {
  *        the 3x1 area that is unusesd). This format allows for recipes
  *        to be anywhere in the grid and still be matched.
  * @see This is based on @link https://gamedev.stackexchange.com/a/21626
- *      and https://www.reddit.com/r/C_Programming/comments/1b5y9r9/compiletime_initialization_of_arbitrarydepth/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button
+ *      and https://www.reddit.com/r/C_Programming/comments/1b5y9r9/compiletime_initialization_of_arbitrarydepth
  */
 typedef struct RecipeNode {
     /**
