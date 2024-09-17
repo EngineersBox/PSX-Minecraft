@@ -151,67 +151,67 @@ EItemId patternTreeSearch(const RecipeNode* root, const Pattern pattern) {
     return patternNodeGetTerminator(current, &dimension);
 }
 
-#define PATTERN_LIST (RecipeNode*[])
-#define PATTERN_ITEM &(RecipeNode)
+#define RECIPE_LIST (RecipeNode*[])
+#define RECIPE_ITEM &(RecipeNode)
 
 #define TERMINATOR_LIST (Terminator*[])
 #define TERMINATOR_ITEM &(Terminator)
 
-const RecipeNode* root = PATTERN_ITEM {
+const RecipeNode* root = RECIPE_ITEM {
     .item = NONE,
     .node_count = 3,
     .terminator_count = 0,
     .terminators = NULL,
-    .nodes = PATTERN_LIST {
-        [0] = PATTERN_ITEM {
+    .nodes = RECIPE_LIST {
+        [0] = RECIPE_ITEM {
             .item = WOOD,
             .node_count = 1,
             .terminator_count = 0,
             .terminators = NULL,
-            .nodes = PATTERN_LIST {
-                [0] = PATTERN_ITEM {
+            .nodes = RECIPE_LIST {
+                [0] = RECIPE_ITEM {
                     .item = WOOD,
                     .node_count = 1,
                     .terminator_count = 0,
                     .terminators = NULL,
-                    .nodes = PATTERN_LIST {
-                        [0] = PATTERN_ITEM {
+                    .nodes = RECIPE_LIST {
+                        [0] = RECIPE_ITEM {
                             .item = WOOD,
                             .node_count = 1,
                             .terminator_count = 0,
                             .terminators = NULL,
-                            .nodes = PATTERN_LIST {
-                                [0] = PATTERN_ITEM {
+                            .nodes = RECIPE_LIST {
+                                [0] = RECIPE_ITEM {
                                     .item = WOOD,
                                     .node_count = 1,
                                     .terminator_count = 0,
                                     .terminators = NULL,
-                                    .nodes = PATTERN_LIST {
-                                        [0] = PATTERN_ITEM {
+                                    .nodes = RECIPE_LIST {
+                                        [0] = RECIPE_ITEM {
                                             .item = WOOD,
                                             .node_count = 1,
                                             .terminator_count = 0,
                                             .terminators = NULL,
-                                            .nodes = PATTERN_LIST {
-                                                [0] = PATTERN_ITEM {
+                                            .nodes = RECIPE_LIST {
+                                                [0] = RECIPE_ITEM {
                                                     .item = WOOD,
                                                     .node_count = 1,
                                                     .terminator_count = 0,
                                                     .terminators = NULL,
-                                                    .nodes = PATTERN_LIST {
-                                                        [0] = PATTERN_ITEM {
+                                                    .nodes = RECIPE_LIST {
+                                                        [0] = RECIPE_ITEM {
                                                             .item = WOOD,
                                                             .node_count = 1,
                                                             .terminator_count = 0,
                                                             .terminators = NULL,
-                                                            .nodes = PATTERN_LIST {
-                                                                [0] = PATTERN_ITEM {
+                                                            .nodes = RECIPE_LIST {
+                                                                [0] = RECIPE_ITEM {
                                                                     .item = WOOD,
                                                                     .node_count = 1,
                                                                     .terminator_count = 0,
                                                                     .terminators = NULL,
-                                                                    .nodes = PATTERN_LIST {
-                                                                        [0] = PATTERN_ITEM {
+                                                                    .nodes = RECIPE_LIST {
+                                                                        [0] = RECIPE_ITEM {
                                                                             .item = WOOD,
                                                                             .node_count = 0,
                                                                             .terminator_count = 1,
@@ -239,13 +239,13 @@ const RecipeNode* root = PATTERN_ITEM {
                 }
             }
         },
-        [1] = PATTERN_ITEM {
+        [1] = RECIPE_ITEM {
             .item = FLINT,
             .node_count = 1,
             .terminator_count = 0,
             .terminators = NULL,
-            .nodes = PATTERN_LIST {
-                [0] = PATTERN_ITEM {
+            .nodes = RECIPE_LIST {
+                [0] = RECIPE_ITEM {
                     .item = WOOD,
                     .node_count = 0,
                     .terminator_count = 1,
@@ -259,19 +259,19 @@ const RecipeNode* root = PATTERN_ITEM {
                 }
             }
         },
-        [2] = PATTERN_ITEM {
+        [2] = RECIPE_ITEM {
             .item = TORCH,
             .node_count = 1,
             .terminator_count = 0,
             .terminators = NULL,
-            .nodes = PATTERN_LIST {
-                [0] = PATTERN_ITEM {
+            .nodes = RECIPE_LIST {
+                [0] = RECIPE_ITEM {
                     .item = TORCH,
                     .node_count = 1,
                     .terminator_count = 0,
                     .terminators = NULL,
-                    .nodes = PATTERN_LIST {
-                        [0] = PATTERN_ITEM {
+                    .nodes = RECIPE_LIST {
+                        [0] = RECIPE_ITEM {
                             .item = TORCH,
                             .node_count = 0,
                             .terminator_count = 1,

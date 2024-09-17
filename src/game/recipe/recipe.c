@@ -28,20 +28,20 @@ RecipeNode* patternNodeGetNext(const RecipeNode* node, const EItemID item) {
     return NULL;
 }
 
-EItemID patternNodeGetTerminator(const RecipeNode* node, const Dimension* dimension) {
-    if (node->terminators == NULL || node->terminator_count == 0) {
+EItemID patternNodeGetRecipeResult(const RecipeNode* node, const Dimension* dimension) {
+    if (node->results == NULL || node->result_count == 0) {
         return ITEMID_AIR;
     }
-    for (u32 i = 0; i < node->terminator_count; i++) {
-        Terminator* terminator = node->terminators[i];
-        if (dimensionEquals(dimension, &terminator->dimension)) {
-            return terminator->item;
+    for (u32 i = 0; i < node->result_count; i++) {
+        RecipeResult* result = node->results[i];
+        if (dimensionEquals(dimension, &result->dimension)) {
+            return result->item;
         }
     }
     return ITEMID_AIR;
 }
 
-EItemID patternTreeSearch(const RecipeNode* root, const Pattern pattern) {
+EItemID patternTreeSearch(const RecipeNode* root, const RecipePattern pattern) {
     u8 right = 0;
     u8 bottom = 0;
     u8 top = 3;
@@ -69,5 +69,5 @@ EItemID patternTreeSearch(const RecipeNode* root, const Pattern pattern) {
         .width = right - left + 1,
         .height = bottom - top + 1
     };
-    return patternNodeGetTerminator(current, &dimension);
+    return patternNodeGetRecipeResult(current, &dimension);
 }
