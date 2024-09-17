@@ -215,7 +215,7 @@ const PatternNode* root = PATTERN_ITEM {
                                                                             .terminators = TERMINATOR_LIST {
                                                                                 [0] = TERMINATOR_ITEM {
                                                                                     .item = WOOD_WALL,
-                                                                                    .dimension = (Dimension) {3, 3}
+                                                                                    .dimension = {3, 3}
                                                                                 }
                                                                             },
                                                                             .nodes = NULL
@@ -249,7 +249,7 @@ const PatternNode* root = PATTERN_ITEM {
                     .terminators = TERMINATOR_LIST {
                         [0] = TERMINATOR_ITEM {
                             .item = TORCH,
-                            .dimension = (Dimension) {1, 2}
+                            .dimension = {1, 2}
                         }
                     },
                     .nodes = NULL
@@ -275,7 +275,7 @@ const PatternNode* root = PATTERN_ITEM {
                             .terminators = TERMINATOR_LIST {
                                 [0] = TERMINATOR_ITEM {
                                     .item = TORCH_FENCE,
-                                    .dimension = (Dimension) {3, 1}
+                                    .dimension = {3, 1}
                                 }
                             },
                             .nodes = NULL
