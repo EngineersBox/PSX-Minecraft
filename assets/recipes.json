@@ -1,15 +1,15 @@
 [
     {
         "pattern": [
-            "log"
+            [ "log" ]
         ],
         "result": "stick"
     },
     {
         "pattern": [
-            "cobblestone", "cobblestone", "cobblestone",
-            "cobblestone", "air", "cobblestone",
-            "cobblestone", "cobblestone", "cobblestone"
+            [ "cobblestone", "cobblestone", "cobblestone" ],
+            [ "cobblestone", "air", "cobblestone" ],
+            [ "cobblestone", "cobblestone", "cobblestone" ]
         ],
         "result": "furnace"
     }

@@ -8,11 +8,16 @@
             "pattern": {
                 "type": "array",
                 "items": {
-                    "type": "string",
-                    "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$"
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$"
+                    },
+                    "minItems": 1,
+                    "maxItems": 3
                 },
                 "minItems": 1,
-                "maxItems": 9
+                "maxItems": 3
             },
             "result": {
                 "type": "string",
