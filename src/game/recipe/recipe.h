@@ -5,6 +5,7 @@
 
 #include <stdbool.h>
 
+#include "../items/item.h"
 #include "../items/item_id.h"
 #include "../../util/inttypes.h"
 #include "../../math/math_utils.h"
@@ -17,7 +18,22 @@ typedef struct Dimension {
 bool dimensionEquals(const Dimension* a, const Dimension* b);
 
 typedef struct RecipeResult {
-    EItemID item;
+    /**
+     * @brief Function pointer to construct the result item instance. Note
+     *        that this signature is the same as the one implemented for
+     *        item definitions, however you can create a wrapper or specific
+     *        function that matches the signature if you need to modify the
+     *        item instance (i.e. set stack size, metadata, etc) after creation.
+     */
+    ItemConstructor item_constructor;
+    u32 stack_size;
+    /**
+     * @brief Dimensions of the recipe in a crafting grid, the items in
+     *        the tree as parents to this result node are positioned in
+     *        the grid from the top left to bottom right. This allows the
+     *        recipe to be positioned anywhere and only be constrained to
+     *        the pattern itself.
+     */
     Dimension dimension;
 } RecipeResult;
 
@@ -67,8 +83,8 @@ typedef struct RecipeNode {
 typedef EItemID RecipePattern[9];
 
 RecipeNode* recipeNodeGetNext(const RecipeNode* node, const EItemID item);
-EItemID recipeNodeGetRecipeResult(const RecipeNode* node, const Dimension* dimension);
-EItemID recipeSearch(const RecipeNode* root, const RecipePattern pattern);
+IItem* recipeNodeGetRecipeResult(const RecipeNode* node, const Dimension* dimension);
+IItem* recipeSearch(const RecipeNode* root, const RecipePattern pattern);
 
 #define RECIPE_LIST (RecipeNode*[])
 #define RECIPE_ITEM &(RecipeNode)

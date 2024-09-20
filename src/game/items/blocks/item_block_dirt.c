@@ -1,11 +1,21 @@
 #include "item_block_dirt.h"
 
+#include <interface99.h>
 #include <stdlib.h>
 
+#include "../../../util/interface99_extensions.h"
 #include "item_id.h"
 
 DirtItemBlock* dirtItemBlockCreate() {
     return (DirtItemBlock*) malloc(sizeof(DirtItemBlock));
+}
+
+DEFN_ITEM_CONSTRUCTOR(dirt) {
+    IItem* item = itemCreate();
+    DirtItemBlock* dirt_item_block = dirtItemBlockCreate();
+    DYN_PTR(item, DirtItemBlock, IItem, dirt_item_block);
+    VCALL(*item, init);
+    return item;
 }
 
 void dirtItemBlockDestroy(VSelf) ALIAS("DirtItemBlock_destroy");

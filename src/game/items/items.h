@@ -13,6 +13,7 @@
 
 #define ITEM_COUNT 6
 
+extern ItemConstructor item_constructors[ITEM_COUNT];
 extern ItemAttributes item_attributes[ITEM_COUNT];
 
 #define itemGetAttribute(id, attr) (item_attributes[(id)].attr)

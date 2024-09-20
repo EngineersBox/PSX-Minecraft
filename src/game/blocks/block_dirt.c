@@ -22,10 +22,8 @@ IItem* DirtBlock_destroy(VSelf, const bool drop_item) {
 IItem* dirtBlockProvideItem(VSelf) ALIAS("DirtBlock_provideItem");
 IItem* DirtBlock_provideItem(VSelf) {
     VSELF(DirtBlock);
-    IItem* item = itemCreate();
-    DirtItemBlock* dirt_item_block = dirtItemBlockCreate();
-    DYN_PTR(item, DirtItemBlock, IItem, dirt_item_block);
-    VCALL(*item, init);
+    IItem* item = dirtItemConstruct();
+    DirtItemBlock* dirt_item_block = VCAST_PTR(DirtItemBlock*, item);
     itemBlockReplicateFaceAttributes(dirt_item_block->item_block, self->block);
     dirt_item_block->item_block.item.stack_size = 1;
     dirt_item_block->item_block.item.bob_direction = 1;

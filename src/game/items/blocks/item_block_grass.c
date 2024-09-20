@@ -1,11 +1,21 @@
 #include "item_block_grass.h"
 
+#include <interface99.h>
 #include <stdlib.h>
 
+#include "../../../util/interface99_extensions.h"
 #include "item_id.h"
 
 GrassItemBlock* grassItemBlockCreate() {
     return (GrassItemBlock*) malloc(sizeof(GrassItemBlock));
+}
+
+DEFN_ITEM_CONSTRUCTOR(grass) {
+    IItem* item = itemCreate();
+    GrassItemBlock* grass_item_block = grassItemBlockCreate();
+    DYN_PTR(item, GrassItemBlock, IItem, grass_item_block);
+    VCALL(*item, init);
+    return item;
 }
 
 void grassItemBlockDestroy(VSelf) ALIAS("GrassItemBlock_destroy");

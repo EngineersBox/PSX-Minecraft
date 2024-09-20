@@ -1,6 +1,8 @@
 #include "item_block_cobblestone.h"
 
 #include <stdlib.h>
+#include <interface99.h>
+#include "../../util/interface99_extensions.h"
 
 #include "../../util/preprocessor.h"
 #include "../../math/vector.h"
@@ -8,6 +10,14 @@
 
 CobblestoneItemBlock* cobblestoneItemBlockCreate() {
     return (CobblestoneItemBlock*) malloc(sizeof(CobblestoneItemBlock));
+}
+
+DEFN_ITEM_CONSTRUCTOR(cobblestone) {
+    IItem* item = itemCreate();
+    CobblestoneItemBlock* cobblestone_item_block = cobblestoneItemBlockCreate();
+    DYN_PTR(item, CobblestoneItemBlock, IItem, cobblestone_item_block);
+    VCALL(*item, init);
+    return item;
 }
 
 void cobblestoneItemBlockDestroy(VSelf) ALIAS("CobblestoneItemBlock_destroy");

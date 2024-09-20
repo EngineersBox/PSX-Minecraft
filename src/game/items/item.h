@@ -110,7 +110,7 @@ FWD_DECL typedef struct World World;
 typedef bool (*ItemPickupValidator)(const Item* item, void* ctx);
 
 bool itemUpdate(Item* item,
-                World* world,
+World* world,
                 const VECTOR* player_position,
                 void* ctx,
                 const ItemPickupValidator validator);
@@ -141,6 +141,10 @@ ALLOC_CALL(itemDestroy, 1) IItem* itemCreate();
         Item item; \
         __VA_ARGS__ \
     } name;
+
+typedef IItem* (*ItemConstructor)();
+
+#define DEFN_ITEM_CONSTRUCTOR(name) IItem* name##ItemConstruct()
 
 #define declareItem(_id, _metadata_id, _durability, _stack_size, _in_world, _position, _rotation) ((Item) { \
     .id = (_id), \

@@ -57,5 +57,6 @@ void GrassItemBlock_attackAction(VSelf);
 impl(IItem, GrassItemBlock);
 
 ALLOC_CALL(GrassItemBlock_destroy, 1) GrassItemBlock* grassItemBlockCreate();
+DEFN_ITEM_CONSTRUCTOR(grass);
 
 #endif // PSXMC_ITEM_BLOCK_GRASS_H

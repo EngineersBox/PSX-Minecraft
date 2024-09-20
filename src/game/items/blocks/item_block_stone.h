@@ -58,5 +58,6 @@ void StoneItemBlock_attackAction(VSelf);
 impl(IItem, StoneItemBlock);
 
 ALLOC_CALL(StoneItemBlock_destroy, 1) StoneItemBlock* stoneItemBlockCreate();
+DEFN_ITEM_CONSTRUCTOR(stone);
 
 #endif // PSXMC_ITEM_BLOCK_STONE_H

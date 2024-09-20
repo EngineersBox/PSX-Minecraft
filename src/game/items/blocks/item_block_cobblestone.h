@@ -59,5 +59,6 @@ void CobblestoneItemBlock_attackAction(VSelf);
 impl(IItem, CobblestoneItemBlock);
 
 ALLOC_CALL(CobblestoneItemBlock_destroy, 1) CobblestoneItemBlock* cobblestoneItemBlockCreate();
+DEFN_ITEM_CONSTRUCTOR(cobblestone);
 
 #endif // _PSXMC__GAME_ITEMS__ITEM_BLOCK_COBBLESTONE_H_

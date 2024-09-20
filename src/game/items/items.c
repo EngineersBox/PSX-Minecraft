@@ -1,28 +1,38 @@
 #include "items.h"
 
+#include "blocks/item_block_dirt.h"
+#include "blocks/item_block_grass.h"
+#include "blocks/item_block_stone.h"
+#include "item.h"
 #include "item_id.h"
 
+ItemConstructor item_constructors[ITEM_COUNT] = {NULL};
 ItemAttributes item_attributes[ITEM_COUNT] = {0};
 
-#define initItemAttributes(id, attributes) ({ \
-    item_attributes[id] = attributes; \
+#define initItem(id, constructor, attributes) ({ \
+    item_constructors[(id)] = constructor; \
+    item_attributes[(id)] = attributes; \
 })
 
 void itemsInitialiseBuiltin() {
-    initItemAttributes(
+    initItem(
         ITEMID_STONE,
+        stoneItemConstruct,
         stoneItemBlockAttributes()
     );
-    initItemAttributes(
+    initItem(
         ITEMID_DIRT,
+        dirtItemConstruct,
         dirtItemBlockAttributes()
     );
-    initItemAttributes(
+    initItem(
         ITEMID_GRASS,
+        grassItemConstruct,
         grassItemBlockAttributes()
     );
-    initItemAttributes(
+    initItem(
         ITEMID_COBBLESTONE,
+        cobblestoneItemConstruct,
         cobblestoneItemBlockAttributes()
     );
 }

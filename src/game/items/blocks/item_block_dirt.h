@@ -59,5 +59,6 @@ void DirtItemBlock_attackAction(VSelf);
 impl(IItem, DirtItemBlock);
 
 ALLOC_CALL(DirtItemBlock_destroy, 1) DirtItemBlock* dirtItemBlockCreate();
+DEFN_ITEM_CONSTRUCTOR(dirt);
 
 #endif // PSXMC_ITEM_BLOCK_DIRT_H

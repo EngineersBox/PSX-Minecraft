@@ -1,5 +1,7 @@
 #include "recipe.h"
 
+#include "../../util/interface99_extensions.h"
+
 INLINE bool dimensionEquals(const Dimension* a, const Dimension* b) {
     return a->width == b->width && a->height == b->height; 
 }
@@ -28,20 +30,24 @@ RecipeNode* recipeNodeGetNext(const RecipeNode* node, const EItemID item) {
     return NULL;
 }
 
-EItemID recipeNodeGetRecipeResult(const RecipeNode* node, const Dimension* dimension) {
+IItem* recipeNodeGetRecipeResult(const RecipeNode* node, const Dimension* dimension) {
     if (node->results == NULL || node->result_count == 0) {
-        return ITEMID_AIR;
+        return NULL; 
     }
     for (u32 i = 0; i < node->result_count; i++) {
         RecipeResult* result = node->results[i];
         if (dimensionEquals(dimension, &result->dimension)) {
-            return result->item;
+            IItem* iitem = result->item_constructor();
+            Item* item = VCAST_PTR(Item*, iitem);
+            item->bob_offset = 1;
+            item->stack_size = result->stack_size;
+            return iitem;
         }
     }
-    return ITEMID_AIR;
+    return NULL;
 }
 
-EItemID recipeSearch(const RecipeNode* root, const RecipePattern pattern) {
+IItem* recipeSearch(const RecipeNode* root, const RecipePattern pattern) {
     u8 right = 0;
     u8 bottom = 0;
     u8 top = 3;
@@ -61,7 +67,7 @@ EItemID recipeSearch(const RecipeNode* root, const RecipePattern pattern) {
         for (u8 x = left; x <= right; x++) {
             current = recipeNodeGetNext(current, pattern[(y * 3) + x]);
             if (current == NULL) {
-                return ITEMID_AIR;
+                return NULL;
             }
         }
     }

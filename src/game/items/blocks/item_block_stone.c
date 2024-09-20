@@ -1,11 +1,21 @@
 #include "item_block_stone.h"
 
+#include <interface99.h>
 #include <stdlib.h>
 
+#include "../../../util/interface99_extensions.h"
 #include "item_id.h"
 
 StoneItemBlock* stoneItemBlockCreate() {
     return (StoneItemBlock*) malloc(sizeof(StoneItemBlock));
+}
+
+DEFN_ITEM_CONSTRUCTOR(stone) {
+    IItem* item = itemCreate();
+    StoneItemBlock* stone_item_block = stoneItemBlockCreate();
+    DYN_PTR(item, StoneItemBlock, IItem, stone_item_block);
+    VCALL(*item, init);
+    return item;
 }
 
 void stoneItemBlockDestroy(VSelf) ALIAS("StoneItemBlock_destroy");
