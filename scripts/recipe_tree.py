@@ -80,7 +80,11 @@ def constructTree(recipes) -> RecipeNode:
                 current = current.add(itemId(item))
         if current.results == None:
             current.results = []
-        current.results.append(RecipeResult(recipe["result"], recipe["stack_size"], dimensions))
+        current.results.append(RecipeResult(
+            recipe["result"],
+            recipe["stack_size"],
+            dimensions
+        ))
         current = root
     return root
 
