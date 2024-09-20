@@ -36,6 +36,7 @@ class Dimension:
 @dataclass
 class RecipeResult:
     item: str
+    stack_size: int
     dimension: Dimension
 
 @dataclass
@@ -79,7 +80,7 @@ def constructTree(recipes) -> RecipeNode:
                 current = current.add(itemId(item))
         if current.results == None:
             current.results = []
-        current.results.append(RecipeResult(recipe["result"], dimensions))
+        current.results.append(RecipeResult(recipe["result"], recipe["stack_size"], dimensions))
         current = root
     return root
 
@@ -92,7 +93,8 @@ def serialiseTree(node: RecipeNode, indent = 0) -> str:
         i = 0
         for result in node.results:
             results += pad(indent + 2) + "RECIPE_RESULT_ITEM {\n"
-            results += pad(indent + 3) + f".item = {result.item},\n"
+            results += pad(indent + 3) + f".item_constructor = {result.item}ItemConstructor,\n"
+            results += pad(indent + 3) + f".stack_size = {result.stack_size},\n"
             results += pad(indent + 3) + f".dimension {{{result.dimension.width}, {result.dimension.height}}}\n"
             results += pad(indent + 2) + "}"
             if i < len(node.results) - 1:
@@ -133,6 +135,7 @@ def main() -> None:
     validate(recipes, schema)
     root = constructTree(recipes)
     tree = serialiseTree(root)
+    print(tree)
     tree = f"const RecipeNode* root = {tree}"
     # TODO: Write tree to file as: const RecipeNode* root = <TREE>
 

@@ -3,7 +3,8 @@
         "pattern": [
             [ "log" ]
         ],
-        "result": "stick"
+        "result": "stick",
+        "stack_size": 1
     },
     {
         "pattern": [
@@ -11,6 +12,7 @@
             [ "cobblestone", "air", "cobblestone" ],
             [ "cobblestone", "cobblestone", "cobblestone" ]
         ],
-        "result": "furnace"
+        "result": "furnace",
+        "stack_size": 1
     }
 ]
