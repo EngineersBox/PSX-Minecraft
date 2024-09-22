@@ -158,7 +158,6 @@ def serialiseTree(node: RecipeNode, indent = 0) -> str:
     output += pad(indent) +  "}"
     return output
 
-
 def generateTreeFiles(name: str, path: str, tree: str) -> None:
     render_parameters = {
         "name_snake_upper": caseconverter.macrocase(name),
