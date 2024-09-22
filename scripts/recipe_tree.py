@@ -109,7 +109,7 @@ def serialiseTree(node: RecipeNode, indent = 0) -> str:
         for result in node.results:
             results += pad(indent + 2) + "RECIPE_RESULTS_ITEM {\n"
             results += pad(indent + 3) + f".dimension {{{result.dimension.width}, {result.dimension.height}}}\n"
-            results += pad(indent + 3) + f".result_count = {result.result_count}"
+            results += pad(indent + 3) + f".result_count = {result.result_count}\n"
             results += pad(indent + 3) + ".results = RECIPE_RESULT_LIST {\n"
             j = 0
             for _result in result.results:
@@ -117,7 +117,7 @@ def serialiseTree(node: RecipeNode, indent = 0) -> str:
                 results += pad(indent + 5) + f".item_constructor = {_result.item}ItemConstructor,\n"
                 results += pad(indent + 5) + f".stack_size = {_result.stack_size},\n"
                 results += pad(indent + 4) + "}"
-                if j < len(result.results):
+                if j < len(result.results) - 1:
                     results += ","
                 results += "\n"
                 j += 1
@@ -199,7 +199,7 @@ def main() -> None:
         schema["item"]["properties"]["pattern"]["maxItems"] = args["pattern_width"]
     if (args["pattern_height"] != None):
         schema["item"]["properties"]["pattern"]["items"]["maxItems"] = args["pattern_height"]
-    with open("assets/recipes.json", "r") as f:
+    with open(args["recipes"], "r") as f:
         recipes = json.load(f)
     validate(recipes, schema)
     root = constructTree(recipes)
