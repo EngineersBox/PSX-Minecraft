@@ -27,6 +27,9 @@ typedef struct RecipeResult {
      */
     ItemConstructor item_constructor;
     u32 stack_size;
+} RecipeResult;
+
+typedef struct RecipeResults {
     /**
      * @brief Dimensions of the recipe in a crafting grid, the items in
      *        the tree as parents to this result node are positioned in
@@ -35,7 +38,9 @@ typedef struct RecipeResult {
      *        the pattern itself.
      */
     Dimension dimension;
-} RecipeResult;
+    u32 result_count;
+    RecipeResult** results;
+} RecipeResults;
 
 /**
  * @brief Represents a recipe item ingredient or a result based on
@@ -70,7 +75,7 @@ typedef struct RecipeNode {
     *        Otherwise the number of elements in this array should be
     *        equal to @code result_count@endcode
     */
-    RecipeResult** results;
+    RecipeResults** results;
     /**
     * @brief Next items in the recipe, ordered by item IDs. Note
     *        that this should be null when @code node_count@endcode
@@ -80,14 +85,31 @@ typedef struct RecipeNode {
     struct RecipeNode** nodes;
 } RecipeNode;
 
+typedef struct RecipeQueryResult {
+    u32 result_count;
+    IItem** results;
+} RecipeQueryResult;
+
+typedef enum ResultQueryState {
+    RECIPE_NOT_FOUND,
+    RECIPE_FOUND
+} RecipeQueryState;
+
 typedef EItemID RecipePattern[9];
 
 RecipeNode* recipeNodeGetNext(const RecipeNode* node, const EItemID item);
-IItem* recipeNodeGetRecipeResult(const RecipeNode* node, const Dimension* dimension);
-IItem* recipeSearch(const RecipeNode* root, const RecipePattern pattern);
+RecipeQueryState recipeNodeGetRecipeResult(const RecipeNode* node,
+                                           const Dimension* dimension,
+                                           RecipeQueryResult* query_result);
+RecipeQueryState recipeSearch(const RecipeNode* root,
+                              const RecipePattern pattern,
+                              RecipeQueryResult* query_result);
 
 #define RECIPE_LIST (RecipeNode*[])
 #define RECIPE_ITEM &(RecipeNode)
+
+#define RECIPE_RESULTS_LIST (RecipeResults*[])
+#define RECIPE_RESULTS_ITEM &(RecipeResults)
 
 #define RECIPE_RESULT_LIST (RecipeResult*[])
 #define RECIPE_RESULT_ITEM &(RecipeResult)

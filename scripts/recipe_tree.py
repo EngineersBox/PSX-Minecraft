@@ -1,4 +1,4 @@
-import json
+import json, argparse, os
 from jsonschema import validate
 from dataclasses import dataclass
 from typing import List, Dict
@@ -37,12 +37,17 @@ class Dimension:
 class RecipeResult:
     item: str
     stack_size: int
+
+@dataclass
+class RecipeResults:
     dimension: Dimension
+    result_count: int
+    results: List[RecipeResult]
 
 @dataclass
 class RecipeNode:
     item: int
-    results: List[RecipeResult]
+    results: List[RecipeResults]
     nodes: List["RecipeNode"]
 
     def add(self, item: int) -> "RecipeNode":
@@ -80,10 +85,16 @@ def constructTree(recipes) -> RecipeNode:
                 current = current.add(itemId(item))
         if current.results == None:
             current.results = []
-        current.results.append(RecipeResult(
-            recipe["result"],
-            recipe["stack_size"],
-            dimensions
+        results = []
+        for result in recipe["results"]:
+            results.append(RecipeResult(
+                result["item"],
+                result["stack_size"]
+            ))
+        current.results.append(RecipeResults(
+            dimensions,
+            len(recipe["results"]),
+            results
         ))
         current = root
     return root
@@ -92,14 +103,25 @@ def pad(indent) -> str:
     return "    " * indent
 
 def serialiseTree(node: RecipeNode, indent = 0) -> str:
-    results = "RECIPE_RESULT_LIST {\n"
+    results = "RECIPE_RESULTS_LIST {\n"
     if len(node.results) > 0:
         i = 0
         for result in node.results:
-            results += pad(indent + 2) + "RECIPE_RESULT_ITEM {\n"
-            results += pad(indent + 3) + f".item_constructor = {result.item}ItemConstructor,\n"
-            results += pad(indent + 3) + f".stack_size = {result.stack_size},\n"
+            results += pad(indent + 2) + "RECIPE_RESULTS_ITEM {\n"
             results += pad(indent + 3) + f".dimension {{{result.dimension.width}, {result.dimension.height}}}\n"
+            results += pad(indent + 3) + f".result_count = {result.result_count}"
+            results += pad(indent + 3) + ".results = RECIPE_RESULT_LIST {\n"
+            j = 0
+            for _result in result.results:
+                results += pad(indent + 4) + "RECIPE_RESULT_ITEM {\n"
+                results += pad(indent + 5) + f".item_constructor = {_result.item}ItemConstructor,\n"
+                results += pad(indent + 5) + f".stack_size = {_result.stack_size},\n"
+                results += pad(indent + 4) + "}"
+                if j < len(result.results):
+                    results += ","
+                results += "\n"
+                j += 1
+            results += pad(indent + 3) + "}\n"
             results += pad(indent + 2) + "}"
             if i < len(node.results) - 1:
                 results += ","
@@ -129,11 +151,54 @@ def serialiseTree(node: RecipeNode, indent = 0) -> str:
     output += pad(indent) +  "}"
     return output
 
+class IntRange:
+
+    def __init__(self, imin=None, imax=None):
+        self.imin = imin
+        self.imax = imax
+
+    def __call__(self, arg):
+        try:
+            value = int(arg)
+        except ValueError:
+            raise self.exception()
+        if (self.imin is not None and value < self.imin) or (self.imax is not None and value > self.imax):
+            raise self.exception()
+        return value
+
+    def exception(self):
+        if self.imin is not None and self.imax is not None:
+            return argparse.ArgumentTypeError(f"Must be an integer in the range [{self.imin}, {self.imax}]")
+        elif self.imin is not None:
+            return argparse.ArgumentTypeError(f"Must be an integer >= {self.imin}")
+        elif self.imax is not None:
+            return argparse.ArgumentTypeError(f"Must be an integer <= {self.imax}")
+        else:
+            return argparse.ArgumentTypeError("Must be an integer")
+
 def main() -> None:
+    dir = os.path.basename(os.getcwd())
+    if (dir != "PSX-Minecraft"):
+        print(f"[ERROR] Script must be run from 'PSX-Minecraft' directory, not '{dir}'")
+        exit(1)
+    parser = argparse.ArgumentParser(prog="recipe_tree")
+    parser.add_argument("--recipes", type=str, required=True, help="Path to JSON specification of recipes")
+    parser.add_argument("--min_ingredients", type=IntRange(1), required=False, help="Minimum number of ingredients to allow in recipes")
+    parser.add_argument("--max_ingredients", type=IntRange(1), required=False, help="Maxmimum number of ingredients to allow in recipes")
+    parser.add_argument("--pattern_width", type=IntRange(1), required=False, help="Maximum width of the recipe patterns")
+    parser.add_argument("--pattern_height", type=IntRange(1), required=False, help="Maximum height of the recipe patterns")
+    args = vars(parser.parse_args())
     schema = None
     with open("assets/recipes.schema.json", "r") as f:
         schema = json.load(f)
-    recipes = None
+    if (args["min_ingredients"] != None):
+        schema["items"]["properties"]["results"]["minItems"] = args["min_ingredients"]
+    if (args["max_ingredients"] != None):
+        schema["items"]["properties"]["results"]["maxItems"] = args["max_ingredients"]
+    if (args["pattern_width"] != None):
+        schema["item"]["properties"]["pattern"]["maxItems"] = args["pattern_width"]
+    if (args["pattern_height"] != None):
+        schema["item"]["properties"]["pattern"]["items"]["maxItems"] = args["pattern_height"]
     with open("assets/recipes.json", "r") as f:
         recipes = json.load(f)
     validate(recipes, schema)

@@ -30,24 +30,37 @@ RecipeNode* recipeNodeGetNext(const RecipeNode* node, const EItemID item) {
     return NULL;
 }
 
-IItem* recipeNodeGetRecipeResult(const RecipeNode* node, const Dimension* dimension) {
-    if (node->results == NULL || node->result_count == 0) {
-        return NULL; 
+INLINE static void assembleResult(const RecipeResults* results, RecipeQueryResult* query_result) {
+    query_result->result_count = results->result_count;
+    query_result->results = calloc(results->result_count, sizeof(IItem*));
+    for (u32 i = 0; i < results->result_count; i++) {
+        const RecipeResult* result = &results->results[i];
+        IItem* iitem = result->item_constructor();
+        Item* item = VCAST_PTR(Item*, iitem);
+        item->bob_offset = 1;
+        item->stack_size = result->stack_size;
     }
-    for (u32 i = 0; i < node->result_count; i++) {
-        RecipeResult* result = node->results[i];
-        if (dimensionEquals(dimension, &result->dimension)) {
-            IItem* iitem = result->item_constructor();
-            Item* item = VCAST_PTR(Item*, iitem);
-            item->bob_offset = 1;
-            item->stack_size = result->stack_size;
-            return iitem;
-        }
-    }
-    return NULL;
 }
 
-IItem* recipeSearch(const RecipeNode* root, const RecipePattern pattern) {
+RecipeQueryState recipeNodeGetRecipeResult(const RecipeNode* node,
+                                           const Dimension* dimension,
+                                           RecipeQueryResult* query_result) {
+    if (node->results == NULL || node->result_count == 0) {
+        return RECIPE_NOT_FOUND; 
+    }
+    for (u32 i = 0; i < node->result_count; i++) {
+        RecipeResults* result = node->results[i];
+        if (dimensionEquals(dimension, &result->dimension)) {
+            assembleResult(result, query_result);
+            return RECIPE_FOUND;
+        }
+    }
+    return RECIPE_NOT_FOUND;
+}
+
+RecipeQueryState recipeSearch(const RecipeNode* root,
+                              const RecipePattern pattern,
+                              RecipeQueryResult* query_result) {
     u8 right = 0;
     u8 bottom = 0;
     u8 top = 3;
@@ -66,8 +79,8 @@ IItem* recipeSearch(const RecipeNode* root, const RecipePattern pattern) {
     for (u8 y = top; y <= bottom; y++) {
         for (u8 x = left; x <= right; x++) {
             current = recipeNodeGetNext(current, pattern[(y * 3) + x]);
-            if (current == NULL) {
-                return NULL;
+            if (current == RECIPE_NOT_FOUND) {
+                return RECIPE_NOT_FOUND;
             }
         }
     }
@@ -75,5 +88,5 @@ IItem* recipeSearch(const RecipeNode* root, const RecipePattern pattern) {
         .width = right - left + 1,
         .height = bottom - top + 1
     };
-    return recipeNodeGetRecipeResult(current, &dimension);
+    return recipeNodeGetRecipeResult(current, &dimension, query_result);
 }
