@@ -1,7 +1,14 @@
-import json, argparse, os
+import json, argparse, caseconverter, os
 from jsonschema import validate
 from dataclasses import dataclass
 from typing import List, Dict
+from jinja2 import Environment, FileSystemLoader, select_autoescape
+from itertools import takewhile
+
+env = Environment(
+    loader = FileSystemLoader("scripts/templates"),
+    autoescape = select_autoescape()
+)
 
 # TODO: Add rest of mappings as items are added to the game
 ITEM_MAPPINGS: Dict[str, int]={
@@ -151,6 +158,26 @@ def serialiseTree(node: RecipeNode, indent = 0) -> str:
     output += pad(indent) +  "}"
     return output
 
+
+def generateTreeFiles(name: str, path: str, tree: str) -> None:
+    render_parameters = {
+        "name_snake_upper": caseconverter.macrocase(name),
+        "name_snake_lower": caseconverter.snakecase(name),
+        "recipe_header_include_path": os.path.relpath("src/game/recipe", path),
+        "tree": tree
+    }
+    header_content = env.get_template("recipe_tree.h.j2").render(render_parameters)
+    print("[INFO] Rendered header content")
+    source_content = env.get_template("recipe_tree.c.j2").render(render_parameters)
+    print("[INFO] Rendered source content")
+    filepath = path + caseconverter.snakecase(name)
+    with open(f"{filepath}.h", "w") as f:
+        f.write(header_content)
+    print(f"[INFO] Written header to {filepath}.h")
+    with open(f"{filepath}.c", "w") as f:
+        f.write(source_content)
+    print(f"[INFO] Written source to {filepath}.c")
+
 class IntRange:
 
     def __init__(self, imin=None, imax=None):
@@ -183,6 +210,8 @@ def main() -> None:
         exit(1)
     parser = argparse.ArgumentParser(prog="recipe_tree")
     parser.add_argument("--recipes", type=str, required=True, help="Path to JSON specification of recipes")
+    parser.add_argument("--name", type=str, required=True, help="Variable name for the tree used when declaring header")
+    parser.add_argument("--output", type=str, required=True, help="Location to generate header with recipe tree")
     parser.add_argument("--min_ingredients", type=IntRange(1), required=False, help="Minimum number of ingredients to allow in recipes")
     parser.add_argument("--max_ingredients", type=IntRange(1), required=False, help="Maxmimum number of ingredients to allow in recipes")
     parser.add_argument("--pattern_width", type=IntRange(1), required=False, help="Maximum width of the recipe patterns")
@@ -203,10 +232,10 @@ def main() -> None:
         recipes = json.load(f)
     validate(recipes, schema)
     root = constructTree(recipes)
+    print("[INFO] Constructed tree structure")
     tree = serialiseTree(root)
-    print(tree)
-    tree = f"const RecipeNode* root = {tree}"
-    # TODO: Write tree to file as: const RecipeNode* root = <TREE>
+    print("[INFO] Serialised tree into string")
+    generateTreeFiles(args["name"], args["output"], tree)
 
 if __name__ == "__main__":
     main()
