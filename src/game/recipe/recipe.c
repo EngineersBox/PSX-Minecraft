@@ -34,7 +34,7 @@ INLINE static void assembleResult(const RecipeResults* results, RecipeQueryResul
     query_result->result_count = results->result_count;
     query_result->results = calloc(results->result_count, sizeof(IItem*));
     for (u32 i = 0; i < results->result_count; i++) {
-        const RecipeResult* result = &results->results[i];
+        const RecipeResult* result = results->results[i];
         IItem* iitem = result->item_constructor();
         Item* item = VCAST_PTR(Item*, iitem);
         item->bob_offset = 1;
