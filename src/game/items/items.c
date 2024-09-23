@@ -17,22 +17,22 @@ ItemAttributes item_attributes[ITEM_COUNT] = {0};
 void itemsInitialiseBuiltin() {
     initItem(
         ITEMID_STONE,
-        stoneItemConstruct,
+        itemConstructor(stone),
         stoneItemBlockAttributes()
     );
     initItem(
         ITEMID_DIRT,
-        dirtItemConstruct,
+        itemConstructor(dirt),
         dirtItemBlockAttributes()
     );
     initItem(
         ITEMID_GRASS,
-        grassItemConstruct,
+        itemConstructor(grass),
         grassItemBlockAttributes()
     );
     initItem(
         ITEMID_COBBLESTONE,
-        cobblestoneItemConstruct,
+        itemConstructor(cobblestone),
         cobblestoneItemBlockAttributes()
     );
 }

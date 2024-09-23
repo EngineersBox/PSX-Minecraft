@@ -24,7 +24,7 @@ IItem* CobblestoneBlock_destroy(VSelf, const bool drop_item) {
 IItem* cobblestoneBlockProvideItem(VSelf) ALIAS("CobblestoneBlock_provideItem");
 IItem* CobblestoneBlock_provideItem(VSelf) {
     VSELF(CobblestoneBlock);
-    IItem* item = cobblestoneItemConstruct();
+    IItem* item = itemConstructor(cobblestone)();
     CobblestoneItemBlock* cobblestone_item_block = VCAST_PTR(CobblestoneItemBlock*, item);
     itemBlockReplicateFaceAttributes(cobblestone_item_block->item_block, self->block);
     cobblestone_item_block->item_block.item.stack_size = 1;

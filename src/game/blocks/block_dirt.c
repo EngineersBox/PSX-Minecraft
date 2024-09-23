@@ -22,7 +22,7 @@ IItem* DirtBlock_destroy(VSelf, const bool drop_item) {
 IItem* dirtBlockProvideItem(VSelf) ALIAS("DirtBlock_provideItem");
 IItem* DirtBlock_provideItem(VSelf) {
     VSELF(DirtBlock);
-    IItem* item = dirtItemConstruct();
+    IItem* item = itemConstructor(dirt)();
     DirtItemBlock* dirt_item_block = VCAST_PTR(DirtItemBlock*, item);
     itemBlockReplicateFaceAttributes(dirt_item_block->item_block, self->block);
     dirt_item_block->item_block.item.stack_size = 1;

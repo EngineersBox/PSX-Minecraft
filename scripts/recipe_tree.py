@@ -115,13 +115,13 @@ def serialiseTree(node: RecipeNode, indent = 0) -> str:
         i = 0
         for result in node.results:
             results += pad(indent + 2) + "RECIPE_RESULTS_ITEM {\n"
-            results += pad(indent + 3) + f".dimension {{{result.dimension.width}, {result.dimension.height}}}\n"
-            results += pad(indent + 3) + f".result_count = {result.result_count}\n"
+            results += pad(indent + 3) + f".dimension = {{{result.dimension.width}, {result.dimension.height}}},\n"
+            results += pad(indent + 3) + f".result_count = {result.result_count},\n"
             results += pad(indent + 3) + ".results = RECIPE_RESULT_LIST {\n"
             j = 0
             for _result in result.results:
                 results += pad(indent + 4) + "RECIPE_RESULT_ITEM {\n"
-                results += pad(indent + 5) + f".item_constructor = {_result.item}ItemConstructor,\n"
+                results += pad(indent + 5) + f".item_constructor = itemConstructor({_result.item}),\n"
                 results += pad(indent + 5) + f".stack_size = {_result.stack_size},\n"
                 results += pad(indent + 4) + "}"
                 if j < len(result.results) - 1:
@@ -136,7 +136,7 @@ def serialiseTree(node: RecipeNode, indent = 0) -> str:
             i += 1
         results += pad(indent + 1) + "}"
     else:
-        results = "NULL,"
+        results = "NULL"
     nodes = "RECIPE_LIST {\n"
     if len(node.nodes) > 0:
         i = 0
@@ -163,12 +163,15 @@ def generateTreeFiles(name: str, path: str, tree: str) -> None:
         "name_snake_upper": caseconverter.macrocase(name),
         "name_snake_lower": caseconverter.snakecase(name),
         "recipe_header_include_path": os.path.relpath("src/game/recipe", path),
+        "items_include_path": os.path.relpath("src/game/items", path),
         "tree": tree
     }
     header_content = env.get_template("recipe_tree.h.j2").render(render_parameters)
     print("[INFO] Rendered header content")
     source_content = env.get_template("recipe_tree.c.j2").render(render_parameters)
     print("[INFO] Rendered source content")
+    if not path.endswith("/"):
+        path += "/"
     filepath = path + caseconverter.snakecase(name)
     with open(f"{filepath}.h", "w") as f:
         f.write(header_content)
