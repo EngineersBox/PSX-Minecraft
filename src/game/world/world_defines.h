@@ -22,7 +22,9 @@
 // Must be positive
 #define LOADED_CHUNKS_RADIUS 1
 #endif
+// Chunks in this area are loaded but not rendered
 #define SHIFT_ZONE 1
+// Number of chunks that make up the centre chunks
 #define CENTER 1
 #define WORLD_CHUNKS_RADIUS (LOADED_CHUNKS_RADIUS + CENTER)
 #if LOADED_CHUNKS_RADIUS < 1
