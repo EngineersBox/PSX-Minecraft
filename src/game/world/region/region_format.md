@@ -12,7 +12,7 @@ very large chunks of archives to essentially "de-fragment" an archive to make it
 sequential set of compressed regions.
 
 ```c
-typedef struct {
+typedef struct RegionHeader {
 	// Region location
     struct {
         i8 x;
@@ -32,10 +32,10 @@ typedef struct {
     u32 next;
 } RegionHeader;
 ```
-Each region then contains several compressed chunks:
+Each region then contains several compressed chunks, with the position relative to the region top-left coordinate, which allows for a smaller position structure compared to using the world-based positon:
 
 ```c
-typedef struct {
+typedef struct ChunkHeader {
 	// Chunk location
     struct {
         i8 x;
@@ -59,24 +59,25 @@ typedef struct {
 A set of regions will be packed in an archive, which has the following structure
 
 ```c
-typedef struct {
+typedef struct RegionArchiveMetadata {
     struct {
-        u8 x;
-        u8 y;
-        u8 z;
+        i8 x;
+        i8 y;
+        i8 z;
     } min;
     struct {
-        u8 x;
-        u8 y;
-        u8 z;
+        i8 x;
+        i8 y;
+        i8 z;
     } max;
+    // Data offset
     u32 offset;
 } RegionArchiveMetadata;
 
-typedef struct {
+typedef struct RegionArchive {
     u8 region_count;
     RegionArchiveMetadata metadata[];
-} GlobalMetadata;
+} RegionArchive;
 ```
 
 This means that an archive can have `2 ^ 8` or `256` region files in it at once. We will create a new
