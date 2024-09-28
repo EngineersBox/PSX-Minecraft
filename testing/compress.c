@@ -212,7 +212,7 @@ int main() {
     );
     printf("Output buffer: %p\n", target_buffer);
     printf("[NORMAL] Out size: %d\n", size);
-    u32 ratio = ((size<< 12) / end) * 100;
+    u32 ratio = ((size << 12) / end) * 100;
     #define fracToFloat(frac) ((u32)(100 * ((frac) / 4096.0)))
     u32 float_part = fracToFloat(ratio & 0b111111111111);
     printf("Ratio: %d.%d%%\n", ratio >> 12, float_part);
@@ -223,7 +223,7 @@ int main() {
         LZP_COMPRESS_MAX
     );
     printf("[MAX] Out size: %d\n", size);
-    ratio = ((size<< 12) / end) * 100;
+    ratio = ((size << 12) / end) * 100;
     #define fracToFloat(frac) ((u32)(100 * ((frac) / 4096.0)))
     float_part = fracToFloat(ratio & 0b111111111111);
     printf("Ratio: %d.%d%%\n", ratio >> 12, float_part);
