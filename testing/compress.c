@@ -227,6 +227,11 @@ int main() {
     #define fracToFloat(frac) ((u32)(100 * ((frac) / 4096.0)))
     float_part = fracToFloat(ratio & 0b111111111111);
     printf("Ratio: %d.%d%%\n", ratio >> 12, float_part);
+    u8* cmp_buf = (u8*) malloc(buf_size);
+    size = lzDecompress(cmp_buf, target_buffer, size);
+    printf("Decompressed size: %d Original: %d\n", size, end);
+    int result = memcmp(input_buffer, cmp_buf, end);
+    printf("Compare result: %d\n", result);
     while (1);
     return 0;
 }
