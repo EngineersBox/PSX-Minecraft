@@ -6,6 +6,7 @@
 #include <string.h>
 
 typedef uint8_t u8;
+typedef uint32_t u32;
 
 typedef enum DataType {
     DATA_TYPE_STATELESS = 0,
@@ -211,6 +212,10 @@ int main() {
     );
     printf("Output buffer: %p\n", target_buffer);
     printf("[NORMAL] Out size: %d\n", size);
+    u32 ratio = ((end << 12) / size) * 100;
+    #define fracToFloat(frac) ((u32)(100000 * ((frac) / 4096.0)))
+    u32 float_part = fracToFloat(ratio & 0b111111111111);
+    printf("Ratio: %d.%d\n", ratio, float_part);
     u8* cmp_buf = (u8*) malloc(buf_size);
     size = lzDecompress(cmp_buf, target_buffer, size);
     printf("Decompressed size: %d Original: %d\n", size, end);
