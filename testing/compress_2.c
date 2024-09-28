@@ -1,26 +1,11 @@
-#include "core/engine.h"
-#include "core/app_logic.h"
-#include "game/minecraft.h"
-#include <string.h>
-
-AppLogic app_logic;
-Minecraft* minecraft;
-
-/*int main() {*/
-/*    app_logic = DYN_LIT(Minecraft, AppLogic, {});*/
-/*    minecraft = (Minecraft*) &app_logic;*/
-/*    Engine engine = (Engine) {*/
-/*        .app_logic =  &app_logic,*/
-/*        .target_fps = 60,*/
-/*        .target_tps = 20*/
-/*    };*/
-/*    engineInit(&engine, NULL);*/
-/*    engineRun(&engine);*/
-/*    return 0;*/
-/*}*/
-
 #include <lzp/lzp.h>
 #include <psxapi.h>
+#include <stdio.h>
+#include <stddef.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef uint8_t u8;
 
 typedef enum DataType {
     DATA_TYPE_STATELESS = 0,
