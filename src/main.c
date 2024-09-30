@@ -259,7 +259,7 @@ int main() {
     /*_bu_init();*/
     _temp_bu_init();
     printf("Init backup unit\n");
-    int channel = 0;
+    int channel = 0x00;
     int result = _card_load(channel);
     printf("Loaded card: %d\n", result);
     result = _card_info(channel);
@@ -275,10 +275,9 @@ int main() {
     printf("Async write: %d\n", result);
     result = _card_wait(channel);
     printf("Wait card: %d\n", result);
-    StopCARD();
+    /*StopCARD();*/
     // Card read
-    StartCARD();
-    /*_bu_init();*/
+    /*StartCARD();*/
     u8 result_data[0x80] = {0};
     result = _card_read(channel, 0, result_data);
     printf("Async read: %d\n", result);
