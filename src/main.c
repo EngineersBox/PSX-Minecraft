@@ -26,6 +26,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "hardware/card.h"
+
 typedef uint8_t u8;
 typedef uint32_t u32;
 
@@ -255,7 +257,8 @@ int main() {
     printf("Started card\n");
     // BUG: This causes an unimplemented syscall exception from BIOS
     /*_bu_init();*/
-    /*printf("Init backup unit\n");*/
+    _temp_bu_init();
+    printf("Init backup unit\n");
     int channel = 0;
     int result = _card_load(channel);
     printf("Loaded card: %d\n", result);

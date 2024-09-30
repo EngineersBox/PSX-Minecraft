@@ -39,7 +39,7 @@ foreach (_asset ${_assets})
 endforeach()
 
 # Include source content
-file(GLOB_RECURSE PSXMC_SOURCES CONFIGURE_DEPENDS "src/*.c")
+file(GLOB_RECURSE PSXMC_SOURCES CONFIGURE_DEPENDS "src/*.[cs]")
 file(GLOB_RECURSE PSXMC_HEADERS CONFIGURE_DEPENDS "src/*.h")
 
 set(PSXMC_INCLUDE_DIRS "")
