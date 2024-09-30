@@ -55,13 +55,13 @@
 
 /* Request structures */
 
-typedef void (*SPI_Callback)(u32 port, const volatile u8 *buff, size_t rx_len);
+typedef void (*SPI_Callback)(u32 port, const volatile u8* buff, size_t rx_len);
 
 typedef struct _SPI_Request {
 	union {
 		u8 data[SPI_BUFF_LEN];
-		PadRequest pad_req;
-		MemCardRequest mcd_req;
+		PadRequest pad_request;
+		MemCardRequest memory_card_request;
 	};
 	u32	len;
     u32 port;
@@ -80,7 +80,7 @@ extern "C" {
  * object must be populated afterwards by setting the length, callback and
  * filling in the TX data buffer.
  */
-SPI_Request *SPI_CreateRequest(void);
+SPI_Request* SPI_CreateRequest(void);
 
 /**
  * @brief Changes the controller polling rate. The lowest supported rate is 65

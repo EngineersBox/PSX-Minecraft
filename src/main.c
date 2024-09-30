@@ -27,6 +27,7 @@
 #include <string.h>
 
 #include "hardware/card.h"
+#include "psxpad.h"
 
 typedef uint8_t u8;
 typedef uint32_t u32;
@@ -64,7 +65,7 @@ typedef struct FurnaceData {
     ItemData storage[3];
 } FurnaceData;
 
-int main() {
+int old_main() {
     printf("SourceData: %d\n", sizeof(SourceData));
     printf("ItemData: %d\n", sizeof(ItemData));
     printf("ChestData: %d\n", sizeof(ChestData));
@@ -292,5 +293,91 @@ int main() {
     result = memcmp(input_buffer, cmp_buf, end);
     printf("Compare result: %d\n", result);
     while (1);
+    return 0;
+}
+
+#include "hardware/spi.h"
+
+static char data[4] = {0};
+
+void readCallback(u32 port, const volatile u8* buff, size_t rx_len) {
+    printf("RX Len: %d\n", rx_len);
+    if (rx_len < 5) {
+        return;
+    }
+    #pragma GCC unroll 4
+    for (int i = 0; i < 5; i++) {
+        data[i] = buff[i];
+    }
+    printf("Read callback: %s\n", data);
+}
+
+void pollCallback(u32 port, const volatile u8* buf, size_t rx_len) {
+    MemCardResponse* response = (MemCardResponse*) buf;
+    if (rx_len <= 0) {
+        printf("Bad response, RX len: %d <= 0\n", rx_len);
+        return;
+    }
+    switch (response->flags) {
+        case MCD_FLAG_WRITE_ERROR:
+            printf("[SPI] Write error\n");
+            break;
+        case MCD_FLAG_NOT_WRITTEN:
+            printf("[SPI] Not written\n");
+            break;
+        default:
+            printf("[SPI] Unknown error\n");
+            break;
+    }
+    switch (response->read.stat) {
+        case MCD_STAT_OK:
+            printf("[SPI] Status: Ok\n");
+            break;
+        case MCD_STAT_BAD_CHECKSUM:
+            printf("[SPI] Status: Bad Checksum\n");
+            break;
+        case MCD_STAT_BAD_SECTOR:
+            printf("[SPI] Status: Bad Sector\n");
+            break;
+    }
+}
+
+int main() {
+    InitCARD(1);
+    printf("Init card\n");
+    StartCARD();
+    printf("Started card\n");
+    _temp_bu_init();
+    printf("Init backup unit\n");
+    SPI_Init(pollCallback);
+    printf("SPI init\n");
+    SPI_SetPollRate(65);
+    SPI_Request* request = SPI_CreateRequest();
+    request->memory_card_request.data[0] = 'T';
+    request->memory_card_request.data[1] = 'e';
+    request->memory_card_request.data[2] = 's';
+    request->memory_card_request.data[3] = 't';
+    request->memory_card_request.data[4] = '\0';
+    request->memory_card_request.addr = 0x81;
+    request->memory_card_request.lba_h = 0x0;
+    request->memory_card_request.lba_l = 0x0;
+    request->memory_card_request.cmd = MCD_CMD_WRITE_SECTOR;
+    request->memory_card_request.checksum =
+        request->memory_card_request.lba_h ^ request->memory_card_request.lba_l
+        ^ 'T' ^ 'e' ^ 's' ^ 't' ^ '\0';
+    request->len = 5;
+    request->callback = pollCallback;
+    printf("Created write request\n");
+    SPI_Request* request1 = SPI_CreateRequest();
+    request1->memory_card_request.addr = 0x81;
+    request1->memory_card_request.lba_h = 0x0;
+    request1->memory_card_request.lba_l = 0x0;
+    request1->memory_card_request.cmd = MCD_CMD_READ_SECTOR;
+    request1->callback = readCallback;
+    printf("Created read request\n");
+    while (1) {
+        asm volatile("");
+    }
+    StopCARD();
     return 0;
 }
