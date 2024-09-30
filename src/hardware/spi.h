@@ -40,23 +40,32 @@
 #include <stddef.h>
 #include <psxpad.h>
 
+#include "../util/inttypes.h"
+
 // Maximum request/response length (34 bytes for pads, 140 for memory cards).
 // Must be a multiple of 4 to avoid memory alignment issues.
-//#define SPI_BUFF_LEN 36
+#ifdef SPI_BUF_PAD
+#define SPI_BUFF_LEN 36
+#else
 #define SPI_BUFF_LEN 140
+#endif
+#if SPI_BUFF_LEN % 4 != 0
+#error SPI_BUFF_LEN must by 4-byte aligned
+#endif
 
 /* Request structures */
 
-typedef void (*SPI_Callback)(uint32_t port, const volatile uint8_t *buff, size_t rx_len);
+typedef void (*SPI_Callback)(u32 port, const volatile u8 *buff, size_t rx_len);
 
 typedef struct _SPI_Request {
 	union {
-		uint8_t			data[SPI_BUFF_LEN];
-		PadRequest		pad_req;
-		MemCardRequest	mcd_req;
+		u8 data[SPI_BUFF_LEN];
+		PadRequest pad_req;
+		MemCardRequest mcd_req;
 	};
-	uint32_t			len, port;
-	SPI_Callback		callback;
+	u32	len;
+    u32 port;
+	SPI_Callback callback;
 	struct _SPI_Request	*next;
 } SPI_Request;
 
@@ -80,7 +89,7 @@ SPI_Request *SPI_CreateRequest(void);
  *
  * @param value
  */
-void SPI_SetPollRate(uint32_t value);
+void SPI_SetPollRate(u32 value);
 
 /**
  * @brief Installs the SPI and timer 2 interrupt handlers and starts the poll
