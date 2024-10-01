@@ -296,28 +296,41 @@ int old_main() {
     return 0;
 }
 
+#include <stdbool.h>
 #include "hardware/spi.h"
 
+static bool write_finished = false;
+
+void writeCallback(u32 port, const volatile u8* buff, size_t rx_len) {
+    write_finished = true;
+}
+
+static bool read_finished = false;
 static char data[4] = {0};
 
 void readCallback(u32 port, const volatile u8* buff, size_t rx_len) {
     printf("RX Len: %d\n", rx_len);
     if (rx_len < 5) {
+        read_finished = true;
         return;
     }
+    const MemCardResponse* response = (MemCardResponse*) buff;
     #pragma GCC unroll 4
     for (int i = 0; i < 5; i++) {
-        data[i] = buff[i];
+        data[i] = response->read.data[i];
     }
     printf("Read callback: %s\n", data);
+    read_finished = true;
 }
 
+volatile int value = 0;
+
 void pollCallback(u32 port, const volatile u8* buf, size_t rx_len) {
-    MemCardResponse* response = (MemCardResponse*) buf;
     if (rx_len <= 0) {
         printf("Bad response, RX len: %d <= 0\n", rx_len);
         return;
     }
+    const MemCardResponse* response = (MemCardResponse*) buf;
     switch (response->flags) {
         case MCD_FLAG_WRITE_ERROR:
             printf("[SPI] Write error\n");
@@ -340,10 +353,11 @@ void pollCallback(u32 port, const volatile u8* buf, size_t rx_len) {
             printf("[SPI] Status: Bad Sector\n");
             break;
     }
+    value++;
 }
 
 int main() {
-    InitCARD(1);
+    InitCARD(0);
     printf("Init card\n");
     StartCARD();
     printf("Started card\n");
@@ -363,20 +377,36 @@ int main() {
     request->memory_card_request.lba_l = 0x0;
     request->memory_card_request.cmd = MCD_CMD_WRITE_SECTOR;
     request->memory_card_request.checksum =
-        request->memory_card_request.lba_h ^ request->memory_card_request.lba_l
+        request->memory_card_request.lba_h
+        ^ request->memory_card_request.lba_l
         ^ 'T' ^ 'e' ^ 's' ^ 't' ^ '\0';
-    request->len = 5;
-    request->callback = pollCallback;
+    request->len = SPI_BUFF_LEN;
+    request->port = 0x0;
+    request->callback = writeCallback;
+    printf("Value: %d\n", value);
     printf("Created write request\n");
+    while (!write_finished) {
+        __asm__ volatile("");
+    }
+    write_finished = false;
+    printf("Finished write\n");
     SPI_Request* request1 = SPI_CreateRequest();
     request1->memory_card_request.addr = 0x81;
     request1->memory_card_request.lba_h = 0x0;
     request1->memory_card_request.lba_l = 0x0;
     request1->memory_card_request.cmd = MCD_CMD_READ_SECTOR;
+    request1->len = SPI_BUFF_LEN;
+    request1->port = 0x0;
     request1->callback = readCallback;
+    printf("Value: %d\n", value);
     printf("Created read request\n");
+    while (!read_finished) {
+        __asm__ volatile("");
+    }
+    read_finished = false;
+    printf("Finished read\n");
     while (1) {
-        asm volatile("");
+        __asm__ volatile("");
     }
     StopCARD();
     return 0;

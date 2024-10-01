@@ -63,8 +63,8 @@ typedef struct _SPI_Request {
 		PadRequest pad_request;
 		MemCardRequest memory_card_request;
 	};
-	u32	len;
-    u32 port;
+	u32	len; // Should be SPI_BUFF_LEN
+    u32 port; // Should be 0 or 1
 	SPI_Callback callback;
 	struct _SPI_Request	*next;
 } SPI_Request;

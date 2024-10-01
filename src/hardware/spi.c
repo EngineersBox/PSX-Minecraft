@@ -31,33 +31,33 @@ static volatile SPI_Callback _default_cb;
 /* Request queue management */
 
 static void _spi_create_poll_req(void) {
-	PadRequest *req = (PadRequest *) _context.tx_buff;
-	req->addr     = 0x01;
-	req->cmd      = PAD_CMD_READ;
+	PadRequest *req = (PadRequest*) _context.tx_buff;
+	req->addr = 0x01;
+	req->cmd = PAD_CMD_READ;
 	req->tap_mode = 0x00; // 0x01 to enable extended multitap response
-	req->motor_l  = 0x00;
-	req->motor_r  = 0x00;
-	_context.tx_len   = 4;
-	_context.rx_len   = 0;
-	_context.port    ^= 1;
+	req->motor_l = 0x00;
+	req->motor_r = 0x00;
+	_context.tx_len = 4;
+	_context.rx_len = 0;
+	_context.port ^= 1;
 	_context.callback = _default_cb;
 }
 
 static void _spi_next_req(void) {
 	// Copy the contents of the first request in the queue into the TX buffer.
 	memcpy(
-		(void *) _context.tx_buff,
-		(void *) _current_req->data,
+		(void*) _context.tx_buff,
+		(void*) _current_req->data,
 		_current_req->len
 	);
-	_context.tx_len   = _current_req->len;
-	_context.rx_len   = 0;
-	_context.port     = _current_req->port;
+	_context.tx_len = _current_req->len;
+	_context.rx_len = 0;
+	_context.port = _current_req->port;
 	_context.callback = _current_req->callback;
 	// Pop the first request from the queue by deallocating it and adjusting
 	// the pointer to the first queue item.
-	SPI_Request *next = _current_req->next;
-	free((void *) _current_req);
+	SPI_Request* next = _current_req->next;
+	free((void*) _current_req);
 	_current_req = next;
 }
 
@@ -69,7 +69,7 @@ static void _spi_poll_irq_handler(void) {
 	if (SIO_STAT(0) & 0x0002) {
 		_context.rx_buff[_context.rx_len - 1] = (u8) SIO_DATA(0);
     }
-	if (_context.callback) {
+    if (_context.callback) {
 		_context.callback(_context.port, _context.rx_buff, _context.rx_len);
     }
 	// If the request queue is empty, create a pad polling request.
@@ -127,12 +127,12 @@ static void _spi_ack_irq_handler(void) {
 
 /* Public API */
 
-SPI_Request *SPI_CreateRequest(void) {
-	SPI_Request *req = malloc(sizeof(SPI_Request));
-	req->len      = 0;
-	req->port     = 0;
+SPI_Request* SPI_CreateRequest(void) {
+	SPI_Request* req = malloc(sizeof(SPI_Request));
+	req->len = 0;
+	req->port = 0;
 	req->callback = 0;
-	req->next     = 0;
+	req->next = 0;
 	// Find the last queued request by traversing the linked list and append a
 	// pointer to the new request.
 	if (!_current_req) {
