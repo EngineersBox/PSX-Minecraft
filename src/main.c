@@ -65,7 +65,7 @@ typedef struct FurnaceData {
     ItemData storage[3];
 } FurnaceData;
 
-int old_main() {
+int main() {
     printf("SourceData: %d\n", sizeof(SourceData));
     printf("ItemData: %d\n", sizeof(ItemData));
     printf("ChestData: %d\n", sizeof(ChestData));
@@ -256,9 +256,7 @@ int old_main() {
     printf("Init card\n");
     StartCARD();
     printf("Started card\n");
-    // BUG: This causes an unimplemented syscall exception from BIOS
-    /*_bu_init();*/
-    _temp_bu_init();
+    _bu_init();
     printf("Init backup unit\n");
     int channel = 0x00;
     int result = _card_load(channel);
@@ -266,22 +264,39 @@ int old_main() {
     result = _card_info(channel);
     printf("Card info: %d\n", result);
     // Card write
+    /*union {*/
+    /*    u8 _data[140];*/
+    /*    MemCardRequest req;*/
+    /*} test_data = {0};*/
+    /*test_data.req.addr = 0x81;*/
+    /*test_data.req.cmd = MCD_CMD_WRITE_SECTOR;*/
+    /*test_data.req.lba_h = 0;*/
+    /*test_data.req.lba_l = 1;*/
+    /*test_data.req.checksum;*/
     u8 test_data[0x80] = {0};
     test_data[0] = 'T';
     test_data[1] = 'e';
     test_data[2] = 's';
     test_data[3] = 't';
     test_data[4] = '\0';
-    result = _card_write(channel, 0, test_data);
+    result = _card_write(channel, 1, test_data);
     printf("Async write: %d\n", result);
+    if (result == 0) {
+        result = _card_info(channel);
+        printf("Write failed: %d\n", result);
+    }
     result = _card_wait(channel);
     printf("Wait card: %d\n", result);
     /*StopCARD();*/
     // Card read
     /*StartCARD();*/
     u8 result_data[0x80] = {0};
-    result = _card_read(channel, 0, result_data);
+    result = _card_read(channel, 1, result_data);
     printf("Async read: %d\n", result);
+    if (result == 0) {
+        result = _card_info(channel);
+        printf("Read failed: %d\n", result);
+    }
     result = _card_wait(channel);
     printf("Wait card: %d\n", result);
     printf("Result data: %s\n", (char*) result_data);
@@ -356,7 +371,7 @@ void pollCallback(u32 port, const volatile u8* buf, size_t rx_len) {
     value++;
 }
 
-int main() {
+int old_main() {
     InitCARD(0);
     printf("Init card\n");
     StartCARD();
