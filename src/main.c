@@ -263,16 +263,18 @@ int main() {
     printf("Loaded card: %d\n", result);
     result = _card_info(channel);
     printf("Card info: %d\n", result);
-    u8 result_data[0x80] = {0};
-    result = _card_read(channel, 1, result_data);
-    printf("Async read: %d\n", result);
-    if (result == 0) {
-        result = _card_info(channel);
-        printf("Read failed: %d\n", result);
-    }
     result = _card_wait(channel);
     printf("Wait card: %d\n", result);
-    printf("Result data: %s\n", (char*) result_data);
+    u8 result_data[0x80] = {0};
+    /*result = _card_read(channel, 1, result_data);*/
+    /*printf("Async read: %d\n", result);*/
+    /*if (result == 0) {*/
+    /*    result = _card_info(channel);*/
+    /*    printf("Read failed: %d\n", result);*/
+    /*}*/
+    /*result = _card_wait(channel);*/
+    /*printf("Wait card: %d\n", result);*/
+    /*printf("Result data: %s\n", (char*) result_data);*/
     // Card write
     /*union {*/
     /*    u8 _data[140];*/
