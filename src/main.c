@@ -2,8 +2,8 @@
 #include "core/app_logic.h"
 #include "game/minecraft.h"
 
-AppLogic app_logic;
-Minecraft* minecraft;
+static AppLogic app_logic;
+static Minecraft* minecraft;
 
 int main() {
     app_logic = DYN_LIT(Minecraft, AppLogic, {});

@@ -8,7 +8,7 @@
 
 #include "app_logic.h"
 
-typedef struct {
+typedef struct Engine {
     AppLogic* app_logic;
     volatile bool running;
     uint8_t target_fps;
