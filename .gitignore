@@ -7,3 +7,4 @@ scripts/pyvenv.cfg
 *.lzp
 *.qlp
 scripts/__pycache__
+.tabconf
