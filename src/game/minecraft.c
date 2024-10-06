@@ -23,9 +23,6 @@
 #include "level/overworld_perlin.h"
 #include "../weather/weather.h"
 
-// Reference texture data
-extern const uint32_t tim_texture[];
-
 #define MARKER_SIZE 20
 SVECTOR verts[8] = {
     { -MARKER_SIZE, -MARKER_SIZE, -MARKER_SIZE, 0 },
