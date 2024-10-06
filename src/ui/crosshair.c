@@ -3,6 +3,13 @@
 #include "../structure/primitive/primitive.h"
 
 void crosshairDraw(RenderContext* ctx) {
+    /**
+     * TODO: Instead of drawing a fixed crosshair with two
+     *       LINE_F2 draw calls, we could just draw the
+     *       crosshair using the texture in the base GUI
+     *       texture. This would save an OT entry and allow
+     *       the user to customise it.
+     */
     LINE_F2* vertical = (LINE_F2*) allocatePrimitive(ctx, sizeof(LINE_F2));
     setXY2(
         vertical,
