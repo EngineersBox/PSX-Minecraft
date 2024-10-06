@@ -67,15 +67,15 @@ RayCastResult worldRayCastIntersection(const World* world,
                                        const Camera* camera,
                                        const i32 radius) {
     const double origin[3] = {
-        ((double) camera->position.vx) / ((double) ONE_BLOCK),
-        ((double) -camera->position.vy) / ((double) ONE_BLOCK),
-        ((double) camera->position.vz) / ((double) ONE_BLOCK)
+        [0]=((double) camera->position.vx) / ((double) ONE_BLOCK),
+        [1]=((double) -camera->position.vy) / ((double) ONE_BLOCK),
+        [2]=((double) camera->position.vz) / ((double) ONE_BLOCK)
     };
     const VECTOR _step = rotationToDirection5o(&camera->rotation);
     const double direction[3] = {
-        ((double) _step.vx) / ((double) ONE),
-        ((double) _step.vy) / ((double) ONE),
-        ((double) _step.vz) / ((double) ONE)
+        [0]=((double) _step.vx) / ((double) ONE),
+        [1]=((double) _step.vy) / ((double) ONE),
+        [2]=((double) _step.vz) / ((double) ONE)
     };
     // Cube containing origin point
     double x = floord(origin[0]);
@@ -184,7 +184,6 @@ check_block_boundaries:;
             }
         }
     }
-    // DEBUG_LOG("Raycast failed\n");
     return (RayCastResult) {
         .pos = vec3_i32_all(0),
         .block = NULL,
