@@ -388,7 +388,7 @@ int old_main() {
     printf("Init card\n");
     StartCARD();
     printf("Started card\n");
-    _temp_bu_init();
+    _bu_init();
     printf("Init backup unit\n");
     SPI_Init(pollCallback);
     printf("SPI init\n");
