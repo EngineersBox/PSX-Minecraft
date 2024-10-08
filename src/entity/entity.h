@@ -5,9 +5,13 @@
 
 #include <interface99.h>
 #include <stdbool.h>
+#include <psxgte.h>
 
 #include "../util/preprocessor.h"
 #include "../util/inttypes.h"
+#include "../physics/physics_object.h"
+
+FWD_DECL typedef struct World World;
 
 typedef struct EntityFlags {
     bool alive: 1;
@@ -17,6 +21,7 @@ typedef struct EntityFlags {
 #define ENTITY_ABS_MAX_HEALTH INT16_MAX
 
 typedef struct Entity {
+    PhysicsObject physics_object;
     EntityFlags flags;
     u16 health;
     // 0 = not on fire
@@ -24,15 +29,22 @@ typedef struct Entity {
     u16 on_fire;
 } Entity;
 
+typedef struct DamageContext {
+    SVECTOR direction;
+    i16 amount;
+    bool knockback: 1;
+    u8 _pad: 7;
+} DamageContext;
+
 #define IEntity_IFACE \
-    vfuncDefault(bool, attackFrom, VSelf, const Entity* damage_source, const i16 amount) \
+    vfuncDefault(bool, attackFrom, VSelf, const Entity* damage_source, const DamageContext* ctx) \
     vfuncDefault(void, damage, VSelf, const i16 amount) \
     vfuncDefault(void, kill, VSelf)
 
 void entityInit(Entity* entity);
 
-bool iEntityAttackFrom(VSelf, const Entity* damage_source, const i16 amount);
-bool IEntity_attackFrom(VSelf, const Entity* damage_source, const i16 amount);
+bool iEntityAttackFrom(VSelf, const Entity* damage_source, const DamageContext* ctx);
+bool IEntity_attackFrom(VSelf, const Entity* damage_source, const DamageContext* ctx);
 
 void iEntityDamage(VSelf, const i16 amount);
 void IEntity_damage(VSelf, const i16 amount);

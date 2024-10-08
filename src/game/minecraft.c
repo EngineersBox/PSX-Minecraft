@@ -93,8 +93,8 @@ void Minecraft_init(VSelf, void* ctx) {
     playerInit(player);
     player->camera = &self->internals.camera;
     const VECTOR player_positon = vec3_i32(0, (CHUNK_BLOCK_SIZE + (BLOCK_SIZE * 2)) << 12, 0);
-    iPhysicsObjectSetPosition(&player->physics_object, &player_positon);
-    player->physics_object.flags.no_clip = true;
+    iPhysicsObjectSetPosition(&player->entity.physics_object, &player_positon);
+    player->entity.physics_object.flags.no_clip = true;
     player_handler = DYN(Player, IInputHandler, player);
     VCALL(player_handler, registerInputHandler, &self->internals.input, world);
     // Register handlers
@@ -106,7 +106,7 @@ void Minecraft_init(VSelf, void* ctx) {
     playerUpdateCamera(player);
     DEBUG_LOG(
         "Player pos: " VEC_PATTERN " Camera pos: " VEC_PATTERN "\n",
-        VEC_LAYOUT(player->physics_object.position),
+        VEC_LAYOUT(player->entity.physics_object.position),
         VEC_LAYOUT(camera.position)
     );
 

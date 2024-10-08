@@ -672,9 +672,9 @@ void chunkUpdate(Chunk* chunk, const Player* player, BreakingState* breaking_sta
     // of needing to use division for worldspace accuracy.
     // @see itemPickupValidator
     const VECTOR pos = vec3_i32(
-        player->physics_object.position.vx >> FIXED_POINT_SHIFT,
-        -player->physics_object.position.vy >> FIXED_POINT_SHIFT,
-        player->physics_object.position.vz >> FIXED_POINT_SHIFT
+        player->entity.physics_object.position.vx >> FIXED_POINT_SHIFT,
+        -player->entity.physics_object.position.vy >> FIXED_POINT_SHIFT,
+        player->entity.physics_object.position.vz >> FIXED_POINT_SHIFT
     );
     // NOTE: I've made the cvector size and capacity fields
     //       volatile so that any usage in a loop that mutates

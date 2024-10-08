@@ -55,7 +55,7 @@ void playerInit(Player* player) {
     DYN_PTR(&player->hotbar, Hotbar, IUI, hotbar);
     DYN_PTR(&player->inventory, Inventory, IUI, inventory);
     iPhysicsObjectInit(
-        &player->physics_object,
+        &player->entity.physics_object,
         &player_physics_object_config,
         &player_physics_object_update_handlers
     );
@@ -70,7 +70,7 @@ void playerDestroy(const Player* player) {
 
 void playerUpdateCamera(const Player* player) {
     Camera* camera = VCAST_PTR(Camera*, player->camera);
-    const PhysicsObject* physics_object = &player->physics_object;
+    const PhysicsObject* physics_object = &player->entity.physics_object;
     camera->rotation.vx = physics_object->rotation.pitch;
     camera->rotation.vy = physics_object->rotation.yaw;
     camera->position.vx = physics_object->position.vx;
@@ -79,7 +79,7 @@ void playerUpdateCamera(const Player* player) {
 }
 
 void playerUpdate(Player* player, World* world) {
-    iPhysicsObjectUpdate(&player->physics_object, world, player);
+    iPhysicsObjectUpdate(&player->entity.physics_object, world, player);
     playerUpdateCamera(player);
 }
 
@@ -112,7 +112,7 @@ void updateBreakingState(Player* player, const RayCastResult* result, const Worl
             .position = result->pos,
             .block = result->block
         };
-        const PhysicsObjectFlags* player_physics_flags = &player->physics_object.flags;
+        const PhysicsObjectFlags* player_physics_flags = &player->entity.physics_object.flags;
         const Hotbar* hotbar = VCAST(Hotbar*, player->hotbar);
         breakingStateCalculateTicks(
             state,
@@ -223,6 +223,7 @@ INLINE static bool playerInputHandlerAttack(const PlayerInputHandlerContext* ctx
 
 INLINE static void playerInputHandlerUse(const PlayerInputHandlerContext* ctx) {
     const Player* player = ctx->player;
+    const PhysicsObject* physics_object = &player->entity.physics_object;
     const RayCastResult result = worldRayCastIntersection(
         ctx->world,
         VCAST_PTR(Camera*, player->camera),
@@ -252,7 +253,7 @@ INLINE static void playerInputHandlerUse(const PlayerInputHandlerContext* ctx) {
     //     iv. Otherwise continue
     // 4. If we are sneaking
     //   a. Invoke the block update handler (returns bool)
-    const bool sneaking  = player->physics_object.flags.sneaking;
+    const bool sneaking  = physics_object->flags.sneaking;
     const Hotbar* hotbar = VCAST_PTR(Hotbar*, &player->hotbar);
     Slot* slot = &hotbarGetSelectSlot(hotbar);
     IItem* iitem = slot->data.item;
@@ -287,7 +288,7 @@ INLINE static void playerInputHandlerUse(const PlayerInputHandlerContext* ctx) {
             }
             IBlock* iblock = block_constructor(iitem);
             const VECTOR place_position = vec3_add(result.pos, result.face);
-            if (!VCALL(*iblock, canPlace, ctx->world, &place_position, &player->physics_object.aabb)) {
+            if (!VCALL(*iblock, canPlace, ctx->world, &place_position, &physics_object->aabb)) {
                 item->stack_size++;
                 VCALL(*iblock, destroy, false);
                 return;
@@ -379,7 +380,7 @@ INLINE static void playerInputHandlerWorldInteraction(const Input* input, const 
 INLINE static bool playerInputHandlerMovement(const Input* input, const PlayerInputHandlerContext* ctx) {
     const PADTYPE* pad = input->pad;
     Player* player = ctx->player;
-    PhysicsObject* physics_object = &player->physics_object;
+    PhysicsObject* physics_object = &player->entity.physics_object;
     physics_object->move.forward = 0;
     physics_object->move.strafe = 0;
     physics_object->flags.jumping = false;

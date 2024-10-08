@@ -106,8 +106,16 @@ i32 resolveGroundAcceleration(const PhysicsObject* physics_object,
     return scaling;
 }
 
-void iPhysicsObjectMoveWithHeading(VSelf, World* world, i32 move_strafe, i32 move_forward, void* ctx) ALIAS("IPhysicsObject_moveWithHeading");
-void IPhysicsObject_moveWithHeading(VSelf, World* world, i32 move_strafe, i32 move_forward, void* ctx) {
+void iPhysicsObjectMoveWithHeading(VSelf,
+                                   World* world,
+                                   i32 move_strafe,
+                                   i32 move_forward,
+                                   void* ctx) ALIAS("IPhysicsObject_moveWithHeading");
+void IPhysicsObject_moveWithHeading(VSelf,
+                                    World* world,
+                                    i32 move_strafe,
+                                    i32 move_forward,
+                                    void* ctx) {
     VSELF(PhysicsObject);
     // ONE * 0.91 = 3727
     // ONE * 0.16277136 = 666
@@ -222,7 +230,7 @@ void collideWithWorld(PhysicsObject* physics_object,
     const i32 curr_vel_z = vel_z;
     AABB aabb = (AABB) {0};
     aabbAddCoord(&physics_object->aabb, &aabb, vel_x, vel_y, vel_z);
-    const cvector(AABB) collided_aabbs = getCollidingAABBs(world, &aabb);
+    cvector(AABB) collided_aabbs = getCollidingAABBs(world, &aabb);
     AABB const* elem = NULL;
     // Determine closest y value or default to current value
     cvector_for_each_in(elem, collided_aabbs) {

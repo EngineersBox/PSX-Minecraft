@@ -84,7 +84,7 @@ void weatherRender(const World* world,
                    Transforms* transforms) {
     static u16 render_ticks = 0;
     const VECTOR player_pos = vec3_const_div(
-        player->physics_object.position,
+        player->entity.physics_object.position,
         ONE_BLOCK
     );
     ChunkBlockPosition cb_pos;

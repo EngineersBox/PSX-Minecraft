@@ -9,7 +9,6 @@
 #include "../core/camera.h"
 #include "../game/gui/inventory.h"
 #include "../game/gui/hotbar.h"
-#include "../physics/physics_object.h"
 #include "../core/input/input.h"
 #include "../game/blocks/breaking_state.h"
 #include "entity.h"
@@ -28,7 +27,6 @@ extern const PhysicsObjectUpdateHandlers player_physics_object_update_handlers;
 typedef struct {
     Entity entity;
     ICamera* camera;
-    PhysicsObject physics_object;
     IUI inventory;
     IUI hotbar;
     BreakingState breaking;

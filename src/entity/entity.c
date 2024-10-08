@@ -10,9 +10,14 @@ void entityInit(Entity* entity) {
     entity->on_fire = 0;
 }
 
-bool iEntityAttackFrom(VSelf, const Entity* damage_source, const i16 amount) ALIAS("IEntity_attackFrom");
-bool IEntity_attackFrom(VSelf, const Entity* damage_source, const i16 amount) {
-    // TODO: Implement this
+bool iEntityAttackFrom(VSelf, const Entity* damage_source, const DamageContext* ctx) ALIAS("IEntity_attackFrom");
+bool IEntity_attackFrom(VSelf, const Entity* damage_source, const DamageContext* ctx) {
+    VSELF(Entity);
+    if (self->health <= 0) {
+        return false;
+    }
+    iEntityDamage(iface99_self, ctx->amount);
+    // TODO: Apply dmanage based on context
     return false;
 }
 

@@ -231,9 +231,9 @@ void worldRender(const World* world,
                  RenderContext* ctx,
                  Transforms* transforms) {
     const VECTOR player_world_pos = vec3_i32(
-        fixedFloor(player->physics_object.position.vx, ONE_BLOCK) / ONE_BLOCK,
-        fixedFloor(player->physics_object.position.vy, ONE_BLOCK) / ONE_BLOCK,
-        fixedFloor(player->physics_object.position.vz, ONE_BLOCK) / ONE_BLOCK
+        fixedFloor(player->entity.physics_object.position.vx, ONE_BLOCK) / ONE_BLOCK,
+        fixedFloor(player->entity.physics_object.position.vy, ONE_BLOCK) / ONE_BLOCK,
+        fixedFloor(player->entity.physics_object.position.vz, ONE_BLOCK) / ONE_BLOCK
     );
     const VECTOR player_chunk_pos = worldToChunkBlockPosition(
         &player_world_pos,
@@ -628,9 +628,9 @@ void worldUpdate(World* world, Player* player, BreakingState* breaking_state) {
     worldUpdateInternalLightLevel(world);
     world->time_ticks = positiveModulo(world->time_ticks + 1, WORLD_TIME_CYCLE);
     const VECTOR player_world_pos = vec3_i32(
-        fixedFloor(player->physics_object.position.vx, ONE_BLOCK) / ONE_BLOCK,
-        fixedFloor(player->physics_object.position.vy, ONE_BLOCK) / ONE_BLOCK,
-        fixedFloor(player->physics_object.position.vz, ONE_BLOCK) / ONE_BLOCK
+        fixedFloor(player->entity.physics_object.position.vx, ONE_BLOCK) / ONE_BLOCK,
+        fixedFloor(player->entity.physics_object.position.vy, ONE_BLOCK) / ONE_BLOCK,
+        fixedFloor(player->entity.physics_object.position.vz, ONE_BLOCK) / ONE_BLOCK
     );
     const ChunkBlockPosition player_pos = worldToChunkBlockPosition(
         &player_world_pos,
