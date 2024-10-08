@@ -49,7 +49,7 @@ Let's suppose we have the following slice of a chunk, which covers all the cases
 Given that we have transparent voxels, we need a way to generate the following masks for the faces in each of the rows (called `col` in code but easier to understand as rows since it's a direct map to binary visually):
 
 | **Left Faces** | **Right Faces** |
-|:---------------|:----------------|
+|----------------|-----------------|
 | 01010          | 00010           |
 | 01010          | 01010           |
 | 01000          | 00010           |
@@ -77,7 +77,7 @@ Let's take our previous example where `0` = air, `1` = transparent and `2` = sol
 Suppose we construct two initial mappings of this slice for each the types mentioned before (NE and NET). Let's do this based on the conditionals mentioned:
 
 | **Non-Empty (NE)** | **Non-Emoty & None-Transparent (NET)** |
-|:-------------------|:---------------------------------------|
+|--------------------|----------------------------------------|
 | 01110              | 00010                                  |
 | 01010              | 00000                                  |
 | 01110              | 01010                                  |
@@ -124,33 +124,138 @@ fn add_voxel_to_axis_cols(
 
 We can combine these two *views* in order to get a complete understanding of the overlapping sections, which will indicate where we need to include transparent faces. This is simply a logical AND operation between the two views on a per column basis! (Call this result NETC - NET Combined)
 
-| **Non-Empty (NE)** | **Non-Empty & Non-Transparent (NET)** |  **Non-Empt & Non-Transparent (NETC)** |
-|:-------------------|:--------------------------------------|:---------------------------------------|
-| 01110              | 00010                                 | 00010                                  |
-| 01010              | 00000                                 | 00000                                  |
-| 01110              | 01010                                 | 01010                                  |
-| 01110              | 00100                                 | 00100                                  |
-| 01111              | 00111                                 | 00111                                  |
+<table>
+	<tr>
+		<td>Non-Empty (NE)</td>
+		<td>Non-Empty & Non-Transparent (NET)</td>
+		<td>Non-Empty & Non-Transparent (NETC)</td>
+	</tr>
+	<tr>
+		<td>
+<pre>
+01110
+01010
+01110
+01110
+01111
+</pre>
+		</td>
+		<td>
+<pre>
+00010
+00000
+01010
+00100
+00111
+</pre>
+		</td>
+		<td>
+<pre>
+00010
+00000
+01010
+00100
+00111
+</pre>
+		</td>
+	</tr>
+</table>
 
 Using these two tables we can simply repeat the same shifting operations for left and right face detection (left: `col & !(col >> 1)`, right: `col & !(col << 1)`) for both NE and NETC (we don't care about NET since it was used to construct NETC). This provides us a with a visualisation of visible faces for both solid and transparent voxels simultaneously. Using our example, we can see that the following face mappings are generated:
 
-| **NE Left Face** | **NE Right Face** | **NETC Left Face** | **NETC Right Face** |
-|:-----------------|:------------------|:-------------------|:--------------------|
-| 01000            | 00010             | 00010              | 00010               |
-| 01000            | 00010             | 00000              | 00000               |
-| 01000            | 00010             | 01010              | 01010               |
-| 01000            | 00010             | 00100              | 00100               |
-| 01000            | 00001             | 00100              | 00001               |
+<table>
+	<tr>
+		<td>NE</td>
+		<td>NETC</td>
+	</tr>
+	<tr>
+		<td>
+			<table>
+				<tr>
+					<td>Left Face</td>
+					<td>Right Face</td>
+				</tr>
+				<tr>
+					<td>
+<pre>
+01000
+01000
+01000
+01000
+01000
+</pre>
+				</td>
+					<td>
+<pre>
+00010
+00010
+00010
+00010
+00001
+</pre>
+					</td>
+				</tr>
+			</table>
+		</td>
+		<td>
+			<table>
+				<tr>
+					<td>Left Face</td>
+					<td>Right Face</td>
+				</tr>
+				<tr>
+					<td>
+<pre>
+00010
+00000
+01010
+00100
+00100
+</pre>
+					</td>
+					<td>
+<pre>
+00010
+00000
+01010
+00100
+00001
+</pre>
+					</td>
+				</tr>
+			</table>
+		</td>
+	</tr>
+</table>
 
 We are so very close to our final map of all faces with proper transparency handling. Thankfully, the last step is just as simple as the construction of NETC. We just need to apply logical OR between the left and right maps of NE and NETC (i.e. `NE_L | NETC_L` and `NE_R | NETC_R`).
 
-| **Left Face** | **Right Face** |
-|:--------------|:---------------|
-| 01010         | 00010          |
-| 01000         | 00010          |
-| 01010         | 01010          |
-| 01100         | 00110          |
-| 01100         | 00001          |
+<table>
+	<tr>
+		<td>Left Face</td>
+		<td>Right Face</td>
+	</tr>
+	<tr>
+		<td>
+<pre>
+01010
+01000
+01010
+01100
+01100
+</pre>
+		</td>
+		<td>
+<pre>
+00010
+00010
+01010
+00110
+00001
+</pre>
+		</td>
+	</tr>
+</table>
 
 This finalised result can be added as the value for the current column face mask, corresponding to the following implementation:
 
