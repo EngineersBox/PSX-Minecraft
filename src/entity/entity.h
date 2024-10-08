@@ -11,7 +11,7 @@
 
 typedef struct {
     bool alive: 1;
-    u16 _pad: 15;
+    u8 _pad: 7;
 } EntityFlags;
 
 #define ENTITY_ABS_MAX_HEALTH INT16_MAX
