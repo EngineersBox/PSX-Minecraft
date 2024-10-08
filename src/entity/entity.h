@@ -9,14 +9,14 @@
 #include "../util/preprocessor.h"
 #include "../util/inttypes.h"
 
-typedef struct {
+typedef struct EntityFlags {
     bool alive: 1;
     u8 _pad: 7;
 } EntityFlags;
 
 #define ENTITY_ABS_MAX_HEALTH INT16_MAX
 
-typedef struct {
+typedef struct Entity {
     EntityFlags flags;
     u16 health;
     // 0 = not on fire
