@@ -19,8 +19,8 @@ bool IEntity_attackFrom(VSelf, const Entity* damage_source, const i16 amount) {
 void iEntityDamage(VSelf, const i16 amount) ALIAS("IEntity_damage");
 void IEntity_damage(VSelf, const i16 amount) {
     VSELF(Entity);
-    // Bounded to [0,UINT16_MAX] to ensure no integer over/underflow
-    self->health = max(min(self->health - amount, ENTITY_ABS_MAX_HEALTH), 0);
+    // Bounded to [0,INT16_MAX] to ensure no integer over/underflow
+    self->health = max(min((i16)self->health - amount, ENTITY_ABS_MAX_HEALTH), 0);
 }
 
 void iEntityKill(VSelf) ALIAS("IEntity_kill");

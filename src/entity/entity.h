@@ -14,7 +14,7 @@ typedef struct {
     u16 _pad: 15;
 } EntityFlags;
 
-#define ENTITY_ABS_MAX_HEALTH UINT16_MAX
+#define ENTITY_ABS_MAX_HEALTH INT16_MAX
 
 typedef struct {
     EntityFlags flags;
