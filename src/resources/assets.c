@@ -108,34 +108,6 @@ void _freeModels() {
 
 void assetsLoad() {
     _lz_resources = (u8*) cdReadDataSync("\\ASSETS.LZP", CdlModeSpeed);
-    /*CdlFILE file;*/
-    /*if (!CdSearchFile(&file, "\\ASSETS.LZP")) {*/
-    /*    errorAbort("[ASSETS] Unable to find assets.lzp\n");*/
-    /*    return;*/
-    /*}*/
-    /*const int sector_count = (file.size / 2048) + 1;*/
-    /*int result = CdControlB(CdlSetloc, &file.pos, NULL);*/
-    /*if (result == 0) {*/
-    /*    errorAbort("[ASSETS] Previous pending command not finished\n");*/
-    /*    return;*/
-    /*} else if (result == -1) {*/
-    /*    errorAbort("[ASSETS] Missing required parameter for CdControlB\n");*/
-    /*    return;*/
-    /*}*/
-    /*_lz_resources = malloc(sector_count * 2048);*/
-    /*if (!CdRead(sector_count, (void*) _lz_resources, CdlModeSpeed)) {*/
-    /*    errorAbort("[ASSETS] Failed to read assets.lzp file from CD\n");*/
-    /*    return;*/
-    /*}*/
-    /*u8 res_buf = 0;*/
-    /*result = CdReadSync(0, &res_buf);*/
-    /*if (result == -1) {*/
-    /*    errorAbort("[ASSETS] CD read failed: %d\n", res_buf);*/
-    /*    return;*/
-    /*} else if (result == -2) {*/
-    /*    errorAbort("[ASSETS] CD read aborted\n");*/
-    /*    return;*/
-    /*}*/
     for (const AssetBundle* bundle = &ASSET_BUNDLES[0]; bundle->name != NULL; bundle++) {
         const int lzp_index = lzpSearchFile(bundle->name, lz_resources);
         if (lzp_index < 0) {
