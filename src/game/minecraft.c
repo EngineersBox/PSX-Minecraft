@@ -3,6 +3,7 @@
 #include <inline_c.h>
 #include <psxgpu.h>
 #include <psxgte.h>
+#include <psxcd.h>
 #include <stdlib.h>
 
 #include "../ui/axis.h"
@@ -67,6 +68,7 @@ void Minecraft_init(VSelf, void* ctx) {
     DYN_PTR(&self->internals.camera, Camera, IInputHandler, &camera);
     self->internals.ctx.camera = VCAST(Camera*, self->internals.camera);
     initRenderContext(&self->internals.ctx);
+    CdInit();
     inputInit(&self->internals.input);
     // Unpack LZP archive and load assets
     assetsLoad();

@@ -4,6 +4,7 @@
 #include <lzp/lzqlp.h>
 #include <smd/smd.h>
 #include <psxgpu.h>
+#include <psxcd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -45,6 +46,7 @@ AssetBundle ASSET_BUNDLES[] = {
 
 Texture* textures;
 bool assets_loaded = false;
+u8* _lz_resources = NULL;
 
 void _loadTextures(const int lzp_index) {
     TIM_IMAGE tim = {};
@@ -105,6 +107,35 @@ void _freeModels() {
 }
 
 void assetsLoad() {
+    CdlFILE file;
+    if (!CdSearchFile(&file, "\\assets.lzp")) {
+        errorAbort("[ASSETS] Unable to find assets.lzp\n");
+        return;
+    }
+    /*int sector = CdPosToInt(&file.pos);*/
+    int sector_count = (file.size / 2340) + 1;
+    int result = CdControlB(CdlSetloc, &file.pos, NULL);
+    if (result == 0) {
+        errorAbort("[ASSETS] Previous pending command not finished\n");
+        return;
+    } else if (result == -1) {
+        errorAbort("[ASSETS] Missing required parameter for CdControlB\n");
+        return;
+    }
+    _lz_resources = malloc(sector_count * 2340);
+    if (!CdRead(sector_count, (void*) _lz_resources, CdlModeSpeed)) {
+        errorAbort("[ASSETS] Failed to read assets.lzp file from CD\n");
+        return;
+    }
+    u8 res_buf = 0;
+    result = CdReadSync(0, &res_buf);
+    if (result == -1) {
+        errorAbort("[ASSETS] CD read failed: %d\n", res_buf);
+        return;
+    } else if (result == -2) {
+        errorAbort("[ASSETS] CD read aborted\n");
+        return;
+    }
     for (const AssetBundle* bundle = &ASSET_BUNDLES[0]; bundle->name != NULL; bundle++) {
         const int lzp_index = lzpSearchFile(bundle->name, lz_resources);
         if (lzp_index < 0) {

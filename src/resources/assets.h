@@ -7,9 +7,10 @@
 #include <psxgpu.h>
 #include <smd/smd.h>
 
+#include "../util/inttypes.h"
 #include "texture.h"
 
-extern uint8_t _lz_resources[];
+extern u8* _lz_resources;
 #define lz_resources ((const LZP_HEAD*) _lz_resources)
 
 extern Texture* textures;

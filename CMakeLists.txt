@@ -61,7 +61,7 @@ psn00bsdk_add_cd_image(
 	iso # Target name
 	PSXMC # Output file name (= <NAME>.bin + <NAME>.cue)
 	iso.xml  # Path to CD layout file
-	DEPENDS PSXMC system.cnf # PS1 system config dependency
+	DEPENDS PSXMC system.cnf assets.lzp
 )
 
 # Include dependencies
@@ -100,11 +100,11 @@ target_compile_definitions(PSXMC PUBLIC -DPSXMC_DEBUG_OVERLAY_WORLD=1)
 target_compile_definitions(PSXMC PUBLIC -DPSXMC_DEBUG_OVERLAY_MEM=0)
 
 # Include assets in binary
-if (NOT (asset_count EQUAL 0))
-	psn00bsdk_target_incbin(
-		PSXMC PRIVATE _lz_resources
-		${PROJECT_BINARY_DIR}/assets.lzp
-	)
-endif()
+# if (NOT (asset_count EQUAL 0))
+# 	psn00bsdk_target_incbin(
+# 		PSXMC PRIVATE _lz_resources
+# 		${PROJECT_BINARY_DIR}/assets.lzp
+# 	)
+# endif()
 
 install(FILES ${PROJECT_BINARY_DIR}/PSXMC.exe TYPE BIN)

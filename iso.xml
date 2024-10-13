@@ -61,6 +61,7 @@
 		<directory_tree>
 			<file name="SYSTEM.CNF" type="data" source="${PROJECT_SOURCE_DIR}/system.cnf" />
 			<file name="PSXMC.EXE" type="data" source="PSXMC.exe" />
+            <file name="assets.lzp" type="data" source="assets.lzp"/>
 			<!--
 				This file is only required if you are using dynamic linking
 				(see the system/dynlink example). It contains the executable's
