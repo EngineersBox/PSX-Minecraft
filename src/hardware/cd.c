@@ -5,7 +5,7 @@
 void* cdReadDataSync(const char* filename, CdlModeFlag mode) {
     CdlFILE file;
     if (!CdSearchFile(&file, filename)) {
-        printf("Unable to find assets.lzp\n");
+        printf("Unable to find %s\n", filename);
         return NULL;
     }
     int read_size;
@@ -23,24 +23,24 @@ void* cdReadDataSync(const char* filename, CdlModeFlag mode) {
     const int sector_count = (file.size / read_size) + 1;
     int result = CdControlB(CdlSetloc, &file.pos, NULL);
     if (result == 0) {
-        printf("[ASSETS] Previous pending command not finished\n");
+        printf("[CD] Previous pending command not finished\n");
         return NULL;
     } else if (result == -1) {
-        printf("[ASSETS] Missing required parameter for CdControlB\n");
+        printf("[CD] Missing required parameter for CdControlB\n");
         return NULL;
     }
     u8* data = (u8*) malloc(sector_count * read_size);
     if (!CdRead(sector_count, (void*) data, CdlModeSpeed)) {
-        printf("[ASSETS] Failed to read assets.lzp file from CD\n");
+        printf("[CD] Failed to read %s file from CD\n", filename);
         return NULL;
     }
     u8 res_buf = 0;
     result = CdReadSync(0, &res_buf);
     if (result == -1) {
-        printf("[ASSETS] CD read failed: %d\n", res_buf);
+        printf("[CD] Read sync failed: %d\n", res_buf);
         return NULL;
     } else if (result == -2) {
-        printf("[ASSETS] CD read aborted\n");
+        printf("[CD] Read aborted\n");
         return NULL;
     }
     return data;
