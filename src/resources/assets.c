@@ -107,6 +107,10 @@ void _freeModels() {
 }
 
 void assetsLoad() {
+    // TODO: Free this buffer after the static textures are loaded.
+    //       Then move the dynamic textures like GUIs into a separate
+    //       LZP resource that can be read at will for interactions
+    //       (like opening an inventory) that require them.
     _lz_resources = (u8*) cdReadDataSync("\\ASSETS.LZP", CdlModeSpeed);
     for (const AssetBundle* bundle = &ASSET_BUNDLES[0]; bundle->name != NULL; bundle++) {
         const int lzp_index = lzpSearchFile(bundle->name, lz_resources);
