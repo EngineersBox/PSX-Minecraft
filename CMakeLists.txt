@@ -99,7 +99,7 @@ target_compile_definitions(PSXMC PUBLIC -DPSXMC_DEBUG_OVERLAY_FACING=1)
 target_compile_definitions(PSXMC PUBLIC -DPSXMC_DEBUG_OVERLAY_WORLD=1)
 target_compile_definitions(PSXMC PUBLIC -DPSXMC_DEBUG_OVERLAY_MEM=0)
 
-# Include assets in binary
+# Include assets in binary (Note: these are now on disk)
 # if (NOT (asset_count EQUAL 0))
 # 	psn00bsdk_target_incbin(
 # 		PSXMC PRIVATE _lz_resources
