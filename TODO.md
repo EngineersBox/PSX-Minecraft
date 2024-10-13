@@ -135,8 +135,8 @@
 * [X] Move to PSn00bSDK critical handlers and properly mark initialisation of timers.
 * [X] ~~Refactor vector operations to use `_Generic` C11 macro to perform type specific operations between any kind of two vector types or constant.~~ (Refactor was done with vec/const specific macros on naming basis).
 * [X] Move field `face_attributes` in `Block` to `BlockAttributes`, moving from a fixed sized array to a pointer, allowing for variable length arrays indexed by `metadata_id * FACE_DIRECTION_COUNT`. This can then be an alias to an array of texture refs that all blocks of the same type can use and simultaneously allow for many variants based on `metadata_id`.
-* [ ] Support other resolutions that aren't 320x240
 * [X] Move assets to on-disk directories and files instead of packing them into the binary
+* [ ] Support other resolutions that aren't 320x240
 * [ ] Move dynamic assets (like GUIs) into separate on-disk LZP archive to be referenced ad-hoc instead of needing to keep entire assets resource in memory all time time including static assets.
 * [ ] Refactor the `chunkRemoveLightType` call into the `chunkSetLightType` when the light value is `0` and update the necessary logic changes to accomodate this (seems to cause infinite lighting update loops if this is done at the moment)
 * [ ] Change block equality check to account for both `id` and `metadata_id` fields in all relevant places (i.e. binary greedy mesher)
