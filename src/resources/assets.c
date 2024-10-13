@@ -108,12 +108,12 @@ void _freeModels() {
 
 void assetsLoad() {
     CdlFILE file;
-    if (!CdSearchFile(&file, "\\assets.lzp")) {
+    if (!CdSearchFile(&file, "\\ASSETS.LZP")) {
         errorAbort("[ASSETS] Unable to find assets.lzp\n");
         return;
     }
     /*int sector = CdPosToInt(&file.pos);*/
-    int sector_count = (file.size / 2340) + 1;
+    int sector_count = (file.size / 2048) + 1;
     int result = CdControlB(CdlSetloc, &file.pos, NULL);
     if (result == 0) {
         errorAbort("[ASSETS] Previous pending command not finished\n");
@@ -122,7 +122,7 @@ void assetsLoad() {
         errorAbort("[ASSETS] Missing required parameter for CdControlB\n");
         return;
     }
-    _lz_resources = malloc(sector_count * 2340);
+    _lz_resources = malloc(sector_count * 2048);
     if (!CdRead(sector_count, (void*) _lz_resources, CdlModeSpeed)) {
         errorAbort("[ASSETS] Failed to read assets.lzp file from CD\n");
         return;
