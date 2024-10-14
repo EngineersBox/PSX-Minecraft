@@ -16,25 +16,44 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -fshort-enums -Wno-unused-para
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O${COMPILE_OPTIMISATION_LEVEL}")
 #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fanalyzer")
 set(ASSETS_DIR ${PROJECT_SOURCE_DIR}/assets)
-configure_file(assets.xml _assets.xml)
+configure_file(static.xml _static.xml)
+configure_file(gui.xml _gui.xml)
 
-# Add a build step to pack assets into a single .LZP file. Note that, since we
-# are specifying dependencies, CMake can detect when source assets are edited
-# and rebuild the archive automatically.
-file(GLOB_RECURSE _assets ${ASSETS_DIR}/*.tim ${ASSETS_DIR}/*.smd)
-list(LENGTH _assets asset_count)
+# === ASSETS ===
+
+# Static
+file(GLOB_RECURSE _assets_static ${ASSETS_DIR}/static/*.tim ${ASSETS_DIR}/static/*.smd)
+list(LENGTH _assets_static asset_count)
 if (NOT (asset_count EQUAL 0))
 	add_custom_command(
-		COMMAND    ${LZPACK} -y _assets.xml
-		OUTPUT     assets.lzp
-		BYPRODUCTS textures.qlp gui.qlp
-		DEPENDS    ${_assets}
+		COMMAND    ${LZPACK} -y _static.xml
+		OUTPUT     static.lzp
+		BYPRODUCTS textures.qlp
+		DEPENDS    ${_assets_static}
 		COMMENT    "Building LZP archive"
 	)
 endif()
 
-message("Globbed ${asset_count} assets:")
-foreach (_asset ${_assets})
+message("Globbed ${asset_count} static assets:")
+foreach (_asset ${_assets_static})
+	message("- ${_asset}")
+endforeach()
+
+# Gui
+file(GLOB_RECURSE _assets_gui ${ASSETS_DIR}/gui/*.tim ${ASSETS_DIR}/gui/*.smd)
+list(LENGTH _assets_gui asset_count)
+if (NOT (asset_count EQUAL 0))
+	add_custom_command(
+		COMMAND    ${LZPACK} -y _gui.xml
+		OUTPUT     gui.lzp
+		BYPRODUCTS gui.qlp
+		DEPENDS    ${_assets_gui}
+		COMMENT    "Building LZP archive"
+	)
+endif()
+
+message("Globbed ${asset_count} gui assets:")
+foreach (_asset ${_assets_gui})
 	message("- ${_asset}")
 endforeach()
 
@@ -61,7 +80,7 @@ psn00bsdk_add_cd_image(
 	iso # Target name
 	PSXMC # Output file name (= <NAME>.bin + <NAME>.cue)
 	iso.xml  # Path to CD layout file
-	DEPENDS PSXMC system.cnf assets.lzp
+	DEPENDS PSXMC system.cnf static.lzp gui.lzp
 )
 
 # Include dependencies

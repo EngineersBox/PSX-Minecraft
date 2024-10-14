@@ -99,7 +99,7 @@ static void _freeTextures(const void* ctx) {
 }
 
 void assetsLoad() {
-    _lz_resources = (u8*) cdReadDataSync("\\ASSETS.LZP", CdlModeSpeed);
+    _lz_resources = (u8*) cdReadDataSync("\\STATIC.LZP", CdlModeSpeed);
     const AssetBundle* bundle = &ASSET_BUNDLES[0];
     const int lzp_index = lzpSearchFile(bundle->name, lz_resources);
     if (lzp_index < 0) {
@@ -191,6 +191,10 @@ int assetLoadTextureDirect(const size_t bundle, const int file_index, Texture* t
             file_index,
             asset_bundle->name
         );
+        return 1;
+    }
+    if (GetTimInfo((uint32_t*) qlpFileAddr(file_index, tex_buff), &tim)) {
+        errorAbort("[ERROR] Failed to retrieve TIM info for file %s\n", file->name);
         return 1;
     }
     assetLoadImage(&tim, texture);
