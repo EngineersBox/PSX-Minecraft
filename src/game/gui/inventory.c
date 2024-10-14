@@ -251,8 +251,8 @@ InventoryStoreResult inventoryStoreItem(const Inventory* inventory, IItem* iitem
     return INVENTORY_STORE_RESULT_ADDED_NEW_SLOT;
 }
 
-#define GUI_BUNDLE_NAME "gui"
-#define INVENTORY_TEXTURE_NAME "inventory"
+/*#define GUI_BUNDLE_NAME "gui"*/
+/*#define INVENTORY_TEXTURE_NAME "inventory"*/
 
 void inventoryOpen(VSelf) ALIAS("Inventory_open");
 void Inventory_open(VSelf) {
@@ -263,8 +263,8 @@ void Inventory_open(VSelf) {
     self->ui.active = true;
     UIBackground* background = VCAST(UIBackground*, self->ui.components[0]);
     if (assetLoadTextureDirect(
-        GUI_BUNDLE_NAME,
-        INVENTORY_TEXTURE_NAME,
+        ASSET_BUNDLE__GUI,
+        ASSET_TEXTURE__GUI__INVENTORY,
         &background->texture
     )) {
         printf("[INVENTORY] Failed to load texture\n");

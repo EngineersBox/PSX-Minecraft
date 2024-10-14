@@ -8,6 +8,10 @@ void* cdReadDataSync(const char* filename, CdlModeFlag mode) {
         printf("Unable to find %s\n", filename);
         return NULL;
     }
+    return cdReadFileSync(&file, mode);
+}
+
+void* cdReadFileSync(const CdlFILE* file, CdlModeFlag mode) {
     int read_size;
     switch (mode) {
         case CdlModeSpeed:
@@ -20,8 +24,8 @@ void* cdReadDataSync(const char* filename, CdlModeFlag mode) {
             printf("[CD] Unimplemented read mode: %d\n", mode);
             return NULL;
     }
-    const int sector_count = (file.size / read_size) + 1;
-    int result = CdControlB(CdlSetloc, &file.pos, NULL);
+    const int sector_count = (file->size / read_size) + 1;
+    int result = CdControlB(CdlSetloc, &file->pos, NULL);
     if (result == 0) {
         printf("[CD] Previous pending command not finished\n");
         return NULL;
@@ -31,7 +35,7 @@ void* cdReadDataSync(const char* filename, CdlModeFlag mode) {
     }
     u8* data = (u8*) malloc(sector_count * read_size);
     if (!CdRead(sector_count, (void*) data, CdlModeSpeed)) {
-        printf("[CD] Failed to read %s file from CD\n", filename);
+        printf("[CD] Failed to read %s file from CD\n", file->name);
         return NULL;
     }
     u8 res_buf = 0;
@@ -45,3 +49,4 @@ void* cdReadDataSync(const char* filename, CdlModeFlag mode) {
     }
     return data;
 }
+

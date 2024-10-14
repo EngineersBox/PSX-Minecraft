@@ -18,7 +18,8 @@ extern bool assets_loaded;
 
 void assetLoadImage(const TIM_IMAGE* tim, Texture* texture);
 // 1: Failed, 0: Success
-int assetLoadTextureDirect(const char* bundle, const char* filename, Texture* texture);
+/*int assetLoadTextureDirect(const char* bundle, const char* filename, Texture* texture);*/
+int assetLoadTextureDirect(const size_t bundle, const int file_index, Texture* texture);
 void assetLoadModel(const SMD* smd);
 
 void assetsLoad();

@@ -11,5 +11,6 @@
 #include "../logging/logging.h"
 
 void* cdReadDataSync(const char* filename, CdlModeFlag mode);
+void* cdReadFileSync(const CdlFILE* file, CdlModeFlag mode);
 
 #endif // _PSXMC__HARDWARE__CD_H_
