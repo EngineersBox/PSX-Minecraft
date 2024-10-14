@@ -7,6 +7,7 @@
 #include <stdlib.h>
 
 #include "../ui/axis.h"
+#include "../ui/crosshair.h"
 #include "../structure/primitive/cube.h"
 #include "../render/debug.h"
 #include "../math/vector.h"
@@ -23,18 +24,6 @@
 #include "level/overworld_flatland.h"
 #include "level/overworld_perlin.h"
 #include "../weather/weather.h"
-
-#define MARKER_SIZE 20
-SVECTOR verts[8] = {
-    [0]={ -MARKER_SIZE, -MARKER_SIZE, -MARKER_SIZE, 0 },
-    [1]={  MARKER_SIZE, -MARKER_SIZE, -MARKER_SIZE, 0 },
-    [2]={ -MARKER_SIZE,  MARKER_SIZE, -MARKER_SIZE, 0 },
-    [3]={  MARKER_SIZE,  MARKER_SIZE, -MARKER_SIZE, 0 },
-    [4]={  MARKER_SIZE, -MARKER_SIZE,  MARKER_SIZE, 0 },
-    [5]={ -MARKER_SIZE, -MARKER_SIZE,  MARKER_SIZE, 0 },
-    [6]={  MARKER_SIZE,  MARKER_SIZE,  MARKER_SIZE, 0 },
-    [7]={ -MARKER_SIZE,  MARKER_SIZE,  MARKER_SIZE, 0 }
-};
 
 World* world;
 Camera camera;
@@ -103,14 +92,8 @@ void Minecraft_init(VSelf, void* ctx) {
     VCALL(*player->camera, registerInputHandler, &self->internals.input, NULL);
     VCALL_SUPER(player->inventory, IInputHandler, registerInputHandler, &self->internals.input, NULL);
     VCALL_SUPER(player->hotbar, IInputHandler, registerInputHandler, &self->internals.input, NULL);
-
     // Initialise camera
     playerUpdateCamera(player);
-    DEBUG_LOG(
-        "Player pos: " VEC_PATTERN " Camera pos: " VEC_PATTERN "\n",
-        VEC_LAYOUT(player->entity.physics_object.position),
-        VEC_LAYOUT(camera.position)
-    );
 
     // ==== TESTING: Hotbar ====
     Inventory* inventory = VCAST(Inventory*, player->inventory);
@@ -187,8 +170,9 @@ void Minecraft_render(VSelf, const Stats* stats) {
     renderClearConstraints(&self->internals.ctx);
     // Render UI
     playerRender(player, &self->internals.ctx, &self->internals.transforms);
-    // crosshairDraw(&render_context);
-    axisDraw(&self->internals.ctx, &self->internals.transforms, &camera);
+    crosshairDraw(&self->internals.ctx);
+    renderClearConstraints(&self->internals.ctx);
+    /*axisDraw(&self->internals.ctx, &self->internals.transforms, &camera);*/
     FntPrint(0, PSXMC_VERSION_STRING "\n");
     drawDebugText(stats, &camera, world);
     debugDrawPBUsageGraph(

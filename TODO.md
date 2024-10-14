@@ -141,4 +141,4 @@
 * [ ] Support other resolutions that aren't 320x240
 * [ ] Refactor the `chunkRemoveLightType` call into the `chunkSetLightType` when the light value is `0` and update the necessary logic changes to accomodate this (seems to cause infinite lighting update loops if this is done at the moment)
 * [ ] Change block equality check to account for both `id` and `metadata_id` fields in all relevant places (i.e. binary greedy mesher)
-* [ ] Replace fixed dual `LINE_F2` crosshair with texture rendered from GUI texture, allowing user customisation and saving an OT entry + draw call
+* [X] Replace fixed dual `LINE_F2` crosshair with texture rendered from GUI texture, allowing user customisation and saving an OT entry + draw call

@@ -1,29 +1,31 @@
 #include "crosshair.h"
 
+#include <psxgpu.h>
+
+#include "../resources/assets.h"
+#include "../resources/asset_indices.h"
 #include "../structure/primitive/primitive.h"
 
 void crosshairDraw(RenderContext* ctx) {
-    /**
-     * TODO: Instead of drawing a fixed crosshair with two
-     *       LINE_F2 draw calls, we could just draw the
-     *       crosshair using the texture in the base GUI
-     *       texture. This would save an OT entry and allow
-     *       the user to customise it.
-     */
-    LINE_F2* vertical = (LINE_F2*) allocatePrimitive(ctx, sizeof(LINE_F2));
-    setXY2(
-        vertical,
-        CENTRE_X, CENTRE_Y - 2,
-        CENTRE_X, CENTRE_Y + 2
+    POLY_FT4* pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
+    setPolyFT4(pol4);
+    setXYWH(
+        pol4,
+        CENTRE_X - 8,
+        CENTRE_Y - 8,
+        16,
+        16
     );
-    setRGB0(vertical, 0xff, 0xff, 0xff);
-    LINE_F2* horizontal = (LINE_F2*) allocatePrimitive(ctx, sizeof(LINE_F2));
-    setXY2(
-        horizontal,
-        CENTRE_X - 2, CENTRE_Y,
-        CENTRE_X + 2, CENTRE_Y
+    setUVWH(
+        pol4,
+        182,
+        24,
+        16,
+        16
     );
-    setRGB0(horizontal, 0xff, 0xff, 0xff);
-    lineF2Render(vertical, 0, ctx);
-    lineF2Render(horizontal, 0, ctx);
+    setRGB0(pol4, 0xff, 0xff, 0xff);
+    const Texture* texture = &textures[ASSET_TEXTURE__STATIC__GUI];
+    pol4->tpage = texture->tpage;
+    pol4->clut = texture->clut;
+    polyFT4Render(pol4, 0, ctx);
 }
