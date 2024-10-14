@@ -38,6 +38,7 @@
 * [ ] Move mesh generation to after all loading when updating world to avoid face generation on orthogonal axis to update axis
 * [ ] Lighting on dropped items is pure black sometimes despite being in light (possibly bad world position when retrieving light value). The physics object position for items isn't properly aligned to the bounding box since the position (which should be the centre of the AABB) isn't aligned properly and thus when converting to world position and querying the light level, it can query the next block over (in the direction that the item moved when it was dropped) and thus can get a light level of 0 and the item is rendered as black in the world.
 * [ ] Weather texture does not scroll correctly, some planes are static and only in some places does it work correctly. Potentially an issue with texture windowing and UV positions.
+* [ ] Holding movement keys and opening the inventory doesn't prevent player from continuing to move.
 
 ## Implement
 
@@ -137,7 +138,7 @@
 * [X] Move field `face_attributes` in `Block` to `BlockAttributes`, moving from a fixed sized array to a pointer, allowing for variable length arrays indexed by `metadata_id * FACE_DIRECTION_COUNT`. This can then be an alias to an array of texture refs that all blocks of the same type can use and simultaneously allow for many variants based on `metadata_id`.
 * [X] Move assets to on-disk directories and files instead of packing them into the binary
 * [ ] Support other resolutions that aren't 320x240
-* [ ] Move dynamic assets (like GUIs) into separate on-disk LZP archive to be referenced ad-hoc instead of needing to keep entire assets resource in memory all time time including static assets.
+* [X] Move dynamic assets (like GUIs) into separate on-disk LZP archive to be referenced ad-hoc instead of needing to keep entire assets resource in memory all time time including static assets.
 * [ ] Refactor the `chunkRemoveLightType` call into the `chunkSetLightType` when the light value is `0` and update the necessary logic changes to accomodate this (seems to cause infinite lighting update loops if this is done at the moment)
 * [ ] Change block equality check to account for both `id` and `metadata_id` fields in all relevant places (i.e. binary greedy mesher)
 * [ ] Replace fixed dual `LINE_F2` crosshair with texture rendered from GUI texture, allowing user customisation and saving an OT entry + draw call
