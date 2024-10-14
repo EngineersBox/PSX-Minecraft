@@ -7,7 +7,6 @@
 #include <stdlib.h>
 
 #include "../ui/axis.h"
-#include "../ui/crosshair.h"
 #include "../structure/primitive/cube.h"
 #include "../render/debug.h"
 #include "../math/vector.h"
@@ -170,9 +169,9 @@ void Minecraft_render(VSelf, const Stats* stats) {
     renderClearConstraints(&self->internals.ctx);
     // Render UI
     playerRender(player, &self->internals.ctx, &self->internals.transforms);
-    crosshairDraw(&self->internals.ctx);
+    /*crosshairDraw(&self->internals.ctx);*/
+    axisDraw(&self->internals.ctx, &self->internals.transforms, &camera);
     renderClearConstraints(&self->internals.ctx);
-    /*axisDraw(&self->internals.ctx, &self->internals.transforms, &camera);*/
     FntPrint(0, PSXMC_VERSION_STRING "\n");
     drawDebugText(stats, &camera, world);
     debugDrawPBUsageGraph(
