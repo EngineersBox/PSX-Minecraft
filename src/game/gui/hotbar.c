@@ -38,7 +38,7 @@ void hotbarInit(Hotbar* hotbar) {
         .vx = HOTBAR_WIDTH,
         .vy = HOTBAR_HEIGHT
     };
-    background->texture = textures[ASSET_TEXTURES_GUI_INDEX];
+    background->texture = textures[ASSET_TEXTURE__STATIC__GUI];
     DYN_PTR(component, UIBackground, IUIComponent, background);
 }
 
@@ -70,7 +70,7 @@ void hotbarRenderSlots(const Hotbar* hotbar,  RenderContext* ctx, Transforms* tr
     );
     // Mid point grey as mask for additive texturing
     setRGB0(pol4, 0x80, 0x80, 0x80);
-    const Texture* texture = &textures[ASSET_TEXTURES_GUI_INDEX];
+    const Texture* texture = &textures[ASSET_TEXTURE__STATIC__GUI];
     pol4->tpage = texture->tpage;
     pol4->clut = texture->clut;
     polyFT4Render(pol4, 0, ctx);

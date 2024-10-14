@@ -94,7 +94,7 @@ void renderItemBlock(ItemBlock* item,
                      const VECTOR* position_offset) {
     int p;
     TextureAttributes* face_attribute;
-    const Texture* texture = &textures[ASSET_TEXTURES_TERRAIN_INDEX];
+    const Texture* texture = &textures[ASSET_TEXTURE__STATIC__TERRAIN];
     RECT tex_window;
     for (int i = 0; i < BLOCK_FACES; i++) {
         face_attribute = &item->face_attributes[i];
@@ -325,7 +325,7 @@ void renderItemBlockInventory(ItemBlock* item,
                               const u8 face_indices_count) {
     int p;
     TextureAttributes* face_attribute;
-    const Texture* texture = &textures[ASSET_TEXTURES_TERRAIN_INDEX];
+    const Texture* texture = &textures[ASSET_TEXTURE__STATIC__TERRAIN];
     const i16 offset_screen_x = -CENTRE_X + screen_position->vx;
     const i16 offset_screen_y = -CENTRE_Y + screen_position->vy;
     RECT tex_window;

@@ -68,7 +68,7 @@ void fontLoad() {
 	if (!assets_loaded) {
 		errorAbort("[ERROR] Cannot load font, assets have not been loaded\n");
 	}
-	font_current = &textures[ASSET_TEXTURES_FONT_INDEX];
+	font_current = &textures[ASSET_TEXTURE__STATIC__FONT];
 	DrawSync(0);
 	// Clear previously opened text streams
 	if (font_nstreams) {

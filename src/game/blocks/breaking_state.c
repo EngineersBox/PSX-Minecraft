@@ -151,7 +151,7 @@ void breakingStateUpdateRenderTarget(BreakingState* state,
         .h = BLOCK_TEXTURE_SIZE,
         .tint = {0, 0, 0, 0}
     };
-    const Texture* terrain_texture = &textures[ASSET_TEXTURES_TERRAIN_INDEX];
+    const Texture* terrain_texture = &textures[ASSET_TEXTURE__STATIC__TERRAIN];
     POLY_FT4* pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
     setPolyFT4(pol4);
     setSemiTrans(pol4, 1);

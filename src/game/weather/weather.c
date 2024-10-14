@@ -88,7 +88,7 @@ void weatherRender(const World* world,
         ONE_BLOCK
     );
     ChunkBlockPosition cb_pos;
-    const Texture* texture = &textures[ASSET_TEXTURES_WEATHER_INDEX];
+    const Texture* texture = &textures[ASSET_TEXTURE__STATIC__WEATHER];
     int p = 0;
     renderCtxBindMatrix(
         ctx,

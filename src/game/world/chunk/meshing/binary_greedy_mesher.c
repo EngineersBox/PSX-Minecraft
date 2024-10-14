@@ -335,7 +335,7 @@ static MeshPrimitive* createPrimitive(ChunkMesh* mesh,
     primitive->type = MESH_PRIM_TYPE_QUAD;
     const Texture* texture = texture_override != NULL
         ? texture_override
-        : &textures[ASSET_TEXTURES_TERRAIN_INDEX];
+        : &textures[ASSET_TEXTURE__STATIC__TERRAIN];
     primitive->tpage = texture->tpage;
     primitive->clut = texture->clut;
     const TextureAttributes* attributes = texture_attributes_override != NULL
@@ -569,7 +569,7 @@ void binaryGreedyMesherConstructBreakingOverlay(Chunk* chunk, const BreakingStat
                 breaking_texture_offscreen.x,
                 breaking_texture_offscreen.y
             ),
-            .clut = textures[ASSET_TEXTURES_TERRAIN_INDEX].clut
+            .clut = textures[ASSET_TEXTURE__STATIC__TERRAIN].clut
         };
         u32 x = 0;
         u32 y = 0;
