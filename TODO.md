@@ -38,7 +38,7 @@
 * [ ] Move mesh generation to after all loading when updating world to avoid face generation on orthogonal axis to update axis
 * [ ] Lighting on dropped items is pure black sometimes despite being in light (possibly bad world position when retrieving light value). The physics object position for items isn't properly aligned to the bounding box since the position (which should be the centre of the AABB) isn't aligned properly and thus when converting to world position and querying the light level, it can query the next block over (in the direction that the item moved when it was dropped) and thus can get a light level of 0 and the item is rendered as black in the world.
 * [ ] Weather texture does not scroll correctly, some planes are static and only in some places does it work correctly. Potentially an issue with texture windowing and UV positions.
-* [ ] Holding movement keys and opening the inventory doesn't prevent player from continuing to move.
+* [X] Holding movement keys and opening the inventory doesn't prevent player from continuing to move.
 
 ## Implement
 
