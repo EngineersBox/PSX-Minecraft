@@ -173,6 +173,35 @@ endmacro()
 """ 
     with open("CMakeLists.bundles.txt", "w") as file:
         file.write(content)
+
+def updateISODiskLayout(bundle_names: list[str]) -> None:
+    iso: ET.ElementTree = ET.parse(
+        "iso.xml",
+        parser=ET.XMLParser(target=ET.TreeBuilder(
+            comment_factory=ET.Comment,
+            insert_comments=True
+        ))
+    )
+    directory_tree: ET.Element | None = iso.find("./track[@type='data']/directory_tree")
+    if directory_tree is None:
+        return
+    for bundle in bundle_names:
+        if directory_tree.find(f"./file[@name='{bundle.upper()}.LZP'][@type='data'][@source='{bundle}.lzp']") is not None:
+            LOGGER.warning(f"Asset bundle {bundle} already exists in ISO disk layout, skipping")
+            continue
+        ET.SubElement(
+            directory_tree,
+            "file",
+            {
+                "name": f"{bundle.upper()}.LZP",
+                "type": "data",
+                "source": f"{bundle}.lzp"
+            }
+        )
+        LOGGER.info(f"Added asset bundle {bundle} to ISO disk layout")
+    ET.indent(iso, "    ")
+    LOGGER.info("Writing iso.xml")
+    iso.write("iso.xml")
     
 def main() -> None:
     defines = []
@@ -209,6 +238,9 @@ def main() -> None:
         file.write(defines_content)
     LOGGER.info("Constructing CMake bindings")
     constructCMakeBindings(bundle_names)
+    LOGGER.info("Updating ISO disk layout")
+    updateISODiskLayout(bundle_names)
+    LOGGER.info("Done")
 
 if __name__ == "__main__":
     main()
