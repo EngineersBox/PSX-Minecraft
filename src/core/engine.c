@@ -2,6 +2,7 @@
 
 #include <psxetc.h>
 #include <psxapi.h>
+#include <stdio.h>
 
 #include "../math/math_utils.h"
 #include "../hardware/counters.h"

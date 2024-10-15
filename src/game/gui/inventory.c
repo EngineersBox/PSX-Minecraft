@@ -2,6 +2,7 @@
 
 #include <interface99.h>
 
+#include "../../logging/logging.h"
 #include "../items/items.h"
 #include "../../ui/components/background.h"
 #include "../../util/interface99_extensions.h"

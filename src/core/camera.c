@@ -44,8 +44,7 @@ void lookAt(const VECTOR* eye, const VECTOR* at, const SVECTOR* up, MATRIX* mtx)
     TransMatrix(mtx, &vec);
 }
 
-bool cameraInputHandler(const Input* input, void* ctx) {
-    Camera* camera = (Camera*) ctx;
+void cameraUpdate(Camera* camera) {
     Transforms* transforms = camera->transforms;
     // Divide out fractions of camera rotation
     transforms->translation_rotation = vec3_i16(
@@ -94,20 +93,4 @@ bool cameraInputHandler(const Input* input, void* ctx) {
         // printf("[CAMERA] Geometry Matrix: \n" MAT_PATTERN, MAT_LAYOUT(transforms->geometry_mtx));
         // printf("[CAMERA] Frustum Matrix: \n" MAT_PATTERN, MAT_LAYOUT(transforms->frustum_mtx));
     }
-    // Camera is the base level input handler, we should always give up
-    // control to a layer added on top of base movement
-    return false;
-}
-
-void cameraRegisterInputHandler(VSelf, Input* input, void* ctx) ALIAS("Camera_registerInputHandler");
-void Camera_registerInputHandler(VSelf, Input* input, void* ctx) {
-    VSELF(Camera);
-    const InputHandlerVTable handler = (InputHandlerVTable) {
-        .ctx = self,
-        .input_handler = cameraInputHandler
-    };
-    inputAddHandler(
-        input,
-        handler
-    );
 }

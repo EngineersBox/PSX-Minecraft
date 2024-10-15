@@ -69,7 +69,7 @@ void playerDestroy(const Player* player) {
 }
 
 void playerUpdateCamera(const Player* player) {
-    Camera* camera = VCAST_PTR(Camera*, player->camera);
+    Camera* camera = player->camera;
     const PhysicsObject* physics_object = &player->entity.physics_object;
     camera->rotation.vx = physics_object->rotation.pitch;
     camera->rotation.vy = physics_object->rotation.yaw;
@@ -190,7 +190,7 @@ INLINE static bool playerInputHandlerAttack(const PlayerInputHandlerContext* ctx
     //       extra software support.
     const RayCastResult result = worldRayCastIntersection(
         ctx->world,
-        VCAST_PTR(Camera*, player->camera),
+        player->camera,
         PLAYER_REACH_DISTANCE
     );
     // TODO: Add a state to the player for determining whether to
@@ -226,7 +226,7 @@ INLINE static void playerInputHandlerUse(const PlayerInputHandlerContext* ctx) {
     const PhysicsObject* physics_object = &player->entity.physics_object;
     const RayCastResult result = worldRayCastIntersection(
         ctx->world,
-        VCAST_PTR(Camera*, player->camera),
+        player->camera,
         PLAYER_REACH_DISTANCE
     );
     // Interaction order:
@@ -305,12 +305,11 @@ INLINE static void playerInputHandlerUse(const PlayerInputHandlerContext* ctx) {
                 break;
             }
             Block* block = VCAST_PTR(Block*, iblock);
-            const Camera* camera = VCAST_PTR(Camera*, player->camera);
             // Compute the closest normal to the direction the camera
             // is facing, noting only the horizontal (x/z) axis since
             // no blocks can be placed upwards or downwards in orientation.
             // i.e. no buttons on the ceiling or anything like that.
-            const VECTOR rotation = rotationToDirection5o(&camera->rotation);
+            const VECTOR rotation = rotationToDirection5o(&player->camera->rotation);
             block->orientation = faceDirectionClosestNormal(vec3_i32(
                 rotation.vx,
                 0, /* No Y axis since block orientation is always horizontal */

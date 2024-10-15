@@ -16,7 +16,7 @@ typedef struct Input Input;
 
 typedef bool (*InputHandler)(const Input* input, void* ctx);
 typedef void (*InputHandlerDestroy)(Input* input, void* ctx);
-typedef struct {
+typedef struct InputHandlerVTable {
     void* ctx;
     InputHandler input_handler;
     InputHandlerDestroy input_handler_destroy;

@@ -26,7 +26,7 @@ extern const PhysicsObjectUpdateHandlers player_physics_object_update_handlers;
 
 typedef struct {
     Entity entity;
-    ICamera* camera;
+    Camera* camera;
     IUI inventory;
     IUI hotbar;
     BreakingState breaking;

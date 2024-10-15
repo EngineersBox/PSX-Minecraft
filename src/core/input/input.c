@@ -2,22 +2,23 @@
 
 #include <psxapi.h>
 
+#include "../../util/inttypes.h"
 #include "../../structure/cvector_utils.h"
 
 void inputInit(Input *input) {
     // Init BIOS pad driver and set pad buffers (buffers are updated
     // automatically on every V-Blank)
     InitPAD(
-        (uint8_t *) &input->pad_buffer[0][0],
+        (u8*) &input->pad_buffer[0][0],
         PAD_SECTION_SIZE,
-        (uint8_t *) &input->pad_buffer[1][0],
+        (u8*) &input->pad_buffer[1][0],
         PAD_SECTION_SIZE
     );
     // Start pad
     StartPAD();
     // Don't make pad driver acknowledge V-Blank IRQ (recommended)
     ChangeClearPAD(0);
-    input->pad = (PADTYPE *) &input->pad_buffer[0][0];
+    input->pad = (PADTYPE*) &input->pad_buffer[0][0];
     input->handlers = NULL;
     cvector_init(input->handlers, 0, NULL);
     input->in_focus = NULL;

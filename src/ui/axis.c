@@ -42,14 +42,14 @@ void drawLine(RenderContext* ctx, const SVECTOR* vertex, uint8_t r, uint8_t g, u
     addPrim(ot_object, line);
 }
 
-void axisDraw(RenderContext* ctx, const Transforms* transforms, const Camera* camera) {
+void axisDraw(RenderContext* ctx, const Transforms* transforms) {
     // TODO: This is very jittery despite consistency between player and camera position
     //       Need to ensure that it doesn't jitter
     static SVECTOR rotation = {0};
     VECTOR position = (VECTOR) {
-        .vx = camera->position.vx >> FIXED_POINT_SHIFT,
-        .vy = camera->position.vy >> FIXED_POINT_SHIFT,
-        .vz = camera->position.vz >> FIXED_POINT_SHIFT
+        .vx = ctx->camera->position.vx >> FIXED_POINT_SHIFT,
+        .vy = ctx->camera->position.vy >> FIXED_POINT_SHIFT,
+        .vz = ctx->camera->position.vz >> FIXED_POINT_SHIFT
     };
     // Object and light matrix for object
     MATRIX omtx;

@@ -7,6 +7,6 @@
 #include "../render/transforms.h"
 #include "../core/camera.h"
 
-void axisDraw(RenderContext* ctx, const Transforms* transforms, const Camera* camera);
+void axisDraw(RenderContext* ctx, const Transforms* transforms);
 
 #endif // PSXMC_AXIS_H

@@ -25,7 +25,6 @@
 #include "../weather/weather.h"
 
 World* world;
-Camera camera;
 IInputHandler player_handler;
 Player* player;
 
@@ -38,7 +37,8 @@ void Minecraft_init(VSelf, void* ctx) {
         .ctx = (RenderContext) {
             .active = 0,
             .db = {},
-            .primitive = NULL
+            .primitive = NULL,
+            .camera = NULL,
         },
         .transforms = (Transforms) {
             .translation_rotation = vec3_i16_all(0),
@@ -50,11 +50,9 @@ void Minecraft_init(VSelf, void* ctx) {
             .lighting_mtx = lighting_direction
         },
         .input = (Input) {},
-        .camera = {}
+        .camera = cameraCreate(&self->internals.transforms),
     };
-    camera = cameraCreate(&self->internals.transforms);
-    DYN_PTR(&self->internals.camera, Camera, IInputHandler, &camera);
-    self->internals.ctx.camera = VCAST(Camera*, self->internals.camera);
+    self->internals.ctx.camera = &self->internals.camera;
     initRenderContext(&self->internals.ctx);
     CdInit();
     inputInit(&self->internals.input);
@@ -84,15 +82,15 @@ void Minecraft_init(VSelf, void* ctx) {
     player->camera = &self->internals.camera;
     const VECTOR player_positon = vec3_i32(0, (CHUNK_BLOCK_SIZE + (BLOCK_SIZE * 2)) << 12, 0);
     iPhysicsObjectSetPosition(&player->entity.physics_object, &player_positon);
-    player->entity.physics_object.flags.no_clip = true;
+    player->entity.physics_object.flags.no_clip = false;
     player_handler = DYN(Player, IInputHandler, player);
     VCALL(player_handler, registerInputHandler, &self->internals.input, world);
     // Register handlers
-    VCALL(*player->camera, registerInputHandler, &self->internals.input, NULL);
     VCALL_SUPER(player->inventory, IInputHandler, registerInputHandler, &self->internals.input, NULL);
     VCALL_SUPER(player->hotbar, IInputHandler, registerInputHandler, &self->internals.input, NULL);
     // Initialise camera
     playerUpdateCamera(player);
+    cameraUpdate(&self->internals.camera);
 
     // ==== TESTING: Hotbar ====
     Inventory* inventory = VCAST(Inventory*, player->inventory);
@@ -130,8 +128,7 @@ void startHandler(Camera* camera);
 void minecraftInput(VSelf, const Stats* stats) ALIAS("Minecraft_input");
 void Minecraft_input(VSelf, const Stats* stats) {
     VSELF(Minecraft);
-    Camera* camera = VCAST(Camera*, self->internals.camera);
-    camera->mode = 0;
+    self->internals.camera.mode = 0;
     Input* input = &self->internals.input;
     inputUpdate(input);
 }
@@ -141,6 +138,7 @@ void Minecraft_update(VSelf, const Stats* stats) {
     VSELF(Minecraft);
     worldUpdate(self->world, player, &player->breaking);
     playerUpdate(player, world);
+    cameraUpdate(&self->internals.camera);
 }
 
 void minecraftRender(VSelf, const Stats* stats) ALIAS("Minecraft_render");
@@ -170,10 +168,13 @@ void Minecraft_render(VSelf, const Stats* stats) {
     // Render UI
     playerRender(player, &self->internals.ctx, &self->internals.transforms);
     /*crosshairDraw(&self->internals.ctx);*/
-    axisDraw(&self->internals.ctx, &self->internals.transforms, &camera);
+    axisDraw(
+        &self->internals.ctx,
+        &self->internals.transforms
+    );
     renderClearConstraints(&self->internals.ctx);
     FntPrint(0, PSXMC_VERSION_STRING "\n");
-    drawDebugText(stats, &camera, world);
+    drawDebugText(stats, &self->internals.camera, world);
     debugDrawPBUsageGraph(
         &self->internals.ctx,
         0,
