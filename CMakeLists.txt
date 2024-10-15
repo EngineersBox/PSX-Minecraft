@@ -15,7 +15,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -fshort-enums -Wno-unused-parameter -Wno-comments")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O${COMPILE_OPTIMISATION_LEVEL}")
 #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fanalyzer")
-include(${PROJECT_SOURCE_DIR}/CMakeLists.bundles.txt)
+include(${PROJECT_SOURCE_DIR}/bundles.cmake)
 ConstructAssetBundles()
 
 # Include source content

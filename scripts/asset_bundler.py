@@ -176,7 +176,7 @@ macro(ConstructAssetBundles)
 {packing}
 endmacro()
 """ 
-    with open("CMakeLists.bundles.txt", "w") as file:
+    with open("bundles.cmake", "w") as file:
         file.write(content)
 
 def updateISODiskLayout(bundle_names: list[str]) -> None:
