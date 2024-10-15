@@ -144,7 +144,7 @@ def packBundle(name: str, index: int, path: Path) -> Tuple[ET.ElementTree, list[
     return createXML(name, files), createDefines(name.upper(), index, files)
 
 def constructCMakeBindings(bundle_names: list[str]) -> None:
-    bundle_names = [f"PackAssets({name} {name}.qlp)" for name in bundle_names]
+    bundle_names = [f"\tPackAssets({name} {name}.qlp)" for name in bundle_names]
     packing = "\n".join(bundle_names)
     content = f"""function(PackAssets bundle byproducts)
     set(ASSETS_DIR ${{PROJECT_SOURCE_DIR}}/assets)
@@ -167,7 +167,7 @@ def constructCMakeBindings(bundle_names: list[str]) -> None:
 endfunction()
 
 macro(ConstructAssetBundles)
-    {packing}
+{packing}
 endmacro()
 """ 
     with open("CMakeLists.bundles.txt", "w") as file:

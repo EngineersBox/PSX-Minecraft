@@ -19,6 +19,6 @@ function(PackAssets bundle byproducts)
 endfunction()
 
 macro(ConstructAssetBundles)
-    PackAssets(static static.qlp)
-PackAssets(gui gui.qlp)
+	PackAssets(static static.qlp)
+	PackAssets(gui gui.qlp)
 endmacro()
