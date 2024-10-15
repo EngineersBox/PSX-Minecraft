@@ -56,6 +56,8 @@ typedef struct RecipeResults {
  *      and https://www.reddit.com/r/C_Programming/comments/1b5y9r9/compiletime_initialization_of_arbitrarydepth
  */
 typedef struct RecipeNode {
+    // NOTE: If necessary this could be made into a composite
+    //       key that specifies both the id and metadata id
     /**
      * @brief Recipe item ingredient for this position.
      */
