@@ -199,6 +199,8 @@ def main() -> None:
 
 {defines_string}
 
+#define ASSET_BUNDLES_COUNT {index + 1}
+
 #endif // PSXMC__RESOURCES__ASSET_INDICES_H
 """
     LOGGER.info("Writing defines to src/resources/asset_indices.h")

@@ -11,6 +11,7 @@
 
 #include "../logging/logging.h"
 #include "../hardware/cd.h"
+#include "asset_indices.h"
 
 typedef void* (*AssetLoad)(const void* ctx);
 
@@ -28,19 +29,18 @@ static void _freeTextures(const void* ctx);
 static void* _loadDynamicTextures(const void* ctx);
 static void _freeDynamicTextures(const void* ctx);
 
-#define ASSET_BUNDLES_COUNT 3
 AssetBundle ASSET_BUNDLES[ASSET_BUNDLES_COUNT] = {
-    [0]=(AssetBundle) {
+    [ASSET_BUNDLE__STATIC]=(AssetBundle) {
         .load = _loadTextures,
         .free = _freeTextures,
         .name = "static"
     },
-    [1]=(AssetBundle) {
+    [ASSET_BUNDLE__GUI]=(AssetBundle) {
         .load = _loadDynamicTextures,
         .free = _freeDynamicTextures,
         .name = "\\GUI.LZP"
     },
-    [2]=(AssetBundle) { NULL, NULL, NULL }
+    [ASSET_BUNDLES_COUNT - 1]=(AssetBundle) { NULL, NULL, NULL }
 };
 
 Texture* textures;
