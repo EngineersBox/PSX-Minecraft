@@ -15,47 +15,8 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -fshort-enums -Wno-unused-parameter -Wno-comments")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O${COMPILE_OPTIMISATION_LEVEL}")
 #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fanalyzer")
-set(ASSETS_DIR ${PROJECT_SOURCE_DIR}/assets)
-configure_file(static.xml _static.xml)
-configure_file(gui.xml _gui.xml)
-
-# === ASSETS ===
-
-# Static
-file(GLOB_RECURSE _assets_static ${ASSETS_DIR}/static/*.tim ${ASSETS_DIR}/static/*.smd)
-list(LENGTH _assets_static asset_count)
-if (NOT (asset_count EQUAL 0))
-	add_custom_command(
-		COMMAND    ${LZPACK} -y _static.xml
-		OUTPUT     static.lzp
-		BYPRODUCTS textures.qlp
-		DEPENDS    ${_assets_static}
-		COMMENT    "Building LZP archive"
-	)
-endif()
-
-message("Globbed ${asset_count} static assets:")
-foreach (_asset ${_assets_static})
-	message("- ${_asset}")
-endforeach()
-
-# Gui
-file(GLOB_RECURSE _assets_gui ${ASSETS_DIR}/gui/*.tim ${ASSETS_DIR}/gui/*.smd)
-list(LENGTH _assets_gui asset_count)
-if (NOT (asset_count EQUAL 0))
-	add_custom_command(
-		COMMAND    ${LZPACK} -y _gui.xml
-		OUTPUT     gui.lzp
-		BYPRODUCTS gui.qlp
-		DEPENDS    ${_assets_gui}
-		COMMENT    "Building LZP archive"
-	)
-endif()
-
-message("Globbed ${asset_count} gui assets:")
-foreach (_asset ${_assets_gui})
-	message("- ${_asset}")
-endforeach()
+include(${PROJECT_SOURCE_DIR}/CMakeLists.bundles.txt)
+ConstructAssetBundles()
 
 # Include source content
 file(GLOB_RECURSE PSXMC_SOURCES CONFIGURE_DEPENDS "src/*.[cs]")
@@ -117,13 +78,5 @@ target_compile_definitions(PSXMC PUBLIC -DPSXMC_DEBUG_OVERLAY_DIR=0)
 target_compile_definitions(PSXMC PUBLIC -DPSXMC_DEBUG_OVERLAY_FACING=1)
 target_compile_definitions(PSXMC PUBLIC -DPSXMC_DEBUG_OVERLAY_WORLD=1)
 target_compile_definitions(PSXMC PUBLIC -DPSXMC_DEBUG_OVERLAY_MEM=0)
-
-# Include assets in binary (Note: these are now on disk)
-# if (NOT (asset_count EQUAL 0))
-# 	psn00bsdk_target_incbin(
-# 		PSXMC PRIVATE _lz_resources
-# 		${PROJECT_BINARY_DIR}/assets.lzp
-# 	)
-# endif()
 
 install(FILES ${PROJECT_BINARY_DIR}/PSXMC.exe TYPE BIN)

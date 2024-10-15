@@ -1,0 +1,24 @@
+function(PackAssets bundle byproducts)
+    set(ASSETS_DIR ${PROJECT_SOURCE_DIR}/assets)
+    configure_file("assets/${bundle}.xml" "assets/_${bundle}.xml")
+    file(GLOB_RECURSE _assets ${ASSETS_DIR}/${bundle}/*.tim ${ASSETS_DIR}/${bundle}/*.smd)
+    list(LENGTH _assets asset_count)
+    if (NOT (asset_count EQUAL 0))
+        add_custom_command(
+            COMMAND    ${LZPACK} -y "assets/_${bundle}.xml"
+            OUTPUT     ${bundle}.lzp
+            BYPRODUCTS ${byproducts}
+            DEPENDS    ${_assets}
+            COMMENT    "Building ${bundle} LZP archive"
+        )
+    endif()
+    message("Globbed ${asset_count} ${bundle} asset(s):")
+    foreach (_asset ${_assets})
+        message("- ${_asset}")
+    endforeach()
+endfunction()
+
+macro(ConstructAssetBundles)
+    PackAssets(static static.qlp)
+PackAssets(gui gui.qlp)
+endmacro()

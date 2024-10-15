@@ -1,0 +1,8 @@
+<lzp_project>
+  <create packname="gui.qlp" format="qlp">
+    <file alias="inventory">${ASSETS_DIR}/gui/inventory.tim</file>
+  </create>
+  <create packname="gui.lzp" format="lzp">
+    <file alias="gui">gui.qlp</file>
+  </create>
+</lzp_project>

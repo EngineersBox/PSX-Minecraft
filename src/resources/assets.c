@@ -33,7 +33,7 @@ AssetBundle ASSET_BUNDLES[ASSET_BUNDLES_COUNT] = {
     [0]=(AssetBundle) {
         .load = _loadTextures,
         .free = _freeTextures,
-        .name = "textures"
+        .name = "static"
     },
     [1]=(AssetBundle) {
         .load = _loadDynamicTextures,
@@ -117,41 +117,6 @@ void assetsFree() {
     ASSET_BUNDLES[0].free(NULL);
     assets_loaded = false;
 }
-/*int assetLoadTextureDirect(const char* bundle, const char* filename, Texture* texture) {*/
-/*    const int lzp_index = lzpSearchFile(bundle, lz_resources);*/
-/*    if (lzp_index < 0) {*/
-/*        printf("[ERROR] No such asset bundle: %s\n", bundle);*/
-/*        return 1;*/
-/*    }*/
-/*    TIM_IMAGE tim = {};*/
-/*    QLP_HEAD* tex_buff = (QLP_HEAD*) malloc(lzpFileSize(lz_resources, lzp_index));*/
-/*    lzpUnpackFile(tex_buff, lz_resources, lzp_index);*/
-/*    const int file_count = qlpFileCount(tex_buff);*/
-/*    // TODO: Can we just pre-load the indices of each texture for a given*/
-/*    //       bundle? That way we can avoid needing to do strcmp lots of times*/
-/*    //       for no reason.*/
-/*    for (int i = 0; i < file_count; i++) {*/
-/*        const QLP_FILE* file = qlpFileEntry(i, tex_buff);*/
-/*        if (!strncmp(file->name, filename, 16)*/
-/*            && !GetTimInfo((uint32_t*) qlpFileAddr(i, tex_buff), &tim)) {*/
-/*            DEBUG_LOG(*/
-/*                "[TEXTURE] Loading: [Bundle: %s] [Name: %s] [Position: (%d,%d)] [Addr: %p] [Mode: 0x%x]\n",*/
-/*                bundle,*/
-/*                file->name,*/
-/*                tim.prect->x,*/
-/*                tim.prect->y,*/
-/*                tim.caddr,*/
-/*                tim.mode*/
-/*            );*/
-/*            assetLoadImage(&tim, texture);*/
-/*            free(tex_buff);*/
-/*            return 0;*/
-/*        }*/
-/*    }*/
-/*    free(tex_buff);*/
-/*    printf("[ERROR] No such file %s in asset bundle %s\n", filename, bundle);*/
-/*    return 1;*/
-/*}*/
 
 static void* _loadDynamicTextures(const void* ctx) {
     const AssetBundle* bundle = ctx;

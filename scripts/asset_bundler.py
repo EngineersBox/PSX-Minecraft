@@ -1,5 +1,12 @@
+# 1. Iterate subdirectories of ./assets
+# 2. Each subdirectory becomes a distct bundle
+# 3. Each file in the subdirectory becomes an asset <file>
+# 4. If there are nested subdirectories (only one level) then
+#    pack them into nested archive <file>'s with assets within them
+import os, logging, logging.config, coloredlogs
+from typing import Tuple
 import xml.etree.ElementTree as ET
-import os, pathlib, logging, logging.config, coloredlogs
+from pathlib import Path
 
 class ColoredFormatter(coloredlogs.ColoredFormatter):
     def __init__(self, fmt=None, datefmt=None, style='%'):
@@ -62,154 +69,143 @@ class ColoredFormatter(coloredlogs.ColoredFormatter):
 logging.config.fileConfig(fname="scripts/logger.ini", disable_existing_loggers=False)
 LOGGER = logging.getLogger("AssetBundler")
 
+ASSET_TYPES: dict[str, str] = {
+    ".tim": "TEXTURE",
+    ".smd": "MODEL"
+}
+MAX_BUNDLE_NAME_SIZE = 8
 MAX_FILE_NAME_SIZE = 16
 
+def createDefines(name: str, index: int, files: list[str]) -> list[str]:
+    defines = [f"#define ASSET_BUNDLE__{name} {index}"]
+    i = 0
+    for f in files:
+        f_path = Path(f)
+        asset_type = ASSET_TYPES[f_path.suffix]
+        f_name = f_path.name.removesuffix(f_path.suffix)
+        defines.append(f"#define ASSET_{asset_type}__{name}__{f_name.upper()} {i}")
+        i += 1
+    return defines
 
-def create_element(parent, name, packname):
-    return ET.SubElement(
-        parent,
-        name,
+def createXML(name: str, files: list[str]) -> ET.ElementTree:
+    builder = ET.TreeBuilder()
+    builder.start("lzp_project", {})
+    builder.start(
+        "create",
         {
-            "packname": packname + ".qlp",
+            "packname": f"{name}.qlp",
             "format": "qlp"
         }
     )
-
-
-def bind_element(lzp_project, assets, element_name, file, path):
-    elements = lzp_project.find("create[@packname='" + element_name + ".qlp']")
-    if elements is None:
-        elements = ET.SubElement(
-            lzp_project,
-            "create",
-            {
-                "packname": element_name + ".qlp",
-                "format": "qlp"
-            }
-        )
-    assets_binding = assets.find("file[@alias='" + element_name + "']")
-    if assets_binding is None:
-        assets_binding = ET.SubElement(
-            assets,
+    for file in files:
+        builder.start(
             "file",
             {
-                "alias": element_name
+                "alias": "inventory"
             }
         )
-        assets_binding.text = element_name + ".qlp"
-    file_element = ET.SubElement(
-        elements,
-        "file",
-        {
-            "alias": file
-        }
-    )
-    file_element.text = path
-
-
-ASSET_TYPES = {
-    ".tim": "textures",
-    ".smd": "models"
-}
-
-def bundle(lzp_project) -> (int, int, int):
-    assets = ET.SubElement(
-        lzp_project,
+        builder.data(f"${{ASSETS_DIR}}/{name}/{file}")
+        builder.end("file")
+    builder.end("create")
+    builder.start(
         "create",
         {
-            "packname": "assets.lzp",
+            "packname": f"{name}.lzp",
             "format": "lzp"
         }
     )
-    success = 0
-    fail = 0
-    skipped = 0
-    for root, dirs, files in os.walk(u"assets"):
-        if len(files) == 0:
+    builder.start(
+        "file",
+        {
+            "alias": f"{name}"
+        }
+    )
+    builder.data(f"{name}.qlp")
+    builder.end("file")
+    builder.end("create")
+    return ET.ElementTree(builder.end("lzp_project"))
+
+def packBundle(name: str, index: int, path: Path) -> Tuple[ET.ElementTree, list[str]]:
+    files: list[str] = []
+    for f in os.listdir(path):
+        if not os.path.isfile(os.path.join(path, f)):
             continue
-        for file in files:
-            try:
-                file_path = pathlib.Path(root + "/" + file)
-                if file_path.suffix not in ASSET_TYPES:
-                    LOGGER.warning(f"Unknown asset type {file_path.suffix}, skipping")
-                    skipped += 1
-                    continue
-                file_name = file_path.name.removesuffix(file_path.suffix)
-                if len(file_name) > MAX_FILE_NAME_SIZE:
-                    LOGGER.error(f"File {file_name} exceeds max name length: {len(file_name)} > {MAX_FILE_NAME_SIZE}")
-                    fail += 1
-                    continue
-                if len(file_path.parts) > 3:
-                    LOGGER.warning(f"File {file_name} is nested more than one level, skipping unsupported file")
-                    skipped += 1
-                    continue
-                LOGGER.info(f"Bundling asset {file_path}")
-                element_name = None
-                if len(file_path.parts) > 2:
-                    element_name = file_path.parts[1]
-                else:
-                    element_name = ASSET_TYPES[file_path.suffix]
-                    LOGGER.info(f"Asset {file_name} has no namespacing, deriving from asset extension: '{file_path.suffix}' => '{element_name}'")
-                bind_element(
-                    lzp_project,
-                    assets,
-                    element_name,
-                    file_path.name.removesuffix(file_path.suffix),
-                    "${ASSETS_DIR}" + root.removeprefix("assets") + "/" + file
-                )
-                success += 1
-            except Exception as e:
-                fail += 1
-                LOGGER.error(e)
-    return success, fail, skipped
+        f_path = Path(f)
+        f_name = f_path.name.removesuffix(f_path.suffix)
+        if len(f_name) > MAX_FILE_NAME_SIZE:
+            LOGGER.error(f"File assets/{name}/{f_path.name} exceeds max name length: {len(f_name)} > {MAX_FILE_NAME_SIZE}, skipping")
+            continue
+        if f_path.suffix in ASSET_TYPES:
+            LOGGER.info(f"Including {ASSET_TYPES[f_path.suffix]} asset: {f_path}")
+            files.append(f_path.name)
+        else:
+            LOGGER.warning(f"Unknown asset type: {f_path.suffix}, skipping")
+    files.sort()
+    return createXML(name, files), createDefines(name.upper(), index, files)
 
+def constructCMakeBindings(bundle_names: list[str]) -> None:
+    bundle_names = [f"PackAssets({name} {name}.qlp)" for name in bundle_names]
+    packing = "\n".join(bundle_names)
+    content = f"""function(PackAssets bundle byproducts)
+    set(ASSETS_DIR ${{PROJECT_SOURCE_DIR}}/assets)
+    configure_file("assets/${{bundle}}.xml" "assets/_${{bundle}}.xml")
+    file(GLOB_RECURSE _assets ${{ASSETS_DIR}}/${{bundle}}/*.tim ${{ASSETS_DIR}}/${{bundle}}/*.smd)
+    list(LENGTH _assets asset_count)
+    if (NOT (asset_count EQUAL 0))
+        add_custom_command(
+            COMMAND    ${{LZPACK}} -y "assets/_${{bundle}}.xml"
+            OUTPUT     ${{bundle}}.lzp
+            BYPRODUCTS ${{byproducts}}
+            DEPENDS    ${{_assets}}
+            COMMENT    "Building ${{bundle}} LZP archive"
+        )
+    endif()
+    message("Globbed ${{asset_count}} ${{bundle}} asset(s):")
+    foreach (_asset ${{_assets}})
+        message("- ${{_asset}}")
+    endforeach()
+endfunction()
 
-def sort_elements(lzp_project: ET.Element) -> ET.Element:
-    lzp_project[:] = sorted(lzp_project, key=lambda child: (child.tag, child.get("packname")))    
-    for c in lzp_project:
-        c[:] = sorted(c, key=lambda child: (child.tag, child.get("alias")))
-    assets = lzp_project.find("create[@packname='assets.lzp']")
-    lzp_project.remove(assets)
-    lzp_project.append(assets)
-    return lzp_project
+macro(ConstructAssetBundles)
+    {packing}
+endmacro()
+""" 
+    with open("CMakeLists.bundles.txt", "w") as file:
+        file.write(content)
+    
+def main() -> None:
+    defines = []
+    index = 0
+    bundle_names: list[str] = []
+    for _ , dirs, _ in os.walk(u"assets"):
+        for dir in dirs:
+            if len(dir) > MAX_BUNDLE_NAME_SIZE:
+                LOGGER.error(f"Bundle name {dir} exceeds maximum length of {MAX_BUNDLE_NAME_SIZE}, skipping")
+                continue
+            LOGGER.info(f"Bundling assets of {dir}")
+            bundle_names.append(dir)
+            bundle, bundle_defines = packBundle(dir, index, Path(f"./assets/{dir}").absolute())
+            ET.indent(bundle)
+            bundle.write(f"./assets/{dir}.xml")
+            LOGGER.info(f"Wrriten {dir} assets to assets/{dir}.xml")
+            defines.append(bundle_defines)
+            index += 1
+    defines = ["\n".join(bundle_defines) for bundle_defines in defines]
+    defines_string = "\n\n".join(defines)
+    defines_content = f"""#pragma once
 
+#ifndef PSXMC__RESOURCES__ASSET_INDICES_H
+#define PSXMC__RESOURCES__ASSET_INDICES_H
 
-def generate_defines(lzp_project: ET.Element) -> str:
-    defines = ""
-    pack_index = 0
-    for element in lzp_project.findall("create[@format='qlp']"):
-        define_prefix = element.attrib["packname"].removesuffix(".qlp")
-        defines += "#define " + f"ASSET_{define_prefix}_INDEX {pack_index}".upper() + "\n"
-        pack_asset_index = 0
-        for file_element in element:
-            defines += "#define " + f"ASSET_{define_prefix}_{file_element.attrib['alias']}_INDEX {pack_asset_index}".upper() + "\n"
-            pack_asset_index += 1
-        pack_index += 1
-    return """#pragma once
+{defines_string}
 
-#ifndef PSXMC_ASSET_INDICES_H
-#define PSXMC_ASSET_INDICES_H
-
-""" + defines + """
-#endif // PSXMC_ASSET_INDICES_H    
+#endif // PSXMC__RESOURCES__ASSET_INDICES_H
 """
-
-def main():
-    with open("assets.xml", "w+") as file:
-        if os.path.getsize("assets.xml") == 0:
-            file.write("<lzp_project></lzp_project>")
-    lzp_project = ET.parse("assets.xml")
-    success, fail, skipped = bundle(lzp_project.getroot())
-    sort_elements(lzp_project.getroot())
-    defines = generate_defines(lzp_project.getroot())
+    LOGGER.info("Writing defines to src/resources/asset_indices.h")
     with open("src/resources/asset_indices.h", "w") as file:
-        file.write(defines)
-    ET.indent(lzp_project)
-    lzp_project.write("assets.xml")
-    LOGGER.info("Written bundled assets XML to assets.xml")
-    LOGGER.info(f"Summary: [Success: {success}] [Failed: {fail}] [Skipped: {skipped}]")
-
+        file.write(defines_content)
+    LOGGER.info("Constructing CMake bindings")
+    constructCMakeBindings(bundle_names)
 
 if __name__ == "__main__":
-    # main()
-    print("Assets bundled manually, ignoring.")
+    main()
