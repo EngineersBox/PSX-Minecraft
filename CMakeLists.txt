@@ -41,7 +41,7 @@ psn00bsdk_add_cd_image(
 	iso # Target name
 	PSXMC # Output file name (= <NAME>.bin + <NAME>.cue)
 	iso.xml  # Path to CD layout file
-	DEPENDS PSXMC system.cnf static.lzp gui.lzp
+    DEPENDS PSXMC system.cnf ${ASSET_BUNDLE_ARCHIVES}
 )
 
 # Include dependencies
