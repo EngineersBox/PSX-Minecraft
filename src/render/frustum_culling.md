@@ -2,6 +2,19 @@
 
 TODO: Explain frustum creation and how queries work with dot product
 
+* Pre-calculate frustum planes for a given Y-FOV, aspect ratio and near/far distances
+* At each frame transform the frustum planes using the mirrored transform matrix (normal
+  transform matrix has translation and rotation inverted since it applies to world objects,
+  but we are applying to camera reference so no inversion is performed in its construction).
+* Cache transformed matrix to reuse if camera doesn't move
+* Compute intersection with AABB (chunk, sub-section of chunk, block, etc) and frustum planes.
+  We can do the clever stuff here to do the following:
+  1. Total chunk visibility check
+  2. Chunk mesh direction specific culling. Mesh planes are organised into arrays for each
+     direction and each array is sorted, so we can cull entire arrays based on a single normal
+     and divide arrays based on frustum plane intersection with chunk to cull sub-arrays.
+* Restore frustum to pre-transformed state
+
 ## Computing Rotation + Translation
 
 The GPU is 16-bit so all ops are over SVECTORs when we have worldspace with is
@@ -39,9 +52,18 @@ And the comparative CPU code is:
 ```c
 VECTOR geomMul(const MATRIX m, const VECTOR v) {
     return vec3_i32(
-        (fixedMul((i32) m.m[0][0], v.vx) + fixedMul((i32) m.m[0][1], v.vy) + fixedMul((i32) m.m[0][2], v.vz)) + ((i32) m.t[0] << 12),
-        (fixedMul((i32) m.m[1][0], v.vx) + fixedMul((i32) m.m[1][1], v.vy) + fixedMul((i32) m.m[1][2], v.vz)) + ((i32) m.t[1] << 12),
-        (fixedMul((i32) m.m[2][0], v.vx) + fixedMul((i32) m.m[2][1], v.vy) + fixedMul((i32) m.m[2][2], v.vz)) + ((i32) m.t[2] << 12)
+        (fixedMul((i32) m.m[0][0], v.vx)
+            + fixedMul((i32) m.m[0][1], v.vy)
+            + fixedMul((i32) m.m[0][2], v.vz)
+        ) + ((i32) m.t[0] << 12),
+        (fixedMul((i32) m.m[1][0], v.vx)
+            + fixedMul((i32) m.m[1][1], v.vy)
+            + fixedMul((i32) m.m[1][2], v.vz)
+        ) + ((i32) m.t[1] << 12),
+        (fixedMul((i32) m.m[2][0], v.vx)
+            + fixedMul((i32) m.m[2][1], v.vy)
+            + fixedMul((i32) m.m[2][2], v.vz)
+        ) + ((i32) m.t[2] << 12)
     );
 }
 ```
