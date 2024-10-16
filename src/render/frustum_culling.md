@@ -48,7 +48,6 @@ PopMatrix();
 ```
 
 And the comparative CPU code is:
-
 ```c
 VECTOR geomMul(const MATRIX m, const VECTOR v) {
     return vec3_i32(
