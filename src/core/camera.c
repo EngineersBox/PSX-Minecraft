@@ -60,7 +60,7 @@ void cameraUpdate(Camera* camera) {
         ONE - (camera->rotation.vz >> FIXED_POINT_SHIFT)
     );
     DEBUG_LOG(
-        "[CAMERA] Rot: " VEC_PATTERN" InvRot: " VEC_PATTERN"\n",
+        "[CAMERA] Rot: " VEC_PATTERN " InvRot: " VEC_PATTERN "\n",
         VEC_LAYOUT(transforms->translation_rotation),
         VEC_LAYOUT(transforms->negative_translation_rotation)
     );
@@ -68,7 +68,7 @@ void cameraUpdate(Camera* camera) {
     if (camera->mode == 0) {
         // Set rotation to the matrix
         RotMatrix(&transforms->translation_rotation, &transforms->geometry_mtx);
-        InvRotMatrix(&transforms->negative_translation_rotation, &transforms->frustum_mtx);
+        RotMatrix(&transforms->negative_translation_rotation, &transforms->frustum_mtx);
         // Divide out the fractions of camera coordinates and invert
         // the sign, so camera coordinates will line up to world
         // (or geometry) coordinates

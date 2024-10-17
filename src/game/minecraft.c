@@ -97,7 +97,7 @@ void Minecraft_init(VSelf, void* ctx) {
     Slot* slot = inventoryFindFreeSlot(inventory, 0);
     IItem* item = itemCreate();
     GrassItemBlock* grass_item_block = grassItemBlockCreate();
-    DYN_PTR(item, GrassItemBlock, IItem, grass_item_block);
+    DYN_PTR(item,GrassItemBlock, IItem, grass_item_block);
     VCALL(*item, init);
     grass_item_block->item_block.item.stack_size = 26;
     inventorySlotSetItem(slot, item);
@@ -141,6 +141,33 @@ void Minecraft_update(VSelf, const Stats* stats) {
     cameraUpdate(&self->internals.camera);
 }
 
+void frustumRenderNormals(const Frustum* frustum, RenderContext* ctx) {
+    for (int i = 0; i < 6; i++) {
+        const Plane* plane = &frustum->planes[i];
+        LINE_F2* line = (LINE_F2*) allocatePrimitive(ctx, sizeof(LINE_F2));
+        setLineF2(line);
+        SVECTOR p0 = vec3_i16(
+            plane->point.vx,
+            plane->point.vy,
+            plane->point.vx
+        );
+        SVECTOR p1 = vec3_add(
+            p0,
+            vec3_i16(
+                plane->normal.vx * 4,
+                plane->normal.vy * 4,
+                plane->normal.vz * 4
+            )
+        );
+        gte_ldv01(&p0, &p1);
+        gte_rtpt();
+        gte_stsxy0(&line->x0);
+        gte_stsxy1(&line->x1);
+        setRGB0(line, 0xFF, 0x00, 0x00);
+        lineF2Render(line, 1, ctx);
+    }
+}
+
 void minecraftRender(VSelf, const Stats* stats) ALIAS("Minecraft_render");
 void Minecraft_render(VSelf, const Stats* stats) {
     VSELF(Minecraft);
@@ -154,6 +181,7 @@ void Minecraft_render(VSelf, const Stats* stats) {
         &self->internals.ctx,
         &self->internals.transforms
     );
+    frustumRenderNormals(&self->internals.ctx.camera->frustum, &self->internals.ctx);
     frustumRestore(&self->internals.ctx.camera->frustum);
     if (world->weather.raining || world->weather.storming) {
         weatherRender(
