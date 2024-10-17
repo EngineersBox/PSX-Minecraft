@@ -1,7 +1,9 @@
 #include "camera.h"
 
 #include <psxapi.h>
+#include <psxgte.h>
 
+#include "../logging/logging.h"
 #include "../blocks/block.h"
 #include "../math/vector.h"
 
@@ -53,9 +55,14 @@ void cameraUpdate(Camera* camera) {
         camera->rotation.vz >> FIXED_POINT_SHIFT
     );
     transforms->negative_translation_rotation = vec3_i16(
-        camera->rotation.vx >> FIXED_POINT_SHIFT,
-        camera->rotation.vy >> FIXED_POINT_SHIFT,
-        camera->rotation.vz >> FIXED_POINT_SHIFT
+        ONE - (camera->rotation.vx >> FIXED_POINT_SHIFT),
+        ONE - (camera->rotation.vy >> FIXED_POINT_SHIFT),
+        ONE - (camera->rotation.vz >> FIXED_POINT_SHIFT)
+    );
+    DEBUG_LOG(
+        "[CAMERA] Rot: " VEC_PATTERN" InvRot: " VEC_PATTERN"\n",
+        VEC_LAYOUT(transforms->translation_rotation),
+        VEC_LAYOUT(transforms->negative_translation_rotation)
     );
     // First-person camera mode
     if (camera->mode == 0) {
