@@ -31,7 +31,6 @@ void frustumTransform(Frustum* frustum, Transforms* transforms) {
     // Set matrices
     gte_SetRotMatrix(&transforms->frustum_mtx);
     gte_SetTransMatrix(&transforms->frustum_mtx);
-    #pragma GCC unroll 6
     for (u8 i = 0; i < 6; i++) {
         Plane* plane = &frustum->planes[i];
         DEBUG_LOG(
