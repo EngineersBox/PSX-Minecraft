@@ -1,6 +1,7 @@
 #include "frustum.h"
 
 #include <psxgte.h>
+#include <inline_c.h>
 
 #include "../logging/logging.h"
 #include "../math/math_utils.h"
@@ -25,34 +26,38 @@ Plane current_planes[6] = {0};
 
 // TODO: Only transform/restore when the camera has moved, otherwise keep reusing the current planes
 void frustumTransform(Frustum* frustum, Transforms* transforms) {
+    // Save matrix
+    PushMatrix();
+    // Set matrices
+    gte_SetRotMatrix(&transforms->frustum_mtx);
+    gte_SetTransMatrix(&transforms->frustum_mtx);
     #pragma GCC unroll 6
     for (u8 i = 0; i < 6; i++) {
         Plane* plane = &frustum->planes[i];
-        // DEBUG_LOG(
-        //     "[FRUSTUM :: PLANE %d] Normal: " VEC_PATTERN " Point: " VEC_PATTERN " Dot: " INT64_PATTERN "\n",
-        //     i,
-        //     VEC_LAYOUT(plane->normal),
-        //     VEC_LAYOUT(plane->point),
-        //     INT64_LAYOUT(plane->distance)
-        // );
-        current_planes[i] = *plane;
-        plane->normal = vec3_i32_normalize(applyGeometryMatrix(
-            transforms->frustum_mtx,
-            plane->normal
-        ));
-        plane->point = applyGeometryMatrix(
-            transforms->frustum_mtx,
-            plane->point
+        DEBUG_LOG(
+            "[FRUSTUM :: PLANE %d] Normal: " VEC_PATTERN " Point: " VEC_PATTERN " Dot: " INT64_PATTERN "\n",
+            i,
+            VEC_LAYOUT(plane->normal),
+            VEC_LAYOUT(plane->point),
+            INT64_LAYOUT(plane->distance)
         );
+        current_planes[i] = *plane;
+        gte_ldv0(&plane->normal);
+        gte_rtv0();
+        gte_stlvnl(&plane->normal);
+        gte_ldv0(&plane->point);
+        gte_rt();
+        gte_stlvnl(&plane->point);
         plane->distance = dot_i64(plane->normal, plane->point);
-        // DEBUG_LOG(
-        //     "[FRUSTUM :: PLANE %d] Normal: " VEC_PATTERN " Point: " VEC_PATTERN " Dot: " INT64_PATTERN "\n",
-        //     i,
-        //     VEC_LAYOUT(plane->normal),
-        //     VEC_LAYOUT(plane->point),
-        //     INT64_LAYOUT(plane->distance)
-        // );
+        DEBUG_LOG(
+            "[FRUSTUM :: PLANE %d] Normal: " VEC_PATTERN " Point: " VEC_PATTERN " Dot: " INT64_PATTERN "\n",
+            i,
+            VEC_LAYOUT(plane->normal),
+            VEC_LAYOUT(plane->point),
+            INT64_LAYOUT(plane->distance)
+        );
     }
+    PopMatrix();
 }
 
 void frustumRestore(Frustum* frustum) {

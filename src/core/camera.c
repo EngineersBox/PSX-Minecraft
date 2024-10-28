@@ -82,6 +82,11 @@ void cameraUpdate(Camera* camera) {
             camera->position.vy >> FIXED_POINT_SHIFT,
             camera->position.vz >> FIXED_POINT_SHIFT
         );
+        DEBUG_LOG(
+            "[CAMERA] Pos: " VEC_PATTERN " Invpos: " VEC_PATTERN "\n",
+            VEC_LAYOUT(transforms->translation_position),
+            VEC_LAYOUT(transforms->negative_translation_position)
+        );
         // Apply rotation of matrix to translation value to achieve a
         // first person perspective
         ApplyMatrixLV(
@@ -97,7 +102,7 @@ void cameraUpdate(Camera* camera) {
         // Set translation matrix
         TransMatrix(&transforms->geometry_mtx,&transforms->translation_position);
         TransMatrix(&transforms->frustum_mtx,&transforms->negative_translation_position);
-        // printf("[CAMERA] Geometry Matrix: \n" MAT_PATTERN, MAT_LAYOUT(transforms->geometry_mtx));
-        // printf("[CAMERA] Frustum Matrix: \n" MAT_PATTERN, MAT_LAYOUT(transforms->frustum_mtx));
+        printf("[CAMERA] Geometry Matrix: \n" MAT_PATTERN, MAT_LAYOUT(transforms->geometry_mtx));
+        printf("[CAMERA] Frustum Matrix: \n" MAT_PATTERN, MAT_LAYOUT(transforms->frustum_mtx));
     }
 }

@@ -4,6 +4,7 @@
 
 #include "fixed_point.h"
 #include "../logging/logging.h"
+#include "../util/preprocessor.h"
 
 const VECTOR VEC3_I32_ZERO = vec3_i32_all(0);
 const SVECTOR VEC3_I16_ZERO = vec3_i16_all(0);
@@ -33,7 +34,7 @@ VECTOR rotationToDirection5o(const VECTOR* rotation) {
 
 VECTOR vec3_i32_normalize(const VECTOR v) {
     const fixedi32 length = SquareRoot12(dot_i32(v,v));
-    // DEBUG_LOG("[MATH] Normalize. Source: " VEC_PATTERN ", Length: %d\n", VEC_LAYOUT(v), length);
+    DEBUG_LOG("[MATH] Normalize. Source: " VEC_PATTERN ", Length: %d\n", VEC_LAYOUT(v), length);
     return vec3_const_div(
         vec3_const_lshift(v, FIXED_POINT_SHIFT),
         length

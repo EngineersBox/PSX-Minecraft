@@ -142,6 +142,21 @@ void Minecraft_update(VSelf, const Stats* stats) {
 }
 
 void frustumRenderNormals(const Frustum* frustum, RenderContext* ctx) {
+    // Object and light matrix for object
+    MATRIX omtx, olmtx;
+    // Set object rotation and position
+    RotMatrix(&VEC3_I16_ZERO, &omtx);
+    TransMatrix(&omtx, &VEC3_I32_ZERO);
+    // Multiply light matrix to object matrix
+    MulMatrix0(&ctx->camera->transforms->lighting_mtx, &omtx, &olmtx);
+    // Set result to GTE light matrix
+    gte_SetLightMatrix(&olmtx);
+    CompMatrixLV(&ctx->camera->transforms->frustum_mtx, &omtx, &omtx);
+    // Save matrix
+    PushMatrix();
+    // Set matrices
+    gte_SetRotMatrix(&omtx);
+    gte_SetTransMatrix(&omtx);
     for (int i = 0; i < 6; i++) {
         const Plane* plane = &frustum->planes[i];
         LINE_F2* line = (LINE_F2*) allocatePrimitive(ctx, sizeof(LINE_F2));
@@ -166,6 +181,7 @@ void frustumRenderNormals(const Frustum* frustum, RenderContext* ctx) {
         setRGB0(line, 0xFF, 0x00, 0x00);
         lineF2Render(line, 1, ctx);
     }
+    renderCtxUnbindMatrix();
 }
 
 void minecraftRender(VSelf, const Stats* stats) ALIAS("Minecraft_render");

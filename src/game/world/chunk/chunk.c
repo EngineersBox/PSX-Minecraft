@@ -331,12 +331,12 @@ void chunkRender(Chunk* chunk,
                  bool subdivide,
                  RenderContext* ctx,
                  Transforms* transforms) {
-    if (chunkIsOutsideFrustum(chunk, &ctx->camera->frustum, transforms)) {
-        DEBUG_LOG("[CHUNK " VEC_PATTERN "] Not visible\n", VEC_LAYOUT(chunk->position));
-        return;
-    } else {
-        DEBUG_LOG("[CHUNK " VEC_PATTERN "] Visible\n", VEC_LAYOUT(chunk->position));
-    }
+    /*if (chunkIsOutsideFrustum(chunk, &ctx->camera->frustum, transforms)) {*/
+    /*    DEBUG_LOG("[CHUNK " VEC_PATTERN "] Not visible\n", VEC_LAYOUT(chunk->position));*/
+    /*    return;*/
+    /*} else {*/
+    /*    DEBUG_LOG("[CHUNK " VEC_PATTERN "] Visible\n", VEC_LAYOUT(chunk->position));*/
+    /*}*/
     renderCtxBindMatrix(
         ctx,
         transforms,
