@@ -313,14 +313,14 @@ static void chunkRenderDroppedItems(const Chunk* chunk, RenderContext* ctx, Tran
 static bool chunkIsOutsideFrustum(const Chunk* chunk, const Frustum* frustum, const Transforms* transforms) {
     const AABB aabb = (AABB) {
         .min = vec3_i32(
-            (chunk->position.vx * CHUNK_BLOCK_SIZE) << FIXED_POINT_SHIFT,
-            (-chunk->position.vy * CHUNK_BLOCK_SIZE) << FIXED_POINT_SHIFT,
-            (chunk->position.vz * CHUNK_BLOCK_SIZE) << FIXED_POINT_SHIFT
+            (chunk->position.vx * CHUNK_BLOCK_SIZE),// << FIXED_POINT_SHIFT,
+            (-chunk->position.vy * CHUNK_BLOCK_SIZE),// << FIXED_POINT_SHIFT,
+            (chunk->position.vz * CHUNK_BLOCK_SIZE)// << FIXED_POINT_SHIFT
         ),
         .max = vec3_i32(
-            ((chunk->position.vx + 1) * CHUNK_BLOCK_SIZE) << FIXED_POINT_SHIFT,
-            (-(chunk->position.vx + 1) * CHUNK_BLOCK_SIZE) << FIXED_POINT_SHIFT,
-            ((chunk->position.vx + 1) * CHUNK_BLOCK_SIZE) << FIXED_POINT_SHIFT
+            ((chunk->position.vx + 1) * CHUNK_BLOCK_SIZE),// << FIXED_POINT_SHIFT,
+            (-(chunk->position.vx + 1) * CHUNK_BLOCK_SIZE),// << FIXED_POINT_SHIFT,
+            ((chunk->position.vx + 1) * CHUNK_BLOCK_SIZE)// << FIXED_POINT_SHIFT
         )
     };
     const FrustumQueryResult result = frustumContainsAABB(frustum, &aabb);
