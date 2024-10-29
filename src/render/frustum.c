@@ -26,11 +26,6 @@ Plane current_planes[6] = {0};
 
 // TODO: Only transform/restore when the camera has moved, otherwise keep reusing the current planes
 void frustumTransform(Frustum* frustum, Transforms* transforms) {
-    // Save matrix
-    PushMatrix();
-    // Set matrices
-    gte_SetRotMatrix(&transforms->frustum_mtx);
-    gte_SetTransMatrix(&transforms->frustum_mtx);
     for (u8 i = 0; i < 6; i++) {
         Plane* plane = &frustum->planes[i];
         DEBUG_LOG(
@@ -41,12 +36,15 @@ void frustumTransform(Frustum* frustum, Transforms* transforms) {
             INT64_LAYOUT(plane->distance)
         );
         current_planes[i] = *plane;
-        gte_ldv0(&plane->normal);
-        gte_rtv0();
-        gte_stlvnl(&plane->normal);
-        gte_ldv0(&plane->point);
-        gte_rt();
-        gte_stlvnl(&plane->point);
+        ApplyMatrixLV(
+            &transforms->frustum_mtx,
+            &plane->normal,
+            &plane->normal
+        );
+        plane->point = applyGeometryMatrix(
+            transforms->frustum_mtx,
+            plane->point
+        );
         plane->distance = dot_i64(plane->normal, plane->point);
         DEBUG_LOG(
             "[FRUSTUM :: PLANE %d] Normal: " VEC_PATTERN " Point: " VEC_PATTERN " Dot: " INT64_PATTERN "\n",
@@ -56,7 +54,6 @@ void frustumTransform(Frustum* frustum, Transforms* transforms) {
             INT64_LAYOUT(plane->distance)
         );
     }
-    PopMatrix();
 }
 
 void frustumRestore(Frustum* frustum) {

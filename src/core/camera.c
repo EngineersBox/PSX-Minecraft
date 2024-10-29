@@ -83,9 +83,9 @@ void cameraUpdate(Camera* camera) {
             camera->position.vz >> FIXED_POINT_SHIFT
         );
         DEBUG_LOG(
-            "[CAMERA] Pos: " VEC_PATTERN " Invpos: " VEC_PATTERN "\n",
+            "[CAMERA] Pos: " VEC_PATTERN " InvPos: " VEC_PATTERN "\n",
             VEC_LAYOUT(transforms->translation_position),
-            VEC_LAYOUT(transforms->negative_translation_position)
+            VEC_LAYOUT(transforms->negative_translation_rotation)
         );
         // Apply rotation of matrix to translation value to achieve a
         // first person perspective
