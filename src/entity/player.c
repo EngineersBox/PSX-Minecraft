@@ -373,6 +373,10 @@ INLINE static void playerInputHandlerWorldInteraction(const Input* input, const 
     }
 }
 
+#define MOVE_AMOUNT ONE_BLOCK
+// ONE_BLOCK * 0.3
+#define SNEAK_MOVE_AMOUNT 86016
+
 // This intentionally always returns false as it is the
 // base level of input handling, everything else should
 // take control on top of this (i.e. return true).
@@ -413,16 +417,16 @@ INLINE static bool playerInputHandlerMovement(const Input* input, const PlayerIn
             ONE << FIXED_POINT_SHIFT
         );
     }
-    i32 move_amount = ONE_BLOCK;
+    i32 move_amount = MOVE_AMOUNT;
     if (isPressed(pad, BINDING_JUMP)) {
         if (physics_object->flags.no_clip) {
-            physics_object->velocity.vy = move_amount;
+            physics_object->velocity.vy = SNEAK_MOVE_AMOUNT;
         } else {
             physics_object->flags.jumping = true;
         }
     }
     if (isPressed(pad, BINDING_SNEAK)) {
-        move_amount = 86016; // ONE_BLOCK * 0.3 = 86016
+        move_amount = SNEAK_MOVE_AMOUNT;
         if (physics_object->flags.no_clip) {
             physics_object->velocity.vy = -move_amount;
         } else {
