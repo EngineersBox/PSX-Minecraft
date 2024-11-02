@@ -55,9 +55,9 @@ void cameraUpdate(Camera* camera) {
         camera->rotation.vz >> FIXED_POINT_SHIFT
     );
     transforms->negative_translation_rotation = vec3_i16(
-        (camera->rotation.vx >> FIXED_POINT_SHIFT),
-        (camera->rotation.vy >> FIXED_POINT_SHIFT),
-        (camera->rotation.vz >> FIXED_POINT_SHIFT)
+        camera->rotation.vx >> FIXED_POINT_SHIFT,
+        camera->rotation.vy >> FIXED_POINT_SHIFT,
+        camera->rotation.vz >> FIXED_POINT_SHIFT
     );
     DEBUG_LOG(
         "[CAMERA] Rot: " VEC_PATTERN " InvRot: " VEC_PATTERN "\n",
