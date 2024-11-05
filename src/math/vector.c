@@ -35,7 +35,7 @@ VECTOR rotationToDirection5o(const VECTOR* rotation) {
 VECTOR vec3_i32_normalize(const VECTOR v) {
     const fixedi32 length = SquareRoot12(dot_i32(v,v));
     DEBUG_LOG("[MATH] Normalize. Source: " VEC_PATTERN ", Length: %d\n", VEC_LAYOUT(v), length);
-    return vec3_const_div(
+    return length == ONE ? v : vec3_const_div(
         vec3_const_lshift(v, FIXED_POINT_SHIFT),
         length
     );

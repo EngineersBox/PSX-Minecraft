@@ -55,13 +55,23 @@ typedef struct LVECTOR {
 #define dot_i32(v0, v1) _dot(i32, v0, v1)
 #define dot_i64(v0, v1) _dot(i64, v0, v1)
 
-#define applyGeometryMatrix(mat, vec) ({ \
+#define applyMatrixRotTrans(mat, vec) ({ \
     __typeof__(mat) _m = (mat); \
     __typeof__(vec) _v = (vec); \
     vec3_i32( \
         (fixedMul((i32) _m.m[0][0], _v.vx) + fixedMul((i32) _m.m[0][1], _v.vy) + fixedMul((i32) _m.m[0][2], _v.vz)) + ((i32) _m.t[0]), \
         (fixedMul((i32) _m.m[1][0], _v.vx) + fixedMul((i32) _m.m[1][1], _v.vy) + fixedMul((i32) _m.m[1][2], _v.vz)) + ((i32) _m.t[1]), \
         (fixedMul((i32) _m.m[2][0], _v.vx) + fixedMul((i32) _m.m[2][1], _v.vy) + fixedMul((i32) _m.m[2][2], _v.vz)) + ((i32) _m.t[2]) \
+    ); \
+})
+
+#define applyMatrixRot(mat, vec) ({ \
+    __typeof__(mat) _m = (mat); \
+    __typeof__(vec) _v = (vec); \
+    vec3_i32( \
+        (fixedMul((i32) _m.m[0][0], _v.vx) + fixedMul((i32) _m.m[0][1], _v.vy) + fixedMul((i32) _m.m[0][2], _v.vz)), \
+        (fixedMul((i32) _m.m[1][0], _v.vx) + fixedMul((i32) _m.m[1][1], _v.vy) + fixedMul((i32) _m.m[1][2], _v.vz)), \
+        (fixedMul((i32) _m.m[2][0], _v.vx) + fixedMul((i32) _m.m[2][1], _v.vy) + fixedMul((i32) _m.m[2][2], _v.vz)) \
     ); \
 })
 

@@ -26,6 +26,8 @@ Plane current_planes[6] = {0};
 
 // TODO: Only transform/restore when the camera has moved, otherwise keep reusing the current planes
 void frustumTransform(Frustum* frustum, Transforms* transforms) {
+    MATRIX* rot_mat = {0};
+    InvRotMatrix(&transforms->negative_translation_rotation, rot_mat);
     for (u8 i = 0; i < 6; i++) {
         Plane* plane = &frustum->planes[i];
         DEBUG_LOG(
@@ -37,13 +39,13 @@ void frustumTransform(Frustum* frustum, Transforms* transforms) {
         );
         current_planes[i] = *plane;
         ApplyMatrixLV(
-            &transforms->frustum_mtx,
+            rot_mat,
             &plane->normal,
             &plane->normal
         );
-        /*plane->normal = vec3_i32_normalize(plane->normal);*/
+        plane->normal = vec3_i32_normalize(plane->normal);
         // FIXME: This doesn't transform the point properly for some reason.
-        plane->point = applyGeometryMatrix(
+        plane->point = applyMatrixRotTrans(
             transforms->frustum_mtx,
             plane->point
         );
