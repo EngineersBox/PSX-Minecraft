@@ -26,6 +26,10 @@ Plane current_planes[6] = {0};
 
 // TODO: Only transform/restore when the camera has moved, otherwise keep reusing the current planes
 void frustumTransform(Frustum* frustum, Transforms* transforms) {
+    // Plane normals should be rotated without translation vector 
+    // applied to geometry matrix. The reason is that we never
+    // transform normals with homogeneous coordinates. See This
+    // SO post for details: https://stackoverflow.com/a/10597767
     MATRIX* rot_mat = {0};
     InvRotMatrix(&transforms->negative_translation_rotation, rot_mat);
     for (u8 i = 0; i < 6; i++) {
