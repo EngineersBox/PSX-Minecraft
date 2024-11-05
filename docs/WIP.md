@@ -5,7 +5,9 @@ interval trees.
 
 ## Frustum Culling
 
-![Furstum Culling](./frustum_culling_psx.mov)
+GIF Demonstrating culling with rendered frustum plane points and normals offset from camera position.
+
+![Furstum Culling](./frustum_culling.gif)
 
 ## Sub-Chunk Intersection Culling
 
