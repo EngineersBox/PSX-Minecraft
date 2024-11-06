@@ -5,6 +5,9 @@
 #include <psxgte.h>
 #include <psxcd.h>
 #include <stdlib.h>
+/*#include <sys/ioctl.h>*/
+/*#include <sys/fcntl.h>*/
+/*#include <psxsio.h>*/
 
 #include "../ui/axis.h"
 #include "../structure/primitive/cube.h"
@@ -24,9 +27,25 @@
 #include "level/overworld_perlin.h"
 #include "../weather/weather.h"
 
+#include "../core/console.h"
+
 World* world;
 IInputHandler player_handler;
 Player* player;
+
+/*int helpHandler(const Console* console, char* tokens[CONSOLE_MAX_TOKENS]) {*/
+/*    DEBUG_LOG("[CONSOLE] Invoked help handler: %s\n", tokens[0]);*/
+/*    return 0;*/
+/*}*/
+/**/
+/*Console* console;*/
+/*int console_commands_size = 1;*/
+/*ConsoleCommand console_commands[1] = {*/
+/*    [0]=(ConsoleCommand) {*/
+/*        .name = "help",*/
+/*        .handler = helpHandler*/
+/*    }*/
+/*};*/
 
 void minecraftInit(VSelf, void* ctx) ALIAS("Minecraft_init");
 void Minecraft_init(VSelf, void* ctx) {
@@ -54,6 +73,7 @@ void Minecraft_init(VSelf, void* ctx) {
     };
     self->internals.ctx.camera = &self->internals.camera;
     initRenderContext(&self->internals.ctx);
+    /*AddSIO(115200);*/
     CdInit();
     inputInit(&self->internals.input);
     // Unpack LZP archive and load assets
@@ -123,11 +143,30 @@ void Minecraft_cleanup(VSelf) {
     assetsFree();
 }
 
-void startHandler(Camera* camera);
+/*void handleConsole() {*/
+/*    if (console == NULL) {*/
+/*        console = (Console*) malloc(sizeof(Console));*/
+/*    }*/
+/*    while (true) {*/
+/*        putchar('>');*/
+/*        putchar(' ');*/
+/*        memset(console->command_buffer, '\0', CONSOLE_BUFFER_SIZE);*/
+/*        gets(console->command_buffer);*/
+/*        if (strncmp(console->command_buffer, "exit", 4) == 0) {*/
+/*            break;*/
+/*        }*/
+/*        consoleExecv(console);*/
+/*    }*/
+/*    free(console);*/
+/*    console = NULL;*/
+/*}*/
 
 void minecraftInput(VSelf, const Stats* stats) ALIAS("Minecraft_input");
 void Minecraft_input(VSelf, const Stats* stats) {
     VSELF(Minecraft);
+    /*if (ioctl(0, FIOCSCAN, 0) && getchar() == '`') {*/
+    /*    handleConsole();*/
+    /*}*/
     self->internals.camera.mode = 0;
     Input* input = &self->internals.input;
     inputUpdate(input);
@@ -169,9 +208,9 @@ void frustumRenderNormals(const Frustum* frustum, RenderContext* ctx) {
         SVECTOR p1 = vec3_add(
             p0,
             vec3_i16(
-                plane->normal.vx * 4,
-                plane->normal.vy * 4,
-                plane->normal.vz * 4
+                plane->normal.vx * 2,
+                plane->normal.vy * 2,
+                plane->normal.vz * 2
             )
         );
         gte_ldv01(&p0, &p1);
