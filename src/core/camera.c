@@ -13,7 +13,7 @@ Camera cameraCreate(Transforms* transforms) {
         .frustum = frustumCreate(),
         .position = vec3_i32_all(0),
         .rotation = vec3_i32_all(0),
-        .mode = 0
+        .mode = CAMERA_MODE_FIRST_PERSON
     };
 }
 
