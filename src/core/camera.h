@@ -13,12 +13,17 @@
 #define CAMERA_ROTATE_SPEED 15
 #define CAMERA_MOVE_SPEED 3
 
+typedef enum CameraMode {
+    CAMERA_MODE_FIRST_PERSON = 0,
+    CAMERA_MODE_THIRD_PERSON = 1
+} CameraMode;
+
 typedef struct {
     Transforms* transforms;
     Frustum frustum;
     VECTOR position;
     VECTOR rotation;
-    int mode;
+    CameraMode mode;
 } Camera;
 
 Camera cameraCreate(Transforms* transforms);

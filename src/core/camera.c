@@ -65,7 +65,7 @@ void cameraUpdate(Camera* camera) {
         VEC_LAYOUT(transforms->negative_translation_rotation)
     );
     // First-person camera mode
-    if (camera->mode == 0) {
+    if (camera->mode == CAMERA_MODE_FIRST_PERSON) {
         // Set rotation to the matrix
         RotMatrix(&transforms->translation_rotation, &transforms->geometry_mtx);
         InvRotMatrix(&transforms->negative_translation_rotation, &transforms->frustum_mtx);

@@ -167,7 +167,7 @@ void Minecraft_input(VSelf, const Stats* stats) {
     /*if (ioctl(0, FIOCSCAN, 0) && getchar() == '`') {*/
     /*    handleConsole();*/
     /*}*/
-    self->internals.camera.mode = 0;
+    self->internals.camera.mode = CAMERA_MODE_FIRST_PERSON;
     Input* input = &self->internals.input;
     inputUpdate(input);
 }
