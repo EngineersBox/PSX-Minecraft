@@ -14,6 +14,7 @@
 #include "chunk/chunk.h"
 #include "chunk/chunk_mesh.h"
 #include "chunk/chunk_structure.h"
+#include "inline_c.h"
 #include "position.h"
 #include "world_defines.h"
 
@@ -39,7 +40,7 @@ const LightUpdateLimits world_chunk_init_limits = (LightUpdateLimits) {
 void worldInit(World* world, RenderContext* ctx) {
     // TODO: Set light level based on time of day
     world->internal_light_level = createLightLevel(0, 15);
-    world->time_ticks = WORLD_TIME_DAWN;
+    world->time_ticks = WORLD_TIME_DUSK;//WORLD_TIME_DAWN;
     world->day_count = 0;
     world->celestial_angle = 0;
     world->weather = (Weather) {
@@ -524,15 +525,49 @@ fixedi32 calculateCelestialAngle(u16 time_ticks) {
     return scaled;
 }
 
-void worldUpdateInternalLightLevel(World* world) {
+static LightLevel previous_light_level = createLightLevel(0, 0);
+
+void worldUpdateInternalLightLevel(World* world, RenderContext* ctx) {
     fixedi32 celestial_angle = calculateCelestialAngle(world->time_ticks);
     fixedi32 scaled = ONE - ((cos5o(fixedMul(celestial_angle, FIXED_PI << 1)) << 1) + FIXED_1_2);
     scaled = ONE - clamp(scaled, 0, ONE);
     scaled = fixedMul(scaled, ONE - (((fixedi32) world->weather.rain_strength * 5) >> 4)); // Same as div 16
     scaled = fixedMul(scaled, ONE - (((fixedi32) world->weather.storm_strength * 5) >> 4));
     scaled = ONE - scaled;
+    previous_light_level = world->internal_light_level;
     world->internal_light_level = createLightLevel(0, 15 - ((scaled * 11) >> FIXED_POINT_SHIFT));
     world->celestial_angle = celestial_angle;
+    if (previous_light_level == world->internal_light_level) {
+        return;
+    }
+    const u16 light_level_colour_scalar = lightLevelColourScalar(
+        world->internal_light_level,
+        createLightLevel(0, 15)
+    );
+    const u8 colour = fixedMul(0x7F, light_level_colour_scalar);
+    const CVECTOR ambient_colour = vec3_rgb_all(colour);
+    gte_SetBackColor(
+        ambient_colour.r,
+        ambient_colour.g,
+        ambient_colour.b
+    );
+    gte_SetFarColor(
+        ambient_colour.r,
+        ambient_colour.g,
+        ambient_colour.b
+    );
+    setRGB0(
+        &ctx->db[0].draw_env,
+        ambient_colour.r,
+        ambient_colour.g,
+        ambient_colour.b
+    );
+    setRGB0(
+        &ctx->db[1].draw_env,
+        ambient_colour.r,
+        ambient_colour.g,
+        ambient_colour.b
+    );
 }
 
 // See: https://minecraft.wiki/w/Light#Internal_light_level
@@ -591,7 +626,6 @@ void worldUpdateInternalLightLevelOld(World* world) {
     world->internal_light_level = internal_light_level;
 }
 
-
 void worldUpdateWeather(Weather* weather) {
     if (weather->storm_time_ticks <= 0) {
         if (weather->storm_strength > 0) {
@@ -623,9 +657,12 @@ void worldUpdateWeather(Weather* weather) {
     weather->rain_strength = clamp(rain_strength, 0, ONE);
 }
 
-void worldUpdate(World* world, Player* player, BreakingState* breaking_state) {
+void worldUpdate(World* world,
+                 Player* player,
+                 BreakingState* breaking_state,
+                 RenderContext* ctx) {
     worldUpdateWeather(&world->weather);
-    worldUpdateInternalLightLevel(world);
+    worldUpdateInternalLightLevel(world, ctx);
     world->time_ticks = positiveModulo(world->time_ticks + 1, WORLD_TIME_CYCLE);
     const VECTOR player_world_pos = vec3_i32(
         fixedFloor(player->entity.physics_object.position.vx, ONE_BLOCK) / ONE_BLOCK,

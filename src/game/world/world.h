@@ -32,7 +32,7 @@ void worldLoadChunksXZ(World* world, i8 x_direction, i8 z_direction);
 void worldShiftChunks(World* world, i8 x_direction, i8 z_direction);
 void worldLoadChunks(World* world, const VECTOR* player_chunk_pos);
 
-void worldUpdate(World* world, Player* player, BreakingState* breaking_state);
+void worldUpdate(World* world, Player* player, BreakingState* breaking_state, RenderContext* ctx);
 
 Chunk* worldGetChunkFromChunkBlock(const World* world, const ChunkBlockPosition* position);
 Chunk* worldGetChunk(const World* world, const VECTOR* position);

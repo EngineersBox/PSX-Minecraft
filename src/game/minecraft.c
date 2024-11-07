@@ -64,8 +64,8 @@ void Minecraft_init(VSelf, void* ctx) {
             .negative_translation_rotation = vec3_i16_all(0),
             .translation_position = vec3_i32_all(0),
             .negative_translation_position = vec3_i32_all(0),
-            .geometry_mtx = {},
-            .frustum_mtx = {},
+            .geometry_mtx = {0},
+            .frustum_mtx = {0},
             .lighting_mtx = lighting_direction
         },
         .input = (Input) {},
@@ -100,7 +100,11 @@ void Minecraft_init(VSelf, void* ctx) {
     player = (Player*) malloc(sizeof(Player));
     playerInit(player);
     player->camera = &self->internals.camera;
-    const VECTOR player_positon = vec3_i32(0, (CHUNK_BLOCK_SIZE + (BLOCK_SIZE * 2)) << 12, 0);
+    const VECTOR player_positon = vec3_i32(
+        0,
+        (CHUNK_BLOCK_SIZE + (BLOCK_SIZE << 1)) << FIXED_POINT_SHIFT,
+        0
+    );
     iPhysicsObjectSetPosition(&player->entity.physics_object, &player_positon);
     player->entity.physics_object.flags.no_clip = true;
     player_handler = DYN(Player, IInputHandler, player);
@@ -175,7 +179,12 @@ void Minecraft_input(VSelf, const Stats* stats) {
 void minecraftUpdate(VSelf, const Stats* stats) ALIAS("Minecraft_update");
 void Minecraft_update(VSelf, const Stats* stats) {
     VSELF(Minecraft);
-    worldUpdate(self->world, player, &player->breaking);
+    worldUpdate(
+        self->world,
+        player,
+        &player->breaking,
+        &self->internals.ctx
+    );
     playerUpdate(player, world);
     cameraUpdate(&self->internals.camera);
 }

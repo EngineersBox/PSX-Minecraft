@@ -95,6 +95,7 @@ MATRIX* InvRotMatrix(const SVECTOR* r, MATRIX* m);
 #define vec3_i32_all(v) vec3_i32(v, v, v)
 #define vec3_i16_all(v) vec3_i16(v, v, v)
 #define vec3_i8_all(v) vec3_i8(v, v, v)
+#define vec3_rgb_all(v) vec3_rgb(v, v, v)
 #define vec2_i16_all(v) vec2_i16(v, v)
 
 // Swizzle
