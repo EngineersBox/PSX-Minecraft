@@ -244,7 +244,7 @@ void worldRenderSkybox(const World* world,
                        RenderContext* ctx,
                        Transforms* transforms) {
     renderClearConstraintsIndex(ctx, ORDERING_TABLE_LENGTH - 1);
-    const SVECTOR rotation = vec3_i16(0, world->celestial_angle, 0);
+    const SVECTOR rotation = vec3_i16(0, 0, world->celestial_angle);
     renderCtxBindMatrix(
         ctx,
         transforms,
@@ -296,6 +296,8 @@ void worldRenderSkybox(const World* world,
     /*sun->tpage = texture->tpage;*/
     /*sun->clut = texture->clut;*/
     addPrim(ot_object, sun);
+    renderCtxUnbindMatrix();
+    return;
 render_moon:;
     // TODO: Render moon
     freePrimitive(ctx, sizeof(POLY_FT4));
