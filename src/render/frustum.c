@@ -82,9 +82,11 @@ static FrustumQueryResult frustumTestAABBPlane(const AABB* aabb, const Plane* pl
     LVECTOR vec2;
 #define pickBoundsFromSign(axis) \
     if (normal.v##axis > 0) { \
-        vec1.v##axis = aabb->max.v##axis; vec2.v##axis = aabb->min.v##axis; \
+        vec1.v##axis = aabb->max.v##axis; \
+        vec2.v##axis = aabb->min.v##axis; \
     } else { \
-        vec1.v##axis = aabb->min.v##axis; vec2.v##axis = aabb->max.v##axis; \
+        vec1.v##axis = aabb->min.v##axis; \
+        vec2.v##axis = aabb->max.v##axis; \
     }
     pickBoundsFromSign(x);
     pickBoundsFromSign(y);
@@ -93,12 +95,22 @@ static FrustumQueryResult frustumTestAABBPlane(const AABB* aabb, const Plane* pl
     const i64 dot_1 = dot_i64(normal, vec1);
     if (dot_1 > plane->distance) {
         // AABB max point is outside the frustum
-        // DEBUG_LOG("[FRUSTUM] Dot: " INT64_PATTERN ", Distance: %d\n", INT64_LAYOUT(dot_1), (i32) plane->distance);
+        DEBUG_LOG(
+            "[FRUSTUM] Dot: %d, Distance: %d\n",
+            //INT64_LAYOUT(dot_1),
+            dot_1,
+            (i32) plane->distance
+        );
         return FRUSTUM_OUTSIDE;
     }
     // AABB max point is inside the frustum
     const i64 dot_2 = dot_i64(normal, vec2);
-    // DEBUG_LOG("[FRUSTUM] Check 2 Dot: " INT64_PATTERN ", Distance: %d\n", INT64_LAYOUT(dot_2), (i32) plane->distance);
+    DEBUG_LOG(
+        "[FRUSTUM] Check 2 Dot: %d, Distance: %d\n",
+        //INT64_LAYOUT(dot_2),
+        dot_2,
+        (i32) plane->distance
+    );
     if (dot_2 >= plane->distance) {
         // AABB min point is outside or on the edge of the frustum
         return FRUSTUM_INTERSECTS;
@@ -110,12 +122,12 @@ static FrustumQueryResult frustumTestAABBPlane(const AABB* aabb, const Plane* pl
 FrustumQueryResult frustumContainsAABB(const Frustum* frustum, const AABB* aabb) {
     // DEBUG_LOG("[FRUSTUM] Chunk AABB [Min: " VEC_PATTERN "] [Max: " VEC_PATTERN "]\n", VEC_LAYOUT(aabb->min), VEC_LAYOUT(aabb->max));
     FrustumQueryResult result = FRUSTUM_INSIDE;
-    for (u8 i = 0; i < 6; i++) {
-        switch (frustumTestAABBPlane(aabb, &frustum->planes[i])) {
+    /*for (u8 i = 0; i < 6; i++) {*/
+        switch (frustumTestAABBPlane(aabb, &frustum->planes[FRUSTUM_PLANE_RIGHT])) {
             case FRUSTUM_OUTSIDE: return FRUSTUM_OUTSIDE;
             case FRUSTUM_INTERSECTS: result = FRUSTUM_INTERSECTS; break;
             case FRUSTUM_INSIDE: break;
         }
-    }
+    /*}*/
     return result;
 }

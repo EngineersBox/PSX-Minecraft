@@ -5,6 +5,7 @@
 #include <psxgte.h>
 
 #include "../../util/interface99_extensions.h"
+#include "../../structure/primitive/clip.h"
 #include "../render/font.h"
 #include "../math/math_utils.h"
 #include "../math/vector.h"
@@ -16,6 +17,7 @@
 #include "chunk/chunk_structure.h"
 #include "inline_c.h"
 #include "position.h"
+#include "psxgpu.h"
 #include "world_defines.h"
 
 const LightUpdateLimits world_chunk_init_limits = (LightUpdateLimits) {
@@ -154,7 +156,7 @@ void worldInit(World* world, RenderContext* ctx) {
         for (i32 z = z_start; z <= z_end; z++) {
             for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
                 DEBUG_LOG("[CHUNK: %d,%d,%d] Processing Light Updates\n", x, 0, z);
-                Chunk* chunk = world->chunks[arrayCoord(world, vz, z)]
+           Chunk* chunk = world->chunks[arrayCoord(world, vz, z)]
                                             [arrayCoord(world, vx, x)]
                                             [y];
                 chunkUpdateLight(chunk, world_chunk_init_limits);
@@ -227,6 +229,78 @@ void worldDestroy(World* world) {
     free(world->chunk_provider.self);
 }
 
+#define SUN_DISTANCE 1000
+#define SUN_SIZE 10
+
+static const VECTOR sun_vertices[4] = {
+    [0]=vec3_i32(SUN_DISTANCE, -SUN_SIZE, -SUN_SIZE),
+    [1]=vec3_i32(SUN_DISTANCE, -SUN_SIZE, SUN_SIZE),
+    [2]=vec3_i32(SUN_DISTANCE, SUN_SIZE, -SUN_SIZE),
+    [3]=vec3_i32(SUN_DISTANCE, SUN_SIZE, SUN_SIZE)
+};
+
+void worldRenderSkybox(const World* world,
+                       const VECTOR* player_world_pos,
+                       RenderContext* ctx,
+                       Transforms* transforms) {
+    const SVECTOR rotation = vec3_i16(0, world->celestial_angle, 0);
+    renderCtxBindMatrix(
+        ctx,
+        transforms,
+        &rotation,
+        player_world_pos
+    );
+    POLY_FT4* sun = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
+    u32* ot_object = allocateOrderingTable(ctx, ORDERING_TABLE_LENGTH - 1);
+    setPolyFT4(sun);
+    gte_ldv3(
+        &sun_vertices[0],
+        &sun_vertices[1],
+        &sun_vertices[2]
+    );
+    // Rotation, Translation and Perspective Triple
+    gte_rtpt();
+    gte_nclip();
+    int p;
+    gte_stopz(&p);
+    // gte_stdp(&dp);
+    // Avoid negative depth (behind camera) and zero
+    // for constraint clearing primitive in OT
+    if (p < 0) {
+        goto render_moon;
+    }
+    // Initialize a textured quad primitive
+    setPolyFT4(sun);
+    // Set the projected vertices to the primitive
+    gte_stsxy0(&sun->x0);
+    gte_stsxy1(&sun->x1);
+    gte_stsxy2(&sun->x2);
+    // Compute the last vertex and set the result
+    gte_ldv0(&sun_vertices[3]);
+    gte_rtps();
+    gte_stsxy(&sun->x3);
+    // Test if quad is off-screen, discard if so
+    if (quadClip(
+        &ctx->screen_clip,
+        (DVECTOR*) &sun->x0,
+        (DVECTOR*) &sun->x1,
+        (DVECTOR*) &sun->x2,
+        (DVECTOR*) &sun->x3)) {
+        goto render_moon;
+    }
+    setRGB0(sun, 0xFF, 0xFF, 0xFF);
+    setUVWH(sun, 0, 0, 32, 32);
+    // TODO: Include sun texture in assets
+    /*const Texture* texture = &textures[ASSET_TEXTURE__STATIC__SUN];*/
+    /*sun->tpage = texture->tpage;*/
+    /*sun->clut = texture->clut;*/
+    addPrim(ot_object, sun);
+render_moon:;
+    // TODO: Render moon
+    freePrimitive(ctx, sizeof(POLY_FT4));
+    renderCtxUnbindMatrix();
+}
+
 void worldRender(const World* world,
                  const Player* player,
                  RenderContext* ctx,
@@ -236,6 +310,7 @@ void worldRender(const World* world,
         fixedFloor(player->entity.physics_object.position.vy, ONE_BLOCK) / ONE_BLOCK,
         fixedFloor(player->entity.physics_object.position.vz, ONE_BLOCK) / ONE_BLOCK
     );
+    worldRenderSkybox(world, &player_world_pos, ctx, transforms);
     const VECTOR player_chunk_pos = worldToChunkBlockPosition(
         &player_world_pos,
         CHUNK_SIZE

@@ -22,7 +22,7 @@ def printPlane(name, normal, point):
     p0 = int(point[0] * ONE)
     p1 = int(point[1] * ONE)
     p2 = int(point[2] * ONE)
-    print(f"        [FRUSTUM_PLANE_{name.upper()}] = (Plane) {{ .normal = vec3_i32({n0}, {n1}, {n2}), .point = vec3_i32({p0}, {p1}, {p2}),")
+    print(f"        [FRUSTUM_PLANE_{name.upper()}] = (Plane) {{ .normal = vec3_i32({n0}, {n1}, {n2}), .point = vec3_i32({p0}, {p1}, {p2}) }},")
 
 def calculate_frustum(fov_y: float, aspect: float, z_near: float, z_far: float):
     near_centre = FRONT * z_near
