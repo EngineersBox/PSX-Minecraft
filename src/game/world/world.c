@@ -243,6 +243,7 @@ void worldRenderSkybox(const World* world,
                        const VECTOR* player_world_pos,
                        RenderContext* ctx,
                        Transforms* transforms) {
+    renderClearConstraintsIndex(ctx, ORDERING_TABLE_LENGTH - 1);
     const SVECTOR rotation = vec3_i16(0, world->celestial_angle, 0);
     renderCtxBindMatrix(
         ctx,
