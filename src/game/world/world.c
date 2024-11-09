@@ -512,7 +512,7 @@ bool isPlayerInEdgeChunks(const World* world, const ChunkBlockPosition* player_p
 }
 
 fixedi32 calculateCelestialAngle(u16 time_ticks) {
-    fixedi32 scaled = (((time_ticks + 1) << 12) / WORLD_TIME_CYCLE) - FIXED_1_4;
+    fixedi32 scaled = (((time_ticks + 1) << FIXED_POINT_SHIFT) / WORLD_TIME_CYCLE) - FIXED_1_4;
     if (scaled < 0) {
         scaled += ONE;
     }
@@ -528,7 +528,7 @@ fixedi32 calculateCelestialAngle(u16 time_ticks) {
 static LightLevel previous_light_level = createLightLevel(0, 0);
 
 void worldUpdateInternalLightLevel(World* world, RenderContext* ctx) {
-    fixedi32 celestial_angle = calculateCelestialAngle(world->time_ticks);
+    const fixedi32 celestial_angle = calculateCelestialAngle(world->time_ticks);
     fixedi32 scaled = ONE - ((cos5o(fixedMul(celestial_angle, FIXED_PI << 1)) << 1) + FIXED_1_2);
     scaled = ONE - clamp(scaled, 0, ONE);
     scaled = fixedMul(scaled, ONE - (((fixedi32) world->weather.rain_strength * 5) >> 4)); // Same as div 16
@@ -546,6 +546,7 @@ void worldUpdateInternalLightLevel(World* world, RenderContext* ctx) {
     );
     const u8 colour = fixedMul(0x7F, light_level_colour_scalar);
     const CVECTOR ambient_colour = vec3_rgb_all(colour);
+    // TODO: Tint the colour 
     gte_SetBackColor(
         ambient_colour.r,
         ambient_colour.g,
