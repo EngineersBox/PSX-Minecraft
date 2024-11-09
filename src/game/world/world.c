@@ -252,7 +252,7 @@ void worldRenderSkybox(const World* world,
         player_world_pos
     );
     POLY_FT4* sun = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
-    u32* ot_object = allocateOrderingTable(ctx, ORDERING_TABLE_LENGTH - 1);
+    const u32* ot_object = allocateOrderingTable(ctx, ORDERING_TABLE_LENGTH - 1);
     setPolyFT4(sun);
     gte_ldv3(
         &sun_vertices[0],
