@@ -319,7 +319,7 @@ static bool chunkIsOutsideFrustum(const Chunk* chunk, const Frustum* frustum, co
         ),
         .max = vec3_i32(
             ((chunk->position.vx + 1) * CHUNK_BLOCK_SIZE),// << FIXED_POINT_SHIFT,
-            (-(chunk->position.vx - 1) * CHUNK_BLOCK_SIZE),// << FIXED_POINT_SHIFT,
+            (-(chunk->position.vx + 1) * CHUNK_BLOCK_SIZE),// << FIXED_POINT_SHIFT,
             ((chunk->position.vx + 1) * CHUNK_BLOCK_SIZE)// << FIXED_POINT_SHIFT
         )
     };
