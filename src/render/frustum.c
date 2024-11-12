@@ -92,8 +92,17 @@ static FrustumQueryResult frustumTestAABBPlane(const AABB* aabb, const Plane* pl
     pickBoundsFromSign(y);
     pickBoundsFromSign(z);
 #undef pickBoundsFromSign
-    const i64 dot_1 = dot_i64(normal, vec1);
-    if (dot_1 > plane->distance) {
+    const LVECTOR test_1 = vec3_i64(
+        plane->point.vx - vec1.vx,
+        plane->point.vy - vec1.vy,
+        plane->point.vz - vec1.vz
+    );
+    const i64 dot_1 = dot_i64(
+        normal,
+        test_1
+    );
+    /*const i64 dot_1 = dot_i64(normal, vec1);*/
+    if (dot_1 < 0) {
         // AABB max point is outside the frustum
         DEBUG_LOG(
             "[FRUSTUM] Dot: %d, Distance: %d\n",
@@ -104,14 +113,23 @@ static FrustumQueryResult frustumTestAABBPlane(const AABB* aabb, const Plane* pl
         return FRUSTUM_OUTSIDE;
     }
     // AABB max point is inside the frustum
-    const i64 dot_2 = dot_i64(normal, vec2);
+    const LVECTOR test_2 = vec3_i64(
+        plane->point.vx - vec2.vx,
+        plane->point.vy - vec2.vy,
+        plane->point.vz - vec2.vz
+    );
+    const i64 dot_2 = dot_i64(
+        normal,
+        test_2
+    );
+    /*const i64 dot_2 = dot_i64(normal, vec2);*/
     DEBUG_LOG(
         "[FRUSTUM] Check 2 Dot: %d, Distance: %d\n",
         //INT64_LAYOUT(dot_2),
         dot_2,
         (i32) plane->distance
     );
-    if (dot_2 >= plane->distance) {
+    if (dot_2 <= 0) {
         // AABB min point is outside or on the edge of the frustum
         return FRUSTUM_INTERSECTS;
     }
