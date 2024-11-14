@@ -8,6 +8,10 @@
 #include "../math/vector.h"
 #include "../util/inttypes.h"
 
+// TODO: Limit to a single plane facing directly forward and verify transformation
+//       of position and rotation of normal (use right , i.e. (1,0,0)). This ensures
+//       the calculations are correct. We should see chunks in the direction of the
+//       normal being culled.
 Frustum frustumCreate() {
     // Pre-calculated with frustum_calculator.py
     return (Frustum) {
