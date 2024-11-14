@@ -52,7 +52,6 @@ void frustumTransform(Frustum* frustum, Transforms* transforms) {
             &plane->normal
         );
         plane->normal = vec3_i32_normalize(plane->normal);
-        // FIXME: This doesn't transform the point properly for some reason.
         plane->point = applyMatrixRotTrans(
             transforms->frustum_mtx,
             plane->point
