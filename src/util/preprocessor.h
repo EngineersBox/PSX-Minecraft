@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <metalang99.h>
+#include <inttypes.h>
 
 // ==== META MACROS ====
 
@@ -104,8 +105,8 @@
     (_m)->m[1][0], (_m)->m[1][1], (_m)->m[1][2], (_m)->t[1], \
     (_m)->m[2][0], (_m)->m[2][1], (_m)->m[2][2], (_m)->t[2]
 
-#define INT64_PATTERN "%d_%d"
-#define INT64_LAYOUT(v) (i32) ((v) >> 32), (i32) ((v) & (UINT32_MAX - 1))
+#define INT64_PATTERN "0x%08x%08x"
+#define INT64_LAYOUT(v) (u32) (((u64)(v)) >> 32), (u32) (v)
 
 // ==== ENUM CONSTRUCTORS ====
 // #define ENUM_ENTRY(name) ML99_choice(v(ENUM_ENTRY), v(name))
