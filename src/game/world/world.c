@@ -40,9 +40,8 @@ const LightUpdateLimits world_chunk_init_limits = (LightUpdateLimits) {
 
 // World should be loaded before invoking this method
 void worldInit(World* world, RenderContext* ctx) {
-    // TODO: Set light level based on time of day
     world->internal_light_level = createLightLevel(0, 15);
-    world->time_ticks = WORLD_TIME_DUSK;//WORLD_TIME_DAWN;
+    world->time_ticks = WORLD_TIME_DAWN;
     world->day_count = 0;
     world->celestial_angle = 0;
     world->weather = (Weather) {
@@ -50,7 +49,7 @@ void worldInit(World* world, RenderContext* ctx) {
         .storm_strength = 0,
         .rain_time_ticks = 0,
         .storm_time_ticks = 0,
-        .raining = true,
+        .raining = false,
         .storming = false
     };
     memset(

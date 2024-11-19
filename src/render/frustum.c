@@ -102,8 +102,8 @@ static FrustumQueryResult frustumTestAABBPlane(const AABB* aabb, const Plane* pl
     );
     const i64 dot_1 = dot_i64(
         normal,
-        test_1
-    );
+       vec1 
+    ) + plane->distance;
     /*const i64 dot_1 = dot_i64(normal, vec1);*/
     if (dot_1 < 0) {
         // AABB max point is outside the frustum
@@ -123,8 +123,8 @@ static FrustumQueryResult frustumTestAABBPlane(const AABB* aabb, const Plane* pl
     );
     const i64 dot_2 = dot_i64(
         normal,
-        test_2
-    );
+       vec2 
+    ) + plane->distance;
     /*const i64 dot_2 = dot_i64(normal, vec2);*/
     DEBUG_LOG(
         "[FRUSTUM] Check 2 Dot: %d, Distance: %d\n",
@@ -140,11 +140,57 @@ static FrustumQueryResult frustumTestAABBPlane(const AABB* aabb, const Plane* pl
     return FRUSTUM_INSIDE;
 }
 
+FrustumQueryResult frustumTestAABBPlane_2(const AABB* aabb, const Plane* plane) {
+    FrustumQueryResult result = FRUSTUM_INSIDE;
+    LVECTOR vmin = vec3_i64(0,0,0);
+    LVECTOR vmax = vec3_i64(0,0,0);
+    const VECTOR* normal = &plane->normal;
+    // X axis
+    if (normal->vx > 0) {
+        vmin.vx = aabb->min.vx;
+        vmax.vx = aabb->max.vx;
+    } else {
+        vmin.vx = aabb->max.vx;
+        vmax.vx = aabb->min.vx;
+    }
+    // Y axis
+    if (normal->vy > 0) {
+        vmin.vy = aabb->min.vy;
+        vmax.vy = aabb->max.vy;
+    } else {
+        vmin.vy = aabb->max.vy;
+        vmax.vy = aabb->min.vy;
+    }
+    // Z axis
+    if (normal->vz > 0) {
+        vmin.vz = aabb->min.vz;
+        vmax.vz = aabb->max.vz;
+    } else {
+        vmin.vz = aabb->max.vz;
+        vmax.vz = aabb->min.vz;
+    }
+    const i64 dot1 = dot_i64(
+        *normal,
+        vmin
+    ) + plane->distance;
+    if (dot1 < 0) {
+        return FRUSTUM_OUTSIDE;
+    }
+    const i64 dot2 = dot_i64(
+        *normal,
+        vmax
+    ) + plane->distance;
+    if (dot2 <= 0) {
+        return FRUSTUM_INTERSECTS;
+    }
+    return result;
+}
+
 FrustumQueryResult frustumContainsAABB(const Frustum* frustum, const AABB* aabb) {
     // DEBUG_LOG("[FRUSTUM] Chunk AABB [Min: " VEC_PATTERN "] [Max: " VEC_PATTERN "]\n", VEC_LAYOUT(aabb->min), VEC_LAYOUT(aabb->max));
     FrustumQueryResult result = FRUSTUM_INSIDE;
     for (u8 i = 0; i < 6; i++) {
-        switch (frustumTestAABBPlane(aabb, &frustum->planes[i])) {
+        switch (frustumTestAABBPlane_2(aabb, &frustum->planes[i])) {
             case FRUSTUM_OUTSIDE: return FRUSTUM_OUTSIDE;
             case FRUSTUM_INTERSECTS: result = FRUSTUM_INTERSECTS; break;
             case FRUSTUM_INSIDE: break;
