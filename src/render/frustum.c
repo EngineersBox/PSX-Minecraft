@@ -41,7 +41,7 @@ void frustumTransform(Frustum* frustum, Transforms* transforms) {
     //       SO post for details: https://stackoverflow.com/a/10597767
     MATRIX* rot_mat = {0};
     InvRotMatrix(&transforms->negative_translation_rotation, rot_mat);
-    for (u8 i = 0; i < 6; i++) {
+    for (u8 i = 0; i < 1; i++) {
         Plane* plane = &frustum->planes[i];
         DEBUG_LOG(
             "[FRUSTUM :: PLANE %d] Normal: " VEC_PATTERN " Point: " VEC_PATTERN " Dot: " INT64_PATTERN "\n",
@@ -109,14 +109,14 @@ static FrustumQueryResult frustumTestAABBPlane(const AABB* aabb, const Plane* pl
         normal,
         vec1 
     ) + plane->distance;
+    DEBUG_LOG(
+        "[FRUSTUM] Check 1 Dot: " INT64_PATTERN ", Distance: " INT64_PATTERN "\n",
+        INT64_LAYOUT(dot_1),
+        /*dot_1,*/
+        INT64_LAYOUT(plane->distance)
+    );
     if (dot_1 < 0) {
         // AABB max point is outside the frustum
-        DEBUG_LOG(
-            "[FRUSTUM] Dot: " INT64_PATTERN ", Distance: " INT64_PATTERN "\n",
-            INT64_LAYOUT(dot_1),
-            /*dot_1,*/
-            INT64_LAYOUT(plane->distance)
-        );
         return FRUSTUM_OUTSIDE;
     }
     // AABB max point is inside the frustum
