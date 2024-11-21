@@ -190,7 +190,7 @@ FrustumQueryResult frustumTestAABBPlane_2(const AABB* aabb, const Plane* plane) 
 FrustumQueryResult frustumContainsAABB(const Frustum* frustum, const AABB* aabb) {
     // DEBUG_LOG("[FRUSTUM] Chunk AABB [Min: " VEC_PATTERN "] [Max: " VEC_PATTERN "]\n", VEC_LAYOUT(aabb->min), VEC_LAYOUT(aabb->max));
     FrustumQueryResult result = FRUSTUM_INSIDE;
-    for (u8 i = 0; i < 6; i++) {
+    for (u8 i = 0; i < 4; i++) {
         switch (frustumTestAABBPlane(aabb, &frustum->planes[FRUSTUM_PLANE_NEAR])) {
             case FRUSTUM_OUTSIDE: return FRUSTUM_OUTSIDE;
             case FRUSTUM_INTERSECTS: result = FRUSTUM_INTERSECTS; break;
