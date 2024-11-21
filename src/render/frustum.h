@@ -24,8 +24,6 @@ typedef struct {
     Plane planes[6];
 } Frustum;
 
-extern Plane current_planes[6];
-
 // Ordinal values are important as this allows us
 // to treat the query result as a regular C bool,
 // where 0 is false and anything else is true
