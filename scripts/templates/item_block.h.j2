@@ -21,8 +21,8 @@ DEFN_ITEM_BLOCK({{ name_capital }}ItemBlock);
     .name = "{{ name_snake_lower }}" \
 })
 
-void {{ name_lower}}ItemBlockRenderWorld(VSelf, RenderContext* ctx, Transforms* transforms);
-void {{ name_capital }}ItemBlock_renderWorld(VSelf, RenderContext* ctx, Transforms* transforms);
+void {{ name_lower}}ItemBlockRenderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms);
+void {{ name_capital }}ItemBlock_renderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms);
 
 void {{ name_lower}}ItemBlockRenderInventory(VSelf, RenderContext* ctx, Transforms* transforms);
 void {{ name_capital }}ItemBlock_renderInventory(VSelf, RenderContext* ctx, Transforms* transforms);

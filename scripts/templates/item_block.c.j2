@@ -1,4 +1,4 @@
-#include "item_block_{{ name_lower }}.h"
+#include "item_block_{{ name_snake_lower }}.h"
 
 #include <stdlib.h>
 
@@ -16,10 +16,10 @@ void {{ name_capital }}ItemBlock_destroy(VSelf) {
     free(self);
 }
 
-void {{ name_lower }}ItemBlockRenderWorld(VSelf, RenderContext* ctx, Transforms* transforms) ALIAS("{{ name_capital }}ItemBlock_renderWorld");
-void {{ name_capital }}ItemBlock_renderWorld(VSelf, RenderContext* ctx, Transforms* transforms) {
+void {{ name_lower }}ItemBlockRenderWorld(VSelf, const Chunk* chunk,  RenderContext* ctx, Transforms* transforms) ALIAS("{{ name_capital }}ItemBlock_renderWorld");
+void {{ name_capital }}ItemBlock_renderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms) {
     VSELF({{ name_capital }}ItemBlock);
-    itemBlockRenderWorld(&self->item_block, ctx, transforms);
+    itemBlockRenderWorld(&self->item_block, chunk, ctx, transforms);
 }
 
 void {{ name_lower }}ItemBlockRenderInventory(VSelf, RenderContext* ctx, Transforms* transforms) ALIAS("{{ name_capital }}ItemBlock_renderInventory");
@@ -55,16 +55,10 @@ void {{ name_lower }}ItemBlockInit(VSelf) ALIAS("{{ name_capital }}ItemBlock_ini
 void {{ name_capital }}ItemBlock_init(VSelf) {
     VSELF({{ name_capital }}ItemBlock);
     self->item_block = (ItemBlock) {
-        .item = (Item) {
-            .id = ITEMID_{{ name_snake_upper }},
-            .metadata_id = 0,
-            .type = ITEMTYPE_BLOCK,
-            .stack_size = 0,
-            .position = vec3_i32_all(0),
-            .rotation = vec3_i16_all(0),
-            .name = "{{ name_snake_lower }}",
-            .picked_up = false
-        },
+        .item = declareSimpleItem(
+            ITEMID_{{ name_snake_upper }},
+            0
+        ),
 {% if face_attributes != None %}
         .face_attributes = declareFaceAttributes({{ face_attributes }})
 {% elif tinted_face_attributes != None %}
