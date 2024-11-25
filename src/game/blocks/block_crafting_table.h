@@ -6,6 +6,7 @@
 #include <interface99.h>
 
 #include "block.h"
+#include "../../core/input/input.h"
 
 DEFN_BLOCK_STATELESS(CraftingTableBlock, CRAFTING_TABLE);
 
@@ -41,6 +42,9 @@ ALLOC_CALL(itemDestroy, 1) IItem* CraftingTableBlock_provideItem(VSelf);
 #define CraftingTableBlock_useAction_CUSTOM ()
 bool craftingTableBlockUseAction(VSelf);
 bool CraftingTableBlock_useAction(VSelf);
+
+void craftingTableBlockRegisterInputHandler(VSelf, Input* input, void* ctx);
+void CraftingTableBlock_registerInputHandler(VSelf, Input* input, void* ctx);
 
 impl(IBlock, CraftingTableBlock);
 
