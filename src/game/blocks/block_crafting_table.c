@@ -3,6 +3,7 @@
 #include "../../util/interface99_extensions.h"
 #include "block_id.h"
 #include "../items/blocks/item_block_crafting_table.h"
+#include "../../core/input/input.h"
 
 DEFN_BLOCK_CONSTRUCTOR_IMPL_STATELESS(craftingTable, CRAFTING_TABLE)
 
@@ -62,9 +63,4 @@ bool craftingTableBlockUseAction(VSelf) ALIAS("CraftingTableBlock_useAction");
 bool CraftingTableBlock_useAction(VSelf) {
     inputSetFocusedHandler(&input, &craftingTableBlockInputHandlerVTable);
     return false;
-}
-
-void craftingTableBlockRegisterInputHandler(VSelf, Input* input, void* ctx) ALIAS("CraftingTableBlock_registerInputHandler");
-void CraftingTableBlock_registerInputHandler(VSelf, Input* input, void* ctx) {
-
 }
