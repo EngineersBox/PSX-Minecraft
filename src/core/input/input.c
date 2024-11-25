@@ -5,6 +5,8 @@
 #include "../../util/inttypes.h"
 #include "../../structure/cvector_utils.h"
 
+Input input = (Input) {0};
+
 void inputInit(Input *input) {
     // Init BIOS pad driver and set pad buffers (buffers are updated
     // automatically on every V-Blank)

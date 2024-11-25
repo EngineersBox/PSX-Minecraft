@@ -50,6 +50,9 @@ Player* player;
 void minecraftInit(VSelf, void* ctx) ALIAS("Minecraft_init");
 void Minecraft_init(VSelf, void* ctx) {
     VSELF(Minecraft);
+    // Input initialisation needs to be before block init
+    // since some blocks need to register handlers
+    inputInit(&input);
     blocksInitialiseBuiltin();
     itemsInitialiseBuiltin();
     self->internals = (Internals) {
@@ -68,14 +71,13 @@ void Minecraft_init(VSelf, void* ctx) {
             .frustum_mtx = {0},
             .lighting_mtx = lighting_direction
         },
-        .input = (Input) {},
+        /*.input = (Input) {},*/
         .camera = cameraCreate(&self->internals.transforms),
     };
     self->internals.ctx.camera = &self->internals.camera;
     initRenderContext(&self->internals.ctx);
-    /*AddSIO(115200);*/
+    /*AddSIO(0x1c200);*/
     CdInit();
-    inputInit(&self->internals.input);
     // Unpack LZP archive and load assets
     assetsLoad();
     fontLoad();
@@ -108,10 +110,10 @@ void Minecraft_init(VSelf, void* ctx) {
     iPhysicsObjectSetPosition(&player->entity.physics_object, &player_positon);
     player->entity.physics_object.flags.no_clip = true;
     player_handler = DYN(Player, IInputHandler, player);
-    VCALL(player_handler, registerInputHandler, &self->internals.input, world);
+    VCALL(player_handler, registerInputHandler, &input, world);
     // Register handlers
-    VCALL_SUPER(player->inventory, IInputHandler, registerInputHandler, &self->internals.input, NULL);
-    VCALL_SUPER(player->hotbar, IInputHandler, registerInputHandler, &self->internals.input, NULL);
+    VCALL_SUPER(player->inventory, IInputHandler, registerInputHandler, &input, NULL);
+    VCALL_SUPER(player->hotbar, IInputHandler, registerInputHandler, &input, NULL);
     // Initialise camera
     playerUpdateCamera(player);
     cameraUpdate(&self->internals.camera);
@@ -172,8 +174,7 @@ void Minecraft_input(VSelf, const Stats* stats) {
     /*    handleConsole();*/
     /*}*/
     self->internals.camera.mode = CAMERA_MODE_FIRST_PERSON;
-    Input* input = &self->internals.input;
-    inputUpdate(input);
+    inputUpdate(&input);
 }
 
 void minecraftUpdate(VSelf, const Stats* stats) ALIAS("Minecraft_update");

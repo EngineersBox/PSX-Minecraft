@@ -37,8 +37,34 @@ IItem* CraftingTableBlock_provideItem(VSelf) {
     return item;
 }
 
+bool craftingTableBlockInputHandler(const Input* input, void* ctx) {
+    const PADTYPE* pad = input->pad;
+    if (isPressed(pad, BINDING_USE)) {
+        // TODO: Use is either grabbing an item in a slot,
+        //       putting a grabbed item in a slot, or
+        //       mistargetting (with or without a grabbed
+        //       item) with nothing happening. Handle this
+        //       here, possibly with some logic that we share
+        //       between this and the base inventory structure
+        //       that is used for all inventories.
+        return false;
+    }
+    return !isPressed(pad, BINDING_OPEN_INVENTORY);
+}
+
+static InputHandlerVTable craftingTableBlockInputHandlerVTable = (InputHandlerVTable) {
+    .ctx = NULL,
+    .input_handler = craftingTableBlockInputHandler,
+    .input_handler_destroy = NULL
+};
+
 bool craftingTableBlockUseAction(VSelf) ALIAS("CraftingTableBlock_useAction");
 bool CraftingTableBlock_useAction(VSelf) {
-    UNIMPLEMENTED();
+    inputSetFocusedHandler(&input, &craftingTableBlockInputHandlerVTable);
     return false;
+}
+
+void craftingTableBlockRegisterInputHandler(VSelf, Input* input, void* ctx) ALIAS("CraftingTableBlock_registerInputHandler");
+void CraftingTableBlock_registerInputHandler(VSelf, Input* input, void* ctx) {
+
 }

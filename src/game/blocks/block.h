@@ -99,7 +99,7 @@ typedef struct World World;
     vfunc(IItem*, destroy, VSelf, bool drop_item) \
     /* Updates from world events like redstone */ \
     vfuncDefault(void, update, VSelf) \
-    /* Player right clicking */ \
+    /* Player right clicking. True = action consumed, False = action not consumed */ \
     vfuncDefault(bool, useAction, VSelf) \
     /* Can block be placed */ \
     vfuncDefault(bool, canPlace, VSelf, const World* world, const VECTOR* position, const AABB* player_aabb) \
