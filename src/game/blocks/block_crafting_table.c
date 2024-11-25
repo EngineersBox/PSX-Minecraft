@@ -1,8 +1,16 @@
 #include "block_crafting_table.h"
 
 #include "../../util/interface99_extensions.h"
+#include "block.h"
 #include "block_id.h"
 #include "../items/blocks/item_block_crafting_table.h"
+
+bool craftingTableBlockInputHandler(const Input* input, void* ctx);
+static InputHandlerVTable craftingTableBlockInputHandlerVTable = {
+    .ctx = &block_input_handler_context,
+    .input_handler = craftingTableBlockInputHandler,
+    .input_handler_destroy = NULL
+};
 
 DEFN_BLOCK_CONSTRUCTOR_IMPL_STATELESS(craftingTable, CRAFTING_TABLE)
 
@@ -52,19 +60,9 @@ bool craftingTableBlockInputHandler(const Input* input, void* ctx) {
     return !isPressed(pad, BINDING_OPEN_INVENTORY);
 }
 
-static InputHandlerVTable craftingTableBlockInputHandlerVTable = (InputHandlerVTable) {
-    .ctx = NULL,
-    .input_handler = craftingTableBlockInputHandler,
-    .input_handler_destroy = NULL
-};
 
 bool craftingTableBlockUseAction(VSelf) ALIAS("CraftingTableBlock_useAction");
 bool CraftingTableBlock_useAction(VSelf) {
     inputSetFocusedHandler(&input, &craftingTableBlockInputHandlerVTable);
     return false;
-}
-
-void craftingTableBlockRegisterInputHandler(VSelf, Input* input, void* ctx) ALIAS("CraftingTableBlock_registerInputHandler");
-void CraftingTableBlock_registerInputHandler(VSelf, Input* input, void* ctx) {
-
 }

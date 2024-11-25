@@ -2,6 +2,8 @@
 
 #include "../../logging/logging.h"
 
+BlockInputHandlerContext block_input_handler_context = {0};
+
 void iblockUpdate(VSelf) ALIAS("IBlock_update");
 void IBlock_update(VSelf) {
     // Do nothing

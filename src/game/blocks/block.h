@@ -12,6 +12,7 @@
 #include "../items/tools/item_tool.h"
 #include "../../structure/primitive/direction.h"
 #include "../../physics/aabb.h"
+#include "../../ui/ui.h"
 
 #define BLOCK_SIZE 70
 #define BLOCK_FACES 6
@@ -176,5 +177,12 @@ typedef IBlock* (*BlockConstructor)(IItem* from_item);
     BLOCK_DEFAULT_OPACITY_BITSET, \
     FACE_DIR_RIGHT \
 )
+
+typedef struct BlockInputHandlerContext {
+    IUI* inventory;
+    World* world;
+} BlockInputHandlerContext;
+
+extern BlockInputHandlerContext block_input_handler_context;
 
 #endif // PSXMC_BLOCK_H

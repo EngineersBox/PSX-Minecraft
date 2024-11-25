@@ -20,6 +20,7 @@
 #include "../util/interface99_extensions.h"
 #include "../logging/logging.h"
 #include "../util/preprocessor.h"
+#include "blocks/block.h"
 #include "items/items.h"
 #include "items/blocks/item_block_grass.h"
 #include "items/blocks/item_block_stone.h"
@@ -101,6 +102,8 @@ void Minecraft_init(VSelf, void* ctx) {
     // Initialise player
     player = (Player*) malloc(sizeof(Player));
     playerInit(player);
+    block_input_handler_context.inventory = &player->inventory;
+    block_input_handler_context.world = world;
     player->camera = &self->internals.camera;
     const VECTOR player_positon = vec3_i32(
         0,
