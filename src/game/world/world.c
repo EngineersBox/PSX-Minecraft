@@ -905,13 +905,13 @@ IBlock* worldModifyVoxelChunkBlockConstructed(const World* world,
     // World is void below 0 on y-axis and nothing above height limit
     if ((position->chunk.vy <= 0 && position->block.vy < 0)
         || position->chunk.vy >= WORLD_CHUNKS_HEIGHT) {
-        return false;
+        return NULL;
     }
     Chunk* chunk = world->chunks[arrayCoord(world, vz, position->chunk.vz)]
                                 [arrayCoord(world, vx, position->chunk.vx)]
                                 [position->chunk.vy];
     if (chunk == NULL) {
-        return false;
+        return NULL;
     }
     return chunkModifyVoxelConstructed(
         chunk,
@@ -950,7 +950,7 @@ IBlock* worldModifyVoxelConstructed(const World* world,
                                  IItem** item_result) {
     // World is void below 0 and above world-height on y-axis
     if (position->vy < 0 || position->vy >= WORLD_HEIGHT) {
-        return false;
+        return NULL;
     }
     const ChunkBlockPosition chunk_block_position = worldToChunkBlockPosition(position, CHUNK_SIZE);
     return worldModifyVoxelChunkBlockConstructed(

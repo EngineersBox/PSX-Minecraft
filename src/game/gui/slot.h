@@ -5,6 +5,8 @@
 
 #include <stdbool.h>
 #include <psxgte.h>
+#include <assert.h>
+#include <stdint.h>
 
 #include "../items/item.h"
 
@@ -22,6 +24,48 @@ typedef struct Slot {
     // Slot index starting from top to bottom, left to right on screen
     uint8_t index;
 } Slot;
+
+/**
+ * Using this type must be paired with the following
+ * macro definitions:
+ * 
+ * #define <name>_SLOT_GROUP_DIMENSIONS_X <u8>
+ * #define <name>_SLOT_GROUP_DIMENSIONS_Y <u8>
+ * #define <name>_SLOT_GROUP_SLOT_DIMENSIONS_X <u8>
+ * #define <name>_SLOT_GROUP_SLOT_DIMENSIONS_Y <u8>
+ * #define <name>_SLOT_GROUP_SLOT_SPACING_X <u16>
+ * #define <name>_SLOT_GROUP_SLOT_SPACING_Y <u16>
+ * #define <name>_SLOT_GROUP_ORIGIN_X <u16>
+ * #define <name>_SLOT_GROUP_ORIGIN_Y <u16>
+ *
+ * And an invocation of a compile time assertion check for
+ * sizing via:
+ *
+ * slotGroupCheck(<name>)
+ * */
+typedef Slot SlotGroup;
+
+// Utility accessors for slot group definitions
+#define slotGroupDim(name, dim) name##_SLOT_GROUP_DIMENSIONS_##dim
+#define slotGroupSlotDim(name, dim) name##_SLOT_GROUP_SLOT_DIMENSIONS_##dim
+#define slotGroupSlotSpacing(name, dim) name##_SLOT_GROUP_SLOT_SPACING_##dim
+#define slotGroupOrigin(name, dim) name##_SLOT_GROUP_ORIGIN_##dim
+
+#define xstr(s) str(s)
+#define str(s) #s
+#define checkMinMax(v, _str, _min, _max) \
+    _Static_assert((v) >= (_min), _str); \
+    _Static_assert((v) <= (_max), _str)
+
+#define slotGroupCheck(name) \
+    checkMinMax(slotGroupDim(name, X), str(slotGroupDim(name, X)), 0, UINT8_MAX); \
+    checkMinMax(slotGroupDim(name, Y), str(slotGroupDim(name, Y)), 0, UINT8_MAX); \
+    checkMinMax(slotGroupSlotDim(name, X), str(slotGroupSlotDim(name, X)), 0, UINT8_MAX); \
+    checkMinMax(slotGroupSlotDim(name, Y), str(slotGroupSlotDim(name, Y)), 0, UINT8_MAX); \
+    checkMinMax(slotGroupSlotSpacing(name, X), str(slotGroupSlotSpacing(name, X)), 0, UINT16_MAX); \
+    checkMinMax(slotGroupSlotSpacing(name, Y), str(slotGroupSlotSpacing(name, Y)), 0, UINT16_MAX); \
+    checkMinMax(slotGroupOrigin(name, X), str(slotGroupOrigin(name, X)), 0, UINT16_MAX); \
+    checkMinMax(slotGroupOrigin(name, Y), str(slotGroupOrigin(name, Y)), 0, UINT16_MAX)
 
 #ifndef INV_SLOT_WIDTH
 #define INV_SLOT_WIDTH 16

@@ -51,11 +51,6 @@ Player* player;
 void minecraftInit(VSelf, void* ctx) ALIAS("Minecraft_init");
 void Minecraft_init(VSelf, void* ctx) {
     VSELF(Minecraft);
-    // Input initialisation needs to be before block init
-    // since some blocks need to register handlers
-    inputInit(&input);
-    blocksInitialiseBuiltin();
-    itemsInitialiseBuiltin();
     self->internals = (Internals) {
         .ctx = (RenderContext) {
             .active = 0,
@@ -77,8 +72,13 @@ void Minecraft_init(VSelf, void* ctx) {
     };
     self->internals.ctx.camera = &self->internals.camera;
     initRenderContext(&self->internals.ctx);
+    // Input initialisation needs to be before block init
+    // since some blocks need to register handlers
     /*AddSIO(0x1c200);*/
     CdInit();
+    inputInit(&input);
+    blocksInitialiseBuiltin();
+    itemsInitialiseBuiltin();
     // Unpack LZP archive and load assets
     assetsLoad();
     fontLoad();
