@@ -77,14 +77,15 @@ void Minecraft_init(VSelf, void* ctx) {
     /*AddSIO(0x1c200);*/
     CdInit();
     inputInit(&input);
-    blocksInitialiseBuiltin();
-    itemsInitialiseBuiltin();
     // Unpack LZP archive and load assets
     assetsLoad();
     fontLoad();
     // Load font and open a text stream
     FntLoad(960, 256);
     FntOpen(0, 8, 320, 216, 0, 160);
+    // Initialise game elements
+    blocksInitialiseBuiltin();
+    itemsInitialiseBuiltin();
     // Initialise world
     self->world = (World*) malloc(sizeof(World));
     self->world->head.vx = 0;
