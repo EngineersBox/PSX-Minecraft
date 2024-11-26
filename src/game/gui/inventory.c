@@ -18,7 +18,6 @@
     slot->data.item = NULL; \
     slot->position = PLAYER_INV_##name##_POS; \
     slot->dimensions = INV_SLOT_DIMS; \
-    slot->blocked = false; \
 })
 
 void initArmorSlots(Inventory* inventory) {
@@ -43,7 +42,6 @@ void initStorageSlots(Inventory* inventory) {
         slot->data.item = NULL;
         slot->index = i;
         slot->dimensions = INV_SLOT_DIMS;
-        slot->blocked = false;
         const u8 local_index = i - INVENTORY_SLOT_STORAGE_OFFSET;
         slot->position = playerInvStoragePos(
             local_index % PLAYER_INV_STORAGE_SLOTS_WIDTH,
@@ -60,7 +58,6 @@ void initHotbarSlots(Inventory* inventory) {
         const u8 hotbar_index = i - INVENTORY_SLOT_HOTBAR_OFFSET;
         slot->data.ref = &hotbar->slots[hotbar_index];
         slot->index = i;
-        slot->blocked = false;
         slot->dimensions = INV_SLOT_DIMS;
         slot->position = playerInvHotbarPos(i - INVENTORY_SLOT_HOTBAR_OFFSET);
     }
