@@ -6,62 +6,11 @@
 #include "../items/items.h"
 #include "../../ui/components/background.h"
 #include "../../util/interface99_extensions.h"
+#include "slot.h"
 
 /*const char* INVENTORY_STORE_RESULT_NAMES[] = {*/
 /*    MK_INVENTORY_STORE_RESULT_LIST(P99_STRING_ARRAY_INDEX)*/
 /*};*/
-
-#define createSlot(offset, _index, name) ({ \
-    cvector_push_back(inventory->slots, (Slot){}); \
-    Slot* slot = &inventory->slots[offset + _index]; \
-    slot->index = offset + _index; \
-    slot->data.item = NULL; \
-    slot->position = PLAYER_INV_##name##_POS; \
-    slot->dimensions = INV_SLOT_DIMS; \
-})
-
-void initArmorSlots(Inventory* inventory) {
-    createSlot(INVENTORY_SLOT_ARMOR_OFFSET, 0, ARMOR_HELMET);
-    createSlot(INVENTORY_SLOT_ARMOR_OFFSET, 1, ARMOR_CHESTPLATE);
-    createSlot(INVENTORY_SLOT_ARMOR_OFFSET, 2, ARMOR_LEGGINGS);
-    createSlot(INVENTORY_SLOT_ARMOR_OFFSET, 3, ARMOR_BOOTS);
-}
-
-void initCraftingSlots(Inventory* inventory) {
-    createSlot(INVENTORY_SLOT_CRAFTING_OFFSET, 0, CRAFTING_TOP_LEFT);
-    createSlot(INVENTORY_SLOT_CRAFTING_OFFSET, 1, CRAFTING_TOP_RIGHT);
-    createSlot(INVENTORY_SLOT_CRAFTING_OFFSET, 2, CRAFTING_BOTTOM_LEFT);
-    createSlot(INVENTORY_SLOT_CRAFTING_OFFSET, 3, CRAFTING_BOTTOM_RIGHT);
-    createSlot(INVENTORY_SLOT_CRAFTING_OFFSET, 4, CRAFTING_RESULT);
-}
-
-void initStorageSlots(Inventory* inventory) {
-    for (int i = INVENTORY_SLOT_STORAGE_OFFSET; i < INVENTORY_SLOT_HOTBAR_OFFSET; i++) {
-        cvector_push_back(inventory->slots, (Slot){});
-        Slot* slot = &inventory->slots[i];
-        slot->data.item = NULL;
-        slot->index = i;
-        slot->dimensions = INV_SLOT_DIMS;
-        const u8 local_index = i - INVENTORY_SLOT_STORAGE_OFFSET;
-        slot->position = playerInvStoragePos(
-            local_index % PLAYER_INV_STORAGE_SLOTS_WIDTH,
-            local_index / PLAYER_INV_STORAGE_SLOTS_WIDTH
-        );
-    }
-}
-
-void initHotbarSlots(Inventory* inventory) {
-    const Hotbar* hotbar = inventory->hotbar;
-    for (int i = INVENTORY_SLOT_HOTBAR_OFFSET; i < INVENTORY_SLOT_COUNT; i++) {
-        cvector_push_back(inventory->slots, (Slot){});
-        Slot* slot = &inventory->slots[i];
-        const u8 hotbar_index = i - INVENTORY_SLOT_HOTBAR_OFFSET;
-        slot->data.ref = &hotbar->slots[hotbar_index];
-        slot->index = i;
-        slot->dimensions = INV_SLOT_DIMS;
-        slot->position = playerInvHotbarPos(i - INVENTORY_SLOT_HOTBAR_OFFSET);
-    }
-}
 
 void inventoryInit(Inventory* inventory, Hotbar* hotbar) {
     uiInit(&inventory->ui);
@@ -86,12 +35,38 @@ void inventoryInit(Inventory* inventory, Hotbar* hotbar) {
     background->texture = (Texture) {0};
     DYN_PTR(component, UIBackground, IUIComponent, background);
     inventory->hotbar = hotbar;
-    inventory->slots = NULL;
-    cvector_init(inventory->slots, 0, NULL);
-    initArmorSlots(inventory);
-    initCraftingSlots(inventory);
-    initStorageSlots(inventory);
-    initHotbarSlots(inventory);
+    for (u8 y = 0; y < slotGroupDim(INVENTORY_ARMOUR, Y); y++) {
+        for (u8 x = 0; x < slotGroupDim(INVENTORY_ARMOUR, X); x++) {
+            createSlot(inventory->armour_slots, INVENTORY_ARMOUR, x, y);
+        }
+    }
+    for (u8 y = 0; y < slotGroupDim(INVENTORY_CRAFTING, Y); y++) {
+        for (u8 x = 0; x < slotGroupDim(INVENTORY_CRAFTING, X); x++) {
+            createSlot(inventory->crafting_slots, INVENTORY_CRAFTING, x, y);
+        }
+    }
+    createSlot(inventory->crafting_result_slots, INVENTORY_CRAFTING_RESULT, 0, 0);
+    for (u8 y = 0; y < slotGroupDim(INVENTORY_MAIN, Y); y++) {
+        for (u8 x = 0; x < slotGroupDim(INVENTORY_MAIN, X); x++) {
+            createSlot(inventory->main_slots, INVENTORY_MAIN, x, y);
+        }
+    }
+    for (u8 y = 0; y < slotGroupDim(INVENTORY_MAIN, Y); y++) {
+        for (u8 x = 0; x < slotGroupDim(INVENTORY_MAIN, X); x++) {
+            createSlotRef(
+                inventory->hotbar_slots,
+                INVENTORY_HOTBAR,
+                x, y,
+                hotbar->slots,
+                HOTBAR,
+                x, y
+            );
+            /*const size_t index = ((y) * slotGroupDim(INVENTORY_HOTBAR, X)) + (x);*/
+            /*Slot* slot = &inventory->hotbar_slots[index];*/
+            /*slot->index = INVENTORY_HOTBAR_SLOT_GROUP_INDEX_OFFSET + index;*/
+            /*slot->data.ref = &hotbar->slots[index];*/
+        }
+    }
     inventory->debounce = 0;
 }
 

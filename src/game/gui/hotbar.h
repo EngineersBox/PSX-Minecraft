@@ -11,6 +11,8 @@
 #include "../../hardware/counters.h"
 #include "slot.h"
 
+// TODO: Conver to new slot layout, see inventory for reference
+
 #define HOTBAR_SLOT_COUNT 9
 #define HOTBAR_WIDTH 182
 #define HOTBAR_HEIGHT 22

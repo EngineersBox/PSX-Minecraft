@@ -19,8 +19,8 @@ typedef struct Slot {
         struct Slot* ref;
     } data;
     // Screen space position
-    DVECTOR position;
-    DVECTOR dimensions;
+    /*DVECTOR position;*/
+    /*DVECTOR dimensions;*/
     // Slot index starting from top to bottom, left to right on screen
     uint8_t index;
 } Slot;
@@ -66,6 +66,21 @@ typedef Slot SlotGroup;
     checkMinMax(slotGroupSlotSpacing(name, Y), str(slotGroupSlotSpacing(name, Y)), 0, UINT16_MAX); \
     checkMinMax(slotGroupOrigin(name, X), str(slotGroupOrigin(name, X)), 0, UINT16_MAX); \
     checkMinMax(slotGroupOrigin(name, Y), str(slotGroupOrigin(name, Y)), 0, UINT16_MAX)
+
+#define createSlotRef(slot_group, name, x, y, ref_slot_group, ref_name, ref_x, ref_y) ({ \
+    const size_t index = ((y) * slotGroupDim(name, X)) + (x); \
+    Slot* slot = &(slot_group)[index]; \
+    slot->index = name##_SLOT_GROUP_INDEX_OFFSET + index; \
+    const size_t ref_index = ((ref_y) * slotGroupDim(ref_name, X)) + (ref_x); \
+    slot->data.ref = &(ref_slot_group)[ref_index]; \
+})
+
+#define createSlot(slot_group, name, x, y) ({ \
+    const size_t index = ((y) * slotGroupDim(name, X)) + (x); \
+    Slot* slot = &(slot_group)[index]; \
+    slot->index = name##_SLOT_GROUP_INDEX_OFFSET + index; \
+    slot->data.item = NULL; \
+})
 
 #ifndef INV_SLOT_WIDTH
 #define INV_SLOT_WIDTH 16

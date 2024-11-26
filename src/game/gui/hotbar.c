@@ -15,8 +15,8 @@ void hotbarInit(Hotbar* hotbar) {
     for (uint8_t i = 0; i < HOTBAR_SLOT_COUNT; i++) {
         cvector_push_back(hotbar->slots, (Slot){});
         Slot* slot = &hotbar->slots[i];
-        slot->dimensions = HOTBAR_SLOT_DIMS;
-        slot->position = hotbarSlotPos(i, 0);
+        /*slot->dimensions = HOTBAR_SLOT_DIMS;*/
+        /*slot->position = hotbarSlotPos(i, 0);*/
         slot->index = i;
         slot->data.item = NULL;
     }
