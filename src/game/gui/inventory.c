@@ -81,7 +81,7 @@ void inventoryRenderSlots(const Inventory* inventory, RenderContext* ctx, Transf
             }
             Item* item = VCAST_PTR(Item*,slot->data.item);
             item->position.vx = slotGroupScreenPosition(INVENTORY_ARMOUR, X, x);
-            item->position.vy = slotGroupScreenPosition(INVENTORY_ARMOUR, X, x);
+            item->position.vy = slotGroupScreenPosition(INVENTORY_ARMOUR, Y, y);
             VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
         }
     }
@@ -95,7 +95,7 @@ void inventoryRenderSlots(const Inventory* inventory, RenderContext* ctx, Transf
             }
             Item* item = VCAST_PTR(Item*,slot->data.item);
             item->position.vx = slotGroupScreenPosition(INVENTORY_CRAFTING, X, x);
-            item->position.vy = slotGroupScreenPosition(INVENTORY_CRAFTING, X, x);
+            item->position.vy = slotGroupScreenPosition(INVENTORY_CRAFTING, Y, y);
             VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
         }
     }
@@ -104,7 +104,7 @@ void inventoryRenderSlots(const Inventory* inventory, RenderContext* ctx, Transf
     if (_slot->data.item == NULL) {
         Item* item = VCAST_PTR(Item*, _slot->data.item);
         item->position.vx = slotGroupScreenPosition(INVENTORY_CRAFTING_RESULT, X, 0);
-        item->position.vy = slotGroupScreenPosition(INVENTORY_CRAFTING_RESULT, X, 0);
+        item->position.vy = slotGroupScreenPosition(INVENTORY_CRAFTING_RESULT, Y, 0);
         VCALL_SUPER(*_slot->data.item, Renderable, renderInventory, ctx, transforms);
     }
     for (u8 x = 0; x < slotGroupDim(INVENTORY_MAIN, X); x++) {
@@ -117,7 +117,7 @@ void inventoryRenderSlots(const Inventory* inventory, RenderContext* ctx, Transf
             }
             Item* item = VCAST_PTR(Item*,slot->data.item);
             item->position.vx = slotGroupScreenPosition(INVENTORY_MAIN, X, x);
-            item->position.vy = slotGroupScreenPosition(INVENTORY_MAIN, X, x);
+            item->position.vy = slotGroupScreenPosition(INVENTORY_MAIN, Y, y);
             VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
         }
     }
@@ -132,7 +132,7 @@ void inventoryRenderSlots(const Inventory* inventory, RenderContext* ctx, Transf
             Item* item = VCAST_PTR(Item*, slot->data.ref->data.item);
             VECTOR prev_position = item->position;
             item->position.vx = slotGroupScreenPosition(INVENTORY_HOTBAR, X, x);
-            item->position.vy = slotGroupScreenPosition(INVENTORY_HOTBAR, X, x);
+            item->position.vy = slotGroupScreenPosition(INVENTORY_HOTBAR, Y, y);
             VCALL_SUPER(*slot->data.ref->data.item, Renderable, renderInventory, ctx, transforms);
             item->position = prev_position;
         }

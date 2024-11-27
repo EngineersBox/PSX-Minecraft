@@ -4,19 +4,15 @@
 #include "../../util/interface99_extensions.h"
 #include "../../ui/components/background.h"
 #include "../../structure/primitive/primitive.h"
+#include "slot.h"
 
 void hotbarInit(Hotbar* hotbar) {
     uiInit(&hotbar->ui);
     hotbar->ui.active = true;
     hotbar->ui.title = "hotbar";
-    hotbar->slots = NULL;
     hotbar->selected_slot = 0;
-    cvector_init(hotbar->slots, 0, NULL);
-    for (uint8_t i = 0; i < HOTBAR_SLOT_COUNT; i++) {
-        cvector_push_back(hotbar->slots, (Slot){});
+    for (u8 i = slotGroupIndexOffset(HOTBAR); i < HOTBAR_SLOT_COUNT; i++) {
         Slot* slot = &hotbar->slots[i];
-        /*slot->dimensions = HOTBAR_SLOT_DIMS;*/
-        /*slot->position = hotbarSlotPos(i, 0);*/
         slot->index = i;
         slot->data.item = NULL;
     }
@@ -43,15 +39,18 @@ void hotbarInit(Hotbar* hotbar) {
 }
 
 void hotbarRenderSlots(const Hotbar* hotbar,  RenderContext* ctx, Transforms* transforms) {
-    Slot* slot;
-    cvector_for_each_in(slot, hotbar->slots) {
-        if (slot->data.item == NULL) {
-            continue;
+    for (u8 x = 0; x < slotGroupDim(HOTBAR, X); x++) {
+        for (u8 y = 0; y < slotGroupDim(HOTBAR, Y); y++) {
+            const u8 i = slotGroupIndexOffset(HOTBAR) + (slotGroupDim(HOTBAR, X) * y) + x;
+            const Slot* slot = &hotbar->slots[i];
+            if (slot->data.item == NULL) {
+                continue;
+            }
+            Item* item = VCAST_PTR(Item*,slot->data.item);
+            item->position.vx = slotGroupScreenPosition(HOTBAR, X, x);
+            item->position.vy = slotGroupScreenPosition(HOTBAR, Y, y);
+            VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
         }
-        Item* item = VCAST_PTR(Item*, slot->data.item);
-        item->position.vx = slot->position.vx;
-        item->position.vy = slot->position.vy;
-        VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
     }
     POLY_FT4* pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
     setXYWH(
