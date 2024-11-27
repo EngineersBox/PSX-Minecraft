@@ -19,9 +19,6 @@ typedef struct Slot {
         // hotbar slots mapping to actual hotbar slots
         struct Slot* ref;
     } data;
-    // Screen space position
-    /*DVECTOR position;*/
-    /*DVECTOR dimensions;*/
     // Slot index starting from top to bottom, left to right on screen
     uint8_t index;
 } Slot;

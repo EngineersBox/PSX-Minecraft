@@ -70,7 +70,9 @@ void inventoryRenderSlots(const Inventory* inventory, RenderContext* ctx, Transf
     if (!inventory->ui.active) {
         return;
     }
-
+    // FIXME: Something breaks when this render method is invoked.
+    //        It's to do with the new slot groups stuff, so probs
+    //        bad indexing or something of the same ilk.
     for (u8 x = 0; x < slotGroupDim(INVENTORY_ARMOUR, X); x++) {
         for (u8 y = 0; y < slotGroupDim(INVENTORY_ARMOUR, Y); y++) {
             const u8 i = slotGroupIndexOffset(INVENTORY_ARMOUR)
@@ -99,8 +101,8 @@ void inventoryRenderSlots(const Inventory* inventory, RenderContext* ctx, Transf
             VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
         }
     }
-    const u8 i = slotGroupIndexOffset(INVENTORY_CRAFTING_RESULT);
-    const Slot* _slot = &inventory->slots[i];
+    const u8 craftingResultIndex = slotGroupIndexOffset(INVENTORY_CRAFTING_RESULT);
+    const Slot* _slot = &inventory->slots[craftingResultIndex];
     if (_slot->data.item == NULL) {
         Item* item = VCAST_PTR(Item*, _slot->data.item);
         item->position.vx = slotGroupScreenPosition(INVENTORY_CRAFTING_RESULT, X, 0);
