@@ -592,7 +592,7 @@ IBlock* chunkModifyVoxelConstructed(Chunk* chunk,
 }
 
 bool itemPickupValidator(const Item* item, void* ctx) {
-    const Inventory* inventory = (Inventory*) ctx;
+    Inventory* inventory = (Inventory*) ctx;
     // 1. Does the item already exist in the inventory?
     //   a. [1:TRUE] Does the existing have space?
     //     i. [a:TRUE] Return true
@@ -601,7 +601,7 @@ bool itemPickupValidator(const Item* item, void* ctx) {
     // 2. Is there space in the inventory
     //   a. [2:TRUE] Return true
     //   b. [2:FALSE] Return false
-    u8 from_slot = INVENTORY_SLOT_STORAGE_OFFSET;
+    u8 from_slot = slotGroupIndexOffset(INVENTORY_MAIN);
     u8 next_free = INVENTORY_NO_FREE_SLOT;
     while (true) {
         const Slot* slot = inventorySearchItem(inventory, item->id, from_slot, &next_free);

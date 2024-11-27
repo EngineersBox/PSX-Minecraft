@@ -37,34 +37,30 @@ void inventoryInit(Inventory* inventory, Hotbar* hotbar) {
     inventory->hotbar = hotbar;
     for (u8 y = 0; y < slotGroupDim(INVENTORY_ARMOUR, Y); y++) {
         for (u8 x = 0; x < slotGroupDim(INVENTORY_ARMOUR, X); x++) {
-            createSlot(inventory->armour_slots, INVENTORY_ARMOUR, x, y);
+            createSlot(inventory->slots, INVENTORY_ARMOUR, x, y);
         }
     }
     for (u8 y = 0; y < slotGroupDim(INVENTORY_CRAFTING, Y); y++) {
         for (u8 x = 0; x < slotGroupDim(INVENTORY_CRAFTING, X); x++) {
-            createSlot(inventory->crafting_slots, INVENTORY_CRAFTING, x, y);
+            createSlot(inventory->slots, INVENTORY_CRAFTING, x, y);
         }
     }
-    createSlot(inventory->crafting_result_slots, INVENTORY_CRAFTING_RESULT, 0, 0);
+    createSlot(inventory->slots, INVENTORY_CRAFTING_RESULT, 0, 0);
     for (u8 y = 0; y < slotGroupDim(INVENTORY_MAIN, Y); y++) {
         for (u8 x = 0; x < slotGroupDim(INVENTORY_MAIN, X); x++) {
-            createSlot(inventory->main_slots, INVENTORY_MAIN, x, y);
+            createSlot(inventory->slots, INVENTORY_MAIN, x, y);
         }
     }
     for (u8 y = 0; y < slotGroupDim(INVENTORY_MAIN, Y); y++) {
         for (u8 x = 0; x < slotGroupDim(INVENTORY_MAIN, X); x++) {
             createSlotRef(
-                inventory->hotbar_slots,
+                inventory->slots,
                 INVENTORY_HOTBAR,
                 x, y,
                 hotbar->slots,
                 HOTBAR,
                 x, y
             );
-            /*const size_t index = ((y) * slotGroupDim(INVENTORY_HOTBAR, X)) + (x);*/
-            /*Slot* slot = &inventory->hotbar_slots[index];*/
-            /*slot->index = INVENTORY_HOTBAR_SLOT_GROUP_INDEX_OFFSET + index;*/
-            /*slot->data.ref = &hotbar->slots[index];*/
         }
     }
     inventory->debounce = 0;
@@ -74,37 +70,85 @@ void inventoryRenderSlots(const Inventory* inventory, RenderContext* ctx, Transf
     if (!inventory->ui.active) {
         return;
     }
-    for (int i = 0; i < INVENTORY_SLOT_HOTBAR_OFFSET; i++) {
-        const Slot* slot = &inventory->slots[i];
-        if (slot->data.item == NULL) {
-            continue;
+
+    for (u8 x = 0; x < slotGroupDim(INVENTORY_ARMOUR, X); x++) {
+        for (u8 y = 0; y < slotGroupDim(INVENTORY_ARMOUR, Y); y++) {
+            const u8 i = slotGroupIndexOffset(INVENTORY_ARMOUR)
+                        + (slotGroupDim(INVENTORY_ARMOUR, X) * y) + x;
+            const Slot* slot = &inventory->slots[i];
+            if (slot->data.item == NULL) {
+                continue;
+            }
+            Item* item = VCAST_PTR(Item*,slot->data.item);
+            item->position.vx = slotGroupScreenPosition(INVENTORY_ARMOUR, X, x);
+            item->position.vy = slotGroupScreenPosition(INVENTORY_ARMOUR, X, x);
+            VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
         }
-        Item* item = VCAST_PTR(Item*,slot->data.item);
-        item->position.vx = slot->position.vx;
-        item->position.vy = slot->position.vy;
-        VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
     }
-    for (int i = INVENTORY_SLOT_HOTBAR_OFFSET; i < INVENTORY_SLOT_COUNT; i++) {
-        const Slot* slot = &inventory->slots[i];
-        if (slot->data.ref == NULL || slot->data.ref->data.item == NULL) {
-            continue;
+    for (u8 x = 0; x < slotGroupDim(INVENTORY_CRAFTING, X); x++) {
+        for (u8 y = 0; y < slotGroupDim(INVENTORY_CRAFTING, Y); y++) {
+            const u8 i = slotGroupIndexOffset(INVENTORY_CRAFTING)
+                        + (slotGroupDim(INVENTORY_CRAFTING, X) * y) + x;
+            const Slot* slot = &inventory->slots[i];
+            if (slot->data.item == NULL) {
+                continue;
+            }
+            Item* item = VCAST_PTR(Item*,slot->data.item);
+            item->position.vx = slotGroupScreenPosition(INVENTORY_CRAFTING, X, x);
+            item->position.vy = slotGroupScreenPosition(INVENTORY_CRAFTING, X, x);
+            VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
         }
-        Item* item = VCAST_PTR(Item*, slot->data.ref->data.item);
-        VECTOR prev_position = item->position;
-        item->position.vx = slot->position.vx;
-        item->position.vy = slot->position.vy;
-        VCALL_SUPER(*slot->data.ref->data.item, Renderable, renderInventory, ctx, transforms);
-        item->position = prev_position;
+    }
+    const u8 i = slotGroupIndexOffset(INVENTORY_CRAFTING_RESULT);
+    const Slot* _slot = &inventory->slots[i];
+    if (_slot->data.item == NULL) {
+        Item* item = VCAST_PTR(Item*, _slot->data.item);
+        item->position.vx = slotGroupScreenPosition(INVENTORY_CRAFTING_RESULT, X, 0);
+        item->position.vy = slotGroupScreenPosition(INVENTORY_CRAFTING_RESULT, X, 0);
+        VCALL_SUPER(*_slot->data.item, Renderable, renderInventory, ctx, transforms);
+    }
+    for (u8 x = 0; x < slotGroupDim(INVENTORY_MAIN, X); x++) {
+        for (u8 y = 0; y < slotGroupDim(INVENTORY_MAIN, Y); y++) {
+            const u8 i = slotGroupIndexOffset(INVENTORY_MAIN)
+                        + (slotGroupDim(INVENTORY_MAIN, X) * y) + x;
+            const Slot* slot = &inventory->slots[i];
+            if (slot->data.item == NULL) {
+                continue;
+            }
+            Item* item = VCAST_PTR(Item*,slot->data.item);
+            item->position.vx = slotGroupScreenPosition(INVENTORY_MAIN, X, x);
+            item->position.vy = slotGroupScreenPosition(INVENTORY_MAIN, X, x);
+            VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
+        }
+    }
+    for (u8 x = 0; x < slotGroupDim(INVENTORY_HOTBAR, X); x++) {
+        for (u8 y = 0; y < slotGroupDim(INVENTORY_HOTBAR, Y); y++) {
+            const u8 i = slotGroupIndexOffset(INVENTORY_HOTBAR)
+                        + (slotGroupDim(INVENTORY_HOTBAR, X) * y) + x;
+            const Slot* slot = &inventory->slots[i];
+            if (slot->data.ref == NULL || slot->data.ref->data.item == NULL) {
+                continue;
+            }
+            Item* item = VCAST_PTR(Item*, slot->data.ref->data.item);
+            VECTOR prev_position = item->position;
+            item->position.vx = slotGroupScreenPosition(INVENTORY_HOTBAR, X, x);
+            item->position.vy = slotGroupScreenPosition(INVENTORY_HOTBAR, X, x);
+            VCALL_SUPER(*slot->data.ref->data.item, Renderable, renderInventory, ctx, transforms);
+            item->position = prev_position;
+        }
     }
 }
 
-Slot* inventorySearchItem(const Inventory* inventory, const ItemID id, const u8 from_slot, u8* next_free) {
+Slot* inventorySearchItem(Inventory* inventory,
+                          const ItemID id,
+                          const u8 from_slot,
+                          u8* next_free) {
     *next_free = INVENTORY_NO_FREE_SLOT;
-    if (from_slot >= INVENTORY_SLOT_COUNT) {
+    if (from_slot < 0 || from_slot >= INVENTORY_SLOT_COUNT) {
         return NULL;
     }
     // Hotbar first
-    for (u8 i = max(from_slot, INVENTORY_SLOT_HOTBAR_OFFSET); i < INVENTORY_SLOT_COUNT; i++) {
+    for (u8 i = max(from_slot, slotGroupIndexOffset(INVENTORY_HOTBAR)); i < INVENTORY_SLOT_COUNT; i++) {
         Slot* slot = &inventory->slots[i];
         const Slot* slot_ref = slot->data.ref;
         if (slot_ref->data.item == NULL) {
@@ -119,7 +163,7 @@ Slot* inventorySearchItem(const Inventory* inventory, const ItemID id, const u8 
         }
     }
     // Inventory storage second
-    for (u8 i = from_slot; i < INVENTORY_SLOT_HOTBAR_OFFSET; i++) {
+    for (u8 i = from_slot; i < slotGroupIndexOffset(INVENTORY_HOTBAR); i++) {
         Slot* slot = &inventory->slots[i];
         if (slot->data.item == NULL) {
             if (*next_free == INVENTORY_NO_FREE_SLOT) {
@@ -135,19 +179,19 @@ Slot* inventorySearchItem(const Inventory* inventory, const ItemID id, const u8 
     return NULL;
 }
 
-Slot* inventoryFindFreeSlot(const Inventory* inventory, const u8 from_slot) {
+Slot* inventoryFindFreeSlot(Inventory* inventory, const u8 from_slot) {
     if (from_slot >= INVENTORY_SLOT_COUNT) {
         return NULL;
     }
     // Hotbar first
-    for (u8 i = max(from_slot, INVENTORY_SLOT_HOTBAR_OFFSET); i < INVENTORY_SLOT_COUNT; i++) {
+    for (u8 i = max(from_slot, slotGroupIndexOffset(INVENTORY_HOTBAR)); i < INVENTORY_SLOT_COUNT; i++) {
         Slot* slot = &inventory->slots[i];
         if (slot->data.ref->data.item == NULL) {
             return slot;
         }
     }
     // Inventory storage second
-    for (u8 i = from_slot; i < INVENTORY_SLOT_HOTBAR_OFFSET; i++) {
+    for (u8 i = from_slot; i < slotGroupIndexOffset(INVENTORY_HOTBAR); i++) {
         Slot* slot = &inventory->slots[i];
         if (slot->data.item == NULL) {
             return slot;
@@ -156,7 +200,7 @@ Slot* inventoryFindFreeSlot(const Inventory* inventory, const u8 from_slot) {
     return NULL;
 }
 
-InventoryStoreResult inventoryStoreItem(const Inventory* inventory, IItem* iitem) {
+InventoryStoreResult inventoryStoreItem(Inventory* inventory, IItem* iitem) {
     // 1. Does the item already exist in the inventory?
     //   a. [1:TRUE] Does the existing have space?
     //     i. [a:TRUE] Add the item quantity to the existing stack (up to max)
@@ -169,7 +213,7 @@ InventoryStoreResult inventoryStoreItem(const Inventory* inventory, IItem* iitem
     //   a. [2:TRUE] Add the item stack into the next free slot
     //   b. [2:FALSE] Add item back into array at the same index (make sure item world position is correct)
     InventoryStoreResult exit_code = INVENTORY_STORE_RESULT_ADDED_ALL;
-    u8 from_slot = INVENTORY_SLOT_STORAGE_OFFSET;
+    u8 from_slot = slotGroupIndexOffset(INVENTORY_MAIN);
     u8 next_free = INVENTORY_NO_FREE_SLOT;
     u8 persisted_next_free = INVENTORY_NO_FREE_SLOT;
     Slot* slot = NULL;

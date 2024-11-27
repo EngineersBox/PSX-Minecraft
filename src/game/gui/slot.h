@@ -50,6 +50,13 @@ typedef Slot SlotGroup;
 #define slotGroupSlotDim(name, dim) name##_SLOT_GROUP_SLOT_DIMENSIONS_##dim
 #define slotGroupSlotSpacing(name, dim) name##_SLOT_GROUP_SLOT_SPACING_##dim
 #define slotGroupOrigin(name, dim) name##_SLOT_GROUP_ORIGIN_##dim
+#define slotGroupIndexOffset(name) name##_SLOT_GROUP_INDEX_OFFSET
+
+#define slotGroupScreenPosition(name, dim, dim_var) (\
+    slotGroupOrigin(name, dim) \
+    + (slotGroupSlotSpacing(name, dim) * (dim_var)) \
+    + (slotGroupSlotDim(name, dim) * (dim_var)) \
+)
 
 #define xstr(s) str(s)
 #define str(s) #s
@@ -65,18 +72,20 @@ typedef Slot SlotGroup;
     checkMinMax(slotGroupSlotSpacing(name, X), str(slotGroupSlotSpacing(name, X)), 0, UINT16_MAX); \
     checkMinMax(slotGroupSlotSpacing(name, Y), str(slotGroupSlotSpacing(name, Y)), 0, UINT16_MAX); \
     checkMinMax(slotGroupOrigin(name, X), str(slotGroupOrigin(name, X)), 0, UINT16_MAX); \
-    checkMinMax(slotGroupOrigin(name, Y), str(slotGroupOrigin(name, Y)), 0, UINT16_MAX)
+    checkMinMax(slotGroupOrigin(name, Y), str(slotGroupOrigin(name, Y)), 0, UINT16_MAX); \
+    _Static_assert(slotGroupIndexOffset(name) >= 0)
 
 #define createSlotRef(slot_group, name, x, y, ref_slot_group, ref_name, ref_x, ref_y) ({ \
-    const size_t index = ((y) * slotGroupDim(name, X)) + (x); \
+    const size_t index = slotGroupIndexOffset(name) + ((y) * slotGroupDim(name, X)) + (x); \
     Slot* slot = &(slot_group)[index]; \
     slot->index = name##_SLOT_GROUP_INDEX_OFFSET + index; \
-    const size_t ref_index = ((ref_y) * slotGroupDim(ref_name, X)) + (ref_x); \
+    const size_t ref_index = slotGroupIndexOffset(ref_name) \
+                            + ((ref_y) * slotGroupDim(ref_name, X)) + (ref_x); \
     slot->data.ref = &(ref_slot_group)[ref_index]; \
 })
 
 #define createSlot(slot_group, name, x, y) ({ \
-    const size_t index = ((y) * slotGroupDim(name, X)) + (x); \
+    const size_t index = slotGroupIndexOffset(name) + ((y) * slotGroupDim(name, X)) + (x); \
     Slot* slot = &(slot_group)[index]; \
     slot->index = name##_SLOT_GROUP_INDEX_OFFSET + index; \
     slot->data.item = NULL; \

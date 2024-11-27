@@ -11,22 +11,12 @@
 #include "../../util/inttypes.h"
 #include "../../hardware/counters.h"
 
-// * 0-3: armour
-// * 4-7: crafting input
-// * 8: crafting output
-// * 9-35: storage
-// * [36-44] -> [0-8]: hotbar (via pointer ref)
-#define INVENTORY_SLOT_COUNT 45
-#define INVENTORY_SLOT_ARMOR_OFFSET 0
-#define INVENTORY_SLOT_CRAFTING_OFFSET 4
-#define INVENTORY_SLOT_STORAGE_OFFSET 9
-#define INVENTORY_SLOT_HOTBAR_OFFSET 36
 #define INVENTORY_NO_FREE_SLOT __UINT8_MAX__
 
 #define INVENTORY_WIDTH 176
 #define INVENTORY_HEIGHT 166
 
-#define inventorySlotIsRef(slot) ((slot)->index >= INVENTORY_SLOT_HOTBAR_OFFSET)
+#define inventorySlotIsRef(slot) ((slot)->index >= slotGroupIndexOffset(INVENTORY_HOTBAR))
 #define inventorySlotGetItem(slot) ((inventorySlotIsRef(slot) ? (slot)->data.ref->data : (slot)->data).item)
 #define inventorySlotSetItem(slot, _item) ({ \
     do { \
@@ -69,8 +59,8 @@ typedef enum {
 #define INVENTORY_ARMOUR_SLOT_GROUP_SLOT_SPACING_Y 2
 #define INVENTORY_ARMOUR_SLOT_GROUP_ORIGIN_X 80
 #define INVENTORY_ARMOUR_SLOT_GROUP_ORIGIN_Y 45
-slotGroupCheck(INVENTORY_ARMOUR);
 #define INVENTORY_ARMOUR_SLOT_GROUP_INDEX_OFFSET 0
+slotGroupCheck(INVENTORY_ARMOUR);
 
 // Crafting slots
 #define INVENTORY_CRAFTING_SLOT_GROUP_DIMENSIONS_X 2
@@ -81,8 +71,8 @@ slotGroupCheck(INVENTORY_ARMOUR);
 #define INVENTORY_CRAFTING_SLOT_GROUP_SLOT_SPACING_Y 2
 #define INVENTORY_CRAFTING_SLOT_GROUP_ORIGIN_X 160
 #define INVENTORY_CRAFTING_SLOT_GROUP_ORIGIN_Y 63
-slotGroupCheck(INVENTORY_CRAFTING);
 #define INVENTORY_CRAFTING_SLOT_GROUP_INDEX_OFFSET 4
+slotGroupCheck(INVENTORY_CRAFTING);
 
 // Crafting results slots
 #define INVENTORY_CRAFTING_RESULT_SLOT_GROUP_DIMENSIONS_X 1
@@ -93,8 +83,8 @@ slotGroupCheck(INVENTORY_CRAFTING);
 #define INVENTORY_CRAFTING_RESULT_SLOT_GROUP_SLOT_SPACING_Y 0
 #define INVENTORY_CRAFTING_RESULT_SLOT_GROUP_ORIGIN_X 216
 #define INVENTORY_CRAFTING_RESULT_SLOT_GROUP_ORIGIN_Y 73
-slotGroupCheck(INVENTORY_CRAFTING_RESULT);
 #define INVENTORY_CRAFTING_RESULT_SLOT_GROUP_INDEX_OFFSET 8
+slotGroupCheck(INVENTORY_CRAFTING_RESULT);
 
 // Main slots
 #define INVENTORY_MAIN_SLOT_GROUP_DIMENSIONS_X 9
@@ -105,8 +95,8 @@ slotGroupCheck(INVENTORY_CRAFTING_RESULT);
 #define INVENTORY_MAIN_SLOT_GROUP_SLOT_SPACING_Y 2
 #define INVENTORY_MAIN_SLOT_GROUP_ORIGIN_X 80
 #define INVENTORY_MAIN_SLOT_GROUP_ORIGIN_Y 121
-slotGroupCheck(INVENTORY_MAIN);
 #define INVENTORY_MAIN_SLOT_GROUP_INDEX_OFFSET 9
+slotGroupCheck(INVENTORY_MAIN);
 
 // Hotbar slots
 #define INVENTORY_HOTBAR_SLOT_GROUP_DIMENSIONS_X 9
@@ -117,18 +107,26 @@ slotGroupCheck(INVENTORY_MAIN);
 #define INVENTORY_HOTBAR_SLOT_GROUP_SLOT_SPACING_Y 0
 #define INVENTORY_HOTBAR_SLOT_GROUP_ORIGIN_X 80
 #define INVENTORY_HOTBAR_SLOT_GROUP_ORIGIN_Y 179
-slotGroupCheck(INVENTORY_HOTBAR);
 #define INVENTORY_HOTBAR_SLOT_GROUP_INDEX_OFFSET 36
+slotGroupCheck(INVENTORY_HOTBAR);
 
 #define INVENTORY_DEBOUNCE_MS 200
 
+// * 0-3: armour
+// * 4-7: crafting input
+// * 8: crafting output
+// * 9-35: storage
+// * [36-44] -> [0-8]: hotbar (via pointer ref)
+#define INVENTORY_SLOT_COUNT (\
+    (slotGroupDim(INVENTORY_ARMOUR, X) * slotGroupDim(INVENTORY_ARMOUR, Y)) \
+    + (slotGroupDim(INVENTORY_CRAFTING, X) * slotGroupDim(INVENTORY_CRAFTING, Y)) \
+    + (slotGroupDim(INVENTORY_CRAFTING_RESULT, X) * slotGroupDim(INVENTORY_CRAFTING_RESULT, Y)) \
+    + (slotGroupDim(INVENTORY_MAIN, X) * slotGroupDim(INVENTORY_MAIN, Y)) \
+    + (slotGroupDim(INVENTORY_HOTBAR, X) * slotGroupDim(INVENTORY_HOTBAR, Y)) \
+)
+
 DEFN_UI(Inventory,
-    /*cvector(Slot) slots;*/
-    SlotGroup armour_slots[slotGroupDim(INVENTORY_ARMOUR, Y) * slotGroupDim(INVENTORY_ARMOUR, X)];
-    SlotGroup crafting_slots[slotGroupDim(INVENTORY_CRAFTING, Y) * slotGroupDim(INVENTORY_CRAFTING, X)];
-    SlotGroup crafting_result_slots[slotGroupDim(INVENTORY_CRAFTING_RESULT, Y) * slotGroupDim(INVENTORY_CRAFTING_RESULT, X)];
-    SlotGroup main_slots[slotGroupDim(INVENTORY_MAIN, Y) * slotGroupDim(INVENTORY_MAIN, X)];
-    SlotGroup hotbar_slots[slotGroupDim(INVENTORY_HOTBAR, Y) * slotGroupSlotDim(INVENTORY_HOTBAR, X)];
+    Slot slots[INVENTORY_SLOT_COUNT];
     Hotbar* hotbar;
     Timestamp debounce;
 );
@@ -137,10 +135,10 @@ void inventoryInit(Inventory* inventory, Hotbar* hotbar);
 
 void inventoryRenderSlots(const Inventory* inventory, RenderContext* ctx, Transforms* transforms);
 
-Slot* inventorySearchItem(const Inventory* inventory, const ItemID id, const u8 from_slot, u8* next_free);
-Slot* inventoryFindFreeSlot(const Inventory* inventory, const u8 from_slot);
+Slot* inventorySearchItem(Inventory* inventory, const ItemID id, const u8 from_slot, u8* next_free);
+Slot* inventoryFindFreeSlot(Inventory* inventory, const u8 from_slot);
 
-InventoryStoreResult inventoryStoreItem(const Inventory* inventory, IItem* iitem);
+InventoryStoreResult inventoryStoreItem(Inventory* inventory, IItem* iitem);
 
 void inventoryOpen(VSelf);
 void Inventory_open(VSelf);

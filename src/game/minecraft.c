@@ -21,6 +21,7 @@
 #include "../logging/logging.h"
 #include "../util/preprocessor.h"
 #include "blocks/block.h"
+#include "gui/slot.h"
 #include "items/items.h"
 #include "items/blocks/item_block_grass.h"
 #include "items/blocks/item_block_stone.h"
@@ -133,7 +134,7 @@ void Minecraft_init(VSelf, void* ctx) {
     inventorySlotSetItem(slot, item);
     VCALL_SUPER(*item, Renderable, applyInventoryRenderAttributes);
     // ==== TESTING: Inventory ====
-    slot = &inventory->slots[INVENTORY_SLOT_STORAGE_OFFSET + 2];
+    slot = &inventory->slots[slotGroupIndexOffset(INVENTORY_MAIN) + 2];
     item = itemCreate();
     grass_item_block = grassItemBlockCreate();
     DYN_PTR(item, GrassItemBlock, IItem, grass_item_block);
