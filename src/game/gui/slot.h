@@ -78,7 +78,7 @@ typedef Slot SlotGroup;
 #define createSlotRef(slot_group, name, x, y, ref_slot_group, ref_name, ref_x, ref_y) ({ \
     const size_t index = slotGroupIndexOffset(name) + ((y) * slotGroupDim(name, X)) + (x); \
     Slot* slot = &(slot_group)[index]; \
-    slot->index = name##_SLOT_GROUP_INDEX_OFFSET + index; \
+    slot->index = index; \
     const size_t ref_index = slotGroupIndexOffset(ref_name) \
                             + ((ref_y) * slotGroupDim(ref_name, X)) + (ref_x); \
     slot->data.ref = &(ref_slot_group)[ref_index]; \
@@ -87,7 +87,7 @@ typedef Slot SlotGroup;
 #define createSlot(slot_group, name, x, y) ({ \
     const size_t index = slotGroupIndexOffset(name) + ((y) * slotGroupDim(name, X)) + (x); \
     Slot* slot = &(slot_group)[index]; \
-    slot->index = name##_SLOT_GROUP_INDEX_OFFSET + index; \
+    slot->index = index; \
     slot->data.item = NULL; \
 })
 
