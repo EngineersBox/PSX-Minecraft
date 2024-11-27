@@ -39,6 +39,7 @@
 * [ ] Move mesh generation to after all loading when updating world to avoid face generation on orthogonal axis to update axis
 * [ ] Lighting on dropped items is pure black sometimes despite being in light (possibly bad world position when retrieving light value). The physics object position for items isn't properly aligned to the bounding box since the position (which should be the centre of the AABB) isn't aligned properly and thus when converting to world position and querying the light level, it can query the next block over (in the direction that the item moved when it was dropped) and thus can get a light level of 0 and the item is rendered as black in the world.
 * [ ] Weather texture does not scroll correctly, some planes are static and only in some places does it work correctly. Potentially an issue with texture windowing and UV positions.
+* [ ] The `inventoryRenderSlots` method using the new slot groups seems to index out of bound at some point.
 
 ## Implement
 
@@ -139,6 +140,7 @@
 * [X] Move assets to on-disk directories and files instead of packing them into the binary
 * [X] Move dynamic assets (like GUIs) into separate on-disk LZP archive to be referenced ad-hoc instead of needing to keep entire assets resource in memory all time time including static assets.
 * [X] Replace fixed dual `LINE_F2` crosshair with texture rendered from GUI texture, allowing user customisation and saving an OT entry + draw call
+* [X] Slots should be groupable and have handlers to assist with rendering while also maintain ease of storage as a single 1D array.
 * [ ] Support other resolutions that aren't 320x240
 * [ ] Refactor the `chunkRemoveLightType` call into the `chunkSetLightType` when the light value is `0` and update the necessary logic changes to accomodate this (seems to cause infinite lighting update loops if this is done at the moment)
 * [ ] Change block equality check to account for both `id` and `metadata_id` fields in all relevant places (i.e. binary greedy mesher)
