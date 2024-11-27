@@ -51,8 +51,8 @@ void inventoryInit(Inventory* inventory, Hotbar* hotbar) {
             createSlot(inventory->slots, INVENTORY_MAIN, x, y);
         }
     }
-    for (u8 y = 0; y < slotGroupDim(INVENTORY_MAIN, Y); y++) {
-        for (u8 x = 0; x < slotGroupDim(INVENTORY_MAIN, X); x++) {
+    for (u8 y = 0; y < slotGroupDim(INVENTORY_HOTBAR, Y); y++) {
+        for (u8 x = 0; x < slotGroupDim(INVENTORY_HOTBAR, X); x++) {
             createSlotRef(
                 inventory->slots,
                 INVENTORY_HOTBAR,
