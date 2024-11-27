@@ -9,6 +9,7 @@
 #include <stdint.h>
 
 #include "../items/item.h"
+#include "../../util/preprocessor.h"
 
 typedef struct Slot {
     union {
@@ -58,21 +59,19 @@ typedef Slot SlotGroup;
     + (slotGroupSlotDim(name, dim) * (dim_var)) \
 )
 
-#define xstr(s) str(s)
-#define str(s) #s
-#define checkMinMax(v, _str, _min, _max) \
+#define slotGroupCheckMinMax(v, _str, _min, _max) \
     _Static_assert((v) >= (_min), _str); \
     _Static_assert((v) <= (_max), _str)
 
 #define slotGroupCheck(name) \
-    checkMinMax(slotGroupDim(name, X), str(slotGroupDim(name, X)), 0, UINT8_MAX); \
-    checkMinMax(slotGroupDim(name, Y), str(slotGroupDim(name, Y)), 0, UINT8_MAX); \
-    checkMinMax(slotGroupSlotDim(name, X), str(slotGroupSlotDim(name, X)), 0, UINT8_MAX); \
-    checkMinMax(slotGroupSlotDim(name, Y), str(slotGroupSlotDim(name, Y)), 0, UINT8_MAX); \
-    checkMinMax(slotGroupSlotSpacing(name, X), str(slotGroupSlotSpacing(name, X)), 0, UINT16_MAX); \
-    checkMinMax(slotGroupSlotSpacing(name, Y), str(slotGroupSlotSpacing(name, Y)), 0, UINT16_MAX); \
-    checkMinMax(slotGroupOrigin(name, X), str(slotGroupOrigin(name, X)), 0, UINT16_MAX); \
-    checkMinMax(slotGroupOrigin(name, Y), str(slotGroupOrigin(name, Y)), 0, UINT16_MAX); \
+    slotGroupCheckMinMax(slotGroupDim(name, X), STRINGIFY(slotGroupDim(name, X)), 0, UINT8_MAX); \
+    slotGroupCheckMinMax(slotGroupDim(name, Y), STRINGIFY(slotGroupDim(name, Y)), 0, UINT8_MAX); \
+    slotGroupCheckMinMax(slotGroupSlotDim(name, X), STRINGIFY(slotGroupSlotDim(name, X)), 0, UINT8_MAX); \
+    slotGroupCheckMinMax(slotGroupSlotDim(name, Y), STRINGIFY(slotGroupSlotDim(name, Y)), 0, UINT8_MAX); \
+    slotGroupCheckMinMax(slotGroupSlotSpacing(name, X), STRINGIFY(slotGroupSlotSpacing(name, X)), 0, UINT16_MAX); \
+    slotGroupCheckMinMax(slotGroupSlotSpacing(name, Y), STRINGIFY(slotGroupSlotSpacing(name, Y)), 0, UINT16_MAX); \
+    slotGroupCheckMinMax(slotGroupOrigin(name, X), STRINGIFY(slotGroupOrigin(name, X)), 0, UINT16_MAX); \
+    slotGroupCheckMinMax(slotGroupOrigin(name, Y), STRINGIFY(slotGroupOrigin(name, Y)), 0, UINT16_MAX); \
     _Static_assert(slotGroupIndexOffset(name) >= 0)
 
 #define createSlotRef(slot_group, name, x, y, ref_slot_group, ref_name, ref_x, ref_y) ({ \

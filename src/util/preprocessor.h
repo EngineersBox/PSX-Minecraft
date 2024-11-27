@@ -11,6 +11,9 @@
 
 // ==== META MACROS ====
 
+#define XSTRINGIFY(s) STRINGIFY(s)
+#define STRINGIFY(s) #s
+
 #define GLUE(x,y) x##y
 
 // See: https://gustedt.wordpress.com/2011/03/18/statement-unrolling-with-p99_for/
