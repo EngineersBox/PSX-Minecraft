@@ -31,18 +31,18 @@
 #define MK_INVENTORY_STORE_RESULT_LIST(f) \
     f(INVENTORY_STORE_RESULT_ADDED_ALL) \
     f(INVENTORY_STORE_RESULT_ADDED_SOME) \
-    f(INVENTORY_STORE_RESULT_NO_SPACE) \
-    f(INVENTORY_STORE_RESULT_ADDED_NEW_SLOT)
+    f(INVENTORY_STORE_RESULT_ADDED_NEW_SLOT) \
+    f(INVENTORY_STORE_RESULT_NO_SPACE)
 
 // Added and freed iitem instance
-//  - INVENTORY_STORE_RESULT_ADDED_ALL = 0,
+//  - INVENTORY_STORE_RESULT_ADDED_ALL = 0
 // Added some of stack, didn't free iitem, updated stack_size
-//  - INVENTORY_STORE_RESULT_ADDED_SOME,
-// No space in inventory, didn't free iitem, didn't update stack size
-//  - INVENTORY_STORE_RESULT_NO_SPACE,
+//  - INVENTORY_STORE_RESULT_ADDED_SOME
 // Added to new slot, didn't free iitem
 // - INVENTORY_STORE_RESULT_ADDED_NEW_SLOT
-typedef enum {
+// No space in inventory, didn't free iitem, didn't update stack size
+//  - INVENTORY_STORE_RESULT_NO_SPACE
+typedef enum InventoryStoreResult {
     MK_INVENTORY_STORE_RESULT_LIST(P99_ENUM_ENTRY)
 } InventoryStoreResult;
 
@@ -125,6 +125,20 @@ slotGroupCheck(INVENTORY_HOTBAR);
     + (slotGroupDim(INVENTORY_HOTBAR, X) * slotGroupDim(INVENTORY_HOTBAR, Y)) \
 )
 
+typedef enum InventorySlotGroup {
+    INVENTORY_SLOT_GROUP_ARMOUR = 0b00001,
+    INVENTORY_SLOT_GROUP_CRAFTING = 0b00010,
+    INVENTORY_SLOT_GROUP_CRAFTING_RESULT = 0b00100,
+    INVENTORY_SLOT_GROUP_MAIN = 0b01000,
+    INVENTORY_SLOT_GROUP_HOTBAR = 0b10000,
+    INVENTORY_SLOT_GROUP_NONE = 0b00000,
+    INVENTORY_SLOT_GROUP_ALL = 0b11111
+} InventorySlotGroup;
+
+// Elements of InventorySlotGroup bundled together
+// via logical OR (|)
+typedef u8 InventorySlotGroups;
+
 DEFN_UI(Inventory,
     Slot slots[INVENTORY_SLOT_COUNT];
     Hotbar* hotbar;
@@ -133,7 +147,13 @@ DEFN_UI(Inventory,
 
 void inventoryInit(Inventory* inventory, Hotbar* hotbar);
 
-void inventoryRenderSlots(const Inventory* inventory, RenderContext* ctx, Transforms* transforms);
+// Groups indicates which slot groups to render,
+// which should be a logical OR of all the desired
+// groups in the InventorySlotGroup enum
+void inventoryRenderSlots(const Inventory* inventory,
+                          InventorySlotGroups groups,
+                          RenderContext* ctx,
+                          Transforms* transforms);
 
 Slot* inventorySearchItem(Inventory* inventory, const ItemID id, const u8 from_slot, u8* next_free);
 Slot* inventoryFindFreeSlot(Inventory* inventory, const u8 from_slot);

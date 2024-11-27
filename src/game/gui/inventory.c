@@ -66,77 +66,90 @@ void inventoryInit(Inventory* inventory, Hotbar* hotbar) {
     inventory->debounce = 0;
 }
 
-void inventoryRenderSlots(const Inventory* inventory, RenderContext* ctx, Transforms* transforms) {
-    if (!inventory->ui.active) {
+void inventoryRenderSlots(const Inventory* inventory,
+                          InventorySlotGroups groups,
+                          RenderContext* ctx,
+                          Transforms* transforms) {
+    if (groups == INVENTORY_SLOT_GROUP_NONE) {
         return;
     }
     // FIXME: Something breaks when this render method is invoked.
     //        It's to do with the new slot groups stuff, so probs
     //        bad indexing or something of the same ilk.
-    for (u8 x = 0; x < slotGroupDim(INVENTORY_ARMOUR, X); x++) {
-        for (u8 y = 0; y < slotGroupDim(INVENTORY_ARMOUR, Y); y++) {
-            const u8 i = slotGroupIndexOffset(INVENTORY_ARMOUR)
-                        + (slotGroupDim(INVENTORY_ARMOUR, X) * y) + x;
-            const Slot* slot = &inventory->slots[i];
-            if (slot->data.item == NULL) {
-                continue;
+    if (groups & INVENTORY_SLOT_GROUP_ARMOUR) {
+        for (u8 x = 0; x < slotGroupDim(INVENTORY_ARMOUR, X); x++) {
+            for (u8 y = 0; y < slotGroupDim(INVENTORY_ARMOUR, Y); y++) {
+                const u8 i = slotGroupIndexOffset(INVENTORY_ARMOUR)
+                            + (slotGroupDim(INVENTORY_ARMOUR, X) * y) + x;
+                const Slot* slot = &inventory->slots[i];
+                if (slot->data.item == NULL) {
+                    continue;
+                }
+                Item* item = VCAST_PTR(Item*,slot->data.item);
+                item->position.vx = slotGroupScreenPosition(INVENTORY_ARMOUR, X, x);
+                item->position.vy = slotGroupScreenPosition(INVENTORY_ARMOUR, Y, y);
+                VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
             }
-            Item* item = VCAST_PTR(Item*,slot->data.item);
-            item->position.vx = slotGroupScreenPosition(INVENTORY_ARMOUR, X, x);
-            item->position.vy = slotGroupScreenPosition(INVENTORY_ARMOUR, Y, y);
-            VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
         }
     }
-    for (u8 x = 0; x < slotGroupDim(INVENTORY_CRAFTING, X); x++) {
-        for (u8 y = 0; y < slotGroupDim(INVENTORY_CRAFTING, Y); y++) {
-            const u8 i = slotGroupIndexOffset(INVENTORY_CRAFTING)
-                        + (slotGroupDim(INVENTORY_CRAFTING, X) * y) + x;
-            const Slot* slot = &inventory->slots[i];
-            if (slot->data.item == NULL) {
-                continue;
+    if (groups & INVENTORY_SLOT_GROUP_CRAFTING) {
+        for (u8 x = 0; x < slotGroupDim(INVENTORY_CRAFTING, X); x++) {
+            for (u8 y = 0; y < slotGroupDim(INVENTORY_CRAFTING, Y); y++) {
+                const u8 i = slotGroupIndexOffset(INVENTORY_CRAFTING)
+                            + (slotGroupDim(INVENTORY_CRAFTING, X) * y) + x;
+                const Slot* slot = &inventory->slots[i];
+                if (slot->data.item == NULL) {
+                    continue;
+                }
+                Item* item = VCAST_PTR(Item*,slot->data.item);
+                item->position.vx = slotGroupScreenPosition(INVENTORY_CRAFTING, X, x);
+                item->position.vy = slotGroupScreenPosition(INVENTORY_CRAFTING, Y, y);
+                VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
             }
-            Item* item = VCAST_PTR(Item*,slot->data.item);
-            item->position.vx = slotGroupScreenPosition(INVENTORY_CRAFTING, X, x);
-            item->position.vy = slotGroupScreenPosition(INVENTORY_CRAFTING, Y, y);
-            VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
         }
     }
-    const u8 craftingResultIndex = slotGroupIndexOffset(INVENTORY_CRAFTING_RESULT);
-    const Slot* _slot = &inventory->slots[craftingResultIndex];
-    if (_slot->data.item == NULL) {
-        Item* item = VCAST_PTR(Item*, _slot->data.item);
-        item->position.vx = slotGroupScreenPosition(INVENTORY_CRAFTING_RESULT, X, 0);
-        item->position.vy = slotGroupScreenPosition(INVENTORY_CRAFTING_RESULT, Y, 0);
-        VCALL_SUPER(*_slot->data.item, Renderable, renderInventory, ctx, transforms);
-    }
-    for (u8 x = 0; x < slotGroupDim(INVENTORY_MAIN, X); x++) {
-        for (u8 y = 0; y < slotGroupDim(INVENTORY_MAIN, Y); y++) {
-            const u8 i = slotGroupIndexOffset(INVENTORY_MAIN)
-                        + (slotGroupDim(INVENTORY_MAIN, X) * y) + x;
-            const Slot* slot = &inventory->slots[i];
-            if (slot->data.item == NULL) {
-                continue;
-            }
-            Item* item = VCAST_PTR(Item*,slot->data.item);
-            item->position.vx = slotGroupScreenPosition(INVENTORY_MAIN, X, x);
-            item->position.vy = slotGroupScreenPosition(INVENTORY_MAIN, Y, y);
-            VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
+    if (groups & INVENTORY_SLOT_GROUP_CRAFTING_RESULT) {
+        const u8 craftingResultIndex = slotGroupIndexOffset(INVENTORY_CRAFTING_RESULT);
+        const Slot* _slot = &inventory->slots[craftingResultIndex];
+        if (_slot->data.item == NULL) {
+            Item* item = VCAST_PTR(Item*, _slot->data.item);
+            item->position.vx = slotGroupScreenPosition(INVENTORY_CRAFTING_RESULT, X, 0);
+            item->position.vy = slotGroupScreenPosition(INVENTORY_CRAFTING_RESULT, Y, 0);
+            VCALL_SUPER(*_slot->data.item, Renderable, renderInventory, ctx, transforms);
         }
     }
-    for (u8 x = 0; x < slotGroupDim(INVENTORY_HOTBAR, X); x++) {
-        for (u8 y = 0; y < slotGroupDim(INVENTORY_HOTBAR, Y); y++) {
-            const u8 i = slotGroupIndexOffset(INVENTORY_HOTBAR)
-                        + (slotGroupDim(INVENTORY_HOTBAR, X) * y) + x;
-            const Slot* slot = &inventory->slots[i];
-            if (slot->data.ref == NULL || slot->data.ref->data.item == NULL) {
-                continue;
+    if (groups & INVENTORY_SLOT_GROUP_MAIN) {
+        for (u8 x = 0; x < slotGroupDim(INVENTORY_MAIN, X); x++) {
+            for (u8 y = 0; y < slotGroupDim(INVENTORY_MAIN, Y); y++) {
+                const u8 i = slotGroupIndexOffset(INVENTORY_MAIN)
+                            + (slotGroupDim(INVENTORY_MAIN, X) * y) + x;
+                const Slot* slot = &inventory->slots[i];
+                if (slot->data.item == NULL) {
+                    continue;
+                }
+                Item* item = VCAST_PTR(Item*,slot->data.item);
+                item->position.vx = slotGroupScreenPosition(INVENTORY_MAIN, X, x);
+                item->position.vy = slotGroupScreenPosition(INVENTORY_MAIN, Y, y);
+                VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
             }
-            Item* item = VCAST_PTR(Item*, slot->data.ref->data.item);
-            VECTOR prev_position = item->position;
-            item->position.vx = slotGroupScreenPosition(INVENTORY_HOTBAR, X, x);
-            item->position.vy = slotGroupScreenPosition(INVENTORY_HOTBAR, Y, y);
-            VCALL_SUPER(*slot->data.ref->data.item, Renderable, renderInventory, ctx, transforms);
-            item->position = prev_position;
+        }
+    }
+    if (groups & INVENTORY_SLOT_GROUP_HOTBAR) {
+        for (u8 x = 0; x < slotGroupDim(INVENTORY_HOTBAR, X); x++) {
+            for (u8 y = 0; y < slotGroupDim(INVENTORY_HOTBAR, Y); y++) {
+                const u8 i = slotGroupIndexOffset(INVENTORY_HOTBAR)
+                            + (slotGroupDim(INVENTORY_HOTBAR, X) * y) + x;
+                const Slot* slot = &inventory->slots[i];
+                if (slot->data.ref == NULL || slot->data.ref->data.item == NULL) {
+                    continue;
+                }
+                Item* item = VCAST_PTR(Item*, slot->data.ref->data.item);
+                VECTOR prev_position = item->position;
+                item->position.vx = slotGroupScreenPosition(INVENTORY_HOTBAR, X, x);
+                item->position.vy = slotGroupScreenPosition(INVENTORY_HOTBAR, Y, y);
+                VCALL_SUPER(*slot->data.ref->data.item, Renderable, renderInventory, ctx, transforms);
+                item->position = prev_position;
+            }
         }
     }
 }

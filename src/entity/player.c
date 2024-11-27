@@ -88,7 +88,10 @@ void playerRender(const Player* player, RenderContext* ctx, Transforms* transfor
     hotbarRenderSlots(hotbar, ctx, transforms);
     uiRender(&hotbar->ui, ctx, transforms);
     const Inventory* inventory = VCAST(Inventory*, player->inventory);
-    inventoryRenderSlots(inventory, ctx, transforms);
+    InventorySlotGroups groups = inventory->ui.active
+        ? INVENTORY_SLOT_GROUP_ALL
+        : INVENTORY_SLOT_GROUP_NONE;
+    inventoryRenderSlots(inventory, groups, ctx, transforms);
     uiRender(&inventory->ui, ctx, transforms);
 }
 
