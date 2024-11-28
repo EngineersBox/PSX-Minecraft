@@ -268,7 +268,6 @@ void Minecraft_render(VSelf, const Stats* stats) {
     // Block UI overlays
     if (block_render_ui_context.function != NULL) {
         block_render_ui_context.function(
-            block_render_ui_context.block,
             &self->internals.ctx,
             &self->internals.transforms
         );
