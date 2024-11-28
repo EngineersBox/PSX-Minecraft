@@ -11,7 +11,6 @@
 #include "../../hardware/counters.h"
 #include "slot.h"
 
-// TODO: Conver to new slot layout, see inventory for reference
 #define HOTBAR_SLOT_GROUP_DIMENSIONS_X 9
 #define HOTBAR_SLOT_GROUP_DIMENSIONS_Y 1
 #define HOTBAR_SLOT_GROUP_SLOT_DIMENSIONS_X 16
@@ -23,7 +22,7 @@
 #define HOTBAR_SLOT_GROUP_INDEX_OFFSET 0
 slotGroupCheck(HOTBAR);
 
-#define HOTBAR_SLOT_COUNT (slotGroupDim(HOTBAR, X) * slotGroupDim(HOTBAR, Y))
+#define HOTBAR_SLOT_COUNT slotGroupSize(HOTBAR)
 #define HOTBAR_WIDTH 182
 #define HOTBAR_HEIGHT 22
 

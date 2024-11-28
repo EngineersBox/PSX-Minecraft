@@ -74,7 +74,7 @@ slotGroupCheck(INVENTORY_ARMOUR);
 #define INVENTORY_CRAFTING_SLOT_GROUP_INDEX_OFFSET 4
 slotGroupCheck(INVENTORY_CRAFTING);
 
-// Crafting results slots
+// Crafting result slots
 #define INVENTORY_CRAFTING_RESULT_SLOT_GROUP_DIMENSIONS_X 1
 #define INVENTORY_CRAFTING_RESULT_SLOT_GROUP_DIMENSIONS_Y 1
 #define INVENTORY_CRAFTING_RESULT_SLOT_GROUP_SLOT_DIMENSIONS_X 16
@@ -118,11 +118,11 @@ slotGroupCheck(INVENTORY_HOTBAR);
 // * 9-35: storage
 // * [36-44] -> [0-8]: hotbar (via pointer ref)
 #define INVENTORY_SLOT_COUNT (\
-    (slotGroupDim(INVENTORY_ARMOUR, X) * slotGroupDim(INVENTORY_ARMOUR, Y)) \
-    + (slotGroupDim(INVENTORY_CRAFTING, X) * slotGroupDim(INVENTORY_CRAFTING, Y)) \
-    + (slotGroupDim(INVENTORY_CRAFTING_RESULT, X) * slotGroupDim(INVENTORY_CRAFTING_RESULT, Y)) \
-    + (slotGroupDim(INVENTORY_MAIN, X) * slotGroupDim(INVENTORY_MAIN, Y)) \
-    + (slotGroupDim(INVENTORY_HOTBAR, X) * slotGroupDim(INVENTORY_HOTBAR, Y)) \
+    slotGroupSize(INVENTORY_ARMOUR) \
+    + slotGroupSize(INVENTORY_CRAFTING) \
+    + slotGroupSize(INVENTORY_CRAFTING_RESULT) \
+    + slotGroupSize(INVENTORY_MAIN) \
+    + slotGroupSize(INVENTORY_HOTBAR) \
 )
 
 typedef enum InventorySlotGroup {

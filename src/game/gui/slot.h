@@ -45,6 +45,7 @@ typedef Slot SlotGroup;
 
 // Utility accessors for slot group definitions
 #define slotGroupDim(name, dim) name##_SLOT_GROUP_DIMENSIONS_##dim
+#define slotGroupSize(name) (slotGroupDim(name, X) * slotGroupDim(name, Y))
 #define slotGroupSlotDim(name, dim) name##_SLOT_GROUP_SLOT_DIMENSIONS_##dim
 #define slotGroupSlotSpacing(name, dim) name##_SLOT_GROUP_SLOT_SPACING_##dim
 #define slotGroupOrigin(name, dim) name##_SLOT_GROUP_ORIGIN_##dim
@@ -88,6 +89,11 @@ typedef Slot SlotGroup;
     Slot* slot = &slot_group[index]; \
     slot->index = index; \
     slot->data.item = NULL; \
+})
+
+#define createSlotInline(name, x, y) ((Slot) { \
+    .index = slotGroupIndexOffset(name) + ((y) * slotGroupDim(name, X)) + (x), \
+    .data.item = NULL \
 })
 
 #ifndef INV_SLOT_WIDTH

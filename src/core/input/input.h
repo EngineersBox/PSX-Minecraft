@@ -12,6 +12,9 @@
 #define PAD_SECTIONS 2
 #define PAD_SECTION_SIZE 34
 
+#define INPUT_HANDLER_RETAIN true
+#define INPUT_HANDLER_RELIQUISH false
+
 typedef struct Input Input;
 
 typedef bool (*InputHandler)(const Input* input, void* ctx);

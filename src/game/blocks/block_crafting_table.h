@@ -31,6 +31,37 @@ DEFN_BLOCK_CONSTRUCTOR(craftingTable);
     defaultTintedFaceAttributes(4,43,59,59,60,60) \
 })
 
+#define CRAFTING_TABLE_TEXTURE_WIDTH 0
+#define CRAFTING_TABLE_TEXTURE_HEIGHT 0
+
+// Crafting slots
+#define CRAFTING_TABLE_SLOT_GROUP_DIMENSIONS_X 3
+#define CRAFTING_TABLE_SLOT_GROUP_DIMENSIONS_Y 3
+#define CRAFTING_TABLE_SLOT_GROUP_SLOT_DIMENSIONS_X 16
+#define CRAFTING_TABLE_SLOT_GROUP_SLOT_DIMENSIONS_Y 16
+#define CRAFTING_TABLE_SLOT_GROUP_SLOT_SPACING_X 2
+#define CRAFTING_TABLE_SLOT_GROUP_SLOT_SPACING_Y 2
+// TODO: determine these screen positions
+#define CRAFTING_TABLE_SLOT_GROUP_ORIGIN_X 0
+#define CRAFTING_TABLE_SLOT_GROUP_ORIGIN_Y 0
+#define CRAFTING_TABLE_SLOT_GROUP_INDEX_OFFSET 0
+slotGroupCheck(CRAFTING_TABLE);
+
+// Crafting result slots
+#define CRAFTING_TABLE_RESULT_SLOT_GROUP_DIMENSIONS_X 1
+#define CRAFTING_TABLE_RESULT_SLOT_GROUP_DIMENSIONS_Y 1
+#define CRAFTING_TABLE_RESULT_SLOT_GROUP_SLOT_DIMENSIONS_X 16
+#define CRAFTING_TABLE_RESULT_SLOT_GROUP_SLOT_DIMENSIONS_Y 16
+#define CRAFTING_TABLE_RESULT_SLOT_GROUP_SLOT_SPACING_X 0
+#define CRAFTING_TABLE_RESULT_SLOT_GROUP_SLOT_SPACING_Y 0
+// TODO: determine these screen positions
+#define CRAFTING_TABLE_RESULT_SLOT_GROUP_ORIGIN_X 0
+#define CRAFTING_TABLE_RESULT_SLOT_GROUP_ORIGIN_Y 0
+#define CRAFTING_TABLE_RESULT_SLOT_GROUP_INDEX_OFFSET 10
+slotGroupCheck(CRAFTING_TABLE_RESULT);
+
+extern Slot crafting_table_slots[(slotGroupSize(CRAFTING_TABLE) + slotGroupSize(CRAFTING_TABLE_RESULT))];
+    
 void craftingTableBlockInit(VSelf);
 void CraftingTableBlock_init(VSelf);
 
@@ -44,7 +75,7 @@ ALLOC_CALL(itemDestroy, 1) IItem* CraftingTableBlock_provideItem(VSelf);
 bool craftingTableBlockUseAction(VSelf);
 bool CraftingTableBlock_useAction(VSelf);
 
-void craftingTableBlockRenderUI(IBlock* iblock, RenderContext* ctx, Transforms* transforms);
+void craftingTableBlockRenderUI(RenderContext* ctx, Transforms* transforms);
 
 impl(IBlock, CraftingTableBlock);
 

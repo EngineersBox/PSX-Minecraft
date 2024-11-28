@@ -45,6 +45,13 @@ IItem* CraftingTableBlock_provideItem(VSelf) {
     return item;
 }
 
+static Slot crafting_table_sots[(slotGroupSize(CRAFTING_TABLE) + slotGroupSize(CRAFTING_TABLE_RESULT))] = {
+    createSlotInline(CRAFTING_TABLE, 0, 0), createSlotInline(CRAFTING_TABLE, 1, 0), createSlotInline(CRAFTING_TABLE, 2, 0),
+    createSlotInline(CRAFTING_TABLE, 0, 1), createSlotInline(CRAFTING_TABLE, 1, 0), createSlotInline(CRAFTING_TABLE, 2, 1),
+    createSlotInline(CRAFTING_TABLE, 0, 2), createSlotInline(CRAFTING_TABLE, 1, 0), createSlotInline(CRAFTING_TABLE, 2, 2),
+    createSlotInline(CRAFTING_TABLE_RESULT, 0, 0)
+};
+
 bool craftingTableBlockInputHandler(const Input* input, void* ctx) {
     const PADTYPE* pad = input->pad;
     if (isPressed(pad, BINDING_USE)) {
@@ -55,16 +62,17 @@ bool craftingTableBlockInputHandler(const Input* input, void* ctx) {
         //       here, possibly with some logic that we share
         //       between this and the base inventory structure
         //       that is used for all inventories.
-        return false;
+        return INPUT_HANDLER_RETAIN;
     }
-    if (!isPressed(pad, BINDING_OPEN_INVENTORY)) {
+    if (isPressed(pad, BINDING_OPEN_INVENTORY)) {
         // Block inventory is closed, reset the render handlers
         // to stop rendering the overlay
         block_render_ui_context.function = NULL;
         block_render_ui_context.block = NULL;
-        return true;
+        block_render_ui_context.background = (UIBackground) {0};
+        return INPUT_HANDLER_RELIQUISH;
     }
-    return false;
+    return INPUT_HANDLER_RETAIN;
 }
 
 
@@ -74,9 +82,45 @@ bool CraftingTableBlock_useAction(VSelf) {
     inputSetFocusedHandler(&input, &craftingTableBlockInputHandlerVTable);
     block_render_ui_context.function = craftingTableBlockRenderUI;
     block_render_ui_context.block = self;
+    if (assetLoadTextureDirect(
+        ASSET_BUNDLE__GUI,
+        ASSET_TEXTURE__GUI__CRAFTING_TABLE,
+        &block_render_ui_context.background.texture
+    )) {
+        printf("[CRAFTING TABLE] Failed to load texture\n");
+    }
+    block_render_ui_context.background = (UIBackground) {
+        .texture = (Texture) {0},
+        .texture_coords = vec2_i16_all(0),
+        .texture_width = vec2_i16(
+            CRAFTING_TABLE_TEXTURE_WIDTH,
+            CRAFTING_TABLE_TEXTURE_HEIGHT
+        ),
+        .component = (UIComponent) {
+            .position = vec2_i16(
+                CENTRE_X - (CRAFTING_TABLE_TEXTURE_WIDTH >> 1),
+                CENTRE_Y - (CRAFTING_TABLE_TEXTURE_HEIGHT >> 1)
+            ),
+            .dimensions = vec2_i16(
+                CRAFTING_TABLE_TEXTURE_WIDTH,
+                CRAFTING_TABLE_TEXTURE_HEIGHT
+            )
+        }
+    };
     return false;
 }
 
-void craftingTableBlockRenderUI(IBlock* iblock, RenderContext* ctx, Transforms* transforms) {
-
+void craftingTableBlockRenderUI(RenderContext* ctx, Transforms* transforms) {
+    uiBackgroundRender(
+        &block_render_ui_context.background,
+        ctx,
+        transforms
+    );
+    // TODO: Render crafting table input and output slots content
+    inventoryRenderSlots(
+        VCAST_PTR(const Inventory*, block_input_handler_context.inventory),
+        INVENTORY_SLOT_GROUP_MAIN | INVENTORY_SLOT_GROUP_HOTBAR,
+        ctx,
+        transforms
+    );
 }
