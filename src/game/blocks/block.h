@@ -178,11 +178,21 @@ typedef IBlock* (*BlockConstructor)(IItem* from_item);
     FACE_DIR_RIGHT \
 )
 
+// External data that blocks need when they need invoke
+// a handler when a player interacts with it in some way
 typedef struct BlockInputHandlerContext {
     IUI* inventory;
     World* world;
 } BlockInputHandlerContext;
 
 extern BlockInputHandlerContext block_input_handler_context;
+
+typedef void (*BlockRenderUIHandler)(IBlock* iblock, RenderContext* ctx, Transforms* transforms);
+typedef struct BlockRenderUIContext {
+    BlockRenderUIHandler function;
+    IBlock* block;
+} BlockRenderUIContext;
+
+extern BlockRenderUIContext block_render_ui_context;
 
 #endif // PSXMC_BLOCK_H

@@ -44,6 +44,8 @@ ALLOC_CALL(itemDestroy, 1) IItem* CraftingTableBlock_provideItem(VSelf);
 bool craftingTableBlockUseAction(VSelf);
 bool CraftingTableBlock_useAction(VSelf);
 
+void craftingTableBlockRenderUI(IBlock* iblock, RenderContext* ctx, Transforms* transforms);
+
 impl(IBlock, CraftingTableBlock);
 
 #endif // _PSXMC__GAME_BLOCKS__BLOCK_CRAFTING_TABLE_H_

@@ -57,21 +57,26 @@ bool craftingTableBlockInputHandler(const Input* input, void* ctx) {
         //       that is used for all inventories.
         return false;
     }
-    return !isPressed(pad, BINDING_OPEN_INVENTORY);
+    if (!isPressed(pad, BINDING_OPEN_INVENTORY)) {
+        // Block inventory is closed, reset the render handlers
+        // to stop rendering the overlay
+        block_render_ui_context.function = NULL;
+        block_render_ui_context.block = NULL;
+        return true;
+    }
+    return false;
 }
 
 
 bool craftingTableBlockUseAction(VSelf) ALIAS("CraftingTableBlock_useAction");
 bool CraftingTableBlock_useAction(VSelf) {
+    VSELF(IBlock);
     inputSetFocusedHandler(&input, &craftingTableBlockInputHandlerVTable);
-    // TODO: Create a global extern var that holds a function reference
-    //       and an IBlock instance to be invoked to render a UI. This
-    //       will be written to by a block when interacted with and set
-    //       to NULL when empty (more specifically NULL both the function
-    //       reference and IBlock instance). Then create a handler in
-    //       this crafting table implementation to draw the background,
-    //       then make a call to inventoryRenderSlots with just the MAIN
-    //       and HOTBAR slot groups as well as rendering the actual 3x3
-    //       crafting table input separately.
+    block_render_ui_context.function = craftingTableBlockRenderUI;
+    block_render_ui_context.block = self;
     return false;
+}
+
+void craftingTableBlockRenderUI(IBlock* iblock, RenderContext* ctx, Transforms* transforms) {
+
 }

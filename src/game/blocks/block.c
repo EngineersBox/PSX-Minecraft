@@ -2,7 +2,14 @@
 
 #include "../../logging/logging.h"
 
-BlockInputHandlerContext block_input_handler_context = {0};
+BlockInputHandlerContext block_input_handler_context = {
+    .world = NULL,
+    .inventory = NULL
+};
+BlockRenderUIContext block_render_ui_context = {
+    .function = NULL,
+    .block = NULL
+};
 
 void iblockUpdate(VSelf) ALIAS("IBlock_update");
 void IBlock_update(VSelf) {
@@ -34,4 +41,9 @@ bool IBlock_canPlace(VSelf,
         player_aabb,
         &aabb
     );
+}
+
+void iBlockRenderUI(VSelf, RenderContext* ctx, Transforms* transforms) ALIAS("IBlock_renderUI");
+void IBlock_renderUI(VSelf, RenderContext* ctx, Transforms* transforms) {
+    // Do nothing
 }
