@@ -265,6 +265,7 @@ void Minecraft_render(VSelf, const Stats* stats) {
     renderClearConstraints(&self->internals.ctx);
     // Render UI
     playerRender(player, &self->internals.ctx, &self->internals.transforms);
+    // Block UI overlays
     if (block_render_ui_context.function != NULL) {
         block_render_ui_context.function(
             block_render_ui_context.block,
