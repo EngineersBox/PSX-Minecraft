@@ -12,6 +12,7 @@
 #include "../items/tools/item_tool.h"
 #include "../../structure/primitive/direction.h"
 #include "../../physics/aabb.h"
+#include "../../ui/ui.h"
 #include "../../ui/components/background.h"
 
 #define BLOCK_SIZE 70

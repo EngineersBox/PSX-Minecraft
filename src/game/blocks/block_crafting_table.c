@@ -84,8 +84,6 @@ bool CraftingTableBlock_useAction(VSelf) {
     block_render_ui_context.block = self;
     if (assetLoadTextureDirect(
         ASSET_BUNDLE__GUI,
-        // TODO: Convert crafting table texture from PNG to TIM
-        //       and generate this via asset bundler
         ASSET_TEXTURE__GUI__CRAFTING_TABLE,
         &block_render_ui_context.background.texture
     )) {
