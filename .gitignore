@@ -8,3 +8,5 @@ scripts/pyvenv.cfg
 *.qlp
 scripts/__pycache__
 .tabconf
+graph.svg
+graph.dot
