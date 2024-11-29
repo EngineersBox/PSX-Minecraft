@@ -10,7 +10,7 @@
 #include "../../resources/asset_indices.h"
 #include "../../resources/assets.h"
 #include "../../logging/logging.h"
-#include "../gui/slot.h"
+#include "../../gui/slot.h"
 #include "../../../lighting/lightmap.h"
 
 FWD_DECL typedef struct World World;

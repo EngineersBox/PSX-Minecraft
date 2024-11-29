@@ -5,8 +5,8 @@
 
 #include <stdint.h>
 
-#include "../blocks/block.h"
-#include "item.h"
+#include "../item.h"
+#include "../../blocks/block.h"
 #include "../../../resources/texture.h"
 #include "../../../render/render_context.h"
 #include "../../../render/transforms.h"

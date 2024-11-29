@@ -2,9 +2,9 @@
 
 #include <stdlib.h>
 
-#include "../../util/preprocessor.h"
-#include "../../math/vector.h"
-#include "item_id.h"
+#include "../../../util/preprocessor.h"
+#include "../../../math/vector.h"
+#include "../item_id.h"
 
 CraftingTableItemBlock* craftingTableItemBlockCreate() {
     return (CraftingTableItemBlock*) malloc(sizeof(CraftingTableItemBlock));

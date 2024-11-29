@@ -2,11 +2,11 @@
 
 #include <stdlib.h>
 #include <interface99.h>
-#include "../../util/interface99_extensions.h"
 
-#include "../../util/preprocessor.h"
-#include "../../math/vector.h"
-#include "item_id.h"
+#include "../../../util/interface99_extensions.h"
+#include "../../../util/preprocessor.h"
+#include "../../../math/vector.h"
+#include "../item_id.h"
 
 CobblestoneItemBlock* cobblestoneItemBlockCreate() {
     return (CobblestoneItemBlock*) malloc(sizeof(CobblestoneItemBlock));

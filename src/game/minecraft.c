@@ -25,9 +25,9 @@
 #include "items/items.h"
 #include "items/blocks/item_block_grass.h"
 #include "items/blocks/item_block_stone.h"
-#include "level/overworld_flatland.h"
-#include "level/overworld_perlin.h"
-#include "../weather/weather.h"
+#include "world/level/overworld_flatland.h"
+#include "world/level/overworld_perlin.h"
+#include "weather/weather.h"
 
 #include "../core/console.h"
 

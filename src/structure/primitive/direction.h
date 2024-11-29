@@ -5,7 +5,7 @@
 
 #include <psxgte.h>
 
-#include "../util/inttypes.h"
+#include "../../util/inttypes.h"
 
 typedef enum {
     FACE_DIR_DOWN = 0,

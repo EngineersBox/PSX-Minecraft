@@ -3,21 +3,21 @@
 #include <assert.h>
 #include <psxapi.h>
 #include <psxgte.h>
+#include <inline_c.h>
+#include <psxgpu.h>
 
 #include "../../util/interface99_extensions.h"
 #include "../../structure/primitive/clip.h"
-#include "../render/font.h"
-#include "../math/math_utils.h"
-#include "../math/vector.h"
-#include "../ui/progress_bar.h"
-#include "../ui/background.h"
+#include "../../render/font.h"
+#include "../../math/math_utils.h"
+#include "../../math/vector.h"
+#include "../../ui/progress_bar.h"
+#include "../../ui/background.h"
 #include "../../logging/logging.h"
 #include "chunk/chunk.h"
 #include "chunk/chunk_mesh.h"
 #include "chunk/chunk_structure.h"
-#include "inline_c.h"
 #include "position.h"
-#include "psxgpu.h"
 #include "world_defines.h"
 
 const LightUpdateLimits world_chunk_init_limits = (LightUpdateLimits) {

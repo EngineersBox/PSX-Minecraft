@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 #include "../../../util/interface99_extensions.h"
-#include "item_id.h"
+#include "../item_id.h"
 
 GrassItemBlock* grassItemBlockCreate() {
     return (GrassItemBlock*) malloc(sizeof(GrassItemBlock));

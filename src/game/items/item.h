@@ -1,6 +1,5 @@
 #pragma once
 
-#include "psxapi.h"
 #ifndef PSXMC_ITEM_H
 #define PSXMC_ITEM_H
 
@@ -8,6 +7,7 @@
 #include <stdint.h>
 #include <psxgte.h>
 #include <stdbool.h>
+#include <psxapi.h>
 
 #include "../../render/renderable.h"
 #include "../../math/math_utils.h"

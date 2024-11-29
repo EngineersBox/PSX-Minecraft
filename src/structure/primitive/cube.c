@@ -6,7 +6,7 @@
 #include <stdlib.h>
 
 #include "../../resources/assets.h"
-#include "../render/render_context.h"
+#include "../../render/render_context.h"
 #include "../../math/vector.h"
 #include "clip.h"
 

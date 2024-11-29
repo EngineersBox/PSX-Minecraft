@@ -7,10 +7,10 @@
 #include <stdint.h>
 #include <psxgte.h>
 
-#include "../resources/texture.h"
-#include "../render/render_context.h"
-#include "../render/transforms.h"
-#include "../primitive/primitive.h"
+#include "../../resources/texture.h"
+#include "../../render/render_context.h"
+#include "../../render/transforms.h"
+#include "primitive.h"
 #include "direction.h"
 
 #define CUBE_FACES 6

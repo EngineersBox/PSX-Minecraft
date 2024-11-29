@@ -5,7 +5,10 @@
 
 #include "../resources/assets.h"
 #include "../resources/asset_indices.h"
-#include "../blocks/block.h"
+
+#ifndef BLOCK_TEXTURE_SIZE
+#define BLOCK_TEXTURE_SIZE 16
+#endif
 
 void drawBackgroundHalf(RenderContext* ctx,
                         const int ot_entry,

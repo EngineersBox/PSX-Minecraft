@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 #include "../math/math_utils.h"
-#include "../primitive/primitive.h"
+#include "../structure/primitive/primitive.h"
 #include "../game/blocks/block.h"
 #include "../util/memory.h"
 

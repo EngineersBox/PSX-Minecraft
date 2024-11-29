@@ -1,5 +1,7 @@
 #include "subdivide.h"
-#include "psxgpu.h"
+
+#include <psxgpu.h>
+
 #include "render_context.h"
 
 typedef struct DivsionLayout {

@@ -1,8 +1,8 @@
 #include "direction.h"
 
-#include "../util/preprocessor.h"
-#include "../math/math_utils.h"
-#include "../math/vector.h"
+#include "../../util/preprocessor.h"
+#include "../../math/math_utils.h"
+#include "../../math/vector.h"
 
 const SVECTOR FACE_DIRECTION_NORMALS[FACE_DIRECTION_COUNT] = {
     [FACE_DIR_DOWN] = vec3_i16(0, 1, 0),
