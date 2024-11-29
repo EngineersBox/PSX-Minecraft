@@ -4,12 +4,12 @@
 #include <stdlib.h>
 #include <psxgpu.h>
 
-#include "../../structure/cvector.h"
-#include "../../structure/cvector_utils.h"
+#include "../../../structure/cvector.h"
+#include "../../../structure/cvector_utils.h"
+#include "../../../structure/primitive/clip.h"
+#include "../../../logging/logging.h"
+#include "../../../render/commands.h"
 #include "../../blocks/block.h"
-#include "../../structure/primitive/clip.h"
-#include "../../logging/logging.h"
-#include "../../render/commands.h"
 #include "chunk_structure.h"
 
 #ifndef QUAD_DUAL_TRI_NCLIP

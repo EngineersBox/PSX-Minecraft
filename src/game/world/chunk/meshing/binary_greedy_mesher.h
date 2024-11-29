@@ -7,7 +7,7 @@
 #include "../../../../util/inttypes.h"
 #include "../../../../util/preprocessor.h"
 #include "../../../../math/math_utils.h"
-#include "../../blocks/breaking_state.h"
+#include "../../../blocks/breaking_state.h"
 #include "plane_meshing_data.h"
 
 // This implementation is based on TanTan's Binary Greedy Mesher demo:

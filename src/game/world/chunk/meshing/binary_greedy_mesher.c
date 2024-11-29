@@ -2,16 +2,16 @@
 
 #include <psxgte.h>
 
-#include "../../../logging/logging.h"
-#include "../../../lighting/lightmap.h"
-#include "../../../util/interface99_extensions.h"
-#include "../../../util/bits.h"
-#include "../../../math/vector.h"
-#include "../../../structure/hashmap.h"
-#include "../../../resources/asset_indices.h"
-#include "../../../structure/primitive/primitive.h"
-#include "../../../resources/assets.h"
-#include "../../../structure/primitive/cube.h"
+#include "../../../../logging/logging.h"
+#include "../../../../lighting/lightmap.h"
+#include "../../../../util/interface99_extensions.h"
+#include "../../../../util/bits.h"
+#include "../../../../math/vector.h"
+#include "../../../../structure/hashmap.h"
+#include "../../../../resources/asset_indices.h"
+#include "../../../../structure/primitive/primitive.h"
+#include "../../../../resources/assets.h"
+#include "../../../../structure/primitive/cube.h"
 #include "../../position.h"
 #include "plane_meshing_data.h"
 

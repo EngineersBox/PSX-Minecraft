@@ -9,11 +9,11 @@
 #include "chunk_structure.h"
 #include "../../../render/render_context.h"
 #include "../../../render/transforms.h"
+#include "../../../entity/player.h"
+#include "../../../lighting/lightmap.h"
 #include "../../blocks/blocks.h"
 #include "../../items/item.h"
-#include "../../entity/player.h"
 #include "../../blocks/breaking_state.h"
-#include "../../../lighting/lightmap.h"
 
 // ==== [NOTE] ====
 // This class contains only methods and implementations

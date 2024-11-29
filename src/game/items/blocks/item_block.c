@@ -5,11 +5,11 @@
 #include <psxgpu.h>
 #include <inline_c.h>
 
-#include "../../structure/primitive/clip.h"
-#include "../../structure/primitive/cube.h"
-#include "../../resources/asset_indices.h"
-#include "../../resources/assets.h"
-#include "../../logging/logging.h"
+#include "../../../structure/primitive/clip.h"
+#include "../../../structure/primitive/cube.h"
+#include "../../../resources/asset_indices.h"
+#include "../../../resources/assets.h"
+#include "../../../logging/logging.h"
 #include "../../gui/slot.h"
 #include "../../../lighting/lightmap.h"
 

@@ -4,7 +4,7 @@
 #include <psxgte.h>
 
 #include "../logging/logging.h"
-#include "../blocks/block.h"
+#include "../game/blocks/block.h"
 #include "../math/vector.h"
 
 Camera cameraCreate(Transforms* transforms) {
