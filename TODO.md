@@ -104,7 +104,7 @@
 * [ ] Sound for rain as inside/outside variant should be based on whether player is below the top block in the heightmap. More specifically within a chunk that is at or below the top and within a some distance from nearest exposed (to top) blocks.
 * [ ] Handle non-uniform block models when generating meshes (i.e. stairs), including orientation where only some faces can be merged.
 * [ ] Polygon subdivision (polygons of minimum size, i.e. block size) for the mesh of the chunk that the player resides within
-* [ ] Recipe compiler to take JSON format and produce compile time struct definition encapsulating recipes
+* [X] Recipe compiler to take JSON format and produce compile time struct definition encapsulating recipes
 
 ## Refactor
 

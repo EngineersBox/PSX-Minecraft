@@ -10,7 +10,6 @@ env = Environment(
     autoescape = select_autoescape()
 )
 
-# TODO: Add rest of mappings as items are added to the game
 ITEM_MAPPINGS: Dict[str, int] = {
     "air": 0,
     "stone": 1,
