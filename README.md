@@ -23,6 +23,10 @@ Remake of Minecraft for PS1 with PSn00bSDK
   * [Building](#building)
   * [Docker Environment](#docker-environment)
     * [Utility Build Script](#utility-build-script)
+  * [Development Scripts](#development-scripts)
+    * [Dependency Graph](#dependency-graph)
+    * [Resource Generator](#resource-generator)
+    * [Recipe Tree](#recipe-tree)
   * [Development Environment](#development-environment)
     * [CLion](#clion)
     * [Neovim Clangd](#neovim-clangd)
@@ -174,6 +178,41 @@ Options:
 > later rebuilds when making changes to code, just run `./build_container.sh`. Include `--output=<directory>`
 > if you want to use a different directory than the default. Note that you'll need to use this option every
 > time you run the command in that case.
+
+### Development Scripts
+
+There are several scripts in the `scripts` and `root` directory that used for various development purposes. This section
+details the ones that are useful and how to use them.
+
+#### Dependency Graph
+
+This generates a Graphviz compatible dependency graph in the DOT format, then exports to a desired rendered
+format such as SVG, PNG, etc.
+
+```bash
+Usage: ./generate_include_graph.sh [<options>]
+Options:
+    -h | --help               Print this help message
+    -f | --format=<type>      Output format of the graph. See https://graphviz.org/docs/outputs/ for valid values (default: svg)
+    -o | --output=<filename>  Name of the generated graph file (default: graph.svg)
+```
+
+#### Resource Generator
+
+Game resources such as blocks and block items conform to a specific interface via `interface99` with some simplifying constructs,
+macros, etc. The resource generator makes creating the header and sources necessary with markers to fill in where necessary.
+
+Currently only blocks and block items supported, more will be added as the rest of the item/block types are implemented. See the following help outputs for the desired generation:
+
+* Block: `python3 scripts/resource_generator.py block --help`
+* Block item: `python3 scripts/resource_generator itemblock --help`
+
+#### Recipe Tree
+
+Recipes for any block or interface that uses them are generated as compile-time structures that are traversed
+via the handlers in `src/game/recipe/recipe.h`. To support this, the `script/recipe_tree.py` script exists in
+order to convert a JSON definition of recipes into the structural definition as an extern in a given location.
+See the output of `python3 scripts/recipe_tree.py --help` for more details.
 
 ### Development Environment
 
