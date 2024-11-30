@@ -72,7 +72,7 @@ done
 
 echo "[INFO] Generating graph"
 rm graph.dot || true
-perl ./cinclude2dot.pl --quotetypes quote --src src > graph.dot
+perl scripts/cinclude2dot.pl --quotetypes quote --src src > graph.dot
 echo "[INFO] Analysing strongly connected components"
 sccmap -v graph.dot
 rm $output || true
