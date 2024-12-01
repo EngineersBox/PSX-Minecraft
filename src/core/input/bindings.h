@@ -25,6 +25,7 @@ extern PadButton BINDING_ATTACK;
 extern PadButton BINDING_USE;
 
 // Interaction
+extern PadButton BINDING_DROP_ITEM;
 extern PadButton BINDING_OPEN_INVENTORY;
 extern PadButton BINDING_CURSOR_CLICK;
 extern PadButton BINDING_PREVIOUS;
@@ -33,4 +34,4 @@ extern PadButton BINDING_NEXT;
 // Game/system state transitions
 extern PadButton BINDING_PAUSE;
 
-#endif // PSXMC_BINDINGS_H
+#endif // PSXMC_BINDINGS_

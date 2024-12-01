@@ -54,7 +54,7 @@ static Slot crafting_table_sots[(slotGroupSize(CRAFTING_TABLE) + slotGroupSize(C
 
 bool craftingTableBlockInputHandler(const Input* input, void* ctx) {
     const PADTYPE* pad = input->pad;
-    if (isPressed(pad, BINDING_USE)) {
+    if (isPressed(pad, BINDING_CURSOR_CLICK)) {
         // TODO: Use is either grabbing an item in a slot,
         //       putting a grabbed item in a slot, or
         //       mistargetting (with or without a grabbed
@@ -63,6 +63,9 @@ bool craftingTableBlockInputHandler(const Input* input, void* ctx) {
         //       between this and the base inventory structure
         //       that is used for all inventories.
         return INPUT_HANDLER_RETAIN;
+    } else if (isPressed(pad, BINDING_DROP_ITEM)) {
+        // TODO: If can item is held, it should be dropped
+        //       into the world.
     }
     if (isPressed(pad, BINDING_OPEN_INVENTORY)) {
         // Block inventory is closed, reset the render handlers

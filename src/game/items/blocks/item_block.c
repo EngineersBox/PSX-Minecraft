@@ -474,6 +474,8 @@ void itemBlockRenderInventory(ItemBlock* item, RenderContext* ctx, Transforms* t
     gte_SetTransMatrix(&omtx);
     gte_SetBackColor(128, 128, 128);
     gte_SetFarColor(1, 1, 1);
+    // TODO: Remove extra SLOT_DELTA offset, leaving it to
+    //       be added as necessary by caller of this function
     VECTOR screen_position = vec3_i32(
         item->item.position.vx + (SLOT_DELTA_X / 2),
         item->item.position.vy + (SLOT_DELTA_Y / 2),

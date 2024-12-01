@@ -115,6 +115,7 @@ Slot* slotFromScreenPosition0(const SVECTOR* screen_position,
                               const u8 slot_spacing_x,
                               const u8 slot_spacing_y);
 
+// TODO: Use with input handler for Inventory and CraftingTable
 #define slotFromScreenPosition(name, screen_position, group_slots) slotFromScreenPosition0( \
     screen_position, \
     group_slots, \
