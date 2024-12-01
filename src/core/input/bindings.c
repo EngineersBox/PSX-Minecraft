@@ -19,6 +19,7 @@ WEAK PadButton BINDING_ATTACK = PAD_R2;
 WEAK PadButton BINDING_USE = PAD_L2;
 
 WEAK PadButton BINDING_OPEN_INVENTORY = PAD_START;
+WEAK PadButton BINDING_CURSOR_CLICK = PAD_CROSS;
 // Need to adjust these since they don't feel right for these actions
 WEAK PadButton BINDING_PREVIOUS = PAD_L3;
 WEAK PadButton BINDING_NEXT = PAD_R3;

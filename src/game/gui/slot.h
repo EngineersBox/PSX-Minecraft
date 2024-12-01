@@ -97,11 +97,35 @@ typedef Slot SlotGroup;
 })
 
 // Standard parameters
-#define SLOT_WIDTH 16
-#define SLOT_HEIGHT 16
-#define SLOT_SPACING_X 2
-#define SLOT_SPACING_Y 2
-#define SLOT_DELTA_X (SLOT_WIDTH + SLOT_SPACING_X)
-#define SLOT_DELTA_Y (SLOT_HEIGHT + SLOT_SPACING_Y)
+#define SLOT_WIDTH_DEFAULT 16
+#define SLOT_HEIGHT_DEFAULT 16
+#define SLOT_SPACING_X_DEFAULT 2
+#define SLOT_SPACING_Y_DEFAULT  2
+#define SLOT_DELTA_X (SLOT_WIDTH_DEFAULT + SLOT_SPACING_X_DEFAULT)
+#define SLOT_DELTA_Y (SLOT_HEIGHT_DEFAULT + SLOT_SPACING_Y_DEFAULT)
+
+Slot* slotFromScreenPosition0(const SVECTOR* screen_position,
+                              Slot* group_slots,
+                              const u16 group_origin_x,
+                              const u16 group_origin_y,
+                              const u8 group_dim_x,
+                              const u8 group_dim_y,
+                              const u8 slot_dim_x,
+                              const u8 slot_dim_y,
+                              const u8 slot_spacing_x,
+                              const u8 slot_spacing_y);
+
+#define slotFromScreenPosition(name, screen_position, group_slots) slotFromScreenPosition0( \
+    screen_position, \
+    group_slots, \
+    slotGroupOrigin(name, X), \
+    slotGroupOrigin(name, Y), \
+    slotGroupDim(name, X), \
+    slotGroupDim(name, Y), \
+    slotGroupSlotDim(name, X), \
+    slotGroupSlotDim(name, Y), \
+    slotGroupSlotSpacing(name, X), \
+    slotGroupSlotSpacing(name, Y), \
+)
 
 #endif // PSXMC_SLOT_H
