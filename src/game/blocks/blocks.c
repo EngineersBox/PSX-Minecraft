@@ -28,7 +28,7 @@ DECL_STATELESS_BLOCK(CobblestoneBlock, COBBLESTONE, cobblestoneBlockFaceAttrbute
 
 DECL_STATELESS_BLOCK(CraftingTableBlock, CRAFTING_TABLE, craftingTableBlockFaceAttributes());
 
-#define initBlockSingletonStateful(id, attributes, constructor) ({ \
+#define initBlockStateful(id, attributes, constructor) ({ \
     block_attributes[(id)] = attributes; \
     block_constructors[(id)] = constructor; \
 })
