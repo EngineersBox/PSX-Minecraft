@@ -475,8 +475,8 @@ void itemBlockRenderInventory(ItemBlock* item, RenderContext* ctx, Transforms* t
     gte_SetBackColor(128, 128, 128);
     gte_SetFarColor(1, 1, 1);
     VECTOR screen_position = vec3_i32(
-        item->item.position.vx + (INV_SLOT_POS_DELTA / 2),
-        item->item.position.vy + (INV_SLOT_POS_DELTA / 2),
+        item->item.position.vx + (SLOT_DELTA_X / 2),
+        item->item.position.vy + (SLOT_DELTA_Y / 2),
         0
     );
     renderItemBlockInventory(
