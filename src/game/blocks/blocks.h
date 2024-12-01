@@ -15,7 +15,7 @@
 #include "block_dirt.h"
 #include "block_cobblestone.h"
 
-#define BLOCK_COUNT 6
+#define BLOCK_COUNT 59
 
 extern BlockAttributes block_attributes[BLOCK_COUNT];
 extern BlockConstructor block_constructors[BLOCK_COUNT];

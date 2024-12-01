@@ -6,6 +6,7 @@
 #include "block_cobblestone.h"
 #include "block_dirt.h"
 #include "block_grass.h"
+#include "block_crafting_table.h"
 
 BlockAttributes block_attributes[BLOCK_COUNT] = {0};
 BlockConstructor block_constructors[BLOCK_COUNT] = {0};
@@ -24,6 +25,13 @@ DECL_STATELESS_BLOCK(StoneBlock, STONE, stoneBlockFaceAttributes());
 DECL_STATELESS_BLOCK(GrassBlock, GRASS, grassBlockFaceAttributes());
 DECL_STATELESS_BLOCK(DirtBlock, DIRT, dirtBlockFaceAttributes());
 DECL_STATELESS_BLOCK(CobblestoneBlock, COBBLESTONE, cobblestoneBlockFaceAttrbutes());
+
+DECL_STATELESS_BLOCK(CraftingTableBlock, CRAFTING_TABLE, craftingTableBlockFaceAttributes());
+
+#define initBlockSingletonStateful(id, attributes, constructor) ({ \
+    block_attributes[(id)] = attributes; \
+    block_constructors[(id)] = constructor; \
+})
 
 #define initBlockSingleton(type, extern_name, id, attributes, constructor) ({ \
     extern_name##_IBLOCK_SINGLETON = DYN(type, IBlock, &extern_name##_BLOCK_SINGLETON); \
@@ -52,6 +60,10 @@ void blocksInitialiseBuiltin() {
     initBlockSingleton(
         CobblestoneBlock, COBBLESTONE, BLOCKID_COBBLESTONE,
         cobblestoneBlockCreateAttributes(), cobblestoneBlockCreate
+    );
+    initBlockSingleton(
+        CraftingTableBlock, CRAFTING_TABLE, BLOCKID_CRAFTING_TABLE,
+        craftingTableBlockCreateAttributes(), craftingTableBlockCreate
     );
 }
 

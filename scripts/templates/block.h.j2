@@ -24,7 +24,7 @@ DEFN_BLOCK_CONSTRUCTOR({{ name_lower }});
     .can_harvest = toolTypeBitset({{ can_harvest_bitset }}), \
     .propagates_sunlight = {% if propagates_sunlight %} true {% else %} false {% endif %}, \
     .propagates_blocklight = {% if propagates_blocklight %} true {% else %} false {% endif %}, \
-    .face_attributes {{ name_snake_upper }}_FACE_ATTRIBUTES, \
+    .face_attributes = {{ name_snake_upper }}_FACE_ATTRIBUTES, \
     .name = "{{ name_snake_lower }}" \
 })
 

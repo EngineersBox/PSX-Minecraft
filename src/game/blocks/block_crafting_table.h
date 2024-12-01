@@ -23,12 +23,12 @@ DEFN_BLOCK_CONSTRUCTOR(craftingTable);
     .can_harvest = toolTypeBitset(1,1,1,1,1,1), \
     .propagates_sunlight =  false , \
     .propagates_blocklight =  false , \
-    .face_attributes CRAFTING_TABLE_FACE_ATTRIBUTES, \
+    .face_attributes = CRAFTING_TABLE_FACE_ATTRIBUTES, \
     .name = "crafting_table" \
 })
 
 #define craftingTableBlockFaceAttributes() P99_PROTECT({\
-    defaultTintedFaceAttributes(4,43,59,59,60,60) \
+    declareFaceAttributes(4,43,59,59,60,60) \
 })
 
 #define CRAFTING_TABLE_TEXTURE_WIDTH 176
