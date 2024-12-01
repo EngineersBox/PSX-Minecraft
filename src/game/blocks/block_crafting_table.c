@@ -116,11 +116,31 @@ void craftingTableBlockRenderUI(RenderContext* ctx, Transforms* transforms) {
         ctx,
         transforms
     );
-    // TODO: Render crafting table input and output slots content
+    // Render main storage slots and hotbar
     inventoryRenderSlots(
         VCAST_PTR(const Inventory*, block_input_handler_context.inventory),
         INVENTORY_SLOT_GROUP_MAIN | INVENTORY_SLOT_GROUP_HOTBAR,
         ctx,
         transforms
     );
+    for (u8 y = 0; y < slotGroupDim(CRAFTING_TABLE, Y); y++) {
+        for (u8 x = 0; x < slotGroupDim(CRAFTING_TABLE, X); x++) {
+            const u8 i = slotGroupIndexOffset(CRAFTING_TABLE) + (slotGroupDim(CRAFTING_TABLE, X) * y) + x;
+            const Slot* slot = &crafting_table_sots[i];
+            if (slot->data.item == NULL) {
+                continue;
+            }
+            Item* item = VCAST_PTR(Item*, slot->data.item);
+            item->position.vx = slotGroupScreenPosition(CRAFTING_TABLE, X, x);
+            item->position.vy = slotGroupScreenPosition(CRAFTING_TABLE, Y, y);
+            VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
+        }
+    }
+    const Slot* slot = &crafting_table_sots[slotGroupIndexOffset(CRAFTING_TABLE)];
+    if (slot->data.item == NULL) {
+        Item* item = VCAST_PTR(Item*, slot->data.item);
+        item->position.vx = slotGroupScreenPosition(CRAFTING_TABLE, X, 0);
+        item->position.vy = slotGroupScreenPosition(CRAFTING_TABLE, Y, 0);
+        VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
+    }
 }

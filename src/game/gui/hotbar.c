@@ -39,8 +39,8 @@ void hotbarInit(Hotbar* hotbar) {
 }
 
 void hotbarRenderSlots(const Hotbar* hotbar,  RenderContext* ctx, Transforms* transforms) {
-    for (u8 x = 0; x < slotGroupDim(HOTBAR, X); x++) {
-        for (u8 y = 0; y < slotGroupDim(HOTBAR, Y); y++) {
+    for (u8 y = 0; y < slotGroupDim(HOTBAR, Y); y++) {
+        for (u8 x = 0; x < slotGroupDim(HOTBAR, X); x++) {
             const u8 i = slotGroupIndexOffset(HOTBAR) + (slotGroupDim(HOTBAR, X) * y) + x;
             const Slot* slot = &hotbar->slots[i];
             if (slot->data.item == NULL) {
