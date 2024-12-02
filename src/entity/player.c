@@ -134,7 +134,7 @@ void updateBreakingState(Player* player, const RayCastResult* result, const Worl
     //       breaking means the OG bug of being able to mine with one
     //       tool then switch to another at the last second to preserve
     //       durability will still work.
-    const Hotbar* hotbar = VCAST_PTR(Hotbar*, &player->hotbar);
+    Hotbar* hotbar = VCAST_PTR(Hotbar*, &player->hotbar);
     Slot* slot = &hotbarGetSelectSlot(hotbar);
     IItem* iitem = slot->data.item;
     const Block* block = VCAST_PTR(Block*, state->block);
@@ -208,7 +208,7 @@ INLINE static bool playerInputHandlerAttack(const PlayerInputHandlerContext* ctx
         }
         return false;
     }
-    const Hotbar* hotbar = VCAST_PTR(Hotbar*, &player->hotbar);
+    Hotbar* hotbar = VCAST_PTR(Hotbar*, &player->hotbar);
     Slot* slot = &hotbarGetSelectSlot(hotbar);
     IItem* iitem = slot->data.item;
     if (iitem == NULL) {
@@ -225,7 +225,7 @@ INLINE static bool playerInputHandlerAttack(const PlayerInputHandlerContext* ctx
 }
 
 INLINE static void playerInputHandlerUse(const PlayerInputHandlerContext* ctx) {
-    const Player* player = ctx->player;
+    Player* player = ctx->player;
     const PhysicsObject* physics_object = &player->entity.physics_object;
     const RayCastResult result = worldRayCastIntersection(
         ctx->world,
@@ -257,7 +257,7 @@ INLINE static void playerInputHandlerUse(const PlayerInputHandlerContext* ctx) {
     // 4. If we are sneaking
     //   a. Invoke the block update handler (returns bool)
     const bool sneaking  = physics_object->flags.sneaking;
-    const Hotbar* hotbar = VCAST_PTR(Hotbar*, &player->hotbar);
+    Hotbar* hotbar = VCAST_PTR(Hotbar*, &player->hotbar);
     Slot* slot = &hotbarGetSelectSlot(hotbar);
     IItem* iitem = slot->data.item;
     if (result.block != NULL && !sneaking && VCALL(*result.block, useAction)) {
@@ -358,7 +358,7 @@ block_update:
     }
 }
 
-INLINE static void playerInputHandlerWorldInteraction(const Input* input, const PlayerInputHandlerContext* ctx) {
+INLINE static void playerInputHandlerWorldInteraction(const Input* input, PlayerInputHandlerContext* ctx) {
     Player* player = ctx->player;
     const PADTYPE* pad = input->pad;
     bool breaking = false;
@@ -450,7 +450,7 @@ INLINE static bool playerInputHandlerMovement(const Input* input, const PlayerIn
 }
 
 bool playerInputHandler(const Input* input, void* ctx) {
-    const PlayerInputHandlerContext* context = ctx;
+    PlayerInputHandlerContext* context = ctx;
     if (input->pad->stat == 0) {
         playerInputHandlerWorldInteraction(input, context);
     }

@@ -164,7 +164,7 @@ Slot* inventorySearchItem(Inventory* inventory,
                           const u8 from_slot,
                           u8* next_free) {
     *next_free = INVENTORY_NO_FREE_SLOT;
-    if (from_slot < 0 || from_slot >= INVENTORY_SLOT_COUNT) {
+    if (from_slot >= INVENTORY_SLOT_COUNT) {
         return NULL;
     }
     // Hotbar first
