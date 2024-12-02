@@ -81,6 +81,7 @@ void inventoryRenderSlots(const Inventory* inventory,
             const u8 y_offset = slotGroupDim(INVENTORY_ARMOUR, X) * y;
             for (u8 x = 0; x < slotGroupDim(INVENTORY_ARMOUR, X); x++) {
                 const u8 i = slotGroupIndexOffset(INVENTORY_ARMOUR) + y_offset + x;
+                DEBUG_LOG("[Inventory] Armour: %d\n", i);
                 const Slot* slot = &inventory->slots[i];
                 if (slot->data.item == NULL) {
                     continue;
@@ -97,6 +98,7 @@ void inventoryRenderSlots(const Inventory* inventory,
             const u8 y_offset = slotGroupDim(INVENTORY_CRAFTING, X) * y;
             for (u8 x = 0; x < slotGroupDim(INVENTORY_CRAFTING, X); x++) {
                 const u8 i = slotGroupIndexOffset(INVENTORY_CRAFTING) + y_offset + x;
+                DEBUG_LOG("[Inventory] Crafting: %d\n", i);
                 const Slot* slot = &inventory->slots[i];
                 if (slot->data.item == NULL) {
                     continue;
@@ -109,8 +111,9 @@ void inventoryRenderSlots(const Inventory* inventory,
         }
     }
     if (groups & INVENTORY_SLOT_GROUP_CRAFTING_RESULT) {
-        const u8 craftingResultIndex = slotGroupIndexOffset(INVENTORY_CRAFTING_RESULT);
-        const Slot* slot = &inventory->slots[craftingResultIndex];
+        const u8 i = slotGroupIndexOffset(INVENTORY_CRAFTING_RESULT);
+        DEBUG_LOG("[Inventory] Crafting Result: %d\n", i);
+        const Slot* slot = &inventory->slots[i];
         if (slot->data.item == NULL) {
             Item* item = VCAST_PTR(Item*, slot->data.item);
             item->position.vx = slotGroupScreenPosition(INVENTORY_CRAFTING_RESULT, X, 0);
@@ -122,7 +125,8 @@ void inventoryRenderSlots(const Inventory* inventory,
         for (u8 y = 0; y < slotGroupDim(INVENTORY_MAIN, Y); y++) {
             const u8 y_offset = slotGroupDim(INVENTORY_MAIN, X) * y;
             for (u8 x = 0; x < slotGroupDim(INVENTORY_MAIN, X); x++) {
-                const u8 i = slotGroupIndexOffset(INVENTORY_MAIN)+ y_offset + x;
+                const u8 i = slotGroupIndexOffset(INVENTORY_MAIN) + y_offset + x;
+                DEBUG_LOG("[Inventory] Main: %d\n", i);
                 const Slot* slot = &inventory->slots[i];
                 if (slot->data.item == NULL) {
                     continue;
@@ -139,6 +143,7 @@ void inventoryRenderSlots(const Inventory* inventory,
             const u8 y_offset = slotGroupDim(INVENTORY_HOTBAR, X) * y;
             for (u8 x = 0; x < slotGroupDim(INVENTORY_HOTBAR, X); x++) {
                 const u8 i = slotGroupIndexOffset(INVENTORY_HOTBAR) + y_offset + x;
+                DEBUG_LOG("[Inventory] Hotbar: %d\n", i);
                 const Slot* slot = &inventory->slots[i];
                 if (slot->data.ref == NULL || slot->data.ref->data.item == NULL) {
                     continue;
