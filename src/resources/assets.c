@@ -136,11 +136,15 @@ int assetLoadTextureDirect(const size_t bundle, const int file_index, Texture* t
         errorAbort("[ERROR] No such asset bundle at index: %d\n", bundle);
         return 1;
     }
+    DEBUG_LOG("PARAMS Bundle: %d File index: %d Texture: %p\n", bundle, file_index, texture);
     const AssetBundle* asset_bundle = &ASSET_BUNDLES[bundle];
     const LZP_HEAD* archive = asset_bundle->load(asset_bundle);
-    DEBUG_LOG("Loaded archive\n");
+    DEBUG_LOG("Loaded archive: %p\n", archive);
     TIM_IMAGE tim = {};
-    QLP_HEAD* tex_buff = (QLP_HEAD*) malloc(lzpFileSize(archive, 0));
+    const int fsize = lzpFileSize(archive, 0);
+    DEBUG_LOG("File size: %d\n", fsize);
+    QLP_HEAD* tex_buff = (QLP_HEAD*) malloc(fsize);
+    DEBUG_LOG("Allocated buffer: %p\n", tex_buff);
     lzpUnpackFile(tex_buff, archive, file_index);
     DEBUG_LOG("Unpacked file\n");
     if (file_index >= qlpFileCount(tex_buff)) {
