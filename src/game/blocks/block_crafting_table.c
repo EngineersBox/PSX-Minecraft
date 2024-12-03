@@ -87,7 +87,7 @@ bool CraftingTableBlock_useAction(VSelf) {
     block_render_ui_context.block = self;
     if (assetLoadTextureDirect(
         ASSET_BUNDLE__GUI,
-        ASSET_TEXTURE__GUI__CRAFTING_TABLE,
+        ASSET_TEXTURE__GUI__CRAFTING,
         &block_render_ui_context.background.texture
     )) {
         printf("[CRAFTING TABLE] Failed to load texture\n");

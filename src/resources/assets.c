@@ -106,7 +106,7 @@ void assetsLoad() {
         errorAbort("[ERROR] Asset bundle not found: %s\n", bundle->name);
         return;
     }
-    DEBUG_LOG("Found asset bundle '%s', loading\n", bundle->name);
+    DEBUG_LOG("Found asset bundle '%s' @ %d, loading\n", bundle->name, lzp_index);
     bundle->load((void*) lzp_index);
     assets_loaded = true;
     free(_lz_resources);
@@ -127,6 +127,35 @@ static void _freeDynamicTextures(const void* ctx) {
     free((u8*) ctx);
 }
 
+int lzpUnpackFile2(void* buff, const LZP_HEAD* lzpack, int fileNum) {
+	LZP_FILE*	fileEntry = &((LZP_FILE*)(((const char*)lzpack)+sizeof(LZP_HEAD)))[fileNum];
+	int			unpackedSize;
+	// Check ID header
+    if (strncmp("LZP", lzpack->id, 3) != 0) {
+        DEBUG_LOG("Invalid LZP header\n");
+        return(LZP_ERR_INVALID_PACK);
+    }
+    DEBUG_LOG("Valid LZP header\n");
+    DEBUG_LOG("Lzpack: %p\n", lzpack);
+    DEBUG_LOG("File entry: %p\n", fileEntry);
+    DEBUG_LOG("Offset: %d Packed size: %d\n", fileEntry->offset, fileEntry->packedSize);
+    DEBUG_LOG("File address: %p\n", ((const char*)lzpack)+fileEntry->offset);
+	// Do a CRC16 check of the compressed data's integrity
+	if (lzCRC32(((const char*)lzpack)+fileEntry->offset, fileEntry->packedSize, LZP_CRC32_REMAINDER) != fileEntry->crc) {
+        DEBUG_LOG("Bad CRC16\n");
+		return(LZP_ERR_CRC_MISMATCH);
+    }
+    DEBUG_LOG("Valid CRC\n");
+	// Decompress data to the specified address
+	unpackedSize = lzDecompress(buff, ((const char*)lzpack)+fileEntry->offset, fileEntry->packedSize);
+	if (unpackedSize < 0) {
+        DEBUG_LOG("The dumb\n");
+		return(unpackedSize);
+    }
+	return(unpackedSize);
+
+}
+
 int assetLoadTextureDirect(const size_t bundle, const int file_index, Texture* texture) {
     if (bundle == 0) {
         texture->tpage = textures[file_index].tpage;
@@ -145,7 +174,13 @@ int assetLoadTextureDirect(const size_t bundle, const int file_index, Texture* t
     DEBUG_LOG("File size: %d\n", fsize);
     QLP_HEAD* tex_buff = (QLP_HEAD*) malloc(fsize);
     DEBUG_LOG("Allocated buffer: %p\n", tex_buff);
-    lzpUnpackFile(tex_buff, archive, file_index);
+    lzpUnpackFile2(tex_buff, archive, file_index);
+    // FIXME: This has an OOB read, seeming to stem from the file at
+    //        the file_index having invalid metadata for offset and
+    //        packed size being way to large. Note that the CRC32
+    //        checksum is valid however. Possibly a bad compressed
+    //        entry generted by MKPSXIO.
+    /*lzpUnpackFile(tex_buff, archive, file_index);*/
     DEBUG_LOG("Unpacked file\n");
     if (file_index >= qlpFileCount(tex_buff)) {
         errorAbort(
