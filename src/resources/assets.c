@@ -140,6 +140,7 @@ int lzpUnpackFile2(void* buff, const LZP_HEAD* lzpack, int fileNum) {
     DEBUG_LOG("File entry: %p\n", fileEntry);
     DEBUG_LOG("Offset: %d Packed size: %d\n", fileEntry->offset, fileEntry->packedSize);
     DEBUG_LOG("File address: %p\n", ((const char*)lzpack)+fileEntry->offset);
+    while (true) {}
 	// Do a CRC16 check of the compressed data's integrity
 	if (lzCRC32(((const char*)lzpack)+fileEntry->offset, fileEntry->packedSize, LZP_CRC32_REMAINDER) != fileEntry->crc) {
         DEBUG_LOG("Bad CRC16\n");
@@ -153,7 +154,6 @@ int lzpUnpackFile2(void* buff, const LZP_HEAD* lzpack, int fileNum) {
 		return(unpackedSize);
     }
 	return(unpackedSize);
-
 }
 
 int assetLoadTextureDirect(const size_t bundle, const int file_index, Texture* texture) {
