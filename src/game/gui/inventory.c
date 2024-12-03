@@ -73,7 +73,6 @@ void inventoryRenderSlots(const Inventory* inventory,
     if (groups == INVENTORY_SLOT_GROUP_NONE) {
         return;
     }
-    // FIXME: Something breaks when this render method is invoked.
     //        It's to do with the new slot groups stuff, so probs
     //        bad indexing or something of the same ilk.
     if (groups & INVENTORY_SLOT_GROUP_ARMOUR) {
@@ -305,6 +304,8 @@ void Inventory_open(VSelf) {
         &background->texture
     )) {
         printf("[INVENTORY] Failed to load texture\n");
+    } else {
+        DEBUG_LOG("[INVENTORY] Loaded texture\n");
     }
 }
 

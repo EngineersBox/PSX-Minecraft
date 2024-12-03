@@ -244,15 +244,15 @@ void Minecraft_render(VSelf, const Stats* stats) {
     // Update breaking state textures
     breakingStateUpdateRenderTarget(&player->breaking, &self->internals.ctx);
     // Draw the world
-    frustumTransform(&self->internals.ctx.camera->frustum, &self->internals.transforms);
+    /*frustumTransform(&self->internals.ctx.camera->frustum, &self->internals.transforms);*/
     worldRender(
         self->world,
         (const Player*) &player,
         &self->internals.ctx,
         &self->internals.transforms
     );
-    frustumRenderNormals(&self->internals.ctx.camera->frustum, &self->internals.ctx);
-    frustumRestore(&self->internals.ctx.camera->frustum);
+    /*frustumRenderNormals(&self->internals.ctx.camera->frustum, &self->internals.ctx);*/
+    /*frustumRestore(&self->internals.ctx.camera->frustum);*/
     if (world->weather.raining || world->weather.storming) {
         weatherRender(
             self->world,

@@ -138,9 +138,11 @@ int assetLoadTextureDirect(const size_t bundle, const int file_index, Texture* t
     }
     const AssetBundle* asset_bundle = &ASSET_BUNDLES[bundle];
     const LZP_HEAD* archive = asset_bundle->load(asset_bundle);
+    DEBUG_LOG("Loaded archive\n");
     TIM_IMAGE tim = {};
     QLP_HEAD* tex_buff = (QLP_HEAD*) malloc(lzpFileSize(archive, 0));
     lzpUnpackFile(tex_buff, archive, file_index);
+    DEBUG_LOG("Unpacked file\n");
     if (file_index >= qlpFileCount(tex_buff)) {
         errorAbort(
             "[ERROR] No such file index %d in asset bundle %d\n",
@@ -158,12 +160,16 @@ int assetLoadTextureDirect(const size_t bundle, const int file_index, Texture* t
         );
         return 1;
     }
+    DEBUG_LOG("Retrieved file entry\n");
     if (GetTimInfo((uint32_t*) qlpFileAddr(file_index, tex_buff), &tim)) {
         errorAbort("[ERROR] Failed to retrieve TIM info for file %s\n", file->name);
         return 1;
     }
+    DEBUG_LOG("Retrieved TIM info\n");
     assetLoadImage(&tim, texture);
+    DEBUG_LOG("Loaded image\n");
     asset_bundle->free(archive);
+    DEBUG_LOG("Freed archive\n");
     free(tex_buff);
     return 0;
 }
