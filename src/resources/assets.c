@@ -21,6 +21,7 @@ typedef struct {
     AssetLoad load;
     AssetFree free;
     char* name;
+    char* pack;
 } AssetBundle;
 
 static void* _loadTextures(const void* ctx);
@@ -33,14 +34,16 @@ AssetBundle ASSET_BUNDLES[ASSET_BUNDLES_COUNT] = {
     [ASSET_BUNDLE__STATIC]=(AssetBundle) {
         .load = _loadTextures,
         .free = _freeTextures,
-        .name = "static"
+        .name = "static",
+        .pack = "\\STATIC.LZP"
     },
     [ASSET_BUNDLE__GUI]=(AssetBundle) {
         .load = _loadDynamicTextures,
         .free = _freeDynamicTextures,
-        .name = "\\GUI.LZP"
+        .name = "gui",
+        .pack = "\\GUI.LZP"
     },
-    [ASSET_BUNDLES_COUNT - 1]=(AssetBundle) { NULL, NULL, NULL }
+    [ASSET_BUNDLES_COUNT - 1]=(AssetBundle) { NULL, NULL, NULL, NULL }
 };
 
 Texture* textures;
@@ -99,8 +102,8 @@ static void _freeTextures(const void* ctx) {
 }
 
 void assetsLoad() {
-    _lz_resources = (u8*) cdReadDataSync("\\STATIC.LZP", CdlModeSpeed);
     const AssetBundle* bundle = &ASSET_BUNDLES[0];
+    _lz_resources = (u8*) cdReadDataSync(bundle->pack, CdlModeSpeed);
     const int lzp_index = lzpSearchFile(bundle->name, lz_resources);
     if (lzp_index < 0) {
         errorAbort("[ERROR] Asset bundle not found: %s\n", bundle->name);
@@ -120,7 +123,7 @@ void assetsFree() {
 
 static void* _loadDynamicTextures(const void* ctx) {
     const AssetBundle* bundle = ctx;
-    return cdReadDataSync(bundle->name, CdlModeSpeed);
+    return cdReadDataSync(bundle->pack, CdlModeSpeed);
 }
 
 static void _freeDynamicTextures(const void* ctx) {
@@ -140,7 +143,7 @@ int lzpUnpackFile2(void* buff, const LZP_HEAD* lzpack, int fileNum) {
     DEBUG_LOG("File entry: %p\n", fileEntry);
     DEBUG_LOG("Offset: %d Packed size: %d\n", fileEntry->offset, fileEntry->packedSize);
     DEBUG_LOG("File address: %p\n", ((const char*)lzpack)+fileEntry->offset);
-    while (true) {}
+    /*while (true) {}*/
 	// Do a CRC16 check of the compressed data's integrity
 	if (lzCRC32(((const char*)lzpack)+fileEntry->offset, fileEntry->packedSize, LZP_CRC32_REMAINDER) != fileEntry->crc) {
         DEBUG_LOG("Bad CRC16\n");
@@ -169,12 +172,14 @@ int assetLoadTextureDirect(const size_t bundle, const int file_index, Texture* t
     const AssetBundle* asset_bundle = &ASSET_BUNDLES[bundle];
     const LZP_HEAD* archive = asset_bundle->load(asset_bundle);
     DEBUG_LOG("Loaded archive: %p\n", archive);
-    TIM_IMAGE tim = {};
-    const int fsize = lzpFileSize(archive, 0);
-    DEBUG_LOG("File size: %d\n", fsize);
-    QLP_HEAD* tex_buff = (QLP_HEAD*) malloc(fsize);
+    const int lzp_index = lzpSearchFile(asset_bundle->name, archive);
+    if (lzp_index < 0) {
+        errorAbort("[ERROR] Asset bundle not found: %s\n", asset_bundle->name);
+        return 1;
+    }
+    QLP_HEAD* tex_buff = (QLP_HEAD*) malloc(lzpFileSize(archive, lzp_index));
     DEBUG_LOG("Allocated buffer: %p\n", tex_buff);
-    lzpUnpackFile2(tex_buff, archive, file_index);
+    lzpUnpackFile2(tex_buff, archive, lzp_index);
     // FIXME: This has an OOB read, seeming to stem from the file at
     //        the file_index having invalid metadata for offset and
     //        packed size being way to large. Note that the CRC32
@@ -182,6 +187,9 @@ int assetLoadTextureDirect(const size_t bundle, const int file_index, Texture* t
     //        entry generted by MKPSXIO.
     /*lzpUnpackFile(tex_buff, archive, file_index);*/
     DEBUG_LOG("Unpacked file\n");
+    const int file_count = qlpFileCount(tex_buff);
+    DEBUG_LOG("QLP archive file count: %d\n", file_count);
+    TIM_IMAGE tim = {};
     if (file_index >= qlpFileCount(tex_buff)) {
         errorAbort(
             "[ERROR] No such file index %d in asset bundle %d\n",
@@ -193,7 +201,7 @@ int assetLoadTextureDirect(const size_t bundle, const int file_index, Texture* t
     const QLP_FILE* file = qlpFileEntry(file_index, tex_buff);
     if (file == NULL) {
         errorAbort(
-            "[ERROR] No such file index %d in asset bundle %d\n",
+            "[ERROR] No such file index %d in asset bundle %s\n",
             file_index,
             asset_bundle->name
         );
