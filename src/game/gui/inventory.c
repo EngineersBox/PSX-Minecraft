@@ -280,9 +280,6 @@ InventoryStoreResult inventoryStoreItem(Inventory* inventory, IItem* iitem) {
     return INVENTORY_STORE_RESULT_ADDED_NEW_SLOT;
 }
 
-/*#define GUI_BUNDLE_NAME "gui"*/
-/*#define INVENTORY_TEXTURE_NAME "inventory"*/
-
 void inventoryOpen(VSelf) ALIAS("Inventory_open");
 void Inventory_open(VSelf) {
     VSELF(Inventory);
