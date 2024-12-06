@@ -126,26 +126,26 @@ void Minecraft_init(VSelf, void* ctx) {
 
     // ==== TESTING: Hotbar ====
     Inventory* inventory = VCAST(Inventory*, player->inventory);
-    Slot* slot = inventoryFindFreeSlot(inventory, 0);
-    IItem* item = itemCreate();
-    GrassItemBlock* grass_item_block = grassItemBlockCreate();
-    DYN_PTR(item,GrassItemBlock, IItem, grass_item_block);
-    VCALL(*item, init);
-    grass_item_block->item_block.item.stack_size = 26;
-    inventorySlotSetItem(slot, item);
-    VCALL_SUPER(*item, Renderable, applyInventoryRenderAttributes);
+    /*Slot* slot = inventoryFindFreeSlot(inventory, 0);*/
+    /*IItem* item = itemCreate();*/
+    /*GrassItemBlock* grass_item_block = grassItemBlockCreate();*/
+    /*DYN_PTR(item,GrassItemBlock, IItem, grass_item_block);*/
+    /*VCALL(*item, init);*/
+    /*grass_item_block->item_block.item.stack_size = 26;*/
+    /*inventorySlotSetItem(slot, item);*/
+    /*VCALL_SUPER(*item, Renderable, applyInventoryRenderAttributes);*/
     // ==== TESTING: Inventory ====
-    slot = &inventory->slots[slotGroupIndexOffset(INVENTORY_MAIN) + 2];
-    item = itemCreate();
-    grass_item_block = grassItemBlockCreate();
-    DYN_PTR(item, GrassItemBlock, IItem, grass_item_block);
-    VCALL(*item, init);
-    grass_item_block->item_block.item.stack_size = 13;
-    inventorySlotSetItem(slot, item);
-    VCALL_SUPER(*item, Renderable, applyInventoryRenderAttributes);
+    /*slot = &inventory->slots[slotGroupIndexOffset(INVENTORY_MAIN) + 2];*/
+    /*item = itemCreate();*/
+    /*grass_item_block = grassItemBlockCreate();*/
+    /*DYN_PTR(item, GrassItemBlock, IItem, grass_item_block);*/
+    /*VCALL(*item, init);*/
+    /*grass_item_block->item_block.item.stack_size = 13;*/
+    /*inventorySlotSetItem(slot, item);*/
+    /*VCALL_SUPER(*item, Renderable, applyInventoryRenderAttributes);*/
 
-    slot = inventoryFindFreeSlot(inventory, 1);
-    item = itemCreate();
+    Slot* slot = inventoryFindFreeSlot(inventory, 1);
+    IItem* item = itemCreate();
     CraftingTableItemBlock* crafting_table_item_block = craftingTableItemBlockCreate();
     DYN_PTR(item, CraftingTableItemBlock, IItem, crafting_table_item_block);
     VCALL(*item, init);
