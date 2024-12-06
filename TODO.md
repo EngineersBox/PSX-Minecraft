@@ -32,6 +32,7 @@
 * [X] Movement tied to FPS
 * [X] Rain heightmap indexing produces incorrect results after loading chunks when moving.
 * [X] Holding movement keys and opening the inventory doesn't prevent player from continuing to move.
+* [X] The `inventoryRenderSlots` method using the new slot groups seems to index out of bound at some point.
 * [ ] Cull faces on chunk edges that face outward on the render limit
 * [ ] Textures in terrain tpage with any `u` and `v >= 16` rendering multiple interleaved textures from different points in terrain texture page (NOTE: The issue seems to be specific to `POLY_FT4` since `POLY_GT4` doesn't have this behaviour when I changed the primitive type)
 * [ ] Mesh vertices z-depth is inconsistent leading to faces drawn in wrong order and thus culling fails
@@ -39,7 +40,6 @@
 * [ ] Move mesh generation to after all loading when updating world to avoid face generation on orthogonal axis to update axis
 * [ ] Lighting on dropped items is pure black sometimes despite being in light (possibly bad world position when retrieving light value). The physics object position for items isn't properly aligned to the bounding box since the position (which should be the centre of the AABB) isn't aligned properly and thus when converting to world position and querying the light level, it can query the next block over (in the direction that the item moved when it was dropped) and thus can get a light level of 0 and the item is rendered as black in the world.
 * [ ] Weather texture does not scroll correctly, some planes are static and only in some places does it work correctly. Potentially an issue with texture windowing and UV positions.
-* [X] The `inventoryRenderSlots` method using the new slot groups seems to index out of bound at some point.
 
 ## Implement
 
