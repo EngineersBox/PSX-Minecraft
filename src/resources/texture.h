@@ -8,12 +8,12 @@
 #include "../util/inttypes.h"
 #include "../math/vector.h"
 
-typedef struct {
+typedef struct Texture {
     u16 tpage;
     u16 clut;
 } Texture;
 
-typedef struct {
+typedef struct TextureAttributes {
     u8 u;
     u8 v;
     u8 w;
