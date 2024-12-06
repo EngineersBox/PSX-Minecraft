@@ -22,6 +22,7 @@
 #include "../util/preprocessor.h"
 #include "blocks/block.h"
 #include "gui/slot.h"
+#include "items/blocks/item_block_crafting_table.h"
 #include "items/items.h"
 #include "items/blocks/item_block_grass.h"
 #include "items/blocks/item_block_stone.h"
@@ -140,6 +141,15 @@ void Minecraft_init(VSelf, void* ctx) {
     DYN_PTR(item, GrassItemBlock, IItem, grass_item_block);
     VCALL(*item, init);
     grass_item_block->item_block.item.stack_size = 13;
+    inventorySlotSetItem(slot, item);
+    VCALL_SUPER(*item, Renderable, applyInventoryRenderAttributes);
+
+    slot = inventoryFindFreeSlot(inventory, 1);
+    item = itemCreate();
+    CraftingTableItemBlock* crafting_table_item_block = craftingTableItemBlockCreate();
+    DYN_PTR(item, CraftingTableItemBlock, IItem, crafting_table_item_block);
+    VCALL(*item, init);
+    crafting_table_item_block->item_block.item.stack_size = 26;
     inventorySlotSetItem(slot, item);
     VCALL_SUPER(*item, Renderable, applyInventoryRenderAttributes);
 }
