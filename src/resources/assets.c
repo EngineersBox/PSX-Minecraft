@@ -130,35 +130,6 @@ static void _freeDynamicTextures(const void* ctx) {
     free((u8*) ctx);
 }
 
-int lzpUnpackFile2(void* buff, const LZP_HEAD* lzpack, int fileNum) {
-	LZP_FILE*	fileEntry = &((LZP_FILE*)(((const char*)lzpack)+sizeof(LZP_HEAD)))[fileNum];
-	int			unpackedSize;
-	// Check ID header
-    if (strncmp("LZP", lzpack->id, 3) != 0) {
-        DEBUG_LOG("Invalid LZP header\n");
-        return(LZP_ERR_INVALID_PACK);
-    }
-    DEBUG_LOG("Valid LZP header\n");
-    DEBUG_LOG("Lzpack: %p\n", lzpack);
-    DEBUG_LOG("File entry: %p\n", fileEntry);
-    DEBUG_LOG("Offset: %d Packed size: %d\n", fileEntry->offset, fileEntry->packedSize);
-    DEBUG_LOG("File address: %p\n", ((const char*)lzpack)+fileEntry->offset);
-    /*while (true) {}*/
-	// Do a CRC16 check of the compressed data's integrity
-	if (lzCRC32(((const char*)lzpack)+fileEntry->offset, fileEntry->packedSize, LZP_CRC32_REMAINDER) != fileEntry->crc) {
-        DEBUG_LOG("Bad CRC16\n");
-		return(LZP_ERR_CRC_MISMATCH);
-    }
-    DEBUG_LOG("Valid CRC\n");
-	// Decompress data to the specified address
-	unpackedSize = lzDecompress(buff, ((const char*)lzpack)+fileEntry->offset, fileEntry->packedSize);
-	if (unpackedSize < 0) {
-        DEBUG_LOG("The dumb\n");
-		return(unpackedSize);
-    }
-	return(unpackedSize);
-}
-
 int assetLoadTextureDirect(const size_t bundle, const int file_index, Texture* texture) {
     if (bundle == 0) {
         texture->tpage = textures[file_index].tpage;
@@ -168,27 +139,15 @@ int assetLoadTextureDirect(const size_t bundle, const int file_index, Texture* t
         errorAbort("[ERROR] No such asset bundle at index: %d\n", bundle);
         return 1;
     }
-    DEBUG_LOG("PARAMS Bundle: %d File index: %d Texture: %p\n", bundle, file_index, texture);
     const AssetBundle* asset_bundle = &ASSET_BUNDLES[bundle];
     const LZP_HEAD* archive = asset_bundle->load(asset_bundle);
-    DEBUG_LOG("Loaded archive: %p\n", archive);
     const int lzp_index = lzpSearchFile(asset_bundle->name, archive);
     if (lzp_index < 0) {
         errorAbort("[ERROR] Asset bundle not found: %s\n", asset_bundle->name);
         return 1;
     }
     QLP_HEAD* tex_buff = (QLP_HEAD*) malloc(lzpFileSize(archive, lzp_index));
-    DEBUG_LOG("Allocated buffer: %p\n", tex_buff);
-    lzpUnpackFile2(tex_buff, archive, lzp_index);
-    // FIXME: This has an OOB read, seeming to stem from the file at
-    //        the file_index having invalid metadata for offset and
-    //        packed size being way to large. Note that the CRC32
-    //        checksum is valid however. Possibly a bad compressed
-    //        entry generted by MKPSXIO.
-    /*lzpUnpackFile(tex_buff, archive, file_index);*/
-    DEBUG_LOG("Unpacked file\n");
-    const int file_count = qlpFileCount(tex_buff);
-    DEBUG_LOG("QLP archive file count: %d\n", file_count);
+    lzpUnpackFile(tex_buff, archive, lzp_index);
     TIM_IMAGE tim = {};
     if (file_index >= qlpFileCount(tex_buff)) {
         errorAbort(
@@ -207,16 +166,12 @@ int assetLoadTextureDirect(const size_t bundle, const int file_index, Texture* t
         );
         return 1;
     }
-    DEBUG_LOG("Retrieved file entry\n");
     if (GetTimInfo((uint32_t*) qlpFileAddr(file_index, tex_buff), &tim)) {
         errorAbort("[ERROR] Failed to retrieve TIM info for file %s\n", file->name);
         return 1;
     }
-    DEBUG_LOG("Retrieved TIM info\n");
     assetLoadImage(&tim, texture);
-    DEBUG_LOG("Loaded image\n");
     asset_bundle->free(archive);
-    DEBUG_LOG("Freed archive\n");
     free(tex_buff);
     return 0;
 }
