@@ -110,11 +110,6 @@ bool CraftingTableBlock_useAction(VSelf) {
 }
 
 void craftingTableBlockRenderUI(RenderContext* ctx, Transforms* transforms) {
-    uiBackgroundRender(
-        &block_render_ui_context.background,
-        ctx,
-        transforms
-    );
     // Render main storage slots and hotbar
     inventoryRenderSlots(
         VCAST_PTR(const Inventory*, block_input_handler_context.inventory),
@@ -142,4 +137,9 @@ void craftingTableBlockRenderUI(RenderContext* ctx, Transforms* transforms) {
         item->position.vy = slotGroupScreenPosition(CRAFTING_TABLE, Y, 0);
         VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
     }
+    uiBackgroundRender(
+        &block_render_ui_context.background,
+        ctx,
+        transforms
+    );
 }
