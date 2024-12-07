@@ -130,21 +130,21 @@ static void _freeDynamicTextures(const void* ctx) {
     free((u8*) ctx);
 }
 
-int assetLoadTextureDirect(const size_t bundle, const int file_index, Texture* texture) {
+void assetLoadTextureDirect(const size_t bundle, const int file_index, Texture* texture) {
     if (bundle == 0) {
         texture->tpage = textures[file_index].tpage;
         texture->clut = textures[file_index].clut;
-        return 0;
+        return;
     } else if (bundle > ASSET_BUNDLES_COUNT) {
         errorAbort("[ERROR] No such asset bundle at index: %d\n", bundle);
-        return 1;
+        return;
     }
     const AssetBundle* asset_bundle = &ASSET_BUNDLES[bundle];
     const LZP_HEAD* archive = asset_bundle->load(asset_bundle);
     const int lzp_index = lzpSearchFile(asset_bundle->name, archive);
     if (lzp_index < 0) {
         errorAbort("[ERROR] Asset bundle not found: %s\n", asset_bundle->name);
-        return 1;
+        return;
     }
     QLP_HEAD* tex_buff = (QLP_HEAD*) malloc(lzpFileSize(archive, lzp_index));
     lzpUnpackFile(tex_buff, archive, lzp_index);
@@ -155,7 +155,7 @@ int assetLoadTextureDirect(const size_t bundle, const int file_index, Texture* t
             file_index,
             asset_bundle->name
         );
-        return 1;
+        return;
     }
     const QLP_FILE* file = qlpFileEntry(file_index, tex_buff);
     if (file == NULL) {
@@ -164,14 +164,13 @@ int assetLoadTextureDirect(const size_t bundle, const int file_index, Texture* t
             file_index,
             asset_bundle->name
         );
-        return 1;
+        return;
     }
     if (GetTimInfo((uint32_t*) qlpFileAddr(file_index, tex_buff), &tim)) {
         errorAbort("[ERROR] Failed to retrieve TIM info for file %s\n", file->name);
-        return 1;
+        return;
     }
     assetLoadImage(&tim, texture);
     asset_bundle->free(archive);
     free(tex_buff);
-    return 0;
 }

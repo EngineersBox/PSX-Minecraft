@@ -86,14 +86,11 @@ bool CraftingTableBlock_useAction(VSelf) {
     inputSetFocusedHandler(&input, &craftingTableBlockInputHandlerVTable);
     block_render_ui_context.function = craftingTableBlockRenderUI;
     block_render_ui_context.block = self;
-    if (assetLoadTextureDirect(
+    assetLoadTextureDirect(
         ASSET_BUNDLE__GUI,
         ASSET_TEXTURE__GUI__CRAFTING,
         &block_render_ui_context.background.texture
-    )) {
-        printf("[CRAFTING TABLE] Failed to load texture\n");
-    }
-    DEBUG_LOG("[CRAFTING] Loaded background texture\n");
+    );
     block_render_ui_context.background.texture_coords = vec2_i16_all(0);
     block_render_ui_context.background.texture_width = vec2_i16(
         CRAFTING_TABLE_TEXTURE_WIDTH,

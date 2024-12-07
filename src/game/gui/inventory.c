@@ -288,15 +288,11 @@ void Inventory_open(VSelf) {
     }
     self->ui.active = true;
     UIBackground* background = VCAST(UIBackground*, self->ui.components[0]);
-    if (assetLoadTextureDirect(
+    assetLoadTextureDirect(
         ASSET_BUNDLE__GUI,
         ASSET_TEXTURE__GUI__INVENTORY,
         &background->texture
-    )) {
-        printf("[INVENTORY] Failed to load texture\n");
-    } else {
-        DEBUG_LOG("[INVENTORY] Loaded texture\n");
-    }
+    );
 }
 
 void inventoryClose(VSelf) ALIAS("Inventory_close");
