@@ -12,10 +12,10 @@
 #include "../logging/logging.h"
 #include "../hardware/cd.h"
 #include "asset_indices.h"
+#include "../util/preprocessor.h"
 
 typedef void* (*AssetLoad)(const void* ctx);
-
-typedef void (*AssetFree)(const void* ctx);
+typedef void (*AssetFree)(void* ctx);
 
 typedef struct {
     AssetLoad load;
@@ -24,11 +24,10 @@ typedef struct {
     char* pack;
 } AssetBundle;
 
-static void* _loadTextures(const void* ctx);
-static void _freeTextures(const void* ctx);
+FWD_DECL static void* _loadTextures(const void* ctx);
+FWD_DECL static void _freeTextures(void* ctx);
 
-static void* _loadDynamicTextures(const void* ctx);
-static void _freeDynamicTextures(const void* ctx);
+FWD_DECL static void* _loadDynamicTextures(const void* ctx);
 
 AssetBundle ASSET_BUNDLES[ASSET_BUNDLES_COUNT] = {
     [ASSET_BUNDLE__STATIC]=(AssetBundle) {
@@ -39,7 +38,7 @@ AssetBundle ASSET_BUNDLES[ASSET_BUNDLES_COUNT] = {
     },
     [ASSET_BUNDLE__GUI]=(AssetBundle) {
         .load = _loadDynamicTextures,
-        .free = _freeDynamicTextures,
+        .free = free,
         .name = "gui",
         .pack = "\\GUI.LZP"
     },
@@ -97,7 +96,7 @@ void assetLoadImage(const TIM_IMAGE* tim, Texture* texture) {
     );
 }
 
-static void _freeTextures(const void* ctx) {
+static void _freeTextures(void* ctx) {
     free(textures);
 }
 
@@ -126,10 +125,6 @@ static void* _loadDynamicTextures(const void* ctx) {
     return cdReadDataSync(bundle->pack, CdlModeSpeed);
 }
 
-static void _freeDynamicTextures(const void* ctx) {
-    free((u8*) ctx);
-}
-
 void assetLoadTextureDirect(const size_t bundle, const int file_index, Texture* texture) {
     if (bundle == 0) {
         texture->tpage = textures[file_index].tpage;
@@ -140,7 +135,7 @@ void assetLoadTextureDirect(const size_t bundle, const int file_index, Texture* 
         return;
     }
     const AssetBundle* asset_bundle = &ASSET_BUNDLES[bundle];
-    const LZP_HEAD* archive = asset_bundle->load(asset_bundle);
+    LZP_HEAD* archive = asset_bundle->load(asset_bundle);
     const int lzp_index = lzpSearchFile(asset_bundle->name, archive);
     if (lzp_index < 0) {
         errorAbort("[ERROR] Asset bundle not found: %s\n", asset_bundle->name);
