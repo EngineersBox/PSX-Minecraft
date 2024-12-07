@@ -4,6 +4,7 @@
 #include "block.h"
 #include "block_id.h"
 #include "../items/blocks/item_block_crafting_table.h"
+#include "../../logging/logging.h"
 
 bool craftingTableBlockInputHandler(const Input* input, void* ctx);
 static InputHandlerVTable craftingTableBlockInputHandlerVTable = {
@@ -92,6 +93,7 @@ bool CraftingTableBlock_useAction(VSelf) {
     )) {
         printf("[CRAFTING TABLE] Failed to load texture\n");
     }
+    DEBUG_LOG("[CRAFTING] Loaded background texture\n");
     block_render_ui_context.background = (UIBackground) {
         .texture = (Texture) {0},
         .texture_coords = vec2_i16_all(0),
@@ -140,7 +142,7 @@ void craftingTableBlockRenderUI(RenderContext* ctx, Transforms* transforms) {
         }
     }
     const Slot* slot = &crafting_table_sots[slotGroupIndexOffset(CRAFTING_TABLE)];
-    if (slot->data.item == NULL) {
+    if (slot->data.item != NULL) {
         Item* item = VCAST_PTR(Item*, slot->data.item);
         item->position.vx = slotGroupScreenPosition(CRAFTING_TABLE, X, 0);
         item->position.vy = slotGroupScreenPosition(CRAFTING_TABLE, Y, 0);

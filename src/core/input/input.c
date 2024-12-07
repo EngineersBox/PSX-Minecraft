@@ -4,6 +4,7 @@
 
 #include "../../util/inttypes.h"
 #include "../../structure/cvector_utils.h"
+#include "../../logging/logging.h"
 
 Input input = (Input) {0};
 
@@ -45,5 +46,10 @@ void inputUpdate(Input* input) {
         // we reset the focused handler to avoid re-attempting an invocation
         // so we can try all other handlers.
         input->in_focus = NULL;
+        // FIXME: Once we close an inventory and release the input handler,
+        //        it is possible to open the player inventory immediately
+        //        after if we don't press fast enough. As such we should
+        //        debounce when we release a handler before allowing a new
+        //        handler to be aquired.
     }
 }
