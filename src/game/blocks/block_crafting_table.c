@@ -94,23 +94,20 @@ bool CraftingTableBlock_useAction(VSelf) {
         printf("[CRAFTING TABLE] Failed to load texture\n");
     }
     DEBUG_LOG("[CRAFTING] Loaded background texture\n");
-    block_render_ui_context.background = (UIBackground) {
-        .texture = (Texture) {0},
-        .texture_coords = vec2_i16_all(0),
-        .texture_width = vec2_i16(
+    block_render_ui_context.background.texture_coords = vec2_i16_all(0);
+    block_render_ui_context.background.texture_width = vec2_i16(
+        CRAFTING_TABLE_TEXTURE_WIDTH,
+        CRAFTING_TABLE_TEXTURE_HEIGHT
+    );
+    block_render_ui_context.background.component = (UIComponent) {
+        .position = vec2_i16(
+            CENTRE_X - (CRAFTING_TABLE_TEXTURE_WIDTH >> 1),
+            CENTRE_Y - (CRAFTING_TABLE_TEXTURE_HEIGHT >> 1)
+        ),
+        .dimensions = vec2_i16(
             CRAFTING_TABLE_TEXTURE_WIDTH,
             CRAFTING_TABLE_TEXTURE_HEIGHT
-        ),
-        .component = (UIComponent) {
-            .position = vec2_i16(
-                CENTRE_X - (CRAFTING_TABLE_TEXTURE_WIDTH >> 1),
-                CENTRE_Y - (CRAFTING_TABLE_TEXTURE_HEIGHT >> 1)
-            ),
-            .dimensions = vec2_i16(
-                CRAFTING_TABLE_TEXTURE_WIDTH,
-                CRAFTING_TABLE_TEXTURE_HEIGHT
-            )
-        }
+        )
     };
     return false;
 }
