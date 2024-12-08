@@ -95,15 +95,8 @@ void renderItemBlock(ItemBlock* item,
     int p;
     TextureAttributes* face_attribute;
     const Texture* texture = &textures[ASSET_TEXTURE__STATIC__TERRAIN];
-    RECT tex_window;
     for (int i = 0; i < BLOCK_FACES; i++) {
         face_attribute = &item->face_attributes[i];
-        tex_window = (RECT) {
-            face_attribute->u >> 3,
-            face_attribute->v >> 3,
-            face_attribute->w >> 3,
-            face_attribute->h >> 3
-        };
         POLY_FT4* pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
         #define createVert(_v) vec3_i16( \
             convertToVertex(CUBE_INDICES[i]._v, 0, ITEM_BLOCK_SIZE) + position_offset->vx, \
@@ -203,7 +196,7 @@ void renderItemBlock(ItemBlock* item,
         // Advance to make another primitive
         // Bind a texture window to ensure wrapping across merged block face primitives
         DR_TWIN* ptwin = (DR_TWIN*) allocatePrimitive(ctx, sizeof(DR_TWIN));
-        setTexWindow(ptwin, &tex_window);
+        setTexWindow(ptwin, &single_block_texture_window);
         ot_object = allocateOrderingTable(ctx, p);
         addPrim(ot_object, ptwin);
     }
@@ -328,17 +321,10 @@ void renderItemBlockInventory(ItemBlock* item,
     const Texture* texture = &textures[ASSET_TEXTURE__STATIC__TERRAIN];
     const i16 offset_screen_x = -CENTRE_X + screen_position->vx;
     const i16 offset_screen_y = -CENTRE_Y + screen_position->vy;
-    RECT tex_window;
     int i;
     for (int idx = 0; idx < face_indices_count; idx++) {
         i = face_indices[idx];
         face_attribute = &item->face_attributes[i];
-        tex_window = (RECT) {
-            face_attribute->u >> 3,
-            face_attribute->v >> 3,
-            face_attribute->w >> 3,
-            face_attribute->h >> 3
-        };
         POLY_FT4* pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
         #define createVert(_v) vec3_i16( \
             convertToVertex(CUBE_INDICES[i]._v, 0, size), \
@@ -422,7 +408,7 @@ void renderItemBlockInventory(ItemBlock* item,
         // Advance to make another primitive
         // Bind a texture window to ensure wrapping across merged block face primitives
         DR_TWIN* ptwin = (DR_TWIN*) allocatePrimitive(ctx, sizeof(DR_TWIN));
-        setTexWindow(ptwin, &tex_window);
+        setTexWindow(ptwin, &single_block_texture_window);
         ot_object = allocateOrderingTable(ctx, 1);
         addPrim(ot_object, ptwin);
     }

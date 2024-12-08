@@ -4,6 +4,7 @@
 #define PSXMC_TEXTURE_H
 
 #include <psxgte.h>
+#include <psxgpu.h>
 
 #include "../util/inttypes.h"
 #include "../math/vector.h"
@@ -62,5 +63,10 @@ typedef struct TextureAttributes {
     neg_z, NO_TINT \
 )
 #define defaultFaceAttributes(index) declareFaceAttributes(index, index, index, index, index, index)
+
+// Used when rendering a single block texture
+// of size 16x16 repeating 0 or more times on
+// both axes
+extern const RECT single_block_texture_window;
 
 #endif // PSXMC_TEXTURE_H
