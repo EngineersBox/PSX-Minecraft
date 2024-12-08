@@ -2,6 +2,8 @@
 
 #include "../math/math_utils.h"
 
+// TODO: Explain all of this nonsense.
+
 const RECT single_block_texture_window = (RECT) {
     0b0010,
     0b0010,
