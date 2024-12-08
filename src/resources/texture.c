@@ -3,6 +3,10 @@
 #include "../math/math_utils.h"
 
 // TODO: Explain all of this nonsense.
+// FIXME: This still doesn't work despite
+//        all manual caluclations suggseting it
+//        should, as per the texture_window.rs
+//        code in the testing directory.
 
 const RECT single_block_texture_window = (RECT) {
     0b0010,
