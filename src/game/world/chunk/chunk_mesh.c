@@ -89,11 +89,10 @@ static void renderQuad(const Mesh* mesh,
     cvector_iterator(SVECTOR) verticesIter = cvector_begin(mesh->p_verts);
     cvector_iterator(SVECTOR) normalsIter = cvector_begin(mesh->p_norms);
     const RECT tex_window = (RECT){
-        // All in units of 8 pixels, hence right shift by 3
-        .w = BLOCK_TEXTURE_SIZE>> 3,
-        .h = BLOCK_TEXTURE_SIZE >> 3,
-        .x = primitive->tu0 >> 3,
-        .y = primitive->tv0 >> 3
+        .w = textureWindowMaskBlock(primitive->tu0),
+        .h = textureWindowMaskBlock(primitive->tv0),
+        .x = textureWindowOffsetBlock(primitive->tu0),
+        .y = textureWindowOffsetBlock(primitive->tv0)
     };
     POLY_FT4* pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
     gte_ldv3(

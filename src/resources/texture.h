@@ -69,4 +69,7 @@ typedef struct TextureAttributes {
 // both axes
 extern const RECT single_block_texture_window;
 
+u8 textureWindowMaskBlock(const u16 coord);
+u8 textureWindowOffsetBlock(const u16 coord);
+
 #endif // PSXMC_TEXTURE_H

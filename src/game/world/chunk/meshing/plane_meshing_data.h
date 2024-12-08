@@ -7,7 +7,7 @@
 #include "../../../../lighting/lightmap.h"
 #include "../../../../util/inttypes.h"
 
-#if defined(CHUNK_SIZE) && CHUNK_SIZE > 0 && CHUNK_SIZE <= 32 && isPowerOf2(CHUNK_SIZE)
+#if defined(CHUNK_SIZE) && CHUNK_SIZE > 0 && CHUNK_SIZE <= 32 && _isPowerOf2(CHUNK_SIZE)
     #define planeType(size, name) typedef GLUE(u, size) name[size]
     planeType(CHUNK_SIZE,BinaryMeshPlane);
 #undef planeType

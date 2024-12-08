@@ -115,7 +115,11 @@
     m + ((m >> 31) & _n); \
 })
 
-#define isPowerOf2(x) (((x) & ((x) - 1)) == 0)
+#define _isPowerOf2(x) (((_x) & ((_x) - 1)) == 0)
+#define isPowerOf2(x) ({ \
+    __typeof__(x) _x = (x); \
+    _isPowerOf2(_x); \
+})
 
 // Convert degrees to unit range accepted by trig functions
 // E.g. degToUnitRange(45) = 512
