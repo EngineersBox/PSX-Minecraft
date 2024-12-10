@@ -326,12 +326,12 @@ void chunkRender(Chunk* chunk,
             ((chunk->position.vz + 1) * CHUNK_BLOCK_SIZE)// << FIXED_POINT_SHIFT
         )
     };
-    /*if (frustumContainsAABB(&ctx->camera->frustum, &aabb) == FRUSTUM_OUTSIDE) {*/
-    /*    DEBUG_LOG("[CHUNK " VEC_PATTERN "] Not visible\n", VEC_LAYOUT(chunk->position));*/
-    /*    return;*/
-    /*} else {*/
-    /*    DEBUG_LOG("[CHUNK " VEC_PATTERN "] Visible\n", VEC_LAYOUT(chunk->position));*/
-    /*}*/
+    if (frustumContainsAABB(&ctx->camera->frustum, &aabb) == FRUSTUM_OUTSIDE) {
+        DEBUG_LOG("[CHUNK " VEC_PATTERN "] Not visible\n", VEC_LAYOUT(chunk->position));
+        return;
+    } else {
+        DEBUG_LOG("[CHUNK " VEC_PATTERN "] Visible\n", VEC_LAYOUT(chunk->position));
+    }
     renderCtxBindMatrix(
         ctx,
         transforms,
