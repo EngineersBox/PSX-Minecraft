@@ -44,7 +44,7 @@ extern const SVECTOR WORLD_FACE_DIRECTION_NORMALS[FACE_DIRECTION_COUNT];
  * @param face_dir Current @code FaceDirection@endcode
  * @return Opposing @code FaceDirection@endcode
  */
-#define faceDirectionOpposing(face_dir) ((FaceDirection) (((u8) (face_dir)) ^ 1))
+#define faceDirectionOpposing(face_dir) ((FaceDirection) (((u8) (face_dir)) ^ 0b001))
 
 // [-1,1] => [0,1]
 #define convertAxis(v,a) (((v).a + 1) >> 1)

@@ -227,15 +227,31 @@ void chunkMeshRenderFaceDirection(const Mesh* mesh,
     }
 }
 
-bool faceDirectionHidden(FaceDirection face_dir,
-                                const VECTOR* aabb_closest_vertex,
-                                bool pos_in_chunk_x,
-                                bool pos_in_chunk_y,
-                                bool pos_in_chunk_z,
-                                RenderContext* ctx) {
-    // TODO: Implement face direction culling, determing if faces in this
-    //       direction are visible to the camera
+#define POS_INCREASED 0
+#define POS_DECREASED 1
+#define POS_BETWEEN 2
 
+bool faceDirectionHidden(FaceDirection face_dir,
+                         const VECTOR* aabb_closest_vertex,
+                         u8 pos_state_x,
+                         u8 pos_state_y,
+                         u8 pos_state_z,
+                         RenderContext* ctx) {
+    /*const SVECTOR* normal = &FACE_DIRECTION_NORMALS[face_dir];*/
+    switch (face_dir) {
+        case FACE_DIR_DOWN:
+            return pos_state_y == POS_INCREASED;
+        case FACE_DIR_UP:
+            return pos_state_y == POS_DECREASED;
+        case FACE_DIR_LEFT:
+            return pos_state_x == POS_INCREASED;
+        case FACE_DIR_RIGHT:
+            return pos_state_x == POS_DECREASED;
+        case FACE_DIR_BACK:
+            return pos_state_z == POS_INCREASED;
+        case FACE_DIR_FRONT:
+            return pos_state_z == POS_DECREASED;
+    }
     return false;
 }
 
@@ -245,24 +261,29 @@ void chunkMeshRender(const ChunkMesh* mesh,
                      bool subdivide,
                      RenderContext* ctx,
                      Transforms* transforms) {
-#define isPosInAxis(axis) chunk_aabb->min.axis <= ctx->camera->position.axis \
-                          && ctx->camera->position.axis < chunk_aabb->max.axis
-    const bool pos_in_chunk_x = isPosInAxis(vx);
-    const bool pos_in_chunk_y = isPosInAxis(vy);
-    const bool pos_in_chunk_z = isPosInAxis(vz);
-#undef isPosInAxis
+    #define posState(axis) \
+        ctx->camera->position.v##axis < chunk_aabb->min.v##axis \
+            ? POS_DECREASED \
+            : (ctx->camera->position.v##axis > chunk_aabb->max.v##axis \
+                ? POS_INCREASED \
+                : POS_BETWEEN \
+            )
+    const u8 pos_state_x = posState(x);
+    const u8 pos_state_y = posState(y);
+    const u8 pos_state_z = posState(z);
+    #undef posState
     const VECTOR aabb_closest_vertex = aabbVertexClosestToPoint(
         chunk_aabb,
         &ctx->camera->position
     );
     bool skip_check[6] = {false, false, false, false, false, false};
-    for (int i = 0; i < FACE_DIRECTION_COUNT; i++) {
+for (int i = 0; i < FACE_DIRECTION_COUNT; i++) {
         if (skip_check[i] || faceDirectionHidden(
             i,
             &aabb_closest_vertex,
-            pos_in_chunk_x,
-            pos_in_chunk_y,
-            pos_in_chunk_z,
+            pos_state_x,
+            pos_state_y,
+            pos_state_z,
             ctx
         )) {
             continue;
