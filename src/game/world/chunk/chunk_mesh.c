@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <psxgpu.h>
 
+#include "../../../util/preprocessor.h"
 #include "../../../structure/cvector.h"
 #include "../../../structure/cvector_utils.h"
 #include "../../../structure/primitive/clip.h"
@@ -227,9 +228,9 @@ void chunkMeshRenderFaceDirection(const Mesh* mesh,
     }
 }
 
-#define POS_INCREASED 0
-#define POS_DECREASED 1
-#define POS_BETWEEN 2
+#define POS_BETWEEN 0
+#define POS_INCREASED 1
+#define POS_DECREASED 2
 
 bool faceDirectionHidden(FaceDirection face_dir,
                          const VECTOR* aabb_closest_vertex,
@@ -240,9 +241,9 @@ bool faceDirectionHidden(FaceDirection face_dir,
     /*const SVECTOR* normal = &FACE_DIRECTION_NORMALS[face_dir];*/
     switch (face_dir) {
         case FACE_DIR_DOWN:
-            return pos_state_y == POS_INCREASED;
-        case FACE_DIR_UP:
             return pos_state_y == POS_DECREASED;
+        case FACE_DIR_UP:
+            return pos_state_y == POS_INCREASED;
         case FACE_DIR_LEFT:
             return pos_state_x == POS_INCREASED;
         case FACE_DIR_RIGHT:
@@ -261,10 +262,11 @@ void chunkMeshRender(const ChunkMesh* mesh,
                      bool subdivide,
                      RenderContext* ctx,
                      Transforms* transforms) {
+    const VECTOR position = vec3_const_div(ctx->camera->position, ONE);
     #define posState(axis) \
-        ctx->camera->position.v##axis < chunk_aabb->min.v##axis \
+        position.v##axis < chunk_aabb->min.v##axis \
             ? POS_DECREASED \
-            : (ctx->camera->position.v##axis > chunk_aabb->max.v##axis \
+            : (position.v##axis >= chunk_aabb->max.v##axis \
                 ? POS_INCREASED \
                 : POS_BETWEEN \
             )
@@ -274,10 +276,10 @@ void chunkMeshRender(const ChunkMesh* mesh,
     #undef posState
     const VECTOR aabb_closest_vertex = aabbVertexClosestToPoint(
         chunk_aabb,
-        &ctx->camera->position
+        &position
     );
     bool skip_check[6] = {false, false, false, false, false, false};
-for (int i = 0; i < FACE_DIRECTION_COUNT; i++) {
+    for (int i = 0; i < FACE_DIRECTION_COUNT; i++) {
         if (skip_check[i] || faceDirectionHidden(
             i,
             &aabb_closest_vertex,
@@ -291,12 +293,12 @@ for (int i = 0; i < FACE_DIRECTION_COUNT; i++) {
         // If we have determined that a face is visible, then the
         // opposite face direction is necesserily not visible
         switch (i) {
-            case FACE_DIR_DOWN: skip_check[1] = true; break;
-            case FACE_DIR_UP: skip_check[0] = true; break;
-            case FACE_DIR_LEFT: skip_check[3] = true; break;
-            case FACE_DIR_RIGHT: skip_check[2] = true; break;
-            case FACE_DIR_BACK: skip_check[5] = true; break;
-            case FACE_DIR_FRONT: skip_check[4] = true; break;
+            case FACE_DIR_DOWN: skip_check[1] = (bool) pos_state_y; break;
+            case FACE_DIR_UP: skip_check[0] = (bool) pos_state_y; break;
+            case FACE_DIR_LEFT: skip_check[3] = (bool) pos_state_x; break;
+            case FACE_DIR_RIGHT: skip_check[2] = (bool) pos_state_x; break;
+            case FACE_DIR_BACK: skip_check[5] = (bool) pos_state_z; break;
+            case FACE_DIR_FRONT: skip_check[4] = (bool) pos_state_z; break;
         }
         chunkMeshRenderFaceDirection(
             &mesh->face_meshes[i],

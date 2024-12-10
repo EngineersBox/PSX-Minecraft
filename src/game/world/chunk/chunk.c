@@ -322,8 +322,8 @@ void chunkRender(Chunk* chunk,
         ),
         .max = vec3_i32(
             ((chunk->position.vx + 1) * CHUNK_BLOCK_SIZE),// << FIXED_POINT_SHIFT,
-            (-(chunk->position.vx + 1) * CHUNK_BLOCK_SIZE),// << FIXED_POINT_SHIFT,
-            ((chunk->position.vx + 1) * CHUNK_BLOCK_SIZE)// << FIXED_POINT_SHIFT
+            (-(chunk->position.vy + 1) * CHUNK_BLOCK_SIZE),// << FIXED_POINT_SHIFT,
+            ((chunk->position.vz + 1) * CHUNK_BLOCK_SIZE)// << FIXED_POINT_SHIFT
         )
     };
     /*if (frustumContainsAABB(&ctx->camera->frustum, &aabb) == FRUSTUM_OUTSIDE) {*/
