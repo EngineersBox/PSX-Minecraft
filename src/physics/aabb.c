@@ -97,9 +97,25 @@ bool aabbIntersects(const AABB* a, const AABB* b) {
         && a->max.vz > b->min.vz;
 }
 
-#include "../util/preprocessor.h"
-
 VECTOR aabbVertexClosestToPoint(const AABB* aabb, const VECTOR* point) {
-    UNIMPLEMENTED();
-    return (VECTOR) {0};
+    VECTOR vertex = vec3_i32_all(0);
+    int max_diff;
+    int min_diff;
+#define pickBoundsFromSign(axis) \
+    max_diff = point->v##axis - aabb->max.v##axis; \
+    min_diff = point->v##axis - aabb->min.v##axis; \
+    if (max_diff >= 0) { \
+        vertex.v##axis = aabb->max.v##axis; \
+    } else if (min_diff < 0) { \
+        vertex.v##axis = aabb->min.v##axis; \
+    } else if (absv(max_diff) >= absv(min_diff)) { \
+        vertex.v##axis = aabb->min.v##axis; \
+    } else { \
+        vertex.v##axis = aabb->max.v##axis; \
+    }
+    pickBoundsFromSign(x);
+    pickBoundsFromSign(y);
+    pickBoundsFromSign(z);
+#undef pickBoundsFromSign
+    return vertex;
 }
