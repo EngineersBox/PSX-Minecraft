@@ -89,6 +89,7 @@
 * [X] Add snow/rain rendering in scene as several orthogonal planes that are positioned at player position.
 * [X] ~~Check if camera not moving then ray cast once to get block targeted and draw outline around if in reach range~~
 * [X] Recipe compiler to take JSON format and produce compile time struct definition encapsulating recipes
+* [ ] Culling of direction sub-meshes in chunk meshes to avoid any clipping tests in that direction
 * [ ] Camera far plane cutoff with fog relative to chunk render distance
 * [ ] Frustum and culling
 * [ ] Depth-first search culling through chunks
