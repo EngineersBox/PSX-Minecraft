@@ -310,7 +310,15 @@ static void chunkRenderDroppedItems(const Chunk* chunk, RenderContext* ctx, Tran
     }
 }
 
-static bool chunkIsOutsideFrustum(const Chunk* chunk, const Frustum* frustum, const Transforms* transforms) {
+static bool chunkIsOutsideFrustum(const AABB* aabb, const Frustum* frustum, const Transforms* transforms) {
+    const FrustumQueryResult result = frustumContainsAABB(frustum, aabb);
+    return result == FRUSTUM_OUTSIDE;
+}
+
+void chunkRender(Chunk* chunk,
+                 bool subdivide,
+                 RenderContext* ctx,
+                 Transforms* transforms) {
     const AABB aabb = (AABB) {
         .min = vec3_i32(
             (chunk->position.vx * CHUNK_BLOCK_SIZE),// << FIXED_POINT_SHIFT,
@@ -323,15 +331,7 @@ static bool chunkIsOutsideFrustum(const Chunk* chunk, const Frustum* frustum, co
             ((chunk->position.vx + 1) * CHUNK_BLOCK_SIZE)// << FIXED_POINT_SHIFT
         )
     };
-    const FrustumQueryResult result = frustumContainsAABB(frustum, &aabb);
-    return result == FRUSTUM_OUTSIDE;
-}
-
-void chunkRender(Chunk* chunk,
-                 bool subdivide,
-                 RenderContext* ctx,
-                 Transforms* transforms) {
-    /*if (chunkIsOutsideFrustum(chunk, &ctx->camera->frustum, transforms)) {*/
+    /*if (chunkIsOutsideFrustum(aabb, &ctx->camera->frustum, transforms)) {*/
     /*    DEBUG_LOG("[CHUNK " VEC_PATTERN "] Not visible\n", VEC_LAYOUT(chunk->position));*/
     /*    return;*/
     /*} else {*/
@@ -347,6 +347,7 @@ void chunkRender(Chunk* chunk,
     chunkMeshRender(
         &chunk->mesh,
         worldGetInternalLightLevel(chunk->world),
+        &aabb,
         subdivide,
         ctx,
         transforms

@@ -96,3 +96,10 @@ bool aabbIntersects(const AABB* a, const AABB* b) {
         && a->min.vz < b->max.vz
         && a->max.vz > b->min.vz;
 }
+
+#include "../util/preprocessor.h"
+
+VECTOR aabbVertexClosestToPoint(const AABB* aabb, const VECTOR* point) {
+    UNIMPLEMENTED();
+    return (VECTOR) {0};
+}

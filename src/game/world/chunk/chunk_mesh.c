@@ -25,7 +25,6 @@ void __svectorDestructor(void* elem) {
 }
 
 void chunkMeshInit(ChunkMesh* mesh) {
-    #pragma GCC unroll 6
     for (int i = 0; i < FACE_DIRECTION_COUNT; i++) {
         // NOTE: This null init is important for cvector to ensure allocation is done initially
         Mesh* face_mesh = &mesh->face_meshes[i];
@@ -40,7 +39,6 @@ void chunkMeshInit(ChunkMesh* mesh) {
 }
 
 void chunkMeshDestroy(const ChunkMesh* mesh) {
-    #pragma GCC unroll 6
     for (int i = 0; i < FACE_DIRECTION_COUNT; i++) {
         const Mesh* face_mesh = &mesh->face_meshes[i];
         cvector_free((MeshPrimitive*) face_mesh->p_prims);
@@ -50,7 +48,6 @@ void chunkMeshDestroy(const ChunkMesh* mesh) {
 }
 
 void chunkMeshClear(ChunkMesh* mesh) {
-    #pragma GCC unroll 6
     for (int i = 0; i < FACE_DIRECTION_COUNT; i++) {
         Mesh* face_mesh = &mesh->face_meshes[i];
         cvector_clear((cvector(MeshPrimitive)) face_mesh->p_prims);
@@ -221,7 +218,7 @@ void chunkMeshRenderFaceDirection(const Mesh* mesh,
                     transforms);
                 break;
             default:
-                printf(
+                errorAbort(
                     "[ERROR] ChunkMesh - Unknown primitive type: %d\n",
                     primitive->type
                 );
@@ -230,33 +227,56 @@ void chunkMeshRenderFaceDirection(const Mesh* mesh,
     }
 }
 
-UNUSED bool faceDirectionHidden(RenderContext* ctx, FaceDirection face_dir) {
+bool faceDirectionHidden(FaceDirection face_dir,
+                                const VECTOR* aabb_closest_vertex,
+                                bool pos_in_chunk_x,
+                                bool pos_in_chunk_y,
+                                bool pos_in_chunk_z,
+                                RenderContext* ctx) {
     // TODO: Implement face direction culling, determing if faces in this
     //       direction are visible to the camera
+
     return false;
 }
 
 void chunkMeshRender(const ChunkMesh* mesh,
                      const LightLevel internal_light_level,
+                     const AABB* chunk_aabb,
                      bool subdivide,
                      RenderContext* ctx,
                      Transforms* transforms) {
-    // bool skip_check[6] = {false};
-    #pragma GCC unroll 6
+#define isPosInAxis(axis) chunk_aabb->min.axis <= ctx->camera->position.axis \
+                          && ctx->camera->position.axis < chunk_aabb->max.axis
+    const bool pos_in_chunk_x = isPosInAxis(vx);
+    const bool pos_in_chunk_y = isPosInAxis(vy);
+    const bool pos_in_chunk_z = isPosInAxis(vz);
+#undef isPosInAxis
+    const VECTOR aabb_closest_vertex = aabbVertexClosestToPoint(
+        chunk_aabb,
+        &ctx->camera->position
+    );
+    bool skip_check[6] = {false, false, false, false, false, false};
     for (int i = 0; i < FACE_DIRECTION_COUNT; i++) {
-        // if (skip_check[i] || faceDirectionHidden(ctx, i)) {
-        //     continue;
-        // }
-        // // If we have determined that a face is visible, then the
-        // // opposite face direction is necesserily not visible
-        // switch (i) {
-        //     case FACE_DIR_DOWN: skip_check[1] = true; break;
-        //     case FACE_DIR_UP: skip_check[0] = true; break;
-        //     case FACE_DIR_LEFT: skip_check[3] = true; break;
-        //     case FACE_DIR_RIGHT: skip_check[2] = true; break;
-        //     case FACE_DIR_BACK: skip_check[5] = true; break;
-        //     case FACE_DIR_FRONT: skip_check[4] = true; break;
-        // }
+        if (skip_check[i] || faceDirectionHidden(
+            i,
+            &aabb_closest_vertex,
+            pos_in_chunk_x,
+            pos_in_chunk_y,
+            pos_in_chunk_z,
+            ctx
+        )) {
+            continue;
+        }
+        // If we have determined that a face is visible, then the
+        // opposite face direction is necesserily not visible
+        switch (i) {
+            case FACE_DIR_DOWN: skip_check[1] = true; break;
+            case FACE_DIR_UP: skip_check[0] = true; break;
+            case FACE_DIR_LEFT: skip_check[3] = true; break;
+            case FACE_DIR_RIGHT: skip_check[2] = true; break;
+            case FACE_DIR_BACK: skip_check[5] = true; break;
+            case FACE_DIR_FRONT: skip_check[4] = true; break;
+        }
         chunkMeshRenderFaceDirection(
             &mesh->face_meshes[i],
             internal_light_level,

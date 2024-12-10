@@ -9,6 +9,8 @@
 #include <metalang99.h>
 #include <inttypes.h>
 
+#include "../logging/logging.h"
+
 // ==== META MACROS ====
 
 #define XSTRINGIFY(s) STRINGIFY(s)
@@ -67,16 +69,12 @@
  * @brief Indicates not yet implemented functionality,
  *        but does not claim it will be implemented later
  */
-#define UNIMPLEMENTED() \
-    do { \
-        printf( \
-            "[ERROR] Invoked unimplemented function %s @ %s:%d\n", \
-            __func__, \
-            __FILE__, \
-            __LINE__ \
-        ); \
-        abort(); \
-    } while(0)
+#define UNIMPLEMENTED() errorAbort( \
+    "[ERROR] Invoked unimplemented function %s @ %s:%d\n", \
+    __func__, \
+    __FILE__, \
+    __LINE__ \
+)
 
 // ==== PRINTING ====
 

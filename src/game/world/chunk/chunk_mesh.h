@@ -10,6 +10,7 @@
 #include "../../../structure/primitive/direction.h"
 #include "../../../math/vector.h"
 #include "../../../lighting/lightmap.h"
+#include "../../../physics/aabb.h"
 
 // TODO: Move this to global defines file
 #define CHUNK_SIZE 8
@@ -58,6 +59,7 @@ void chunkMeshRenderFaceDirection(const Mesh* mesh,
                                   Transforms* transforms);
 void chunkMeshRender(const ChunkMesh* mesh,
                      const LightLevel internal_light_level,
+                     const AABB* chunk_aabb,
                      bool subdivide,
                      RenderContext* ctx,
                      Transforms* transforms);

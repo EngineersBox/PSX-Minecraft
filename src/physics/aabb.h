@@ -21,5 +21,6 @@ i32 aabbXOffset(const AABB* source, const AABB* target, i32 x);
 i32 aabbZOffset(const AABB* source, const AABB* target, i32 z);
 
 bool aabbIntersects(const AABB* a, const AABB* b);
+VECTOR aabbVertexClosestToPoint(const AABB* aabb, const VECTOR* point);
 
 #endif // PSXMC_AABB_H
