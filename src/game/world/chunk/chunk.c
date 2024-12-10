@@ -310,11 +310,6 @@ static void chunkRenderDroppedItems(const Chunk* chunk, RenderContext* ctx, Tran
     }
 }
 
-static bool chunkIsOutsideFrustum(const AABB* aabb, const Frustum* frustum, const Transforms* transforms) {
-    const FrustumQueryResult result = frustumContainsAABB(frustum, aabb);
-    return result == FRUSTUM_OUTSIDE;
-}
-
 void chunkRender(Chunk* chunk,
                  bool subdivide,
                  RenderContext* ctx,
@@ -331,7 +326,7 @@ void chunkRender(Chunk* chunk,
             ((chunk->position.vx + 1) * CHUNK_BLOCK_SIZE)// << FIXED_POINT_SHIFT
         )
     };
-    /*if (chunkIsOutsideFrustum(aabb, &ctx->camera->frustum, transforms)) {*/
+    /*if (frustumContainsAABB(&ctx->camera->frustum, &aabb) == FRUSTUM_OUTSIDE) {*/
     /*    DEBUG_LOG("[CHUNK " VEC_PATTERN "] Not visible\n", VEC_LAYOUT(chunk->position));*/
     /*    return;*/
     /*} else {*/
