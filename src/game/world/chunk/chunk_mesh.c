@@ -232,12 +232,12 @@ void chunkMeshRenderFaceDirection(const Mesh* mesh,
 #define POS_INCREASED 1
 #define POS_DECREASED 2
 
-bool faceDirectionHidden(FaceDirection face_dir,
-                         const VECTOR* aabb_closest_vertex,
-                         u8 pos_state_x,
-                         u8 pos_state_y,
-                         u8 pos_state_z,
-                         RenderContext* ctx) {
+static bool faceDirectionHidden(FaceDirection face_dir,
+                                const VECTOR* aabb_closest_vertex,
+                                u8 pos_state_x,
+                                u8 pos_state_y,
+                                u8 pos_state_z,
+                                RenderContext* ctx) {
     /*const SVECTOR* normal = &FACE_DIRECTION_NORMALS[face_dir];*/
     switch (face_dir) {
         case FACE_DIR_DOWN:

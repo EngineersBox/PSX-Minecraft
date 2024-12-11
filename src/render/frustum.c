@@ -41,7 +41,7 @@ void frustumTransform(Frustum* frustum, Transforms* transforms) {
     //       SO post for details: https://stackoverflow.com/a/10597767
     MATRIX* rot_mat = {0};
     InvRotMatrix(&transforms->negative_translation_rotation, rot_mat);
-    for (u8 i = 0; i < 4/*6*/; i++) {
+    for (u8 i = 0; i < 6; i++) {
         Plane* plane = &frustum->planes[i];
         DEBUG_LOG(
             "[FRUSTUM :: PLANE %d] Normal: " VEC_PATTERN " Point: " VEC_PATTERN " Dot: " INT64_PATTERN "\n",
@@ -144,7 +144,7 @@ static FrustumQueryResult frustumTestAABBPlane(const AABB* aabb, const Plane* pl
 FrustumQueryResult frustumContainsAABB(const Frustum* frustum, const AABB* aabb) {
     // DEBUG_LOG("[FRUSTUM] Chunk AABB [Min: " VEC_PATTERN "] [Max: " VEC_PATTERN "]\n", VEC_LAYOUT(aabb->min), VEC_LAYOUT(aabb->max));
     FrustumQueryResult result = FRUSTUM_INSIDE;
-    for (u8 i = 0; i < 4/*6*/; i++) {
+    for (u8 i = 0; i < 6; i++) {
         switch (frustumTestAABBPlane(aabb, &frustum->planes[FRUSTUM_PLANE_NEAR])) {
             case FRUSTUM_OUTSIDE: return FRUSTUM_OUTSIDE;
             case FRUSTUM_INTERSECTS: result = FRUSTUM_INTERSECTS; break;
