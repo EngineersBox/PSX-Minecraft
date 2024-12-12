@@ -59,11 +59,11 @@ void cameraUpdate(Camera* camera) {
         camera->rotation.vy >> FIXED_POINT_SHIFT,
         camera->rotation.vz >> FIXED_POINT_SHIFT
     );
-    DEBUG_LOG(
-        "[CAMERA] Rot: " VEC_PATTERN " InvRot: " VEC_PATTERN "\n",
-        VEC_LAYOUT(transforms->translation_rotation),
-        VEC_LAYOUT(transforms->negative_translation_rotation)
-    );
+    /*DEBUG_LOG(*/
+    /*    "[CAMERA] Rot: " VEC_PATTERN " InvRot: " VEC_PATTERN "\n",*/
+    /*    VEC_LAYOUT(transforms->translation_rotation),*/
+    /*    VEC_LAYOUT(transforms->negative_translation_rotation)*/
+    /*);*/
     // First-person camera mode
     if (camera->mode == CAMERA_MODE_FIRST_PERSON) {
         // Set rotation to the matrix
@@ -82,11 +82,11 @@ void cameraUpdate(Camera* camera) {
             camera->position.vy >> FIXED_POINT_SHIFT,
             camera->position.vz >> FIXED_POINT_SHIFT
         );
-        DEBUG_LOG(
-            "[CAMERA] Pos: " VEC_PATTERN " InvPos: " VEC_PATTERN "\n",
-            VEC_LAYOUT(transforms->translation_position),
-            VEC_LAYOUT(transforms->negative_translation_rotation)
-        );
+        /*DEBUG_LOG(*/
+        /*    "[CAMERA] Pos: " VEC_PATTERN " InvPos: " VEC_PATTERN "\n",*/
+        /*    VEC_LAYOUT(transforms->translation_position),*/
+        /*    VEC_LAYOUT(transforms->negative_translation_rotation)*/
+        /*);*/
         // Apply rotation of matrix to translation value to achieve a
         // first person perspective
         ApplyMatrixLV(
@@ -102,7 +102,7 @@ void cameraUpdate(Camera* camera) {
         // Set translation matrix
         TransMatrix(&transforms->geometry_mtx,&transforms->translation_position);
         TransMatrix(&transforms->frustum_mtx,&transforms->negative_translation_position);
-        printf("[CAMERA] Geometry Matrix: \n" MAT_PATTERN, MAT_LAYOUT(transforms->geometry_mtx));
-        printf("[CAMERA] Frustum Matrix: \n" MAT_PATTERN, MAT_LAYOUT(transforms->frustum_mtx));
+        /*DEBUG_LOG("[CAMERA] Geometry Matrix: \n" MAT_PATTERN, MAT_LAYOUT(transforms->geometry_mtx));*/
+        /*DEBUG_LOG("[CAMERA] Frustum Matrix: \n" MAT_PATTERN, MAT_LAYOUT(transforms->frustum_mtx));*/
     }
 }
