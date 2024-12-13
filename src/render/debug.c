@@ -86,8 +86,6 @@ void debugDrawPBUsageGraph(RenderContext* ctx, const u16 base_screen_x, const u1
     renderUsageGraph(ctx, &packet_buffer_usage, base_screen_x, base_screen_y);
 }
 
-#define isOverlayEnabled(suffix) (isDebugEnabled() && defined(PSXMC_DEBUG_OVERLAY_##suffix) && PSXMC_DEBUG_OVERLAY_##suffix)
-
 void drawLeftDebugText(const Stats* stats, const Camera* camera, const World* world) {
 #if isOverlayEnabled(FPS)
     FntPrint(0, "FT=%dms FPS=%d TPS=%d\n", stats->frame_diff_ms, stats->fps, stats->tps);

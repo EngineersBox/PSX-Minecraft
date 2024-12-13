@@ -16,6 +16,7 @@
 #include "../ui/ui.h"
 #include "../entity/player.h"
 #include "../resources/assets.h"
+#include "../render/duration_tree.h"
 #include "../render/font.h"
 #include "../util/interface99_extensions.h"
 #include "../logging/logging.h"
@@ -29,7 +30,6 @@
 #include "world/level/overworld_flatland.h"
 #include "world/level/overworld_perlin.h"
 #include "weather/weather.h"
-
 #include "../core/console.h"
 
 World* world;
@@ -85,6 +85,8 @@ void Minecraft_init(VSelf, void* ctx) {
     // Load font and open a text stream
     FntLoad(960, 256);
     FntOpen(0, 8, 320, 216, 0, 160);
+    // Debugging
+    durationTreesInit();
     // Initialise game elements
     blocksInitialiseBuiltin();
     itemsInitialiseBuiltin();
@@ -157,6 +159,7 @@ void Minecraft_init(VSelf, void* ctx) {
 void minecraftCleanup(VSelf) ALIAS("Minecraft_cleanup");
 void Minecraft_cleanup(VSelf) {
     VSELF(Minecraft);
+    durationTreesDestroy();
     worldDestroy(self->world);
     free(self->world);
     playerDestroy(player);
@@ -248,9 +251,19 @@ void frustumRenderNormals(const Frustum* frustum, RenderContext* ctx) {
     renderCtxUnbindMatrix();
 }
 
+DurationComponent* render_duration = NULL;
+
 void minecraftRender(VSelf, const Stats* stats) ALIAS("Minecraft_render");
 void Minecraft_render(VSelf, const Stats* stats) {
     VSELF(Minecraft);
+#if isOverlayEnabled(DURATION_TREE)
+    if (render_duration == NULL) {
+        render_duration = durationTreeAddComponent(&render_duration_tree);
+    } else {
+        // TODO: Render duration tree here
+    }
+#endif
+    durationComponentStart(render_duration);
     // Update breaking state textures
     breakingStateUpdateRenderTarget(&player->breaking, &self->internals.ctx);
     // Draw the world
@@ -299,4 +312,5 @@ void Minecraft_render(VSelf, const Stats* stats) {
     FntFlush(0);
     // Swap buffers and draw the primitives
     swapBuffers(&self->internals.ctx);
+    durationComponentEnd(render_duration);
 }
