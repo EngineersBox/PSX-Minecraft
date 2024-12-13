@@ -13,7 +13,7 @@
 typedef struct DurationComponent {
     Timestamp start;
     Timestamp end;
-    char name[DURATION_COMPONENT_NAME_MAX_LEN];
+    const char* name;
     cvector(struct DurationComponent) components;
 } DurationComponent;
 
@@ -26,22 +26,25 @@ extern DurationComponent* duration_stack[DURATION_STACK_MAX_DEPTH];
 void _durationTreesInit();
 void _durationTreesDestroy();
 
-DurationComponent* _durationTreeAddComponent(DurationComponent* node);
+DurationComponent* _durationTreeAddComponent(const char* name);
+void _durationTreeMakeCurrent(DurationComponent* tree);
 void _durationComponentStart(DurationComponent* node);
 void _durationComponentEnd();
 
 #define durationTreesInit _durationTreesInit
 #define durationTreesDestroy _durationTreesDestroy
 #define durationTreeAddComponent _durationTreeAddComponent
+#define durationTreeMakeCurrent _durationTreeMakeCurrent
 #define durationComponentCurrent() duration_stack_next_index == 0 \
     ? NULL \
-    : duration_stack[duration_stack_next_index]
+    : duration_stack[duration_stack_next_index - 1]
 #define durationComponentStart _durationComponentStart
 #define durationComponentEnd _durationComponentEnd
 #else
 #define durationTreesInit() ({})
 #define durationTreesDestroy() ({})
-#define durationTreeAddComponent(node) ({})
+#define durationTreeAddComponent(name) ({})
+#define durationTreeMakeCurrent() ({})
 #define durationComponentCurrent() ({})
 #define durationComponentStart(node) ({})
 #define durationComponentEnd(node) ({})

@@ -257,8 +257,9 @@ void minecraftRender(VSelf, const Stats* stats) ALIAS("Minecraft_render");
 void Minecraft_render(VSelf, const Stats* stats) {
     VSELF(Minecraft);
 #if isOverlayEnabled(DURATION_TREE)
+    durationTreeMakeCurrent(&render_duration_tree);
     if (render_duration == NULL) {
-        render_duration = durationTreeAddComponent(&render_duration_tree);
+        render_duration = durationTreeAddComponent("render");
     } else {
         // TODO: Render duration tree here
     }

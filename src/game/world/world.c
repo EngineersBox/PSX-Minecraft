@@ -8,6 +8,7 @@
 
 #include "../../util/interface99_extensions.h"
 #include "../../structure/primitive/clip.h"
+#include "../../render/duration_tree.h"
 #include "../../render/font.h"
 #include "../../math/math_utils.h"
 #include "../../math/vector.h"
@@ -303,10 +304,20 @@ render_moon:;
     renderCtxUnbindMatrix();
 }
 
+#if isOverlayEnabled(DURATION_TREE)
+static DurationComponent* world_render_duration = NULL;
+#endif
+
 void worldRender(const World* world,
                  const Player* player,
                  RenderContext* ctx,
                  Transforms* transforms) {
+#if isOverlayEnabled(DURATION_TREE)
+    if (world_render_duration == NULL) {
+        world_render_duration = durationTreeAddComponent("worldRender");
+    }
+#endif
+    durationComponentStart(world_render_duration);
     const VECTOR player_world_pos = vec3_i32(
         fixedFloor(player->entity.physics_object.position.vx, ONE_BLOCK) / ONE_BLOCK,
         fixedFloor(player->entity.physics_object.position.vy, ONE_BLOCK) / ONE_BLOCK,
@@ -342,7 +353,7 @@ void worldRender(const World* world,
             }
         }
     }
-    return;
+    durationComponentEnd();
 }
 
 // NOTE: Should this just take i32 x,y,z params instead of a

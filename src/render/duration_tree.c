@@ -41,9 +41,17 @@ void _durationTreesDestroy() {
     cvector_free(update_duration_tree.components);
 }
 
-DurationComponent* _durationTreeAddComponent(DurationComponent* node) {
-    cvector_push_back(node->components, (DurationComponent) {});
-    return &node->components[cvector_size(node->components) - 1];
+DurationComponent* _durationTreeAddComponent(const char* name) {
+    DurationComponent* tree = durationComponentCurrent();
+    cvector_push_back(tree->components, (DurationComponent) {});
+    DurationComponent* new_component = &tree->components[cvector_size(tree->components) - 1];
+    new_component->name = name;
+    return new_component;
+}
+
+void _durationTreeMakeCurrent(DurationComponent* tree) {
+    duration_stack[0] = tree;
+    duration_stack_next_index = 1;
 }
 
 void _durationComponentStart(DurationComponent* node) {

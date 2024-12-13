@@ -32,14 +32,17 @@ Frustum frustumCreate() {
     };
 }
 
+#if isOverlayEnabled(DURATION_TREE)
 static DurationComponent* frustum_render_duration = NULL;
+#endif
+
 static Plane current_planes[6] = {0};
 
 // TODO: Only transform/restore when the camera has moved, otherwise keep reusing the current planes
 void frustumTransform(Frustum* frustum, Transforms* transforms) {
 #if isOverlayEnabled(DURATION_TREE)
     if (frustum_render_duration == NULL) {
-        frustum_render_duration = durationTreeAddComponent(durationComponentCurrent());
+        frustum_render_duration = durationTreeAddComponent("frustumTransform");
     }
 #endif
     durationComponentStart(frustum_render_duration);
