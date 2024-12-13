@@ -10,6 +10,7 @@
 #include "../../../logging/logging.h"
 #include "../../../math/math_utils.h"
 #include "../../../math/vector.h"
+#include "../../../render/duration_tree.h"
 #include "../../../structure/cvector.h"
 #include "../../../structure/cvector_utils.h"
 #include "../../../structure/primitive/direction.h"
@@ -310,10 +311,20 @@ static void chunkRenderDroppedItems(const Chunk* chunk, RenderContext* ctx, Tran
     }
 }
 
+#if isOverlayEnabled(DURATION_TREE)
+static DurationComponent* chunk_render_duration = NULL;
+#endif
+
 void chunkRender(Chunk* chunk,
                  bool subdivide,
                  RenderContext* ctx,
                  Transforms* transforms) {
+#if isOverlayEnabled(DURATION_TREE)
+    if (chunk_render_duration == NULL) {
+        chunk_render_duration = durationTreeAddComponent("chunkRender");
+    }
+#endif
+    durationComponentStart(chunk_render_duration);
     const AABB aabb = (AABB) {
         .min = vec3_i32(
             (chunk->position.vx * CHUNK_BLOCK_SIZE),// << FIXED_POINT_SHIFT,
@@ -328,6 +339,7 @@ void chunkRender(Chunk* chunk,
     };
     if (frustumContainsAABB(&ctx->camera->frustum, &aabb) == FRUSTUM_OUTSIDE) {
         /*DEBUG_LOG("[CHUNK " VEC_PATTERN "] Not visible\n", VEC_LAYOUT(chunk->position));*/
+        durationComponentEnd();
         return;
     } else {
         /*DEBUG_LOG("[CHUNK " VEC_PATTERN "] Visible\n", VEC_LAYOUT(chunk->position));*/
@@ -349,6 +361,7 @@ void chunkRender(Chunk* chunk,
     );
     renderCtxUnbindMatrix();
     chunkRenderDroppedItems(chunk, ctx, transforms);
+    durationComponentEnd();
 }
 
 #define checkIndexOOB(x, y, z) ((x) >= CHUNK_SIZE || (x) < 0 \
