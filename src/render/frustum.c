@@ -7,6 +7,7 @@
 #include "../math/math_utils.h"
 #include "../math/vector.h"
 #include "../util/inttypes.h"
+#include "../render/duration_tree.h"
 
 // TODO: Limit to a single plane facing directly forward and verify transformation
 //       of position and rotation of normal (use right , i.e. (1,0,0)). This ensures
@@ -31,10 +32,17 @@ Frustum frustumCreate() {
     };
 }
 
+static DurationComponent* frustum_render_duration = NULL;
 static Plane current_planes[6] = {0};
 
 // TODO: Only transform/restore when the camera has moved, otherwise keep reusing the current planes
 void frustumTransform(Frustum* frustum, Transforms* transforms) {
+#if isOverlayEnabled(DURATION_TREE)
+    if (frustum_render_duration == NULL) {
+        frustum_render_duration = durationTreeAddComponent(durationComponentCurrent());
+    }
+#endif
+    durationComponentStart(frustum_render_duration);
     // NOTE: Plane normals should be rotated without translation vector 
     //       applied to geometry matrix. The reason is that we never
     //       transform normals with homogeneous coordinates. See This
@@ -70,6 +78,7 @@ void frustumTransform(Frustum* frustum, Transforms* transforms) {
         /*    INT64_LAYOUT(plane->distance)*/
         /*);*/
     }
+    durationComponentEnd();
 }
 
 void frustumRestore(Frustum* frustum) {

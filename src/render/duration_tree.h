@@ -8,6 +8,7 @@
 #include "debug_defines.h"
 
 #define DURATION_COMPONENT_NAME_MAX_LEN 8
+#define DURATION_STACK_MAX_DEPTH 10
 
 typedef struct DurationComponent {
     Timestamp start;
@@ -19,22 +20,29 @@ typedef struct DurationComponent {
 #if isOverlayEnabled(DURATION_TREE)
 extern DurationComponent render_duration_tree;
 extern DurationComponent update_duration_tree;
-extern DurationComponent* current_node;
+extern u8 duration_stack_next_index;
+extern DurationComponent* duration_stack[DURATION_STACK_MAX_DEPTH];
 
 void _durationTreesInit();
 void _durationTreesDestroy();
 
 DurationComponent* _durationTreeAddComponent(DurationComponent* node);
+void _durationComponentStart(DurationComponent* node);
+void _durationComponentEnd();
 
 #define durationTreesInit _durationTreesInit
 #define durationTreesDestroy _durationTreesDestroy
 #define durationTreeAddComponent _durationTreeAddComponent
-#define durationComponentStart(node) (node)->start = time_ms
-#define durationComponentEnd(node) (node)->end = time_ms
+#define durationComponentCurrent() duration_stack_next_index == 0 \
+    ? NULL \
+    : duration_stack[duration_stack_next_index]
+#define durationComponentStart _durationComponentStart
+#define durationComponentEnd _durationComponentEnd
 #else
 #define durationTreesInit() ({})
 #define durationTreesDestroy() ({})
 #define durationTreeAddComponent(node) ({})
+#define durationComponentCurrent() ({})
 #define durationComponentStart(node) ({})
 #define durationComponentEnd(node) ({})
 #endif

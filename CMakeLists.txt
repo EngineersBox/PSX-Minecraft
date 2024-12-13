@@ -78,7 +78,7 @@ target_compile_definitions(PSXMC PUBLIC -DPSXMC_DEBUG_OVERLAY_DIR=1)
 target_compile_definitions(PSXMC PUBLIC -DPSXMC_DEBUG_OVERLAY_FACING=1)
 target_compile_definitions(PSXMC PUBLIC -DPSXMC_DEBUG_OVERLAY_WORLD=0)
 target_compile_definitions(PSXMC PUBLIC -DPSXMC_DEBUG_OVERLAY_MEM=0)
-target_compile_definitions(PSXMC PUBLIC -DPSXMC_DEBUG_OVERLAY_DURATION_TREE=0)
+target_compile_definitions(PSXMC PUBLIC -DPSXMC_DEBUG_OVERLAY_DURATION_TREE=1)
 
 set_property(TARGET PSXMC PROPERTY C_STANDARD 23)
 

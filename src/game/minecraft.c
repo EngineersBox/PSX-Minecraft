@@ -251,7 +251,7 @@ void frustumRenderNormals(const Frustum* frustum, RenderContext* ctx) {
     renderCtxUnbindMatrix();
 }
 
-DurationComponent* render_duration = NULL;
+static DurationComponent* render_duration = NULL;
 
 void minecraftRender(VSelf, const Stats* stats) ALIAS("Minecraft_render");
 void Minecraft_render(VSelf, const Stats* stats) {
@@ -312,5 +312,5 @@ void Minecraft_render(VSelf, const Stats* stats) {
     FntFlush(0);
     // Swap buffers and draw the primitives
     swapBuffers(&self->internals.ctx);
-    durationComponentEnd(render_duration);
+    durationComponentEnd();
 }
