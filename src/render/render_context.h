@@ -65,6 +65,6 @@ INLINE void renderCtxUnbindMatrix() {
 
 char* allocatePrimitive(RenderContext* ctx, size_t size);
 void freePrimitive(RenderContext* ctx, size_t size);
-uint32_t* allocateOrderingTable(RenderContext* ctx, size_t size);
+uint32_t* allocateOrderingTable(RenderContext* ctx, size_t depth);
 
 #endif // PSXMC_RENDER_CONTEXT_H
