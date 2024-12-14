@@ -37,16 +37,16 @@ fn main() {
     // let w: u16 = 16;
     // let h: u16 = 16;
     let coords: Coord = Coord {
-        x_min: 0,//176,
-        x_max: 32,//208,
-        y_min: 16,//48,
-        y_max: 48,//64
+        x_min: 176,
+        x_max: 208,
+        y_min: 32,
+        y_max: 64
     };
     let window: Window = Window {
-        mask_x: extract_mask(coords.x_min) as u16,
-        mask_y: extract_mask(coords.y_min) as u16,
-        offset_x: extract_offset(coords.x_min) as u16,
-        offset_y: extract_offset(coords.y_min) as u16
+        mask_x: 0b10110, //extract_mask(coords.x_min) as u16,
+        mask_y: 0b00110,//extract_mask(coords.y_min) as u16,
+        offset_x: 0b11110,//extract_offset(coords.x_min) as u16,
+        offset_y: 0b00000,//extract_offset(coords.y_min) as u16
     };
     // ((  0 + x) & (0xff - (0b11110 << 3))) | (( 0b00000 & 0b11110) << 3)
     // (( 16 + x) & (0xff - (0b11110 << 3))) | (( 0b00010 & 0b11110) << 3)
@@ -65,15 +65,31 @@ fn main() {
     // ((224 + x) & (0xff - (0b11110 << 3))) | (( 0b11100 & 0b11110) << 3)
     // ((240 + x) & (0xff - (0b11110 << 3))) | (( 0b11110 & 0b11110) << 3)
     // 256 is out of range as log_2(256) > 15
+    // ((  0 + x) & ((0b00010 << 3) - 1)) | ((0b00000 & 0b00010) << 3)
+    // (( 16 + x) & ((0b00010 << 3) - 1)) | ((0b00010 & 0b00010) << 3)
+    // (( 32 + x) & ((0b00110 << 3) - 1)) | ((0b00000 & 0b00110) << 3)
+    // (( 48 + x) & ((0b00110 << 3) - 1)) | ((0b00110 & 0b00110) << 3)
+    // (( 64 + x) & ((0b01010 << 3) - 1)) | ((0b00000 & 0b01010) << 3)
+    // (( 80 + x) & ((0b01010 << 3) - 1)) | ((0b00010 & 0b01010) << 3)
+    // (( 96 + x) & ((0b01110 << 3) - 1)) | ((0b00000 & 0b01110) << 3)
+    // ((112 + x) & ((0b01110 << 3) - 1)) | ((0b01110 & 0b01110) << 3)
+    // ((128 + x) & ((0b10010 << 3) - 1)) | ((0b00000 & 0b10010) << 3)
+    // ((144 + x) & ((0b10010 << 3) - 1)) | ((0b00010 & 0b10010) << 3)
+    // ((160 + x) & ((0b10110 << 3) - 1)) | ((0b00000 & 0b10110) << 3)
+    // ((176 + x) & ((0b10110 << 3) - 1)) | ((0b11110 & 0b10110) << 3)
+    // ((192 + x) & ((0b11010 << 3) - 1)) | ((0b00000 & 0b11010) << 3)
+    // ((208 + x) & ((0b11010 << 3) - 1)) | ((0b00010 & 0b11010) << 3)
+    // ((224 + x) & ((0b11110 << 3) - 1)) | ((0b00000 & 0b11110) << 3)
+    // ((240 + x) & ((0b11110 << 3) - 1)) | ((0b11110 & 0b11110) << 3)
     println!("[X: {}] Mask: {:#07b} Offset: {:#07b}", coords.x_min, window.mask_x, window.offset_x);
     println!("[Y: {}] Mask: {:#07b} Offset: {:#07b}", coords.y_min, window.mask_y, window.offset_y);
     print!("  ");
     for coord in (coords.x_min)..(coords.x_max) {
-        print!(" {:02}", (coord & (!(window.mask_x << 3))) | ((window.offset_x & window.mask_x) << 3));
+        print!(" {:02}", (coord & ((window.mask_x << 3) - 1)) | ((window.offset_x & window.mask_x) << 3));
     }
     print!("\n");
     for coord in (coords.y_min)..(coords.y_max) {
-        println!("{:02}", (coord & (!(window.mask_y << 3))) | ((window.offset_y & window.mask_y) << 3));
+        println!("{:02}", (coord & ((window.mask_y << 3) - 1)) | ((window.offset_y & window.mask_y) << 3));
     }
 }
 
