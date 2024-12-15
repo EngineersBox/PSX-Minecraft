@@ -191,14 +191,9 @@ void renderItemBlock(ItemBlock* item,
         pol4->tpage = texture->tpage;
         pol4->clut = texture->clut;
         // Sort primitive to the ordering table
-        uint32_t* ot_object = allocateOrderingTable(ctx, p);
+        u32* ot_object = allocateOrderingTable(ctx, p);
         addPrim(ot_object, pol4);
-        // Advance to make another primitive
-        // Bind a texture window to ensure wrapping across merged block face primitives
-        DR_TWIN* ptwin = (DR_TWIN*) allocatePrimitive(ctx, sizeof(DR_TWIN));
-        setTexWindow(ptwin, &single_block_texture_window);
-        ot_object = allocateOrderingTable(ctx, p);
-        addPrim(ot_object, ptwin);
+        renderClearConstraintsIndex(ctx, p);
     }
 }
 
@@ -405,12 +400,7 @@ void renderItemBlockInventory(ItemBlock* item,
         // Sort primitive to the ordering table
         u32* ot_object = allocateOrderingTable(ctx, 1);
         addPrim(ot_object, pol4);
-        // Advance to make another primitive
-        // Bind a texture window to ensure wrapping across merged block face primitives
-        DR_TWIN* ptwin = (DR_TWIN*) allocatePrimitive(ctx, sizeof(DR_TWIN));
-        setTexWindow(ptwin, &single_block_texture_window);
-        ot_object = allocateOrderingTable(ctx, 1);
-        addPrim(ot_object, ptwin);
+        renderClearConstraintsIndex(ctx, 1);
     }
     if (item->item.stack_size < 2) {
         // Don't draw the amount of items if there is less than 2

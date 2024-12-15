@@ -52,12 +52,7 @@ int main() {
     const u32 v = 2 * 16;
     const u32 w = 32;
     const u32 h = 32;
-    RECT tex_window = (RECT) {
-        .w = 0b11110,
-        .h = 0b01110,
-        .x = (u & 0b111111) >> 3,
-        .y = (v & 0xFF) >> 3,
-    };
+    RECT tex_window = textureWindowCreate(16, 16, u, v);
     DEBUG_LOG(
         "Window [Mask X: %d] [Mask Y: %d] [Offset X: %d] [Offset Y: %d]\n",
         tex_window.w,

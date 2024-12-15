@@ -64,12 +64,31 @@ typedef struct TextureAttributes {
 )
 #define defaultFaceAttributes(index) declareFaceAttributes(index, index, index, index, index, index)
 
-// Used when rendering a single block texture
-// of size 16x16 repeating 0 or more times on
-// both axes
-extern const RECT single_block_texture_window;
+/* Texture window generation, courtesy of @kenchup_ on the PSX.Dev discord
+tilePrimX = {8: 0b11111, 16: 0b11110, 32: 0b11100, 64: 0b11000, 128: 0b10000, 256: 0b00000}[mat.tileX]
+tilePrimY = {8: 0b11111, 16: 0b11110, 32: 0b11100, 64: 0b11000, 128: 0b10000, 256: 0b00000}[mat.tileY]
+tpOffsetX = mat.xPos & 0b111111
+tpOffsetX = tpOffsetX << {15: 0, 8: 1, 4: 2}[mat.colorMode]
+tpOffsetY = mat.yPos & 0xFF
+tilePrimOffsetX = tpOffsetX>>3
+tilePrimOffsetY = tpOffsetY>>3
+tilePrim = (0xE20<<20) + (tilePrimOffsetY<<15) + (tilePrimOffsetX<<10) + (tilePrimY<<5) + (tilePrimX)
+ */
 
-u8 textureWindowMaskBlock(const u16 coord);
-u8 textureWindowOffsetBlock(const u16 coord);
+#define textureWindowOffset(coord) (((coord) >> 3) & 0b11111)
+
+#define TEXTURE_WINDOW_MASK_8 0b11111
+#define TEXTURE_WINDOW_MASK_16 0b11110
+#define TEXTURE_WINDOW_MASK_32 0b11100
+#define TEXTURE_WINDOW_MASK_64 0b11000
+#define TEXTURE_WINDOW_MASK_128 0b10000
+#define TEXTURE_WINDOW_MASK_256 0b00000
+
+#define textureWindowCreate(tile_x, tile_y, u, v) ((RECT) {\
+    .w = TEXTURE_WINDOW_MASK_##tile_x, \
+    .h = TEXTURE_WINDOW_MASK_##tile_x, \
+    .x = textureWindowOffset(u), \
+    .y = textureWindowOffset(v), \
+})
 
 #endif // PSXMC_TEXTURE_H
