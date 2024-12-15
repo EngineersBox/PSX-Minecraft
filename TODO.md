@@ -34,7 +34,7 @@
 * [X] Holding movement keys and opening the inventory doesn't prevent player from continuing to move.
 * [X] The `inventoryRenderSlots` method using the new slot groups seems to index out of bound at some point.
 * [ ] Cull faces on chunk edges that face outward on the render limit
-* [ ] Textures in terrain tpage with any `u` and `v >= 16` rendering multiple interleaved textures from different points in terrain texture page (NOTE: The issue seems to be specific to `POLY_FT4` since `POLY_GT4` doesn't have this behaviour when I changed the primitive type)
+* [X] Textures in terrain tpage with any `u` and `v >= 16` rendering multiple interleaved textures from different points in terrain texture page (NOTE: This is a PCSX-Redux bug, as Duckstation renders fine).
 * [ ] Mesh vertices z-depth is inconsistent leading to faces drawn in wrong order and thus culling fails
 * [ ] Vertices are distorted (in their location) when very close to the camera
 * [ ] Move mesh generation to after all loading when updating world to avoid face generation on orthogonal axis to update axis
