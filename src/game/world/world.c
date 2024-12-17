@@ -39,6 +39,47 @@ const LightUpdateLimits world_chunk_init_limits = (LightUpdateLimits) {
     ((value) - (world->centre.axis - LOADED_CHUNKS_RADIUS - SHIFT_ZONE))\
 )
 
+void displayProgress(RenderContext* ctx,
+                     ProgressBar* progress_bar,
+                     const i32 x,
+                     const i32 y,
+                     const i32 z,
+                     const char* msg) {
+    fontPrintCentreOffset(
+        ctx,
+        CENTRE_X,
+        CENTRE_Y - ((FONT_CHARACTER_SPRITE_HEIGHT + 2) * 3),
+        0,
+        "Loading World"
+    );
+    fontPrintCentreOffset(
+        ctx,
+        CENTRE_X,
+        CENTRE_Y - ((FONT_CHARACTER_SPRITE_HEIGHT + 2) * 2) - 1,
+        10,
+        "Chunk [%d,%d,%d]",
+        x, y, z
+    );
+    fontPrintCentreOffset(
+        ctx,
+        CENTRE_X,
+        CENTRE_Y - ((FONT_CHARACTER_SPRITE_HEIGHT + 2) * 1) - 1,
+        10,
+        msg,
+        x, y, z
+    );
+    const u32* background_ot_object = allocateOrderingTable(ctx, 2);
+    backgroundDraw(
+        ctx,
+        background_ot_object,
+        2 * BLOCK_TEXTURE_SIZE,
+        0 * BLOCK_TEXTURE_SIZE
+    );
+    progress_bar->value++;
+    progressBarRender(progress_bar, 1, ctx);
+    swapBuffers(ctx);
+}
+
 // World should be loaded before invoking this method
 void worldInit(World* world, RenderContext* ctx) {
     world->internal_light_level = createLightLevel(0, 15);
@@ -82,35 +123,6 @@ void worldInit(World* world, RenderContext* ctx) {
         .value = 0,
         .maximum = ((x_end + 1) - x_start) * ((z_end + 1) - z_start) * WORLD_CHUNKS_HEIGHT * 5
     };
-#define displayProgress(msg) \
-    fontPrintCentreOffset( \
-        ctx, \
-        CENTRE_X, \
-        CENTRE_Y - ((FONT_CHARACTER_SPRITE_HEIGHT + 2) * 3), \
-        0, \
-        "Loading World" \
-    ); \
-    fontPrintCentreOffset( \
-        ctx, \
-        CENTRE_X, \
-        CENTRE_Y - ((FONT_CHARACTER_SPRITE_HEIGHT + 2) * 2) - 1, \
-        10, \
-        "Chunk [%d,%d,%d]", \
-        x, y, z \
-    ); \
-    fontPrintCentreOffset( \
-        ctx, \
-        CENTRE_X, \
-        CENTRE_Y - ((FONT_CHARACTER_SPRITE_HEIGHT + 2) * 1) - 1, \
-        10, \
-        msg, \
-        x, y, z \
-    ); \
-    const u32* background_ot_object = allocateOrderingTable(ctx, 2); \
-    backgroundDraw(ctx, background_ot_object, 2 * BLOCK_TEXTURE_SIZE, 0 * BLOCK_TEXTURE_SIZE); \
-    bar.value++; \
-    progressBarRender(&bar, 1, ctx); \
-    swapBuffers(ctx);
     DEBUG_LOG("[WORLD] Loading chunks\n");
     for (i32 x = x_start; x <= x_end; x++) {
         for (i32 z = z_start; z <= z_end; z++) {
@@ -122,7 +134,7 @@ void worldInit(World* world, RenderContext* ctx) {
                 world->chunks[arrayCoord(world, vz, z)]
                              [arrayCoord(world, vx, x)]
                              [y] = chunk;
-                displayProgress("Loading Chunk Data");
+                displayProgress(ctx, &bar, x, y, z, "Loading Chunk Data");
             }
         }
     }
@@ -135,7 +147,7 @@ void worldInit(World* world, RenderContext* ctx) {
                 const u16 array_z = arrayCoord(world, vz, z);
                 Chunk* chunk = world->chunks[array_z][array_x][y];
                 chunkGenerateLightmap(chunk, &gen_ctx[array_z][array_z][y]);
-                displayProgress("Generating Lightmap");
+                displayProgress(ctx, &bar, x, y, z, "Generating Lightmap");
             }
         }
     }
@@ -148,7 +160,7 @@ void worldInit(World* world, RenderContext* ctx) {
                 const u16 array_z = arrayCoord(world, vz, z);
                 Chunk* chunk = world->chunks[array_z][array_x][y];
                 chunkPropagateLightmap(chunk, &gen_ctx[array_z][array_x][y]);
-                displayProgress("Propagating Light");
+                displayProgress(ctx, &bar, x, y, z, "Propagating Light");
             }
         }
     }
@@ -161,7 +173,7 @@ void worldInit(World* world, RenderContext* ctx) {
                                             [arrayCoord(world, vx, x)]
                                             [y];
                 chunkUpdateLight(chunk, world_chunk_init_limits);
-                displayProgress("Processing Light Updates");
+                displayProgress(ctx, &bar, x, y, z, "Processing Light Updates");
             }
         }
     }
@@ -196,7 +208,7 @@ void worldInit(World* world, RenderContext* ctx) {
                     layoutMeshAttrs(n_norms)
                 );
                 #undef layoutMeshAttrs
-                displayProgress("Building Mesh");
+                displayProgress(ctx, &bar, x, y, z, "Building Mesh");
             }
         }
     }
