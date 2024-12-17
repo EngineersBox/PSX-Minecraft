@@ -82,7 +82,6 @@ void worldInit(World* world, RenderContext* ctx) {
         .value = 0,
         .maximum = ((x_end + 1) - x_start) * ((z_end + 1) - z_start) * WORLD_CHUNKS_HEIGHT * 5
     };
-    const u32* background_ot_object = allocateOrderingTable(ctx, 2);
 #define displayProgress(msg) \
     fontPrintCentreOffset( \
         ctx, \
@@ -107,6 +106,7 @@ void worldInit(World* world, RenderContext* ctx) {
         msg, \
         x, y, z \
     ); \
+    const u32* background_ot_object = allocateOrderingTable(ctx, 2); \
     backgroundDraw(ctx, background_ot_object, 2 * BLOCK_TEXTURE_SIZE, 0 * BLOCK_TEXTURE_SIZE); \
     bar.value++; \
     progressBarRender(&bar, 1, ctx); \
