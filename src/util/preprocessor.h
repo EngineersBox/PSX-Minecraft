@@ -24,20 +24,20 @@
 #define P99_ENUM_ENTRY(x) x,
 #define P99_STRING_ARRAY_INDEX(x) [x] = #x,
 
-#if defined(__GNUC__) \
-    && (__GNUC__ >= 10 \
-    || ( \
-        defined(__GNUC_PATCHLEVEL__) \
-        && (__GNUC__ > 10 || (__GNUC__ >= 0 && __GNUC_MINOR__ >= 0)) \
-    )) && !defined(__clang__)
-    #define GNU_VERSION_10
+// Detect GCC only to ensure compilation elements such
+// as attributes that are GCC only or have alternative
+// formats that only GCC supports, can be detected.
+#if !defined(__clang__) && defined(__GNUC__) && defined(__GNUC_MINOR__) && defined(__GNUC_PATCHLEVEL__)
+    #define GNU_VERSION (__GNU_VERSION * 10000 + __GNU_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
+#else
+    #define GNU_GNU_VERSION 0
 #endif
 
 // ==== MARKERS ====
 
 #define __ALLOC_CALL(...) __attribute__((malloc, ##__VA_ARGS__))
 
-#ifdef GNU_VERSION_10
+#if GNU_VERSION >=100000
     #define ALLOC_CALL(destructor, idx) __ALLOC_CALL(malloc(destructor,idx))
 #else
     #define ALLOC_CALL(destructor, idx) __ALLOC_CALL()

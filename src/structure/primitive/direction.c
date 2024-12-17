@@ -41,4 +41,5 @@ FaceDirection faceDirectionRelative(FaceDirection target_direction,
                                     FaceDirection right_direction,
                                     FaceDirection up_direction) {
     UNIMPLEMENTED();
+    return 0;
 }
