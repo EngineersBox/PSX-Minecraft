@@ -72,7 +72,7 @@ typedef struct BlockAttributes {
     // textures
     TextureAttributes* face_attributes;
     char* name;
-} PACKED BlockAttributes;
+} BlockAttributes;
 
 typedef struct Block {
     BlockID id;
@@ -81,7 +81,7 @@ typedef struct Block {
     u8 opacity_bitset: FACE_DIRECTION_COUNT;
     FaceDirection orientation: FACE_DIRECTION_COUNT_BITS;
     u8 _pad: 3;
-} PACKED Block;
+} Block;
 
 typedef struct World World;
 

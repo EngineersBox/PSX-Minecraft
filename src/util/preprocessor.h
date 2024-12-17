@@ -50,6 +50,7 @@
 #define INLINE __attribute__((always_inline)) inline
 #define WEAK __attribute__((weak))
 #define PACKED __attribute__((packed))
+#define FALLTHROUGH __attribute__((fallthrough))
 
 // Forward declaration
 #define FWD_DECL

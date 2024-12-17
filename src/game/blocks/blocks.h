@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef PSXMC_BLOCKS_H
-#define PSXMC_BLOCKS_H
+#ifndef PSXMC__GAME__BLOCKS_H
+#define PSXMC__GAME__BLOCKS_H
 
 #include "../../util/inttypes.h"
 #include "block_id.h"
@@ -16,12 +16,23 @@
 #include "block_cobblestone.h"
 
 #define BLOCK_COUNT 59
+#define DEBUG_BLOCK_ID_CHECK 1
 
 extern BlockAttributes block_attributes[BLOCK_COUNT];
 extern BlockConstructor block_constructors[BLOCK_COUNT];
 
 #define blockEqual(b0, b1) ((b0)->id == (b1)->id && (b0)->metadata_id == (b1)->metadata_id)
+#if defined(DEBUG_BLOCK_ID_CHECK) && DEBUG_BLOCK_ID_CHECK == 1
+#define blockGetAttribute(id, attr) ({ \
+    __typeof__(id) _id = (id); \
+    if (_id >= BLOCK_COUNT) { \
+        errorAbort("[ERROR] Invalid block id: %d\n", id); \
+    } \
+    block_attributes[_id].attr; \
+})
+#else
 #define blockGetAttribute(id, attr) (block_attributes[(id)].attr)
+#endif
 #define blockGetName(id) blockGetAttribute(id, name)
 #define blockGetType(id) blockGetAttribute(id, type)
 #define blockGetSlipperiness(id) blockGetAttribute(id, slipperiness)
@@ -43,4 +54,4 @@ bool blockCanHarvest(ToolType block_tool_type,
 
 void blocksInitialiseBuiltin();
 
-#endif // PSXMC_BLOCKS_H
+#endif // PSXMC__GAME__BLOCKS_H

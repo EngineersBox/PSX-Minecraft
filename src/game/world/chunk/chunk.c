@@ -42,7 +42,7 @@ FWD_DECL void worldSetLightValue(const World* world,
                                  const LightType light_type);
 FWD_DECL void worldSetLightValueChunkBlock(const World* world,
                                            const ChunkBlockPosition* position,
-                                           u8 light_value,
+u8 light_value,
                                            const LightType light_type);
 FWD_DECL LightLevel worldGetLightTypeChunkBlock(const World* world,
                                                 const ChunkBlockPosition* position,
@@ -705,6 +705,7 @@ void chunkUpdate(Chunk* chunk, const Player* player, BreakingState* breaking_sta
             switch (result) {
                 case INVENTORY_STORE_RESULT_ADDED_SOME:
                     // Do nothing, already updated iitem that was picked up as dropped.
+                    FALLTHROUGH;
                 case INVENTORY_STORE_RESULT_NO_SPACE:
                     // Do nothing since we can't pick it up (don't think this will ever
                     // actually occur since we already check in itemPickupValidator for
@@ -716,6 +717,7 @@ void chunkUpdate(Chunk* chunk, const Player* player, BreakingState* breaking_sta
                     // entry.
                     VCALL(*iitem, destroy);
                     itemDestroy(iitem);
+                    FALLTHROUGH;
                 case INVENTORY_STORE_RESULT_ADDED_NEW_SLOT:
                     // We reuse this item instance as the inventory instance now so don't
                     // free it, just remove the array entry (no element destructor set

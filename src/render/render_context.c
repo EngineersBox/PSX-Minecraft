@@ -177,8 +177,8 @@ void renderCtxBindMatrix(RenderContext* ctx,
     // Object and light matrix for object
     MATRIX omtx, olmtx;
     // Set object rotation and position
-    RotMatrix(rotation, &omtx);
-    TransMatrix(&omtx, translation);
+    RotMatrix((SVECTOR*) rotation, &omtx);
+    TransMatrix(&omtx, (VECTOR*) translation);
     // Multiply light matrix to object matrix
     MulMatrix0(&transforms->lighting_mtx, &omtx, &olmtx);
     // Set result to GTE light matrix

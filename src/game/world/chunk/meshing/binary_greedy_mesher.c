@@ -505,7 +505,7 @@ void binaryGreedyMesherConstructPlane(Chunk* chunk,
             const u32 h = trailing_ones(data->plane[row] >> y);
             // 1 = 0b1, 2 = 0b11, 4 = 0b1111
             const u32 h_as_mask = h < 32
-                ? (1 << h) - 1
+                ? ((u32) 1 << h) - 1
                 : UINT32_MAX; // ~0
             const u32 mask = h_as_mask << y;
             // Grow horizontally

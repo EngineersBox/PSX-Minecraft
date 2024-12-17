@@ -117,7 +117,7 @@ int fontPrint(FontID id, const char* fmt, ...) {
 	if (id < 0) {
 		id = font_nstreams - 1;
 	}
-	int n = strlen(font_stream[id].txtbuff);
+	size_t n = strlen(font_stream[id].txtbuff);
 	if (n >= font_stream[id].maxchars) {
 		return n;
 	}

@@ -67,8 +67,11 @@ void _durationComponentStart(DurationComponent* node) {
 }
 
 void _durationComponentEnd() {
-    if (duration_stack_next_index < 0) {
-        errorAbort("Negative duration stack index\n");
+    if (duration_stack_next_index > DURATION_STACK_MAX_DEPTH) {
+        errorAbort(
+            "Invalid duration stack index: %d\n",
+            duration_stack_next_index
+        );
         return;
     }
     duration_stack_next_index--;

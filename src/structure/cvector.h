@@ -124,12 +124,13 @@ typedef struct cvector_metadata_t {
  * @param n - Minimum capacity for the vector.
  * @return void
  */
-#define cvector_reserve(vec, n)                  \
-    do {                                         \
-        size_t cv_cap__ = cvector_capacity(vec); \
-        if (cv_cap__ < (n)) {                    \
-            cvector_grow((vec), (n));            \
-        }                                        \
+#define cvector_reserve(vec, n)                        \
+    do {                                               \
+        const size_t cv_cap__ = cvector_capacity(vec); \
+        const size_t _n = (n);                         \
+        if (_n > 0 && cv_cap__ < _n) {                 \
+            cvector_grow((vec), _n);                   \
+        }                                              \
     } while (0)
 
 /*
