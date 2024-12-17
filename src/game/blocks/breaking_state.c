@@ -136,7 +136,7 @@ void breakingStateUpdateRenderTarget(BreakingState* state,
     addPrim(ot_entry, offset);
     // Reset texture window that will be enabled for applying the breaking
     // texture
-    RECT tex_window = (RECT) {0, 0, 0, 0};
+    TextureWindow tex_window = (TextureWindow) {0, 0, 0, 0};
     DR_TWIN* ptwin = (DR_TWIN*) allocatePrimitive(ctx, sizeof(DR_TWIN));
     setTexWindow(ptwin, &tex_window);
     addPrim(ot_entry, ptwin);
@@ -182,13 +182,7 @@ void breakingStateUpdateRenderTarget(BreakingState* state,
     pol4->clut = terrain_texture->clut;
     addPrim(ot_entry, pol4);
     // Texture window to ensure wrapping across offscreen TPage
-    tex_window = (RECT) {
-        // All in units of 8 pixels, hence right shift by 3
-        .w = BLOCK_TEXTURE_SIZE >> 3,
-        .h = BLOCK_TEXTURE_SIZE >> 3,
-        .x = face_attribute.u >> 3,
-        .y = face_attribute.v >> 3
-    };
+    tex_window = textureWindowCreate(16, 16, face_attribute.u, face_attribute.v);
     ptwin = (DR_TWIN*) allocatePrimitive(ctx, sizeof(DR_TWIN));
     setTexWindow(ptwin, &tex_window);
     addPrim(ot_entry, ptwin);
@@ -239,7 +233,7 @@ void breakingStateUpdateRenderTarget(BreakingState* state,
         addPrim(ot_entry, pol4);
     }
     // Reset any previous windows
-    tex_window = (RECT) {0, 0, 0, 0};
+    tex_window = (TextureWindow) {0, 0, 0, 0};
     ptwin = (DR_TWIN*) allocatePrimitive(ctx, sizeof(DR_TWIN));
     setTexWindow(ptwin, &tex_window);
     addPrim(ot_entry, ptwin);

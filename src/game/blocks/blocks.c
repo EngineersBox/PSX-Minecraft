@@ -65,6 +65,16 @@ void blocksInitialiseBuiltin() {
         CraftingTableBlock, CRAFTING_TABLE, BLOCKID_CRAFTING_TABLE,
         craftingTableBlockCreateAttributes(), craftingTableBlockCreate
     );
+    for (int i = 0; i < 6; i++) {
+        DEBUG_LOG(
+            "Face Dir %d U: %d V: %d W: %d H: %d\n",
+            i,
+            CRAFTING_TABLE_FACE_ATTRIBUTES[i].u,
+            CRAFTING_TABLE_FACE_ATTRIBUTES[i].v,
+            CRAFTING_TABLE_FACE_ATTRIBUTES[i].w,
+            CRAFTING_TABLE_FACE_ATTRIBUTES[i].h
+        );
+    }
 }
 
 bool blockCanHarvest(const ToolType block_tool_type,
