@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef PSXMC_BACKGROUND_H
-#define PSXMC_BACKGROUND_H
+#ifndef PSXMC__UI_COMPONENTS__BACKGROUND_H
+#define PSXMC__UI_COMPONENTS__BACKGROUND_H
 
 #include <stdint.h>
 #include <psxgte.h>
@@ -25,4 +25,4 @@ void UIBackground_render(VSelf, RenderContext* ctx, Transforms* transforms);
 
 impl(IUIComponent, UIBackground);
 
-#endif // PSXMC_BACKGROUND_H
+#endif // PSXMC__UI_COMPONENTS__BACKGROUND_H

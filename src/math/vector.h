@@ -83,6 +83,11 @@ typedef struct LVECTOR {
 // Inverse of a rotation matrix is equivalent to transpose
 MATRIX* InvRotMatrix(const SVECTOR* r, MATRIX* m);
 
+// Matrix init
+#define _mat4_layout(_m, _t) .m = _m, .t = _t
+#define mat4_i16_i32(_m, _t) ((MATRIX) { _mat4_layout((_m), (_t)) )
+#define mat4_all(v) ((MATRIX) { _mat4_layout(P99_PROTECT({ [0]={v}, [1]={v}, [2]={v} }), P99_PROTECT({v})) })
+
 // Vector init
 
 #define _vec2_layout(x, y) .vx = (x), .vy = (y)

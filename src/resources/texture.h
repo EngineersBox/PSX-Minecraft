@@ -8,6 +8,7 @@
 
 #include "../util/inttypes.h"
 #include "../math/vector.h"
+#include "../util/preprocessor.h"
 
 typedef struct Texture {
     u16 tpage;
@@ -74,6 +75,7 @@ tilePrimOffsetX = tpOffsetX>>3
 tilePrimOffsetY = tpOffsetY>>3
 tilePrim = (0xE20<<20) + (tilePrimOffsetY<<15) + (tilePrimOffsetX<<10) + (tilePrimY<<5) + (tilePrimX)
  */
+typedef RECT TextureWindow ;
 
 #define textureWindowOffset(coord) (((coord) >> 3) & 0b11111)
 
@@ -84,7 +86,7 @@ tilePrim = (0xE20<<20) + (tilePrimOffsetY<<15) + (tilePrimOffsetX<<10) + (tilePr
 #define TEXTURE_WINDOW_MASK_128 0b10000
 #define TEXTURE_WINDOW_MASK_256 0b00000
 
-#define textureWindowCreate(tile_x, tile_y, u, v) ((RECT) {\
+#define textureWindowCreate(tile_x, tile_y, u, v) ((TextureWindow) {\
     .w = TEXTURE_WINDOW_MASK_##tile_x, \
     .h = TEXTURE_WINDOW_MASK_##tile_x, \
     .x = textureWindowOffset(u), \

@@ -138,6 +138,7 @@ void drawLeftDebugText(const Stats* stats, const Camera* camera, const World* wo
         case FACE_DIR_RIGHT: facing = 'R'; break;
         case FACE_DIR_BACK: facing = 'B'; break;
         case FACE_DIR_FRONT: facing = 'F'; break;
+        default: errorAbort("Unhandled facing directio: %d", direction); return;
     }
     FntPrint(
         0,

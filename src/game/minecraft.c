@@ -65,8 +65,8 @@ void Minecraft_init(VSelf, void* ctx) {
             .negative_translation_rotation = vec3_i16_all(0),
             .translation_position = vec3_i32_all(0),
             .negative_translation_position = vec3_i32_all(0),
-            .geometry_mtx = {0},
-            .frustum_mtx = {0},
+            .geometry_mtx = mat4_all(0),
+            .frustum_mtx = mat4_all(0),
             .lighting_mtx = lighting_direction
         },
         /*.input = (Input) {},*/
@@ -212,8 +212,8 @@ void frustumRenderNormals(const Frustum* frustum, RenderContext* ctx) {
     // Object and light matrix for object
     MATRIX omtx, olmtx;
     // Set object rotation and position
-    RotMatrix(&VEC3_I16_ZERO, &omtx);
-    TransMatrix(&omtx, &VEC3_I32_ZERO);
+    RotMatrix((SVECTOR*) &VEC3_I16_ZERO, &omtx);
+    TransMatrix(&omtx, (VECTOR*) &VEC3_I32_ZERO);
     // Multiply light matrix to object matrix
     MulMatrix0(&ctx->camera->transforms->lighting_mtx, &omtx, &olmtx);
     // Set result to GTE light matrix
