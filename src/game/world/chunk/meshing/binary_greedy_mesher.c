@@ -330,6 +330,9 @@ static MeshPrimitive* createPrimitive(ChunkMesh* mesh,
     Mesh* face_dir_mesh = &mesh->face_meshes[data->face];
     cvector(MeshPrimitive) prims = face_dir_mesh->p_prims;
     cvector_push_back(prims, (MeshPrimitive){});
+    // cvector can be reallocated by pushing a
+    // new element, thus we should re-set it to
+    // the mesh object that owns it.
     face_dir_mesh->p_prims = prims;
     MeshPrimitive* primitive = &prims[face_dir_mesh->n_prims++];
     primitive->type = MESH_PRIM_TYPE_QUAD;

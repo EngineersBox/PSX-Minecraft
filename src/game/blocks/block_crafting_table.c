@@ -18,13 +18,7 @@ DEFN_BLOCK_CONSTRUCTOR_IMPL_STATELESS(craftingTable, CRAFTING_TABLE)
 void craftingTableBlockInit(VSelf) ALIAS("CraftingTableBlock_init");
 void CraftingTableBlock_init(VSelf) {
     VSELF(CraftingTableBlock);
-    self->block = declareBlock(
-        BLOCKID_CRAFTING_TABLE,
-        0,
-        0,
-        opacityBitset(1,0,0,0,0,0),
-        FACE_DIR_RIGHT
-    );
+    self->block = declareSimpleBlock(BLOCKID_CRAFTING_TABLE);
 }
 
 IItem* craftingTableBlockDestroy(VSelf, bool drop_item) ALIAS("CraftingTableBlock_destroy");
