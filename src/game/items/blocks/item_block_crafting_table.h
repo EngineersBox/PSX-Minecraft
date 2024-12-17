@@ -58,5 +58,6 @@ void CraftingTableItemBlock_attackAction(VSelf);
 impl(IItem, CraftingTableItemBlock);
 
 ALLOC_CALL(CraftingTableItemBlock_destroy, 1) CraftingTableItemBlock* craftingTableItemBlockCreate();
+DEFN_ITEM_CONSTRUCTOR(craftingTable);
 
 #endif // _PSXMC__GAME_ITEMS__ITEM_BLOCK_CRAFTING_TABLE_H_

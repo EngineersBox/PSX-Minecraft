@@ -38,6 +38,7 @@ void OverworldPerlinChunkGenerator_generate(VSelf, Chunk* chunk, ChunkHeightmap*
             //     Size
             // );
             const int height = noise2d(xPos * ONE, zPos * ONE) >> 1;
+            /*const int height = noise2d(xPos * ONE, zPos * ONE) >> 3;*/
             // clamp(
             //     noise,
             //     0,
@@ -46,6 +47,7 @@ void OverworldPerlinChunkGenerator_generate(VSelf, Chunk* chunk, ChunkHeightmap*
             for (i32 y = 0; y < CHUNK_SIZE; y++) {
                 const i32 world_y = (position->vy * CHUNK_SIZE) + y;
                 const i32 offset_world_y = world_y + (CHUNK_SIZE * 6); // !IMPORTANT: TESTING OFFSET
+                /*const i32 offset_world_y = world_y + (CHUNK_SIZE * 1); // !IMPORTANT: TESTING OFFSET*/
                 IBlock* iblock;
                 if (offset_world_y < height - 3) {
                     iblock = chunk->blocks[chunkBlockIndex(x, y, z)] = stoneBlockCreate(NULL);

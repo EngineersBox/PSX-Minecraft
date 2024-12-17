@@ -49,6 +49,7 @@
 #define MAY_ALIAS __attribute__((may_alias))
 #define INLINE __attribute__((always_inline)) inline
 #define WEAK __attribute__((weak))
+#define PACKED __attribute__((packed))
 
 // Forward declaration
 #define FWD_DECL

@@ -11,7 +11,7 @@
 #include "blocks/item_block_dirt.h"
 #include "blocks/item_block_cobblestone.h"
 
-#define ITEM_COUNT 6
+#define ITEM_COUNT 59
 
 extern ItemConstructor item_constructors[ITEM_COUNT];
 extern ItemAttributes item_attributes[ITEM_COUNT];

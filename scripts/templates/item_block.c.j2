@@ -10,6 +10,14 @@
     return ({{ name_capital }}ItemBlock*) malloc(sizeof({{ name_capital }}ItemBlock));
 }
 
+DEFN_ITEM_CONSTRUCTOR({{ name_lower }) {
+    IItem* item = itemCreate();
+    {{ name_upper }}ItemBlock* {{ name_snake_lower }}_item_block = {{ name_lower }}ItemBlockCreate();
+    DYN_PTR(item, {{ name_upper }}ItemBlock, IItem, {{ name_snake_lower }}_item_block);
+    VCALL(*item, init);
+    return item;
+}
+
 void {{ name_lower }}ItemBlockDestroy(VSelf) ALIAS("{{ name_capital }}ItemBlock_destroy");
 void {{ name_capital }}ItemBlock_destroy(VSelf) {
     VSELF({{ name_capital }}ItemBlock);

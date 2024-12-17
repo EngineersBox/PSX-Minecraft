@@ -3,6 +3,8 @@
 #include "blocks/item_block_dirt.h"
 #include "blocks/item_block_grass.h"
 #include "blocks/item_block_stone.h"
+#include "blocks/item_block_cobblestone.h"
+#include "blocks/item_block_crafting_table.h"
 #include "item.h"
 #include "item_id.h"
 
@@ -34,5 +36,10 @@ void itemsInitialiseBuiltin() {
         ITEMID_COBBLESTONE,
         itemConstructor(cobblestone),
         cobblestoneItemBlockAttributes()
+    );
+    initItem(
+        ITEMID_CRAFTING_TABLE,
+        itemConstructor(craftingTable),
+        craftingTableItemBlockAttributes()
     );
 }

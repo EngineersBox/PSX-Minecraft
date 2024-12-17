@@ -20,7 +20,7 @@
 //       to be accessible via some options interface
 #ifndef LOADED_CHUNKS_RADIUS
 // Must be positive
-#define LOADED_CHUNKS_RADIUS 1
+#define LOADED_CHUNKS_RADIUS 2
 #endif
 // Chunks in this area are loaded but not rendered
 #define SHIFT_ZONE 1

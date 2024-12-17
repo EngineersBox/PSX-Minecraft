@@ -58,5 +58,6 @@ void {{ name_capital }}ItemBlock_attackAction(VSelf);
 impl(IItem, {{ name_capital }}ItemBlock);
 
 ALLOC_CALL({{ name_capital }}ItemBlock_destroy, 1) {{ name_capital }}ItemBlock* {{ name_lower}}ItemBlockCreate();
+DEFN_ITEM_CONSTRUCTOR({{ name_lower }});
 
 #endif // _PSXMC__GAME_ITEMS__ITEM_BLOCK_{{ name_snake_upper }}_H_

@@ -1,13 +1,23 @@
 #include "item_block_crafting_table.h"
 
 #include <stdlib.h>
+#include <interface99.h>
 
+#include "../../../util/interface99_extensions.h"
 #include "../../../util/preprocessor.h"
 #include "../../../math/vector.h"
 #include "../item_id.h"
 
 CraftingTableItemBlock* craftingTableItemBlockCreate() {
     return (CraftingTableItemBlock*) malloc(sizeof(CraftingTableItemBlock));
+}
+
+DEFN_ITEM_CONSTRUCTOR(craftingTable) {
+    IItem* item = itemCreate();
+    CraftingTableItemBlock* crafting_table_item_block = craftingTableItemBlockCreate();
+    DYN_PTR(item, CraftingTableItemBlock, IItem, crafting_table_item_block);
+    VCALL(*item, init);
+    return item;
 }
 
 void craftingTableItemBlockDestroy(VSelf) ALIAS("CraftingTableItemBlock_destroy");
