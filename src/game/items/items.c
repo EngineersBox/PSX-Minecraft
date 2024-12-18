@@ -1,14 +1,9 @@
 #include "items.h"
 
-#include "blocks/item_block_dirt.h"
-#include "blocks/item_block_grass.h"
-#include "blocks/item_block_stone.h"
-#include "blocks/item_block_cobblestone.h"
-#include "blocks/item_block_crafting_table.h"
 #include "item.h"
 #include "item_id.h"
 
-ItemConstructor item_constructors[ITEM_COUNT] = {NULL};
+ItemConstructor item_constructors[ITEM_COUNT] = {0};
 ItemAttributes item_attributes[ITEM_COUNT] = {0};
 
 #define initItem(id, constructor, attributes) ({ \

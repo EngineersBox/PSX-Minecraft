@@ -2,11 +2,6 @@
 
 #include "../../util/interface99_extensions.h"
 #include "../../logging/logging.h"
-#include "block_air.h"
-#include "block_cobblestone.h"
-#include "block_dirt.h"
-#include "block_grass.h"
-#include "block_crafting_table.h"
 
 BlockAttributes block_attributes[BLOCK_COUNT] = {0};
 BlockConstructor block_constructors[BLOCK_COUNT] = {0};
@@ -65,16 +60,6 @@ void blocksInitialiseBuiltin() {
         CraftingTableBlock, CRAFTING_TABLE, BLOCKID_CRAFTING_TABLE,
         craftingTableBlockCreateAttributes(), craftingTableBlockCreate
     );
-    for (int i = 0; i < 6; i++) {
-        DEBUG_LOG(
-            "Face Dir %d U: %d V: %d W: %d H: %d\n",
-            i,
-            CRAFTING_TABLE_FACE_ATTRIBUTES[i].u,
-            CRAFTING_TABLE_FACE_ATTRIBUTES[i].v,
-            CRAFTING_TABLE_FACE_ATTRIBUTES[i].w,
-            CRAFTING_TABLE_FACE_ATTRIBUTES[i].h
-        );
-    }
 }
 
 bool blockCanHarvest(const ToolType block_tool_type,
