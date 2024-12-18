@@ -15,49 +15,48 @@ BlockConstructor block_constructors[BLOCK_COUNT] = {0};
 #define DECL_STATELESS_BLOCK(type, extern_name, face_attributes) \
     DECL_STATELESS_METADATA_BLOCK(type, extern_name, 1, P99_PROTECT(face_attributes))
 
-DECL_STATELESS_BLOCK(AirBlock, AIR, airBlockFaceAttributes()); 
-DECL_STATELESS_BLOCK(StoneBlock, STONE, stoneBlockFaceAttributes());
-DECL_STATELESS_BLOCK(GrassBlock, GRASS, grassBlockFaceAttributes());
-DECL_STATELESS_BLOCK(DirtBlock, DIRT, dirtBlockFaceAttributes());
-DECL_STATELESS_BLOCK(CobblestoneBlock, COBBLESTONE, cobblestoneBlockFaceAttrbutes());
-
-DECL_STATELESS_BLOCK(CraftingTableBlock, CRAFTING_TABLE, craftingTableBlockFaceAttributes());
-
 #define initBlockStateful(id, attributes, constructor) ({ \
     block_attributes[(id)] = attributes; \
     block_constructors[(id)] = constructor; \
 })
 
-#define initBlockSingleton(type, extern_name, id, attributes, constructor) ({ \
+#define initBlockSingleton(type, extern_name, attributes, constructor) ({ \
     extern_name##_IBLOCK_SINGLETON = DYN(type, IBlock, &extern_name##_BLOCK_SINGLETON); \
     VCALL(extern_name##_IBLOCK_SINGLETON, init); \
-    block_attributes[(id)] = attributes; \
-    block_constructors[(id)] = constructor; \
+    block_attributes[BLOCKID_##extern_name] = attributes; \
+    block_constructors[BLOCKID_##extern_name] = constructor; \
 })
+
+DECL_STATELESS_BLOCK(AirBlock, AIR, airBlockFaceAttributes()); 
+DECL_STATELESS_BLOCK(StoneBlock, STONE, stoneBlockFaceAttributes());
+DECL_STATELESS_BLOCK(GrassBlock, GRASS, grassBlockFaceAttributes());
+DECL_STATELESS_BLOCK(DirtBlock, DIRT, dirtBlockFaceAttributes());
+DECL_STATELESS_BLOCK(CobblestoneBlock, COBBLESTONE, cobblestoneBlockFaceAttrbutes());
+DECL_STATELESS_BLOCK(CraftingTableBlock, CRAFTING_TABLE, craftingTableBlockFaceAttributes());
 
 void blocksInitialiseBuiltin() {
     initBlockSingleton(
-        AirBlock, AIR, BLOCKID_AIR,
+        AirBlock, AIR,
         airBlockCreateAttributes(), airBlockCreate
     );
     initBlockSingleton(
-        StoneBlock, STONE, BLOCKID_STONE,
+        StoneBlock, STONE,
         stoneBlockCreateAttributes(), stoneBlockCreate
     );
     initBlockSingleton(
-        GrassBlock, GRASS, BLOCKID_GRASS,
+        GrassBlock, GRASS,
         grassBlockCreateAttributes(), grassBlockCreate
     );
     initBlockSingleton(
-        DirtBlock, DIRT, BLOCKID_DIRT,
+        DirtBlock, DIRT,
         dirtBlockCreateAttributes(), dirtBlockCreate
     );
     initBlockSingleton(
-        CobblestoneBlock, COBBLESTONE, BLOCKID_COBBLESTONE,
+        CobblestoneBlock, COBBLESTONE,
         cobblestoneBlockCreateAttributes(), cobblestoneBlockCreate
     );
     initBlockSingleton(
-        CraftingTableBlock, CRAFTING_TABLE, BLOCKID_CRAFTING_TABLE,
+        CraftingTableBlock, CRAFTING_TABLE,
         craftingTableBlockCreateAttributes(), craftingTableBlockCreate
     );
 }

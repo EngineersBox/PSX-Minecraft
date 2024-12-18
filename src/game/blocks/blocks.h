@@ -22,6 +22,8 @@
 extern BlockAttributes block_attributes[BLOCK_COUNT];
 extern BlockConstructor block_constructors[BLOCK_COUNT];
 
+void blocksInitialiseBuiltin();
+
 #define blockEqual(b0, b1) ((b0)->id == (b1)->id && (b0)->metadata_id == (b1)->metadata_id)
 #if defined(DEBUG_BLOCK_ID_CHECK) && DEBUG_BLOCK_ID_CHECK == 1
 #define blockGetAttribute(id, attr) ({ \
@@ -52,7 +54,5 @@ bool blockCanHarvest(ToolType block_tool_type,
                      ToolType item_tool_type,
                      ItemMaterial item_tool_material,
                      const Block* block);
-
-void blocksInitialiseBuiltin();
 
 #endif // PSXMC__GAME__BLOCKS_H
