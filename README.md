@@ -46,6 +46,7 @@ Remake of Minecraft for PS1 with PSn00bSDK
 * [Playstation specifications psx-spx](https://psx-spx.consoledev.net/kernelbios/)
   (Everything from hardware to software in great detail)
 * [PsyQ Docs and examples](https://psx.arthus.net/sdk/Psy-Q/)
+* [IDT79R3xx (MIPS R3000A CPU) Data Sheet](./docs/IDT79R3xx_data_sheet.pdf)
 
 ## Progress
 
