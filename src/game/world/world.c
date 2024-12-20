@@ -1123,9 +1123,7 @@ void worldRemoveLightTypeChunkBlock(const World* world,
     Chunk* chunk = world->chunks[arrayCoord(world, vz, position->chunk.vz)]
                                 [arrayCoord(world, vx, position->chunk.vx)]
                                 [position->chunk.vy];
-    if (chunk == NULL) {
-        return;
-    }
+    assert(chunk != NULL);
     chunkRemoveLightValue(
         chunk,
         &position->block,

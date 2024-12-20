@@ -369,9 +369,9 @@ void chunkRender(Chunk* chunk,
 	|| (y) >= CHUNK_SIZE || (y) < 0 \
 	|| (z) >= CHUNK_SIZE || (z) < 0)
 
-#define checkIndexInBounds(x, y, z) ((x) < CHUNK_SIZE || (x) >= 0 \
-	|| (y) < CHUNK_SIZE || (y) >= 0 \
-	|| (z) < CHUNK_SIZE || (z) >= 0)
+#define checkIndexInBounds(x, y, z) ((x) < CHUNK_SIZE && (x) >= 0 \
+	&& (y) < CHUNK_SIZE && (y) >= 0 \
+	&& (z) < CHUNK_SIZE && (z) >= 0)
 
 IBlock* chunkGetBlock(const Chunk* chunk, const i32 x, const i32 y, const i32 z) {
     assert(checkIndexInBounds(x, y, z));

@@ -232,13 +232,6 @@ void itemBlockRenderWorld(ItemBlock* item,
         internal_light_level,
         light_level
     );
-    DEBUG_LOG(
-        "[ITEM] World pos: " VEC_PATTERN " Internal: %d Light: %d Scalar: %d\n",
-        VEC_LAYOUT(world_position),
-        internal_light_level,
-        light_level,
-        light_level_colour_scalar
-    );
     renderCtxBindMatrix(
         ctx,
         transforms,
