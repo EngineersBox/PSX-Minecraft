@@ -6,6 +6,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <psxapi.h>
+#include <assert.h>
 
 #include "../../../logging/logging.h"
 #include "../../../math/math_utils.h"
@@ -368,17 +369,17 @@ void chunkRender(Chunk* chunk,
 	|| (y) >= CHUNK_SIZE || (y) < 0 \
 	|| (z) >= CHUNK_SIZE || (z) < 0)
 
+#define checkIndexInBounds(x, y, z) ((x) < CHUNK_SIZE || (x) >= 0 \
+	|| (y) < CHUNK_SIZE || (y) >= 0 \
+	|| (z) < CHUNK_SIZE || (z) >= 0)
+
 IBlock* chunkGetBlock(const Chunk* chunk, const i32 x, const i32 y, const i32 z) {
-    if (checkIndexOOB(x, y, z)) {
-        return airBlockCreate(NULL);
-    }
+    assert(checkIndexInBounds(x, y, z));
     return chunk->blocks[chunkBlockIndex(x, y, z)];
 }
 
 IBlock* chunkGetBlockVec(const Chunk* chunk, const VECTOR* position) {
-    if (checkIndexOOB(position->vx, position->vy, position->vz)) {
-        return airBlockCreate(NULL);
-    }
+    assert(checkIndexInBounds(position->vx, position->vy, position->vz));
     return chunk->blocks[chunkBlockIndex(
         position->vx,
         position->vy,
@@ -758,18 +759,14 @@ void chunkUpdate(Chunk* chunk, const Player* player, BreakingState* breaking_sta
 
 LightLevel chunkGetLightValue(const Chunk* chunk,
                               const VECTOR* position) {
-    if (checkIndexOOB(position->vx, position->vy, position->vz)) {
-        return createLightLevel(0, worldGetInternalLightLevel(chunk->world));
-    }
+    assert(checkIndexInBounds(position->vx, position->vy, position->vz));
     return lightMapGetValue(chunk->lightmap, *position);
 }
 
 LightLevel chunkGetLightType(const Chunk* chunk,
                              const VECTOR* position,
                              const LightType light_type) {
-    if (checkIndexOOB(position->vx, position->vy, position->vz)) {
-        return createLightLevel(0, worldGetInternalLightLevel(chunk->world));
-    }
+    assert(checkIndexInBounds(position->vx, position->vy, position->vz));
     return lightMapGetType(chunk->lightmap, *position, light_type);
 }
 
@@ -777,9 +774,7 @@ void chunkSetLightValue(Chunk* chunk,
                         const VECTOR* position,
                         const LightLevel light_value,
                         const LightType light_type) {
-    if (checkIndexOOB(position->vx, position->vy, position->vz)) {
-        return;
-    }
+    assert(checkIndexInBounds(position->vx, position->vy, position->vz));
     lightMapSetValue(
         chunk->lightmap,
         *position,
@@ -814,9 +809,7 @@ void chunkSetLightValue(Chunk* chunk,
 void chunkRemoveLightValue(Chunk* chunk,
                            const VECTOR* position,
                            const LightType light_type) {
-    if (checkIndexOOB(position->vx, position->vy, position->vz)) {
-        return;
-    }
+    assert(checkIndexInBounds(position->vx, position->vy, position->vz));
     const LightLevel light_value = lightMapGetType(
         chunk->lightmap,
         *position,
@@ -884,7 +877,6 @@ void chunkUpdateAddLight(Chunk* chunk, const LightUpdateLimits limits) {
                 CHUNK_SIZE
             )
         );
-        #pragma GCC unroll 6
         for (FaceDirection i = FACE_DIR_DOWN; i <= FACE_DIR_FRONT; i++) {
             const VECTOR query_pos = vec3_add(
                 world_pos,
@@ -941,7 +933,6 @@ void chunkUpdateAddLight(Chunk* chunk, const LightUpdateLimits limits) {
                 CHUNK_SIZE
             )
         );
-        #pragma GCC unroll 2
         for (FaceDirection i = FACE_DIR_DOWN; i <= FACE_DIR_UP; i++) {
             const VECTOR query_pos = vec3_add(
                 world_pos,
@@ -982,7 +973,6 @@ void chunkUpdateAddLight(Chunk* chunk, const LightUpdateLimits limits) {
                 );
             }
         }
-        #pragma GCC unroll 4
         for (FaceDirection i = FACE_DIR_LEFT; i <= FACE_DIR_FRONT; i++) {
             const VECTOR query_pos = vec3_add(
                 world_pos,
@@ -1041,7 +1031,6 @@ void chunkUpdateRemoveLight(Chunk* chunk, const LightUpdateLimits limits) {
                 CHUNK_SIZE
             )
         );
-        #pragma GCC unroll 6
         for (FaceDirection face_dir = FACE_DIR_DOWN; face_dir <= FACE_DIR_FRONT; face_dir++) {
             const VECTOR query_pos = vec3_add(
                 world_pos,
@@ -1104,7 +1093,6 @@ void chunkUpdateRemoveLight(Chunk* chunk, const LightUpdateLimits limits) {
                 CHUNK_SIZE
             )
         );
-        #pragma GCC unroll 2
         for (FaceDirection face_dir = FACE_DIR_DOWN; face_dir <= FACE_DIR_UP; face_dir++) {
             if (face_dir == FACE_DIR_UP && light_level == 15) {
                 // Remove sunlight column below if the current level
@@ -1151,7 +1139,6 @@ void chunkUpdateRemoveLight(Chunk* chunk, const LightUpdateLimits limits) {
                 );
             }
         }
-        #pragma GCC unroll 4
         for (FaceDirection face_dir = FACE_DIR_LEFT; face_dir <= FACE_DIR_FRONT; face_dir++) {
             const VECTOR query_pos = vec3_add(
                 world_pos,
