@@ -95,7 +95,6 @@ typedef struct Item {
     SVECTOR rotation;
     // Only present (non-NULL) when the
     // in_world flag is true
-    PhysicsObject* world_physics_object;
     Entity* world_entity;
 } Item;
 

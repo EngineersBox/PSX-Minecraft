@@ -34,6 +34,11 @@
     (ptr)->vptr = &VTABLE99(implementer, iface); \
 })
 #define DYN_LIT_PTR99(ptr, implementer, iface, ...) DYN_PTR99(ptr, implementer, iface, &(implementer)__VA_ARGS__)
+#define IMPLEMENTER_VTABLE(ptr) ((ptr)->vptr)
+#define DYN_VINIT(ptr, src_ptr, ...) ({ \
+    (ptr)->self = (void*)(__VA_ARGS__); \
+    (ptr)->vptr = (src_ptr)->vptr; \
+})
 
 #define INSTANCEOF(obj, implementer, iface) INSTANCEOF99(obj, implementer, iface)
 #define INSTANCEOF99(obj, implementer, iface) ((type).vptr == &VTABLE99(implementer, iface))

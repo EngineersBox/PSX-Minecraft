@@ -6,6 +6,11 @@
 #include "../items/blocks/item_block_crafting_table.h"
 #include "../../logging/logging.h"
 #include "../../ui/components/cursor.h"
+#include "../../entity/player.h"
+#include "../items/items.h"
+#include <stdint.h>
+
+FWD_DECL Chunk* worldGetChunk(const World* world, const VECTOR* position);
 
 bool craftingTableBlockInputHandler(const Input* input, void* ctx);
 static InputHandlerVTable craftingTableBlockInputHandlerVTable = {
@@ -48,8 +53,45 @@ static Slot crafting_table_sots[(slotGroupSize(CRAFTING_TABLE) + slotGroupSize(C
     createSlotInline(CRAFTING_TABLE_RESULT, 0, 0)
 };
 
+void dropItemStackInWorld(World* world,
+                          IItem* iitem,
+                          const u8 count) {
+    if (iitem == NULL) {
+        // Nothing to drop
+        return;
+    }
+    const VECTOR* player_pos = &player->entity.physics_object.position;
+    Chunk* chunk = worldGetChunk(world, player_pos);
+    Item* item = VCAST_PTR(Item*, iitem);
+    IItem* droppable_iitem = iitem;
+    // 0 count implies drop all in this handler
+    if (count != 0 && count < item->stack_size) {
+        droppable_iitem = itemGetConstructor(item->id)();
+        assert(droppable_iitem != NULL);
+        item = VCAST_PTR(Item*, droppable_iitem);
+        item->stack_size = count;
+    }
+    itemSetWorldState(item, true);
+    item->world_entity->physics_object.position = *player_pos;
+    VECTOR velocity = vec3_const_mul(
+        vec3_i32(
+            player->entity.physics_object.rotation.pitch,
+            player->entity.physics_object.rotation.yaw,
+            0
+        ),
+        4096
+    );
+    item->world_entity->physics_object.velocity = velocity;
+    cvector_push_back(chunk->dropped_items, droppable_iitem);
+}
+
 bool craftingTableBlockInputHandler(const Input* input, void* ctx) {
+    BlockInputHandlerContext* block_input_handler_context = ctx;
+    VCALL(cursor_component, update);
     const PADTYPE* pad = input->pad;
+    // TODO Determime the button layout on xbox/playstation/switch
+    //      MC releases and match it here for interacting with items
+    //      in inventories and dropping stuff
     if (isPressed(pad, BINDING_CURSOR_CLICK)) {
         // TODO: Use is either grabbing an item in a slot,
         //       putting a grabbed item in a slot, or
@@ -64,12 +106,17 @@ bool craftingTableBlockInputHandler(const Input* input, void* ctx) {
             CENTRE_Y - (CRAFTING_TABLE_TEXTURE_HEIGHT >> 1),
             CRAFTING_TABLE_TEXTURE_WIDTH,
             CRAFTING_TABLE_TEXTURE_HEIGHT
-            )) {
+        )) {
             // TODO: Outside of window, move held item into
             //       chunk dropped_items array and nullify
             //       cursor_held data field. Set the movement
             //       vector on the item in world to "throw"
             //       it
+            dropItemStackInWorld(
+                block_input_handler_context->world,
+                cursor.held_data,
+                0 // Drop entire item stack
+            );
             return INPUT_HANDLER_RETAIN;
         }
         // TODO: Item should be grabbed/put from/into a slot
@@ -152,6 +199,11 @@ void craftingTableBlockRenderUI(RenderContext* ctx, Transforms* transforms) {
     }
     uiBackgroundRender(
         &block_render_ui_context.background,
+        ctx,
+        transforms
+    );
+    uiCursorRender(
+        &cursor,
         ctx,
         transforms
     );

@@ -32,6 +32,8 @@ typedef struct {
     BreakingState breaking;
 } Player;
 
+extern Player* player;
+
 // Forward declaration
 typedef struct World World;
 

@@ -411,13 +411,13 @@ static void applyItemWorldState(const Chunk* chunk,
         FIXED_POINT_SHIFT
     );
     iPhysicsObjectSetPosition(
-        item->world_physics_object,
+        &item->world_entity->physics_object,
         &item_position
     );
-    item->world_physics_object->rotation.yaw = rand() % 32768;
-    item->world_physics_object->rotation.pitch  = rand() % 32768;
-    item->world_physics_object->move.forward = randBounded(FIXED_1_2);
-    item->world_physics_object->move.strafe = randBounded(FIXED_1_2);
+    item->world_entity->physics_object.rotation.yaw = rand() % 32768;
+    item->world_entity->physics_object.rotation.pitch  = rand() % 32768;
+    item->world_entity->physics_object.move.forward = randBounded(FIXED_1_2);
+    item->world_entity->physics_object.move.strafe = randBounded(FIXED_1_2);
 }
 
 static LightLevel inferSunlightValueFromNeighbours(const Chunk* chunk,
@@ -651,13 +651,13 @@ void updateItemChunkOwnership(const Chunk* chunk,
     //       (as a precondition for checking the chunk ownership) is
     //       substantially cheaper.
     const Item* item = VCAST_PTR(Item*, iitem);
-    if (!vec3_equal(item->world_physics_object->velocity, VEC3_I32_ZERO)) {
+    if (!vec3_equal(item->world_entity->physics_object.velocity, VEC3_I32_ZERO)) {
         // No velocity implies no movement, so we can't have changed
         // chunks since we last checked
         return;
     }
     const VECTOR item_world_pos = vec3_const_div(
-        item->world_physics_object->position,
+        item->world_entity->physics_object.position,
         ONE_BLOCK
     );
     const ChunkBlockPosition cb_pos = worldToChunkBlockPosition(

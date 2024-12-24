@@ -202,7 +202,7 @@ void itemBlockRenderWorld(ItemBlock* item,
                           RenderContext* ctx,
                           Transforms* transforms) {
     VECTOR position = vec3_const_rshift(
-        item->item.world_physics_object->position,
+        item->item.world_entity->physics_object.position,
         FIXED_POINT_SHIFT
     );
     // FIXME: The physics object position for items isn't
@@ -287,7 +287,7 @@ void itemBlockRenderWorld(ItemBlock* item,
         }
     }
     item->item.rotation.vy = (item->item.rotation.vy + ITEM_ROTATION_QUANTA) % ONE;
-    if (item->item.world_physics_object->flags.on_ground) {
+    if (item->item.world_entity->physics_object.flags.on_ground) {
         if (item->item.bob_offset <= 0) {
             item->item.bob_direction = 1;
         } else if (item->item.bob_offset >= ITEM_BLOCK_BOB_ANIM_SAMPLES) {

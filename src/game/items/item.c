@@ -38,18 +38,16 @@ void itemSetWorldState(Item* item, const bool in_world) {
     item->in_world = in_world;
     if (in_world) {
         // In world
-        item->world_physics_object = malloc(sizeof(PhysicsObject));
+        item->world_entity = malloc(sizeof(Entity));
+        entityInit(item->world_entity);
         iPhysicsObjectInit(
-            item->world_physics_object,
+            &item->world_entity->physics_object,
             &item_physics_object_config,
             &item_physics_object_update_handlers
         );
-        item->world_entity = malloc(sizeof(Entity));
-        entityInit(item->world_entity);
         return;
     }
     // In inventory
-    free(item->world_physics_object);
     free(item->world_entity);
     item->position = vec3_i32_all(0);
 }
@@ -61,16 +59,16 @@ bool itemUpdate(Item* item,
                 const ItemPickupValidator validator) {
     if (item->in_world) {
         iPhysicsObjectUpdate(
-            item->world_physics_object,
+            &item->world_entity->physics_object,
             world,
             ctx
         );
     }
     const VECTOR item_pos = vec3_add(
         vec3_i32(
-            (item->world_physics_object->position.vx) >> FIXED_POINT_SHIFT,
-            (-item->world_physics_object->position.vy) >> FIXED_POINT_SHIFT,
-            (item->world_physics_object->position.vz) >> FIXED_POINT_SHIFT
+            (item->world_entity->physics_object.position.vx) >> FIXED_POINT_SHIFT,
+            (-item->world_entity->physics_object.position.vy) >> FIXED_POINT_SHIFT,
+            (item->world_entity->physics_object.position.vz) >> FIXED_POINT_SHIFT
         ),
         item->position
     );
