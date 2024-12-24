@@ -13,7 +13,7 @@
 #define PAD_SECTION_SIZE 34
 
 #define INPUT_HANDLER_RETAIN true
-#define INPUT_HANDLER_RELIQUISH false
+#define INPUT_HANDLER_RELINQUISH false
 
 typedef struct Input Input;
 

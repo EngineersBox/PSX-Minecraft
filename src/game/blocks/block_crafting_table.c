@@ -68,7 +68,7 @@ bool craftingTableBlockInputHandler(const Input* input, void* ctx) {
         block_render_ui_context.function = NULL;
         block_render_ui_context.block = NULL;
         block_render_ui_context.background = (UIBackground) {0};
-        return INPUT_HANDLER_RELIQUISH;
+        return INPUT_HANDLER_RELINQUISH;
     }
     return INPUT_HANDLER_RETAIN;
 }
