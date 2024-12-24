@@ -5,6 +5,7 @@
 #include "block_id.h"
 #include "../items/blocks/item_block_crafting_table.h"
 #include "../../logging/logging.h"
+#include "../../ui/components/cursor.h"
 
 bool craftingTableBlockInputHandler(const Input* input, void* ctx);
 static InputHandlerVTable craftingTableBlockInputHandlerVTable = {
@@ -57,10 +58,28 @@ bool craftingTableBlockInputHandler(const Input* input, void* ctx) {
         //       here, possibly with some logic that we share
         //       between this and the base inventory structure
         //       that is used for all inventories.
+        if (!quadIntersectLiteral(
+            &cursor.component.position,
+            CENTRE_X - (CRAFTING_TABLE_TEXTURE_WIDTH >> 1),
+            CENTRE_Y - (CRAFTING_TABLE_TEXTURE_HEIGHT >> 1),
+            CRAFTING_TABLE_TEXTURE_WIDTH,
+            CRAFTING_TABLE_TEXTURE_HEIGHT
+            )) {
+            // TODO: Outside of window, move held item into
+            //       chunk dropped_items array and nullify
+            //       cursor_held data field. Set the movement
+            //       vector on the item in world to "throw"
+            //       it
+            return INPUT_HANDLER_RETAIN;
+        }
+        // TODO: Item should be grabbed/put from/into a slot
+        //       or do nothing if mistargetted
         return INPUT_HANDLER_RETAIN;
-    } else if (isPressed(pad, BINDING_DROP_ITEM)) {
-        // TODO: If can item is held, it should be dropped
-        //       into the world.
+    } else if (isPressed(pad, BINDING_DROP_ITEM) && cursor.held_data != NULL) {
+        // TODO: Move held item into chunk dropped_items array
+        //       and nullify cursor held_data field. Set the
+        //       movement vector on the item in world to "throw"
+        //       it
     }
     if (isPressed(pad, BINDING_OPEN_INVENTORY)) {
         // Block inventory is closed, reset the render handlers

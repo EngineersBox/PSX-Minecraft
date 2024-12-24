@@ -38,11 +38,18 @@
     (absv(_value) <= (bound) ? (minimum) : _value); \
 })
 
-#define quadIntersect(cursor, base, dim) ( \
-    (cursor)->vx >= (base)->vx \
-    && (cursor)->vy >= (base)->vy \
-    && (cursor)->vx <= (base)->vx + (dim)->vx \
-    && (cursor)->vy <= (base)->vy + (dim)->vy \
+#define quadIntersectLiteral(cursor, base_x, base_y, dim_x, dim_y) ( \
+    (cursor)->vx >= (base_x) \
+    && (cursor)->vy >= (base_y) \
+    && (cursor)->vx <= (base_x) + (dim_x) \
+    && (cursor)->vy <= (base_y) + (dim_y) \
+)
+#define quadIntersect(cursor, base, dim) quadIntersectLiteral( \
+    cursor, \
+    (base)->vx, \
+    (base)->vy, \
+    (dim)->vx, \
+    (dim)->vy \
 )
 
 /**
