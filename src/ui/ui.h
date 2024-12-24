@@ -15,8 +15,15 @@
 #include "../core/input/input.h"
 
 #define IUIComponent_IFACE \
-    vfunc(void, action, VSelf, const DVECTOR* cursor_position, const bool pressed) \
-    vfunc(void, render, VSelf, RenderContext* ctx, Transforms* transforms)
+    vfunc(void, render, VSelf, RenderContext* ctx, Transforms* transforms) \
+    vfuncDefault(void, cursorAction, VSelf, const DVECTOR* cursor_position, u8 press_state) \
+    vfuncDefault(void, update, VSelf)
+
+void iuiComponentCursorAction(VSelf, const DVECTOR* cursor_position, u8 press_state);
+void IUIComponent_cursorAction(VSelf, const DVECTOR* cursor_position, u8 press_state);
+
+void iuiComponentUpdate(VSelf);
+void IUIComponent_update(VSelf);
 
 interface(IUIComponent);
 typedef struct UIComponent {
