@@ -25,11 +25,6 @@ IUIComponent* uiAddComponent(UI* ui) {
     return &ui->components[cvector_size(ui->components) - 1];
 }
 
-void iuiComponentCursorAction(VSelf, const DVECTOR* cursor_position, u8 press_state) ALIAS("IUIComponent_cursorAction");
-void IUIComponent_cursorAction(VSelf, const DVECTOR* cursor_position, u8 press_state) {
-    // Do nothing
-}
-
 void iuiComponentUpdate(VSelf) ALIAS("IUIComponent_update");
 void IUIComponent_update(VSelf) {
     // Do nothing

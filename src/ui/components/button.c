@@ -1,15 +1,30 @@
 #include "button.h"
 
 #include "../../math/math_utils.h"
+#include "../../util/interface99_extensions.h"
+#include "cursor.h"
 
-void uiButtonAction(VSelf, const DVECTOR* cursor_position, const bool pressed) ALIAS("UIButton_action");
-void UIButton_action(VSelf, const DVECTOR* cursor_position, const bool pressed) {
+void uiButtonUpdate(VSelf) ALIAS("UIButton_update");
+void UIButton_update(VSelf) {
     VSELF(UIButton);
-    if (!quadIntersect(cursor_position, &self->component.position, &self->component.dimensions)) {
-        self->pressed = false;
-        return;
+    if (!quadIntersect(
+            &cursor.component.position,
+            &self->component.position,
+            &self->component.dimensions
+        )) {
+        self->state = BUTTON_NONE;
     }
-    self->pressed = pressed;
+    switch (cursor.state) {
+        case CURSOR_NONE:
+            self->state = BUTTON_HOVERED;
+            break; 
+        case CURSOR_PRESSED:
+            self->state = BUTTON_PRESSED;
+            break;
+        case CURSOR_RELEASED:
+            self->state = BUTTON_HOVERED;
+            break;
+    }
 }
 
 void uiButtonRender(VSelf, RenderContext* ctx, Transforms* transforms) ALIAS("UIButton_render");

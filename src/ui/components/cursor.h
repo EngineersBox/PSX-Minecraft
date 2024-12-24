@@ -13,8 +13,15 @@
 #define CURSOR_SPRITE_POS_X 182
 #define CURSOR_SPRITE_POS_Y 24
 
+typedef enum CursorState {
+    CURSOR_NONE = 0,
+    CURSOR_PRESSED,
+    CURSOR_RELEASED
+} CursorState;
+
 DEFN_UI_COMPONENT(
     UICursor,
+    CursorState state;
     void* held_data;
 );
 
@@ -27,5 +34,8 @@ void UICursor_render(VSelf, RenderContext* ctx, Transforms* transforms);
 
 impl(IUIComponent, UICursor);
 #undef UICursor_update_CUSTOM
+
+extern UICursor cursor;
+extern IUIComponent cursor_component;
 
 #endif // PSXMC_CURSOR_H

@@ -17,9 +17,6 @@ DEFN_UI_COMPONENT(
     DVECTOR texture_width;
 );
 
-void uiBackgroundAction(VSelf, const DVECTOR* cursor_position, const bool pressed);
-void UIBackground_action(VSelf, const DVECTOR* cursor_position, const bool pressed);
-
 void uiBackgroundRender(VSelf, RenderContext* ctx, Transforms* transforms);
 void UIBackground_render(VSelf, RenderContext* ctx, Transforms* transforms);
 

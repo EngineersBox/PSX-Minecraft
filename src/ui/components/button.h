@@ -7,17 +7,25 @@
 
 #include "../ui.h"
 
+typedef enum UIButtonState {
+    BUTTON_NONE = 0,
+    BUTTON_PRESSED,
+    BUTTON_HOVERED,
+} UIButtonState;
+
 DEFN_UI_COMPONENT(
     UIButton,
-    bool pressed;
+    UIButtonState state;
 );
 
-void uiButtonAction(VSelf, const DVECTOR* cursor_position, const bool pressed);
-void UIButton_action(VSelf, const DVECTOR* cursor_position, const bool pressed);
+#define UIButton_update_CUSTOM ()
+void uiButtonUpdate(VSelf);
+void UIButton_update(VSelf);
 
 void uiButtonRender(VSelf, RenderContext* ctx, Transforms* transforms);
 void UIButton_render(VSelf, RenderContext* ctx, Transforms* transforms);
 
 impl(IUIComponent, UIButton);
+#undef UIButton_update_CUSTOM
 
 #endif // PSXMC_BUTTON_H

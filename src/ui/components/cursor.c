@@ -8,6 +8,19 @@
 #include "../../resources/asset_indices.h"
 #include "../../resources/assets.h"
 
+UICursor cursor = {
+    .component = {
+        .position = vec2_i16_all(0),
+        .dimensions = vec2_i16(
+            CURSOR_SPRITE_WIDTH,
+            CURSOR_SPRITE_HEIGHT
+        )
+    },
+    .held_data = NULL,
+    .state = CURSOR_NONE
+};
+IUIComponent cursor_component = DYN(UICursor, IUIComponent, &cursor);
+
 void uiCursorUpdate(VSelf) ALIAS("UICursor_update");
 void UICursor_update(VSelf) {
     VSELF(UICursor);
@@ -49,8 +62,8 @@ void UICursor_render(VSelf, RenderContext* ctx, Transforms* transforms) {
         pol4,
         CURSOR_SPRITE_POS_X,
         CURSOR_SPRITE_POS_Y,
-        CURSOR_SPRITE_WIDTH,
-        CURSOR_SPRITE_HEIGHT
+        self->component.dimensions.vx,
+        self->component.dimensions.vy
     );
     const Texture* texture = &textures[ASSET_TEXTURE__STATIC__GUI];
     pol4->tpage = texture->tpage;
