@@ -57,7 +57,7 @@ void renderBlackBackground(RenderContext* ctx,
     tileRender(tile, 1, ctx);
 }
 
-void debugDrawPBUsageGraph(RenderContext* ctx, const u16 base_screen_x, const u16 base_screen_y) {
+void debugDrawPacketBufferUsageGraph(RenderContext* ctx, const u16 base_screen_x, const u16 base_screen_y) {
     static int sampledPB = 0;
     if (sampledPB < SAMPLE_RATE) {
         sampledPB++;

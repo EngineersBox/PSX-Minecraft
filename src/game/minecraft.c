@@ -304,7 +304,7 @@ void Minecraft_render(VSelf, const Stats* stats) {
     renderClearConstraints(&self->internals.ctx);
     FntPrint(0, PSXMC_VERSION_STRING "\n");
     drawDebugText(stats, &self->internals.camera, world);
-    debugDrawPBUsageGraph(
+    debugDrawPacketBufferUsageGraph(
         &self->internals.ctx,
         0,
         SCREEN_YRES - HOTBAR_HEIGHT - 2
