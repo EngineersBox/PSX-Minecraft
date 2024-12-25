@@ -100,6 +100,9 @@ bool craftingTableBlockInputHandler(const Input* input, void* ctx) {
         //       here, possibly with some logic that we share
         //       between this and the base inventory structure
         //       that is used for all inventories.
+        //
+        //       This should also handle exchanging a held item
+        //       and an item in a targetted slot.
         if (!quadIntersectLiteral(
             &cursor.component.position,
             CENTRE_X - (CRAFTING_TABLE_TEXTURE_WIDTH >> 1),
