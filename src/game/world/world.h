@@ -96,4 +96,7 @@ LightLevel worldGetInternalLightLevel(const World* world);
 ChunkHeightmap* worldGetChunkHeightmap(World* world, const VECTOR* position);
 Heightmap* worldGetHeightmap(World* world);
 
+// Count == 0 implies drop all
+void worldDropItemStack(World* world, IItem* item, const u8 count);
+
 #endif // PSXMC_WORLD_H

@@ -6,7 +6,12 @@
 #include "../items/items.h"
 #include "../../ui/components/background.h"
 #include "../../util/interface99_extensions.h"
+#include "psxpad.h"
 #include "slot.h"
+#include "../../ui/components/cursor.h"
+#include "../world/world_structure.h"
+
+FWD_DECL void worldDropItemStack(World* world, IItem* item, const u8 count);
 
 /*const char* INVENTORY_STORE_RESULT_NAMES[] = {*/
 /*    MK_INVENTORY_STORE_RESULT_LIST(P99_STRING_ARRAY_INDEX)*/
@@ -324,6 +329,12 @@ bool inventoryInputHandler(const Input* input, void* ctx) {
         inventoryOpen(inventory);
         return true;
     }
+    inventoryCursorHandler(
+        inventory,
+        INVENTORY_SLOT_GROUP_ALL,
+        input,
+        ctx
+    );
     return inventory->ui.active;
 }
 
@@ -338,4 +349,66 @@ void Inventory_registerInputHandler(VSelf, Input* input, void* ctx) {
         input,
         handler
     );
+}
+
+void cursorClickHandler(const Inventory* inventory,
+                        InventorySlotGroups groups,
+                        const Input* input) {
+    if (!quadIntersectLiteral(
+        &cursor.component.position,
+        CENTRE_X - (INVENTORY_WIDTH >> 1),
+        CENTRE_Y - (INVENTORY_HEIGHT >> 1),
+        INVENTORY_WIDTH,
+        INVENTORY_HEIGHT
+    )) {
+        worldDropItemStack(
+            world,
+            cursor.held_data,
+            0
+        );
+        return;
+    } else if (groups & INVENTORY_SLOT_GROUP_ARMOUR && slotGroupIntersect(
+        INVENTORY_ARMOUR,
+        &cursor.component.position
+    )) {
+        // TODO
+    } else if (groups & INVENTORY_SLOT_GROUP_CRAFTING && slotGroupIntersect(
+        INVENTORY_CRAFTING,
+        &cursor.component.position
+    )) {
+        // TODO
+    } else if (groups & INVENTORY_SLOT_GROUP_CRAFTING_RESULT && slotGroupIntersect(
+        INVENTORY_CRAFTING_RESULT,
+        &cursor.component.position
+    )) {
+        // TODO
+    } else if (groups & INVENTORY_SLOT_GROUP_MAIN && slotGroupIntersect(
+        INVENTORY_MAIN,
+        &cursor.component.position
+    )) {
+        // TODO
+    } else if (groups & INVENTORY_SLOT_GROUP_HOTBAR && slotGroupIntersect(
+        INVENTORY_HOTBAR,
+        &cursor.component.position
+    )) {
+        // TODO
+    }
+}
+
+void cursorDropHandler(const Inventory* inventory,
+                       InventorySlotGroups groups,
+                       const Input* input) {
+
+}
+
+void inventoryCursorHandler(const Inventory* inventory,
+                            InventorySlotGroups groups,
+                            const Input* input,
+                            void* ctx) {
+    const PADTYPE* pad = input->pad;
+    if (isPressed(pad, BINDING_CURSOR_CLICK)) {
+        cursorClickHandler(inventory, groups, input);
+    } else if (isPressed(pad, BINDING_DROP_ITEM)) {
+        cursorDropHandler(inventory, groups, input);
+    }
 }

@@ -8,9 +8,10 @@
 #include "../../ui/components/cursor.h"
 #include "../../entity/player.h"
 #include "../items/items.h"
-#include <stdint.h>
+#include "../world/world_structure.h"
 
 FWD_DECL Chunk* worldGetChunk(const World* world, const VECTOR* position);
+FWD_DECL void worldDropItemStack(World* world, IItem* item, const u8 count);
 
 bool craftingTableBlockInputHandler(const Input* input, void* ctx);
 static InputHandlerVTable craftingTableBlockInputHandlerVTable = {
@@ -53,41 +54,33 @@ static Slot crafting_table_sots[(slotGroupSize(CRAFTING_TABLE) + slotGroupSize(C
     createSlotInline(CRAFTING_TABLE_RESULT, 0, 0)
 };
 
-void dropItemStackInWorld(World* world,
-                          IItem* iitem,
-                          const u8 count) {
-    if (iitem == NULL) {
-        // Nothing to drop
+void cursorClickHandler(const Input* input, BlockInputHandlerContext* block_input_handler_context) {
+    if (!quadIntersectLiteral(
+        &cursor.component.position,
+        CENTRE_X - (CRAFTING_TABLE_TEXTURE_WIDTH >> 1),
+        CENTRE_Y - (CRAFTING_TABLE_TEXTURE_HEIGHT >> 1),
+        CRAFTING_TABLE_TEXTURE_WIDTH,
+        CRAFTING_TABLE_TEXTURE_HEIGHT
+    )) {
+        // Outside window quad
+        worldDropItemStack(
+            world,
+            cursor.held_data,
+            0
+        );
         return;
     }
-    const VECTOR* player_pos = &player->entity.physics_object.position;
-    Chunk* chunk = worldGetChunk(world, player_pos);
-    Item* item = VCAST_PTR(Item*, iitem);
-    IItem* droppable_iitem = iitem;
-    // 0 count implies drop all in this handler
-    if (count != 0 && count < item->stack_size) {
-        droppable_iitem = itemGetConstructor(item->id)();
-        assert(droppable_iitem != NULL);
-        item = VCAST_PTR(Item*, droppable_iitem);
-        item->stack_size = count;
-    }
-    itemSetWorldState(item, true);
-    item->world_entity->physics_object.position = *player_pos;
-    VECTOR velocity = vec3_const_mul(
-        vec3_i32(
-            player->entity.physics_object.rotation.pitch,
-            player->entity.physics_object.rotation.yaw,
-            0
-        ),
-        4096
-    );
-    item->world_entity->physics_object.velocity = velocity;
-    cvector_push_back(chunk->dropped_items, droppable_iitem);
 }
 
 bool craftingTableBlockInputHandler(const Input* input, void* ctx) {
     BlockInputHandlerContext* block_input_handler_context = ctx;
     VCALL(cursor_component, update);
+    inventoryCursorHandler(
+        VCAST_PTR(Inventory*, block_input_handler_context->inventory),
+        INVENTORY_SLOT_GROUP_MAIN | INVENTORY_SLOT_GROUP_HOTBAR,
+        input,
+        ctx
+    );
     const PADTYPE* pad = input->pad;
     // TODO Determime the button layout on xbox/playstation/switch
     //      MC releases and match it here for interacting with items
@@ -103,27 +96,9 @@ bool craftingTableBlockInputHandler(const Input* input, void* ctx) {
         //
         //       This should also handle exchanging a held item
         //       and an item in a targetted slot.
-        if (!quadIntersectLiteral(
-            &cursor.component.position,
-            CENTRE_X - (CRAFTING_TABLE_TEXTURE_WIDTH >> 1),
-            CENTRE_Y - (CRAFTING_TABLE_TEXTURE_HEIGHT >> 1),
-            CRAFTING_TABLE_TEXTURE_WIDTH,
-            CRAFTING_TABLE_TEXTURE_HEIGHT
-        )) {
-            // TODO: Outside of window, move held item into
-            //       chunk dropped_items array and nullify
-            //       cursor_held data field. Set the movement
-            //       vector on the item in world to "throw"
-            //       it
-            dropItemStackInWorld(
-                block_input_handler_context->world,
-                cursor.held_data,
-                0 // Drop entire item stack
-            );
-            return INPUT_HANDLER_RETAIN;
-        }
         // TODO: Item should be grabbed/put from/into a slot
         //       or do nothing if mistargetted
+        cursorClickHandler(input, block_input_handler_context);
         return INPUT_HANDLER_RETAIN;
     } else if (isPressed(pad, BINDING_DROP_ITEM) && cursor.held_data != NULL) {
         // TODO: Move held item into chunk dropped_items array

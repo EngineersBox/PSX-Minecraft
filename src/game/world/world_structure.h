@@ -42,4 +42,6 @@ typedef struct World {
     Chunk* chunks[AXIS_CHUNKS][AXIS_CHUNKS][WORLD_CHUNKS_HEIGHT];
 } World;
 
+extern World* world;
+
 #endif // _PSXMC__GAME_WORLD__WORLD_STRUCTURE_H_

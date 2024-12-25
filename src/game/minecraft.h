@@ -19,13 +19,7 @@
 typedef struct {
     RenderContext ctx;
     Transforms transforms;
-    /*Input input;*/
     Camera camera;
-} Internals;
-
-typedef struct {
-    Internals internals;
-    World* world;
 } Minecraft;
 
 void Minecraft_init(VSelf, void* ctx);

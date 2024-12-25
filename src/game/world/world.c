@@ -15,6 +15,7 @@
 #include "../../ui/progress_bar.h"
 #include "../../ui/background.h"
 #include "../../logging/logging.h"
+#include "../items/items.h"
 #include "chunk/chunk.h"
 #include "chunk/chunk_mesh.h"
 #include "chunk/chunk_structure.h"
@@ -1142,4 +1143,36 @@ ChunkHeightmap* worldGetChunkHeightmap(World* world, const VECTOR* position) {
 
 Heightmap* worldGetHeightmap(World* world) {
     return &world->heightmap;
+}
+
+void worldDropItemStack(World* world,
+                          IItem* iitem,
+                          const u8 count) {
+    if (iitem == NULL) {
+        // Nothing to drop
+        return;
+    }
+    const VECTOR* player_pos = &player->entity.physics_object.position;
+    Chunk* chunk = worldGetChunk(world, player_pos);
+    Item* item = VCAST_PTR(Item*, iitem);
+    IItem* droppable_iitem = iitem;
+    // 0 count implies drop all in this handler
+    if (count != 0 && count < item->stack_size) {
+        droppable_iitem = itemGetConstructor(item->id)();
+        assert(droppable_iitem != NULL);
+        item = VCAST_PTR(Item*, droppable_iitem);
+        item->stack_size = count;
+    }
+    itemSetWorldState(item, true);
+    item->world_entity->physics_object.position = *player_pos;
+    VECTOR velocity = vec3_const_mul(
+        vec3_i32(
+            player->entity.physics_object.rotation.pitch,
+            player->entity.physics_object.rotation.yaw,
+            0
+        ),
+        4096
+    );
+    item->world_entity->physics_object.velocity = velocity;
+    cvector_push_back(chunk->dropped_items, droppable_iitem);
 }

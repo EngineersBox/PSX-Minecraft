@@ -53,27 +53,24 @@ Player* player;
 void minecraftInit(VSelf, void* ctx) ALIAS("Minecraft_init");
 void Minecraft_init(VSelf, void* ctx) {
     VSELF(Minecraft);
-    self->internals = (Internals) {
-        .ctx = (RenderContext) {
-            .active = 0,
-            .db = {},
-            .primitive = NULL,
-            .camera = NULL,
-        },
-        .transforms = (Transforms) {
-            .translation_rotation = vec3_i16_all(0),
-            .negative_translation_rotation = vec3_i16_all(0),
-            .translation_position = vec3_i32_all(0),
-            .negative_translation_position = vec3_i32_all(0),
-            .geometry_mtx = mat4_all(0),
-            .frustum_mtx = mat4_all(0),
-            .lighting_mtx = lighting_direction
-        },
-        /*.input = (Input) {},*/
-        .camera = cameraCreate(&self->internals.transforms),
+    self->ctx = (RenderContext) {
+        .active = 0,
+        .db = {},
+        .primitive = NULL,
+        .camera = NULL,
     };
-    self->internals.ctx.camera = &self->internals.camera;
-    initRenderContext(&self->internals.ctx);
+    self->transforms = (Transforms) {
+        .translation_rotation = vec3_i16_all(0),
+        .negative_translation_rotation = vec3_i16_all(0),
+        .translation_position = vec3_i32_all(0),
+        .negative_translation_position = vec3_i32_all(0),
+        .geometry_mtx = mat4_all(0),
+        .frustum_mtx = mat4_all(0),
+        .lighting_mtx = lighting_direction
+    };
+    self->camera = cameraCreate(&self->transforms),
+    self->ctx.camera = &self->camera;
+    initRenderContext(&self->ctx);
     // Input initialisation needs to be before block init
     // since some blocks need to register handlers
     /*AddSIO(0x1c200);*/
@@ -91,25 +88,24 @@ void Minecraft_init(VSelf, void* ctx) {
     blocksInitialiseBuiltin();
     itemsInitialiseBuiltin();
     // Initialise world
-    self->world = (World*) malloc(sizeof(World));
-    self->world->head.vx = 0;
-    self->world->head.vz = 0;
-    self->world->centre = vec3_i32_all(0);
-    self->world->centre_next = vec3_i32_all(0);
+    world = (World*) malloc(sizeof(World));
+    world->head.vx = 0;
+    world->head.vz = 0;
+    world->centre = vec3_i32_all(0);
+    world->centre_next = vec3_i32_all(0);
     DYN_PTR(
-        &self->world->chunk_provider,
+        &world->chunk_provider,
         OverworldPerlinChunkProvider,
         IChunkProvider,
         malloc(sizeof(OverworldPerlinChunkProvider))
     );
-    worldInit(self->world, &self->internals.ctx);
-    world = self->world;
+    worldInit(world, &self->ctx);
     // Initialise player
     player = (Player*) malloc(sizeof(Player));
     playerInit(player);
     block_input_handler_context.inventory = &player->inventory;
     block_input_handler_context.world = world;
-    player->camera = &self->internals.camera;
+    player->camera = &self->camera;
     const VECTOR player_positon = vec3_i32(
         0,
         (CHUNK_BLOCK_SIZE + (BLOCK_SIZE << 1)) << FIXED_POINT_SHIFT,
@@ -124,7 +120,7 @@ void Minecraft_init(VSelf, void* ctx) {
     VCALL_SUPER(player->hotbar, IInputHandler, registerInputHandler, &input, NULL);
     // Initialise camera
     playerUpdateCamera(player);
-    cameraUpdate(&self->internals.camera);
+    cameraUpdate(&self->camera);
 
     // ==== TESTING: Hotbar ====
     Inventory* inventory = VCAST(Inventory*, player->inventory);
@@ -158,10 +154,9 @@ void Minecraft_init(VSelf, void* ctx) {
 
 void minecraftCleanup(VSelf) ALIAS("Minecraft_cleanup");
 void Minecraft_cleanup(VSelf) {
-    VSELF(Minecraft);
     durationTreesDestroy();
-    worldDestroy(self->world);
-    free(self->world);
+    worldDestroy(world);
+    free(world);
     playerDestroy(player);
     free(player);
     assetsFree();
@@ -191,7 +186,7 @@ void Minecraft_input(VSelf, const Stats* stats) {
     /*if (ioctl(0, FIOCSCAN, 0) && getchar() == '`') {*/
     /*    handleConsole();*/
     /*}*/
-    self->internals.camera.mode = CAMERA_MODE_FIRST_PERSON;
+    self->camera.mode = CAMERA_MODE_FIRST_PERSON;
     inputUpdate(&input);
 }
 
@@ -199,13 +194,13 @@ void minecraftUpdate(VSelf, const Stats* stats) ALIAS("Minecraft_update");
 void Minecraft_update(VSelf, const Stats* stats) {
     VSELF(Minecraft);
     worldUpdate(
-        self->world,
+        world,
         player,
         &player->breaking,
-        &self->internals.ctx
+        &self->ctx
     );
     playerUpdate(player, world);
-    cameraUpdate(&self->internals.camera);
+    cameraUpdate(&self->camera);
 }
 
 void frustumRenderNormals(const Frustum* frustum, RenderContext* ctx) {
@@ -266,52 +261,52 @@ void Minecraft_render(VSelf, const Stats* stats) {
 #endif
     durationComponentStart(render_duration);
     // Update breaking state textures
-    breakingStateUpdateRenderTarget(&player->breaking, &self->internals.ctx);
+    breakingStateUpdateRenderTarget(&player->breaking, &self->ctx);
     // Draw the world
-    frustumTransform(&self->internals.ctx.camera->frustum, &self->internals.transforms);
+    frustumTransform(&self->ctx.camera->frustum, &self->transforms);
     worldRender(
-        self->world,
+        world,
         (const Player*) &player,
-        &self->internals.ctx,
-        &self->internals.transforms
+        &self->ctx,
+        &self->transforms
     );
-    frustumRenderNormals(&self->internals.ctx.camera->frustum, &self->internals.ctx);
-    frustumRestore(&self->internals.ctx.camera->frustum);
+    frustumRenderNormals(&self->ctx.camera->frustum, &self->ctx);
+    frustumRestore(&self->ctx.camera->frustum);
     if (world->weather.raining || world->weather.storming) {
         weatherRender(
-            self->world,
+            world,
             player,
-            &self->internals.ctx,
-            &self->internals.transforms
+            &self->ctx,
+            &self->transforms
         );
     }
     // Clear window constraints
-    renderClearConstraints(&self->internals.ctx);
+    renderClearConstraints(&self->ctx);
     // Render UI
-    playerRender(player, &self->internals.ctx, &self->internals.transforms);
+    playerRender(player, &self->ctx, &self->transforms);
     // Block UI overlays
     if (block_render_ui_context.function != NULL) {
         block_render_ui_context.function(
-            &self->internals.ctx,
-            &self->internals.transforms
+            &self->ctx,
+            &self->transforms
         );
     }
-    /*crosshairDraw(&self->internals.ctx);*/
+    /*crosshairDraw(&self->ctx);*/
     axisDraw(
-        &self->internals.ctx,
-        &self->internals.transforms
+        &self->ctx,
+        &self->transforms
     );
-    renderClearConstraints(&self->internals.ctx);
+    renderClearConstraints(&self->ctx);
     FntPrint(0, PSXMC_VERSION_STRING "\n");
-    drawDebugText(stats, &self->internals.camera, world);
+    drawDebugText(stats, &self->camera, world);
     debugDrawPacketBufferUsageGraph(
-        &self->internals.ctx,
+        &self->ctx,
         0,
         SCREEN_YRES - HOTBAR_HEIGHT - 2
     );
     // Flush font to screen
     FntFlush(0);
     // Swap buffers and draw the primitives
-    swapBuffers(&self->internals.ctx);
+    swapBuffers(&self->ctx);
     durationComponentEnd();
 }

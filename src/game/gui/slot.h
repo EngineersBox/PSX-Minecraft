@@ -10,6 +10,7 @@
 
 #include "../items/item.h"
 #include "../../util/preprocessor.h"
+#include "../../math/math_utils.h"
 
 typedef struct Slot {
     union {
@@ -50,6 +51,13 @@ typedef Slot SlotGroup;
 #define slotGroupSlotSpacing(name, dim) name##_SLOT_GROUP_SLOT_SPACING_##dim
 #define slotGroupOrigin(name, dim) name##_SLOT_GROUP_ORIGIN_##dim
 #define slotGroupIndexOffset(name) name##_SLOT_GROUP_INDEX_OFFSET
+#define slotGroupIntersect(name, pos) quadIntersectLiteral( \
+    pos, \
+    slotGroupOrigin(name, X), \
+    slotGroupOrigin(name, Y), \
+    slotGroupDim(name, X), \
+    slotGroupDim(name, Y) \
+)
 
 #define slotGroupScreenPosition(name, dim, dim_var) (\
     slotGroupOrigin(name, dim) \

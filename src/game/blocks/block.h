@@ -183,7 +183,6 @@ typedef IBlock* (*BlockConstructor)(IItem* from_item);
 // a handler when a player interacts with it in some way
 typedef struct BlockInputHandlerContext {
     IUI* inventory;
-    World* world;
 } BlockInputHandlerContext;
 
 extern BlockInputHandlerContext block_input_handler_context;
