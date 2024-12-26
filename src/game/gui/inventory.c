@@ -366,7 +366,7 @@ void cursorSplitOrStoreOne(Slot* slot) {
     if (held_iitem == NULL) {
         // Split targetted slot stack
         if (slot_iitem == NULL) {
-            // Nothing to stire
+            // Nothing to store
             return;
         }
         Item* item = VCAST_PTR(Item*, slot_iitem);
