@@ -142,9 +142,12 @@ ALLOC_CALL(itemDestroy, 1) IItem* itemCreate();
     } name;
 
 typedef IItem* (*ItemConstructor)();
+typedef void (*ItemDestructor)();
 
 #define itemConstructor(name) name##ItemConstructor
-#define DEFN_ITEM_CONSTRUCTOR(name) IItem* name##ItemConstructor()
+#define itemDestructor(name) name##ItemDestructor
+#define DEFN_ITEM_CONSTRUCTOR(name) IItem* itemConstructor(name)
+#define DEFN_ITEM_DESTRUCTOR(name) IItem* itemDestructor(name)
 
 #define declareItem(_id, _metadata_id, _durability, _stack_size, _in_world, _position, _rotation) ((Item) { \
     .id = (_id), \

@@ -16,6 +16,7 @@
 #define DEBUG_ITEM_ID_CHECK 1
 
 extern ItemConstructor item_constructors[ITEM_COUNT];
+extern ItemDestructor item_destructor[ITEM_COUNT];
 extern ItemAttributes item_attributes[ITEM_COUNT];
 
 #if defined(DEBUG_ITEM_ID_CHECK) && DEBUG_ITEM_ID_CHECK == 1
@@ -38,6 +39,7 @@ extern ItemAttributes item_attributes[ITEM_COUNT];
 #define itemGetMaterial(id) itemGetAttribute(id, material)
 #define itemHasDurability(id) itemGetAttribute(id, has_durability)
 #define itemGetConstructor(id) item_constructors[(id)]
+#define itemGetDestructor(id) item_destructor[(id)]
 
 void itemsInitialiseBuiltin();
 

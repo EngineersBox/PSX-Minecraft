@@ -351,9 +351,76 @@ void Inventory_registerInputHandler(VSelf, Input* input, void* ctx) {
     );
 }
 
-void cursorClickHandler(const Inventory* inventory,
-                        InventorySlotGroups groups,
-                        const Input* input) {
+void cursorInteractSlot(Slot* slot) {
+    IItem* held_item = (IItem*) cursor.held_data;
+    IItem* slot_item = inventorySlotGetItem(slot);
+    inventorySlotSetItem(slot, held_item);
+    cursor.held_data = slot_item;
+}
+
+
+
+void cursorSplitOrStoreOne(Slot* slot) {
+    IItem* held_iitem = (IItem*) cursor.held_data;
+    IItem* slot_iitem = inventorySlotGetItem(slot);
+    if (held_iitem == NULL) {
+        // Split targetted slot stack
+        if (slot_iitem == NULL) {
+            // Nothing to stire
+            return;
+        }
+        Item* item = VCAST_PTR(Item*, slot_iitem);
+        if (item->stack_size == 1) {
+            // Single item, just move the stack to avoid
+            // creating a new IItem and copying the held
+            // item data then deleting the held item
+            cursor.held_data = slot_iitem;
+            inventorySlotSetItem(slot, NULL);
+            return;
+        }
+        // Do the normal splitting of stacks between the
+        // existing slot stack and a new stack
+        IItem* split_stack = itemGetConstructor(item->id)();
+        assert(split_stack);
+        Item* split_stack_item = VCAST_PTR(Item*, split_stack);
+        split_stack_item->stack_size = item->stack_size >> 1;
+        itemSetWorldState(split_stack_item, false);
+        item->stack_size -= split_stack_item->stack_size;
+        return;
+    }
+    Item* slot_item = VCAST_PTR(Item*, slot_iitem);
+    Item* held_item = VCAST_PTR(Item*, held_iitem);
+    if (slot_iitem == NULL) {
+        // No items in targetted slot, store one
+        if (held_item->stack_size == 1) {
+            // Single item, just move the stack to avoid
+            // creating a new IItem and copying the held
+            // item data then deleting the held item
+            inventorySlotSetItem(slot, held_iitem);
+            return;
+        }
+        // Create a new item with a stack size of 1
+        IItem* new_slot_iitem = itemGetConstructor(held_item->id)();
+        assert(new_slot_iitem);
+        Item* new_slot_item = VCAST_PTR(Item*, new_slot_iitem);
+        itemSetWorldState(new_slot_item, true);
+        new_slot_item->stack_size = 1;
+    } else if (held_item->id != slot_item->id) {
+        // Can't override an existing item in the slot
+        // that doesn't match
+        return;
+    }
+    slot_item->stack_size++;
+    held_item->stack_size--;
+    if (held_item->stack_size == 0) {
+        itemGetDestructor(held_item->id)();
+        cursor.held_data = NULL;
+    }
+}
+
+void cursorHandler(Inventory* inventory,
+                   InventorySlotGroups groups,
+                   bool split_or_store_one) {
     if (!quadIntersectLiteral(
         &cursor.component.position,
         CENTRE_X - (INVENTORY_WIDTH >> 1),
@@ -367,48 +434,68 @@ void cursorClickHandler(const Inventory* inventory,
             0
         );
         return;
-    } else if (groups & INVENTORY_SLOT_GROUP_ARMOUR && slotGroupIntersect(
+    }
+    Slot* slot = NULL;
+    if (groups & INVENTORY_SLOT_GROUP_ARMOUR && slotGroupIntersect(
         INVENTORY_ARMOUR,
         &cursor.component.position
     )) {
-        // TODO
+        slot = &inventory->slots[slotGroupCursorSlot(
+            INVENTORY_ARMOUR,
+            &cursor.component.position
+        )];
     } else if (groups & INVENTORY_SLOT_GROUP_CRAFTING && slotGroupIntersect(
         INVENTORY_CRAFTING,
         &cursor.component.position
     )) {
-        // TODO
+        slot = &inventory->slots[slotGroupCursorSlot(
+            INVENTORY_CRAFTING,
+            &cursor.component.position
+        )];
     } else if (groups & INVENTORY_SLOT_GROUP_CRAFTING_RESULT && slotGroupIntersect(
         INVENTORY_CRAFTING_RESULT,
         &cursor.component.position
     )) {
-        // TODO
+        slot = &inventory->slots[slotGroupCursorSlot(
+            INVENTORY_CRAFTING_RESULT,
+            &cursor.component.position
+        )];
     } else if (groups & INVENTORY_SLOT_GROUP_MAIN && slotGroupIntersect(
         INVENTORY_MAIN,
         &cursor.component.position
     )) {
-        // TODO
+        slot = &inventory->slots[slotGroupCursorSlot(
+            INVENTORY_MAIN,
+            &cursor.component.position
+        )];
     } else if (groups & INVENTORY_SLOT_GROUP_HOTBAR && slotGroupIntersect(
         INVENTORY_HOTBAR,
         &cursor.component.position
     )) {
-        // TODO
+        slot = &inventory->slots[slotGroupCursorSlot(
+            INVENTORY_HOTBAR,
+            &cursor.component.position
+        )];
+    } else {
+        return;
     }
+    split_or_store_one ? cursorSplitOrStoreOne(slot) : cursorInteractSlot(slot);
 }
 
-void cursorDropHandler(const Inventory* inventory,
-                       InventorySlotGroups groups,
-                       const Input* input) {
-
-}
-
-void inventoryCursorHandler(const Inventory* inventory,
+void inventoryCursorHandler(Inventory* inventory,
                             InventorySlotGroups groups,
                             const Input* input,
                             void* ctx) {
     const PADTYPE* pad = input->pad;
-    if (isPressed(pad, BINDING_CURSOR_CLICK)) {
-        cursorClickHandler(inventory, groups, input);
-    } else if (isPressed(pad, BINDING_DROP_ITEM)) {
-        cursorDropHandler(inventory, groups, input);
+    if (isPressed(pad, BINDING_CURSOR_CLICK) && debounce(inventory)) {
+        cursorHandler(inventory, groups, false);
+    } else if (isPressed(pad, BINDING_DROP_ITEM) && cursor.held_data != NULL) {
+        worldDropItemStack(
+            world,
+            (IItem*) cursor.held_data,
+            0
+        );
+    } else if (isPressed(pad, BINDING_SPLIT_OR_STORE_ONE)) {
+        cursorHandler(inventory, groups, false);
     }
 }

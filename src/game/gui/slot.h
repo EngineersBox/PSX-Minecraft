@@ -58,6 +58,14 @@ typedef Slot SlotGroup;
     slotGroupDim(name, X), \
     slotGroupDim(name, Y) \
 )
+#define slotGroupCursorSlot(name, pos) (\
+    slotGroupIndexOffset(name) \
+    + ((((pos)->vx) - slotGroupOrigin(name, X)) / (slotGroupSlotDim(name, X) + slotGroupSlotSpacing(name, X))) \
+    + ( \
+        slotGroupDim(name, X) * \
+        ((((pos)->vy) - slotGroupOrigin(name, Y)) / (slotGroupSlotDim(name, Y) + slotGroupSlotSpacing(name, Y))) \
+    ) \
+)
 
 #define slotGroupScreenPosition(name, dim, dim_var) (\
     slotGroupOrigin(name, dim) \

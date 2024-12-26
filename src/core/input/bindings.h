@@ -28,6 +28,7 @@ extern PadButton BINDING_USE;
 extern PadButton BINDING_DROP_ITEM;
 extern PadButton BINDING_OPEN_INVENTORY;
 extern PadButton BINDING_CURSOR_CLICK;
+extern PadButton BINDING_SPLIT_OR_STORE_ONE;
 extern PadButton BINDING_PREVIOUS;
 extern PadButton BINDING_NEXT;
 

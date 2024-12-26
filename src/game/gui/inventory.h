@@ -169,7 +169,7 @@ void Inventory_close(VSelf);
 void inventoryRegisterInputHandler(VSelf, Input* input, void* ctx);
 void Inventory_registerInputHandler(VSelf, Input* input, void* ctx);
 
-void inventoryCursorHandler(const Inventory* inventory,
+void inventoryCursorHandler(Inventory* inventory,
                             InventorySlotGroups groups,
                             const Input* input,
                             void* ctx);
