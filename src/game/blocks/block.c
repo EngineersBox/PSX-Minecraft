@@ -3,7 +3,6 @@
 #include "../../logging/logging.h"
 
 BlockInputHandlerContext block_input_handler_context = {
-    .world = NULL,
     .inventory = NULL
 };
 BlockRenderUIContext block_render_ui_context = {

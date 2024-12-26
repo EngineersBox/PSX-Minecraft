@@ -104,7 +104,6 @@ void Minecraft_init(VSelf, void* ctx) {
     player = (Player*) malloc(sizeof(Player));
     playerInit(player);
     block_input_handler_context.inventory = &player->inventory;
-    block_input_handler_context.world = world;
     player->camera = &self->camera;
     const VECTOR player_positon = vec3_i32(
         0,

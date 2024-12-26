@@ -413,7 +413,7 @@ void cursorSplitOrStoreOne(Slot* slot) {
     slot_item->stack_size++;
     held_item->stack_size--;
     if (held_item->stack_size == 0) {
-        itemGetDestructor(held_item->id)();
+        VCALL(*held_iitem, destroy);
         cursor.held_data = NULL;
     }
 }

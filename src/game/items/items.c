@@ -4,12 +4,10 @@
 #include "item_id.h"
 
 ItemConstructor item_constructors[ITEM_COUNT] = {0};
-ItemDestructor item_destructors[ITEM_COUNT] = {0};
 ItemAttributes item_attributes[ITEM_COUNT] = {0};
 
-#define initItem(id, constructor, destructor, attributes) ({ \
+#define initItem(id, constructor, attributes) ({ \
     item_constructors[(id)] = constructor; \
-    item_destructors[(id)] = destructor; \
     item_attributes[(id)] = attributes; \
 })
 
