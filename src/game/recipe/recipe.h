@@ -24,6 +24,9 @@ typedef struct RecipeResult {
      *        item definitions, however you can create a wrapper or specific
      *        function that matches the signature if you need to modify the
      *        item instance (i.e. set stack size, metadata, etc) after creation.
+     * TODO: Instead of storing the constructor (32 bits), store the item id
+     *       and metadata id (16 bits total) and use the item macros to get
+     *       the constructor.
      */
     ItemConstructor item_constructor;
     u32 stack_size;
@@ -62,6 +65,10 @@ typedef struct RecipeNode {
      * @brief Recipe item ingredient for this position.
      */
     EItemID item;
+    /**
+     * @brief Metadata variant of item
+     */
+    /*u8 metadata_id;*/
     /**
      * @brief Number of elements in @code nodes@endcode
      */
@@ -102,10 +109,12 @@ typedef EItemID RecipePattern[9];
 RecipeNode* recipeNodeGetNext(const RecipeNode* node, const EItemID item);
 RecipeQueryState recipeNodeGetRecipeResult(const RecipeNode* node,
                                            const Dimension* dimension,
-                                           RecipeQueryResult* query_result);
+                                           RecipeQueryResult* query_result,
+                                           bool create_item_result);
 RecipeQueryState recipeSearch(const RecipeNode* root,
                               const RecipePattern pattern,
-                              RecipeQueryResult* query_result);
+                              RecipeQueryResult* query_result,
+                              bool create_item_result);
 
 #define RECIPE_LIST (RecipeNode*[])
 #define RECIPE_ITEM &(RecipeNode)

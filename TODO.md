@@ -109,6 +109,7 @@
 * [ ] Handle non-uniform block models when generating meshes (i.e. stairs), including orientation where only some faces can be merged.
 * [ ] Polygon subdivision (polygons of minimum size, i.e. block size) for the mesh of the chunk that the player resides within
 * [ ] Inventory item movement handlers to hold and move items in inventories. Also need to handle the cases of holding and exiting to drop stuff in world, and exiting an inventory with items that doesn't hold them. 
+* [ ] Add item metadata support to recipe trees
 
 ## Refactor
 

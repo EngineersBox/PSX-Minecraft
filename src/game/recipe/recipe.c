@@ -30,13 +30,14 @@ RecipeNode* recipeNodeGetNext(const RecipeNode* node, const EItemID item) {
     return NULL;
 }
 
-INLINE static void assembleResult(const RecipeResults* results, RecipeQueryResult* query_result) {
+static void assembleResult(const RecipeResults* results, RecipeQueryResult* query_result) {
     query_result->result_count = results->result_count;
     query_result->results = calloc(results->result_count, sizeof(IItem*));
     for (u32 i = 0; i < results->result_count; i++) {
         const RecipeResult* result = results->results[i];
         IItem* iitem = result->item_constructor();
         Item* item = VCAST_PTR(Item*, iitem);
+        itemSetWorldState(item, false);
         item->bob_offset = 1;
         item->stack_size = result->stack_size;
     }
@@ -44,14 +45,15 @@ INLINE static void assembleResult(const RecipeResults* results, RecipeQueryResul
 
 RecipeQueryState recipeNodeGetRecipeResult(const RecipeNode* node,
                                            const Dimension* dimension,
-                                           RecipeQueryResult* query_result) {
+                                           RecipeQueryResult* query_result,
+                                           bool create_result_item) {
     if (node->results == NULL || node->result_count == 0) {
         return RECIPE_NOT_FOUND; 
     }
     for (u32 i = 0; i < node->result_count; i++) {
         RecipeResults* result = node->results[i];
         if (dimensionEquals(dimension, &result->dimension)) {
-            assembleResult(result, query_result);
+            if (create_result_item) assembleResult(result, query_result);
             return RECIPE_FOUND;
         }
     }
@@ -60,7 +62,8 @@ RecipeQueryState recipeNodeGetRecipeResult(const RecipeNode* node,
 
 RecipeQueryState recipeSearch(const RecipeNode* root,
                               const RecipePattern pattern,
-                              RecipeQueryResult* query_result) {
+                              RecipeQueryResult* query_result,
+                              bool create_result_item) {
     u8 right = 0;
     u8 bottom = 0;
     u8 top = 3;
@@ -88,5 +91,10 @@ RecipeQueryState recipeSearch(const RecipeNode* root,
         .width = right - left + 1,
         .height = bottom - top + 1
     };
-    return recipeNodeGetRecipeResult(current, &dimension, query_result);
+    return recipeNodeGetRecipeResult(
+        current,
+        &dimension,
+        query_result,
+        create_result_item
+    );
 }

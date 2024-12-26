@@ -9,6 +9,7 @@
 #include "../../entity/player.h"
 #include "../items/items.h"
 #include "../world/world_structure.h"
+#include "../recipe/crafting_table_recipes.h"
 
 FWD_DECL Chunk* worldGetChunk(const World* world, const VECTOR* position);
 FWD_DECL void worldDropItemStack(World* world, IItem* item, const u8 count);
@@ -56,6 +57,60 @@ static Slot crafting_table_sots[(slotGroupSize(CRAFTING_TABLE) + slotGroupSize(C
     createSlotInline(CRAFTING_TABLE_RESULT, 0, 0)
 };
 
+// Consumes enough for one output of the recipe
+static void consumeRecipeIngredients() {
+    for (int i = 0; i < slotGroupIndexOffset(CRAFTING_TABLE_RESULT); i++) {
+        Slot* slot = &crafting_table_sots[i];
+        IItem* iitem = slot->data.item;
+        if (iitem == NULL) {
+            continue;
+        }
+        Item* item = VCAST_PTR(Item*, iitem);
+        assert(item->stack_size > 0);
+        if (--item->stack_size == 0) {
+            VCALL(*iitem, destroy);
+        }
+    }
+}
+
+/** 
+ * @brief Find a matching recipe and put a single output
+ * into the output slot if it is empty. 
+ * if no matching recipe
+ * @return true if a matching recipe is found, false otherwise
+ */
+static bool processCraftingRecipe() {
+    RecipePattern pattern = {0};
+    for (int i = 0; i < slotGroupIndexOffset(CRAFTING_TABLE_RESULT); i++) {
+        Slot* slot = &crafting_table_slots[i];
+        IItem* item = slot->data.item;
+        if (item != NULL) {
+            pattern[i] = VCAST_PTR(Item*, item)->id;
+        } else {
+            pattern[i] = ITEMID_AIR;
+        }
+    }
+    Slot* output_slot = &crafting_table_slots[slotGroupIndexOffset(CRAFTING_TABLE_RESULT)];
+    const bool no_item_in_result_slot = output_slot->data.item == NULL;
+    RecipeQueryResult query_result = {0};
+    if (recipeSearch(
+        crafting_table_recipes,
+        pattern,
+        &query_result,
+        no_item_in_result_slot
+    ) == RECIPE_NOT_FOUND) {
+        // No matching recipe
+        return false;
+    }
+    assert(query_result.result_count == 1);
+    if (!no_item_in_result_slot) {
+        // Matching recipe and item already in output slot
+        return true;
+    }
+    output_slot->data.item = query_result.results[0];
+    return true;
+}
+
 static void cursorHandler(bool split_or_store_one) {
     if (!quadIntersectLiteral(
         &cursor.component.position,
@@ -91,40 +146,35 @@ static void cursorHandler(bool split_or_store_one) {
                 slotDirectItemSetter
             );
         }
-    } else if (slotGroupIntersect(CRAFTING_TABLE_RESULT, &cursor.component.position)) {
-        slot = &crafting_table_slots[slotGroupCursorSlot(
-            CRAFTING_TABLE_RESULT,
-            &cursor.component.position
-        )];
-        IItem* slot_iitem = slot->data.item;
-        IItem* held_iitem = cursor.held_data;
-        if (slot_iitem == NULL || held_iitem != NULL) {
-            // We should not be able to interact
-            // with the result slot except for
-            // pulling items out of it
+    } else if (slotGroupIntersect(CRAFTING_TABLE_RESULT, &cursor.component.position) && !split_or_store_one) {
+        // NOTE: Don't bother with splitting stacks
+        //       since it's a pain for the output slot.
+        Slot* result_slot = &crafting_table_slots[slotGroupIndexOffset(CRAFTING_TABLE_RESULT)];
+        IItem* result_iitem = result_slot->data.item;
+        if (result_iitem == NULL) {
             return;
         }
-        Item* slot_item = VCAST_PTR(Item*, slot_iitem);
-        if (!split_or_store_one || slot_item->stack_size == 1) {
-            // If we are not splitting, or we have a single
-            // element stack, then just move the  contents
-            // into the cursor
-            cursor.held_data = slot_iitem;
+        Item* result_item = VCAST_PTR(Item*, result_iitem);
+        IItem* held_iitem = (IItem*) cursor.held_data;
+        if (held_iitem == NULL) {
+            consumeRecipeIngredients();
+            cursor.held_data = result_iitem;
+            result_slot->data.item = NULL;
+            return;
+        } 
+        Item* held_item = VCAST_PTR(Item*, held_iitem);
+        if (held_item->id != result_item->id) {
+            // Held and result item ids mismatch
             return;
         }
-        // Do the normal splitting of stacks between the
-        // existing slot stack and a new stack
-        IItem* split_stack = itemGetConstructor(slot_item->id)();
-        assert(split_stack);
-        Item* split_stack_item = VCAST_PTR(Item*, split_stack);
-        split_stack_item->stack_size = slot_item->stack_size >> 1;
-        itemSetWorldState(split_stack_item, false);
-        cursor.held_data = split_stack;
-        slot_item->stack_size -= split_stack_item->stack_size;
+        held_item->stack_size += result_item->stack_size;
+        VCALL(*result_iitem, destroy);
+        consumeRecipeIngredients();
     }
 }
 
 bool craftingTableBlockInputHandler(const Input* input, void* ctx) {
+    processCraftingRecipe();
     VCALL(cursor_component, update);
     inventoryCursorHandler(
         VCAST_PTR(Inventory*, block_input_handler_context.inventory),
