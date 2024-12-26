@@ -56,13 +56,6 @@ static Slot crafting_table_sots[(slotGroupSize(CRAFTING_TABLE) + slotGroupSize(C
     createSlotInline(CRAFTING_TABLE_RESULT, 0, 0)
 };
 
-static void cursorInteractSlot(Slot* slot) {
-    IItem* held_item = (IItem*) cursor.held_data;
-    IItem* slot_item = slot->data.item;
-    slot->data.item = held_item;
-    cursor.held_data = slot_item;
-}
-
 static void cursorHandler(bool split_or_store_one) {
     if (!quadIntersectLiteral(
         &cursor.component.position,
@@ -92,7 +85,11 @@ static void cursorHandler(bool split_or_store_one) {
                 slotDirectItemSetter
             );
         } else {
-            cursorInteractSlot(slot);
+            cursorInteractSlot(
+                slot,
+                slotDirectItemGetter,
+                slotDirectItemSetter
+            );
         }
     } else if (slotGroupIntersect(CRAFTING_TABLE_RESULT, &cursor.component.position)) {
         slot = &crafting_table_slots[slotGroupCursorSlot(
@@ -102,7 +99,7 @@ static void cursorHandler(bool split_or_store_one) {
         IItem* slot_iitem = slot->data.item;
         IItem* held_iitem = cursor.held_data;
         if (slot_iitem == NULL || held_iitem != NULL) {
-            // WE should not be able to interact
+            // We should not be able to interact
             // with the result slot except for
             // pulling items out of it
             return;

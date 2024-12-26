@@ -3,6 +3,7 @@
 #include "../items/items.h"
 #include "../../util/interface99_extensions.h"
 #include "../../ui/components/cursor.h"
+#include "slot.h"
 
 void cursorSplitOrStoreOne(Slot* slot,
                            SlotItemGetter getter,
@@ -64,4 +65,13 @@ void cursorSplitOrStoreOne(Slot* slot,
         VCALL(*held_iitem, destroy);
         cursor.held_data = NULL;
     }
+}
+
+void cursorInteractSlot(Slot* slot,
+                        SlotItemGetter getter,
+                        SlotItemSetter setter) {
+    IItem* held_item = (IItem*) cursor.held_data;
+    IItem* slot_item = getter(slot);
+    setter(slot, held_item);
+    cursor.held_data = slot_item;
 }

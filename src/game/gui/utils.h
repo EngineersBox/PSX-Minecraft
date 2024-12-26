@@ -9,4 +9,8 @@ void cursorSplitOrStoreOne(Slot* slot,
                            SlotItemGetter getter,
                            SlotItemSetter setter);
 
+void cursorInteractSlot(Slot* slot,
+                        SlotItemGetter getter,
+                        SlotItemSetter setter);
+
 #endif // _PSXMC__GAME_GUI__UTILS_H_

@@ -351,13 +351,6 @@ void Inventory_registerInputHandler(VSelf, Input* input, void* ctx) {
     );
 }
 
-static void cursorInteractSlot(Slot* slot) {
-    IItem* held_item = (IItem*) cursor.held_data;
-    IItem* slot_item = inventorySlotGetItem(slot);
-    inventorySlotSetItem(slot, held_item);
-    cursor.held_data = slot_item;
-}
-
 static void cursorHandler(Inventory* inventory,
                    InventorySlotGroups groups,
                    bool split_or_store_one) {
@@ -426,7 +419,11 @@ static void cursorHandler(Inventory* inventory,
             inventorySlotItemSetter
         );
     } else {
-        cursorInteractSlot(slot);
+        cursorInteractSlot(
+            slot,
+            inventorySlotItemGetter,
+            inventorySlotItemSetter
+        );
     }
 }
 
