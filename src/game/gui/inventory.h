@@ -10,6 +10,7 @@
 #include "../../util/preprocessor.h"
 #include "../../util/inttypes.h"
 #include "../../hardware/counters.h"
+#include "utils.h"
 
 #define INVENTORY_NO_FREE_SLOT __UINT8_MAX__
 
@@ -171,8 +172,11 @@ void Inventory_registerInputHandler(VSelf, Input* input, void* ctx);
 
 void inventoryCursorHandler(Inventory* inventory,
                             InventorySlotGroups groups,
-                            const Input* input,
-                            void* ctx);
+                            const Input* input);
+
+
+IItem* inventorySlotItemGetter(Slot* slot);
+void inventorySlotItemSetter(Slot* slot, IItem* item);
 
 impl(IInputHandler, Inventory);
 impl(IUI, Inventory);

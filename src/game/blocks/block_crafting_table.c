@@ -13,6 +13,8 @@
 FWD_DECL Chunk* worldGetChunk(const World* world, const VECTOR* position);
 FWD_DECL void worldDropItemStack(World* world, IItem* item, const u8 count);
 
+Slot crafting_table_slots[(slotGroupSize(CRAFTING_TABLE) + slotGroupSize(CRAFTING_TABLE_RESULT))] = {0};
+
 bool craftingTableBlockInputHandler(const Input* input, void* ctx);
 static InputHandlerVTable craftingTableBlockInputHandlerVTable = {
     .ctx = &block_input_handler_context,
@@ -54,7 +56,14 @@ static Slot crafting_table_sots[(slotGroupSize(CRAFTING_TABLE) + slotGroupSize(C
     createSlotInline(CRAFTING_TABLE_RESULT, 0, 0)
 };
 
-void cursorClickHandler(const Input* input, BlockInputHandlerContext* block_input_handler_context) {
+static void cursorInteractSlot(Slot* slot) {
+    IItem* held_item = (IItem*) cursor.held_data;
+    IItem* slot_item = slot->data.item;
+    slot->data.item = held_item;
+    cursor.held_data = slot_item;
+}
+
+static void cursorHandler(bool split_or_store_one) {
     if (!quadIntersectLiteral(
         &cursor.component.position,
         CENTRE_X - (CRAFTING_TABLE_TEXTURE_WIDTH >> 1),
@@ -70,16 +79,60 @@ void cursorClickHandler(const Input* input, BlockInputHandlerContext* block_inpu
         );
         return;
     }
+    Slot* slot = NULL;
+    if (slotGroupIntersect(CRAFTING_TABLE, &cursor.component.position)) {
+        slot = &crafting_table_slots[slotGroupCursorSlot(
+            CRAFTING_TABLE,
+            &cursor.component.position
+        )];
+        if (split_or_store_one) {
+            cursorSplitOrStoreOne(
+                slot,
+                slotDirectItemGetter,
+                slotDirectItemSetter
+            );
+        } else {
+            cursorInteractSlot(slot);
+        }
+    } else if (slotGroupIntersect(CRAFTING_TABLE_RESULT, &cursor.component.position)) {
+        slot = &crafting_table_slots[slotGroupCursorSlot(
+            CRAFTING_TABLE_RESULT,
+            &cursor.component.position
+        )];
+        IItem* slot_iitem = slot->data.item;
+        IItem* held_iitem = cursor.held_data;
+        if (slot_iitem == NULL || held_iitem != NULL) {
+            // WE should not be able to interact
+            // with the result slot except for
+            // pulling items out of it
+            return;
+        }
+        Item* slot_item = VCAST_PTR(Item*, slot_iitem);
+        if (!split_or_store_one || slot_item->stack_size == 1) {
+            // If we are not splitting, or we have a single
+            // element stack, then just move the  contents
+            // into the cursor
+            cursor.held_data = slot_iitem;
+            return;
+        }
+        // Do the normal splitting of stacks between the
+        // existing slot stack and a new stack
+        IItem* split_stack = itemGetConstructor(slot_item->id)();
+        assert(split_stack);
+        Item* split_stack_item = VCAST_PTR(Item*, split_stack);
+        split_stack_item->stack_size = slot_item->stack_size >> 1;
+        itemSetWorldState(split_stack_item, false);
+        cursor.held_data = split_stack;
+        slot_item->stack_size -= split_stack_item->stack_size;
+    }
 }
 
 bool craftingTableBlockInputHandler(const Input* input, void* ctx) {
-    BlockInputHandlerContext* block_input_handler_context = ctx;
     VCALL(cursor_component, update);
     inventoryCursorHandler(
-        VCAST_PTR(Inventory*, block_input_handler_context->inventory),
+        VCAST_PTR(Inventory*, block_input_handler_context.inventory),
         INVENTORY_SLOT_GROUP_MAIN | INVENTORY_SLOT_GROUP_HOTBAR,
-        input,
-        ctx
+        input
     );
     const PADTYPE* pad = input->pad;
     // TODO Determime the button layout on xbox/playstation/switch
@@ -98,13 +151,16 @@ bool craftingTableBlockInputHandler(const Input* input, void* ctx) {
         //       and an item in a targetted slot.
         // TODO: Item should be grabbed/put from/into a slot
         //       or do nothing if mistargetted
-        cursorClickHandler(input, block_input_handler_context);
+        cursorHandler(false);
         return INPUT_HANDLER_RETAIN;
     } else if (isPressed(pad, BINDING_DROP_ITEM) && cursor.held_data != NULL) {
-        // TODO: Move held item into chunk dropped_items array
-        //       and nullify cursor held_data field. Set the
-        //       movement vector on the item in world to "throw"
-        //       it
+        worldDropItemStack(
+            world,
+            (IItem*) cursor.held_data,
+            0
+        );
+    } else if (isPressed(pad, BINDING_SPLIT_OR_STORE_ONE)) {
+        cursorHandler(true);
     }
     if (isPressed(pad, BINDING_OPEN_INVENTORY)) {
         // Block inventory is closed, reset the render handlers
@@ -158,7 +214,7 @@ void craftingTableBlockRenderUI(RenderContext* ctx, Transforms* transforms) {
     for (u8 y = 0; y < slotGroupDim(CRAFTING_TABLE, Y); y++) {
         for (u8 x = 0; x < slotGroupDim(CRAFTING_TABLE, X); x++) {
             const u8 i = slotGroupIndexOffset(CRAFTING_TABLE) + (slotGroupDim(CRAFTING_TABLE, X) * y) + x;
-            const Slot* slot = &crafting_table_sots[i];
+            const Slot* slot = &crafting_table_slots[i];
             if (slot->data.item == NULL) {
                 continue;
             }

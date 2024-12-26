@@ -44,6 +44,9 @@ typedef struct Slot {
  * */
 typedef Slot SlotGroup;
 
+typedef IItem* (*SlotItemGetter)(Slot* slot);
+typedef void (*SlotItemSetter)(Slot* slot, IItem* item);
+
 // Utility accessors for slot group definitions
 #define slotGroupDim(name, dim) name##_SLOT_GROUP_DIMENSIONS_##dim
 #define slotGroupSize(name) (slotGroupDim(name, X) * slotGroupDim(name, Y))
@@ -141,5 +144,11 @@ Slot* slotFromScreenPosition0(const SVECTOR* screen_position,
     slotGroupSlotSpacing(name, X), \
     slotGroupSlotSpacing(name, Y), \
 )
+
+IItem* slotDirectItemGetter(Slot* slot);
+void slotDirectItemSetter(Slot* slot, IItem* item);
+
+IItem* slotRefItemGetter(Slot* slot);
+void slotRefItemSetter(Slot* slot, IItem* item);
 
 #endif // PSXMC_SLOT_H

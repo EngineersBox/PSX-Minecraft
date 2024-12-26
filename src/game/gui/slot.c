@@ -1,5 +1,21 @@
 #include "slot.h"
 
+INLINE IItem* slotDirectItemGetter(Slot* slot) {
+    return slot->data.item;
+}
+
+INLINE void slotDirectItemSetter(Slot* slot, IItem* item) {
+    slot->data.item = item;
+}
+
+INLINE IItem* slotRefItemGetter(Slot* slot) {
+    return slot->data.ref->data.item;
+}
+
+INLINE void slotRefItemSetter(Slot* slot, IItem* item) {
+    slot->data.ref->data.item = item;
+}
+
 Slot* slotFromScreenPosition0(const SVECTOR* screen_position,
                               Slot* group_slots,
                               const u16 group_origin_x,
