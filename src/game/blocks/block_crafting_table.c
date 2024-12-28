@@ -73,21 +73,20 @@ static void consumeRecipeIngredients() {
     }
 }
 
+// Store a result item, freeing an existing non-matching one
+// or updating stack size. This will NOT modify the supplied
+// IItem* instance
 static void storeCraftingResult(Slot* output_slot, IItem* result_iitem) {
     if (output_slot->data.item == NULL) {
         output_slot->data.item = result_iitem;
         return;
     }
-    IItem* output_iitem = (IItem*) output_slot->data.item;
-    Item* output_item = VCAST_PTR(Item*, output_slot->data.item);
-    Item* result_item = VCAST_PTR(Item*, result_iitem);
-    if (output_item->id != result_item->id) {
-        VCALL(*output_iitem, destroy);
-        output_slot->data.item = result_iitem;
-        return;
-    }
-    output_item->stack_size = result_item->stack_size;
-    VCALL(*result_iitem, destroy);
+    // Either IDs mismatch or stack sizes are different
+    // with matching IDs. Either way we have two item stacks
+    // so just always free the one in the slot and store
+    // the new one.
+    VCALL((IItem) *output_slot->data.item, destroy);
+    output_slot->data.item = result_iitem;
 }
 
 /** 
