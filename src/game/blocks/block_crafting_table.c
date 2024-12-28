@@ -73,6 +73,23 @@ static void consumeRecipeIngredients() {
     }
 }
 
+static void storeCraftingResult(Slot* output_slot, IItem* result_iitem) {
+    if (output_slot->data.item == NULL) {
+        output_slot->data.item = result_iitem;
+        return;
+    }
+    IItem* output_iitem = (IItem*) output_slot->data.item;
+    Item* output_item = VCAST_PTR(Item*, output_slot->data.item);
+    Item* result_item = VCAST_PTR(Item*, result_iitem);
+    if (output_item->id != result_item->id) {
+        VCALL(*output_iitem, destroy);
+        output_slot->data.item = result_iitem;
+        return;
+    }
+    output_item->stack_size = result_item->stack_size;
+    VCALL(*result_iitem, destroy);
+}
+
 /** 
  * @brief Find a matching recipe and put a single output
  * into the output slot if it is empty. 
@@ -105,9 +122,10 @@ static bool processCraftingRecipe() {
     assert(query_result.result_count == 1);
     if (!no_item_in_result_slot) {
         // Matching recipe and item already in output slot
+        storeCraftingResult(output_slot, query_result.results[0]);
         return true;
     }
-    output_slot->data.item = query_result.results[0];
+    storeCraftingResult(output_slot, query_result.results[0]);
     return true;
 }
 
