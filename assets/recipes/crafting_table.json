@@ -1,0 +1,13 @@
+[
+    {
+        "pattern": [
+            [ "log" ]
+        ],
+        "results": [
+            {
+                "item": "planks",
+                "stack_size": 4
+            }
+        ]
+    }
+]

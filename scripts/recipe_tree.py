@@ -10,6 +10,7 @@ env = Environment(
     autoescape = select_autoescape()
 )
 
+RECIPE_SCHEMA_PATH = "assets/recipes/recipes.schema.json"
 ITEM_MAPPINGS: Dict[str, int] = {
     "air": 0,
     "stone": 1,
@@ -119,6 +120,7 @@ class Dimension:
 class RecipeResult:
     item: str
     stack_size: int
+    metadata: int = 0
 
 @dataclass
 class RecipeResults:
@@ -196,7 +198,12 @@ def serialiseTree(node: RecipeNode, indent = 0) -> str:
             j = 0
             for _result in result.results:
                 results += pad(indent + 4) + "RECIPE_RESULT_ITEM {\n"
-                results += pad(indent + 5) + f".item_constructor = itemConstructor({_result.item}),\n"
+                # TODO: Support metadata ids in itemConstructor calls
+                #       maybe have an itemMetadataConstructor call that
+                #       all items implement and have itemConstructor
+                #       be a wrapper macro that defaults to passing 0
+                #       as the metadata id
+                results += pad(indent + 5) + f".item_constructor = itemMetadataConstructor({_result.item}, {_result.metadata}),\n"
                 results += pad(indent + 5) + f".stack_size = {_result.stack_size},\n"
                 results += pad(indent + 4) + "}"
                 if j < len(result.results) - 1:
@@ -295,7 +302,7 @@ def main() -> None:
     parser.add_argument("--pattern_height", type=IntRange(1), required=False, help="Maximum height of the recipe patterns")
     args = vars(parser.parse_args())
     schema = None
-    with open("assets/recipes.schema.json", "r") as f:
+    with open(RECIPE_SCHEMA_PATH, "r") as f:
         schema = json.load(f)
     if (args["min_ingredients"] != None):
         schema["items"]["properties"]["results"]["minItems"] = args["min_ingredients"]
