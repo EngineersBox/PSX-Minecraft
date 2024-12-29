@@ -13,6 +13,7 @@ GrassItemBlock* grassItemBlockCreate() {
 DEFN_ITEM_CONSTRUCTOR(grass) {
     IItem* item = itemCreate();
     GrassItemBlock* grass_item_block = grassItemBlockCreate();
+    grass_item_block->item_block.item.metadata_id = 0;
     DYN_PTR(item, GrassItemBlock, IItem, grass_item_block);
     VCALL(*item, init);
     return item;

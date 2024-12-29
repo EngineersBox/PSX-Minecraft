@@ -13,6 +13,7 @@ StoneItemBlock* stoneItemBlockCreate() {
 DEFN_ITEM_CONSTRUCTOR(stone) {
     IItem* item = itemCreate();
     StoneItemBlock* stone_item_block = stoneItemBlockCreate();
+    stone_item_block->item_block.item.metadata_id = 0;
     DYN_PTR(item, StoneItemBlock, IItem, stone_item_block);
     VCALL(*item, init);
     return item;

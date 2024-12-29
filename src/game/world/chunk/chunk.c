@@ -178,8 +178,8 @@ void chunkGenerate3DHeightMap(Chunk* chunk, const VECTOR* position) {
                     z + position->vz
                 );
                 chunk->blocks[chunkBlockIndex(x, y, z)] = height >= 0
-                    ? airBlockCreate(NULL)
-                    : stoneBlockCreate(NULL);
+                    ? airBlockCreate(NULL,0 )
+                    : stoneBlockCreate(NULL, 0);
             }
         }
     }
@@ -579,7 +579,10 @@ IBlock* chunkModifyVoxelConstructed(Chunk* chunk,
                                     IItem* from_item,
                                     const bool drop_item,
                                     IItem** item_result) {
-    IBlock* iblock = block_constructor(from_item);
+    // Using metadata ID of 0 with a valid template item (i.e from_item)
+    // implies construction using the full item context and subsequently
+    // the metadata id of the item as well
+    IBlock* iblock = block_constructor(from_item, 0);
     const Block* block = VCAST_PTR(Block*, iblock);
     const int result = modifyVoxel0(
         chunk,

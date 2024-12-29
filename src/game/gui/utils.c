@@ -27,7 +27,7 @@ void cursorSplitOrStoreOne(Slot* slot,
         }
         // Do the normal splitting of stacks between the
         // existing slot stack and a new stack
-        IItem* split_stack = itemGetConstructor(item->id)();
+        IItem* split_stack = itemGetConstructor(item->id)(item->metadata_id);
         assert(split_stack);
         Item* split_stack_item = VCAST_PTR(Item*, split_stack);
         split_stack_item->stack_size = item->stack_size >> 1;
@@ -48,7 +48,7 @@ void cursorSplitOrStoreOne(Slot* slot,
             return;
         }
         // Create a new item with a stack size of 1
-        IItem* new_slot_iitem = itemGetConstructor(held_item->id)();
+        IItem* new_slot_iitem = itemGetConstructor(held_item->id)(held_item->metadata_id);
         assert(new_slot_iitem);
         Item* new_slot_item = VCAST_PTR(Item*, new_slot_iitem);
         itemSetWorldState(new_slot_item, true);

@@ -13,6 +13,7 @@
 DEFN_ITEM_CONSTRUCTOR({{ name_lower }) {
     IItem* item = itemCreate();
     {{ name_upper }}ItemBlock* {{ name_snake_lower }}_item_block = {{ name_lower }}ItemBlockCreate();
+    {{ name_snake_lower }}_item_block->item_block.item.metadata_id = metadata_id;
     DYN_PTR(item, {{ name_upper }}ItemBlock, IItem, {{ name_snake_lower }}_item_block);
     VCALL(*item, init);
     return item;

@@ -175,7 +175,7 @@ remove_world_block:;
     worldModifyVoxel(
         world,
         &result->pos,
-        airBlockCreate(NULL),
+        airBlockCreate(NULL, 0),
         drop_item_on_break,
         NULL
     );
@@ -289,7 +289,7 @@ INLINE static void playerInputHandlerUse(const PlayerInputHandlerContext* ctx) {
                 );
                 return;
             }
-            IBlock* iblock = block_constructor(iitem);
+            IBlock* iblock = block_constructor(iitem, 0);
             const VECTOR place_position = vec3_add(result.pos, result.face);
             if (!VCALL(*iblock, canPlace, ctx->world, &place_position, &physics_object->aabb)) {
                 item->stack_size++;

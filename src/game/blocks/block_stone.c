@@ -22,7 +22,7 @@ IItem* StoneBlock_destroy(VSelf, const bool drop_item) {
 IItem* stoneBlockProvideItem(VSelf) ALIAS("StoneBlock_provideItem");
 IItem* StoneBlock_provideItem(VSelf) {
     VSELF(StoneBlock);
-    IItem* item = itemConstructor(stone)();
+    IItem* item = itemConstructor(stone)(0);
     StoneItemBlock* stone_item_block = VCAST_PTR(StoneItemBlock*, item);
     itemBlockReplicateFaceAttributes(stone_item_block->item_block, self->block);
     stone_item_block->item_block.item.stack_size = 1;

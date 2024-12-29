@@ -39,10 +39,8 @@ IItem* {{ name_capital }}Block_destroy(VSelf, bool drop_item) {
 IItem* {{ name_lower }}BlockProvideItem(VSelf) ALIAS("{{ name_capital }}Block_provideItem");
 IItem* {{ name_capital }}Block_provideItem(VSelf) {
     VSELF({{ name_capital }}Block);
-    IItem* item = itemCreate();
-    {{ name_capital }}ItemBlock* item_block = {{ name_lower }}ItemBlockCreate();
-    DYN_PTR(item, {{ name_capital }}ItemBlock, IItem, item_block);
-    VCALL(*item, init);
+    IItem* item = itemConstructor({{ name_lower }})(0);
+    {{ name_capital }}ItemBlock* item_block = VCAST_PTR{{ name_capital }}ItemBlock*, item);
     itemBlockReplicateFaceAttributes(item_block->item_block, self->block);
     item_block->item_block.item.stack_size = 1;
     item_block->item_block.item.bob_direction = 1;

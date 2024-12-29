@@ -50,13 +50,13 @@ void OverworldPerlinChunkGenerator_generate(VSelf, Chunk* chunk, ChunkHeightmap*
                 /*const i32 offset_world_y = world_y + (CHUNK_SIZE * 1); // !IMPORTANT: TESTING OFFSET*/
                 IBlock* iblock;
                 if (offset_world_y < height - 3) {
-                    iblock = chunk->blocks[chunkBlockIndex(x, y, z)] = stoneBlockCreate(NULL);
+                    iblock = chunk->blocks[chunkBlockIndex(x, y, z)] = stoneBlockCreate(NULL, 0);
                 } else if (offset_world_y < height - 1) {
-                    iblock = chunk->blocks[chunkBlockIndex(x, y, z)] = dirtBlockCreate(NULL);
+                    iblock = chunk->blocks[chunkBlockIndex(x, y, z)] = dirtBlockCreate(NULL, 0);
                 } else if (offset_world_y == height - 1) {
-                    iblock = chunk->blocks[chunkBlockIndex(x, y, z)] = grassBlockCreate(NULL);
+                    iblock = chunk->blocks[chunkBlockIndex(x, y, z)] = grassBlockCreate(NULL, 0);
                 } else {
-                    iblock = chunk->blocks[chunkBlockIndex(x, y, z)] = airBlockCreate(NULL);
+                    iblock = chunk->blocks[chunkBlockIndex(x, y, z)] = airBlockCreate(NULL,0);
                 }
                 const Block* block = VCAST_PTR(Block*, iblock);
                 if (block->light_level > 0) {

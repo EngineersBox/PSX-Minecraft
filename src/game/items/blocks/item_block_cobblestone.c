@@ -15,6 +15,7 @@ CobblestoneItemBlock* cobblestoneItemBlockCreate() {
 DEFN_ITEM_CONSTRUCTOR(cobblestone) {
     IItem* item = itemCreate();
     CobblestoneItemBlock* cobblestone_item_block = cobblestoneItemBlockCreate();
+    cobblestone_item_block->item_block.item.metadata_id = 0;
     DYN_PTR(item, CobblestoneItemBlock, IItem, cobblestone_item_block);
     VCALL(*item, init);
     return item;

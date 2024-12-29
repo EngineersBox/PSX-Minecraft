@@ -32,19 +32,19 @@ void OverworldFlatlandChunkGenerator_generate(VSelf, Chunk* chunk, ChunkHeightma
                 const u32 world_y = (chunk->position.vy * CHUNK_SIZE) + y;
                 IBlock* iblock;
                 if (y < 2) {
-                    iblock = chunk->blocks[chunkBlockIndex(x, y, z)] = stoneBlockCreate(NULL);
+                    iblock = chunk->blocks[chunkBlockIndex(x, y, z)] = stoneBlockCreate(NULL,0 );
                     // chunk->blocks[chunkBlockIndex(x, y, z)] = airBlockCreate(NULL);
                 } else if (y < 4) {
-                    iblock = chunk->blocks[chunkBlockIndex(x, y, z)] = dirtBlockCreate(NULL);
+                    iblock = chunk->blocks[chunkBlockIndex(x, y, z)] = dirtBlockCreate(NULL, 0);
                     // chunk->blocks[chunkBlockIndex(x, y, z)] = airBlockCreate(NULL);
                 } else if (y == 4) {
-                    iblock = chunk->blocks[chunkBlockIndex(x, y, z)] = grassBlockCreate(NULL);
+                    iblock = chunk->blocks[chunkBlockIndex(x, y, z)] = grassBlockCreate(NULL, 0);
                 } else {
                     if (y == 5 && x % 3 == 0 && z % 3 == 0) {
-                        iblock = chunk->blocks[chunkBlockIndex(x, y, z)] = grassBlockCreate(NULL);
+                        iblock = chunk->blocks[chunkBlockIndex(x, y, z)] = grassBlockCreate(NULL, 0);
                         // chunk->blocks[chunkBlockIndex(x, y, z)] = airBlockCreate(NULL);
                     } else {
-                        iblock = chunk->blocks[chunkBlockIndex(x, y, z)] = airBlockCreate(NULL);
+                        iblock = chunk->blocks[chunkBlockIndex(x, y, z)] = airBlockCreate(NULL, 0);
                     }
                 }
                 const Block* block = VCAST_PTR(Block*, iblock);

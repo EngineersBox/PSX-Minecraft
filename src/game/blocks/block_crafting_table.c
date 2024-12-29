@@ -203,18 +203,6 @@ bool craftingTableBlockInputHandler(const Input* input, void* ctx) {
     //      MC releases and match it here for interacting with items
     //      in inventories and dropping stuff
     if (isPressed(pad, BINDING_CURSOR_CLICK)) {
-        // TODO: Use is either grabbing an item in a slot,
-        //       putting a grabbed item in a slot, or
-        //       mistargetting (with or without a grabbed
-        //       item) with nothing happening. Handle this
-        //       here, possibly with some logic that we share
-        //       between this and the base inventory structure
-        //       that is used for all inventories.
-        //
-        //       This should also handle exchanging a held item
-        //       and an item in a targetted slot.
-        // TODO: Item should be grabbed/put from/into a slot
-        //       or do nothing if mistargetted
         cursorHandler(false);
         return INPUT_HANDLER_RETAIN;
     } else if (isPressed(pad, BINDING_DROP_ITEM) && cursor.held_data != NULL) {

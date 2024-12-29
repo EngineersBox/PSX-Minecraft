@@ -13,6 +13,7 @@ DirtItemBlock* dirtItemBlockCreate() {
 DEFN_ITEM_CONSTRUCTOR(dirt) {
     IItem* item = itemCreate();
     DirtItemBlock* dirt_item_block = dirtItemBlockCreate();
+    dirt_item_block->item_block.item.metadata_id = 0;
     DYN_PTR(item, DirtItemBlock, IItem, dirt_item_block);
     VCALL(*item, init);
     return item;

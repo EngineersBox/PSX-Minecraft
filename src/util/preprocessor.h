@@ -51,6 +51,7 @@
 #define WEAK __attribute__((weak))
 #define PACKED __attribute__((packed))
 #define FALLTHROUGH __attribute__((fallthrough))
+#define MAYBE_UNUSED __attribute__((unused))
 
 // Forward declaration
 #define FWD_DECL

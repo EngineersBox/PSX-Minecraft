@@ -119,7 +119,7 @@ bool IBlock_canPlace(VSelf, const World* world, const VECTOR* position, const AA
 
 interface(IBlock);
 
-typedef IBlock* (*BlockConstructor)(IItem* from_item);
+typedef IBlock* (*BlockConstructor)(IItem* from_item, MAYBE_UNUSED u8 metadata_id);
 
 #define DEFN_BLOCK_FACE_ATTRIBUTES(extern_name) \
     extern TextureAttributes extern_name##_FACE_ATTRIBUTES[]
@@ -131,18 +131,20 @@ typedef IBlock* (*BlockConstructor)(IItem* from_item);
     } name; \
     DEFN_BLOCK_FACE_ATTRIBUTES(extern_name)
 
+#define DEFN_BLOCK_METADATA_STATELESS(name, extern_name, metadata_id) \
+    extern IBlock extern_name##_##metadata_id##_IBLOCK_SINGLETON; \
+    extern name extern_name##_##metadata_id##_BLOCK_SINGLETON
 #define DEFN_BLOCK_STATELESS(name, extern_name, ...) \
     DEFN_BLOCK_STATEFUL(name, P99_PROTECT(__VA_ARGS__)); \
-    extern IBlock extern_name##_IBLOCK_SINGLETON; \
-    extern name extern_name##_BLOCK_SINGLETON
+    DEFN_BLOCK_METADATA_STATELESS(name, extern_name, 0)
 
-#define DEFN_BLOCK_CONSTRUCTOR(name) IBlock* name##BlockCreate(IItem* from_item)
+#define DEFN_BLOCK_CONSTRUCTOR(name) IBlock* name##BlockCreate(IItem* from_item, MAYBE_UNUSED u8 metadata_id)
 #define DEFN_BLOCK_CONSTRUCTOR_IMPL_STATELESS(name, extern_name) DEFN_BLOCK_CONSTRUCTOR(name) { \
     if (from_item != NULL) { \
         Item* item = VCAST_PTR(Item*, from_item); \
         item->stack_size--; \
     } \
-    return &extern_name##_IBLOCK_SINGLETON; \
+    return &extern_name##_0_IBLOCK_SINGLETON; \
 }
 #define DEFN_BLOCK_CONSTRUCTOR_IMPL_STATEFUL(name) DEFN_BLOCK_CONSTRUCTOR(name)
 

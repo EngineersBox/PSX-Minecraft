@@ -35,7 +35,7 @@ static void assembleResult(const RecipeResults* results, RecipeQueryResult* quer
     query_result->results = calloc(results->result_count, sizeof(IItem*));
     for (u32 i = 0; i < results->result_count; i++) {
         const RecipeResult* result = results->results[i];
-        IItem* iitem = result->item_constructor();
+        IItem* iitem = result->item_constructor(result->metadata_id);
         Item* item = VCAST_PTR(Item*, iitem);
         itemSetWorldState(item, false);
         item->bob_offset = 1;

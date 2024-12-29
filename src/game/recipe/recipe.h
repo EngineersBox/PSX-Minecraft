@@ -29,6 +29,10 @@ typedef struct RecipeResult {
      *       the constructor.
      */
     ItemConstructor item_constructor;
+    /**
+     * @brief Metadata variant of item
+     */
+    u8 metadata_id;
     u32 stack_size;
 } RecipeResult;
 
@@ -65,10 +69,6 @@ typedef struct RecipeNode {
      * @brief Recipe item ingredient for this position.
      */
     EItemID item;
-    /**
-     * @brief Metadata variant of item
-     */
-    /*u8 metadata_id;*/
     /**
      * @brief Number of elements in @code nodes@endcode
      */

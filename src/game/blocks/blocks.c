@@ -6,33 +6,36 @@
 BlockAttributes block_attributes[BLOCK_COUNT] = {0};
 BlockConstructor block_constructors[BLOCK_COUNT] = {0};
 
-// Stateless blocks
-#define DECL_STATELESS_METADATA_BLOCK(type, extern_name, metadata_variant_count, face_attributes) \
-    type extern_name##_BLOCK_SINGLETON = {}; \
-    IBlock extern_name##_IBLOCK_SINGLETON; \
-    TextureAttributes extern_name##_FACE_ATTRIBUTES[(metadata_variant_count) * FACE_DIRECTION_COUNT] = face_attributes
+#define DECL_STATELESS_METADATA_BLOCK(type, extern_name, metadata_id) \
+    type extern_name##_##metadata_id##_BLOCK_SINGLETON = {}; \
+    IBlock extern_name##_##metadata_id##_IBLOCK_SINGLETON;
 
-#define DECL_STATELESS_BLOCK(type, extern_name, face_attributes) \
-    DECL_STATELESS_METADATA_BLOCK(type, extern_name, 1, P99_PROTECT(face_attributes))
+#define DECL_STATELESS_BLOCK(type, extern_name, metadata_variant_count, face_attributes) \
+    DECL_STATELESS_METADATA_BLOCK(type, extern_name, 0); \
+    TextureAttributes extern_name##_FACE_ATTRIBUTES[(metadata_variant_count) * FACE_DIRECTION_COUNT] = face_attributes
 
 #define initBlockStateful(id, attributes, constructor) ({ \
     block_attributes[(id)] = attributes; \
     block_constructors[(id)] = constructor; \
 })
 
+#define initBlockMetadataSingleton(type, extern_name, metadata_id) ({ \
+    extern_name##_##metadata_id##_IBLOCK_SINGLETON = DYN(type, IBlock, &extern_name##_##metadata_id##_BLOCK_SINGLETON); \
+    VCALL(extern_name##_##metadata_id##_IBLOCK_SINGLETON, init); \
+})
+
 #define initBlockSingleton(type, extern_name, attributes, constructor) ({ \
-    extern_name##_IBLOCK_SINGLETON = DYN(type, IBlock, &extern_name##_BLOCK_SINGLETON); \
-    VCALL(extern_name##_IBLOCK_SINGLETON, init); \
+    initBlockMetadataSingleton(type, extern_name, 0); \
     block_attributes[BLOCKID_##extern_name] = attributes; \
     block_constructors[BLOCKID_##extern_name] = constructor; \
 })
 
-DECL_STATELESS_BLOCK(AirBlock, AIR, airBlockFaceAttributes()); 
-DECL_STATELESS_BLOCK(StoneBlock, STONE, stoneBlockFaceAttributes());
-DECL_STATELESS_BLOCK(GrassBlock, GRASS, grassBlockFaceAttributes());
-DECL_STATELESS_BLOCK(DirtBlock, DIRT, dirtBlockFaceAttributes());
-DECL_STATELESS_BLOCK(CobblestoneBlock, COBBLESTONE, cobblestoneBlockFaceAttrbutes());
-DECL_STATELESS_BLOCK(CraftingTableBlock, CRAFTING_TABLE, craftingTableBlockFaceAttributes());
+DECL_STATELESS_BLOCK(AirBlock, AIR, 1, airBlockFaceAttributes()); 
+DECL_STATELESS_BLOCK(StoneBlock, STONE, 1, stoneBlockFaceAttributes());
+DECL_STATELESS_BLOCK(GrassBlock, GRASS, 1, grassBlockFaceAttributes());
+DECL_STATELESS_BLOCK(DirtBlock, DIRT, 1, dirtBlockFaceAttributes());
+DECL_STATELESS_BLOCK(CobblestoneBlock, COBBLESTONE, 1, cobblestoneBlockFaceAttrbutes());
+DECL_STATELESS_BLOCK(CraftingTableBlock, CRAFTING_TABLE, 1, craftingTableBlockFaceAttributes());
 
 void blocksInitialiseBuiltin() {
     initBlockSingleton(

@@ -15,6 +15,7 @@ CraftingTableItemBlock* craftingTableItemBlockCreate() {
 DEFN_ITEM_CONSTRUCTOR(craftingTable) {
     IItem* item = itemCreate();
     CraftingTableItemBlock* crafting_table_item_block = craftingTableItemBlockCreate();
+    crafting_table_item_block->item_block.item.metadata_id = 0;
     DYN_PTR(item, CraftingTableItemBlock, IItem, crafting_table_item_block);
     VCALL(*item, init);
     return item;

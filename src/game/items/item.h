@@ -141,11 +141,11 @@ ALLOC_CALL(itemDestroy, 1) IItem* itemCreate();
         __VA_ARGS__ \
     } name;
 
-typedef IItem* (*ItemConstructor)();
+typedef IItem* (*ItemConstructor)(MAYBE_UNUSED u8 metadata_id);
 typedef void (*ItemDestructor)();
 
 #define itemConstructor(name) name##ItemConstructor
-#define DEFN_ITEM_CONSTRUCTOR(name) IItem* itemConstructor(name)()
+#define DEFN_ITEM_CONSTRUCTOR(name) IItem* itemConstructor(name)(MAYBE_UNUSED u8 metadata_id)
 
 #define declareItem(_id, _metadata_id, _durability, _stack_size, _in_world, _position, _rotation) ((Item) { \
     .id = (_id), \

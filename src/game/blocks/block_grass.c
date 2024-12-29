@@ -22,7 +22,7 @@ IItem* GrassBlock_destroy(VSelf, const bool drop_item) {
 IItem* grassBlockProvideItem(VSelf) ALIAS("GrassBlock_provideItem");
 IItem* GrassBlock_provideItem(VSelf) {
     VSELF(GrassBlock);
-    IItem* item = itemConstructor(grass)();
+    IItem* item = itemConstructor(grass)(0);
     GrassItemBlock* grass_item_block = VCAST_PTR(GrassItemBlock*, item);
     itemBlockReplicateFaceAttributes(grass_item_block->item_block, self->block);
     grass_item_block->item_block.item.stack_size = 1;

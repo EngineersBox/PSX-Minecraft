@@ -1158,7 +1158,7 @@ void worldDropItemStack(World* world,
     IItem* droppable_iitem = iitem;
     // 0 count implies drop all in this handler
     if (count != 0 && count < item->stack_size) {
-        droppable_iitem = itemGetConstructor(item->id)();
+        droppable_iitem = itemGetConstructor(item->id)(item->metadata_id);
         assert(droppable_iitem != NULL);
         item = VCAST_PTR(Item*, droppable_iitem);
         item->stack_size = count;
