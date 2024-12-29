@@ -18,6 +18,8 @@
 extern ItemConstructor item_constructors[ITEM_COUNT];
 extern ItemAttributes item_attributes[ITEM_COUNT];
 
+#define itemIdsEqual(item, _id, _metadata_id) ((item)->id == (_id) && (item)->metadata_id == (_metadata_id))
+#define itemEqual(i0, i1) itemIdsEqual(i0, (i1)->id, (i1)->metadata_id)
 #if defined(DEBUG_ITEM_ID_CHECK) && DEBUG_ITEM_ID_CHECK == 1
 #include "../../logging/logging.h"
 #define itemGetAttribute(id, attr) ({ \

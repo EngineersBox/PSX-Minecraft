@@ -159,6 +159,7 @@ void inventoryRenderSlots(const Inventory* inventory,
 
 Slot* inventorySearchItem(Inventory* inventory,
                           const ItemID id,
+                          const u8 metadata_id,
                           const u8 from_slot,
                           u8* next_free) {
     *next_free = INVENTORY_NO_FREE_SLOT;
@@ -176,7 +177,7 @@ Slot* inventorySearchItem(Inventory* inventory,
             continue;
         }
         const Item* item = VCAST_PTR(Item*, slot_ref->data.item);
-        if (item->id == id) {
+        if (itemIdsEqual(item, id, metadata_id)) {
             return slot;
         }
     }
@@ -190,7 +191,7 @@ Slot* inventorySearchItem(Inventory* inventory,
             continue;
         }
         const Item* item = VCAST_PTR(Item*, slot->data.item);
-        if (item->id == id) {
+        if (itemIdsEqual(item, id, metadata_id)) {
             return slot;
         }
     }
@@ -237,7 +238,13 @@ InventoryStoreResult inventoryStoreItem(Inventory* inventory, IItem* iitem) {
     Slot* slot = NULL;
     while (1) {
         Item* item = VCAST_PTR(Item*, iitem);
-        slot = inventorySearchItem(inventory, item->id, from_slot, &next_free);
+        slot = inventorySearchItem(
+            inventory,
+            item->id,
+            item->metadata_id,
+            from_slot,
+            &next_free
+        );
         if (slot == NULL) {
             break;
         }

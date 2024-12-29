@@ -617,7 +617,13 @@ bool itemPickupValidator(const Item* item, void* ctx) {
     u8 from_slot = slotGroupIndexOffset(INVENTORY_MAIN);
     u8 next_free = INVENTORY_NO_FREE_SLOT;
     while (true) {
-        const Slot* slot = inventorySearchItem(inventory, item->id, from_slot, &next_free);
+        const Slot* slot = inventorySearchItem(
+            inventory,
+            item->id,
+            item->metadata_id,
+            from_slot,
+            &next_free
+        );
         if (slot == NULL) {
             if (next_free == INVENTORY_NO_FREE_SLOT) {
                 return false;
