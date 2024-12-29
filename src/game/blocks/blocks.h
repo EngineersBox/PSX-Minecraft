@@ -24,7 +24,7 @@ extern BlockConstructor block_constructors[BLOCK_COUNT];
 
 void blocksInitialiseBuiltin();
 
-#define blockEqual(b0, b1) ((b0)->id == (b1)->id && (b0)->metadata_id == (b1)->metadata_id)
+#define blockEquals(b0, b1) ((b0)->id == (b1)->id && (b0)->metadata_id == (b1)->metadata_id)
 #if defined(DEBUG_BLOCK_ID_CHECK) && DEBUG_BLOCK_ID_CHECK == 1
 #define blockGetAttribute(id, attr) ({ \
     __typeof__(id) _id = (id); \

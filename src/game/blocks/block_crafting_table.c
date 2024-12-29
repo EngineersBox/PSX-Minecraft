@@ -180,7 +180,7 @@ static void cursorHandler(bool split_or_store_one) {
             return;
         } 
         Item* held_item = VCAST_PTR(Item*, held_iitem);
-        if (held_item->id != result_item->id) {
+        if (itemEquals(held_item, result_item)) {
             // Held and result item ids mismatch
             return;
         }
@@ -224,7 +224,6 @@ bool craftingTableBlockInputHandler(const Input* input, void* ctx) {
     }
     return INPUT_HANDLER_RETAIN;
 }
-
 
 bool craftingTableBlockUseAction(VSelf) ALIAS("CraftingTableBlock_useAction");
 bool CraftingTableBlock_useAction(VSelf) {

@@ -8,7 +8,7 @@ int plane_meshing_data_compare(const void* a, const void* b, void* ignored) {
     const int axis = cmp(pa->key.face, pb->key.face);
     // TODO: We need to account for direction with blocks that have
     //       non-block models or non-uniform face textures
-    const bool block_id = blockEqual(pa->key.block, pb->key.block);
+    const bool block_id = blockEquals(pa->key.block, pb->key.block);
     const u16 light_level= cmp(pa->key.light_level, pb->key.light_level);
     const int y = cmp(pa->key.axis, pb->key.axis);
     if (axis != 0) {

@@ -54,7 +54,7 @@ void cursorSplitOrStoreOne(Slot* slot,
         itemSetWorldState(new_slot_item, true);
         new_slot_item->stack_size = 1;
         setter(slot, new_slot_iitem);
-    } else if (held_item->id != slot_item->id) {
+    } else if (itemEquals(held_item, slot_item)) {
         // Can't override an existing item in the slot
         // that doesn't match
         return;
