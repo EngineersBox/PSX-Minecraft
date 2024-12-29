@@ -7,6 +7,7 @@
 #include "../../math/math_utils.h"
 #include "../../resources/asset_indices.h"
 #include "../../resources/assets.h"
+#include "../../game/items/item.h"
 
 UICursor cursor = {
     .component = {
@@ -70,4 +71,9 @@ void UICursor_render(VSelf, RenderContext* ctx, Transforms* transforms) {
     pol4->clut = texture->clut;
     const u32* ot_object = allocateOrderingTable(ctx, 0);
     addPrim(ot_object, pol4);
+    if (self->held_data == NULL) {
+        return;
+    }
+    IItem* item = (IItem*) self->held_data;
+    VCALL_SUPER(*item, Renderable, renderInventory, ctx, transforms);
 }
