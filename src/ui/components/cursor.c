@@ -11,7 +11,10 @@
 
 UICursor cursor = {
     .component = {
-        .position = vec2_i16_all(0),
+        .position = vec2_i16(
+            CENTRE_X,
+            CENTRE_Y
+        ),
         .dimensions = vec2_i16(
             CURSOR_SPRITE_WIDTH,
             CURSOR_SPRITE_HEIGHT
@@ -26,22 +29,22 @@ void uiCursorUpdate(VSelf) ALIAS("UICursor_update");
 void UICursor_update(VSelf) {
     VSELF(UICursor);
     i16 delta_x = 0;
-    if (isPressed(input.pad, BINDING_MOVE_FORWARD)) {
+    if (isPressed(input.pad, BINDING_MOVE_LEFT)) {
         delta_x = -CURSOR_MOVE_PIXELS_DELTA;
-    } else if (isPressed(input.pad, BINDING_MOVE_BACKWARD)) {
+    } else if (isPressed(input.pad, BINDING_MOVE_RIGHT)) {
         delta_x = CURSOR_MOVE_PIXELS_DELTA;
     }
-    self->component.position.vx = min(0, max(
+    self->component.position.vx = max(0, min(
         SCREEN_XRES,
         self->component.position.vx + delta_x
     ));
     i16 delta_y = 0;
-    if (isPressed(input.pad, BINDING_MOVE_LEFT)) {
+    if (isPressed(input.pad, BINDING_MOVE_FORWARD)) {
         delta_y = -CURSOR_MOVE_PIXELS_DELTA;
-    } else if (isPressed(input.pad, BINDING_MOVE_RIGHT)) {
+    } else if (isPressed(input.pad, BINDING_MOVE_BACKWARD)) {
         delta_y = CURSOR_MOVE_PIXELS_DELTA;
     }
-    self->component.position.vy = min(0, max(
+    self->component.position.vy = max(0, min(
         SCREEN_YRES,
         self->component.position.vy + delta_y
     ));

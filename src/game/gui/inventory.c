@@ -177,7 +177,7 @@ Slot* inventorySearchItem(Inventory* inventory,
             continue;
         }
         const Item* item = VCAST_PTR(Item*, slot_ref->data.item);
-        if (itemIdsEqual(item, id, metadata_id)) {
+        if (itemIdEquals(item, id, metadata_id)) {
             return slot;
         }
     }
@@ -191,7 +191,7 @@ Slot* inventorySearchItem(Inventory* inventory,
             continue;
         }
         const Item* item = VCAST_PTR(Item*, slot->data.item);
-        if (itemIdsEqual(item, id, metadata_id)) {
+        if (itemIdEquals(item, id, metadata_id)) {
             return slot;
         }
     }

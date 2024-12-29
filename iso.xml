@@ -52,7 +52,6 @@
 				or global variable by its name.
 			-->
             <!--<file name="TEMPLATE.MAP"	type="data" source="template.map" />-->
-            <file name="RECIPES.LZP" type="data" source="recipes.lzp" />
         </directory_tree>
     </track>
     <!--
