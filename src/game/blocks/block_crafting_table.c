@@ -73,22 +73,6 @@ static void consumeRecipeIngredients() {
     }
 }
 
-// Store a result item, freeing an existing non-matching one
-// or updating stack size. This will NOT modify the supplied
-// IItem* instance
-static void storeCraftingResult(Slot* output_slot, IItem* result_iitem) {
-    if (output_slot->data.item == NULL) {
-        output_slot->data.item = result_iitem;
-        return;
-    }
-    // Either IDs mismatch or stack sizes are different
-    // with matching IDs. Either way we have two item stacks
-    // so just always free the one in the slot and store
-    // the new one.
-    VCALL((IItem) *output_slot->data.item, destroy);
-    output_slot->data.item = result_iitem;
-}
-
 /** 
  * @brief Find a matching recipe and put a single output
  * into the output slot if it is empty. 
@@ -107,24 +91,25 @@ static bool processCraftingRecipe() {
         }
     }
     Slot* output_slot = &crafting_table_slots[slotGroupIndexOffset(CRAFTING_TABLE_RESULT)];
-    const bool no_item_in_result_slot = output_slot->data.item == NULL;
     RecipeQueryResult query_result = {0};
     if (recipeSearch(
         crafting_table_recipes,
         pattern,
         &query_result,
-        no_item_in_result_slot
+        output_slot->data.item == NULL
     ) == RECIPE_NOT_FOUND) {
         // No matching recipe
         return false;
     }
     assert(query_result.result_count == 1);
-    if (!no_item_in_result_slot) {
-        // Matching recipe and item already in output slot
-        storeCraftingResult(output_slot, query_result.results[0]);
-        return true;
+    if (output_slot->data.item != NULL) {
+        // Either IDs mismatch or stack sizes are different
+        // with matching IDs. Either way we have two item stacks
+        // so just always free the one in the slot and store
+        // the new one.
+        VCALL((IItem) *output_slot->data.item, destroy);
     }
-    storeCraftingResult(output_slot, query_result.results[0]);
+    output_slot->data.item = query_result.results[0];
     return true;
 }
 
