@@ -76,6 +76,12 @@ void UICursor_render(VSelf, RenderContext* ctx, Transforms* transforms) {
         self->component.dimensions.vx,
         self->component.dimensions.vy
     );
+    setRGB0(
+        pol4,
+        0xFF,
+        0xFF,
+        0xFF
+    );
     const Texture* texture = &textures[ASSET_TEXTURE__STATIC__GUI];
     pol4->tpage = texture->tpage;
     pol4->clut = texture->clut;

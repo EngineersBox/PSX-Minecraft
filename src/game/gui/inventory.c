@@ -359,8 +359,8 @@ void Inventory_registerInputHandler(VSelf, Input* input, void* ctx) {
 }
 
 static void cursorHandler(Inventory* inventory,
-                   InventorySlotGroups groups,
-                   bool split_or_store_one) {
+                          InventorySlotGroups groups,
+                          bool split_or_store_one) {
     if (!quadIntersectLiteral(
         &cursor.component.position,
         CENTRE_X - (INVENTORY_WIDTH >> 1),
@@ -408,6 +408,10 @@ static void cursorHandler(Inventory* inventory,
             INVENTORY_MAIN,
             &cursor.component.position
         )];
+        DEBUG_LOG("[INVENTORY] Matching main slot: %d\n", slotGroupCursorSlot(
+            INVENTORY_MAIN,
+            &cursor.component.position
+        ));
     } else if (groups & INVENTORY_SLOT_GROUP_HOTBAR && slotGroupIntersect(
         INVENTORY_HOTBAR,
         &cursor.component.position
@@ -416,7 +420,12 @@ static void cursorHandler(Inventory* inventory,
             INVENTORY_HOTBAR,
             &cursor.component.position
         )];
+        DEBUG_LOG("[INVENTORY] Matching hotbar slot: %d\n", slotGroupCursorSlot(
+            INVENTORY_HOTBAR,
+            &cursor.component.position
+        ));
     } else {
+        DEBUG_LOG("[INVENTORY] No slot matching\n");
         return;
     }
     if (split_or_store_one) {
