@@ -21,7 +21,7 @@ void cursorSplitOrStoreOne(Slot* slot,
             // Single item, just move the stack to avoid
             // creating a new IItem and copying the held
             // item data then deleting the held item
-            cursor.held_data = slot_iitem;
+            uiCursorSetHeldData(&cursor, slot_iitem);
             setter(slot, NULL);
             return;
         }
@@ -32,7 +32,7 @@ void cursorSplitOrStoreOne(Slot* slot,
         Item* split_stack_item = VCAST_PTR(Item*, split_stack);
         split_stack_item->stack_size = item->stack_size >> 1;
         itemSetWorldState(split_stack_item, false);
-        cursor.held_data = split_stack;
+        uiCursorSetHeldData(&cursor, split_stack);
         item->stack_size -= split_stack_item->stack_size;
         return;
     }
@@ -63,7 +63,7 @@ void cursorSplitOrStoreOne(Slot* slot,
     held_item->stack_size--;
     if (held_item->stack_size == 0) {
         VCALL(*held_iitem, destroy);
-        cursor.held_data = NULL;
+        uiCursorSetHeldData(&cursor, NULL);
     }
 }
 
@@ -73,5 +73,5 @@ void cursorInteractSlot(Slot* slot,
     IItem* held_item = (IItem*) cursor.held_data;
     IItem* slot_item = getter(slot);
     setter(slot, held_item);
-    cursor.held_data = slot_item;
+    uiCursorSetHeldData(&cursor, slot_item);
 }

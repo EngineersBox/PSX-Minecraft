@@ -32,6 +32,8 @@ void UICursor_update(VSelf);
 void uiCursorRender(VSelf, RenderContext* ctx, Transforms* transforms);
 void UICursor_render(VSelf, RenderContext* ctx, Transforms* transforms);
 
+void uiCursorSetHeldData(VSelf, void* data);
+
 impl(IUIComponent, UICursor);
 #undef UICursor_update_CUSTOM
 

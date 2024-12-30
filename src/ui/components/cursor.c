@@ -8,6 +8,7 @@
 #include "../../resources/asset_indices.h"
 #include "../../resources/assets.h"
 #include "../../game/items/item.h"
+#include "../../util/interface99_extensions.h"
 
 UICursor cursor = {
     .component = {
@@ -48,6 +49,12 @@ void UICursor_update(VSelf) {
         SCREEN_YRES,
         self->component.position.vy + delta_y
     ));
+    if (self->held_data == NULL) {
+        return;
+    }
+    Item* item = VCAST_PTR(Item*, (IItem*) self->held_data);
+    item->position.vx = self->component.position.vx;
+    item->position.vy = self->component.position.vy;
 }
 
 void uiCursorRender(VSelf, RenderContext* ctx, Transforms* transforms) ALIAS("UICursor_render");
@@ -79,4 +86,17 @@ void UICursor_render(VSelf, RenderContext* ctx, Transforms* transforms) {
     }
     IItem* item = (IItem*) self->held_data;
     VCALL_SUPER(*item, Renderable, renderInventory, ctx, transforms);
+}
+
+void uiCursorSetHeldData(VSelf, void* data) {
+    VSELF(UICursor);
+    self->held_data = data;
+    if (data == NULL) {
+        return;
+    }
+    IItem* iitem = (IItem*) data;
+    Item* item = VCAST_PTR(Item*, iitem);
+    VCALL_SUPER(*iitem, Renderable, applyInventoryRenderAttributes);
+    item->position.vx = self->component.position.vx;
+    item->position.vy = self->component.position.vy;
 }

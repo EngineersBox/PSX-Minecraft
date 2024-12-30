@@ -175,7 +175,7 @@ static void cursorHandler(bool split_or_store_one) {
         IItem* held_iitem = (IItem*) cursor.held_data;
         if (held_iitem == NULL) {
             consumeRecipeIngredients();
-            cursor.held_data = result_iitem;
+            uiCursorSetHeldData(&cursor, result_iitem);
             result_slot->data.item = NULL;
             return;
         } 
@@ -256,6 +256,11 @@ bool CraftingTableBlock_useAction(VSelf) {
 
 void craftingTableBlockRenderUI(RenderContext* ctx, Transforms* transforms) {
     // Render main storage slots and hotbar
+    uiCursorRender(
+        &cursor,
+        ctx,
+        transforms
+    );
     inventoryRenderSlots(
         VCAST_PTR(const Inventory*, block_input_handler_context.inventory),
         INVENTORY_SLOT_GROUP_MAIN | INVENTORY_SLOT_GROUP_HOTBAR,
@@ -284,11 +289,6 @@ void craftingTableBlockRenderUI(RenderContext* ctx, Transforms* transforms) {
     }
     uiBackgroundRender(
         &block_render_ui_context.background,
-        ctx,
-        transforms
-    );
-    uiCursorRender(
-        &cursor,
         ctx,
         transforms
     );
