@@ -146,6 +146,6 @@
 * [X] Move dynamic assets (like GUIs) into separate on-disk LZP archive to be referenced ad-hoc instead of needing to keep entire assets resource in memory all time time including static assets.
 * [X] Replace fixed dual `LINE_F2` crosshair with texture rendered from GUI texture, allowing user customisation and saving an OT entry + draw call
 * [X] Slots should be groupable and have handlers to assist with rendering while also maintain ease of storage as a single 1D array.
+* [X] Change block equality check to account for both `id` and `metadata_id` fields in all relevant places (i.e. binary greedy mesher)
 * [ ] Support other resolutions that aren't 320x240
 * [ ] Refactor the `chunkRemoveLightType` call into the `chunkSetLightType` when the light value is `0` and update the necessary logic changes to accomodate this (seems to cause infinite lighting update loops if this is done at the moment)
-* [X] Change block equality check to account for both `id` and `metadata_id` fields in all relevant places (i.e. binary greedy mesher)
