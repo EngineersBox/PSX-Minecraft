@@ -7,6 +7,7 @@
 #include "../game/blocks/blocks.h"
 #include "../game/items/items.h"
 #include "../game/world/chunk/chunk_structure.h"
+#include "../ui/components/cursor.h"
 
 // Forward declaration
 FWD_DECL IBlock* worldModifyVoxelConstructed(const World* world,
@@ -91,6 +92,13 @@ void playerRender(const Player* player, RenderContext* ctx, Transforms* transfor
     InventorySlotGroups groups = inventory->ui.active
         ? INVENTORY_SLOT_GROUP_ALL
         : INVENTORY_SLOT_GROUP_NONE;
+    if (inventory->ui.active) {
+        uiCursorRender(
+            &cursor,
+            ctx,
+            transforms
+        );
+    }
     inventoryRenderSlots(inventory, groups, ctx, transforms);
     uiRender(&inventory->ui, ctx, transforms);
 }

@@ -439,6 +439,7 @@ static void cursorHandler(Inventory* inventory,
 void inventoryCursorHandler(Inventory* inventory,
                             InventorySlotGroups groups,
                             const Input* input) {
+    VCALL(cursor_component, update);
     const PADTYPE* pad = input->pad;
     if (isPressed(pad, BINDING_CURSOR_CLICK) && debounce(inventory)) {
         cursorHandler(inventory, groups, false);
