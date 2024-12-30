@@ -64,8 +64,8 @@ void UICursor_render(VSelf, RenderContext* ctx, Transforms* transforms) {
     setPolyFT4(pol4);
     setXYWH(
         pol4,
-        self->component.position.vx,
-        self->component.position.vy,
+        self->component.position.vx - (CURSOR_SPRITE_WIDTH >> 1),
+        self->component.position.vy - (CURSOR_SPRITE_HEIGHT >> 1),
         CURSOR_SPRITE_WIDTH,
         CURSOR_SPRITE_HEIGHT
     );
