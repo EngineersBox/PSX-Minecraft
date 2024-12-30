@@ -142,6 +142,7 @@ static void cursorHandler(bool split_or_store_one) {
             cursor.held_data,
             0
         );
+        uiCursorSetHeldData(&cursor, NULL);
         return;
     }
     Slot* slot = NULL;
@@ -211,6 +212,7 @@ bool craftingTableBlockInputHandler(const Input* input, void* ctx) {
             (IItem*) cursor.held_data,
             0
         );
+        uiCursorSetHeldData(&cursor, NULL);
     } else if (isPressed(pad, BINDING_SPLIT_OR_STORE_ONE)) {
         cursorHandler(true);
     }

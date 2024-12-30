@@ -1152,8 +1152,12 @@ void worldDropItemStack(World* world,
         // Nothing to drop
         return;
     }
-    const VECTOR* player_pos = &player->entity.physics_object.position;
-    Chunk* chunk = worldGetChunk(world, player_pos);
+    const VECTOR player_block_pos = vec3_const_div(
+        player->entity.physics_object.position,
+        ONE_BLOCK
+    );
+    Chunk* chunk = worldGetChunk(world, &player_block_pos);
+    assert(chunk != NULL);
     Item* item = VCAST_PTR(Item*, iitem);
     IItem* droppable_iitem = iitem;
     // 0 count implies drop all in this handler
@@ -1164,15 +1168,26 @@ void worldDropItemStack(World* world,
         item->stack_size = count;
     }
     itemSetWorldState(item, true);
-    item->world_entity->physics_object.position = *player_pos;
-    VECTOR velocity = vec3_const_mul(
-        vec3_i32(
-            player->entity.physics_object.rotation.pitch,
-            player->entity.physics_object.rotation.yaw,
-            0
-        ),
+    VECTOR velocity = vec3_i32(
+        player->entity.physics_object.rotation.pitch,
+        player->entity.physics_object.rotation.yaw,
+        0
+    );
+    velocity = rotationToDirection(&velocity);
+    velocity = vec3_const_mul(
+        velocity,
         4096
     );
-    item->world_entity->physics_object.velocity = velocity;
+    item->world_entity->physics_object.velocity = vec3_i32_all(0);
+    // TODO: Add a timestamp marker into the item fields
+    //       as the minimum time that it should be considered
+    //       when testing for items to pick up around the
+    //       player (in chunk.c)
+    item->world_entity->physics_object.position = vec3_add(
+        player->entity.physics_object.position,
+        velocity
+    );
+    item->position = vec3_i32_all(0);
+    item->rotation = vec3_i16_all(0);
     cvector_push_back(chunk->dropped_items, droppable_iitem);
 }

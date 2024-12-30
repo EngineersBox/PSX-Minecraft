@@ -336,12 +336,13 @@ bool inventoryInputHandler(const Input* input, void* ctx) {
         }
         inventoryOpen(inventory);
         return true;
+    } else if (inventory->ui.active) {
+        inventoryCursorHandler(
+            inventory,
+            INVENTORY_SLOT_GROUP_ALL,
+            input
+        );
     }
-    inventoryCursorHandler(
-        inventory,
-        INVENTORY_SLOT_GROUP_ALL,
-        input
-    );
     return inventory->ui.active;
 }
 
@@ -373,6 +374,7 @@ static void cursorHandler(Inventory* inventory,
             cursor.held_data,
             0
         );
+        uiCursorSetHeldData(&cursor, NULL);
         return;
     }
     Slot* slot = NULL;
@@ -408,10 +410,6 @@ static void cursorHandler(Inventory* inventory,
             INVENTORY_MAIN,
             &cursor.component.position
         )];
-        DEBUG_LOG("[INVENTORY] Matching main slot: %d\n", slotGroupCursorSlot(
-            INVENTORY_MAIN,
-            &cursor.component.position
-        ));
     } else if (groups & INVENTORY_SLOT_GROUP_HOTBAR && slotGroupIntersect(
         INVENTORY_HOTBAR,
         &cursor.component.position
@@ -420,12 +418,7 @@ static void cursorHandler(Inventory* inventory,
             INVENTORY_HOTBAR,
             &cursor.component.position
         )];
-        DEBUG_LOG("[INVENTORY] Matching hotbar slot: %d\n", slotGroupCursorSlot(
-            INVENTORY_HOTBAR,
-            &cursor.component.position
-        ));
     } else {
-        DEBUG_LOG("[INVENTORY] No slot matching\n");
         return;
     }
     if (split_or_store_one) {
@@ -455,6 +448,7 @@ void inventoryCursorHandler(Inventory* inventory,
             (IItem*) cursor.held_data,
             0
         );
+        uiCursorSetHeldData(&cursor, NULL);
     } else if (isPressed(pad, BINDING_SPLIT_OR_STORE_ONE)) {
         cursorHandler(inventory, groups, true);
     }

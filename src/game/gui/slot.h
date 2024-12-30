@@ -58,8 +58,8 @@ typedef void (*SlotItemSetter)(Slot* slot, IItem* item);
     pos, \
     slotGroupOrigin(name, X), \
     slotGroupOrigin(name, Y), \
-    slotGroupDim(name, X), \
-    slotGroupDim(name, Y) \
+    (slotGroupDim(name, X) * (slotGroupSlotDim(name, X) + slotGroupSlotSpacing(name, X))), \
+    (slotGroupDim(name, Y) * (slotGroupSlotDim(name, Y) + slotGroupSlotSpacing(name, Y))) \
 )
 #define slotGroupCursorSlot(name, pos) (\
     slotGroupIndexOffset(name) \
