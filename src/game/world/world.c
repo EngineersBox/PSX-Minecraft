@@ -19,6 +19,7 @@
 #include "chunk/chunk.h"
 #include "chunk/chunk_mesh.h"
 #include "chunk/chunk_structure.h"
+#include "chunk/heightmap.h"
 #include "position.h"
 #include "world_defines.h"
 
@@ -1145,6 +1146,16 @@ Heightmap* worldGetHeightmap(World* world) {
     return &world->heightmap;
 }
 
+INLINE static i32 capYPosToWorldHeightSpan(const i32 y) {
+    return max(
+        0,
+        min(
+            WORLD_HEIGHT - 1,
+            y
+        )
+    );
+}
+
 void worldDropItemStack(World* world,
                           IItem* iitem,
                           const u8 count) {
@@ -1152,11 +1163,11 @@ void worldDropItemStack(World* world,
         // Nothing to drop
         return;
     }
-    const VECTOR player_block_pos = vec3_const_div(
+    VECTOR player_block_pos = vec3_const_div(
         player->entity.physics_object.position,
         ONE_BLOCK
     );
-    DEBUG_LOG("[WORLD] Player pos: " VEC_PATTERN "\n", VEC_LAYOUT(player_block_pos));
+    player_block_pos.vy = capYPosToWorldHeightSpan(player_block_pos.vy);
     Chunk* chunk = worldGetChunk(world, &player_block_pos);
     assert(chunk != NULL);
     Item* item = VCAST_PTR(Item*, iitem);
