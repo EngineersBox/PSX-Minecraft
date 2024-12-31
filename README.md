@@ -20,6 +20,7 @@ Remake of Minecraft for PS1 with PSn00bSDK
       * [Single Source Block Light](#single-source-block-light)
       * [Multiple Source Block Light](#multiple-source-block-light)
       * [Weather Raining](#weather-raining)
+      * [Inventory with Cursor](#inventory-with-cursor)
   * [Building](#building)
   * [Docker Environment](#docker-environment)
     * [Utility Build Script](#utility-build-script)
@@ -111,6 +112,14 @@ Remake of Minecraft for PS1 with PSn00bSDK
 <summary><h4>Weather Raining</h4></summary>
 
 ![Weather Raining](./docs/weather_rain.png)
+
+</details>
+
+
+<details>
+<summary><h4>Inventory with Cursor</h4></summary>
+
+![Inventory with Cursor](./docs/crafting_inv_cursor.png)
 
 </details>
 
