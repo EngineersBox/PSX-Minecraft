@@ -57,9 +57,10 @@ void cursorSplitOrStoreOne(Slot* slot,
         IItem* new_slot_iitem = itemGetConstructor(held_item->id)(held_item->metadata_id);
         assert(new_slot_iitem);
         Item* new_slot_item = VCAST_PTR(Item*, new_slot_iitem);
-        itemSetWorldState(new_slot_item, true);
+        itemSetWorldState(new_slot_item, false);
         new_slot_item->stack_size = 1;
         setter(slot, new_slot_iitem);
+        return;
     } else if (!itemEquals(held_item, slot_item) || slot_item->stack_size == itemGetMaxStackSize(slot_item->id)) {
         // Can't override an existing item in the slot
         // that doesn't match or we cant add an item to
