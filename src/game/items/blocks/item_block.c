@@ -475,7 +475,12 @@ void itemBlockRenderHand(ItemBlock* item, RenderContext* ctx, Transforms* transf
 
 }
 
-void itemBlockApplyInventoryRenderAttributes(ItemBlock* item) {
+INLINE void itemBlockApplyInventoryRenderAttributes(ItemBlock* item) {
     item->item.position = ITEM_BLOCK_INVENTORY_POSITION_RENDER_ATTRIBUTE;
     item->item.rotation = ITEM_BLOCK_INVENTORY_ROTATION_RENDER_ATTRIBUTE;
+}
+
+INLINE void itemBlockApplyWorldRenderAttributes(ItemBlock* item) {
+    item->item.position = vec3_i32_all(0);
+    item->item.rotation = vec3_i16_all(0);
 }

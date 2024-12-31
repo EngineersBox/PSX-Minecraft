@@ -5,6 +5,7 @@
 
 #include "../../../util/interface99_extensions.h"
 #include "../item_id.h"
+#include "item_block.h"
 
 GrassItemBlock* grassItemBlockCreate() {
     return (GrassItemBlock*) malloc(sizeof(GrassItemBlock));
@@ -51,7 +52,8 @@ void GrassItemBlock_renderHand(VSelf, RenderContext* ctx, Transforms* transforms
 
 void grassItemBlockApplyWorldRenderAttributes(VSelf) ALIAS("GrassItemBlock_applyWorldRenderAttributes");
 void GrassItemBlock_applyWorldRenderAttributes(VSelf) {
-
+    VSELF(GrassItemBlock);
+    itemBlockApplyWorldRenderAttributes(&self->item_block);
 }
 
 void grassItemBlockApplyInventoryRenderAttributes(VSelf) ALIAS("GrassItemBlock_applyInventoryRenderAttributes");

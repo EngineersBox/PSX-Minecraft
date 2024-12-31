@@ -5,6 +5,7 @@
 
 #include "../../../util/interface99_extensions.h"
 #include "../item_id.h"
+#include "item_block.h"
 
 DirtItemBlock* dirtItemBlockCreate() {
     return (DirtItemBlock*) malloc(sizeof(DirtItemBlock));
@@ -52,7 +53,8 @@ void DirtItemBlock_renderHand(VSelf, RenderContext* ctx, Transforms* transforms)
 
 void dirtItemBlockApplyWorldRenderAttributes(VSelf) ALIAS("DirtItemBlock_applyWorldRenderAttributes");
 void DirtItemBlock_applyWorldRenderAttributes(VSelf) {
-
+    VSELF(DirtItemBlock);
+    itemBlockApplyWorldRenderAttributes(&self->item_block);
 }
 
 void dirtItemBlockApplyInventoryRenderAttributes(VSelf) ALIAS("DirtItemBlock_applyInventoryRenderAttributes");

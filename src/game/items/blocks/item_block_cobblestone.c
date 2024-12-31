@@ -54,7 +54,8 @@ void CobblestoneItemBlock_renderHand(VSelf, RenderContext* ctx, Transforms* tran
 
 void cobblestoneItemBlockApplyWorldRenderAttributes(VSelf) ALIAS("CobblestoneItemBlock_applyWorldRenderAttributes");
 void CobblestoneItemBlock_applyWorldRenderAttributes(VSelf) {
-    UNIMPLEMENTED();
+    VSELF(CobblestoneItemBlock);
+    itemBlockApplyWorldRenderAttributes(&self->item_block);
 }
 
 void cobblestoneItemBlockApplyInventoryRenderAttributes(VSelf) ALIAS("CobblestoneItemBlock_applyInventoryRenderAttributes");

@@ -1156,6 +1156,7 @@ void worldDropItemStack(World* world,
         player->entity.physics_object.position,
         ONE_BLOCK
     );
+    DEBUG_LOG("[WORLD] Player pos: " VEC_PATTERN "\n", VEC_LAYOUT(player_block_pos));
     Chunk* chunk = worldGetChunk(world, &player_block_pos);
     assert(chunk != NULL);
     Item* item = VCAST_PTR(Item*, iitem);

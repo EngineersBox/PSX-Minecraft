@@ -7,6 +7,7 @@
 #include "../../../util/preprocessor.h"
 #include "../../../math/vector.h"
 #include "../item_id.h"
+#include "item_block.h"
 
 CraftingTableItemBlock* craftingTableItemBlockCreate() {
     return (CraftingTableItemBlock*) malloc(sizeof(CraftingTableItemBlock));
@@ -48,7 +49,8 @@ void CraftingTableItemBlock_renderHand(VSelf, RenderContext* ctx, Transforms* tr
 
 void craftingTableItemBlockApplyWorldRenderAttributes(VSelf) ALIAS("CraftingTableItemBlock_applyWorldRenderAttributes");
 void CraftingTableItemBlock_applyWorldRenderAttributes(VSelf) {
-    UNIMPLEMENTED();
+    VSELF(CraftingTableItemBlock);
+    itemBlockApplyWorldRenderAttributes(&self->item_block);
 }
 
 void craftingTableItemBlockApplyInventoryRenderAttributes(VSelf) ALIAS("CraftingTableItemBlock_applyInventoryRenderAttributes");

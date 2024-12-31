@@ -5,6 +5,7 @@
 
 #include "../../../util/interface99_extensions.h"
 #include "../item_id.h"
+#include "item_block.h"
 
 StoneItemBlock* stoneItemBlockCreate() {
     return (StoneItemBlock*) malloc(sizeof(StoneItemBlock));
@@ -51,7 +52,8 @@ void StoneItemBlock_renderHand(VSelf, RenderContext* ctx, Transforms* transforms
 
 void stoneItemBlockApplyWorldRenderAttributes(VSelf) ALIAS("StoneItemBlock_applyWorldRenderAttributes");
 void StoneItemBlock_applyWorldRenderAttributes(VSelf) {
-
+    VSELF(StoneItemBlock);
+    itemBlockApplyWorldRenderAttributes(&self->item_block);
 }
 
 void stoneItemBlockApplyInventoryRenderAttributes(VSelf) ALIAS("StoneItemBlock_applyInventoryRenderAttributes");
