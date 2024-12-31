@@ -110,6 +110,7 @@
 * [ ] Handle non-uniform block models when generating meshes (i.e. stairs), including orientation where only some faces can be merged.
 * [ ] Polygon subdivision (polygons of minimum size, i.e. block size) for the mesh of the chunk that the player resides within
 * [ ] Add item metadata support to recipe trees
+* [ ] Change lighting direction for both in-world blocks and in-inventory blocks to match actual MC directional lighting
 
 ## Refactor
 
