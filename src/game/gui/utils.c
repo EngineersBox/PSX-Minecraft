@@ -34,10 +34,13 @@ void cursorSplitOrStoreOne(Slot* slot,
         // Do the normal splitting of stacks between the
         // existing slot stack and a new stack
         IItem* split_stack = itemGetConstructor(item->id)(item->metadata_id);
-        assert(split_stack);
+        assert(split_stack != NULL);
         Item* split_stack_item = VCAST_PTR(Item*, split_stack);
         split_stack_item->stack_size = item->stack_size >> 1;
+        // Force applying non-in world state in following call
+        split_stack_item->in_world = true;
         itemSetWorldState(split_stack_item, false);
+        VCALL_SUPER(*split_stack, Renderable, applyInventoryRenderAttributes);
         uiCursorSetHeldData(&cursor, split_stack);
         item->stack_size -= split_stack_item->stack_size;
         return;
@@ -55,11 +58,15 @@ void cursorSplitOrStoreOne(Slot* slot,
         }
         // Create a new item with a stack size of 1
         IItem* new_slot_iitem = itemGetConstructor(held_item->id)(held_item->metadata_id);
-        assert(new_slot_iitem);
+        assert(new_slot_iitem != NULL);
         Item* new_slot_item = VCAST_PTR(Item*, new_slot_iitem);
+        // Force applying non-in world state in following call
+        new_slot_item->in_world = true;
         itemSetWorldState(new_slot_item, false);
+        VCALL_SUPER(*new_slot_iitem, Renderable, applyInventoryRenderAttributes);
         new_slot_item->stack_size = 1;
         setter(slot, new_slot_iitem);
+        held_item->stack_size--;
         return;
     } else if (!itemEquals(held_item, slot_item) || slot_item->stack_size == itemGetMaxStackSize(slot_item->id)) {
         // Can't override an existing item in the slot

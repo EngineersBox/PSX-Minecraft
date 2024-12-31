@@ -1167,6 +1167,8 @@ void worldDropItemStack(World* world,
         item = VCAST_PTR(Item*, droppable_iitem);
         item->stack_size = count;
     }
+    // Force transition
+    item->in_world = false;
     itemSetWorldState(item, true);
     VECTOR velocity = vec3_i32(
         player->entity.physics_object.rotation.pitch,
@@ -1187,7 +1189,6 @@ void worldDropItemStack(World* world,
         player->entity.physics_object.position,
         velocity
     );
-    item->position = vec3_i32_all(0);
-    item->rotation = vec3_i16_all(0);
+    VCALL_SUPER(*droppable_iitem, Renderable, applyWorldRenderAttributes);
     cvector_push_back(chunk->dropped_items, droppable_iitem);
 }
