@@ -1137,24 +1137,22 @@ INLINE LightLevel worldGetInternalLightLevel(const World* world) {
     return world->internal_light_level;
 }
 
-ChunkHeightmap* worldGetChunkHeightmap(World* world, const VECTOR* position) {
+INLINE ChunkHeightmap* worldGetChunkHeightmap(World* world, const VECTOR* position) {
     return &world->heightmap[arrayCoord(world, vz, position->vz)]
                             [arrayCoord(world, vx, position->vx)];
 }
 
-Heightmap* worldGetHeightmap(World* world) {
+INLINE Heightmap* worldGetHeightmap(World* world) {
     return &world->heightmap;
 }
 
-INLINE static i32 capYPosToWorldHeightSpan(const i32 y) {
-    return max(
-        0,
-        min(
-            WORLD_HEIGHT - 1,
-            y
-        )
-    );
-}
+#define capYPosToWorldHeightSpan(y) max( \
+    0, \
+    min( \
+        WORLD_HEIGHT - 1, \
+        y \
+    ) \
+)
 
 void worldDropItemStack(World* world,
                           IItem* iitem,
@@ -1164,10 +1162,15 @@ void worldDropItemStack(World* world,
         return;
     }
     VECTOR player_block_pos = vec3_const_div(
-        player->entity.physics_object.position,
+        vec3_i32(
+            player->entity.physics_object.position.vx,
+            -player->entity.physics_object.position.vx,
+            player->entity.physics_object.position.vz
+        ),
         ONE_BLOCK
     );
     player_block_pos.vy = capYPosToWorldHeightSpan(player_block_pos.vy);
+#undef capYPosToWorldHeightSpan
     Chunk* chunk = worldGetChunk(world, &player_block_pos);
     assert(chunk != NULL);
     Item* item = VCAST_PTR(Item*, iitem);
