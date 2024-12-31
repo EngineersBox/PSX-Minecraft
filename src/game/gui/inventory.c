@@ -11,6 +11,7 @@
 #include "../../ui/components/cursor.h"
 #include "../world/world_structure.h"
 #include "utils.h"
+#include "../../util/debounce.h"
 
 FWD_DECL void worldDropItemStack(World* world, IItem* item, const u8 count);
 
@@ -319,17 +320,10 @@ void Inventory_close(VSelf) {
     background->texture = (Texture) {0};
 }
 
-static bool debounce(Inventory* inventory) {
-    if (time_ms - inventory->debounce >= INVENTORY_DEBOUNCE_MS) {
-        inventory->debounce = time_ms;
-        return true;
-    }
-    return false;
-}
-
 bool inventoryInputHandler(const Input* input, void* ctx) {
     Inventory* inventory = (Inventory*) ctx;
-    if (isPressed(input->pad, BINDING_OPEN_INVENTORY) && debounce(inventory)) {
+    if (isPressed(input->pad, BINDING_OPEN_INVENTORY)
+        && debounce(&inventory->debounce, INVENTORY_DEBOUNCE_MS)) {
         if (inventory->ui.active) {
             inventoryClose(inventory);
             return false;
@@ -441,7 +435,8 @@ void inventoryCursorHandler(Inventory* inventory,
                             const Input* input) {
     VCALL(cursor_component, update);
     const PADTYPE* pad = input->pad;
-    if (isPressed(pad, BINDING_CURSOR_CLICK) && debounce(inventory)) {
+    if (isPressed(pad, BINDING_CURSOR_CLICK)
+        && debounce(&inventory->debounce, INVENTORY_DEBOUNCE_MS)) {
         cursorHandler(inventory, groups, false);
     } else if (isPressed(pad, BINDING_DROP_ITEM) && cursor.held_data != NULL) {
         worldDropItemStack(

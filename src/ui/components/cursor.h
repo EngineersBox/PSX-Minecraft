@@ -13,6 +13,8 @@
 #define CURSOR_SPRITE_POS_X 182
 #define CURSOR_SPRITE_POS_Y 24
 
+#define CURSOR_DEBOUNCE_MS 200
+
 typedef enum CursorState {
     CURSOR_NONE = 0,
     CURSOR_PRESSED,

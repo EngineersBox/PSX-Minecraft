@@ -2,12 +2,18 @@
 
 #include "../items/items.h"
 #include "../../util/interface99_extensions.h"
+#include "../../util/debounce.h"
 #include "../../ui/components/cursor.h"
 #include "slot.h"
+
+static Timestamp cursor_debounce = 0;
 
 void cursorSplitOrStoreOne(Slot* slot,
                            SlotItemGetter getter,
                            SlotItemSetter setter) {
+    if (!debounce(&cursor_debounce, CURSOR_DEBOUNCE_MS)) {
+        return;
+    }
     IItem* held_iitem = (IItem*) cursor.held_data;
     IItem* slot_iitem = getter(slot);
     if (held_iitem == NULL) {
@@ -54,9 +60,10 @@ void cursorSplitOrStoreOne(Slot* slot,
         itemSetWorldState(new_slot_item, true);
         new_slot_item->stack_size = 1;
         setter(slot, new_slot_iitem);
-    } else if (itemEquals(held_item, slot_item)) {
+    } else if (!itemEquals(held_item, slot_item) || slot_item->stack_size == itemGetMaxStackSize(slot_item->id)) {
         // Can't override an existing item in the slot
-        // that doesn't match
+        // that doesn't match or we cant add an item to
+        // an already full stack
         return;
     }
     slot_item->stack_size++;
@@ -70,8 +77,26 @@ void cursorSplitOrStoreOne(Slot* slot,
 void cursorInteractSlot(Slot* slot,
                         SlotItemGetter getter,
                         SlotItemSetter setter) {
-    IItem* held_item = (IItem*) cursor.held_data;
-    IItem* slot_item = getter(slot);
-    setter(slot, held_item);
-    uiCursorSetHeldData(&cursor, slot_item);
+    if (!debounce(&cursor_debounce, CURSOR_DEBOUNCE_MS)) {
+        return;
+    }
+    IItem* held_iitem = (IItem*) cursor.held_data;
+    IItem* slot_iitem = getter(slot);
+    if (slot_iitem == NULL || held_iitem == NULL) {
+        setter(slot, held_iitem);
+        uiCursorSetHeldData(&cursor, slot_iitem);
+        return;
+    }
+    Item* slot_item = VCAST_PTR(Item*, slot_iitem);
+    Item* held_item = VCAST_PTR(Item*, held_iitem);
+    const u8 stack_left = itemGetMaxStackSize(slot_item->id) - slot_item->stack_size;
+    if (!itemEquals(held_item, slot_item) || stack_left == 0) {
+        return;
+    }
+    const u8 held_assignable = min(stack_left, held_item->stack_size);
+    slot_item->stack_size += held_assignable;
+    if (held_assignable == held_item->stack_size) {
+        VCALL(*held_iitem, destroy);
+        uiCursorSetHeldData(&cursor, NULL);
+    }
 }
