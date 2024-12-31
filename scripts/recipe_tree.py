@@ -133,8 +133,9 @@ class RecipeNode:
     item: int
     results: List[RecipeResults]
     nodes: List["RecipeNode"]
+    metadata: int = 0
 
-    def add(self, item: int) -> "RecipeNode":
+    def add(self, item: int, metadata: int) -> "RecipeNode":
         if self.nodes == None:
             self.nodes = []
         found = None
@@ -160,20 +161,24 @@ def itemId(item: int | str) -> int:
     return ITEM_MAPPINGS[str(item)]
 
 def constructTree(recipes) -> RecipeNode:
-    root: RecipeNode = RecipeNode(0, [], [])
+    root: RecipeNode = RecipeNode(0, [], [], 0)
     current: RecipeNode = root
     for recipe in recipes:
         dimensions = determineDimensions(recipe["pattern"])
         for row in recipe["pattern"]:
             for item in row:
-                current = current.add(itemId(item))
+                current = current.add(
+                    itemId(item["item"]),
+                    int(item["metadata"] or 0)
+                )
         if current.results == None:
             current.results = []
         results = []
         for result in recipe["results"]:
             results.append(RecipeResult(
                 result["item"],
-                result["stack_size"]
+                result["stack_size"],
+                result["metadata"]
             ))
         current.results.append(RecipeResults(
             dimensions,
@@ -199,6 +204,7 @@ def serialiseTree(node: RecipeNode, indent = 0) -> str:
             for _result in result.results:
                 results += pad(indent + 4) + "RECIPE_RESULT_ITEM {\n"
                 results += pad(indent + 5) + f".item_constructor = itemConstructor({_result.item}),\n"
+                results += pad(indent + 5) + f".metadata_id = {_result.metadata},\n"
                 results += pad(indent + 5) + f".stack_size = {_result.stack_size},\n"
                 results += pad(indent + 4) + "}"
                 if j < len(result.results) - 1:
@@ -227,7 +233,10 @@ def serialiseTree(node: RecipeNode, indent = 0) -> str:
     else:
         nodes = "NULL"
     output = pad(indent) + "RECIPE_ITEM {\n"
-    output += pad(indent + 1) + f".item = {node.item},\n"
+    output += pad(indent + 1) + f".item = (CompositeID) {{\n"
+    output += pad(indent + 2) + f".separated.metadata = {node.metadata},\n"
+    output += pad(indent + 2) + f".separated.id = {node.item}\n"
+    output += pad(indent + 1) + f"}},\n"
     output += pad(indent + 1) + f".node_count = {len(node.nodes)},\n"
     output += pad(indent + 1) + f".result_count = {len(node.results)},\n"
     output += pad(indent + 1) + f".results = {results},\n"

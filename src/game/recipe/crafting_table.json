@@ -1,11 +1,12 @@
 [
     {
         "pattern": [
-            [ "log" ]
+            [ { "item": "log", "metadata": 0 } ]
         ],
         "results": [
             {
                 "item": "planks",
+                "metadata": 0,
                 "stack_size": 4
             }
         ]

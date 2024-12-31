@@ -17,6 +17,16 @@ typedef struct Dimension {
 
 bool dimensionEquals(const Dimension* a, const Dimension* b);
 
+typedef union CompositeID {
+    struct {
+        // Lower bits
+        u8 metadata;
+        // Higher bits
+        EItemID id;
+    } separated;
+    u16 data;
+} CompositeID;
+
 typedef struct RecipeResult {
     /**
      * @brief Function pointer to construct the result item instance. Note
@@ -24,9 +34,6 @@ typedef struct RecipeResult {
      *        item definitions, however you can create a wrapper or specific
      *        function that matches the signature if you need to modify the
      *        item instance (i.e. set stack size, metadata, etc) after creation.
-     * TODO: Instead of storing the constructor (32 bits), store the item id
-     *       and metadata id (16 bits total) and use the item macros to get
-     *       the constructor.
      */
     ItemConstructor item_constructor;
     /**
@@ -67,8 +74,9 @@ typedef struct RecipeNode {
     //       key that specifies both the id and metadata id
     /**
      * @brief Recipe item ingredient for this position.
+     *        marked by id and metadata id
      */
-    EItemID item;
+    CompositeID item;
     /**
      * @brief Number of elements in @code nodes@endcode
      */
@@ -104,9 +112,11 @@ typedef enum ResultQueryState {
     RECIPE_FOUND
 } RecipeQueryState;
 
-typedef EItemID RecipePattern[9];
+typedef CompositeID RecipePatternEntry;
 
-RecipeNode* recipeNodeGetNext(const RecipeNode* node, const EItemID item);
+typedef RecipePatternEntry RecipePattern[9];
+
+RecipeNode* recipeNodeGetNext(const RecipeNode* node, const RecipePatternEntry* pattern);
 RecipeQueryState recipeNodeGetRecipeResult(const RecipeNode* node,
                                            const Dimension* dimension,
                                            RecipeQueryResult* query_result,

@@ -10,8 +10,24 @@
                 "items": {
                     "type": "array",
                     "items": {
-                        "type": "string",
-                        "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$"
+                        "type": "object",
+                        "properties": {
+                            "item": {
+                                "type": "string",
+                                "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$"
+                            },
+                            "metadata": {
+                                "type": "integer",
+                                "default": 0,
+                                "minimum": 0,
+                                "maximum": 255
+                            }
+                        },
+                        "required": [
+                            "item",
+                            "stack_size"
+                        ],
+                        "additionalProperties": false
                     },
                     "minItems": 1,
                     "maxItems": 3
@@ -27,6 +43,12 @@
                         "item": {
                             "type": "string",
                             "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$"
+                        },
+                        "metadata": {
+                            "type": "integer",
+                            "default": 0,
+                            "minimum": 0,
+                            "maximum": 255
                         },
                         "stack_size": {
                             "type": "integer",

@@ -85,9 +85,15 @@ static bool processCraftingRecipe() {
         Slot* slot = &crafting_table_slots[i];
         IItem* item = slot->data.item;
         if (item != NULL) {
-            pattern[i] = VCAST_PTR(Item*, item)->id;
+            pattern[i] = (RecipePatternEntry) {
+                .separated.metadata = VCAST_PTR(Item*, item)->metadata_id,
+                .separated.id = VCAST_PTR(Item*, item)->id
+            };
         } else {
-            pattern[i] = ITEMID_AIR;
+            pattern[i] = (RecipePatternEntry) {
+                .separated.metadata = 0,
+                .separated.id = ITEMID_AIR
+            };
         }
     }
     Slot* output_slot = &crafting_table_slots[slotGroupIndexOffset(CRAFTING_TABLE_RESULT)];

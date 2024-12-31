@@ -6,7 +6,7 @@ INLINE bool dimensionEquals(const Dimension* a, const Dimension* b) {
     return a->width == b->width && a->height == b->height; 
 }
 
-RecipeNode* recipeNodeGetNext(const RecipeNode* node, const EItemID item) {
+RecipeNode* recipeNodeGetNext(const RecipeNode* node, const RecipePatternEntry* pattern) {
     if (node->nodes == NULL || node->node_count == 0) {
         return NULL;
     }
@@ -19,9 +19,9 @@ RecipeNode* recipeNodeGetNext(const RecipeNode* node, const EItemID item) {
     while (lower <= upper) {
         mid = (lower + upper) >> 1;
         RecipeNode* next_node = node->nodes[mid];
-        if (next_node->item == item) {
+        if (next_node->item.data == pattern->data) {
             return next_node;
-        } else if (next_node->item > item) {
+        } else if (next_node->item.data > pattern->data) {
             upper = mid - 1;
         } else {
             lower = mid + 1;
@@ -70,7 +70,7 @@ RecipeQueryState recipeSearch(const RecipeNode* root,
     u8 left = 3;
     for (u8 y = 0; y < 3; y++) {
         for (u8 x = 0; x < 3; x++) {
-            if (pattern[(y * 3) + x] != ITEMID_AIR) {
+            if (pattern[(y * 3) + x].separated.id != ITEMID_AIR) {
                 left = min(left, x);
                 top = min(top, y);
                 right = max(right, x);
@@ -81,7 +81,7 @@ RecipeQueryState recipeSearch(const RecipeNode* root,
     RecipeNode const* current = root;
     for (u8 y = top; y <= bottom; y++) {
         for (u8 x = left; x <= right; x++) {
-            current = recipeNodeGetNext(current, pattern[(y * 3) + x]);
+            current = recipeNodeGetNext(current, &pattern[(y * 3) + x]);
             if (current == RECIPE_NOT_FOUND) {
                 return RECIPE_NOT_FOUND;
             }
