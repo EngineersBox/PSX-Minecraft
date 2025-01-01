@@ -42,6 +42,8 @@
 * [ ] Weather texture does not scroll correctly, some planes are static and only in some places does it work correctly. Potentially an issue with texture windowing and UV positions.
 * [ ] Once we close an inventory and release the input handler, it is possible to open the player inventory immediately after if we don't press fast enough. As such we should debounce when we release a handler before allowing a new handler to be aquired.
 * [ ] Opening a block inventory with a block in hand will place the block and open the inventory at the same time
+* [ ] Ingredients in a recipe are not consumed in the crafting table
+* [ ] Output slot item is not rendered in crafting table
 
 ## Implement
 
