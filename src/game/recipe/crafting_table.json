@@ -13,12 +13,12 @@
     },
     {
         "pattern": [
-            [ { "item": "planks", "metadata": 0 }, { "item": "planks", "metadata": 0 } ],
-            [ { "item": "planks", "metadata": 0 }, { "item": "planks", "metadata": 0 } ]
+            [ { "item": "cobblestone", "metadata": 0 }, { "item": "cobblestone", "metadata": 0 } ],
+            [ { "item": "cobblestone", "metadata": 0 }, { "item": "cobblestone", "metadata": 0 } ]
         ],
         "results": [
             {
-                "item": "craftingTable",
+                "item": "crafting_table",
                 "metadata": 0,
                 "stack_size": 1
             }

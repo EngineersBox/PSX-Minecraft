@@ -114,12 +114,14 @@ static bool processCraftingRecipe() {
     ) == RECIPE_NOT_FOUND) {
         // No matching recipe
         free(query_result.results);
+        DEBUG_LOG("No result\n");
         return false;
     }
     assert(query_result.result_count == 1);
     if (output_slot->data.item == NULL) {
         // Output slot was empty, just move the result
         // into it
+        DEBUG_LOG("Output slot empty, move result\n");
         goto free_result_and_move_to_slot;
     }
     const Item* output_item = VCAST_PTR(Item*, output_slot->data.item);
@@ -127,12 +129,14 @@ static bool processCraftingRecipe() {
     if (itemEquals(output_item, result_item)) {
         // Items were the same, stack size was adjusted
         // we have nothing left to do
+        DEBUG_LOG("Items same, stack resized\n");
         goto free_result;
     }
     // IDs between existing output slot item
     // and new result were different, 
     VCALL((IItem) *output_slot->data.item, destroy);
 free_result_and_move_to_slot:;
+    DEBUG_LOG("Moving %p to replace %p\n", query_result.results[0], output_slot->data.item);
     output_slot->data.item = query_result.results[0];
 free_result:;
     free(query_result.results);

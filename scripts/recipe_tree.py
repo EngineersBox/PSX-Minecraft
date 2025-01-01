@@ -11,105 +11,6 @@ env = Environment(
 )
 
 RECIPE_SCHEMA_PATH = "scripts/recipes.schema.json"
-ITEM_MAPPINGS: Dict[str, int] = {
-    "air": 0,
-    "stone": 1,
-    "grass": 2,
-    "dirt": 3,
-    "cobblestone": 4,
-    "planks": 5,
-    "sapling": 6,
-    "bedrock": 7,
-    "water_flowing": 8,
-    "water_still": 9,
-    "lava_flowing": 10,
-    "lava_still": 11,
-    "sand": 12,
-    "gravel": 13,
-    "gold_ore": 14,
-    "iron_ore": 15,
-    "coal_ore": 16,
-    "log": 17,
-    "leaves": 18,
-    "sponge": 19,
-    "glass": 20,
-    "lapis_ore": 21,
-    "lapis_block": 22,
-    "dispenser": 23,
-    "sandstone": 24,
-    "noteblock": 25,
-    "bed_block": 26,
-    "powered_rail": 27,
-    "detector_rail": 28,
-    "sticky_piston": 29,
-    "cobweb": 30,
-    "tall_grass": 31,
-    "dead_bush": 32,
-    "piston": 33,
-    "piston_head": 34,
-    "wool": 35,
-    "grass_top": 36,
-    "dandelion": 37,
-    "rose": 38,
-    "brown_mushroom": 39,
-    "red_mushroom": 40,
-    "gold_block": 41,
-    "iron_block": 42,
-    "full_slab": 43,
-    "slab": 44,
-    "brick_block": 45,
-    "tnt": 46,
-    "bookshelf": 47,
-    "mossy_cobblestone": 48,
-    "obsidian": 49,
-    "torch": 50,
-    "fire": 51,
-    "spawner": 52,
-    "wooden_stairs": 53,
-    "chest": 54,
-    "redstone": 55,
-    "diamond_ore": 56,
-    "diamond_block": 57,
-    "crafting_table": 58,
-    "crops": 59,
-    "farmland": 60,
-    "furnace": 61,
-    "unused_0": 62,
-    "unused_1": 63,
-    "door_block": 64,
-    "ladder": 65,
-    "rail": 66,
-    "cobbleston_stairs": 67,
-    "unused_2": 68,
-    "lever": 69,
-    "stone_pressure_plate": 70,
-    "iron_door_block": 71,
-    "wooden_pressure_plate": 72,
-    "redstone_ore": 73,
-    "unused_3": 74,
-    "unused_4": 75,
-    "redstone_torch": 76,
-    "stone_button": 77,
-    "snow_layer": 78,
-    "ice": 79,
-    "snow": 80,
-    "cactus": 81,
-    "clay_block": 82,
-    "sugar_cane_block": 83,
-    "jukebox": 84,
-    "fence": 85,
-    "pumpkin": 86,
-    "netherrack": 87,
-    "soul_sand": 88,
-    "glowstone": 89,
-    "portal": 90,
-    "jack_o_lantern": 91,
-    "cake": 92,
-    "unused_5": 93,
-    "unused_6": 94,
-    "trapped_chest": 95,
-    "trapdoor": 96,
-}
 
 @dataclass
 class Dimension:
@@ -130,12 +31,12 @@ class RecipeResults:
 
 @dataclass
 class RecipeNode:
-    item: int
+    item: str
     results: List[RecipeResults]
     nodes: List["RecipeNode"]
     metadata: int = 0
 
-    def add(self, item: int, metadata: int) -> "RecipeNode":
+    def add(self, item: str, metadata: int) -> "RecipeNode":
         if self.nodes == None:
             self.nodes = []
         found = None
@@ -155,20 +56,15 @@ def determineDimensions(pattern: List[List[str]]) -> Dimension:
     width = len(max(pattern, key = len))
     return Dimension(width, height)
 
-def itemId(item: int | str) -> int:
-    if type(item) == "int":
-        return int(item)
-    return ITEM_MAPPINGS[str(item)]
-
 def constructTree(recipes) -> RecipeNode:
-    root: RecipeNode = RecipeNode(0, [], [], 0)
+    root: RecipeNode = RecipeNode("air", [], [], 0)
     current: RecipeNode = root
     for recipe in recipes:
         dimensions = determineDimensions(recipe["pattern"])
         for row in recipe["pattern"]:
             for item in row:
                 current = current.add(
-                    itemId(item["item"]),
+                    item["item"],
                     int(item["metadata"] or 0)
                 )
         if current.results == None:
@@ -191,6 +87,9 @@ def constructTree(recipes) -> RecipeNode:
 def pad(indent) -> str:
     return "    " * indent
 
+def itemToEnumName(item: str) -> str:
+    return f"ITEMID_{caseconverter.macrocase(item)}"
+
 def serialiseTree(node: RecipeNode, indent = 0) -> str:
     results = "RECIPE_RESULTS_LIST {\n"
     if len(node.results) > 0:
@@ -203,7 +102,7 @@ def serialiseTree(node: RecipeNode, indent = 0) -> str:
             j = 0
             for _result in result.results:
                 results += pad(indent + 4) + "RECIPE_RESULT_ITEM {\n"
-                results += pad(indent + 5) + f".item = RECIPE_COMPOSITE_ID({node.item}, {node.metadata}),\n"
+                results += pad(indent + 5) + f".item = RECIPE_COMPOSITE_ID({itemToEnumName(node.item)}, {node.metadata}),\n"
                 results += pad(indent + 5) + f".stack_size = {_result.stack_size},\n"
                 results += pad(indent + 4) + "}"
                 if j < len(result.results) - 1:
@@ -232,7 +131,7 @@ def serialiseTree(node: RecipeNode, indent = 0) -> str:
     else:
         nodes = "NULL"
     output = pad(indent) + "RECIPE_ITEM {\n"
-    output += pad(indent + 1) + f".item = RECIPE_COMPOSITE_ID({node.item}, {node.metadata}),\n"
+    output += pad(indent + 1) + f".item = RECIPE_COMPOSITE_ID({itemToEnumName(node.item)}, {node.metadata}),\n"
     output += pad(indent + 1) + f".node_count = {len(node.nodes)},\n"
     output += pad(indent + 1) + f".result_count = {len(node.results)},\n"
     output += pad(indent + 1) + f".results = {results},\n"

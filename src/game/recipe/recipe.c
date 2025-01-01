@@ -20,6 +20,7 @@ RecipeNode* recipeNodeGetNext(const RecipeNode* node, const RecipePatternEntry* 
     while (lower <= upper) {
         mid = (lower + upper) >> 1;
         RecipeNode* next_node = node->nodes[mid];
+        DEBUG_LOG("Node: %d Pattern: %d\n", next_node->item.data, pattern->data);
         if (next_node->item.data == pattern->data) {
             return next_node;
         } else if (next_node->item.data > pattern->data) {
@@ -92,11 +93,13 @@ RecipeQueryState recipeSearch(const RecipeNode* root,
             }
         }
     }
+    DEBUG_LOG("R: %d B: %d T: %d L: %d\n", right, bottom, top, left);
     RecipeNode const* current = root;
     for (u8 y = top; y <= bottom; y++) {
         for (u8 x = left; x <= right; x++) {
             current = recipeNodeGetNext(current, &pattern[(y * 3) + x]);
-            if (current == RECIPE_NOT_FOUND) {
+            DEBUG_LOG("Current: %p\n", current);
+            if (current == NULL) {
                 return RECIPE_NOT_FOUND;
             }
         }
@@ -105,6 +108,7 @@ RecipeQueryState recipeSearch(const RecipeNode* root,
         .width = right - left + 1,
         .height = bottom - top + 1
     };
+    DEBUG_LOG("Dims W: %d H: %d\n", dimension.width, dimension.height);
     return recipeNodeGetRecipeResult(
         current,
         &dimension,
