@@ -1,6 +1,7 @@
 #include "recipe.h"
 
 #include "../../util/interface99_extensions.h"
+#include "../items/items.h"
 
 INLINE bool dimensionEquals(const Dimension* a, const Dimension* b) {
     return a->width == b->width && a->height == b->height; 
@@ -32,14 +33,27 @@ RecipeNode* recipeNodeGetNext(const RecipeNode* node, const RecipePatternEntry* 
 
 static void assembleResult(const RecipeResults* results, RecipeQueryResult* query_result) {
     query_result->result_count = results->result_count;
-    query_result->results = calloc(results->result_count, sizeof(IItem*));
     for (u32 i = 0; i < results->result_count; i++) {
+        const IItem* existing_iitem = query_result->results[i];
         const RecipeResult* result = results->results[i];
-        IItem* iitem = result->item_constructor(result->metadata_id);
+        if (existing_iitem == NULL) {
+            goto assemble_new_item;
+        }
+        Item* existing_item = VCAST_PTR(Item*, existing_iitem);
+        if (itemIdEquals(existing_item, result->item.separated.id, result->item.separated.metadata)) {
+            // Resize stack
+            existing_item->stack_size = result->stack_size;
+            continue;
+        }
+        // Replace item in result with new one
+assemble_new_item:;
+        IItem* iitem = itemGetConstructor(result->item.separated.id)(result->item.separated.metadata);
+        assert(iitem != NULL);
         Item* item = VCAST_PTR(Item*, iitem);
         itemSetWorldState(item, false);
         item->bob_offset = 1;
         item->stack_size = result->stack_size;
+        query_result->results[i] = iitem;
     }
 }
 

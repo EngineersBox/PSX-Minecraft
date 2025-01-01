@@ -75,7 +75,7 @@ void StoneItemBlock_init(VSelf) {
             ITEMID_STONE,
             0
         ),
-        .face_attributes = defaultFaceAttributes(1),
+        .face_attributes = { defaultFaceAttributes(1) },
     };
 }
 

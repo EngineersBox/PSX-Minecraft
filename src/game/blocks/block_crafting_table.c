@@ -9,7 +9,7 @@
 #include "../../entity/player.h"
 #include "../items/items.h"
 #include "../world/world_structure.h"
-#include "../recipe/crafting_table_recipes.h"
+#include "../recipe/crafting_table.h"
 
 FWD_DECL Chunk* worldGetChunk(const World* world, const VECTOR* position);
 FWD_DECL void worldDropItemStack(World* world, IItem* item, const u8 count);
@@ -82,12 +82,13 @@ static void consumeRecipeIngredients() {
 static bool processCraftingRecipe() {
     RecipePattern pattern = {0};
     for (int i = 0; i < slotGroupIndexOffset(CRAFTING_TABLE_RESULT); i++) {
-        Slot* slot = &crafting_table_slots[i];
-        IItem* item = slot->data.item;
-        if (item != NULL) {
+        const Slot* slot = &crafting_table_slots[i];
+        const IItem* iitem = slot->data.item;
+        if (iitem != NULL) {
+            const Item* item = VCAST_PTR(Item*, iitem);
             pattern[i] = (RecipePatternEntry) {
-                .separated.metadata = VCAST_PTR(Item*, item)->metadata_id,
-                .separated.id = VCAST_PTR(Item*, item)->id
+                .separated.metadata = item->metadata_id,
+                .separated.id = item->id
             };
         } else {
             pattern[i] = (RecipePatternEntry) {
@@ -98,24 +99,43 @@ static bool processCraftingRecipe() {
     }
     Slot* output_slot = &crafting_table_slots[slotGroupIndexOffset(CRAFTING_TABLE_RESULT)];
     RecipeQueryResult query_result = {0};
+    query_result.results = calloc(1, sizeof(IItem*));
+    assert(query_result.results != NULL);
+    // Put existing output in the result array
+    // to use when determining if the stack should
+    // just be resized or we need to create a new
+    // item if the IDs are different.
+    query_result.results[0] = output_slot->data.item;
     if (recipeSearch(
         crafting_table_recipes,
         pattern,
         &query_result,
-        output_slot->data.item == NULL
+        true
     ) == RECIPE_NOT_FOUND) {
         // No matching recipe
+        free(query_result.results);
         return false;
     }
     assert(query_result.result_count == 1);
-    if (output_slot->data.item != NULL) {
-        // Either IDs mismatch or stack sizes are different
-        // with matching IDs. Either way we have two item stacks
-        // so just always free the one in the slot and store
-        // the new one.
-        VCALL((IItem) *output_slot->data.item, destroy);
+    if (output_slot->data.item == NULL) {
+        // Output slot was empty, just move the result
+        // into it
+        goto free_result_and_move_to_slot;
     }
+    const Item* output_item = VCAST_PTR(Item*, output_slot->data.item);
+    const Item* result_item = VCAST_PTR(Item*, query_result.results[0]);
+    if (itemEquals(output_item, result_item)) {
+        // Items were the same, stack size was adjusted
+        // we have nothing left to do
+        goto free_result;
+    }
+    // IDs between existing output slot item
+    // and new result were different, 
+    VCALL((IItem) *output_slot->data.item, destroy);
+free_result_and_move_to_slot:;
     output_slot->data.item = query_result.results[0];
+free_result:;
+    free(query_result.results);
     return true;
 }
 

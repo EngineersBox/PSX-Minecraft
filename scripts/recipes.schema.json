@@ -24,8 +24,7 @@
                             }
                         },
                         "required": [
-                            "item",
-                            "stack_size"
+                            "item"
                         ],
                         "additionalProperties": false
                     },

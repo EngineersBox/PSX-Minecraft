@@ -5,9 +5,22 @@
         ],
         "results": [
             {
-                "item": "planks",
+                "item": "grass",
                 "metadata": 0,
                 "stack_size": 4
+            }
+        ]
+    },
+    {
+        "pattern": [
+            [ { "item": "planks", "metadata": 0 }, { "item": "planks", "metadata": 0 } ],
+            [ { "item": "planks", "metadata": 0 }, { "item": "planks", "metadata": 0 } ]
+        ],
+        "results": [
+            {
+                "item": "craftingTable",
+                "metadata": 0,
+                "stack_size": 1
             }
         ]
     }

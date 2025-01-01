@@ -29,17 +29,10 @@ typedef union CompositeID {
 
 typedef struct RecipeResult {
     /**
-     * @brief Function pointer to construct the result item instance. Note
-     *        that this signature is the same as the one implemented for
-     *        item definitions, however you can create a wrapper or specific
-     *        function that matches the signature if you need to modify the
-     *        item instance (i.e. set stack size, metadata, etc) after creation.
+     * @brief Recipe item ingredient for this position.
+     *        marked by id and metadata id
      */
-    ItemConstructor item_constructor;
-    /**
-     * @brief Metadata variant of item
-     */
-    u8 metadata_id;
+    CompositeID item;
     u32 stack_size;
 } RecipeResult;
 
@@ -134,5 +127,10 @@ RecipeQueryState recipeSearch(const RecipeNode* root,
 
 #define RECIPE_RESULT_LIST (RecipeResult*[])
 #define RECIPE_RESULT_ITEM &(RecipeResult)
+
+#define RECIPE_COMPOSITE_ID(_id, _metadata) { \
+    .separated.metadata = _metadata, \
+    .separated.id = _id \
+}
 
 #endif // _PSXMC__GAME_RECIPE__RECIPE_H_

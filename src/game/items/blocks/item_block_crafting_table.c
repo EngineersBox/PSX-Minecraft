@@ -72,14 +72,14 @@ void CraftingTableItemBlock_init(VSelf) {
             ITEMID_CRAFTING_TABLE,
             0
         ),
-        .face_attributes = {declareTintedFaceAttributes(
+        .face_attributes = { declareTintedFaceAttributes(
             4, NO_TINT,
             43, NO_TINT,
             59, NO_TINT,
             59, NO_TINT,
             60, NO_TINT,
             60, NO_TINT
-        )}
+        ) }
     };
 }
 

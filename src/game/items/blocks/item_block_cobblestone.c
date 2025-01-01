@@ -77,7 +77,7 @@ void CobblestoneItemBlock_init(VSelf) {
             ITEMID_COBBLESTONE,
             0
         ),
-        .face_attributes = defaultFaceAttributes(2),
+        .face_attributes = { defaultFaceAttributes(16) },
     };
 }
 

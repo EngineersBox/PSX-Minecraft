@@ -22,8 +22,11 @@
 #include "../logging/logging.h"
 #include "../util/preprocessor.h"
 #include "blocks/block.h"
+#include "gui/inventory.h"
 #include "gui/slot.h"
+#include "items/blocks/item_block.h"
 #include "items/blocks/item_block_crafting_table.h"
+#include "items/item_id.h"
 #include "items/items.h"
 #include "items/blocks/item_block_grass.h"
 #include "items/blocks/item_block_stone.h"
@@ -142,11 +145,16 @@ void Minecraft_init(VSelf, void* ctx) {
     /*VCALL_SUPER(*item, Renderable, applyInventoryRenderAttributes);*/
 
     Slot* slot = inventoryFindFreeSlot(inventory, 1);
-    IItem* item = itemCreate();
-    CraftingTableItemBlock* crafting_table_item_block = craftingTableItemBlockCreate();
-    DYN_PTR(item, CraftingTableItemBlock, IItem, crafting_table_item_block);
-    VCALL(*item, init);
-    crafting_table_item_block->item_block.item.stack_size = 26;
+    IItem* item = itemGetConstructor(ITEMID_CRAFTING_TABLE)(0);
+    ItemBlock* item_block = VCAST_PTR(ItemBlock*, item);
+    item_block->item.stack_size = 26;
+    inventorySlotSetItem(slot, item);
+    VCALL_SUPER(*item, Renderable, applyInventoryRenderAttributes);
+
+    item = itemGetConstructor(ITEMID_COBBLESTONE)(0);
+    item_block = VCAST_PTR(ItemBlock*, item);
+    item_block->item.stack_size = 10;
+    slot = inventoryFindFreeSlot(inventory, slotGroupIndexOffset(INVENTORY_MAIN));
     inventorySlotSetItem(slot, item);
     VCALL_SUPER(*item, Renderable, applyInventoryRenderAttributes);
 }

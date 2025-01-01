@@ -454,6 +454,14 @@ INLINE IItem* inventorySlotItemGetter(Slot* slot) {
     return inventorySlotGetItem(slot);
 }
 
-INLINE void inventorySlotItemSetter(Slot* slot, IItem* item) {
-    inventorySlotSetItem(slot, item);
+void inventorySlotItemSetter(Slot* slot, IItem* iitem) {
+    if (iitem != NULL
+        && slot->index < slotGroupIndexOffset(INVENTORY_ARMOUR) + slotGroupSize(INVENTORY_ARMOUR)) {
+        const Item* item = VCAST_PTR(Item*, iitem);
+        if (itemGetType(item->id) != ITEMTYPE_ARMOUR) {
+            // Don't allow non-armour items into the armour slots
+            return;
+        }
+    }
+    inventorySlotSetItem(slot, iitem);
 }

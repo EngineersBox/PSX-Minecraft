@@ -17,7 +17,7 @@ ITEM_MAPPINGS: Dict[str, int] = {
     "grass": 2,
     "dirt": 3,
     "cobblestone": 4,
-    "plank": 5,
+    "planks": 5,
     "sapling": 6,
     "bedrock": 7,
     "water_flowing": 8,
@@ -145,7 +145,7 @@ class RecipeNode:
                 break
         if found != None:
             return found
-        new_node = RecipeNode(item, [], [])
+        new_node = RecipeNode(item, [], [], metadata)
         self.nodes.append(new_node)
         self.nodes.sort(key=lambda n: n.item)
         return new_node
@@ -203,8 +203,7 @@ def serialiseTree(node: RecipeNode, indent = 0) -> str:
             j = 0
             for _result in result.results:
                 results += pad(indent + 4) + "RECIPE_RESULT_ITEM {\n"
-                results += pad(indent + 5) + f".item_constructor = itemConstructor({_result.item}),\n"
-                results += pad(indent + 5) + f".metadata_id = {_result.metadata},\n"
+                results += pad(indent + 5) + f".item = RECIPE_COMPOSITE_ID({node.item}, {node.metadata}),\n"
                 results += pad(indent + 5) + f".stack_size = {_result.stack_size},\n"
                 results += pad(indent + 4) + "}"
                 if j < len(result.results) - 1:
@@ -233,10 +232,7 @@ def serialiseTree(node: RecipeNode, indent = 0) -> str:
     else:
         nodes = "NULL"
     output = pad(indent) + "RECIPE_ITEM {\n"
-    output += pad(indent + 1) + f".item = (CompositeID) {{\n"
-    output += pad(indent + 2) + f".separated.metadata = {node.metadata},\n"
-    output += pad(indent + 2) + f".separated.id = {node.item}\n"
-    output += pad(indent + 1) + f"}},\n"
+    output += pad(indent + 1) + f".item = RECIPE_COMPOSITE_ID({node.item}, {node.metadata}),\n"
     output += pad(indent + 1) + f".node_count = {len(node.nodes)},\n"
     output += pad(indent + 1) + f".result_count = {len(node.results)},\n"
     output += pad(indent + 1) + f".results = {results},\n"
@@ -244,11 +240,16 @@ def serialiseTree(node: RecipeNode, indent = 0) -> str:
     output += pad(indent) +  "}"
     return output
 
+def constructGuard(path: str) -> str:
+    guard_path = path.lstrip("src/").replace("/", "_")
+    return caseconverter.macrocase(guard_path)
+
 def generateTreeFiles(name: str, path: str, tree: str) -> None:
     render_parameters = {
         "name_snake_upper": caseconverter.macrocase(name),
         "name_snake_lower": caseconverter.snakecase(name),
         "recipe_header_include_path": os.path.relpath("src/game/recipe", path),
+        "guard_snake_upper": constructGuard(path),
         "items_include_path": os.path.relpath("src/game/items", path),
         "tree": tree
     }

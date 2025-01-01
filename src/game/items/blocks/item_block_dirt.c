@@ -76,7 +76,7 @@ void DirtItemBlock_init(VSelf) {
             ITEMID_DIRT,
             0
         ),
-        .face_attributes = defaultFaceAttributes(2),
+        .face_attributes = { defaultFaceAttributes(2) }
     };
 }
 
