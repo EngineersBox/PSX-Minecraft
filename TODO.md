@@ -34,6 +34,8 @@
 * [X] Holding movement keys and opening the inventory doesn't prevent player from continuing to move.
 * [X] The `inventoryRenderSlots` method using the new slot groups seems to index out of bound at some point.
 * [X] Textures in terrain tpage with any `u` and `v >= 16` rendering multiple interleaved textures from different points in terrain texture page (NOTE: This is a PCSX-Redux bug, as Duckstation renders fine).
+* [X] Ingredients in a recipe are not consumed in the crafting table
+* [X] Output slot item is not rendered in crafting table
 * [ ] Cull faces on chunk edges that face outward on the render limit
 * [ ] Mesh vertices z-depth is inconsistent leading to faces drawn in wrong order and thus culling fails
 * [ ] Vertices are distorted (in their location) when very close to the camera
@@ -42,8 +44,6 @@
 * [ ] Weather texture does not scroll correctly, some planes are static and only in some places does it work correctly. Potentially an issue with texture windowing and UV positions.
 * [ ] Once we close an inventory and release the input handler, it is possible to open the player inventory immediately after if we don't press fast enough. As such we should debounce when we release a handler before allowing a new handler to be aquired.
 * [ ] Opening a block inventory with a block in hand will place the block and open the inventory at the same time
-* [X] Ingredients in a recipe are not consumed in the crafting table
-* [X] Output slot item is not rendered in crafting table
 
 ## Implement
 
