@@ -354,6 +354,93 @@ void Inventory_registerInputHandler(VSelf, Input* input, void* ctx) {
     );
 }
 
+// Consumes enough for one output of the recipe
+static void consumeRecipeIngredients(Inventory* inventory) {
+    for (int i = slotGroupIndexOffset(INVENTORY_CRAFTING);
+        i < slotGroupIndexOffset(INVENTORY_CRAFTING_RESULT); i++) {
+        Slot* slot = &inventory->slots[i];
+        IItem* iitem = slot->data.item;
+        if (iitem == NULL) {
+            continue;
+        }
+        Item* item = VCAST_PTR(Item*, iitem);
+        assert(item->stack_size > 0);
+        if (--item->stack_size == 0) {
+            VCALL(*iitem, destroy);
+            slot->data.item = NULL;
+        }
+    }
+}
+
+/** 
+ * @brief Find a matching recipe and put a single output
+ * into the output slot if it is empty. 
+ * if no matching recipe
+ * @return true if a matching recipe is found, false otherwise
+ */
+static bool processCraftingRecipe(Inventory* inventory) {
+    // TODO: Only invoke this when something changes in the crafting grid
+    //       or output slot
+    RecipePattern pattern = {0};
+    for (int i = slotGroupIndexOffset(INVENTORY_CRAFTING);
+        i < slotGroupIndexOffset(INVENTORY_CRAFTING_RESULT); i++) {
+        const Slot* slot = &inventory->slots[i];
+        const IItem* iitem = slot->data.item;
+        if (iitem != NULL) {
+            const Item* item = VCAST_PTR(Item*, iitem);
+            pattern[i] = (RecipePatternEntry) {
+                .separated.metadata = item->metadata_id,
+                .separated.id = item->id
+            };
+        } else {
+            pattern[i] = (RecipePatternEntry) {
+                .separated.metadata = 0,
+                .separated.id = ITEMID_AIR
+            };
+        }
+    }
+    Slot* output_slot = &inventory->slots[slotGroupIndexOffset(INVENTORY_CRAFTING_RESULT)];
+    RecipeQueryResult query_result = {0};
+    query_result.results = calloc(1, sizeof(IItem*));
+    assert(query_result.results != NULL);
+    // Put existing output in the result array
+    // to use when determining if the stack should
+    // just be resized or we need to create a new
+    // item if the IDs are different.
+    query_result.results[0] = output_slot->data.item;
+    if (recipeSearch(
+        crafting_recipes,
+        pattern,
+        &query_result,
+        true
+    ) == RECIPE_NOT_FOUND) {
+        // No matching recipe
+        free(query_result.results);
+        return false;
+    }
+    assert(query_result.result_count == 1);
+    if (output_slot->data.item == NULL) {
+        // Output slot was empty, just move the result
+        // into it
+        goto free_result_and_move_to_slot;
+    }
+    const Item* output_item = VCAST_PTR(Item*, output_slot->data.item);
+    const Item* result_item = VCAST_PTR(Item*, query_result.results[0]);
+    if (itemEquals(output_item, result_item)) {
+        // Items were the same, stack size was adjusted
+        // we have nothing left to do
+        goto free_result;
+    }
+    // IDs between existing output slot item
+    // and new result were different, 
+    VCALL((IItem) *output_slot->data.item, destroy);
+free_result_and_move_to_slot:;
+    output_slot->data.item = query_result.results[0];
+free_result:;
+    free(query_result.results);
+    return true;
+}
+
 static void cursorHandler(Inventory* inventory,
                           InventorySlotGroups groups,
                           bool split_or_store_one) {
@@ -370,6 +457,40 @@ static void cursorHandler(Inventory* inventory,
             0
         );
         uiCursorSetHeldData(&cursor, NULL);
+        return;
+    }
+    if (!split_or_store_one && groups & INVENTORY_SLOT_GROUP_CRAFTING_RESULT
+        && slotGroupIntersect(
+        INVENTORY_CRAFTING_RESULT,
+        &cursor.component.position
+    )) {
+        Slot* result_slot = &inventory->slots[slotGroupCursorSlot(
+            INVENTORY_CRAFTING_RESULT,
+            &cursor.component.position
+        )];
+        // NOTE: Don't bother with splitting stacks
+        //       since it's a pain for the output slot.
+        IItem* result_iitem = result_slot->data.item;
+        if (result_iitem == NULL) {
+            return;
+        }
+        Item* result_item = VCAST_PTR(Item*, result_iitem);
+        IItem* held_iitem = (IItem*) cursor.held_data;
+        if (held_iitem == NULL) {
+            consumeRecipeIngredients(inventory);
+            uiCursorSetHeldData(&cursor, result_iitem);
+            result_slot->data.item = NULL;
+            return;
+        } 
+        Item* held_item = VCAST_PTR(Item*, held_iitem);
+        if (itemEquals(held_item, result_item)) {
+            // Held and result item ids mismatch
+            return;
+        }
+        held_item->stack_size += result_item->stack_size;
+        VCALL(*result_iitem, destroy);
+        result_slot->data.item = NULL;
+        consumeRecipeIngredients(inventory);
         return;
     }
     Slot* slot = NULL;
@@ -389,14 +510,7 @@ static void cursorHandler(Inventory* inventory,
             INVENTORY_CRAFTING,
             &cursor.component.position
         )];
-    } else if (groups & INVENTORY_SLOT_GROUP_CRAFTING_RESULT && slotGroupIntersect(
-        INVENTORY_CRAFTING_RESULT,
-        &cursor.component.position
-    )) {
-        slot = &inventory->slots[slotGroupCursorSlot(
-            INVENTORY_CRAFTING_RESULT,
-            &cursor.component.position
-        )];
+    
     } else if (groups & INVENTORY_SLOT_GROUP_MAIN && slotGroupIntersect(
         INVENTORY_MAIN,
         &cursor.component.position
@@ -434,6 +548,7 @@ static void cursorHandler(Inventory* inventory,
 void inventoryCursorHandler(Inventory* inventory,
                             InventorySlotGroups groups,
                             const Input* input) {
+    processCraftingRecipe(inventory);
     VCALL(cursor_component, update);
     const PADTYPE* pad = input->pad;
     if (isPressed(pad, BINDING_CURSOR_CLICK)

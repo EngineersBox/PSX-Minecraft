@@ -79,6 +79,8 @@ static void consumeRecipeIngredients() {
  * @return true if a matching recipe is found, false otherwise
  */
 static bool processCraftingRecipe() {
+    // TODO: Only invoke this when something changes in the crafting grid
+    //       or output slot
     RecipePattern pattern = {0};
     for (int i = 0; i < slotGroupIndexOffset(CRAFTING_TABLE_RESULT); i++) {
         const Slot* slot = &crafting_table_slots[i];
