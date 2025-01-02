@@ -9,7 +9,7 @@
 #include "../../entity/player.h"
 #include "../items/items.h"
 #include "../world/world_structure.h"
-#include "../recipe/crafting_table.h"
+#include "../recipe/crafting.h"
 
 FWD_DECL Chunk* worldGetChunk(const World* world, const VECTOR* position);
 FWD_DECL void worldDropItemStack(World* world, IItem* item, const u8 count);
@@ -106,7 +106,7 @@ static bool processCraftingRecipe() {
     // item if the IDs are different.
     query_result.results[0] = output_slot->data.item;
     if (recipeSearch(
-        crafting_table_recipes,
+        crafting_recipes,
         pattern,
         &query_result,
         true

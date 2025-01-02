@@ -12,6 +12,7 @@
 #include "../world/world_structure.h"
 #include "utils.h"
 #include "../../util/debounce.h"
+#include "../recipe/crafting.h"
 
 FWD_DECL void worldDropItemStack(World* world, IItem* item, const u8 count);
 

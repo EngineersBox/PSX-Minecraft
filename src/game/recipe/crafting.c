@@ -1,8 +1,8 @@
-#include "crafting_table.h"
+#include "crafting.h"
 
 #include "../items/items.h"
 
-const RecipeNode* crafting_table_recipes = RECIPE_ITEM {
+const RecipeNode* crafting_recipes = RECIPE_ITEM {
     .item = RECIPE_COMPOSITE_ID(ITEMID_AIR, 0),
     .node_count = 2,
     .result_count = 0,
