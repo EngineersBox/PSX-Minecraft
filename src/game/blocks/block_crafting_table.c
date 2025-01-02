@@ -14,7 +14,12 @@
 FWD_DECL Chunk* worldGetChunk(const World* world, const VECTOR* position);
 FWD_DECL void worldDropItemStack(World* world, IItem* item, const u8 count);
 
-Slot crafting_table_slots[(slotGroupSize(CRAFTING_TABLE) + slotGroupSize(CRAFTING_TABLE_RESULT))] = {0};
+Slot crafting_table_slots[(slotGroupSize(CRAFTING_TABLE) + slotGroupSize(CRAFTING_TABLE_RESULT))] = {
+    createSlotInline(CRAFTING_TABLE, 0, 0), createSlotInline(CRAFTING_TABLE, 1, 0), createSlotInline(CRAFTING_TABLE, 2, 0),
+    createSlotInline(CRAFTING_TABLE, 0, 1), createSlotInline(CRAFTING_TABLE, 1, 0), createSlotInline(CRAFTING_TABLE, 2, 1),
+    createSlotInline(CRAFTING_TABLE, 0, 2), createSlotInline(CRAFTING_TABLE, 1, 0), createSlotInline(CRAFTING_TABLE, 2, 2),
+    createSlotInline(CRAFTING_TABLE_RESULT, 0, 0)
+};
 
 bool craftingTableBlockInputHandler(const Input* input, void* ctx);
 static InputHandlerVTable craftingTableBlockInputHandlerVTable = {
@@ -50,17 +55,10 @@ IItem* CraftingTableBlock_provideItem(VSelf) {
     return item;
 }
 
-static Slot crafting_table_sots[(slotGroupSize(CRAFTING_TABLE) + slotGroupSize(CRAFTING_TABLE_RESULT))] = {
-    createSlotInline(CRAFTING_TABLE, 0, 0), createSlotInline(CRAFTING_TABLE, 1, 0), createSlotInline(CRAFTING_TABLE, 2, 0),
-    createSlotInline(CRAFTING_TABLE, 0, 1), createSlotInline(CRAFTING_TABLE, 1, 0), createSlotInline(CRAFTING_TABLE, 2, 1),
-    createSlotInline(CRAFTING_TABLE, 0, 2), createSlotInline(CRAFTING_TABLE, 1, 0), createSlotInline(CRAFTING_TABLE, 2, 2),
-    createSlotInline(CRAFTING_TABLE_RESULT, 0, 0)
-};
-
 // Consumes enough for one output of the recipe
 static void consumeRecipeIngredients() {
     for (int i = 0; i < slotGroupIndexOffset(CRAFTING_TABLE_RESULT); i++) {
-        Slot* slot = &crafting_table_sots[i];
+        Slot* slot = &crafting_table_slots[i];
         IItem* iitem = slot->data.item;
         if (iitem == NULL) {
             continue;
@@ -69,6 +67,7 @@ static void consumeRecipeIngredients() {
         assert(item->stack_size > 0);
         if (--item->stack_size == 0) {
             VCALL(*iitem, destroy);
+            slot->data.item = NULL;
         }
     }
 }
@@ -183,7 +182,6 @@ static void cursorHandler(bool split_or_store_one) {
         if (result_iitem == NULL) {
             return;
         }
-        // FIXME: Recipe ingredients are not consumed properly for some reason
         Item* result_item = VCAST_PTR(Item*, result_iitem);
         IItem* held_iitem = (IItem*) cursor.held_data;
         if (held_iitem == NULL) {
@@ -199,6 +197,7 @@ static void cursorHandler(bool split_or_store_one) {
         }
         held_item->stack_size += result_item->stack_size;
         VCALL(*result_iitem, destroy);
+        result_slot->data.item = NULL;
         consumeRecipeIngredients();
     }
 }
@@ -294,13 +293,15 @@ void craftingTableBlockRenderUI(RenderContext* ctx, Transforms* transforms) {
             VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
         }
     }
-    const Slot* slot = &crafting_table_sots[slotGroupIndexOffset(CRAFTING_TABLE)];
+    const Slot* slot = &crafting_table_slots[slotGroupIndexOffset(CRAFTING_TABLE_RESULT)];
     if (slot->data.item != NULL) {
-        // FIXME: This doesn't render for some reason
+        DEBUG_LOG("[CRAFTING] Rendering output slot\n");
         Item* item = VCAST_PTR(Item*, slot->data.item);
-        item->position.vx = slotGroupScreenPosition(CRAFTING_TABLE, X, 0);
-        item->position.vy = slotGroupScreenPosition(CRAFTING_TABLE, Y, 0);
+        item->position.vx = slotGroupScreenPosition(CRAFTING_TABLE_RESULT, X, 0);
+        item->position.vy = slotGroupScreenPosition(CRAFTING_TABLE_RESULT, Y, 0);
         VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
+    } else {
+        DEBUG_LOG("[CRAFTING] Empty output slot, not rendering\n");
     }
     uiBackgroundRender(
         &block_render_ui_context.background,
