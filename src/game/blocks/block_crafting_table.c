@@ -295,13 +295,10 @@ void craftingTableBlockRenderUI(RenderContext* ctx, Transforms* transforms) {
     }
     const Slot* slot = &crafting_table_slots[slotGroupIndexOffset(CRAFTING_TABLE_RESULT)];
     if (slot->data.item != NULL) {
-        DEBUG_LOG("[CRAFTING] Rendering output slot\n");
         Item* item = VCAST_PTR(Item*, slot->data.item);
         item->position.vx = slotGroupScreenPosition(CRAFTING_TABLE_RESULT, X, 0);
         item->position.vy = slotGroupScreenPosition(CRAFTING_TABLE_RESULT, Y, 0);
         VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
-    } else {
-        DEBUG_LOG("[CRAFTING] Empty output slot, not rendering\n");
     }
     uiBackgroundRender(
         &block_render_ui_context.background,
