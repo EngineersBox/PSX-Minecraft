@@ -55,23 +55,6 @@ IItem* CraftingTableBlock_provideItem(VSelf) {
     return item;
 }
 
-// Consumes enough for one output of the recipe
-static void consumeRecipeIngredients() {
-    for (int i = 0; i < slotGroupIndexOffset(CRAFTING_TABLE_RESULT); i++) {
-        Slot* slot = &crafting_table_slots[i];
-        IItem* iitem = slot->data.item;
-        if (iitem == NULL) {
-            continue;
-        }
-        Item* item = VCAST_PTR(Item*, iitem);
-        assert(item->stack_size > 0);
-        if (--item->stack_size == 0) {
-            VCALL(*iitem, destroy);
-            slot->data.item = NULL;
-        }
-    }
-}
-
 /** 
  * @brief Find a matching recipe and put a single output
  * into the output slot if it is empty. 
@@ -153,7 +136,11 @@ static void cursorHandler(bool split_or_store_one) {
         Item* result_item = VCAST_PTR(Item*, result_iitem);
         IItem* held_iitem = (IItem*) cursor.held_data;
         if (held_iitem == NULL) {
-            consumeRecipeIngredients();
+            recipeConsumeIngredients(
+                crafting_table_slots,
+                slotGroupIndexOffset(CRAFTING_TABLE),
+                slotGroupIndexOffset(CRAFTING_TABLE_RESULT)
+            );
             uiCursorSetHeldData(&cursor, result_iitem);
             result_slot->data.item = NULL;
             return;
@@ -166,7 +153,11 @@ static void cursorHandler(bool split_or_store_one) {
         held_item->stack_size += result_item->stack_size;
         VCALL(*result_iitem, destroy);
         result_slot->data.item = NULL;
-        consumeRecipeIngredients();
+        recipeConsumeIngredients(
+            crafting_table_slots,
+            slotGroupIndexOffset(CRAFTING_TABLE),
+            slotGroupIndexOffset(CRAFTING_TABLE_RESULT)
+        );
     }
 }
 

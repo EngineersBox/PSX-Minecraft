@@ -157,3 +157,21 @@ free_result:;
     free(query_result.results);
     return true;
 }
+
+void recipeConsumeIngredients(Slot* slots,
+                              int start_index,
+                              int end_index) {
+    for (int i = start_index; i < end_index; i++) {
+        Slot* slot = &slots[i];
+        IItem* iitem = slot->data.item;
+        if (iitem == NULL) {
+            continue;
+        }
+        Item* item = VCAST_PTR(Item*, iitem);
+        assert(item->stack_size > 0);
+        if (--item->stack_size == 0) {
+            VCALL(*iitem, destroy);
+            slot->data.item = NULL;
+        }
+    }
+}

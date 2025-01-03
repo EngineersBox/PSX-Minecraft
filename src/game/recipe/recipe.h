@@ -124,6 +124,10 @@ bool recipeProcessGrid(const RecipeNode* node,
                        const RecipePattern pattern,
                        Slot* output_slot);
 
+void recipeConsumeIngredients(Slot* slots,
+                              int start_index,
+                              int end_index);
+
 #define RECIPE_LIST (RecipeNode*[])
 #define RECIPE_ITEM &(RecipeNode)
 

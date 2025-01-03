@@ -354,24 +354,6 @@ void Inventory_registerInputHandler(VSelf, Input* input, void* ctx) {
     );
 }
 
-// Consumes enough for one output of the recipe
-static void consumeRecipeIngredients(Inventory* inventory) {
-    for (int i = slotGroupIndexOffset(INVENTORY_CRAFTING);
-        i < slotGroupIndexOffset(INVENTORY_CRAFTING_RESULT); i++) {
-        Slot* slot = &inventory->slots[i];
-        IItem* iitem = slot->data.item;
-        if (iitem == NULL) {
-            continue;
-        }
-        Item* item = VCAST_PTR(Item*, iitem);
-        assert(item->stack_size > 0);
-        if (--item->stack_size == 0) {
-            VCALL(*iitem, destroy);
-            slot->data.item = NULL;
-        }
-    }
-}
-
 /** 
  * @brief Find a matching recipe and put a single output
  * into the output slot if it is empty. 
@@ -450,7 +432,11 @@ static void cursorHandler(Inventory* inventory,
         Item* result_item = VCAST_PTR(Item*, result_iitem);
         IItem* held_iitem = (IItem*) cursor.held_data;
         if (held_iitem == NULL) {
-            consumeRecipeIngredients(inventory);
+            recipeConsumeIngredients(
+                inventory->slots,
+                slotGroupIndexOffset(INVENTORY_CRAFTING),
+                slotGroupIndexOffset(INVENTORY_CRAFTING_RESULT)
+            );
             uiCursorSetHeldData(&cursor, result_iitem);
             result_slot->data.item = NULL;
             return;
@@ -463,7 +449,11 @@ static void cursorHandler(Inventory* inventory,
         held_item->stack_size += result_item->stack_size;
         VCALL(*result_iitem, destroy);
         result_slot->data.item = NULL;
-        consumeRecipeIngredients(inventory);
+        recipeConsumeIngredients(
+            inventory->slots,
+            slotGroupIndexOffset(INVENTORY_CRAFTING),
+            slotGroupIndexOffset(INVENTORY_CRAFTING_RESULT)
+        );
         return;
     }
     Slot* slot = NULL;
