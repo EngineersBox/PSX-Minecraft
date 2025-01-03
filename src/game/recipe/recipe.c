@@ -113,3 +113,47 @@ RecipeQueryState recipeSearch(const RecipeNode* root,
         create_result_item
     );
 }
+
+bool recipeProcessGrid(const RecipeNode* root,
+                       const RecipePattern pattern,
+                       Slot* output_slot) {
+    RecipeQueryResult query_result = {0};
+    query_result.results = calloc(1, sizeof(IItem*));
+    assert(query_result.results != NULL);
+    // Put existing output in the result array
+    // to use when determining if the stack should
+    // just be resized or we need to create a new
+    // item if the IDs are different.
+    query_result.results[0] = output_slot->data.item;
+    if (recipeSearch(
+        root,
+        pattern,
+        &query_result,
+        true
+    ) == RECIPE_NOT_FOUND) {
+        // No matching recipe
+        free(query_result.results);
+        return false;
+    }
+    assert(query_result.result_count == 1);
+    if (output_slot->data.item == NULL) {
+        // Output slot was empty, just move the result
+        // into it
+        goto free_result_and_move_to_slot;
+    }
+    const Item* output_item = VCAST_PTR(Item*, output_slot->data.item);
+    const Item* result_item = VCAST_PTR(Item*, query_result.results[0]);
+    if (itemEquals(output_item, result_item)) {
+        // Items were the same, stack size was adjusted
+        // we have nothing left to do
+        goto free_result;
+    }
+    // IDs between existing output slot item
+    // and new result were different, 
+    VCALL((IItem) *output_slot->data.item, destroy);
+free_result_and_move_to_slot:;
+    output_slot->data.item = query_result.results[0];
+free_result:;
+    free(query_result.results);
+    return true;
+}

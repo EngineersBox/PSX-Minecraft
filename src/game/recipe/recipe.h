@@ -7,6 +7,7 @@
 
 #include "../items/item.h"
 #include "../items/item_id.h"
+#include "../gui/slot.h"
 #include "../../util/inttypes.h"
 #include "../../math/math_utils.h"
 
@@ -118,6 +119,10 @@ RecipeQueryState recipeSearch(const RecipeNode* root,
                               const RecipePattern pattern,
                               RecipeQueryResult* query_result,
                               bool create_item_result);
+
+bool recipeProcessGrid(const RecipeNode* node,
+                       const RecipePattern pattern,
+                       Slot* output_slot);
 
 #define RECIPE_LIST (RecipeNode*[])
 #define RECIPE_ITEM &(RecipeNode)
