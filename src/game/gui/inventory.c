@@ -386,14 +386,21 @@ static bool processCraftingRecipe(Inventory* inventory) {
         i < slotGroupIndexOffset(INVENTORY_CRAFTING_RESULT); i++) {
         const Slot* slot = &inventory->slots[i];
         const IItem* iitem = slot->data.item;
+        int pattern_index = i - slotGroupIndexOffset(INVENTORY_CRAFTING);
+        if (pattern_index >= 2) {
+            // We need to place the last two slots
+            // on the next row in the pattern, which
+            // is 3x3, so we skip an index to do so
+            pattern_index++;
+        }
         if (iitem != NULL) {
             const Item* item = VCAST_PTR(Item*, iitem);
-            pattern[i] = (RecipePatternEntry) {
+            pattern[pattern_index] = (RecipePatternEntry) {
                 .separated.metadata = item->metadata_id,
                 .separated.id = item->id
             };
         } else {
-            pattern[i] = (RecipePatternEntry) {
+            pattern[pattern_index] = (RecipePatternEntry) {
                 .separated.metadata = 0,
                 .separated.id = ITEMID_AIR
             };
