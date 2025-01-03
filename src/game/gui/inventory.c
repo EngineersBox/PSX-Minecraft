@@ -354,12 +354,6 @@ void Inventory_registerInputHandler(VSelf, Input* input, void* ctx) {
     );
 }
 
-/** 
- * @brief Find a matching recipe and put a single output
- * into the output slot if it is empty. 
- * if no matching recipe
- * @return true if a matching recipe is found, false otherwise
- */
 static bool processCraftingRecipe(Inventory* inventory) {
     // TODO: Only invoke this when something changes in the crafting grid
     //       or output slot

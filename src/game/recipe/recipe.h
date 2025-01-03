@@ -120,6 +120,12 @@ RecipeQueryState recipeSearch(const RecipeNode* root,
                               RecipeQueryResult* query_result,
                               bool create_item_result);
 
+/** 
+ * @brief Find a matching recipe and put a single output
+ * into the output slot if it is empty. 
+ * if no matching recipe
+ * @return true if a matching recipe is found, false otherwise
+ */
 bool recipeProcessGrid(const RecipeNode* node,
                        const RecipePattern pattern,
                        Slot* output_slot);
