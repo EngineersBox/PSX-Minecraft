@@ -113,7 +113,7 @@
 * [ ] Handle non-uniform block models when generating meshes (i.e. stairs), including orientation where only some faces can be merged.
 * [ ] Polygon subdivision (polygons of minimum size, i.e. block size) for the mesh of the chunk that the player resides within
 * [ ] Change lighting direction for both in-world blocks and in-inventory blocks to match actual MC directional lighting
-* [ ] Crafting in small grid within inventory
+* [X] Crafting in small grid within inventory
 * [ ] Only process/search for a crafting recipe when the grid or output slot changes to avoid redundant re-processing and searches
 
 ## Refactor
