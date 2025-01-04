@@ -186,6 +186,26 @@ bool craftingTableBlockInputHandler(const Input* input, void* ctx) {
         block_render_ui_context.function = NULL;
         block_render_ui_context.block = NULL;
         block_render_ui_context.background = (UIBackground) {0};
+        // Drop all ingredients into the world and
+        // destroy the output slot item
+        for (int i = slotGroupIndexOffset(CRAFTING_TABLE);
+            i < slotGroupIndexOffset(CRAFTING_TABLE_RESULT); i++) {
+            Slot* slot = &crafting_table_slots[i];
+            if (slot->data.item == NULL) {
+                continue;
+            }
+            worldDropItemStack(
+                world,
+                (IItem*)  slot->data.item,
+                0
+            );
+            slot->data.item = NULL;
+        }
+        Slot* output_slot = &crafting_table_slots[slotGroupIndexOffset(CRAFTING_TABLE_RESULT)];
+        if (output_slot->data.item != NULL) {
+            VCALL(*((IItem*) output_slot->data.item), destroy);
+            output_slot->data.item = NULL;
+        }
         return INPUT_HANDLER_RELINQUISH;
     }
     return INPUT_HANDLER_RETAIN;
