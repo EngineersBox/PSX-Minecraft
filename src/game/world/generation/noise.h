@@ -1,11 +1,11 @@
 #pragma once
 
-#ifndef PSXMC_NOISE_H
-#define PSXMC_NOISE_H
+#ifndef _PSXMC__GAME_WORLD_GENERATION__NOISE_H_
+#define _PSXMC__GAME_WORLD_GENERATION__NOISE_H_
 
-#include <stdint.h>
+#include "../../../util/inttypes.h"
 
-static const uint8_t p[257] = {
+static const u8 p[257] = {
     151, 160, 137, 91, 90, 15,
     131, 13, 201, 95, 96, 53, 194, 233, 7, 225, 140, 36, 103, 30, 69, 142, 8, 99, 37, 240, 21, 10, 23,
     190, 6, 148, 247, 120, 234, 75, 0, 26, 197, 62, 94, 252, 219, 203, 117, 35, 11, 32, 57, 177, 33,
@@ -22,7 +22,7 @@ static const uint8_t p[257] = {
     151,
 };
 
-static const uint16_t _fade[256] = {
+static const u16 _fade[256] = {
     0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 3, 3, 4, 6, 7, 9, 10, 12, 14, 17, 19, 22, 25, 29, 32, 36, 40, 45, 49, 54,
     60, 65, 71, 77, 84, 91, 98, 105, 113, 121, 130, 139, 148, 158, 167, 178, 188, 199, 211, 222, 234,
     247, 259, 273, 286, 300, 314, 329, 344, 359, 374, 390, 407, 424, 441, 458, 476, 494, 512, 531,
@@ -54,5 +54,4 @@ int fade(int t);
 int noise3d(int x, int y, int z);
 int noise2d(int x, int y);
 
-
-#endif // PSXMC_NOISE_H
+#endif // _PSXMC__GAME_WORLD_GENERATION__NOISE_H_
