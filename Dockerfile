@@ -24,6 +24,8 @@ RUN apt-get update \
         gdb \
         clang-15 \
         clangd-15 \
+        llvm-15-dev \
+        libclang-15-dev \
         make \
         ninja-build \
         autoconf \
@@ -80,6 +82,17 @@ RUN python3 -m pip install -r /opt/requirements.txt
 
 # Add cclangd script for LSPs
 ADD cclangd /usr/local/bin/cclangd
+
+# Install include-what-you-use
+WORKDIR /
+RUN git clone https://github.com/include-what-you-use/include-what-you-use.git
+RUN cd include-what-you-use && git checkout clang_15 && cd ..
+RUN mkdir iwyu_build
+
+WORKDIR /iwyu_build
+RUN cmake -G "Unix Makefiles" -DCMAKE_PREFIX_PATH=/usr/lib/llvm-7 ../include-what-you-use
+RUN make
+ENV PATH="$PATH:/iwyu_build/bin"
 
 ENV PSN00BSDK_LIBS="/opt/psn00bsdk/lib/libpsn00b"
 ENV PATH="$PATH:/opt/psn00bsdk/mipsel-none-elf-gcc/bin:/opt/psn00bsdk/bin"
