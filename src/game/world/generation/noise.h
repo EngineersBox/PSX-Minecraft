@@ -41,10 +41,8 @@ static const u16 _fade[256] = {
 };
 
 #define lerp(t, a, b) ({\
-    __typeof__(t) _t = (t);\
     __typeof__(a) _a = (a);\
-    __typeof__(b) _b = (b);\
-    _a + (_t * (_b - _a) >> 12);\
+    _a + ((t) * ((b) - _a) >> 12);\
 })
 
 int grad(int hash, int x, int y, int z);
