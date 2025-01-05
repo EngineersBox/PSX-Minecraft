@@ -65,7 +65,7 @@ typedef struct BlockAttributes {
     u8 can_harvest: TOOL_TYPE_COUNT;
     bool propagates_sunlight: 1;
     bool propagates_blocklight: 1;
-    u32 _pad: 13;
+    u16 _pad: 13;
     // This is a variable length array with length
     // a multiple of 6, where each 6 entries will
     // correspond to a metadata_id grouping of
@@ -78,6 +78,8 @@ typedef struct Block {
     BlockID id;
     u8 metadata_id;
     u8 light_level: 4;
+    // TODO: Can this be inferred from the block type
+    //       and the orientation?
     u8 opacity_bitset: FACE_DIRECTION_COUNT;
     FaceDirection orientation: FACE_DIRECTION_COUNT_BITS;
     u8 _pad: 3;
