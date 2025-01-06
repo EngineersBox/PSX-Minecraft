@@ -313,19 +313,36 @@ static void chunkRenderDroppedItems(const Chunk* chunk, RenderContext* ctx, Tran
 }
 
 #if isOverlayEnabled(DURATION_TREE)
-static DurationComponent* chunk_render_duration = NULL;
+static char* chunk_render_duration_names[AXIS_CHUNKS][AXIS_CHUNKS][WORLD_CHUNKS_HEIGHT] = {0};
+static DurationComponent* chunk_render_duration[AXIS_CHUNKS][AXIS_CHUNKS][WORLD_CHUNKS_HEIGHT] = {0};
 #endif
+
+#define shiftChunkPos(chunk, axis) ((chunk->position.axis + (AXIS_CHUNKS >> 1)) % AXIS_CHUNKS)
 
 void chunkRender(Chunk* chunk,
                  bool subdivide,
                  RenderContext* ctx,
                  Transforms* transforms) {
+    DurationComponent** duration = &chunk_render_duration[shiftChunkPos(chunk, vx)]
+                                                         [shiftChunkPos(chunk, vz)]
+                                                         [chunk->position.vy % WORLD_CHUNKS_HEIGHT];
 #if isOverlayEnabled(DURATION_TREE)
-    if (chunk_render_duration == NULL) {
-        chunk_render_duration = durationTreeAddComponent("chunkRender");
+    char** name = &chunk_render_duration_names[shiftChunkPos(chunk, vx)]
+                                              [shiftChunkPos(chunk, vz)]
+                                              [chunk->position.vy % WORLD_CHUNKS_HEIGHT];
+    if (*duration == NULL) {
+        sprintf(
+            *name,
+            "chunk" VEC_PATTERN,
+            shiftChunkPos(chunk, vx),
+            shiftChunkPos(chunk, vz),
+            chunk->position.vy % WORLD_CHUNKS_HEIGHT
+        );
+        *duration = durationTreeAddComponent(*name);
     }
 #endif
-    durationComponentStart(chunk_render_duration);
+#undef shiftChunkPos
+    durationComponentStart(*duration);
     const AABB aabb = (AABB) {
         .min = vec3_i32(
             (chunk->position.vx * CHUNK_BLOCK_SIZE),// << FIXED_POINT_SHIFT,

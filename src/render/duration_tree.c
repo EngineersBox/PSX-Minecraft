@@ -179,7 +179,8 @@ void durationTreeRender(DurationComponent* tree,
     // Selected + total
     char str[256] = {0};
     sprintf(
-        str, "Selected: %s\n - %dms\n - %s%%\nTotal: %dms\n",
+        str,
+        "Selected: %s\n - %dms\n - %s%%\nTotal: %dms\n",
         selected_name,
         selected_duration,
         selected_percentage,
