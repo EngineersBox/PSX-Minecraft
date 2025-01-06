@@ -32,19 +32,13 @@ Frustum frustumCreate() {
     };
 }
 
-#if isOverlayEnabled(DURATION_TREE)
-static DurationComponent* frustum_render_duration = NULL;
-#endif
+DEFN_DURATION_COMPONENT(frustum_render);
 
 static Plane current_planes[6] = {0};
 
 // TODO: Only transform/restore when the camera has moved, otherwise keep reusing the current planes
 void frustumTransform(Frustum* frustum, Transforms* transforms) {
-#if isOverlayEnabled(DURATION_TREE)
-    if (frustum_render_duration == NULL) {
-        frustum_render_duration = durationTreeAddComponent("frustumTransform");
-    }
-#endif
+    durationComponentInitOnce(frustum_render, "frustumTransform");
     durationComponentStart(frustum_render_duration);
     // NOTE: Plane normals should be rotated without translation vector 
     //       applied to geometry matrix. The reason is that we never

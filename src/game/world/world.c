@@ -41,12 +41,12 @@ const LightUpdateLimits world_chunk_init_limits = (LightUpdateLimits) {
     ((value) - (world->centre.axis - LOADED_CHUNKS_RADIUS - SHIFT_ZONE))\
 )
 
-void displayProgress(RenderContext* ctx,
-                     ProgressBar* progress_bar,
-                     const i32 x,
-                     const i32 y,
-                     const i32 z,
-                     const char* msg) {
+static void displayProgress(RenderContext* ctx,
+                            ProgressBar* progress_bar,
+                            const i32 x,
+                            const i32 y,
+                            const i32 z,
+                            const char* msg) {
     fontPrintCentreOffset(
         ctx,
         CENTRE_X,
@@ -319,19 +319,13 @@ render_moon:;
     renderCtxUnbindMatrix();
 }
 
-#if isOverlayEnabled(DURATION_TREE)
-static DurationComponent* world_render_duration = NULL;
-#endif
+DEFN_DURATION_COMPONENT(world_render);
 
 void worldRender(const World* world,
                  const Player* player,
                  RenderContext* ctx,
                  Transforms* transforms) {
-#if isOverlayEnabled(DURATION_TREE)
-    if (world_render_duration == NULL) {
-        world_render_duration = durationTreeAddComponent("worldRender");
-    }
-#endif
+    durationComponentInitOnce(world_render, "worldRender");
     durationComponentStart(world_render_duration);
     const VECTOR player_world_pos = vec3_i32(
         fixedFloor(player->entity.physics_object.position.vx, ONE_BLOCK) / ONE_BLOCK,
