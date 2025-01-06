@@ -363,6 +363,7 @@ void worldRender(const World* world,
         }
     }
     durationComponentEnd();
+    durationTreeRender(world_render_duration, ctx, transforms);
 }
 
 // NOTE: Should this just take i32 x,y,z params instead of a

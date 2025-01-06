@@ -7,9 +7,6 @@
 #include "../math/vector.h"
 #include "../math/math_utils.h"
 #include "../structure/cvector_utils.h"
-#include "font.h"
-#include "render_context.h"
-#include "transforms.h"
 
 #if isOverlayEnabled(DURATION_TREE)
 #include <stdlib.h>
@@ -54,6 +51,7 @@ void _durationTreesDestroy() {
 
 DurationComponent* _durationTreeAddComponent(const char* name) {
     DurationComponent* tree = durationComponentCurrent();
+    assert(tree != NULL);
     cvector_push_back(tree->components, (DurationComponent) {});
     DurationComponent* new_component = &tree->components[cvector_size(tree->components) - 1];
     new_component->name = name;
@@ -93,6 +91,12 @@ void _durationComponentEnd() {
 
 #define STACK_GRAPH_COLOUR_COUNT 11
 static const CVECTOR stack_graph_colours[STACK_GRAPH_COLOUR_COUNT] = {
+    /*vec3_rgb(0xff, 0, 0),*/
+    /*vec3_rgb(0, 0xff, 0),*/
+    /*vec3_rgb(0, 0, 0xff),*/
+    /*vec3_rgb(0xff, 0xff, 0),*/
+    /*vec3_rgb(0xff, 0, 0xff),*/
+    /*vec3_rgb(0, 0xff, 0xff)*/
     vec3_rgb(216, 73, 147),
     vec3_rgb(136, 239, 47),
     vec3_rgb(29, 139, 183),
@@ -111,9 +115,9 @@ static const CVECTOR stack_graph_colours[STACK_GRAPH_COLOUR_COUNT] = {
 #define DURATION_TREE_STACK_GRAPH_X_POS (SCREEN_XRES - 5 - DURATION_TREE_STACK_GRAPH_WIDTH)
 #define DURATION_TREE_STACK_GRAPH_Y_POS (SCREEN_YRES - 5 - DURATION_TREE_STACK_GRAPH_HEIGHT)
 
-int selected_rendered_stack_index = 0;
+int selected_rendered_stack_index = 3;
 
-void durationTreeChangeStackIndex(const DurationComponent* tree, int adjustment) {
+void _durationTreeChangeStackIndex(const DurationComponent* tree, int adjustment) {
     const int component_count = cvector_size(tree->components);
     selected_rendered_stack_index = clamp(
         selected_rendered_stack_index + adjustment,
@@ -122,9 +126,9 @@ void durationTreeChangeStackIndex(const DurationComponent* tree, int adjustment)
     );
 }
 
-void durationTreeRender(DurationComponent* tree,
-                        RenderContext* ctx,
-                        Transforms* transforms) {
+void _durationTreeRender(const DurationComponent* tree,
+                         RenderContext* ctx,
+                         Transforms* transforms) {
     if (tree == NULL || cvector_size(tree->components) == 0) {
         // We were passed a non-existent tree
         // or there are no child components, and
@@ -139,14 +143,17 @@ void durationTreeRender(DurationComponent* tree,
     Timestamp total_duration = tree->end - tree->start;
     Timestamp selected_duration = 0;
     u8 selected_percentage = 0;
-    char const* selected_name = NULL;
+    const char* selected_name = NULL;
     u8 stack_offset = 0;
     int i = 0;
     u32* ot_object = allocateOrderingTable(ctx, 0);
-    DurationComponent* component;
+    DurationComponent const* component = NULL;
     cvector_for_each_in(component, tree->components) {
         // Render each section of the stack graph
         const Timestamp duration = component->end - component->start;
+        if (duration == 0) {
+            continue;
+        }
         const u8 percentage = (duration * 100) / total_duration;
         if (i == selected_rendered_stack_index) {
             selected_duration = duration;
@@ -180,7 +187,7 @@ void durationTreeRender(DurationComponent* tree,
     char str[256] = {0};
     sprintf(
         str,
-        "Selected: %s\n - %dms\n - %s%%\nTotal: %dms\n",
+        "Selected:\n- %s\n- %dms\n- %d%%\nTotal: %dms\n",
         selected_name,
         selected_duration,
         selected_percentage,
@@ -189,7 +196,7 @@ void durationTreeRender(DurationComponent* tree,
     ctx->primitive = fontSort(
         ot_object,
         ctx->primitive,
-        DURATION_TREE_STACK_GRAPH_X_POS - 30,
+        DURATION_TREE_STACK_GRAPH_X_POS - 70,
         DURATION_TREE_STACK_GRAPH_Y_POS - (18 * 4),
         true,
         str
