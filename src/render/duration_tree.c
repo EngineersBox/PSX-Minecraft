@@ -113,7 +113,7 @@ static const CVECTOR stack_graph_colours[STACK_GRAPH_COLOUR_COUNT] = {
 #define DURATION_TREE_STACK_GRAPH_WIDTH 20
 #define DURATION_TREE_STACK_GRAPH_HEIGHT 100
 #define DURATION_TREE_STACK_GRAPH_X_POS (SCREEN_XRES - 5 - DURATION_TREE_STACK_GRAPH_WIDTH)
-#define DURATION_TREE_STACK_GRAPH_Y_POS (SCREEN_YRES - 5 - DURATION_TREE_STACK_GRAPH_HEIGHT)
+#define DURATION_TREE_STACK_GRAPH_Y_POS (9 * 6)
 
 int selected_rendered_stack_index = 3;
 
@@ -170,9 +170,9 @@ void _durationTreeRender(const DurationComponent* tree,
         const CVECTOR* colour = &stack_graph_colours[i % STACK_GRAPH_COLOUR_COUNT];
         setRGB0(
             tile,
-            colour->r,
-            colour->g,
-            colour->b
+            colour->r >> (i != selected_rendered_stack_index),
+            colour->g >> (i != selected_rendered_stack_index),
+            colour->b >> (i != selected_rendered_stack_index)
         );
         addPrim(ot_object, tile);
         if (i == selected_rendered_stack_index) {
@@ -184,7 +184,7 @@ void _durationTreeRender(const DurationComponent* tree,
             setXY0(
                 tile,
                 DURATION_TREE_STACK_GRAPH_X_POS + 2,
-                DURATION_TREE_STACK_GRAPH_Y_POS - (18 * 4)
+                DURATION_TREE_STACK_GRAPH_Y_POS - (9 * 5)
             );
             setWH(
                 tile,
@@ -216,7 +216,7 @@ void _durationTreeRender(const DurationComponent* tree,
         ot_object,
         ctx->primitive,
         DURATION_TREE_STACK_GRAPH_X_POS - 70,
-        DURATION_TREE_STACK_GRAPH_Y_POS - (18 * 4),
+        DURATION_TREE_STACK_GRAPH_Y_POS - (9 * 5),
         true,
         str
     );
