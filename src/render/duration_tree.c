@@ -140,14 +140,17 @@ void _durationTreeRender(const DurationComponent* tree,
     //       K,V above label shows selected index
     //       + duration time + percentage mapping
     //       to entry in graph.
-    Timestamp total_duration = tree->end - tree->start;
+    Timestamp total_duration = 0; //tree->end - tree->start;
+    DurationComponent const* component = NULL;
+    cvector_for_each_in(component, tree->components) {
+        total_duration += component->end - component->start;
+    }
     Timestamp selected_duration = 0;
     u8 selected_percentage = 0;
     const char* selected_name = NULL;
     u8 stack_offset = 0;
     int i = 0;
     u32* ot_object = allocateOrderingTable(ctx, 0);
-    DurationComponent const* component = NULL;
     cvector_for_each_in(component, tree->components) {
         // Render each section of the stack graph
         const Timestamp duration = component->end - component->start;
@@ -202,6 +205,21 @@ void _durationTreeRender(const DurationComponent* tree,
         stack_offset += percentage;
         i++;
     }
+    // Background
+    TILE* tile = (TILE*) allocatePrimitive(ctx, sizeof(TILE));
+        setTile(tile);
+        setXY0(
+            tile,
+            DURATION_TREE_STACK_GRAPH_X_POS,
+            DURATION_TREE_STACK_GRAPH_Y_POS
+        );
+        setWH(
+            tile,
+            DURATION_TREE_STACK_GRAPH_WIDTH,
+            DURATION_TREE_STACK_GRAPH_HEIGHT
+        );
+    setRGB0(tile, 0, 0, 0);
+    addPrim(ot_object, tile);
     // Selected + total
     char str[256] = {0};
     sprintf(
