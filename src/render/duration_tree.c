@@ -155,11 +155,6 @@ void _durationTreeRender(const DurationComponent* tree,
             continue;
         }
         const u8 percentage = (duration * 100) / total_duration;
-        if (i == selected_rendered_stack_index) {
-            selected_duration = duration;
-            selected_percentage = percentage;
-            selected_name = component->name;
-        }
         TILE* tile = (TILE*) allocatePrimitive(ctx, sizeof(TILE));
         setTile(tile);
         setXY0(
@@ -180,6 +175,30 @@ void _durationTreeRender(const DurationComponent* tree,
             colour->b
         );
         addPrim(ot_object, tile);
+        if (i == selected_rendered_stack_index) {
+            selected_duration = duration;
+            selected_percentage = percentage;
+            selected_name = component->name;
+            tile = (TILE*) allocatePrimitive(ctx, sizeof(TILE));
+            setTile(tile);
+            setXY0(
+                tile,
+                DURATION_TREE_STACK_GRAPH_X_POS + 2,
+                DURATION_TREE_STACK_GRAPH_Y_POS - (18 * 4)
+            );
+            setWH(
+                tile,
+                8,
+                8
+            );
+            setRGB0(
+                tile,
+                colour->r,
+                colour->g,
+                colour->b
+            );
+            addPrim(ot_object, tile);
+        }
         stack_offset += percentage;
         i++;
     }

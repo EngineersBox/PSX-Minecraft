@@ -332,7 +332,6 @@ void chunkRender(Chunk* chunk,
                                             [chunk->position.vy % WORLD_CHUNKS_HEIGHT];
     if (*duration == NULL) {
         *duration = durationTreeAddComponent(name);
-        DEBUG_LOG("[CHUNK] Duration name: %s @ %p\n", name, *duration);
         assert(*duration != NULL);
     }
     sprintf(
