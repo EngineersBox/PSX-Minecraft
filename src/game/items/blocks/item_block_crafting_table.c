@@ -47,22 +47,22 @@ void CraftingTableItemBlock_renderHand(VSelf, RenderContext* ctx, Transforms* tr
     itemBlockRenderHand(&self->item_block, ctx, transforms);
 }
 
-void craftingTableItemBlockApplyWorldRenderAttributes(VSelf) ALIAS("CraftingTableItemBlock_applyWorldRenderAttributes");
-void CraftingTableItemBlock_applyWorldRenderAttributes(VSelf) {
-    VSELF(CraftingTableItemBlock);
-    itemBlockApplyWorldRenderAttributes(&self->item_block);
-}
-
-void craftingTableItemBlockApplyInventoryRenderAttributes(VSelf) ALIAS("CraftingTableItemBlock_applyInventoryRenderAttributes");
-void CraftingTableItemBlock_applyInventoryRenderAttributes(VSelf) {
-    VSELF(CraftingTableItemBlock);
-    itemBlockApplyInventoryRenderAttributes(&self->item_block);
-}
-
-void craftingTableItemBlockApplyHandRenderAttributes(VSelf) ALIAS("CraftingTableItemBlock_applyHandRenderAttributes");
-void CraftingTableItemBlock_applyHandRenderAttributes(VSelf) {
-    UNIMPLEMENTED();
-}
+/*void craftingTableItemBlockApplyWorldRenderAttributes(VSelf) ALIAS("CraftingTableItemBlock_applyWorldRenderAttributes");*/
+/*void CraftingTableItemBlock_applyWorldRenderAttributes(VSelf) {*/
+/*    VSELF(CraftingTableItemBlock);*/
+/*    itemBlockApplyWorldRenderAttributes(&self->item_block);*/
+/*}*/
+/**/
+/*void craftingTableItemBlockApplyInventoryRenderAttributes(VSelf) ALIAS("CraftingTableItemBlock_applyInventoryRenderAttributes");*/
+/*void CraftingTableItemBlock_applyInventoryRenderAttributes(VSelf) {*/
+/*    VSELF(CraftingTableItemBlock);*/
+/*    itemBlockApplyInventoryRenderAttributes(&self->item_block);*/
+/*}*/
+/**/
+/*void craftingTableItemBlockApplyHandRenderAttributes(VSelf) ALIAS("CraftingTableItemBlock_applyHandRenderAttributes");*/
+/*void CraftingTableItemBlock_applyHandRenderAttributes(VSelf) {*/
+/*    UNIMPLEMENTED();*/
+/*}*/
 
 void craftingTableItemBlockInit(VSelf) ALIAS("CraftingTableItemBlock_init");
 void CraftingTableItemBlock_init(VSelf) {

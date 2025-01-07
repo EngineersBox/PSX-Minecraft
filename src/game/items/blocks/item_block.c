@@ -475,12 +475,18 @@ void itemBlockRenderHand(ItemBlock* item, RenderContext* ctx, Transforms* transf
 
 }
 
-INLINE void itemBlockApplyInventoryRenderAttributes(ItemBlock* item) {
-    item->item.position = ITEM_BLOCK_INVENTORY_POSITION_RENDER_ATTRIBUTE;
-    item->item.rotation = ITEM_BLOCK_INVENTORY_ROTATION_RENDER_ATTRIBUTE;
+void itemBlockApplyInventoryRenderAttributes(VSelf) {
+    VSELF(ItemBlock);
+    self->item.position = ITEM_BLOCK_INVENTORY_POSITION_RENDER_ATTRIBUTE;
+    self->item.rotation = ITEM_BLOCK_INVENTORY_ROTATION_RENDER_ATTRIBUTE;
 }
 
-INLINE void itemBlockApplyWorldRenderAttributes(ItemBlock* item) {
-    item->item.position = vec3_i32_all(0);
-    item->item.rotation = vec3_i16_all(0);
+void itemBlockApplyWorldRenderAttributes(VSelf) {
+    VSELF(ItemBlock);
+    self->item.position = vec3_i32_all(0);
+    self->item.rotation = vec3_i16_all(0);
+}
+
+void itemBlockApplyHandRenderAttributes(VSelf) {
+    UNIMPLEMENTED();
 }

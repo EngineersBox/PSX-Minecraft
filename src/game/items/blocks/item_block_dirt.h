@@ -29,14 +29,14 @@ void DirtItemBlock_renderInventory(VSelf, RenderContext* ctx, Transforms* transf
 void dirtItemBlockRenderHand(VSelf, RenderContext* ctx, Transforms* transforms);
 void DirtItemBlock_renderHand(VSelf, RenderContext* ctx, Transforms* transforms);
 
-void dirtItemBlockApplyWorldRenderAttributes(VSelf);
-void DirtItemBlock_applyWorldRenderAttributes(VSelf);
+/*void dirtItemBlockApplyWorldRenderAttributes(VSelf);*/
+void DirtItemBlock_applyWorldRenderAttributes(VSelf) ASM_ALIAS("itemBlockApplyWorldRenderAttributes");
 
-void dirtItemBlockApplyInventoryRenderAttributes(VSelf);
-void DirtItemBlock_applyInventoryRenderAttributes(VSelf);
+/*void dirtItemBlockApplyInventoryRenderAttributes(VSelf);*/
+void DirtItemBlock_applyInventoryRenderAttributes(VSelf) ASM_ALIAS("itemBlockApplyInventoryRenderAttributes");
 
-void dirtItemBlockApplyHandRenderAttributes(VSelf);
-void DirtItemBlock_applyHandRenderAttributes(VSelf);
+/*void dirtItemBlockApplyHandRenderAttributes(VSelf);*/
+void DirtItemBlock_applyHandRenderAttributes(VSelf) ASM_ALIAS("itemBlockApplyHandRenderAttributes");
 
 impl(Renderable, DirtItemBlock);
 

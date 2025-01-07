@@ -28,14 +28,14 @@ void GrassItemBlock_renderInventory(VSelf, RenderContext* ctx, Transforms* trans
 void grassItemBlockRenderHand(VSelf, RenderContext* ctx, Transforms* transforms);
 void GrassItemBlock_renderHand(VSelf, RenderContext* ctx, Transforms* transforms);
 
-void grassItemBlockApplyWorldRenderAttributes(VSelf);
-void GrassItemBlock_applyWorldRenderAttributes(VSelf);
+/*void grassItemBlockApplyWorldRenderAttributes(VSelf);*/
+void GrassItemBlock_applyWorldRenderAttributes(VSelf) ASM_ALIAS("itemBlockApplyWorldRenderAttributes");
 
-void grassItemBlockApplyInventoryRenderAttributes(VSelf);
-void GrassItemBlock_applyInventoryRenderAttributes(VSelf);
+/*void grassItemBlockApplyInventoryRenderAttributes(VSelf);*/
+void GrassItemBlock_applyInventoryRenderAttributes(VSelf) ASM_ALIAS("itemBlockApplyInventoryRenderAttributes");
 
-void grassItemBlockApplyHandRenderAttributes(VSelf);
-void GrassItemBlock_applyHandRenderAttributes(VSelf);
+/*void grassItemBlockApplyHandRenderAttributes(VSelf);*/
+void GrassItemBlock_applyHandRenderAttributes(VSelf) ASM_ALIAS("itemBlockApplyHandRenderAttributes");
 
 impl(Renderable, GrassItemBlock);
 

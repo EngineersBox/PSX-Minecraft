@@ -80,7 +80,8 @@ void itemBlockRenderWorld(ItemBlock* item,
 void itemBlockRenderInventory(ItemBlock* item, RenderContext* ctx, Transforms* transforms);
 void itemBlockRenderHand(ItemBlock* item, RenderContext* ctx, Transforms* transforms);
 
-void itemBlockApplyInventoryRenderAttributes(ItemBlock* item);
-void itemBlockApplyWorldRenderAttributes(ItemBlock* item);
+void itemBlockApplyInventoryRenderAttributes(VSelf);
+void itemBlockApplyWorldRenderAttributes(VSelf);
+void itemBlockApplyHandRenderAttributes(VSelf);
 
 #endif // PSXMC_ITEM_BLOCK_H

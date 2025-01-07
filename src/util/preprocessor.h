@@ -46,6 +46,7 @@
 #define UNAVAILABLE __attribute__((unavailable("Unavailable function/method")))
 #define UNUSED __attribute__((unused))
 #define ALIAS(name) __attribute__((alias(name)))
+#define ASM_ALIAS(name) asm(name)
 #define MAY_ALIAS __attribute__((may_alias))
 #define INLINE __attribute__((always_inline)) inline
 #define WEAK __attribute__((weak))

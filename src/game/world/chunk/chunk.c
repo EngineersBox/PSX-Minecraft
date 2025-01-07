@@ -793,6 +793,11 @@ LightLevel chunkGetLightValue(const Chunk* chunk,
 LightLevel chunkGetLightType(const Chunk* chunk,
                              const VECTOR* position,
                              const LightType light_type) {
+    // FIXME: Remeshing a chunk due to block break or player moving
+    //        enough to cause chunks to shift, load and unload will
+    //        mean this is invoked somewhere with a bad coordinate.
+    //        We should validate the coords before calling this (not
+    //        sure exactly from where).
     assert(checkIndexInBounds(position->vx, position->vy, position->vz));
     return lightMapGetType(chunk->lightmap, *position, light_type);
 }

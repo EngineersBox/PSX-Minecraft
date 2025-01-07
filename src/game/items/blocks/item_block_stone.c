@@ -50,22 +50,22 @@ void StoneItemBlock_renderHand(VSelf, RenderContext* ctx, Transforms* transforms
     itemBlockRenderHand(&self->item_block, ctx, transforms);
 }
 
-void stoneItemBlockApplyWorldRenderAttributes(VSelf) ALIAS("StoneItemBlock_applyWorldRenderAttributes");
-void StoneItemBlock_applyWorldRenderAttributes(VSelf) {
-    VSELF(StoneItemBlock);
-    itemBlockApplyWorldRenderAttributes(&self->item_block);
-}
-
-void stoneItemBlockApplyInventoryRenderAttributes(VSelf) ALIAS("StoneItemBlock_applyInventoryRenderAttributes");
-void StoneItemBlock_applyInventoryRenderAttributes(VSelf) {
-    VSELF(StoneItemBlock);
-    itemBlockApplyInventoryRenderAttributes(&self->item_block);
-}
-
-void stoneItemBlockApplyHandRenderAttributes(VSelf) ALIAS("StoneItemBlock_applyHandRenderAttributes");
-void StoneItemBlock_applyHandRenderAttributes(VSelf) {
-
-}
+/*void stoneItemBlockApplyWorldRenderAttributes(VSelf) ALIAS("StoneItemBlock_applyWorldRenderAttributes");*/
+/*void StoneItemBlock_applyWorldRenderAttributes(VSelf) {*/
+/*    VSELF(StoneItemBlock);*/
+/*    itemBlockApplyWorldRenderAttributes(&self->item_block);*/
+/*}*/
+/**/
+/*void stoneItemBlockApplyInventoryRenderAttributes(VSelf) ALIAS("StoneItemBlock_applyInventoryRenderAttributes");*/
+/*void StoneItemBlock_applyInventoryRenderAttributes(VSelf) {*/
+/*    VSELF(StoneItemBlock);*/
+/*    itemBlockApplyInventoryRenderAttributes(&self->item_block);*/
+/*}*/
+/**/
+/*void stoneItemBlockApplyHandRenderAttributes(VSelf) ALIAS("StoneItemBlock_applyHandRenderAttributes");*/
+/*void StoneItemBlock_applyHandRenderAttributes(VSelf) {*/
+/**/
+/*}*/
 
 void stoneItemBlockInit(VSelf) ALIAS("StoneItemBlock_init");
 void StoneItemBlock_init(VSelf) {
