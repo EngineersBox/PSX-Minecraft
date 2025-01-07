@@ -17,6 +17,7 @@
 #include "../../logging/logging.h"
 #include "../items/items.h"
 #include "chunk/chunk.h"
+#include "chunk/chunk_defines.h"
 #include "chunk/chunk_mesh.h"
 #include "chunk/chunk_structure.h"
 #include "chunk/heightmap.h"
@@ -773,19 +774,19 @@ void worldUpdate(World* world,
         CHUNK_SIZE
     );
     if (isPlayerInEdgeChunks(world, &player_pos)) {
-        // DEBUG_LOG("Player chunk pos: %d,%d,%d\n", VEC_LAYOUT(player_chunk_pos));
+        DEBUG_LOG("Player chunk pos: %d,%d,%d\n", VEC_LAYOUT(player_pos.chunk));
         worldLoadChunks(world, &player_pos.chunk);
-        // DEBUG_LOG(
-        //     "[WORLD] Head { x: %d, z: %d } Centre { x: %d, z: %d}\n",
-        //     world->head.vx, world->head.vz,
-        //     world->centre.vx, world->centre.vz
-        // );
-        // for (i32 z = 0; z < AXIS_CHUNKS; z++) {
-        //     for (i32 x = 0; x < AXIS_CHUNKS; x++) {
-        //         DEBUG_LOG("%d ", world->chunks[z][x][0] != NULL);
-        //     }
-        //     DEBUG_LOG("\n");
-        // }
+        DEBUG_LOG(
+            "[WORLD] Head { x: %d, z: %d } Centre { x: %d, z: %d}\n",
+            world->head.vx, world->head.vz,
+            world->centre.vx, world->centre.vz
+        );
+        for (i32 z = 0; z < AXIS_CHUNKS; z++) {
+            for (i32 x = 0; x < AXIS_CHUNKS; x++) {
+                DEBUG_LOG("%d ", world->chunks[z][x][0] != NULL);
+            }
+            DEBUG_LOG("\n");
+        }
     }
     const VECTOR chunk_position = worldToChunkBlockPosition(
         &breaking_state->position,
@@ -810,6 +811,7 @@ void worldUpdate(World* world,
                 }
             }
         }
+        DEBUG_LOG("[WORLD] End world update (no breaking state)\n");
         return;
     }
     u8 coords_check = 0b000; // XYZ
@@ -837,6 +839,7 @@ void worldUpdate(World* world,
         }
     }
     #undef updateCoordBit
+    DEBUG_LOG("[WORLD] End world update (with breaking state)\n");
 }
 
 INLINE Chunk* worldGetChunkFromChunkBlock(const World* world, const ChunkBlockPosition* position) {
@@ -898,7 +901,9 @@ bool worldModifyVoxelChunkBlock(const World* world,
                                 const bool drop_item,
                                 IItem** item_result) {
     // World is void below 0 on y-axis and nothing above height limit
-    if ((position->chunk.vy <= 0 && position->block.vy < 0)
+    if (position->chunk.vy < 0
+        || (position->chunk.vy == 0 && position->block.vy < 0)
+        || (position->chunk.vy == WORLD_CHUNKS_HEIGHT - 1 && position->block.vy >= CHUNK_SIZE)
         || position->chunk.vy >= WORLD_CHUNKS_HEIGHT) {
         return false;
     }
@@ -924,7 +929,9 @@ IBlock* worldModifyVoxelChunkBlockConstructed(const World* world,
                                            const bool drop_item,
                                            IItem** item_result) {
     // World is void below 0 on y-axis and nothing above height limit
-    if ((position->chunk.vy <= 0 && position->block.vy < 0)
+    if (position->chunk.vy < 0
+        || (position->chunk.vy == 0 && position->block.vy < 0)
+        || (position->chunk.vy == WORLD_CHUNKS_HEIGHT - 1 && position->block.vy >= CHUNK_SIZE)
         || position->chunk.vy >= WORLD_CHUNKS_HEIGHT) {
         return NULL;
     }
@@ -987,7 +994,9 @@ IBlock* worldModifyVoxelConstructed(const World* world,
 LightLevel worldGetLightValueChunkBlock(const World* world,
                                         const ChunkBlockPosition* position) {
     // World is void below 0 on y-axis and nothing above height limit
-    if ((position->chunk.vy <= 0 && position->block.vy < 0)
+    if (position->chunk.vy < 0
+        || (position->chunk.vy == 0 && position->block.vy < 0)
+        || (position->chunk.vy == WORLD_CHUNKS_HEIGHT - 1 && position->block.vy >= CHUNK_SIZE)
         || position->chunk.vy >= WORLD_CHUNKS_HEIGHT) {
         return createLightLevel(0, world->internal_light_level);
     }
@@ -1021,7 +1030,9 @@ LightLevel worldGetLightTypeChunkBlock(const World* world,
                                        const ChunkBlockPosition* position,
                                        const LightType light_type) {
     // World is void below 0 on y-axis and nothing above height limit
-    if (position->chunk.vy < 0 || (position->chunk.vy == 0 && position->block.vy < 0)
+    if (position->chunk.vy < 0
+        || (position->chunk.vy == 0 && position->block.vy < 0)
+        || (position->chunk.vy == WORLD_CHUNKS_HEIGHT - 1 && position->block.vy >= CHUNK_SIZE)
         || position->chunk.vy >= WORLD_CHUNKS_HEIGHT) {
         return createLightLevel(0, world->internal_light_level);
     }
