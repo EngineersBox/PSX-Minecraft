@@ -86,33 +86,13 @@ void hotbarRenderAttributes(u8 health,
                             Transforms* transforms) {
     // TODO: Implement health flashing
     const Texture* texture = &textures[ASSET_TEXTURE__STATIC__GUI_PART];
-    // Heart borders
-    POLY_FT4* pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
-    setPolyFT4(pol4);
-    setXYWH(
-        pol4,
-        HOTBAR_HEALTH_ORIGIN_POS_X,
-        HOTBAR_HEALTH_ORIGIN_POS_Y,
-        HOTBAR_HEALTH_ICON_COUNT * HOTBAR_HEALTH_ICON_WIDTH,
-        HOTBAR_HEALTH_ICON_HEIGHT
-    );
-    setUVWH(
-        pol4,
-        HOTBAR_HEALTH_BLACK_U,
-        HOTBAR_HEALTH_BLACK_V,
-        HOTBAR_HEALTH_ICON_COUNT * HOTBAR_HEALTH_ICON_WIDTH,
-        HOTBAR_HEALTH_ICON_HEIGHT
-    );
-    setRGB0(pol4, 0xFF, 0xFF, 0xFF);
-    pol4->tpage = texture->tpage;
-    pol4->clut = texture->clut;
     u32* ot_object = allocateOrderingTable(ctx, 1);
-    addPrim(ot_object, pol4);
+    POLY_FT4* pol4;
     // Heart fillers
     if (health > 0) {
         const u8 half_health = health % 2;
         const u8 full_health = health - half_health;
-        pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
+        POLY_FT4* pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
         setPolyFT4(pol4);
         setXYWH(
             pol4,
@@ -133,30 +113,30 @@ void hotbarRenderAttributes(u8 health,
         pol4->clut = texture->clut;
         addPrim(ot_object, pol4);
     }
+    // Heart borders
+    pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
+    setPolyFT4(pol4);
+    setXYWH(
+        pol4,
+        HOTBAR_HEALTH_ORIGIN_POS_X,
+        HOTBAR_HEALTH_ORIGIN_POS_Y,
+        HOTBAR_HEALTH_ICON_COUNT * HOTBAR_HEALTH_ICON_WIDTH,
+        HOTBAR_HEALTH_ICON_HEIGHT
+    );
+    setUVWH(
+        pol4,
+        HOTBAR_HEALTH_BLACK_U,
+        HOTBAR_HEALTH_BLACK_V,
+        HOTBAR_HEALTH_ICON_COUNT * HOTBAR_HEALTH_ICON_WIDTH,
+        HOTBAR_HEALTH_ICON_HEIGHT
+    );
+    setRGB0(pol4, 0xFF, 0xFF, 0xFF);
+    pol4->tpage = texture->tpage;
+    pol4->clut = texture->clut;
+    addPrim(ot_object, pol4);
     if (armour > 0) {
         const u8 half_armour = armour % 2;
         const u8 full_armour = armour - half_armour;
-        // Armour borders
-        pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
-        setPolyFT4(pol4);
-        setXYWH(
-            pol4,
-            HOTBAR_ARMOUR_ORIGIN_POS_X,
-            HOTBAR_ARMOUR_ORIGIN_POS_Y,
-            HOTBAR_ARMOUR_ICON_COUNT * HOTBAR_ARMOUR_ICON_WIDTH,
-            HOTBAR_ARMOUR_ICON_HEIGHT
-        );
-        setUVWH(
-            pol4,
-            HOTBAR_ARMOUR_U,
-            HOTBAR_ARMOUR_V,
-            HOTBAR_ARMOUR_ICON_COUNT * HOTBAR_ARMOUR_ICON_WIDTH,
-            HOTBAR_ARMOUR_ICON_HEIGHT
-        );
-        setRGB0(pol4, 0xFF, 0xFF, 0xFF);
-        pol4->tpage = texture->tpage;
-        pol4->clut = texture->clut;
-        addPrim(ot_object, pol4);
         // Armour fillers
         pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
         setPolyFT4(pol4);
@@ -181,13 +161,57 @@ void hotbarRenderAttributes(u8 health,
         pol4->tpage = texture->tpage;
         pol4->clut = texture->clut;
         addPrim(ot_object, pol4);
+        // Armour borders
+        pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
+        setPolyFT4(pol4);
+        setXYWH(
+            pol4,
+            HOTBAR_ARMOUR_ORIGIN_POS_X,
+            HOTBAR_ARMOUR_ORIGIN_POS_Y,
+            HOTBAR_ARMOUR_ICON_COUNT * HOTBAR_ARMOUR_ICON_WIDTH,
+            HOTBAR_ARMOUR_ICON_HEIGHT
+        );
+        setUVWH(
+            pol4,
+            HOTBAR_ARMOUR_U,
+            HOTBAR_ARMOUR_V,
+            HOTBAR_ARMOUR_ICON_COUNT * HOTBAR_ARMOUR_ICON_WIDTH,
+            HOTBAR_ARMOUR_ICON_HEIGHT
+        );
+        setRGB0(pol4, 0xFF, 0xFF, 0xFF);
+        pol4->tpage = texture->tpage;
+        pol4->clut = texture->clut;
+        addPrim(ot_object, pol4);
     }
     if (!in_water || air <= 0) {
         return;
     }
-    // Air bubbles
     const bool half_air = air % 2;
     const u8 full_air = air - half_air;
+    if (half_air) {
+        // Air bubble pop
+        pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
+        setPolyFT4(pol4);
+        setXYWH(
+            pol4,
+            HOTBAR_AIR_ORIGIN_POS_X + ((full_air >> 1) * HOTBAR_AIR_ICON_WIDTH),
+            HOTBAR_AIR_ORIGIN_POS_Y,
+            HOTBAR_AIR_ICON_WIDTH,
+            HOTBAR_AIR_ICON_HEIGHT
+        );
+        setUVWH(
+            pol4,
+            HOTBAR_AIR_POP_U,
+            HOTBAR_AIR_POP_V,
+            HOTBAR_AIR_ICON_WIDTH,
+            HOTBAR_AIR_ICON_HEIGHT
+        );
+        setRGB0(pol4, 0xFF, 0xFF, 0xFF);
+        pol4->tpage = texture->tpage;
+        pol4->clut = texture->clut;
+        addPrim(ot_object, pol4);
+    }
+    // Air bubbles
     pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
     setPolyFT4(pol4);
     setXYWH(
@@ -202,30 +226,6 @@ void hotbarRenderAttributes(u8 health,
         HOTBAR_AIR_U,
         HOTBAR_AIR_V,
         HOTBAR_AIR_ICON_COUNT * HOTBAR_AIR_ICON_WIDTH,
-        HOTBAR_AIR_ICON_HEIGHT
-    );
-    setRGB0(pol4, 0xFF, 0xFF, 0xFF);
-    pol4->tpage = texture->tpage;
-    pol4->clut = texture->clut;
-    addPrim(ot_object, pol4);
-    if (!half_air) {
-        return;
-    }
-    // Air bubble pop
-    pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
-    setPolyFT4(pol4);
-    setXYWH(
-        pol4,
-        HOTBAR_AIR_ORIGIN_POS_X + ((full_air >> 1) * HOTBAR_AIR_ICON_WIDTH),
-        HOTBAR_AIR_ORIGIN_POS_Y,
-        HOTBAR_AIR_ICON_WIDTH,
-        HOTBAR_AIR_ICON_HEIGHT
-    );
-    setUVWH(
-        pol4,
-        HOTBAR_AIR_POP_U,
-        HOTBAR_AIR_POP_V,
-        HOTBAR_AIR_ICON_WIDTH,
         HOTBAR_AIR_ICON_HEIGHT
     );
     setRGB0(pol4, 0xFF, 0xFF, 0xFF);

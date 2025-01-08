@@ -36,7 +36,7 @@ slotGroupCheck(HOTBAR);
 // NOTE: Icon heights are 10, since SPRT primitives
 //       need to have dimensions of a multiple of 2
 
-#define HOTBAR_ATTRIBUTE_Y_OFFSET 5
+#define HOTBAR_ATTRIBUTE_Y_OFFSET 3
 
 #define HOTBAR_HEALTH_ICON_COUNT 10
 #define HOTBAR_HEALTH_ICON_WIDTH 9
