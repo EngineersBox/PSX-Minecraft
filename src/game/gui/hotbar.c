@@ -98,14 +98,14 @@ void hotbarRenderAttributes(u8 health,
             pol4,
             HOTBAR_HEALTH_ORIGIN_POS_X,
             HOTBAR_HEALTH_ORIGIN_POS_Y,
-            ((full_health >> 1) * HOTBAR_HEALTH_ICON_WIDTH) + (half_health * HOTBAR_HEALTH_ICON_HALF_WIDTH),
+            ((full_health >> 1) * HOTBAR_HEALTH_ICON_WIDTH) + (half_health * (HOTBAR_HEALTH_ICON_WIDTH >> 1)),
             HOTBAR_HEALTH_ICON_HEIGHT
         );
         setUVWH(
             pol4,
             HOTBAR_HEALTH_FILL_U,
             HOTBAR_HEALTH_FILL_V,
-            HOTBAR_HEALTH_ICON_COUNT * HOTBAR_HEALTH_ICON_WIDTH,
+            ((full_health >> 1) * HOTBAR_HEALTH_ICON_WIDTH) + (half_health * (HOTBAR_HEALTH_ICON_WIDTH >> 1)),
             HOTBAR_HEALTH_ICON_HEIGHT
         );
         setRGB0(pol4, 0xFF, 0xFF, 0xFF);
@@ -141,7 +141,7 @@ void hotbarRenderAttributes(u8 health,
         pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
         setPolyFT4(pol4);
         const u8 armour_icons_width = ((full_armour >> 1) * HOTBAR_ARMOUR_ICON_WIDTH)
-            + (half_armour * HOTBAR_ARMOUR_ICON_HALF_WIDTH);
+            + (half_armour * (HOTBAR_ARMOUR_ICON_WIDTH >> 1));
         const u8 armour_icons_width_offset = (HOTBAR_ARMOUR_ICON_COUNT * HOTBAR_ARMOUR_ICON_WIDTH) - armour_icons_width;
         setXYWH(
             pol4,

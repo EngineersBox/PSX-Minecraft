@@ -47,7 +47,9 @@ const PhysicsObjectUpdateHandlers player_physics_object_update_handlers = (Physi
 
 void playerInit(Player* player) {
     entityInit(&player->entity);
-    player->entity.health = PLAYER_MAX_HEALTH;
+    player->entity.health = 7; //PLAYER_MAX_HEALTH;
+    player->entity.armour = 11;
+    player->entity.air = 3;
     breakingStateReset(player->breaking);
     Inventory* inventory = (Inventory*) malloc(sizeof(Inventory));
     Hotbar* hotbar = (Hotbar*) malloc(sizeof(Hotbar));
@@ -60,6 +62,7 @@ void playerInit(Player* player) {
         &player_physics_object_config,
         &player_physics_object_update_handlers
     );
+    player->entity.physics_object.flags.in_water = true;
 }
 
 void playerDestroy(const Player* player) {
