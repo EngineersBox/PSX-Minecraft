@@ -118,9 +118,9 @@ Remake of Minecraft for PS1 with PSn00bSDK
 
 
 <details>
-<summary><h4>Inventory with Cursor</h4></summary>
+<summary><h4>Crafting with Cursor</h4></summary>
 
-![Inventory with Cursor](./docs/crafting_inv_cursor.png)
+![Crafting with Cursor](./docs/crafting_inv_cursor.png)
 
 </details>
 
