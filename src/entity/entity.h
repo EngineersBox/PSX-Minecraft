@@ -6,6 +6,7 @@
 #include <interface99.h>
 #include <stdbool.h>
 #include <psxgte.h>
+#include <psxgpu.h>
 
 #include "../util/preprocessor.h"
 #include "../util/inttypes.h"
@@ -23,7 +24,10 @@ typedef struct EntityFlags {
 typedef struct Entity {
     PhysicsObject physics_object;
     EntityFlags flags;
-    u16 health;
+    u8 health: 5;
+    u8 armour: 5;
+    u8 air: 4;
+    u8 _pad: 2;
     // 0 = not on fire
     // 1+ = ticks on fire so far
     u16 on_fire;

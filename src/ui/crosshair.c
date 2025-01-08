@@ -24,7 +24,7 @@ void crosshairDraw(RenderContext* ctx) {
         16
     );
     setRGB0(pol4, 0xff, 0xff, 0xff);
-    const Texture* texture = &textures[ASSET_TEXTURE__STATIC__GUI];
+    const Texture* texture = &textures[ASSET_TEXTURE__STATIC__GUI_PART];
     pol4->tpage = texture->tpage;
     pol4->clut = texture->clut;
     polyFT4Render(pol4, 0, ctx);

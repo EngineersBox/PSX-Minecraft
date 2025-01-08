@@ -86,6 +86,15 @@ void playerUpdate(Player* player, World* world) {
 
 void playerRender(const Player* player, RenderContext* ctx, Transforms* transforms) {
     const Hotbar* hotbar = VCAST(Hotbar*, player->hotbar);
+    hotbarRenderAttributes(
+        player->entity.health,
+        false, // TODO: Set to true when damaged
+        player->entity.armour,
+        player->entity.air,
+        player->entity.physics_object.flags.in_water,
+        ctx,
+        transforms
+    );
     hotbarRenderSlots(hotbar, ctx, transforms);
     uiRender(&hotbar->ui, ctx, transforms);
     const Inventory* inventory = VCAST(Inventory*, player->inventory);

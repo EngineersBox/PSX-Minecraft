@@ -31,6 +31,56 @@ slotGroupCheck(HOTBAR);
 
 #define HOTBAR_DEBOUNCE_MS 200
 
+#define HOTBAR_ICON_COUNT 10
+
+// NOTE: Icon heights are 10, since SPRT primitives
+//       need to have dimensions of a multiple of 2
+
+#define HOTBAR_HEALTH_ICON_COUNT 10
+#define HOTBAR_HEALTH_ICON_WIDTH 9
+#define HOTBAR_HEALTH_ICON_HALF_WIDTH 5
+#define HOTBAR_HEALTH_ICON_HEIGHT 10
+#define HOTBAR_HEALTH_ORIGIN_POS_X (CENTRE_X - (HOTBAR_WIDTH >> 1))
+#define HOTBAR_HEALTH_ORIGIN_POS_Y (CENTRE_Y - (HOTBAR_HEIGHT) - HOTBAR_HEALTH_ICON_HEIGHT)
+
+#define HOTBAR_HEALTH_BLACK_U 0
+#define HOTBAR_HEALTH_BLACK_V 82
+
+#define HOTBAR_HEALTH_WHITE_U (HOTBAR_HEALTH_BLACK_U \
+    + (HOTBAR_HEALTH_ICON_COUNT * HOTBAR_HEALTH_ICON_WIDTH))
+#define HOTBAR_HEALTH_WHITE_V HOTBAR_HEALTH_BLACK_V
+
+#define HOTBAR_HEALTH_RED_U HOTBAR_HEALTH_BLACK_U
+#define HOTBAR_HEALTH_RED_V (HOTBAR_HEALTH_BLACK_V + HOTBAR_HEALTH_ICON_HEIGHT)
+
+#define HOTBAR_HEALTH_FILL_U (HOTBAR_HEALTH_BLACK_U \
+    + (HOTBAR_HEALTH_ICON_COUNT * HOTBAR_HEALTH_ICON_WIDTH))
+#define HOTBAR_HEALTH_FILL_V (HOTBAR_HEALTH_BLACK_V + HOTBAR_HEALTH_ICON_HEIGHT)
+
+#define HOTBAR_HEALTH_FILL_FLASH_U HOTBAR_HEALTH_BLACK_U
+#define HOTBAR_HEALTH_FILL_FLASH_V (HOTBAR_HEALTH_BLACK_V + (HOTBAR_HEALTH_ICON_HEIGHT << 1))
+
+#define HOTBAR_ARMOUR_ICON_COUNT 10
+#define HOTBAR_ARMOUR_ICON_WIDTH 9
+#define HOTBAR_ARMOUR_ICON_HALF_WIDTH 5
+#define HOTBAR_ARMOUR_ICON_HEIGHT 10
+#define HOTBAR_ARMOUR_ORIGIN_POS_X (CENTRE_X + (HOTBAR_WIDTH >> 1) - (HOTBAR_ICON_COUNT * HOTBAR_ARMOUR_ICON_WIDTH))
+#define HOTBAR_ARMOUR_ORIGIN_POS_Y (CENTRE_Y - (HOTBAR_HEIGHT) - HOTBAR_ARMOUR_ICON_HEIGHT)
+#define HOTBAR_ARMOUR_U 90
+#define HOTBAR_ARMOUR_V 102
+#define HOTBAR_ARMOUR_FILL_U HOTBAR_ARMOUR_FILL_U
+#define HOTBAR_ARMOUR_FILL_V (HOTBAR_ARMOUR_FILL_V + HOTBAR_ARMOUR_ICON_HEIGHT)
+
+#define HOTBAR_AIR_ICON_COUNT 10
+#define HOTBAR_AIR_ICON_WIDTH 9
+#define HOTBAR_AIR_ICON_HEIGHT 10
+#define HOTBAR_AIR_ORIGIN_POS_X (CENTRE_X - (HOTBAR_WIDTH >> 1))
+#define HOTBAR_AIR_ORIGIN_POS_Y (HOTBAR_HEALTH_ORIGIN_POS_Y - HOTBAR_AIR_ICON_HEIGHT)
+#define HOTBAR_AIR_U 0
+#define HOTBAR_AIR_V 112
+#define HOTBAR_AIR_POP_U 192
+#define HOTBAR_AIR_POP_V HOTBAR_AIR_V
+
 #define hotbarGetSelectSlot(hotbar) ((hotbar)->slots[(hotbar)->selected_slot])
 
 DEFN_UI(
@@ -43,6 +93,13 @@ DEFN_UI(
 void hotbarInit(Hotbar* hotbar);
 
 void hotbarRenderSlots(const Hotbar* hotbar, RenderContext* ctx, Transforms* transforms);
+void hotbarRenderAttributes(u8 health,
+                            bool health_start_flash,
+                            u8 armour,
+                            u8 air,
+                            bool in_water,
+                            RenderContext* ctx,
+                            Transforms* transforms);
 
 void hotbarOpen(VSelf);
 void Hotbar_open(VSelf);

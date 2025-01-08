@@ -82,7 +82,7 @@ void UICursor_render(VSelf, RenderContext* ctx, Transforms* transforms) {
         0xFF,
         0xFF
     );
-    const Texture* texture = &textures[ASSET_TEXTURE__STATIC__GUI];
+    const Texture* texture = &textures[ASSET_TEXTURE__STATIC__GUI_PART];
     pol4->tpage = texture->tpage;
     pol4->clut = texture->clut;
     const u32* ot_object = allocateOrderingTable(ctx, 0);
