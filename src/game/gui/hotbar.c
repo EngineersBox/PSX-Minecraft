@@ -103,8 +103,8 @@ void hotbarRenderAttributes(u8 health,
         );
         setUVWH(
             pol4,
-            HOTBAR_HEALTH_BLACK_U,
-            HOTBAR_HEALTH_BLACK_V,
+            HOTBAR_HEALTH_FILL_U,
+            HOTBAR_HEALTH_FILL_V,
             HOTBAR_HEALTH_ICON_COUNT * HOTBAR_HEALTH_ICON_WIDTH,
             HOTBAR_HEALTH_ICON_HEIGHT
         );
@@ -152,8 +152,8 @@ void hotbarRenderAttributes(u8 health,
         );
         setUVWH(
             pol4,
-            HOTBAR_ARMOUR_U + armour_icons_width_offset,
-            HOTBAR_ARMOUR_V,
+            HOTBAR_ARMOUR_FILL_U + armour_icons_width_offset,
+            HOTBAR_ARMOUR_FILL_V,
             armour_icons_width,
             HOTBAR_ARMOUR_ICON_HEIGHT
         );
