@@ -32,6 +32,7 @@ typedef struct {
     BreakingState breaking;
 } Player;
 
+extern IEntity player_entity;
 extern Player* player;
 
 // Forward declaration
@@ -49,6 +50,10 @@ void playerUpdateCamera(const Player* player);
 void playerRender(const Player* player, RenderContext* ctx, Transforms* transforms);
 
 void playerFallHandler(PhysicsObject* physics_object, i32 distance, void* ctx);
+
+#define Player_damage_CUSTOM ()
+void playerDamage(VSelf, const i16 amount);
+void Player_damage(VSelf, const i16 amount);
 
 impl(IEntity, Player);
 

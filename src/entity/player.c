@@ -8,6 +8,7 @@
 #include "../game/items/items.h"
 #include "../game/world/chunk/chunk_structure.h"
 #include "../ui/components/cursor.h"
+#include "entity.h"
 
 // Forward declaration
 FWD_DECL IBlock* worldModifyVoxelConstructed(const World* world,
@@ -87,17 +88,20 @@ void playerUpdate(Player* player, World* world) {
     playerUpdateCamera(player);
 }
 
+static bool player_damaged = false;
+
 void playerRender(const Player* player, RenderContext* ctx, Transforms* transforms) {
     const Hotbar* hotbar = VCAST(Hotbar*, player->hotbar);
     hotbarRenderAttributes(
         player->entity.health,
-        false, // TODO: Set to true when damaged
+        player_damaged,
         player->entity.armour,
         player->entity.air,
         player->entity.physics_object.flags.in_water,
         ctx,
         transforms
     );
+    player_damaged = false;
     hotbarRenderSlots(hotbar, ctx, transforms);
     uiRender(&hotbar->ui, ctx, transforms);
     const Inventory* inventory = VCAST(Inventory*, player->inventory);
@@ -494,4 +498,13 @@ void Player_registerInputHandler(VSelf, Input* input, void* ctx) {
         .input_handler_destroy = playerInputHandlerDestroy
     };
     inputAddHandler(input, handler);
+}
+
+void playerDamage(VSelf, const i16 amount) ALIAS("Player_damage");
+void Player_damage(VSelf, const i16 amount) {
+    VSELF(Player);
+    iEntityDamage(self, amount);
+    if (amount > 0) {
+        player_damaged = true;
+    }
 }

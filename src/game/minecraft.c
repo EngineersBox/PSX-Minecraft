@@ -37,6 +37,7 @@
 
 World* world;
 IInputHandler player_handler;
+IEntity player_entity;
 Player* player;
 
 /*int helpHandler(const Console* console, char* tokens[CONSOLE_MAX_TOKENS]) {*/
@@ -105,6 +106,8 @@ void Minecraft_init(VSelf, void* ctx) {
     worldInit(world, &self->ctx);
     // Initialise player
     player = (Player*) malloc(sizeof(Player));
+    DYN_PTR(&player_entity, Player, IEntity, player);
+    ((player_entity).vptr->damage((player_entity).self, 0));
     playerInit(player);
     block_input_handler_context.inventory = &player->inventory;
     player->camera = &self->camera;

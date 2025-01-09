@@ -40,15 +40,17 @@ typedef struct DamageContext {
     u8 _pad: 7;
 } DamageContext;
 
+FWD_DECL typedef struct IEntityVTable IEntityVTable;
+
 #define IEntity_IFACE \
-    vfuncDefault(bool, attackFrom, VSelf, const Entity* damage_source, const DamageContext* ctx) \
+    vfuncDefault(bool, attackFrom, VSelf, IEntityVTable* vtable, const Entity* damage_source, const DamageContext* ctx) \
     vfuncDefault(void, damage, VSelf, const i16 amount) \
     vfuncDefault(void, kill, VSelf)
 
 void entityInit(Entity* entity);
 
-bool iEntityAttackFrom(VSelf, const Entity* damage_source, const DamageContext* ctx);
-bool IEntity_attackFrom(VSelf, const Entity* damage_source, const DamageContext* ctx);
+bool iEntityAttackFrom(VSelf, IEntityVTable* vtable, const Entity* damage_source, const DamageContext* ctx);
+bool IEntity_attackFrom(VSelf, IEntityVTable* vtable, const Entity* damage_source, const DamageContext* ctx);
 
 void iEntityDamage(VSelf, const i16 amount);
 void IEntity_damage(VSelf, const i16 amount);

@@ -77,6 +77,10 @@ void hotbarRenderSlots(const Hotbar* hotbar,  RenderContext* ctx, Transforms* tr
     renderClearConstraintsIndex(ctx, 0);
 }
 
+#define FRAMES_PER_FLASH 2
+#define FLASH_FRAMES (FRAMES_PER_FLASH * 5)
+static u8 health_flash_animation = 0;
+
 void hotbarRenderAttributes(u8 health,
                             bool health_start_flash,
                             u8 armour,
@@ -84,7 +88,15 @@ void hotbarRenderAttributes(u8 health,
                             bool in_water,
                             RenderContext* ctx,
                             Transforms* transforms) {
-    // TODO: Implement health flashing
+    if (health_flash_animation) {
+        health_flash_animation = FLASH_FRAMES;
+    } else if (health_flash_animation > 0) {
+        health_flash_animation = clamp(
+            health_flash_animation - 1,
+            0,
+            FLASH_FRAMES
+        );
+    }
     const Texture* texture = &textures[ASSET_TEXTURE__STATIC__GUI_PART];
     u32* ot_object = allocateOrderingTable(ctx, 1);
     POLY_FT4* pol4;
@@ -123,10 +135,38 @@ void hotbarRenderAttributes(u8 health,
         HOTBAR_HEALTH_ICON_COUNT * HOTBAR_HEALTH_ICON_WIDTH,
         HOTBAR_HEALTH_ICON_HEIGHT
     );
+    u16 health_u;
+    u16 health_v;
+    switch (health_flash_animation >> 1) {
+        case FLASH_FRAMES ... FLASH_FRAMES - 1:
+            health_u = HOTBAR_HEALTH_WHITE_U;
+            health_v = HOTBAR_HEALTH_WHITE_V;
+            break;
+        case FLASH_FRAMES - 2 ... FLASH_FRAMES - 3:
+            health_u = HOTBAR_HEALTH_RED_U;
+            health_v = HOTBAR_HEALTH_RED_V;
+            break;
+        case FLASH_FRAMES - 4 ... FLASH_FRAMES - 5:
+            health_u = HOTBAR_HEALTH_WHITE_U;
+            health_v = HOTBAR_HEALTH_WHITE_V;
+            break;
+        case FLASH_FRAMES - 6 ... FLASH_FRAMES - 7:
+            health_u = HOTBAR_HEALTH_RED_U;
+            health_v = HOTBAR_HEALTH_RED_V;
+            break;
+        case FLASH_FRAMES - 8 ... FLASH_FRAMES - 9:
+            health_u = HOTBAR_HEALTH_WHITE_U;
+            health_v = HOTBAR_HEALTH_WHITE_V;
+            break;
+        default:
+            health_u = HOTBAR_HEALTH_BLACK_U;
+            health_v = HOTBAR_HEALTH_BLACK_V;
+            break;
+    }
     setUVWH(
         pol4,
-        HOTBAR_HEALTH_BLACK_U,
-        HOTBAR_HEALTH_BLACK_V,
+        health_u,
+        health_v,
         HOTBAR_HEALTH_ICON_COUNT * HOTBAR_HEALTH_ICON_WIDTH,
         HOTBAR_HEALTH_ICON_HEIGHT
     );
