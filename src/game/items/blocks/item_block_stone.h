@@ -12,11 +12,11 @@ DEFN_ITEM_BLOCK(StoneItemBlock);
 
 #define stoneItemBlockAttributes() ((ItemAttributes) { \
     .max_stack_size = 64, \
+    .max_durability = 0, \
     .type = ITEMTYPE_BLOCK, \
     .tool_type = TOOLTYPE_PICKAXE, \
     .armour_type = ARMOURTYPE_NONE, \
     .material = ITEMMATERIAL_WOOD, \
-    .has_durability = false, \
     .name = "stone" \
 })
 
@@ -42,15 +42,6 @@ void StoneItemBlock_init(VSelf);
 
 void stoneItemBlockDestroy(VSelf);
 void StoneItemBlock_destroy(VSelf);
-
-void stoneItemBlockApplyDamage(VSelf);
-void StoneItemBlock_applyDamage(VSelf);
-
-void stoneItemBlockUseAction(VSelf);
-void StoneItemBlock_useAction(VSelf);
-
-void stoneItemBlockAttackAction(VSelf);
-void StoneItemBlock_attackAction(VSelf);
 
 impl(IItem, StoneItemBlock);
 

@@ -57,12 +57,13 @@ typedef enum ItemMaterial {
 
 typedef struct ItemAttributes {
     u8 max_stack_size;
+    // Value of 0 indicates no durability
+    u8 max_durability;
     ItemType type: ITEM_TYPE_COUNT_BITS;
     ToolType tool_type: TOOL_TYPE_COUNT_BITS;
     ArmourType armour_type: ARMOUR_TYPE_COUNT_BITS;
     ItemMaterial material: ITEM_MATERIAL_COUNT_BITS;
-    bool has_durability: 1;
-    u16 _pad: 3;
+    u16 _pad: 5;
     char* name;
 } ItemAttributes;
 
@@ -109,7 +110,7 @@ FWD_DECL typedef struct World World;
 typedef bool (*ItemPickupValidator)(const Item* item, void* ctx);
 
 bool itemUpdate(Item* item,
-World* world,
+                World* world,
                 const VECTOR* player_position,
                 void* ctx,
                 const ItemPickupValidator validator);
@@ -117,10 +118,16 @@ void itemSetWorldState(Item* item, const bool in_world);
 
 #define IItem_IFACE \
     vfunc(void, init, VSelf) \
-    vfunc(void, applyDamage, VSelf) \
+    /* Item took damage, such being used or defending like armour */ \
+    vfuncDefault(void, applyDamage, VSelf, i16 damage) \
+    /* Player is using the item */ \
     vfuncDefault(ItemActionState, useAction, VSelf) \
+    /* Player is using the item to attack */ \
     vfuncDefault(ItemActionState, attackAction, VSelf) \
     vfunc(void, destroy, VSelf)
+
+void iitemApplyDamage(VSelf, i16 damage);
+void IItem_applyDamage(VSelf, i16 damage);
 
 ItemActionState iitemAttackAction(VSelf);
 ItemActionState IItem_attackAction(VSelf);

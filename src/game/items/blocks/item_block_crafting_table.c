@@ -65,18 +65,3 @@ void CraftingTableItemBlock_init(VSelf) {
         ) }
     };
 }
-
-void craftingTableItemBlockApplyDamage(VSelf) ALIAS("CraftingTableItemBlock_applyDamage");
-void CraftingTableItemBlock_applyDamage(VSelf) {
-    UNIMPLEMENTED();
-}
-
-void craftingTableItemBlockUseAction(VSelf) ALIAS("CraftingTableItemBlock_useAction");
-void CraftingTableItemBlock_useAction(VSelf) {
-    UNIMPLEMENTED();
-}
-
-void craftingTableItemBlockAttackAction(VSelf) ALIAS("CraftingTableItemBlock_attackAction");
-void CraftingTableItemBlock_attackAction(VSelf) {
-    UNIMPLEMENTED();
-}

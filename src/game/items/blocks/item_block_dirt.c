@@ -62,18 +62,3 @@ void DirtItemBlock_init(VSelf) {
         .face_attributes = { defaultFaceAttributes(2) }
     };
 }
-
-void dirtItemBlockApplyDamage(VSelf) ALIAS("DirtItemBlock_applyDamage");
-void DirtItemBlock_applyDamage(VSelf) {
-
-}
-
-void dirtItemBlockUseAction(VSelf) ALIAS("DirtItemBlock_useAction");
-void DirtItemBlock_useAction(VSelf) {
-
-}
-
-void dirtItemBlockAttackAction(VSelf) ALIAS("DirtItemBlock_attackAction");
-void DirtItemBlock_attackAction(VSelf) {
-
-}

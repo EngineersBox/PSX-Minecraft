@@ -63,18 +63,3 @@ void CobblestoneItemBlock_init(VSelf) {
         .face_attributes = { defaultFaceAttributes(16) },
     };
 }
-
-void cobblestoneItemBlockApplyDamage(VSelf) ALIAS("CobblestoneItemBlock_applyDamage");
-void CobblestoneItemBlock_applyDamage(VSelf) {
-    UNIMPLEMENTED();
-}
-
-void cobblestoneItemBlockUseAction(VSelf) ALIAS("CobblestoneItemBlock_useAction");
-void CobblestoneItemBlock_useAction(VSelf) {
-    UNIMPLEMENTED();
-}
-
-void cobblestoneItemBlockAttackAction(VSelf) ALIAS("CobblestoneItemBlock_attackAction");
-void CobblestoneItemBlock_attackAction(VSelf) {
-    UNIMPLEMENTED();
-}

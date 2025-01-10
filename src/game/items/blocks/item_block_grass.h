@@ -11,11 +11,11 @@ DEFN_ITEM_BLOCK(GrassItemBlock);
 
 #define grassItemBlockAttributes() ((ItemAttributes) { \
     .max_stack_size = 64, \
+    .max_durability = 0, \
     .type = ITEMTYPE_BLOCK, \
     .tool_type = TOOLTYPE_SHOVEL, \
     .armour_type = ARMOURTYPE_NONE, \
     .material = ITEMMATERIAL_WOOD, \
-    .has_durability = false, \
     .name = "grass" \
 })
 
@@ -41,15 +41,6 @@ void GrassItemBlock_init(VSelf);
 
 void grassItemBlockDestroy(VSelf);
 void GrassItemBlock_destroy(VSelf);
-
-void grassItemBlockApplyDamage(VSelf);
-void GrassItemBlock_applyDamage(VSelf);
-
-void grassItemBlockUseAction(VSelf);
-void GrassItemBlock_useAction(VSelf);
-
-void grassItemBlockAttackAction(VSelf);
-void GrassItemBlock_attackAction(VSelf);
 
 impl(IItem, GrassItemBlock);
 

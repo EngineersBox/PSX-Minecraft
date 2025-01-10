@@ -12,11 +12,11 @@ DEFN_ITEM_BLOCK(CraftingTableItemBlock);
 
 #define craftingTableItemBlockAttributes() ((ItemAttributes) { \
     .max_stack_size = 64, \
+    .max_durability = 0, \
     .type = ITEMTYPE_BLOCK, \
     .tool_type = TOOLTYPE_NONE, \
     .armour_type = ARMOURTYPE_NONE, \
     .material = ITEMMATERIAL_NONE, \
-    .has_durability = false, \
     .name = "crafting_table" \
 })
 
@@ -42,15 +42,6 @@ void CraftingTableItemBlock_init(VSelf);
 
 void craftingTableItemBlockDestroy(VSelf);
 void CraftingTableItemBlock_destroy(VSelf);
-
-void craftingTableItemBlockApplyDamage(VSelf);
-void CraftingTableItemBlock_applyDamage(VSelf);
-
-void craftingTableItemBlockUseAction(VSelf);
-void CraftingTableItemBlock_useAction(VSelf);
-
-void craftingTableItemBlockAttackAction(VSelf);
-void CraftingTableItemBlock_attackAction(VSelf);
 
 impl(IItem, CraftingTableItemBlock);
 

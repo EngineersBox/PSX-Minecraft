@@ -61,18 +61,3 @@ void StoneItemBlock_init(VSelf) {
         .face_attributes = { defaultFaceAttributes(1) },
     };
 }
-
-void stoneItemBlockApplyDamage(VSelf) ALIAS("StoneItemBlock_applyDamage");
-void StoneItemBlock_applyDamage(VSelf) {
-
-}
-
-void stoneItemBlockUseAction(VSelf) ALIAS("StoneItemBlock_useAction");
-void StoneItemBlock_useAction(VSelf) {
-
-}
-
-void stoneItemBlockAttackAction(VSelf) ALIAS("StoneItemBlock_attackAction");
-void StoneItemBlock_attackAction(VSelf) {
-
-}

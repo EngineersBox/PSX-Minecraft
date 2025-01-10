@@ -4,6 +4,7 @@
 #include <stdbool.h>
 
 #include "../../logging/logging.h"
+#include "items.h"
 
 #define HEIGHT_INTERVALS 2
 #define RADIUS_INTERVALS 2
@@ -97,6 +98,20 @@ bool itemUpdate(Item* item,
 
 IItem* itemCreate() {
     return (IItem*) malloc(sizeof(IItem));
+}
+
+void iitemApplyDamage(VSelf, i16 damage) ALIAS("IItem_applyDamage");
+void IItem_applyDamage(VSelf, i16 damage) {
+    VSELF(Item);
+    if (!itemHasDurability(self->id)) {
+        return;
+    }
+    const i16 new_durability = ((i16) self->durability) - damage;
+    self->durability = (u8) clamp(
+        new_durability,
+        0,
+        itemGetMaxDurability(self->id)
+    );
 }
 
 ItemActionState iitemAttackAction(VSelf) ALIAS("IItem_attackAction");

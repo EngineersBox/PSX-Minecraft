@@ -12,11 +12,11 @@ DEFN_ITEM_BLOCK(CobblestoneItemBlock);
 
 #define cobblestoneItemBlockAttributes() ((ItemAttributes) { \
     .max_stack_size = 64, \
+    .max_durability = 0, \
     .type = ITEMTYPE_BLOCK, \
     .tool_type = TOOLTYPE_PICKAXE, \
     .armour_type = ARMOURTYPE_NONE, \
     .material = ITEMMATERIAL_WOOD, \
-    .has_durability = false, \
     .name = "cobblestone" \
 })
 
@@ -42,15 +42,6 @@ void CobblestoneItemBlock_init(VSelf);
 
 void cobblestoneItemBlockDestroy(VSelf);
 void CobblestoneItemBlock_destroy(VSelf);
-
-void cobblestoneItemBlockApplyDamage(VSelf);
-void CobblestoneItemBlock_applyDamage(VSelf);
-
-void cobblestoneItemBlockUseAction(VSelf);
-void CobblestoneItemBlock_useAction(VSelf);
-
-void cobblestoneItemBlockAttackAction(VSelf);
-void CobblestoneItemBlock_attackAction(VSelf);
 
 impl(IItem, CobblestoneItemBlock);
 

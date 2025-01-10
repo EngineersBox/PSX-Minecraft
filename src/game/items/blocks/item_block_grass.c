@@ -68,18 +68,3 @@ void GrassItemBlock_init(VSelf) {
         ) }
     };
 }
-
-void grassItemBlockApplyDamage(VSelf) ALIAS("GrassItemBlock_applyDamage");
-void GrassItemBlock_applyDamage(VSelf) {
-
-}
-
-void grassItemBlockUseAction(VSelf) ALIAS("GrassItemBlock_useAction");
-void GrassItemBlock_useAction(VSelf) {
-
-}
-
-void grassItemBlockAttackAction(VSelf) ALIAS("GrassItemBlock_attackAction");
-void GrassItemBlock_attackAction(VSelf) {
-
-}

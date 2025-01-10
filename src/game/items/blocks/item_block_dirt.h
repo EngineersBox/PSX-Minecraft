@@ -12,11 +12,11 @@ DEFN_ITEM_BLOCK(DirtItemBlock);
 
 #define dirtItemBlockAttributes() ((ItemAttributes) { \
     .max_stack_size = 64, \
+    .max_durability = 0, \
     .type = ITEMTYPE_BLOCK, \
     .tool_type = TOOLTYPE_SHOVEL, \
     .armour_type = ARMOURTYPE_NONE, \
     .material = ITEMMATERIAL_WOOD, \
-    .has_durability = false, \
     .name = "dirt" \
 })
 
@@ -42,15 +42,6 @@ void DirtItemBlock_init(VSelf);
 
 void dirtItemBlockDestroy(VSelf);
 void DirtItemBlock_destroy(VSelf);
-
-void dirtItemBlockApplyDamage(VSelf);
-void DirtItemBlock_applyDamage(VSelf);
-
-void dirtItemBlockUseAction(VSelf);
-void DirtItemBlock_useAction(VSelf);
-
-void dirtItemBlockAttackAction(VSelf);
-void DirtItemBlock_attackAction(VSelf);
 
 impl(IItem, DirtItemBlock);
 
