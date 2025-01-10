@@ -14,7 +14,7 @@
 #include "../render/debug.h"
 #include "../math/vector.h"
 #include "../ui/ui.h"
-#include "../entity/player.h"
+#include "entity/player.h"
 #include "../resources/assets.h"
 #include "../render/duration_tree.h"
 #include "../render/font.h"

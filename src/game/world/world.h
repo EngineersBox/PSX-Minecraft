@@ -10,7 +10,7 @@
 #include "chunk/chunk.h"
 #include "../../render/render_context.h"
 #include "../../render/transforms.h"
-#include "../../entity/player.h"
+#include "../entity/player.h"
 #include "../../util/inttypes.h"
 #include "../blocks/breaking_state.h"
 #include "world_defines.h"

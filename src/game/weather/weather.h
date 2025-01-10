@@ -4,7 +4,7 @@
 #define _PSXMC__WEATHER__WEATHER_H_
 
 #include "../world/world_structure.h"
-#include "../../entity/player.h"
+#include "../entity/player.h"
 #include "../../render/render_context.h"
 
 // Number of blocks in each direction (excluding the centre)

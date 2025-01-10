@@ -7,7 +7,7 @@
 
 #include "block.h"
 #include "../../core/input/input.h"
-#include "../../entity/player.h"
+#include "../entity/player.h"
 
 DEFN_BLOCK_STATELESS(CraftingTableBlock, CRAFTING_TABLE);
 

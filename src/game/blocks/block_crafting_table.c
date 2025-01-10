@@ -6,7 +6,6 @@
 #include "../items/blocks/item_block_crafting_table.h"
 #include "../../logging/logging.h"
 #include "../../ui/components/cursor.h"
-#include "../../entity/player.h"
 #include "../items/items.h"
 #include "../world/world_structure.h"
 #include "../recipe/crafting.h"
