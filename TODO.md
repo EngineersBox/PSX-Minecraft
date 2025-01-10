@@ -95,6 +95,7 @@
 * [X] Inventory item movement handlers to hold and move items in inventories. Also need to handle the cases of holding and exiting to drop stuff in world, and exiting an inventory with items that doesn't hold them. 
 * [X] Add item metadata support to recipe trees
 * [X] Crafting in small grid within inventory
+* [X] Hotbar attributes (health, armour and air) with damaged animation
 * [ ] Culling of direction sub-meshes in chunk meshes to avoid any clipping tests in that direction
 * [ ] Camera far plane cutoff with fog relative to chunk render distance
 * [ ] Frustum and culling
@@ -115,7 +116,6 @@
 * [ ] Polygon subdivision (polygons of minimum size, i.e. block size) for the mesh of the chunk that the player resides within
 * [ ] Change lighting direction for both in-world blocks and in-inventory blocks to match actual MC directional lighting
 * [ ] Only process/search for a crafting recipe when the grid or output slot changes to avoid redundant re-processing and searches
-* [X] Hotbar attributes (health, armour and air) with damaged animation
 
 ## Refactor
 
