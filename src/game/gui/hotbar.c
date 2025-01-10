@@ -78,7 +78,7 @@ void hotbarRenderSlots(const Hotbar* hotbar,  RenderContext* ctx, Transforms* tr
 }
 
 #define FRAMES_PER_FLASH 2
-#define FLASH_FRAMES (FRAMES_PER_FLASH * 5)
+#define FLASH_FRAMES (FRAMES_PER_FLASH * 4)
 static u8 health_flash_animation = 0;
 
 void hotbarRenderAttributes(u8 health,
@@ -88,7 +88,7 @@ void hotbarRenderAttributes(u8 health,
                             bool in_water,
                             RenderContext* ctx,
                             Transforms* transforms) {
-    if (health_flash_animation) {
+    if (health_start_flash) {
         health_flash_animation = FLASH_FRAMES;
     } else if (health_flash_animation > 0) {
         health_flash_animation = clamp(
@@ -104,20 +104,22 @@ void hotbarRenderAttributes(u8 health,
     if (health > 0) {
         const u8 half_health = health % 2;
         const u8 full_health = health - half_health;
+        const u8 health_width = ((full_health >> 1) * HOTBAR_HEALTH_ICON_WIDTH)
+            + (half_health * HOTBAR_HEALTH_ICON_HALF_WIDTH);
         POLY_FT4* pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
         setPolyFT4(pol4);
         setXYWH(
             pol4,
             HOTBAR_HEALTH_ORIGIN_POS_X,
             HOTBAR_HEALTH_ORIGIN_POS_Y,
-            ((full_health >> 1) * HOTBAR_HEALTH_ICON_WIDTH) + (half_health * (HOTBAR_HEALTH_ICON_WIDTH >> 1)),
+            health_width,
             HOTBAR_HEALTH_ICON_HEIGHT
         );
         setUVWH(
             pol4,
             HOTBAR_HEALTH_FILL_U,
             HOTBAR_HEALTH_FILL_V,
-            ((full_health >> 1) * HOTBAR_HEALTH_ICON_WIDTH) + (half_health * (HOTBAR_HEALTH_ICON_WIDTH >> 1)),
+            health_width,            
             HOTBAR_HEALTH_ICON_HEIGHT
         );
         setRGB0(pol4, 0xFF, 0xFF, 0xFF);
@@ -137,24 +139,20 @@ void hotbarRenderAttributes(u8 health,
     );
     u16 health_u;
     u16 health_v;
-    switch (health_flash_animation >> 1) {
-        case FLASH_FRAMES ... FLASH_FRAMES - 1:
+    switch (health_flash_animation) {
+        case FLASH_FRAMES - 1 ... FLASH_FRAMES:
             health_u = HOTBAR_HEALTH_WHITE_U;
             health_v = HOTBAR_HEALTH_WHITE_V;
             break;
-        case FLASH_FRAMES - 2 ... FLASH_FRAMES - 3:
-            health_u = HOTBAR_HEALTH_RED_U;
-            health_v = HOTBAR_HEALTH_RED_V;
+        case FLASH_FRAMES - 3 ... FLASH_FRAMES - 2:
+            health_u = HOTBAR_HEALTH_BLACK_U;
+            health_v = HOTBAR_HEALTH_BLACK_V;
             break;
-        case FLASH_FRAMES - 4 ... FLASH_FRAMES - 5:
+        case FLASH_FRAMES - 5 ... FLASH_FRAMES - 4:
             health_u = HOTBAR_HEALTH_WHITE_U;
             health_v = HOTBAR_HEALTH_WHITE_V;
             break;
-        case FLASH_FRAMES - 6 ... FLASH_FRAMES - 7:
-            health_u = HOTBAR_HEALTH_RED_U;
-            health_v = HOTBAR_HEALTH_RED_V;
-            break;
-        case FLASH_FRAMES - 8 ... FLASH_FRAMES - 9:
+        case FLASH_FRAMES - 7 ... FLASH_FRAMES - 6:
             health_u = HOTBAR_HEALTH_WHITE_U;
             health_v = HOTBAR_HEALTH_WHITE_V;
             break;
@@ -163,6 +161,7 @@ void hotbarRenderAttributes(u8 health,
             health_v = HOTBAR_HEALTH_BLACK_V;
             break;
     }
+    DEBUG_LOG("U %d, V %d\n", health_u, health_v);
     setUVWH(
         pol4,
         health_u,
@@ -181,7 +180,7 @@ void hotbarRenderAttributes(u8 health,
         pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
         setPolyFT4(pol4);
         const u8 armour_icons_width = ((full_armour >> 1) * HOTBAR_ARMOUR_ICON_WIDTH)
-            + (half_armour * (HOTBAR_ARMOUR_ICON_WIDTH >> 1));
+            + (half_armour * HOTBAR_ARMOUR_ICON_HALF_WIDTH);
         const u8 armour_icons_width_offset = (HOTBAR_ARMOUR_ICON_COUNT * HOTBAR_ARMOUR_ICON_WIDTH) - armour_icons_width;
         setXYWH(
             pol4,

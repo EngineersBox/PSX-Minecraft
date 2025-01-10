@@ -208,6 +208,7 @@ remove_world_block:;
 
 INLINE static bool playerInputHandlerAttack(const PlayerInputHandlerContext* ctx) {
     Player* player= ctx->player;
+    playerDamage(player, 1);
     // NOTE: This will probably hit framerate a decent bit
     //       while we are holding down the BINDING_ATTACK
     //       button. It's probably not going to be a problem
@@ -506,5 +507,6 @@ void Player_damage(VSelf, const i16 amount) {
     iEntityDamage(self, amount);
     if (amount > 0) {
         player_damaged = true;
+        DEBUG_LOG("[PLAYER] Set damaged flag\n");
     }
 }

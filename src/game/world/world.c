@@ -811,7 +811,7 @@ void worldUpdate(World* world,
                 }
             }
         }
-        DEBUG_LOG("[WORLD] End world update (no breaking state)\n");
+        /*DEBUG_LOG("[WORLD] End world update (no breaking state)\n");*/
         return;
     }
     u8 coords_check = 0b000; // XYZ
