@@ -51,23 +51,6 @@ void DirtItemBlock_renderHand(VSelf, RenderContext* ctx, Transforms* transforms)
     itemBlockRenderHand(&self->item_block, ctx, transforms);
 }
 
-/*void dirtItemBlockApplyWorldRenderAttributes(VSelf) ALIAS("DirtItemBlock_applyWorldRenderAttributes");*/
-/*void DirtItemBlock_applyWorldRenderAttributes(VSelf) {*/
-/*    VSELF(DirtItemBlock);*/
-/*    itemBlockApplyWorldRenderAttributes(&self->item_block);*/
-/*}*/
-/**/
-/*void dirtItemBlockApplyInventoryRenderAttributes(VSelf) ALIAS("DirtItemBlock_applyInventoryRenderAttributes");*/
-/*void DirtItemBlock_applyInventoryRenderAttributes(VSelf) {*/
-/*    VSELF(DirtItemBlock);*/
-/*    itemBlockApplyInventoryRenderAttributes(&self->item_block);*/
-/*}*/
-/**/
-/*void dirtItemBlockApplyHandRenderAttributes(VSelf) ALIAS("DirtItemBlock_applyHandRenderAttributes");*/
-/*void DirtItemBlock_applyHandRenderAttributes(VSelf) {*/
-/**/
-/*}*/
-
 void dirtItemBlockInit(VSelf) ALIAS("DirtItemBlock_init");
 void DirtItemBlock_init(VSelf) {
     VSELF(DirtItemBlock);

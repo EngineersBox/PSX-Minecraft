@@ -50,23 +50,6 @@ void GrassItemBlock_renderHand(VSelf, RenderContext* ctx, Transforms* transforms
     itemBlockRenderHand(&self->item_block, ctx, transforms);
 }
 
-/*void grassItemBlockApplyWorldRenderAttributes(VSelf) ALIAS("GrassItemBlock_applyWorldRenderAttributes");*/
-/*void GrassItemBlock_applyWorldRenderAttributes(VSelf) {*/
-/*    VSELF(GrassItemBlock);*/
-/*    itemBlockApplyWorldRenderAttributes(&self->item_block);*/
-/*}*/
-/**/
-/*void grassItemBlockApplyInventoryRenderAttributes(VSelf) ALIAS("GrassItemBlock_applyInventoryRenderAttributes");*/
-/*void GrassItemBlock_applyInventoryRenderAttributes(VSelf) {*/
-/*    VSELF(GrassItemBlock);*/
-/*    itemBlockApplyInventoryRenderAttributes(&self->item_block);*/
-/*}*/
-/**/
-/*void grassItemBlockApplyHandRenderAttributes(VSelf) ALIAS("GrassItemBlock_applyHandRenderAttributes");*/
-/*void GrassItemBlock_applyHandRenderAttributes(VSelf) {*/
-/**/
-/*}*/
-
 void grassItemBlockInit(VSelf) ALIAS("GrassItemBlock_init");
 void GrassItemBlock_init(VSelf) {
     VSELF(GrassItemBlock);

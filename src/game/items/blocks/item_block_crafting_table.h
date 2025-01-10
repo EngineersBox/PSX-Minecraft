@@ -29,13 +29,10 @@ void CraftingTableItemBlock_renderInventory(VSelf, RenderContext* ctx, Transform
 void craftingTableItemBlockRenderHand(VSelf, RenderContext* ctx, Transforms* transforms);
 void CraftingTableItemBlock_renderHand(VSelf, RenderContext* ctx, Transforms* transforms);
 
-/*void craftingTableItemBlockApplyWorldRenderAttributes(VSelf);*/
 void CraftingTableItemBlock_applyWorldRenderAttributes(VSelf) ASM_ALIAS("itemBlockApplyWorldRenderAttributes");
 
-/*void craftingTableItemBlockApplyInventoryRenderAttributes(VSelf);*/
 void CraftingTableItemBlock_applyInventoryRenderAttributes(VSelf) ASM_ALIAS("itemBlockApplyInventoryRenderAttributes");
 
-/*void craftingTableItemBlockApplyHandRenderAttributes(VSelf);*/
 void CraftingTableItemBlock_applyHandRenderAttributes(VSelf) ASM_ALIAS("itemBlockApplyHandRenderAttributes");
 
 impl(Renderable, CraftingTableItemBlock);

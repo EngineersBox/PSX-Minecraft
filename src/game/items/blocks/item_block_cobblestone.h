@@ -29,13 +29,10 @@ void CobblestoneItemBlock_renderInventory(VSelf, RenderContext* ctx, Transforms*
 void cobblestoneItemBlockRenderHand(VSelf, RenderContext* ctx, Transforms* transforms);
 void CobblestoneItemBlock_renderHand(VSelf, RenderContext* ctx, Transforms* transforms);
 
-/*void cobblestoneItemBlockApplyWorldRenderAttributes(VSelf);*/
 void CobblestoneItemBlock_applyWorldRenderAttributes(VSelf) ASM_ALIAS("itemBlockApplyWorldRenderAttributes");
 
-/*void cobblestoneItemBlockApplyInventoryRenderAttributes(VSelf);*/
 void CobblestoneItemBlock_applyInventoryRenderAttributes(VSelf) ASM_ALIAS("itemBlockApplyInventoryRenderAttributes");
 
-/*void cobblestoneItemBlockApplyHandRenderAttributes(VSelf);*/
 void CobblestoneItemBlock_applyHandRenderAttributes(VSelf) ASM_ALIAS("itemBlockApplyHandRenderAttributes");
 
 impl(Renderable, CobblestoneItemBlock);

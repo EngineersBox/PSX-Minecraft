@@ -52,23 +52,6 @@ void CobblestoneItemBlock_renderHand(VSelf, RenderContext* ctx, Transforms* tran
     itemBlockRenderHand(&self->item_block, ctx, transforms);
 }
 
-/*void cobblestoneItemBlockApplyWorldRenderAttributes(VSelf) ALIAS("CobblestoneItemBlock_applyWorldRenderAttributes");*/
-/*void CobblestoneItemBlock_applyWorldRenderAttributes(VSelf) {*/
-/*    VSELF(CobblestoneItemBlock);*/
-/*    itemBlockApplyWorldRenderAttributes(&self->item_block);*/
-/*}*/
-/**/
-/*void cobblestoneItemBlockApplyInventoryRenderAttributes(VSelf) ALIAS("CobblestoneItemBlock_applyInventoryRenderAttributes");*/
-/*void CobblestoneItemBlock_applyInventoryRenderAttributes(VSelf) {*/
-/*    VSELF(CobblestoneItemBlock);*/
-/*    itemBlockApplyInventoryRenderAttributes(&self->item_block);*/
-/*}*/
-/**/
-/*void cobblestoneItemBlockApplyHandRenderAttributes(VSelf) ALIAS("CobblestoneItemBlock_applyHandRenderAttributes");*/
-/*void CobblestoneItemBlock_applyHandRenderAttributes(VSelf) {*/
-/*    UNIMPLEMENTED();*/
-/*}*/
-
 void cobblestoneItemBlockInit(VSelf) ALIAS("CobblestoneItemBlock_init");
 void CobblestoneItemBlock_init(VSelf) {
     VSELF(CobblestoneItemBlock);

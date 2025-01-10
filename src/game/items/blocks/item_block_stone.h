@@ -29,13 +29,10 @@ void StoneItemBlock_renderInventory(VSelf, RenderContext* ctx, Transforms* trans
 void stoneItemBlockRenderHand(VSelf, RenderContext* ctx, Transforms* transforms);
 void StoneItemBlock_renderHand(VSelf, RenderContext* ctx, Transforms* transforms);
 
-/*void stoneItemBlockApplyWorldRenderAttributes(VSelf);*/
 void StoneItemBlock_applyWorldRenderAttributes(VSelf) ASM_ALIAS("itemBlockApplyWorldRenderAttributes");
 
-/*void stoneItemBlockApplyInventoryRenderAttributes(VSelf);*/
 void StoneItemBlock_applyInventoryRenderAttributes(VSelf) ASM_ALIAS("itemBlockApplyInventoryRenderAttributes");
 
-/*void stoneItemBlockApplyHandRenderAttributes(VSelf);*/
 void StoneItemBlock_applyHandRenderAttributes(VSelf) ASM_ALIAS("itemBlockApplyHandRenderAttributes");
 
 impl(Renderable, StoneItemBlock);
