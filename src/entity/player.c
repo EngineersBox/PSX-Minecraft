@@ -48,9 +48,7 @@ const PhysicsObjectUpdateHandlers player_physics_object_update_handlers = (Physi
 
 void playerInit(Player* player) {
     entityInit(&player->entity);
-    player->entity.health = 7; //PLAYER_MAX_HEALTH;
-    player->entity.armour = 11;
-    player->entity.air = 3;
+    player->entity.health = PLAYER_MAX_HEALTH;
     breakingStateReset(player->breaking);
     Inventory* inventory = (Inventory*) malloc(sizeof(Inventory));
     Hotbar* hotbar = (Hotbar*) malloc(sizeof(Hotbar));
@@ -507,6 +505,5 @@ void Player_damage(VSelf, const i16 amount) {
     iEntityDamage(self, amount);
     if (amount > 0) {
         player_damaged = true;
-        DEBUG_LOG("[PLAYER] Set damaged flag\n");
     }
 }

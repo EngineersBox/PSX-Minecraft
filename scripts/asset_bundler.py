@@ -4,6 +4,7 @@
 # 4. If there are nested subdirectories (only one level) then
 #    pack them into nested archive <file>'s with assets within them
 import os, logging, logging.config, coloredlogs
+import re
 from typing import Tuple
 import xml.etree.ElementTree as ET
 from pathlib import Path
@@ -81,13 +82,19 @@ ASSET_TYPES: dict[str, str] = {
 }
 MAX_BUNDLE_NAME_SIZE = 8
 MAX_FILE_NAME_SIZE = 16
+ORDERING_PREFIX_PATTERN: re.Pattern = re.compile(r"^(\d+_)?")
 
 def createDefines(name: str, index: int, files: list[FileEntry]) -> list[str]:
     defines = [f"#define ASSET_BUNDLE__{name} {index}"]
     i = 0
     for f in files:
         asset_type = ASSET_TYPES[f.suffix]
-        defines.append(f"#define ASSET_{asset_type}__{name}__{f.name.upper()} {i}")
+        file_name = re.sub(
+            ORDERING_PREFIX_PATTERN,
+            '',
+            f.name.upper()
+        )
+        defines.append(f"#define ASSET_{asset_type}__{name}__{file_name} {i}")
         i += 1
     return defines
 
@@ -132,7 +139,9 @@ def createXML(name: str, files: list[FileEntry]) -> ET.ElementTree:
 
 def packBundle(name: str, index: int, path: Path) -> Tuple[ET.ElementTree, list[str]]:
     files: list[FileEntry] = []
-    for f in os.listdir(path):
+    dir_files: list[str] = os.listdir(path)
+    dir_files.sort()
+    for f in dir_files:
         if not os.path.isfile(os.path.join(path, f)):
             continue
         f_path = Path(f)

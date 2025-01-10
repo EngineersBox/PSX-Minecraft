@@ -161,7 +161,6 @@ void hotbarRenderAttributes(u8 health,
             health_v = HOTBAR_HEALTH_BLACK_V;
             break;
     }
-    DEBUG_LOG("U %d, V %d\n", health_u, health_v);
     setUVWH(
         pol4,
         health_u,
