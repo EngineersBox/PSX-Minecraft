@@ -40,10 +40,17 @@ class Block:
 
 @dataclass
 class ItemBlock:
+    # attributes
     name: str
     max_stack_size: str
+    max_durability: str
     face_attributes: str
     tinted_face_attributes: str
+    # Overrides
+    has_use_action: bool
+    has_attack_action: bool
+    has_damage_handler: bool
+    # Generator metadata
     generator: str = "itemblock"
 
 def generateBlock(block: Block) -> None:
@@ -206,8 +213,12 @@ def main():
     parser_itemblock = sub_parsers.add_parser("itemblock", help="itemblock help")
     parser_itemblock.add_argument("--name", type=str, required=True, help="Name of the item block")
     parser_itemblock.add_argument("--max_stack_size", type=str, default=64, help="Maximum item count to have in a stack")
+    parser_itemblock.add_argument("--max_durability", type=str, default=0, help="Maximum durability of the item")
     parser_itemblock.add_argument("--face_attributes", type=int, default=None, help="Texture page index for 16x16 face texture on all sides [NOTE: Exclusive with --tinited_face_attributes]")
     parser_itemblock.add_argument("--tinted_face_attributes", type=str, default=None, help="Per-face (6) texture page indices and optional tint formatted as '<down>,<up>,<left>,<right>,<front>,<back>'. Where each entry is comma separated and of the form '<index>, NO_TINT' or '<index>, faceTint(r,g,b,cd)' [NOTE: Exclusive with --face_attributes]")
+    parser_itemblock.add_argument("--has_use_action", type=bool, action=argparse.BooleanOptionalAction, default=False, help="Has action when held and used")
+    parser_itemblock.add_argument("--has_attack_action", type=bool, action=argparse.BooleanOptionalAction, default=False, help="Has action when held and attacked with")
+    parser_itemblock.add_argument("--has_damage_handler", type=bool, action=argparse.BooleanOptionalAction, default=False, help="Has a handler for adding/removing damage arbitrarily")
 
     args = vars(parser.parse_args())
     if (args["generator"] == "block"):

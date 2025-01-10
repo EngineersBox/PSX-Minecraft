@@ -12,11 +12,11 @@ DEFN_ITEM_BLOCK({{ name_capital }}ItemBlock);
 
 #define {{ name_lower }}ItemBlockAttributes() ((ItemAttributes) { \
     .max_stack_size = {{ max_stack_size }}, \
+    .max_durability = {{ max_durability }}, \
     .type = ITEMTYPE_BLOCK, \
     .tool_type = TOOLTYPE_NONE, \
     .armour_type = ARMOURTYPE_NONE, \
     .material = ITEMMATERIAL_NONE, \
-    .has_durability = false, \
     .name = "{{ name_snake_lower }}" \
 })
 
@@ -45,15 +45,18 @@ void {{ name_capital }}ItemBlock_init(VSelf);
 
 void {{ name_lower}}ItemBlockDestroy(VSelf);
 void {{ name_capital }}ItemBlock_destroy(VSelf);
-
+{%- if has_damage_handler %}
 void {{ name_lower}}ItemBlockApplyDamage(VSelf);
 void {{ name_capital }}ItemBlock_applyDamage(VSelf);
-
+{% endif -%}
+{%- if has_use_action %}
 void {{ name_lower}}ItemBlockUseAction(VSelf);
 void {{ name_capital }}ItemBlock_useAction(VSelf);
-
+{% endif -%}
+{%- if has_attack_action%}
 void {{ name_lower}}ItemBlockAttackAction(VSelf);
 void {{ name_capital }}ItemBlock_attackAction(VSelf);
+{% endif -%}
 
 impl(IItem, {{ name_capital }}ItemBlock);
 

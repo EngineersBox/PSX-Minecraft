@@ -76,17 +76,23 @@ void {{ name_capital }}ItemBlock_init(VSelf) {
     };
 }
 
+{%- if has_damage_handler %}
 void {{ name_lower }}ItemBlockApplyDamage(VSelf) ALIAS("{{ name_capital }}ItemBlock_applyDamage");
 void {{ name_capital }}ItemBlock_applyDamage(VSelf) {
     UNIMPLEMENTED();
 }
+{% endif -%}
 
+{%- if has_use_action %}
 void {{ name_lower }}ItemBlockUseAction(VSelf) ALIAS("{{ name_capital }}ItemBlock_useAction");
 void {{ name_capital }}ItemBlock_useAction(VSelf) {
     UNIMPLEMENTED();
 }
+{% endif -%}
 
+{%- if has_attack_action %}
 void {{ name_lower }}ItemBlockAttackAction(VSelf) ALIAS("{{ name_capital }}ItemBlock_attackAction");
 void {{ name_capital }}ItemBlock_attackAction(VSelf) {
     UNIMPLEMENTED();
 }
+{% endif -%}
