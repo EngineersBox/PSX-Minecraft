@@ -6,11 +6,11 @@
 #include <psxgte.h>
 #include <stdbool.h>
 
-#include "../core/camera.h"
-#include "../game/gui/inventory.h"
-#include "../game/gui/hotbar.h"
-#include "../core/input/input.h"
-#include "../game/blocks/breaking_state.h"
+#include "../../core/camera.h"
+#include "../../core/input/input.h"
+#include "../blocks/breaking_state.h"
+#include "../gui/inventory.h"
+#include "../gui/hotbar.h"
 #include "entity.h"
 
 extern const i32 player_collision_intervals_height[];

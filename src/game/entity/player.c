@@ -1,14 +1,14 @@
 #include "player.h"
 
-#include "../util/interface99_extensions.h"
-#include "../logging/logging.h"
-#include "../math/vector.h"
-#include "../game/world/world_raycast.h"
-#include "../game/blocks/blocks.h"
-#include "../game/items/items.h"
-#include "../game/world/chunk/chunk_structure.h"
-#include "../ui/components/cursor.h"
-#include "entity.h"
+#include "../../entity/entity.h"
+#include "../../logging/logging.h"
+#include "../../math/vector.h"
+#include "../../ui/components/cursor.h"
+#include "../../util/interface99_extensions.h"
+#include "../blocks/blocks.h"
+#include "../items/items.h"
+#include "../world/chunk/chunk_structure.h"
+#include "../world/world_raycast.h"
 
 // Forward declaration
 FWD_DECL IBlock* worldModifyVoxelConstructed(const World* world,
