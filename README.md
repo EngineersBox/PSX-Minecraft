@@ -2,6 +2,14 @@
 
 Remake of Minecraft for PS1 with PSn00bSDK
 
+> [!NOTE]
+> I am taking a brief break from this
+> (just a couple of weeks) to work on
+> other projects so as to not get burnt
+> out. Don't worry, I'll be back to this
+> soon, already have a design and implementation
+> plans for better occullusion culling.
+
 **Table of Contents**
 
 <!-- TOC -->
