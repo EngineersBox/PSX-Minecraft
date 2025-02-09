@@ -9,4 +9,8 @@
 
 bool debounce(Timestamp* debounce_field, Timestamp duration);
 
+#define debounceIsExpired(field, duration) (time_ms - (field) >= (duration))
+#define debounceResetDelay(field) ((field) = time_ms)
+#define debounceResetNoDelay(field) ((field) = 0)
+
 #endif // _PSXMC__UTIL__DEBOUNCE_H_

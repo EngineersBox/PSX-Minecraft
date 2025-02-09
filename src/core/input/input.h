@@ -7,17 +7,23 @@
 #include <interface99.h>
 #include <psxpad.h>
 
+#include "../../util/debounce.h"
 #include "../../structure/cvector.h"
 
 #define PAD_SECTIONS 2
 #define PAD_SECTION_SIZE 34
 
-#define INPUT_HANDLER_RETAIN true
-#define INPUT_HANDLER_RELINQUISH false
+typedef enum InputHandlerState {
+    INPUT_HANDLER_RETAIN = 0,
+    INPUT_HANDLER_RELINQUISH = 1,
+    INPUT_HANDLER_RELINQUISH_NO_DEBOUNCE = 2,
+} InputHandlerState;
+
+#define INPUT_AQUIRE_DEBOUNCE_MS 200
 
 typedef struct Input Input;
 
-typedef bool (*InputHandler)(const Input* input, void* ctx);
+typedef InputHandlerState (*InputHandler)(const Input* input, void* ctx);
 typedef void (*InputHandlerDestroy)(Input* input, void* ctx);
 typedef struct InputHandlerVTable {
     void* ctx;
@@ -30,6 +36,7 @@ typedef struct Input {
     PADTYPE* pad;
     InputHandlerVTable* in_focus;
     cvector(InputHandlerVTable) handlers;
+    Timestamp aquire_debounce;
 } Input;
 
 #define IInputHandler_IFACE \

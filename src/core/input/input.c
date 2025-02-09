@@ -28,10 +28,12 @@ void inputInit(Input *input) {
 }
 
 void inputUpdate(Input* input) {
-    if (input->in_focus == NULL) {
+    if (input->in_focus == NULL
+        && debounceIsExpired(input->aquire_debounce, INPUT_AQUIRE_DEBOUNCE_MS)) {
+        /*&& debounce(&input->aquire_debounce, INPUT_AQUIRE_DEBOUNCE_MS)) {*/
         InputHandlerVTable* handler = NULL;
         cvector_for_each_in(handler, input->handlers) {
-            if (handler->input_handler(input, handler->ctx)) {
+            if (handler->input_handler(input, handler->ctx) == INPUT_HANDLER_RETAIN) {
                 // If the input handler acquires focus (returning true)
                 // we set it as the focused handler and return since all
                 // subsequent handlers should not attempt anything
@@ -41,15 +43,19 @@ void inputUpdate(Input* input) {
         }
         return;
     }
-    if (!input->in_focus->input_handler(input, input->in_focus->ctx)) {
+    InputHandlerState state;
+    if (input->in_focus != NULL &&
+        (state = input->in_focus->input_handler(input, input->in_focus->ctx)) != INPUT_HANDLER_RETAIN) {
         // If the focused handler relinquishes focus (returning false)
         // we reset the focused handler to avoid re-attempting an invocation
         // so we can try all other handlers.
         input->in_focus = NULL;
-        // FIXME: Once we close an inventory and release the input handler,
-        //        it is possible to open the player inventory immediately
-        //        after if we don't press fast enough. As such we should
-        //        debounce when we release a handler before allowing a new
-        //        handler to be aquired.
+        if (state == INPUT_HANDLER_RELINQUISH) {
+            DEBUG_LOG("Reset with delay\n");
+            debounceResetDelay(input->aquire_debounce);
+        } else {
+            DEBUG_LOG("Reset no delay\n");
+            debounceResetNoDelay(input->aquire_debounce);
+        }
     }
 }

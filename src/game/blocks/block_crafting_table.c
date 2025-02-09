@@ -20,7 +20,7 @@ Slot crafting_table_slots[(slotGroupSize(CRAFTING_TABLE) + slotGroupSize(CRAFTIN
     createSlotInline(CRAFTING_TABLE_RESULT, 0, 0)
 };
 
-bool craftingTableBlockInputHandler(const Input* input, void* ctx);
+InputHandlerState craftingTableBlockInputHandler(const Input* input, void* ctx);
 static InputHandlerVTable craftingTableBlockInputHandlerVTable = {
     .ctx = &block_input_handler_context,
     .input_handler = craftingTableBlockInputHandler,
@@ -154,7 +154,7 @@ static void cursorHandler(bool split_or_store_one) {
     }
 }
 
-bool craftingTableBlockInputHandler(const Input* input, void* ctx) {
+InputHandlerState craftingTableBlockInputHandler(const Input* input, void* ctx) {
     processCraftingRecipe();
     VCALL(cursor_component, update);
     inventoryCursorHandler(

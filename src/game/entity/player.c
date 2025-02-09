@@ -406,7 +406,7 @@ INLINE static void playerInputHandlerWorldInteraction(const Input* input, Player
 // This intentionally always returns false as it is the
 // base level of input handling, everything else should
 // take control on top of this (i.e. return true).
-INLINE static bool playerInputHandlerMovement(const Input* input, const PlayerInputHandlerContext* ctx) {
+INLINE static InputHandlerState playerInputHandlerMovement(const Input* input, const PlayerInputHandlerContext* ctx) {
     const PADTYPE* pad = input->pad;
     Player* player = ctx->player;
     PhysicsObject* physics_object = &player->entity.physics_object;
@@ -419,7 +419,7 @@ INLINE static bool playerInputHandlerMovement(const Input* input, const PlayerIn
     }
     if (input->pad->stat != 0) {
         // No input, don't bother updating from pads
-        return false;
+        return INPUT_HANDLER_RELINQUISH_NO_DEBOUNCE;
     }
     if (isPressed(pad, BINDING_LOOK_UP)) {
         physics_object->rotation.pitch = positiveModulo(
@@ -469,10 +469,10 @@ INLINE static bool playerInputHandlerMovement(const Input* input, const PlayerIn
     } else if (isPressed(pad, BINDING_MOVE_RIGHT)) {
         physics_object->move.strafe += move_amount;
     }
-    return false;
+    return INPUT_HANDLER_RELINQUISH_NO_DEBOUNCE;
 }
 
-bool playerInputHandler(const Input* input, void* ctx) {
+InputHandlerState playerInputHandler(const Input* input, void* ctx) {
     PlayerInputHandlerContext* context = ctx;
     if (input->pad->stat == 0) {
         playerInputHandlerWorldInteraction(input, context);

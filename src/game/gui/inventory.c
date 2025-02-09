@@ -321,16 +321,16 @@ void Inventory_close(VSelf) {
     background->texture = (Texture) {0};
 }
 
-bool inventoryInputHandler(const Input* input, void* ctx) {
+InputHandlerState inventoryInputHandler(const Input* input, void* ctx) {
     Inventory* inventory = (Inventory*) ctx;
     if (isPressed(input->pad, BINDING_OPEN_INVENTORY)
         && debounce(&inventory->debounce, INVENTORY_DEBOUNCE_MS)) {
         if (inventory->ui.active) {
             inventoryClose(inventory);
-            return false;
+            return INPUT_HANDLER_RELINQUISH;
         }
         inventoryOpen(inventory);
-        return true;
+        return INPUT_HANDLER_RETAIN;
     } else if (inventory->ui.active) {
         inventoryCursorHandler(
             inventory,
@@ -338,7 +338,7 @@ bool inventoryInputHandler(const Input* input, void* ctx) {
             input
         );
     }
-    return inventory->ui.active;
+    return inventory->ui.active ? INPUT_HANDLER_RETAIN : INPUT_HANDLER_RELINQUISH;
 }
 
 void inventoryRegisterInputHandler(VSelf, Input* input, void* ctx) ALIAS("Inventory_registerInputHandler");

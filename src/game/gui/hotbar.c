@@ -2,6 +2,7 @@
 
 #include "../../structure/cvector_utils.h"
 #include "../../util/interface99_extensions.h"
+#include "../../util/debounce.h"
 #include "../../ui/components/background.h"
 #include "../../structure/primitive/primitive.h"
 #include "psxgpu.h"
@@ -282,26 +283,20 @@ void Hotbar_close(VSelf) {
     // Always open
 }
 
-static bool debounce(Hotbar* hotbar) {
-    if (time_ms - hotbar->debounce >= HOTBAR_DEBOUNCE_MS) {
-        hotbar->debounce = time_ms;
-        return true;
-    }
-    return false;
-}
-
-bool hotbarInputHandler(const Input* input, void* ctx) {
+InputHandlerState hotbarInputHandler(const Input* input, void* ctx) {
     const PADTYPE* pad = input->pad;
     if (pad->stat != 0) {
-        return false;
+        return INPUT_HANDLER_RELINQUISH_NO_DEBOUNCE;
     }
     Hotbar* hotbar = (Hotbar*) ctx;
-    if (isPressed(pad, BINDING_PREVIOUS) && debounce(hotbar)) {
+    if (isPressed(pad, BINDING_PREVIOUS)
+        && debounce(&hotbar->debounce, HOTBAR_DEBOUNCE_MS)) {
         hotbar->selected_slot = positiveModulo(((i8) hotbar->selected_slot) - 1, 9);
-    } else if (isPressed(pad, BINDING_NEXT) && debounce(hotbar)) {
+    } else if (isPressed(pad, BINDING_NEXT)
+        && debounce(&hotbar->debounce, HOTBAR_DEBOUNCE_MS)) {
         hotbar->selected_slot = positiveModulo(((i8) hotbar->selected_slot) + 1, 9);
     }
-    return false;
+    return INPUT_HANDLER_RELINQUISH_NO_DEBOUNCE;
 }
 
 void hotbarRegisterInputHandler(VSelf, Input* input, void* ctx) ALIAS("Hotbar_registerInputHandler");
