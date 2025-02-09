@@ -36,6 +36,7 @@
 * [X] Textures in terrain tpage with any `u` and `v >= 16` rendering multiple interleaved textures from different points in terrain texture page (NOTE: This is a PCSX-Redux bug, as Duckstation renders fine).
 * [X] Ingredients in a recipe are not consumed in the crafting table
 * [X] Output slot item is not rendered in crafting table
+* [X] Opening a block inventory with a block in hand will place the block and open the inventory at the same time
 * [ ] Cull faces on chunk edges that face outward on the render limit
 * [ ] Mesh vertices z-depth is inconsistent leading to faces drawn in wrong order and thus culling fails
 * [ ] Vertices are distorted (in their location) when very close to the camera
@@ -43,7 +44,6 @@
 * [ ] Lighting on dropped items is pure black sometimes despite being in light (possibly bad world position when retrieving light value). The physics object position for items isn't properly aligned to the bounding box since the position (which should be the centre of the AABB) isn't aligned properly and thus when converting to world position and querying the light level, it can query the next block over (in the direction that the item moved when it was dropped) and thus can get a light level of 0 and the item is rendered as black in the world.
 * [ ] Weather texture does not scroll correctly, some planes are static and only in some places does it work correctly. Potentially an issue with texture windowing and UV positions.
 * [ ] Once we close an inventory and release the input handler, it is possible to open the player inventory immediately after if we don't press fast enough. As such we should debounce when we release a handler before allowing a new handler to be aquired.
-* [X] Opening a block inventory with a block in hand will place the block and open the inventory at the same time
 
 ## Implement
 
