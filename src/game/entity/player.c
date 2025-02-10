@@ -26,10 +26,15 @@ FWD_DECL Chunk* worldGetChunk(const World* world, const VECTOR* position);
 
 #define HEIGHT_INTERVALS 3
 #define RADIUS_INTERVALS 2
-const i32 player_collision_intervals_height[HEIGHT_INTERVALS] = { 0, 258048, 516096 };
+const i32 player_collision_intervals_height[HEIGHT_INTERVALS] = {
+    0,
+    258048, // ONE_BLOCK * 0.9
+    516096  // ONE_BLOCK * 1.8
+};
 const i32 player_collision_intervals_radius[RADIUS_INTERVALS] = { 0, 57344 };
 const PhysicsObjectConfig player_physics_object_config = (PhysicsObjectConfig) {
     .jump_height = 120422, // ONE_BLOCK * 0.42 = 120422
+    // ONE_BLOCK * 0.2 = 57344
     .radius = 57344, // Width: 0.6 => Radius: ONE_BLOCK * 0.3 = 86016
     .height = 516096, // ONE_BLOCK * 1.8 = 516096
     .step_height = 0, // TODO: Implement this

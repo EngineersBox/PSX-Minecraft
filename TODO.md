@@ -103,7 +103,7 @@
 * [ ] Depth-first search culling through chunks
 * [ ] Thread scheduler using hardware timers for IRQ interleaved execution
 * [ ] Update queue for operations on the world
-* [ ] D-pad or analogue stick controlled cursor in UIs with item movement between slots being held by cursor
+* [X] D-pad or analogue stick controlled cursor in UIs with item movement between slots being held by cursor
 * [ ] TooManyItems-like overlay in inventory GUI
 * [ ] Retrieve face attributes based on block orientation during meshing
 * [ ] Sub-block intersection tests for raycast to handling interacting with blocks like doors and piston heads
