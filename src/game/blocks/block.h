@@ -85,7 +85,7 @@ typedef struct Block {
     u8 _pad: 3;
 } Block;
 
-typedef struct World World;
+FWD_DECL typedef struct World World;
 
 #define BLOCK_DEFAULT_OPACITY_BITSET ((u8) 0b111111)
 #define opacityBitset(down, up, left, right, back, front) (\
