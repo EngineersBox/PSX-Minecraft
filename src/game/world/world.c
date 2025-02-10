@@ -774,7 +774,7 @@ void worldUpdate(World* world,
         CHUNK_SIZE
     );
     if (isPlayerInEdgeChunks(world, &player_pos)) {
-        DEBUG_LOG("Player chunk pos: %d,%d,%d\n", VEC_LAYOUT(player_pos.chunk));
+        DEBUG_LOG("Player chunk pos: " VEC_PATTERN "\n", VEC_LAYOUT(player_pos.chunk));
         worldLoadChunks(world, &player_pos.chunk);
         DEBUG_LOG(
             "[WORLD] Head { x: %d, z: %d } Centre { x: %d, z: %d}\n",
@@ -811,7 +811,7 @@ void worldUpdate(World* world,
                 }
             }
         }
-        /*DEBUG_LOG("[WORLD] End world update (no breaking state)\n");*/
+        DEBUG_LOG("[WORLD] End world update (no breaking state)\n");
         return;
     }
     u8 coords_check = 0b000; // XYZ

@@ -205,8 +205,7 @@ remove_world_block:;
 }
 
 INLINE static bool playerInputHandlerAttack(const PlayerInputHandlerContext* ctx) {
-    Player* player= ctx->player;
-    playerDamage(player, 1);
+    Player* player = ctx->player;
     // NOTE: This will probably hit framerate a decent bit
     //       while we are holding down the BINDING_ATTACK
     //       button. It's probably not going to be a problem
