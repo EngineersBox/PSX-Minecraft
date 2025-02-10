@@ -109,9 +109,6 @@ void Minecraft_init(VSelf, void* ctx) {
     DYN_PTR(&player_entity, Player, IEntity, player);
     ((player_entity).vptr->damage((player_entity).self, 0));
     playerInit(player);
-    player->entity.health = 7; //PLAYER_MAX_HEALTH;
-    player->entity.armour = 11;
-    player->entity.air = 3;
     block_input_handler_context.inventory = &player->inventory;
     player->camera = &self->camera;
     const VECTOR player_positon = vec3_i32(

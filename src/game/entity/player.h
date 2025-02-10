@@ -20,6 +20,10 @@ extern const PhysicsObjectUpdateHandlers player_physics_object_update_handlers;
 
 // 10 hearts with 2 points in each heart
 #define PLAYER_MAX_HEALTH 20
+// 10 armour with 2 points in each
+#define PLAYER_MAX_ARMOUR 20
+// 10 bubbles with odd values being a popped bubble
+#define PLAYER_MAX_AIR 20
 #define PLAYER_REACH_DISTANCE 6
 // ONE_BLOCK * 1.7
 #define PLAYER_CAMERA_OFFSET 487424

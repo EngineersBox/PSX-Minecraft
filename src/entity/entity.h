@@ -26,8 +26,8 @@ typedef struct Entity {
     EntityFlags flags;
     u8 health: 5;
     u8 armour: 5;
-    u8 air: 4;
-    u8 _pad: 2;
+    u8 air: 5;
+    u8 _pad: 1;
     // 0 = not on fire
     // 1+ = ticks on fire so far
     u16 on_fire;
