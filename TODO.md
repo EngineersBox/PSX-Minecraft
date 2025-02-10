@@ -97,13 +97,13 @@
 * [X] Add item metadata support to recipe trees
 * [X] Crafting in small grid within inventory
 * [X] Hotbar attributes (health, armour and air) with damaged animation
+* [X] D-pad or analogue stick controlled cursor in UIs with item movement between slots being held by cursor
 * [ ] Culling of direction sub-meshes in chunk meshes to avoid any clipping tests in that direction
 * [ ] Camera far plane cutoff with fog relative to chunk render distance
 * [ ] Frustum and culling
 * [ ] Depth-first search culling through chunks
 * [ ] Thread scheduler using hardware timers for IRQ interleaved execution
 * [ ] Update queue for operations on the world
-* [X] D-pad or analogue stick controlled cursor in UIs with item movement between slots being held by cursor
 * [ ] TooManyItems-like overlay in inventory GUI
 * [ ] Retrieve face attributes based on block orientation during meshing
 * [ ] Sub-block intersection tests for raycast to handling interacting with blocks like doors and piston heads
