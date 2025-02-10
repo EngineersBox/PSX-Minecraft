@@ -8,6 +8,9 @@ void entityInit(Entity* entity) {
     };
     entity->health = 0;
     entity->on_fire = 0;
+    entity->health = 0;
+    entity->armour = 0;
+    entity->air = 0;
 }
 
 bool iEntityAttackFrom(VSelf,

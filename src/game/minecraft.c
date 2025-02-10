@@ -273,15 +273,15 @@ void Minecraft_render(VSelf, const Stats* stats) {
     // Update breaking state textures
     breakingStateUpdateRenderTarget(&player->breaking, &self->ctx);
     // Draw the world
-    frustumTransform(&self->ctx.camera->frustum, &self->transforms);
+    /*frustumTransform(&self->ctx.camera->frustum, &self->transforms);*/
     worldRender(
         world,
         (const Player*) &player,
         &self->ctx,
         &self->transforms
     );
-    frustumRenderNormals(&self->ctx.camera->frustum, &self->ctx);
-    frustumRestore(&self->ctx.camera->frustum);
+    /*frustumRenderNormals(&self->ctx.camera->frustum, &self->ctx);*/
+    /*frustumRestore(&self->ctx.camera->frustum);*/
     if (world->weather.raining || world->weather.storming) {
         weatherRender(
             world,
@@ -312,7 +312,7 @@ void Minecraft_render(VSelf, const Stats* stats) {
     debugDrawPacketBufferUsageGraph(
         &self->ctx,
         0,
-        SCREEN_YRES - HOTBAR_HEIGHT - 2
+        SCREEN_YRES - HOTBAR_HEIGHT - 20
     );
     // Flush font to screen
     FntFlush(0);

@@ -68,7 +68,6 @@ void playerInit(Player* player) {
         &player_physics_object_config,
         &player_physics_object_update_handlers
     );
-    player->entity.physics_object.flags.in_water = true;
 }
 
 void playerDestroy(const Player* player) {
