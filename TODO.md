@@ -37,7 +37,7 @@
 * [X] Ingredients in a recipe are not consumed in the crafting table
 * [X] Output slot item is not rendered in crafting table
 * [X] Once we close an inventory and release the input handler, it is possible to open the player inventory immediately after if we don't press fast enough. As such we should debounce when we release a handler before allowing a new handler to be aquired.
-* [ ] Opening a block inventory with a block in hand will place the block and open the inventory at the same time
+* [X] Opening a block inventory with a block in hand will place the block and open the inventory at the same time
 * [ ] Cull faces on chunk edges that face outward on the render limit
 * [ ] Mesh vertices z-depth is inconsistent leading to faces drawn in wrong order and thus culling fails
 * [ ] Vertices are distorted (in their location) when very close to the camera
