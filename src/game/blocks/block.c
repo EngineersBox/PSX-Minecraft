@@ -19,7 +19,7 @@ void IBlock_update(VSelf) {
 bool iBlockUseAction(VSelf) ALIAS("IBlock_useAction");
 bool IBlock_useAction(VSelf) {
     // By default blocks don't react to being interacted with
-    return false;
+    return BLOCK_USE_ACTION_NOT_CONUMED;
 }
 
 bool iBlockCanPlace(VSelf,

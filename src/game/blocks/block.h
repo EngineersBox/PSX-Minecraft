@@ -98,6 +98,9 @@ typedef struct World World;
 )
 #define blockIsFaceOpaque(block, face) (((block)->opacity_bitset >> (face)) & 0b1)
 
+#define BLOCK_USE_ACTION_CONSUMED true
+#define BLOCK_USE_ACTION_NOT_CONUMED false
+
 #define IBlock_IFACE \
     vfunc(void, init, VSelf) \
     vfunc(IItem*, destroy, VSelf, bool drop_item) \
