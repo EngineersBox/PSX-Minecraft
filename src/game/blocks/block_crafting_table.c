@@ -236,7 +236,7 @@ bool CraftingTableBlock_useAction(VSelf) {
             CRAFTING_TABLE_TEXTURE_HEIGHT
         )
     };
-    return false;
+    return true;
 }
 
 void craftingTableBlockRenderUI(RenderContext* ctx, Transforms* transforms) {
