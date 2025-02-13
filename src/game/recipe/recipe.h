@@ -34,7 +34,8 @@ typedef struct RecipeResult {
      *        marked by id and metadata id
      */
     CompositeID item;
-    u32 stack_size;
+    u8 stack_size;
+    u8 _pad;
 } RecipeResult;
 
 typedef struct RecipeResults {
@@ -64,34 +65,31 @@ typedef struct RecipeResults {
  *      and https://www.reddit.com/r/C_Programming/comments/1b5y9r9/compiletime_initialization_of_arbitrarydepth
  */
 typedef struct RecipeNode {
-    // NOTE: If necessary this could be made into a composite
-    //       key that specifies both the id and metadata id
     /**
      * @brief Recipe item ingredient for this position.
      *        marked by id and metadata id
      */
     CompositeID item;
     /**
-     * @brief Number of elements in @code nodes@endcode
+     * @brief Number of elements in `nodes`
      */
     u8 node_count;
     /**
-     * @brief Number of elements in @code results@endcode
+     * @brief Number of elements in `results`
      */
     u8 result_count;
     /**
     * @brief Contains the result of the recipe taking the items in the
     *        the tree up until this node. This should be null when
-    *        @code result_count@endcode is @code NULL@endcode.
-    *        Otherwise the number of elements in this array should be
-    *        equal to @code result_count@endcode
+    *        `result_count`is `NULL`endcode. Otherwise the number of
+    *        elements in this array should be equal to `result_count`
     */
     RecipeResults** results;
     /**
     * @brief Next items in the recipe, ordered by item IDs. Note
     *        that this should be null when @code node_count@endcode
-    *        is @code NULL@endcode. Otherwise the number of elements
-    *        in this array should be equal to @code node_count@endcode
+    *        is `NULL`. Otherwise the number of elements in this
+    *        array should be equal to `node_count`
     */
     struct RecipeNode** nodes;
 } RecipeNode;
