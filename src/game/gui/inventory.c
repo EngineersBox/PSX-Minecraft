@@ -363,15 +363,9 @@ static bool processCraftingRecipe(Inventory* inventory) {
     memset(ingredient_consume_sizes, '\0', sizeof(u8) * slotGroupSize(INVENTORY_CRAFTING));
     for (int i = slotGroupIndexOffset(INVENTORY_CRAFTING);
         i < slotGroupIndexOffset(INVENTORY_CRAFTING_RESULT); i++) {
-        const Slot* slot = &inventory->slots[i];
+        const int slot_index = i - slotGroupIndexOffset(INVENTORY_CRAFTING);
+        const Slot* slot = &inventory->slots[slot_index];
         const IItem* iitem = slot->data.item;
-        int pattern_index = i - slotGroupIndexOffset(INVENTORY_CRAFTING);
-        if (pattern_index >= 2) {
-            // We need to place the last two slots
-            // on the next row in the pattern, which
-            // is 3x3, so we skip an index to do so
-            pattern_index++;
-        }
         if (iitem != NULL) {
             const Item* item = VCAST_PTR(Item*, iitem);
             pattern[i] = (RecipePatternEntry) {
