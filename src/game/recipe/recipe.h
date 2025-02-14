@@ -70,6 +70,8 @@ typedef struct RecipeNode {
      *        marked by id and metadata id
      */
     CompositeID item;
+    u8 stack_size;
+    u8 _pad;
     /**
      * @brief Number of elements in `nodes`
      */
@@ -104,7 +106,11 @@ typedef enum ResultQueryState {
     RECIPE_FOUND
 } RecipeQueryState;
 
-typedef CompositeID RecipePatternEntry;
+typedef struct RecipePatternEntry {
+    CompositeID id;
+    u8 stack_size;
+    u8 _pad;
+} RecipePatternEntry;
 typedef RecipePatternEntry* RecipePattern;
 
 #define RECIPE_PATTERN(name, count) RecipePatternEntry name[(count)]
@@ -128,6 +134,7 @@ RecipeQueryState recipeSearch(const RecipeNode* root,
                               const RecipePattern pattern,
                               Dimension pattern_dimension,
                               RecipeQueryResult* query_result,
+                              u8* ingredient_consume_sizes,
                               bool create_item_result);
 
 typedef enum RecipeProcessResult {
@@ -148,9 +155,11 @@ RecipeProcessResult recipeProcessGrid(const RecipeNode* root,
                                       Dimension pattern_dimension,
                                       Slot** output_slots,
                                       u8 output_slot_count,
+                                      u8* ingredient_consume_sizes,
                                       bool merge_output);
 
 void recipeConsumeIngredients(Slot* slots,
+                              const u8* ingredient_consume_sizes,
                               int start_index,
                               int end_index);
 

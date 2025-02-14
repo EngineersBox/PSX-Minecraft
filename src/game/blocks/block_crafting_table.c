@@ -54,23 +54,26 @@ IItem* CraftingTableBlock_provideItem(VSelf) {
     return item;
 }
 
+static u8 ingredient_consume_sizes[slotGroupSize(CRAFTING_TABLE)] = {0};
+
 static bool processCraftingRecipe() {
     // TODO: Only invoke this when something changes in the crafting grid
     //       or output slot
-    RECIPE_PATTERN(pattern, 9) = {0};
+    RECIPE_PATTERN(pattern, slotGroupSize(CRAFTING_TABLE)) = {0};
+    memset(ingredient_consume_sizes, '\0', sizeof(u8) * slotGroupSize(CRAFTING_TABLE));
     for (int i = 0; i < slotGroupIndexOffset(CRAFTING_TABLE_RESULT); i++) {
         const Slot* slot = &crafting_table_slots[i];
         const IItem* iitem = slot->data.item;
         if (iitem != NULL) {
             const Item* item = VCAST_PTR(Item*, iitem);
             pattern[i] = (RecipePatternEntry) {
-                .separated.metadata = item->metadata_id,
-                .separated.id = item->id
+                .id = RECIPE_COMPOSITE_ID(item->id, item->metadata_id),
+                .stack_size = item->stack_size,
             };
         } else {
             pattern[i] = (RecipePatternEntry) {
-                .separated.metadata = 0,
-                .separated.id = ITEMID_AIR
+                .id = RECIPE_COMPOSITE_ID(0, ITEMID_AIR),
+                .stack_size = 0,
             };
         }
     }
@@ -78,9 +81,13 @@ static bool processCraftingRecipe() {
     return recipeProcessGrid(
         crafting_recipes,
         pattern,
-        (Dimension){ .width = 3, .height = 3 },
+        (Dimension){
+            .width = slotGroupDim(CRAFTING_TABLE, X),
+            .height = slotGroupDim(CRAFTING_TABLE, Y)
+        },
         &output_slot,
-        1,
+        slotGroupSize(CRAFTING_TABLE_RESULT),
+        ingredient_consume_sizes,
         false
     );
 }
@@ -134,6 +141,7 @@ static void cursorHandler(bool split_or_store_one) {
         if (held_iitem == NULL) {
             recipeConsumeIngredients(
                 crafting_table_slots,
+                ingredient_consume_sizes,
                 slotGroupIndexOffset(CRAFTING_TABLE),
                 slotGroupIndexOffset(CRAFTING_TABLE_RESULT)
             );
@@ -151,6 +159,7 @@ static void cursorHandler(bool split_or_store_one) {
         result_slot->data.item = NULL;
         recipeConsumeIngredients(
             crafting_table_slots,
+            ingredient_consume_sizes,
             slotGroupIndexOffset(CRAFTING_TABLE),
             slotGroupIndexOffset(CRAFTING_TABLE_RESULT)
         );

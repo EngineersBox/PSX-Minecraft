@@ -354,10 +354,13 @@ void Inventory_registerInputHandler(VSelf, Input* input, void* ctx) {
     );
 }
 
+static u8 ingredient_consume_sizes[slotGroupSize(INVENTORY_CRAFTING)] = {0};
+
 static bool processCraftingRecipe(Inventory* inventory) {
     // TODO: Only invoke this when something changes in the crafting grid
     //       or output slot
-    RECIPE_PATTERN(pattern, 4) = {0};
+    RECIPE_PATTERN(pattern, slotGroupSize(INVENTORY_CRAFTING)) = {0};
+    memset(ingredient_consume_sizes, '\0', sizeof(u8) * slotGroupSize(INVENTORY_CRAFTING));
     for (int i = slotGroupIndexOffset(INVENTORY_CRAFTING);
         i < slotGroupIndexOffset(INVENTORY_CRAFTING_RESULT); i++) {
         const Slot* slot = &inventory->slots[i];
@@ -371,14 +374,14 @@ static bool processCraftingRecipe(Inventory* inventory) {
         }
         if (iitem != NULL) {
             const Item* item = VCAST_PTR(Item*, iitem);
-            pattern[pattern_index] = (RecipePatternEntry) {
-                .separated.metadata = item->metadata_id,
-                .separated.id = item->id
+            pattern[i] = (RecipePatternEntry) {
+                .id = RECIPE_COMPOSITE_ID(item->id, item->metadata_id),
+                .stack_size = item->stack_size,
             };
         } else {
-            pattern[pattern_index] = (RecipePatternEntry) {
-                .separated.metadata = 0,
-                .separated.id = ITEMID_AIR
+            pattern[i] = (RecipePatternEntry) {
+                .id = RECIPE_COMPOSITE_ID(0, ITEMID_AIR),
+                .stack_size = 0,
             };
         }
     }
@@ -386,9 +389,13 @@ static bool processCraftingRecipe(Inventory* inventory) {
     return recipeProcessGrid(
         crafting_recipes,
         pattern,
-        (Dimension){ .width = 2, .height = 2, },
+        (Dimension){ 
+            .width = slotGroupDim(INVENTORY_CRAFTING_RESULT, X),
+            .height = slotGroupDim(INVENTORY_CRAFTING_RESULT, Y)
+        },
         &output_slot,
-        1,
+        slotGroupSize(INVENTORY_CRAFTING_RESULT),
+        ingredient_consume_sizes,
         false
     );
 }
@@ -431,6 +438,7 @@ static void cursorHandler(Inventory* inventory,
         if (held_iitem == NULL) {
             recipeConsumeIngredients(
                 inventory->slots,
+                ingredient_consume_sizes,
                 slotGroupIndexOffset(INVENTORY_CRAFTING),
                 slotGroupIndexOffset(INVENTORY_CRAFTING_RESULT)
             );
@@ -448,6 +456,7 @@ static void cursorHandler(Inventory* inventory,
         result_slot->data.item = NULL;
         recipeConsumeIngredients(
             inventory->slots,
+            ingredient_consume_sizes,
             slotGroupIndexOffset(INVENTORY_CRAFTING),
             slotGroupIndexOffset(INVENTORY_CRAFTING_RESULT)
         );

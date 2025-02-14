@@ -20,9 +20,13 @@ RecipeNode* recipeNodeGetNext(const RecipeNode* node, const RecipePatternEntry* 
     while (lower <= upper) {
         mid = (lower + upper) >> 1;
         RecipeNode* next_node = node->nodes[mid];
-        if (next_node->item.data == pattern->data) {
+        if (next_node->item.data == pattern->id.data) {
+            if (next_node->stack_size < pattern->stack_size) {
+                // Number of items in the slot is insufficient
+                return NULL;
+            }
             return next_node;
-        } else if (next_node->item.data > pattern->data) {
+        } else if (next_node->item.data > pattern->id.data) {
             upper = mid - 1;
         } else {
             lower = mid + 1;
@@ -81,6 +85,7 @@ RecipeQueryState recipeSearch(const RecipeNode* root,
                               const RecipePattern pattern,
                               Dimension pattern_dimension,
                               RecipeQueryResult* query_result,
+                              u8* ingredient_consume_sizes,
                               bool create_result_item) {
     u8 right = 0;
     u8 bottom = 0;
@@ -88,7 +93,7 @@ RecipeQueryState recipeSearch(const RecipeNode* root,
     u8 left = pattern_dimension.width;
     for (u8 y = 0; y < pattern_dimension.height; y++) {
         for (u8 x = 0; x < pattern_dimension.width; x++) {
-            if (pattern[(y * pattern_dimension.width) + x].separated.id != ITEMID_AIR) {
+            if (pattern[(y * pattern_dimension.width) + x].id.separated.id != ITEMID_AIR) {
                 left = min(left, x);
                 top = min(top, y);
                 right = max(right, x);
@@ -99,10 +104,12 @@ RecipeQueryState recipeSearch(const RecipeNode* root,
     RecipeNode const* current = root;
     for (u8 y = top; y <= bottom; y++) {
         for (u8 x = left; x <= right; x++) {
-            current = recipeNodeGetNext(current, &pattern[(y * pattern_dimension.width) + x]);
+            const u32 index = (y * pattern_dimension.width) + x; 
+            current = recipeNodeGetNext(current, &pattern[index]);
             if (current == NULL) {
                 return RECIPE_NOT_FOUND;
             }
+            ingredient_consume_sizes[index] = current->stack_size;
         }
     }
     const Dimension dimension = (Dimension) {
@@ -135,6 +142,7 @@ RecipeProcessResult recipeProcessGrid(const RecipeNode* root,
                                       Dimension pattern_dimension,
                                       Slot** output_slots,
                                       u8 output_slot_count,
+                                      u8* ingredient_consume_sizes,
                                       bool merge_output) {
     RecipeQueryResult query_result = {0};
     query_result.results = calloc(output_slot_count, sizeof(IItem*));
@@ -152,6 +160,7 @@ RecipeProcessResult recipeProcessGrid(const RecipeNode* root,
         pattern,
         pattern_dimension,
         &query_result,
+        ingredient_consume_sizes,
         true
     ) == RECIPE_NOT_FOUND) {
         // No matching recipe
@@ -198,6 +207,7 @@ RecipeProcessResult recipeProcessGrid(const RecipeNode* root,
 }
 
 void recipeConsumeIngredients(Slot* slots,
+                              const u8* ingredient_consume_sizes,
                               int start_index,
                               int end_index) {
     for (int i = start_index; i < end_index; i++) {
@@ -208,7 +218,8 @@ void recipeConsumeIngredients(Slot* slots,
         }
         Item* item = VCAST_PTR(Item*, iitem);
         assert(item->stack_size > 0);
-        if (--item->stack_size == 0) {
+        item->stack_size -= ingredient_consume_sizes[i];
+        if (item->stack_size == 0) {
             VCALL(*iitem, destroy);
             slot->data.item = NULL;
         }
