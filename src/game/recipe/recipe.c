@@ -79,15 +79,16 @@ RecipeQueryState recipeNodeGetRecipeResult(const RecipeNode* node,
 
 RecipeQueryState recipeSearch(const RecipeNode* root,
                               const RecipePattern pattern,
+                              Dimension pattern_dimension,
                               RecipeQueryResult* query_result,
                               bool create_result_item) {
     u8 right = 0;
     u8 bottom = 0;
-    u8 top = 3;
-    u8 left = 3;
-    for (u8 y = 0; y < 3; y++) {
-        for (u8 x = 0; x < 3; x++) {
-            if (pattern[(y * 3) + x].separated.id != ITEMID_AIR) {
+    u8 top = pattern_dimension.height;
+    u8 left = pattern_dimension.width;
+    for (u8 y = 0; y < pattern_dimension.height; y++) {
+        for (u8 x = 0; x < pattern_dimension.width; x++) {
+            if (pattern[(y * pattern_dimension.width) + x].separated.id != ITEMID_AIR) {
                 left = min(left, x);
                 top = min(top, y);
                 right = max(right, x);
@@ -98,7 +99,7 @@ RecipeQueryState recipeSearch(const RecipeNode* root,
     RecipeNode const* current = root;
     for (u8 y = top; y <= bottom; y++) {
         for (u8 x = left; x <= right; x++) {
-            current = recipeNodeGetNext(current, &pattern[(y * 3) + x]);
+            current = recipeNodeGetNext(current, &pattern[(y * pattern_dimension.width) + x]);
             if (current == NULL) {
                 return RECIPE_NOT_FOUND;
             }
@@ -131,6 +132,7 @@ bool sufficientSpaceInOutputSlots(const RecipeQueryResult* query_result,
 
 RecipeProcessResult recipeProcessGrid(const RecipeNode* root,
                                       const RecipePattern pattern,
+                                      Dimension pattern_dimension,
                                       Slot** output_slots,
                                       u8 output_slot_count,
                                       bool merge_output) {
@@ -148,6 +150,7 @@ RecipeProcessResult recipeProcessGrid(const RecipeNode* root,
     if (recipeSearch(
         root,
         pattern,
+        pattern_dimension,
         &query_result,
         true
     ) == RECIPE_NOT_FOUND) {

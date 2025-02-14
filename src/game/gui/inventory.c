@@ -357,7 +357,7 @@ void Inventory_registerInputHandler(VSelf, Input* input, void* ctx) {
 static bool processCraftingRecipe(Inventory* inventory) {
     // TODO: Only invoke this when something changes in the crafting grid
     //       or output slot
-    RecipePattern pattern = {0};
+    RECIPE_PATTERN(pattern, 4) = {0};
     for (int i = slotGroupIndexOffset(INVENTORY_CRAFTING);
         i < slotGroupIndexOffset(INVENTORY_CRAFTING_RESULT); i++) {
         const Slot* slot = &inventory->slots[i];
@@ -386,6 +386,7 @@ static bool processCraftingRecipe(Inventory* inventory) {
     return recipeProcessGrid(
         crafting_recipes,
         pattern,
+        (Dimension){ .width = 2, .height = 2, },
         &output_slot,
         1,
         false

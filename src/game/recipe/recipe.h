@@ -105,8 +105,9 @@ typedef enum ResultQueryState {
 } RecipeQueryState;
 
 typedef CompositeID RecipePatternEntry;
+typedef RecipePatternEntry* RecipePattern;
 
-typedef RecipePatternEntry RecipePattern[9];
+#define RECIPE_PATTERN(name, count) RecipePatternEntry name[(count)]
 
 RecipeNode* recipeNodeGetNext(const RecipeNode* node, const RecipePatternEntry* pattern);
 // Query result should be initialised with a results
@@ -125,6 +126,7 @@ RecipeQueryState recipeNodeGetRecipeResult(const RecipeNode* node,
 // debug build and the create_item_result flag is set.
 RecipeQueryState recipeSearch(const RecipeNode* root,
                               const RecipePattern pattern,
+                              Dimension pattern_dimension,
                               RecipeQueryResult* query_result,
                               bool create_item_result);
 
@@ -143,6 +145,7 @@ typedef enum RecipeProcessResult {
  */
 RecipeProcessResult recipeProcessGrid(const RecipeNode* root,
                                       const RecipePattern pattern,
+                                      Dimension pattern_dimension,
                                       Slot** output_slots,
                                       u8 output_slot_count,
                                       bool merge_output);

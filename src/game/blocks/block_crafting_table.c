@@ -57,7 +57,7 @@ IItem* CraftingTableBlock_provideItem(VSelf) {
 static bool processCraftingRecipe() {
     // TODO: Only invoke this when something changes in the crafting grid
     //       or output slot
-    RecipePattern pattern = {0};
+    RECIPE_PATTERN(pattern, 9) = {0};
     for (int i = 0; i < slotGroupIndexOffset(CRAFTING_TABLE_RESULT); i++) {
         const Slot* slot = &crafting_table_slots[i];
         const IItem* iitem = slot->data.item;
@@ -78,6 +78,7 @@ static bool processCraftingRecipe() {
     return recipeProcessGrid(
         crafting_recipes,
         pattern,
+        (Dimension){ .width = 3, .height = 3 },
         &output_slot,
         1,
         false
