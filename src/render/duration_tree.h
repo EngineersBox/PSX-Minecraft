@@ -3,6 +3,9 @@
 #ifndef _PSXMC__RENDER__DURATION_TREE_H_
 #define _PSXMC__RENDER__DURATION_TREE_H_
 
+// TODO: Write a blog post about this duration tree implementation,
+//       why it exists, how it works and examples.
+
 #include "../structure/cvector.h"
 #include "../hardware/counters.h"
 #include "debug_defines.h"
