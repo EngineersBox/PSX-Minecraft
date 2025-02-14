@@ -78,7 +78,7 @@ static bool processCraftingRecipe() {
         }
     }
     Slot* output_slot = &crafting_table_slots[slotGroupIndexOffset(CRAFTING_TABLE_RESULT)];
-    return recipeProcessGrid(
+    return recipeProcess(
         crafting_recipes,
         pattern,
         (Dimension){

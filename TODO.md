@@ -117,6 +117,7 @@
 * [ ] Polygon subdivision (polygons of minimum size, i.e. block size) for the mesh of the chunk that the player resides within
 * [ ] Change lighting direction for both in-world blocks and in-inventory blocks to match actual MC directional lighting
 * [ ] Only process/search for a crafting recipe when the grid or output slot changes to avoid redundant re-processing and searches
+* [ ] Add stack sizes to recipe ingredients in schema and support field generation in script
 
 ## Refactor
 

@@ -91,6 +91,9 @@ RecipeQueryState recipeSearch(const RecipeNode* root,
     u8 bottom = 0;
     u8 top = pattern_dimension.height;
     u8 left = pattern_dimension.width;
+    // Compute the quaderlateral hull of the pattern slots 
+    // that have items in them. This is the subset of the
+    // pattern that is used to walk the tree.
     for (u8 y = 0; y < pattern_dimension.height; y++) {
         for (u8 x = 0; x < pattern_dimension.width; x++) {
             if (pattern[(y * pattern_dimension.width) + x].id.separated.id != ITEMID_AIR) {
@@ -101,6 +104,7 @@ RecipeQueryState recipeSearch(const RecipeNode* root,
             }
         }
     }
+    // Walk the tree
     RecipeNode const* current = root;
     for (u8 y = top; y <= bottom; y++) {
         for (u8 x = left; x <= right; x++) {
@@ -109,6 +113,10 @@ RecipeQueryState recipeSearch(const RecipeNode* root,
             if (current == NULL) {
                 return RECIPE_NOT_FOUND;
             }
+            // Note the stack size required for the item at the
+            // pattern index for the current ingredient, so that
+            // we know how much to consume from the item stack
+            // later when actually taking the result item(s)
             ingredient_consume_sizes[index] = current->stack_size;
         }
     }
@@ -137,7 +145,7 @@ bool sufficientSpaceInOutputSlots(const RecipeQueryResult* query_result,
     return true;
 }
 
-RecipeProcessResult recipeProcessGrid(const RecipeNode* root,
+RecipeProcessResult recipeProcess(const RecipeNode* root,
                                       const RecipePattern pattern,
                                       Dimension pattern_dimension,
                                       Slot** output_slots,

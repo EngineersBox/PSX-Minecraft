@@ -386,7 +386,7 @@ static bool processCraftingRecipe(Inventory* inventory) {
         }
     }
     Slot* output_slot = &inventory->slots[slotGroupIndexOffset(INVENTORY_CRAFTING_RESULT)];
-    return recipeProcessGrid(
+    return recipeProcess(
         crafting_recipes,
         pattern,
         (Dimension){ 
