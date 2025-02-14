@@ -78,7 +78,9 @@ static bool processCraftingRecipe() {
     return recipeProcessGrid(
         crafting_recipes,
         pattern,
-        output_slot
+        &output_slot,
+        1,
+        false
     );
 }
 

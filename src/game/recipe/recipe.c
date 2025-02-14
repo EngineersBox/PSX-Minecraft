@@ -32,6 +32,8 @@ RecipeNode* recipeNodeGetNext(const RecipeNode* node, const RecipePatternEntry* 
 }
 
 static void assembleResult(const RecipeResults* results, RecipeQueryResult* query_result) {
+    // Ensure that we have enough space to saturate the result
+    assert(query_result->result_count == results->result_count);
     query_result->result_count = results->result_count;
     for (u32 i = 0; i < results->result_count; i++) {
         const IItem* existing_iitem = query_result->results[i];
@@ -114,17 +116,35 @@ RecipeQueryState recipeSearch(const RecipeNode* root,
     );
 }
 
-bool recipeProcessGrid(const RecipeNode* root,
-                       const RecipePattern pattern,
-                       Slot* output_slot) {
+bool sufficientSpaceInOutputSlots(const RecipeQueryResult* query_result,
+                                  Slot** output_slots,
+                                  const u8 output_slot_count) {
+    for (u8 i = 0; i < output_slot_count; i++) {
+        const Item* output_item = VCAST_PTR(Item*, output_slots[i]->data.item);
+        const Item* result_item = VCAST_PTR(Item*, query_result->results[i]);
+        if (itemGetMaxStackSize(output_item->id) - output_item->stack_size < result_item->stack_size) {
+            return false;
+        }
+    }
+    return true;
+}
+
+RecipeProcessResult recipeProcessGrid(const RecipeNode* root,
+                                      const RecipePattern pattern,
+                                      Slot** output_slots,
+                                      u8 output_slot_count,
+                                      bool merge_output) {
     RecipeQueryResult query_result = {0};
-    query_result.results = calloc(1, sizeof(IItem*));
+    query_result.results = calloc(output_slot_count, sizeof(IItem*));
     assert(query_result.results != NULL);
+    query_result.result_count = output_slot_count;
     // Put existing output in the result array
     // to use when determining if the stack should
     // just be resized or we need to create a new
     // item if the IDs are different.
-    query_result.results[0] = output_slot->data.item;
+    for (u8 i = 0; i < output_slot_count; i++) {
+        query_result.results[i] = output_slots[i]->data.item;
+    }
     if (recipeSearch(
         root,
         pattern,
@@ -133,29 +153,45 @@ bool recipeProcessGrid(const RecipeNode* root,
     ) == RECIPE_NOT_FOUND) {
         // No matching recipe
         free(query_result.results);
-        return false;
+        return RECIPE_PROCESSING_NONE_MATCHING;
     }
-    assert(query_result.result_count == 1);
-    if (output_slot->data.item == NULL) {
-        // Output slot was empty, just move the result
-        // into it
-        goto free_result_and_move_to_slot;
+    if (!merge_output && !sufficientSpaceInOutputSlots(
+        &query_result,
+        output_slots,
+        output_slot_count
+    )) {
+        for (u8 i = 0; i < output_slot_count; i++) {
+            free(query_result.results[i]);
+        }
+        return RECIPE_PROCESSING_INSUFFICIENT_SPACE;
     }
-    const Item* output_item = VCAST_PTR(Item*, output_slot->data.item);
-    const Item* result_item = VCAST_PTR(Item*, query_result.results[0]);
-    if (itemEquals(output_item, result_item)) {
-        // Items were the same, stack size was adjusted
-        // we have nothing left to do
-        goto free_result;
+    for (u8 i = 0; i < output_slot_count; i++) {
+        Slot* output_slot = output_slots[i];
+        if (output_slot->data.item == NULL) {
+            // Output slot was empty, just move the result
+            // into it
+            goto free_result_and_move_to_slot;
+        }
+        Item* output_item = VCAST_PTR(Item*, output_slot->data.item);
+        const Item* result_item = VCAST_PTR(Item*, query_result.results[i]);
+        if (itemEquals(output_item, result_item)) {
+            // Items were the same, stack size was adjusted
+            // we have nothing left to do
+            if (!merge_output) {
+                goto free_result;
+            }
+            output_item->stack_size += result_item->stack_size;
+            goto free_result;
+        }
+        // IDs between existing output slot item
+        // and new result were different, 
+        VCALL((IItem) *output_slot->data.item, destroy);
+    free_result_and_move_to_slot:;
+        output_slot->data.item = query_result.results[i];
+    free_result:;
+        free(query_result.results[i]);
     }
-    // IDs between existing output slot item
-    // and new result were different, 
-    VCALL((IItem) *output_slot->data.item, destroy);
-free_result_and_move_to_slot:;
-    output_slot->data.item = query_result.results[0];
-free_result:;
-    free(query_result.results);
-    return true;
+    return RECIPE_PROCESSING_SUCCEEDED;
 }
 
 void recipeConsumeIngredients(Slot* slots,

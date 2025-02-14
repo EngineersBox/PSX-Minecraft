@@ -386,7 +386,9 @@ static bool processCraftingRecipe(Inventory* inventory) {
     return recipeProcessGrid(
         crafting_recipes,
         pattern,
-        output_slot
+        &output_slot,
+        1,
+        false
     );
 }
 

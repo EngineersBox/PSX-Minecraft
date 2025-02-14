@@ -109,24 +109,43 @@ typedef CompositeID RecipePatternEntry;
 typedef RecipePatternEntry RecipePattern[9];
 
 RecipeNode* recipeNodeGetNext(const RecipeNode* node, const RecipePatternEntry* pattern);
+// Query result should be initialised with a results
+// array within it and the count variable set to the
+// size of the array. This is used to verify enough
+// space is present when saturating the result in a
+// debug build.
 RecipeQueryState recipeNodeGetRecipeResult(const RecipeNode* node,
                                            const Dimension* dimension,
                                            RecipeQueryResult* query_result,
                                            bool create_item_result);
+// Query result should be initialised with a results
+// array within it and the count variable set to the
+// size of the array. This is used to verify enough
+// space is present when saturating the result in a
+// debug build and the create_item_result flag is set.
 RecipeQueryState recipeSearch(const RecipeNode* root,
                               const RecipePattern pattern,
                               RecipeQueryResult* query_result,
                               bool create_item_result);
 
+typedef enum RecipeProcessResult {
+    RECIPE_PROCESSING_NONE_MATCHING,
+    RECIPE_PROCESSING_INSUFFICIENT_SPACE,
+    RECIPE_PROCESSING_SUCCEEDED
+} RecipeProcessResult;
+
 /** 
- * @brief Find a matching recipe and put a single output
- * into the output slot if it is empty. 
- * if no matching recipe
- * @return true if a matching recipe is found, false otherwise
+ * @brief Find a matching recipe and put the outputs of the recipe
+ *        into the provided slots. If the `merge_output` flag is set
+ *        then the outputs will increase the stack size of the outputs
+ *        if all output slots have room, otherwise no operation is performed.
+ * @return Result state indicating what occured (See RecipeProcessResult)
  */
-bool recipeProcessGrid(const RecipeNode* node,
-                       const RecipePattern pattern,
-                       Slot* output_slot);
+RecipeProcessResult recipeProcessGrid(const RecipeNode* root,
+                                      const RecipePattern pattern,
+                                      Slot** output_slots,
+                                      u8 output_slot_count,
+                                      bool merge_output);
 
 void recipeConsumeIngredients(Slot* slots,
                               int start_index,
