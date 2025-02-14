@@ -9,6 +9,7 @@ Remake of Minecraft for PS1 with PSn00bSDK
 * [PSX-Minecraft](#psx-minecraft)
   * [Dependencies](#dependencies)
   * [References](#references)
+  * [Blog Posts](#blog-posts)
   * [Progress](#progress)
     * [Goal](#goal)
     * [Screenshots](#screenshots)
@@ -49,6 +50,11 @@ Remake of Minecraft for PS1 with PSn00bSDK
   (Everything from hardware to software in great detail)
 * [PsyQ Docs and examples](https://psx.arthus.net/sdk/Psy-Q/)
 * [IDT79R3xx (MIPS R3000A CPU) Data Sheet](./docs/IDT79R3xx_data_sheet.pdf)
+
+## Blog Posts
+
+* [Transparency with binary greedy meshing](https://engineersbox.github.io/website/2024/09/19/transparency-with-binary-greedy-meshing.html)
+* [Compile-time crafting recipe trees](https://engineersbox.github.io/website/2025/02/14/compile-time-crafting-recipe-trees.html)
 
 ## Progress
 
