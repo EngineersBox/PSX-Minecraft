@@ -98,6 +98,7 @@
 * [X] Crafting in small grid within inventory
 * [X] Hotbar attributes (health, armour and air) with damaged animation
 * [X] D-pad or analogue stick controlled cursor in UIs with item movement between slots being held by cursor
+* [X] Only process/search for a crafting recipe when the grid or output slot changes to avoid redundant re-processing and searches
 * [ ] Culling of direction sub-meshes in chunk meshes to avoid any clipping tests in that direction
 * [ ] Camera far plane cutoff with fog relative to chunk render distance
 * [ ] Frustum and culling
@@ -116,7 +117,6 @@
 * [ ] Handle non-uniform block models when generating meshes (i.e. stairs), including orientation where only some faces can be merged.
 * [ ] Polygon subdivision (polygons of minimum size, i.e. block size) for the mesh of the chunk that the player resides within
 * [ ] Change lighting direction for both in-world blocks and in-inventory blocks to match actual MC directional lighting
-* [X] Only process/search for a crafting recipe when the grid or output slot changes to avoid redundant re-processing and searches
 * [ ] Add stack sizes to recipe ingredients in schema and support field generation in script
 
 ## Refactor
