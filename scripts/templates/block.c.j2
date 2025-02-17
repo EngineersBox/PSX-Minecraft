@@ -20,11 +20,8 @@ void {{ name_capital }}Block_init(VSelf) {
         0,
         {% if light_level != None -%}
         {{ light_level }},
-        {%- endif %}
-        {% if opaque_bitset != None -%}
-        opacityBitset({{ opaque_bitset }}),
         {%- else -%}
-        opacityBitset(NO_TINT, NO_TINT, NO_TINT, NO_TINT, NO_TINT, NO_TINT)
+        0,
         {%- endif %}
         {{ orientation }}
     );

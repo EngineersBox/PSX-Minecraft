@@ -17,7 +17,6 @@ class Block:
     # Structure
     orientation: str
     type: str
-    opaque_bitset: str
     light_level: int
     # Attributes
     slipperiness: str
@@ -171,7 +170,6 @@ def main():
     parser_block.add_argument("--slipperiness", type=str, default="BLOCK_DEFAULT_SLIPPERINESS", help="How much physics objects slide on the block (player, items, mobs, etc)")
     parser_block.add_argument("--hardness", type=str, default="BLOCK_DEFAULT_HARDNESS", help="How difficult it is to use the relevant tool on")
     parser_block.add_argument("--resistance", type=str, default="BLOCK_DEFAULT_RESISTANCE", help="How resistant it is to explosions")
-    parser_block.add_argument("--opaque_bitset", type=str, default="1,0,0,0,0,0", help="Face specific opacity where 1=opaque and 0=transparent of the form '<down>,<up>,<left>,<right>,<front>,<back>'")
     parser_block.add_argument("--light_level", type=int, default=0, choices=range(16), help="Light level emitted by the block, by default blocks dont emit light. Must be in the range [0..15]")
     parser_block.add_argument("--stateful", type=bool, action=argparse.BooleanOptionalAction, default=False, help="Whether the block should maintain state or be static (single instance)")
     parser_block.add_argument(

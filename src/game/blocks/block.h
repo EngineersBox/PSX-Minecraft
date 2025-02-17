@@ -82,10 +82,6 @@ typedef struct Block {
     BlockID id;
     u8 metadata_id;
     u8 light_level: 4;
-    // TODO: Can this be inferred from the block type
-    //       and the orientation? Can we just handle
-    //       glass a special case for BLOCKTYPE_SOLID?
-    /*u8 opacity_bitset: FACE_DIRECTION_COUNT_BITS;*/
     FaceDirection orientation: FACE_DIRECTION_COUNT_BITS;
     u8 _pad: 5;
 } Block;
