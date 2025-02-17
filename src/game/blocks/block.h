@@ -30,7 +30,7 @@
 
 typedef u8 BlockID;
 
-#define BLOCK_TYPE_COUNT 9
+#define BLOCK_TYPE_COUNT 11
 #define BLOCK_TYPE_COUNT_BITS 4
 typedef enum BlockType {
     BLOCKTYPE_EMPTY = 0,
@@ -40,12 +40,16 @@ typedef enum BlockType {
     BLOCKTYPE_STAIR,
     // Slabs, bed, cake
     BLOCKTYPE_SLAB,
+    // Fences
+    BLOCKTYPE_FENCE,
     // Spalings, flowers, reeds
     BLOCKTYPE_CROSS,
     // Wheat
     BLOCKTYPE_HASH,
-    // Redstone, rails, door, trapdoor
+    // Redstone, rails
     BLOCKTYPE_PLATE,
+    // Door, trapdoor
+    BLOCKTYPE_DOOR,
     // Torches
     BLOCKTYPE_ROD,
     // Water, lava
@@ -79,10 +83,11 @@ typedef struct Block {
     u8 metadata_id;
     u8 light_level: 4;
     // TODO: Can this be inferred from the block type
-    //       and the orientation?
-    u8 opacity_bitset: FACE_DIRECTION_COUNT;
+    //       and the orientation? Can we just handle
+    //       glass a special case for BLOCKTYPE_SOLID?
+    /*u8 opacity_bitset: FACE_DIRECTION_COUNT_BITS;*/
     FaceDirection orientation: FACE_DIRECTION_COUNT_BITS;
-    u8 _pad: 3;
+    u8 _pad: 5;
 } Block;
 
 FWD_DECL typedef struct World World;
@@ -96,7 +101,6 @@ FWD_DECL typedef struct World World;
     | ((back) << FACE_DIR_BACK) \
     | ((front) << FACE_DIR_FRONT) \
 )
-#define blockIsFaceOpaque(block, face) (((block)->opacity_bitset >> (face)) & 0b1)
 
 #define BLOCK_USE_ACTION_CONSUMED true
 #define BLOCK_USE_ACTION_NOT_CONUMED false
@@ -154,11 +158,10 @@ typedef IBlock* (*BlockConstructor)(IItem* from_item, MAYBE_UNUSED u8 metadata_i
 #define DEFN_BLOCK_CONSTRUCTOR_IMPL_STATEFUL(name) DEFN_BLOCK_CONSTRUCTOR(name)
 
 // Declare a Block instance
-#define declareBlock(_id, _metadata_id, _light_level, _opacity_bitset, _orientation) ((Block) {\
+#define declareBlock(_id, _metadata_id, _light_level, _orientation) ((Block) {\
     .id = (BlockID) _id,\
     .metadata_id = _metadata_id,\
     .light_level = _light_level, \
-    .opacity_bitset = _opacity_bitset, \
     .orientation = (FaceDirection) _orientation \
 })
 // Declare a Block
@@ -166,7 +169,6 @@ typedef IBlock* (*BlockConstructor)(IItem* from_item, MAYBE_UNUSED u8 metadata_i
     _id, \
     0, \
     0, \
-    BLOCK_DEFAULT_OPACITY_BITSET, \
     FACE_DIR_RIGHT \
 )
 // Declare a Block with a light level
@@ -174,7 +176,6 @@ typedef IBlock* (*BlockConstructor)(IItem* from_item, MAYBE_UNUSED u8 metadata_i
     _id, \
     0, \
     _light_level, \
-    BLOCK_DEFAULT_OPACITY_BITSET, \
     FACE_DIR_RIGHT \
 )
 // Declare a Block with a metadata ID
@@ -182,7 +183,6 @@ typedef IBlock* (*BlockConstructor)(IItem* from_item, MAYBE_UNUSED u8 metadata_i
     _id, \
     _metadata_id, \
     0, \
-    BLOCK_DEFAULT_OPACITY_BITSET, \
     FACE_DIR_RIGHT \
 )
 

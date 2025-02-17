@@ -7,7 +7,9 @@
 
 #include "../../util/inttypes.h"
 
-typedef enum {
+#define FACE_DIRECTION_COUNT 6
+#define FACE_DIRECTION_COUNT_BITS 3
+typedef enum FaceDirection {
     FACE_DIR_DOWN = 0,
     FACE_DIR_UP,
     FACE_DIR_LEFT,
@@ -15,9 +17,6 @@ typedef enum {
     FACE_DIR_BACK,
     FACE_DIR_FRONT
 } FaceDirection;
-
-#define FACE_DIRECTION_COUNT 6
-#define FACE_DIRECTION_COUNT_BITS 3
 
 extern const SVECTOR FACE_DIRECTION_NORMALS[FACE_DIRECTION_COUNT];
 extern const SVECTOR WORLD_FACE_DIRECTION_NORMALS[FACE_DIRECTION_COUNT];

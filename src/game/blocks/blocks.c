@@ -2,9 +2,62 @@
 
 #include "../../util/interface99_extensions.h"
 #include "../../logging/logging.h"
+#include "block.h"
 
 BlockAttributes block_attributes[BLOCK_COUNT] = {0};
 BlockConstructor block_constructors[BLOCK_COUNT] = {0};
+
+#define ALL_FACE_DIRECTIONS_TRANSPARENT { \
+    [FACE_DIR_DOWN]=opacityBitset(0, 0, 0, 0, 0, 0), \
+    [FACE_DIR_UP]=opacityBitset(0, 0, 0, 0, 0, 0), \
+    [FACE_DIR_LEFT]=opacityBitset(0, 0, 0, 0, 0, 0), \
+    [FACE_DIR_RIGHT]=opacityBitset(0, 0, 0, 0, 0, 0), \
+    [FACE_DIR_BACK]=opacityBitset(0, 0, 0, 0, 0, 0), \
+    [FACE_DIR_FRONT]=opacityBitset(0, 0, 0, 0, 0, 0), \
+}
+#define ALL_FACE_DIRECTIONS_OPAQUE { \
+    [FACE_DIR_DOWN]=opacityBitset(1, 1, 1, 1, 1, 1), \
+    [FACE_DIR_UP]=opacityBitset(1, 1, 1, 1, 1, 1), \
+    [FACE_DIR_LEFT]=opacityBitset(1, 1, 1, 1, 1, 1), \
+    [FACE_DIR_RIGHT]=opacityBitset(1, 1, 1, 1, 1, 1), \
+    [FACE_DIR_BACK]=opacityBitset(1, 1, 1, 1, 1, 1), \
+    [FACE_DIR_FRONT]=opacityBitset(1, 1, 1, 1, 1, 1), \
+}
+u8 block_type_opacity_bitset[BLOCK_TYPE_COUNT][FACE_DIRECTION_COUNT] = {
+    [BLOCKTYPE_EMPTY]=ALL_FACE_DIRECTIONS_TRANSPARENT,
+    [BLOCKTYPE_SOLID]=ALL_FACE_DIRECTIONS_OPAQUE,
+    [BLOCKTYPE_STAIR]={
+        // Invalid
+        [FACE_DIR_DOWN]=opacityBitset(1, 1, 1, 1, 1, 1),
+        // Invalid
+        [FACE_DIR_UP]=opacityBitset(1, 1, 1, 1, 1, 1),
+        // Valid for the rest
+        [FACE_DIR_LEFT]=opacityBitset(1, 0, 0, 1, 0, 0),
+        [FACE_DIR_RIGHT]=opacityBitset(1, 0, 1, 0, 0, 0),
+        [FACE_DIR_BACK]=opacityBitset(1, 0, 0, 0, 0, 1),
+        [FACE_DIR_FRONT]=opacityBitset(1, 0, 0, 0, 1, 0),
+    },
+    [BLOCKTYPE_SLAB]={
+        // Placed on top half of block
+        [FACE_DIR_DOWN]=opacityBitset(0, 1, 0, 0, 0, 0),
+        // Placed on bottom half of block
+        [FACE_DIR_UP]=opacityBitset(1, 0, 0, 0, 0, 0),
+        // Invalid for the rest
+        [FACE_DIR_LEFT]=opacityBitset(1, 1, 1, 1, 1, 1),
+        [FACE_DIR_RIGHT]=opacityBitset(1, 1, 1, 1, 1, 1),
+        [FACE_DIR_BACK]=opacityBitset(1, 1, 1, 1, 1, 1),
+        [FACE_DIR_FRONT]=opacityBitset(1, 1, 1, 1, 1, 1),
+    },
+    [BLOCKTYPE_FENCE]=ALL_FACE_DIRECTIONS_TRANSPARENT,
+    [BLOCKTYPE_CROSS]=ALL_FACE_DIRECTIONS_TRANSPARENT,
+    [BLOCKTYPE_HASH]=ALL_FACE_DIRECTIONS_TRANSPARENT,
+    [BLOCKTYPE_PLATE]=ALL_FACE_DIRECTIONS_TRANSPARENT,
+    [BLOCKTYPE_DOOR]=ALL_FACE_DIRECTIONS_TRANSPARENT,
+    [BLOCKTYPE_ROD]=ALL_FACE_DIRECTIONS_TRANSPARENT,
+    [BLOCKTYPE_LIQUID]=ALL_FACE_DIRECTIONS_TRANSPARENT,
+};
+#undef ALL_FACE_DIRECTIONS_TRANSPARENT
+#undef ALL_FACE_DIRECTIONS_OPAQUE
 
 #define DECL_STATELESS_METADATA_BLOCK(type, extern_name, metadata_id) \
     type extern_name##_##metadata_id##_BLOCK_SINGLETON = {}; \

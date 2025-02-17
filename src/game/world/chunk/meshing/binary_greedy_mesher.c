@@ -52,7 +52,10 @@ INLINE void addVoxelToFaceColumns(FacesColumns axis_cols,
     axis_cols[FACE_DIR_RIGHT][y][z] |= 1 << x;
     axis_cols[FACE_DIR_BACK][y][x] |= 1 << z;
     axis_cols[FACE_DIR_FRONT][y][x] |= 1 << z;
-    const u8 bitset = block->opacity_bitset;
+    const u8 bitset = blockGetOpacityBitset(
+        block->id,
+        block->orientation
+    );
 #define bitsetAt(i) ((bitset >> (i)) & 0b1)
     axis_cols_opaque[FACE_DIR_DOWN][z][x] |= bitsetAt(1) << y;
     axis_cols_opaque[FACE_DIR_UP][z][x] |= bitsetAt(0) << y;

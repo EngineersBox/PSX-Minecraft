@@ -21,6 +21,7 @@
 
 extern BlockAttributes block_attributes[BLOCK_COUNT];
 extern BlockConstructor block_constructors[BLOCK_COUNT];
+extern u8 block_type_opacity_bitset[BLOCK_TYPE_COUNT][FACE_DIRECTION_COUNT];
 
 void blocksInitialiseBuiltin();
 
@@ -48,6 +49,8 @@ void blocksInitialiseBuiltin();
 #define blockCanPropagateSunlight(id) blockGetAttribute(id, propagates_sunlight)
 #define blockCanPropagateBlocklight(id) blockGetAttribute(id, propagates_blocklight)
 #define blockGetFaceAttributes(id, metadata_id) (&blockGetAttribute(id, face_attributes)[(metadata_id) * FACE_DIRECTION_COUNT])
+#define blockGetOpacityBitset(id, orientation) (block_type_opacity_bitset[blockGetType(id)][(orientation)])
+#define blockIsFaceOpaque(block, face) ((blockGetOpacityBitset((block)->id, (block)->orientation) >> (face)) & 0b1)
 
 bool blockCanHarvest(ToolType block_tool_type,
                      ItemMaterial block_tool_material,
