@@ -156,5 +156,6 @@
 * [X] Slots should be groupable and have handlers to assist with rendering while also maintain ease of storage as a single 1D array.
 * [X] Change block equality check to account for both `id` and `metadata_id` fields in all relevant places (i.e. binary greedy mesher)
 * [X] Alias `ItemBlock` default function symbols via ASM names instead of wrapper functions per-implementation
+* [X] Infer opacity bitset from `orientation` and `block_type` fields on block struct
 * [ ] Support other resolutions that aren't 320x240
 * [ ] Refactor the `chunkRemoveLightType` call into the `chunkSetLightType` when the light value is `0` and update the necessary logic changes to accomodate this (seems to cause infinite lighting update loops if this is done at the moment)
