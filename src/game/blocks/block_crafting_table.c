@@ -54,11 +54,15 @@ IItem* CraftingTableBlock_provideItem(VSelf) {
     return item;
 }
 
+static bool recipe_has_changed = false;
 static u8 ingredient_consume_sizes[slotGroupSize(CRAFTING_TABLE)] = {0};
 
-static bool processCraftingRecipe() {
+static void processCraftingRecipe() {
     // TODO: Only invoke this when something changes in the crafting grid
     //       or output slot
+    if (!recipe_has_changed) {
+        return;
+    }
     RECIPE_PATTERN(pattern, slotGroupSize(CRAFTING_TABLE)) = {0};
     memset(ingredient_consume_sizes, '\0', sizeof(u8) * slotGroupSize(CRAFTING_TABLE));
     for (int i = 0; i < slotGroupIndexOffset(CRAFTING_TABLE_RESULT); i++) {
@@ -78,7 +82,7 @@ static bool processCraftingRecipe() {
         }
     }
     Slot* output_slot = &crafting_table_slots[slotGroupIndexOffset(CRAFTING_TABLE_RESULT)];
-    return recipeProcess(
+    recipeProcess(
         crafting_recipes,
         pattern,
         (Dimension){
@@ -90,6 +94,7 @@ static bool processCraftingRecipe() {
         ingredient_consume_sizes,
         false
     );
+    recipe_has_changed = false;
 }
 
 static void cursorHandler(bool split_or_store_one) {
@@ -128,6 +133,7 @@ static void cursorHandler(bool split_or_store_one) {
                 slotDirectItemSetter
             );
         }
+        recipe_has_changed = true;
     } else if (slotGroupIntersect(CRAFTING_TABLE_RESULT, &cursor.component.position) && !split_or_store_one) {
         // NOTE: Don't bother with splitting stacks
         //       since it's a pain for the output slot.
@@ -147,6 +153,7 @@ static void cursorHandler(bool split_or_store_one) {
             );
             uiCursorSetHeldData(&cursor, result_iitem);
             result_slot->data.item = NULL;
+            recipe_has_changed = true;
             return;
         } 
         Item* held_item = VCAST_PTR(Item*, held_iitem);
@@ -163,6 +170,7 @@ static void cursorHandler(bool split_or_store_one) {
             slotGroupIndexOffset(CRAFTING_TABLE),
             slotGroupIndexOffset(CRAFTING_TABLE_RESULT)
         );
+        recipe_has_changed = true;
     }
 }
 
@@ -248,6 +256,7 @@ bool CraftingTableBlock_useAction(VSelf) {
             CRAFTING_TABLE_TEXTURE_HEIGHT
         )
     };
+    recipe_has_changed = false;
     return BLOCK_USE_ACTION_CONSUMED;
 }
 

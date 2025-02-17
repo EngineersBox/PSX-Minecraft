@@ -295,6 +295,8 @@ InventoryStoreResult inventoryStoreItem(Inventory* inventory, IItem* iitem) {
     return INVENTORY_STORE_RESULT_ADDED_NEW_SLOT;
 }
 
+static bool recipe_has_changed = false;
+
 void inventoryOpen(VSelf) ALIAS("Inventory_open");
 void Inventory_open(VSelf) {
     VSELF(Inventory);
@@ -308,6 +310,7 @@ void Inventory_open(VSelf) {
         ASSET_TEXTURE__GUI__INVENTORY,
         &background->texture
     );
+    recipe_has_changed = false;
 }
 
 void inventoryClose(VSelf) ALIAS("Inventory_close");
@@ -356,9 +359,12 @@ void Inventory_registerInputHandler(VSelf, Input* input, void* ctx) {
 
 static u8 ingredient_consume_sizes[slotGroupSize(INVENTORY_CRAFTING)] = {0};
 
-static bool processCraftingRecipe(Inventory* inventory) {
+static void processCraftingRecipe(Inventory* inventory) {
     // TODO: Only invoke this when something changes in the crafting grid
     //       or output slot
+    if (!recipe_has_changed) {
+        return;
+    }
     RECIPE_PATTERN(pattern, slotGroupSize(INVENTORY_CRAFTING)) = {0};
     memset(ingredient_consume_sizes, '\0', sizeof(u8) * slotGroupSize(INVENTORY_CRAFTING));
     for (int i = slotGroupIndexOffset(INVENTORY_CRAFTING);
@@ -380,7 +386,7 @@ static bool processCraftingRecipe(Inventory* inventory) {
         }
     }
     Slot* output_slot = &inventory->slots[slotGroupIndexOffset(INVENTORY_CRAFTING_RESULT)];
-    return recipeProcess(
+    recipeProcess(
         crafting_recipes,
         pattern,
         (Dimension){ 
@@ -392,6 +398,7 @@ static bool processCraftingRecipe(Inventory* inventory) {
         ingredient_consume_sizes,
         false
     );
+    recipe_has_changed = false;
 }
 
 static void cursorHandler(Inventory* inventory,
@@ -438,6 +445,7 @@ static void cursorHandler(Inventory* inventory,
             );
             uiCursorSetHeldData(&cursor, result_iitem);
             result_slot->data.item = NULL;
+            recipe_has_changed = true;
             return;
         } 
         Item* held_item = VCAST_PTR(Item*, held_iitem);
@@ -454,6 +462,7 @@ static void cursorHandler(Inventory* inventory,
             slotGroupIndexOffset(INVENTORY_CRAFTING),
             slotGroupIndexOffset(INVENTORY_CRAFTING_RESULT)
         );
+        recipe_has_changed = true;
         return;
     }
     Slot* slot = NULL;
@@ -473,6 +482,7 @@ static void cursorHandler(Inventory* inventory,
             INVENTORY_CRAFTING,
             &cursor.component.position
         )];
+        recipe_has_changed = true;
     
     } else if (groups & INVENTORY_SLOT_GROUP_MAIN && slotGroupIntersect(
         INVENTORY_MAIN,

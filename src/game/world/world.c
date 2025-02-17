@@ -565,14 +565,14 @@ void worldLoadChunksXZ(World* world, const i8 x_direction, const i8 z_direction)
     }
 }
 
-INLINE bool worldWithinLoadRadius(const World* world, const VECTOR* player_chunk_pos) {
+INLINE bool worldPlayerWithinLoadRadius(const World* world, const VECTOR* player_chunk_pos) {
     return absv(world->centre.vx - player_chunk_pos->vx) < LOADED_CHUNKS_RADIUS - 1
            && absv(world->centre.vz - player_chunk_pos->vz) < LOADED_CHUNKS_RADIUS - 1;
 }
 
 void worldLoadChunks(World* world, const VECTOR* player_chunk_pos) {
     // Check if we need to load
-    if (worldWithinLoadRadius(world, player_chunk_pos)) {
+    if (worldPlayerWithinLoadRadius(world, player_chunk_pos)) {
         return;
     }
     // Calculate direction shifts
