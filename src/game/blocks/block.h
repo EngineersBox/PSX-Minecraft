@@ -46,7 +46,7 @@ typedef enum BlockType {
     BLOCKTYPE_CROSS,
     // Wheat
     BLOCKTYPE_HASH,
-    // Redstone, rails
+    // Redstone, rails, pressure plates
     BLOCKTYPE_PLATE,
     // Door, trapdoor
     BLOCKTYPE_DOOR,
@@ -64,8 +64,12 @@ typedef struct BlockAttributes {
     // Higher = harder to destroy with TNT
     u16 resistance;
     BlockType type: BLOCK_TYPE_COUNT_BITS;
+    // Ideal tool to mine the block
     ToolType tool_type: TOOL_TYPE_COUNT_BITS;
+    // Base material level of ideal tool to
+    // drop something when mined
     ItemMaterial tool_material: ITEM_MATERIAL_COUNT_BITS;
+    // Which tools can mine the block
     u8 can_harvest: TOOL_TYPE_COUNT;
     bool propagates_sunlight: 1;
     bool propagates_blocklight: 1;
