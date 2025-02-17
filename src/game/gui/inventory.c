@@ -360,8 +360,6 @@ void Inventory_registerInputHandler(VSelf, Input* input, void* ctx) {
 static u8 ingredient_consume_sizes[slotGroupSize(INVENTORY_CRAFTING)] = {0};
 
 static void processCraftingRecipe(Inventory* inventory) {
-    // TODO: Only invoke this when something changes in the crafting grid
-    //       or output slot
     if (!recipe_has_changed) {
         return;
     }

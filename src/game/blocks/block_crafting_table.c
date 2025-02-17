@@ -58,8 +58,6 @@ static bool recipe_has_changed = false;
 static u8 ingredient_consume_sizes[slotGroupSize(CRAFTING_TABLE)] = {0};
 
 static void processCraftingRecipe() {
-    // TODO: Only invoke this when something changes in the crafting grid
-    //       or output slot
     if (!recipe_has_changed) {
         return;
     }
