@@ -52,6 +52,15 @@ void blocksInitialiseBuiltin();
 #define blockGetOpacityBitset(id, orientation) (block_type_opacity_bitset[blockGetType(id)][(orientation)])
 #define blockIsFaceOpaque(block, face) ((blockGetOpacityBitset((block)->id, (block)->orientation) >> (face)) & 0b1)
 
+#define opacityBitset(down, up, left, right, back, front) (\
+      ((down) << FACE_DIR_DOWN) \
+    | ((up) << FACE_DIR_UP) \
+    | ((left) << FACE_DIR_LEFT) \
+    | ((right) << FACE_DIR_RIGHT) \
+    | ((back) << FACE_DIR_BACK) \
+    | ((front) << FACE_DIR_FRONT) \
+)
+
 bool blockCanHarvest(ToolType block_tool_type,
                      ItemMaterial block_tool_material,
                      ToolType item_tool_type,

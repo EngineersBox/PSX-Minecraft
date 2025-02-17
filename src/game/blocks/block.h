@@ -88,16 +88,6 @@ typedef struct Block {
 
 FWD_DECL typedef struct World World;
 
-#define BLOCK_DEFAULT_OPACITY_BITSET ((u8) 0b111111)
-#define opacityBitset(down, up, left, right, back, front) (\
-      ((down) << FACE_DIR_DOWN) \
-    | ((up) << FACE_DIR_UP) \
-    | ((left) << FACE_DIR_LEFT) \
-    | ((right) << FACE_DIR_RIGHT) \
-    | ((back) << FACE_DIR_BACK) \
-    | ((front) << FACE_DIR_FRONT) \
-)
-
 #define BLOCK_USE_ACTION_CONSUMED true
 #define BLOCK_USE_ACTION_NOT_CONUMED false
 
