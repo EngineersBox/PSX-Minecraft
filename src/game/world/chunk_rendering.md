@@ -32,4 +32,17 @@ As Tommo notes in the blog, this question can be answered relatively quickly and
 too dissimilar to the approach for lighting already used in PSXMC, but on a smaller scale. Note that the only time this visibility information needs to be updated is
 when an opaque block is changed/added/removed in the chunk.
 
+A slightly more formal way of approaching this is:
+
+> Given a finite cubic mesh divided in unit intervals on all 3 axes, where each cell
+> can be either filled or unfilled, let there be some subset of the cells filled. Let
+> a face of the mesh be the "outer walls" where every coordinate is $0$ or $\verb{cell_count}$.
+> Construct an algorithm to determine the visibility of every face from every other
+> face in the mesh.
+
 ### Chunk Connectivity Graph
+
+
+## Notes
+
+For testing connectivity between chunk outer faces, if we are computing the visibility of diagonally connection faces (normal to each other), then we only need to test if any block is absent along the joining edge to garuantee the two faces are connected. This is a sufficient condition. However, if the entire edge is filled, then we must comput the connectivity the hard way.
