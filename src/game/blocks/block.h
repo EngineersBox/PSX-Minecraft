@@ -87,7 +87,7 @@ typedef struct Block {
     u8 metadata_id;
     u8 light_level: 4;
     FaceDirection orientation: FACE_DIRECTION_COUNT_BITS;
-    u8 _pad: 5;
+    u16 _pad: 9;
 } Block;
 
 FWD_DECL typedef struct World World;
