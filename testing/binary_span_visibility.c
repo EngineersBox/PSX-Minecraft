@@ -3,6 +3,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "hashmap.h"
+
 typedef uint8_t u8;
 typedef int8_t i8;
 
@@ -27,6 +29,37 @@ typedef i32 fixedi32;
 typedef u64 fixedu64;
 typedef i64 fixedi64;
 
+#define INT8_BIN_PATTERN "%c%c%c%c%c%c%c%c"
+#define INT8_BIN_LAYOUT(i) \
+    ((i) & 0x80 ? '1' : '0'), \
+    ((i) & 0x40 ? '1' : '0'), \
+    ((i) & 0x20 ? '1' : '0'), \
+    ((i) & 0x10 ? '1' : '0'), \
+    ((i) & 0x08 ? '1' : '0'), \
+    ((i) & 0x04 ? '1' : '0'), \
+    ((i) & 0x02 ? '1' : '0'), \
+    ((i) & 0x01 ? '1' : '0')
+
+#define INT16_BIN_PATTERN INT8_BIN_PATTERN INT8_BIN_PATTERN
+#define INT32_BIN_PATTERN INT16_BIN_PATTERN INT16_BIN_PATTERN
+#define INT16_BIN_LAYOUT(i) INT8_BIN_LAYOUT((i) >> 8), INT8_BIN_LAYOUT(i)
+#define INT32_BIN_LAYOUT(i) INT16_BIN_LAYOUT((i) >> 16), INT16_BIN_LAYOUT(i)
+
+#define VEC_PATTERN "(%d,%d,%d)"
+#define VEC_LAYOUT(v) (v).vx, (v).vy, (v).vz
+#define VEC_PTR_LAYOUT(v) (v)->vx, (v)->vy, (v)->vz
+
+#define MAT_PATTERN "%d, %d, %d | %d,\n%d, %d, %d | %d,\n%d, %d, %d | %d\n"
+#define MAT_LAYOUT(_m) (_m).m[0][0], (_m).m[0][1], (_m).m[0][2], (_m).t[0], \
+    (_m).m[1][0], (_m).m[1][1], (_m).m[1][2], (_m).t[1], \
+    (_m).m[2][0], (_m).m[2][1], (_m).m[2][2], (_m).t[2]
+#define MAT_PTR_LAYOUT(_m) (_m)->m[0][0], (_m)->m[0][1], (_m)->m[0][2], (_m)->t[0], \
+    (_m)->m[1][0], (_m)->m[1][1], (_m)->m[1][2], (_m)->t[1], \
+    (_m)->m[2][0], (_m)->m[2][1], (_m)->m[2][2], (_m)->t[2]
+
+#define INT64_PATTERN "0x%08x%08x"
+#define INT64_LAYOUT(v) (u32) (((u64)(v)) >> 32), (u32) (v)
+
 typedef struct _MATRIX {
 	int16_t m[3][3];
 	int32_t t[3];
@@ -48,9 +81,105 @@ typedef struct _DVECTOR {
 	int16_t vx, vy;
 } DVECTOR;
 
-#define CHUNK_SIZE 4
+#define _vec2_layout(x, y) .vx = (x), .vy = (y)
+#define _vec3_layout(x, y, z) _vec2_layout(x, y), .vz = (z)
+#define vec3_i64(x, y, z) ((LVECTOR) { _vec3_layout(x, y, z) })
+#define vec3_i32(x, y, z) ((VECTOR) { _vec3_layout(x, y, z) })
+#define vec3_i16(x, y, z) ((SVECTOR) { _vec3_layout(x, y, z) })
+#define vec3_i8(x, y, z) ((IBVECTOR) { _vec3_layout(x, y, z) })
+#define vec3_u8(x, y, z) ((BVECTOR) { _vec3_layout(x, y, z) })
+#define vec2_i16(x, y) ((DVECTOR) { _vec2_layout(x, y) })
+#define vec3_rgb(_r, _g, _b) ((CVECTOR) { .r = (_r), .g = (_g), .b = (_b) })
 
-typedef bool Block;
+#define vec3_i32_all(v) vec3_i32(v, v, v)
+#define vec3_i16_all(v) vec3_i16(v, v, v)
+#define vec3_i8_all(v) vec3_i8(v, v, v)
+#define vec3_rgb_all(v) vec3_rgb(v, v, v)
+#define vec2_i16_all(v) vec2_i16(v, v)
+
+#define _isPowerOf2(x) (((_x) & ((_x) - 1)) == 0)
+#define isPowerOf2(x) ({ \
+    __typeof__(x) _x = (x); \
+    _isPowerOf2(_x); \
+})
+
+#define cmp(a, b) ({ \
+    __typeof__(a) _a = (a); \
+    __typeof__(b) _b = (b); \
+    (_b > _a) - (_b < _a); \
+})
+
+#define GLUE(x,y) x##y
+
+u8 trailing_zeros(u32 value) {
+    // Ripped from: https://graphics.stanford.edu/~seander/bithacks.html#ZerosOnRightParallel
+    // If value is 1101000 (base 2), then c will be 3
+    // NOTE: if value == 0, then c = 31.
+    if (value & 0x1) {
+        // special case for odd v (assumed to happen half of the time)
+        return 0;
+    }
+    u32 c = 1; // Number of zero bits on the right
+    if ((value & 0xffff) == 0) {
+        value >>= 16;
+        c += 16;
+    }
+    if ((value & 0xff) == 0) {
+        value >>= 8;
+        c += 8;
+    }
+    if ((value & 0xf) == 0) {
+        value >>= 4;
+        c += 4;
+    }
+    if ((value & 0x3) == 0) {
+        value >>= 2;
+        c += 2;
+    }
+    return c - (value & 0x1);
+}
+
+u8 trailing_ones(u32 value) {
+    // Ripped from: https://graphics.stanford.edu/~seander/bithacks.html#ZerosOnRightParallel
+    // If value is 0010111(base 2), then c will be 3
+    // NOTE: if value == 0xffffffff, then c = 31.
+    if (value == 0) {
+        // special case for odd v (assumed to happen half of the time)
+        return 0;
+    }
+    u32 c = 1; // Number of zero bits on the right
+    if ((value & 0xffff) == 0xffff) {
+        value >>= 16;
+        c += 16;
+    }
+    if ((value & 0xff) == 0xff) {
+        value >>= 8;
+        c += 8;
+    }
+    if ((value & 0xf) == 0xf) {
+        value >>= 4;
+        c += 4;
+    }
+    if ((value & 0x3) == 0x3) {
+        value >>= 2;
+        c += 2;
+    }
+    return c - !(value & 0x1);
+}
+
+#define CHUNK_SIZE 8
+
+typedef enum EBlockID {
+    BLOCK_ID_AIR = 0,
+    BLOCK_ID_STONE,
+} EBlockID;
+
+typedef struct Block {
+    u8 id;
+    bool transparent;
+} Block;
+
+#define blockEquals(b0, b1) ((b0)->id == (b1)->id)
 
 typedef struct Chunk {
     // Y, Z, X
@@ -66,6 +195,45 @@ Block* worldGetBlock(Chunk* chunk, const VECTOR* pos) {
         return NULL;
     }
     return chunkGetBlock(chunk, pos->vx, pos->vy, pos->vz);
+}
+#if defined(CHUNK_SIZE) && CHUNK_SIZE > 0 && CHUNK_SIZE <= 32 && _isPowerOf2(CHUNK_SIZE)
+    #define planeType(size, name) typedef GLUE(u, size) name[size]
+    planeType(CHUNK_SIZE,BinaryMeshPlane);
+#undef planeType
+#else
+#error CHUNK_SIZE must be in the interval (0, 32] and be a power of 2
+#endif
+
+typedef struct {
+    const u8 face;
+    const u8 axis;
+    const Block* block;
+} PlaneMeshingDataKey;
+
+typedef struct {
+    PlaneMeshingDataKey key;
+    BinaryMeshPlane plane;
+} PlaneMeshingData;
+
+int plane_meshing_data_compare(const void* a, const void* b, void* ignored) {
+    const PlaneMeshingData* pa = a;
+    const PlaneMeshingData* pb = b;
+    const int axis = cmp(pa->key.face, pb->key.face);
+    // TODO: We need to account for direction with blocks that have
+    //       non-block models or non-uniform face textures
+    const bool block_id = blockEquals(pa->key.block, pb->key.block);
+    const int y = cmp(pa->key.axis, pb->key.axis);
+    if (axis != 0) {
+        return axis;
+    } else if (block_id) {
+        return 0;
+    }
+    return y;
+};
+
+u64 plane_meshing_data_hash(const void* item, u64 seed0, u64 seed1) {
+    const PlaneMeshingData* data = item;
+    return hashmap_xxhash3(&data->key, sizeof(PlaneMeshingDataKey), seed0, seed1);
 }
 
 int main() {
@@ -126,7 +294,7 @@ INLINE void addVoxelToFaceColumns(FacesColumns axis_cols,
     if (block == NULL) {
         return;
     }
-    if (!*block) {
+    if (block->id == BLOCK_ID_AIR) {
         return;
     }
     axis_cols[FACE_DIR_DOWN][z][x] |= 1 << y;
@@ -135,7 +303,7 @@ INLINE void addVoxelToFaceColumns(FacesColumns axis_cols,
     axis_cols[FACE_DIR_RIGHT][y][z] |= 1 << x;
     axis_cols[FACE_DIR_BACK][y][x] |= 1 << z;
     axis_cols[FACE_DIR_FRONT][y][x] |= 1 << z;
-    const u8 bitset = 0b1111111;
+    const u8 bitset = block->transparent ? 0 : 0b1111111;
 #define bitsetAt(i) ((bitset >> (i)) & 0b1)
     axis_cols_opaque[FACE_DIR_DOWN][z][x] |= bitsetAt(1) << y;
     axis_cols_opaque[FACE_DIR_UP][z][x] |= bitsetAt(0) << y;
@@ -144,6 +312,56 @@ INLINE void addVoxelToFaceColumns(FacesColumns axis_cols,
     axis_cols_opaque[FACE_DIR_BACK][y][x] |= bitsetAt(4) << z;
     axis_cols_opaque[FACE_DIR_FRONT][y][x] |= bitsetAt(5) << z;
 #undef bitsetAt
+}
+
+static void createMesh(Chunk* chunk,
+                       const PlaneMeshingDataKey* data,
+                       const u32 x,
+                       const u32 y,
+                       const u32 w,
+                       const u32 h);
+
+void binaryGreedyMesherConstructPlane(Chunk* chunk,
+                                      PlaneMeshingData* data,
+                                      const u32 lod_size) {
+    for (u32 row = 0; row < CHUNK_SIZE; row++) {
+        u32 y = 0;
+        while (y < lod_size) {
+            y += trailing_zeros(data->plane[row] >> y);
+            if (y >= lod_size) {
+                // At top
+                continue;
+            }
+            const u32 h = trailing_ones(data->plane[row] >> y);
+            // 1 = 0b1, 2 = 0b11, 4 = 0b1111
+            const u32 h_as_mask = h < 32
+                ? ((u32) 1 << h) - 1
+                : UINT32_MAX; // ~0
+            const u32 mask = h_as_mask << y;
+            // Grow horizontally
+            u32 w = 1;
+            while (row + w < lod_size) {
+                // Fetch bits spanning height in the next row
+                const u32 next_row_h = (data->plane[row + w] >> y) & h_as_mask;
+                if (next_row_h != h_as_mask) {
+                    // Cannot grow further horizontally
+                    break;
+                }
+                // Unset the bits we expanded into
+                data->plane[row + w] &= ~mask;
+                w++;
+            }
+            createMesh(
+                chunk,
+                &data->key,
+                row,
+                y,
+                w,
+                h
+            );
+            y += h;
+        }
+    }
 }
 
 void binaryGreedyMesherBuildMesh(Chunk* chunk) {
@@ -284,93 +502,53 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
                     const u8 y = trailing_zeros(col);
                     // Clear least significant bit set
                     col &= col - 1;
-                    ChunkBlockPosition chunk_block_position = {
-                        .block = vec3_i32_all(0),
-                        .chunk = chunk->position
-                    };
-                    ChunkBlockPosition light_cb_pos = {
-                        .block = vec3_i32_all(0),
-                        .chunk = chunk->position
-                    };
+                    VECTOR world_block_position = vec3_i32_all(0);
                     switch (face) {
                         case FACE_DIR_DOWN:
-                            chunk_block_position.block = vec3_i32(x, y, z);
-                            light_cb_pos.block = vec3_i32(x, y - 1, z);
+                            world_block_position = vec3_i32(x, y, z);
                             break;
                         case FACE_DIR_UP:
-                            chunk_block_position.block = vec3_i32(x, y, z);
-                            light_cb_pos.block = vec3_i32(x, y + 1, z);
+                            world_block_position = vec3_i32(x, y, z);
                             break;
                         case FACE_DIR_LEFT:
-                            chunk_block_position.block = vec3_i32(y, z, x);
-                            light_cb_pos.block = vec3_i32(y - 1, z, x);
+                            world_block_position = vec3_i32(y, z, x);
                             break;
                         case FACE_DIR_RIGHT:
-                            chunk_block_position.block = vec3_i32(y, z, x);
-                            light_cb_pos.block = vec3_i32(y + 1, z, x);
+                            world_block_position = vec3_i32(y, z, x);
                             break;
                         case FACE_DIR_BACK:
-                            chunk_block_position.block = vec3_i32(x, z, y);
-                            light_cb_pos.block = vec3_i32(x, z, y - 1);
+                            world_block_position = vec3_i32(x, z, y);
                             break;
                         case FACE_DIR_FRONT:
-                            chunk_block_position.block = vec3_i32(x, z, y);
-                            light_cb_pos.block = vec3_i32(x, z, y + 1);
+                            world_block_position = vec3_i32(x, z, y);
                             break;
                     }
-                    const VECTOR world_block_position = chunkBlockToWorldPosition(
-                        &chunk_block_position,
-                        CHUNK_SIZE
+                    Block* block = worldGetBlock(
+                        chunk,
+                        &world_block_position
                     );
-                    if (breaking_state != NULL
-                        && breaking_state->block != NULL
-                        && vec3_equal(breaking_state->position, world_block_position)) {
-                        // Don't generate faces that match with the breaking block
-                        // as we will create those later with the overlay. This avoids
-                        // z fighting between mesh faces and overlay faces.
-                        continue;
-                    }
-                    IBlock* current_block = worldGetChunkBlock(
-                        chunk->world,
-                        &chunk_block_position
-                    );
-                    if (current_block == NULL) {
-                        errorAbort(
+                    if (block == NULL) {
+                        printf(
                             "[BINARY GREEDY MESHER] Null block returned while constructing mask [Face: %d] [Chunk: " VEC_PATTERN "] [Block: " VEC_PATTERN "]\n",
                             face,
-                            VEC_LAYOUT(chunk->position),
-                            VEC_LAYOUT(chunk_block_position.block)
+                            0, 0, 0,
+                            VEC_LAYOUT(world_block_position)
                         );
                         continue;
                     }
-                    const Block* block = VCAST_PTR(Block*, current_block);
-                    if (blockGetType(block->id) == BLOCKTYPE_EMPTY) {
-                        errorAbort(
+                    if (block->id == BLOCK_ID_AIR) {
+                        printf(
                             "[BINARY GREEDY MESHER] Empty block encountered while constructing mask [Face: %d] [Chunk: " VEC_PATTERN "] [Block: " VEC_PATTERN "]\n",
                             face,
-                            VEC_LAYOUT(chunk->position),
-                            VEC_LAYOUT(chunk_block_position.block)
+                            0,0,0,
+                            VEC_LAYOUT(world_block_position)
                         );
                         continue;
                     }
-                    // NOTE: For blocks that are transparent to sunlight, we should
-                    //       look up the position of the block without the direction
-                    //       offset applied.
-                    const VECTOR light_query_pos = chunkBlockToWorldPosition(
-                        !blockIsFaceOpaque(block, face)
-                            ? &chunk_block_position
-                            : &light_cb_pos,
-                        CHUNK_SIZE
-                    );
-                    const LightLevel light_level = worldGetLightValue(
-                        chunk->world,
-                        &light_query_pos
-                    );
                     const PlaneMeshingData query = (PlaneMeshingData) {
                         .key = (PlaneMeshingDataKey) {
                             face,
                             y,
-                            light_level,
                             block
                         },
                         .plane = {0},
@@ -385,7 +563,6 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
             }
         }
     }
-    chunkMeshClear(&chunk->mesh);
     size_t iter = 0;
     void* item;
     while (hashmap_iter(data, &iter, &item)) {
@@ -399,47 +576,11 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
     hashmap_free(data);
 }
 
-void binaryGreedyMesherConstructPlane(Chunk* chunk,
-                                      PlaneMeshingData* data,
-                                      const u32 lod_size) {
-    for (u32 row = 0; row < CHUNK_SIZE; row++) {
-        u32 y = 0;
-        while (y < lod_size) {
-            y += trailing_zeros(data->plane[row] >> y);
-            if (y >= lod_size) {
-                // At top
-                continue;
-            }
-            const u32 h = trailing_ones(data->plane[row] >> y);
-            // 1 = 0b1, 2 = 0b11, 4 = 0b1111
-            const u32 h_as_mask = h < 32
-                ? ((u32) 1 << h) - 1
-                : UINT32_MAX; // ~0
-            const u32 mask = h_as_mask << y;
-            // Grow horizontally
-            u32 w = 1;
-            while (row + w < lod_size) {
-                // Fetch bits spanning height in the next row
-                const u32 next_row_h = (data->plane[row + w] >> y) & h_as_mask;
-                if (next_row_h != h_as_mask) {
-                    // Cannot grow further horizontally
-                    break;
-                }
-                // Unset the bits we expanded into
-                data->plane[row + w] &= ~mask;
-                w++;
-            }
-            createMesh(
-                chunk,
-                &data->key,
-                NULL,
-                NULL,
-                row,
-                y,
-                w,
-                h
-            );
-            y += h;
-        }
-    }
+static void createMesh(Chunk* chunk,
+                       const PlaneMeshingDataKey* data,
+                       const u32 x,
+                       const u32 y,
+                       const u32 w,
+                       const u32 h) {
+
 }
