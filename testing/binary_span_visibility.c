@@ -327,7 +327,10 @@ typedef struct Block {
 
 #define blockEquals(b0, b1) ((b0)->id == (b1)->id)
 
+typedef u16 ChunkVisibility;
+
 typedef struct Chunk {
+    ChunkVisibility visibility;
     // Y, Z, X
     Block blocks[CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE];
 } Chunk;
@@ -509,8 +512,6 @@ void binaryGreedyMesherConstructPlane(Chunk* chunk,
     }
 }
 
-typedef u16 ChunkVisibility;
-
 #if defined(CHUNK_SIZE) && CHUNK_SIZE > 0 && CHUNK_SIZE <= 32 && _isPowerOf2(CHUNK_SIZE)
     #define bitmapType(size, name) \
         typedef GLUE(u, size) ChunkBitmapBitset; \
@@ -682,10 +683,10 @@ u8 visitBlock(ChunkBitmap bitmap,
     );
 }
 
-ChunkVisibility visibilityBfsWalkScan(const Chunk* chunk,
-                                      FacesColumns faces_cols,
-                                      FacesColumns faces_cols_opaque,
-                                      FacesColumns col_face_masks) {
+void chunkVisibilityDfsWalkScan(Chunk* chunk,
+                                FacesColumns faces_cols,
+                                FacesColumns faces_cols_opaque,
+                                FacesColumns col_face_masks) {
     ChunkBitmap bitmap = {0};
     VECTOR root = vec3_i32_all(0);
     if (!chunkBitmapFindRoot(
@@ -696,7 +697,8 @@ ChunkVisibility visibilityBfsWalkScan(const Chunk* chunk,
         col_face_masks,
         &root
     )) {
-        return 0;
+        chunk->visibility = 0;
+        return;
     }
     cvector(VECTOR) queue = {0};
     cvector_init(queue, 0, NULL);
@@ -707,12 +709,25 @@ ChunkVisibility visibilityBfsWalkScan(const Chunk* chunk,
     // those. This accounts for that, minus an extra 1 for the
     // queued position
     u16 total_blocks_processed = (root.vy * CHUNK_SIZE * CHUNK_SIZE) + (root.vz * CHUNK_SIZE) + root.vx;
-    ChunkVisibility visibility = 0;
     while (total_blocks_processed < CHUNK_SIZE * CHUNK_SIZE  * CHUNK_SIZE) {
         u8 visible_sides = 0b000000;
         while (cvector_size(queue) > 0) {
-            const VECTOR pos = queue[0];
+            // This makes this DFS, we save on needing to
+            // do a swap with the last element before popping
+            // for an efficient pseudo-BFS. So might as well
+            // just do DFS instead.
+            const VECTOR pos = queue[cvector_size(queue) - 1];
+            cvector_pop_back(queue);
             total_blocks_processed++;
+            // Update masks for BGM
+            addVoxelToFaceColumns(
+                faces_cols,
+                faces_cols_opaque,
+                chunkGetBlock(chunk, pos.vx, pos.vy, pos.vz),
+                pos.vx + 1,
+                pos.vy + 1,
+                pos.vz + 1
+            );
             // Left
             if (pos.vx == 0) {
                 visible_sides |= 0b100000;
@@ -814,7 +829,7 @@ ChunkVisibility visibilityBfsWalkScan(const Chunk* chunk,
                 if ((visible_sides & (0b1 << j)) == 0) {
                     continue;
                 }
-                chunkVisibilitySetBit(&visibility, i, j);
+                chunkVisibilitySetBit(&chunk->visibility, i, j);
             }
         }
         VECTOR pos = vec3_i32_all(0);
@@ -824,7 +839,6 @@ ChunkVisibility visibilityBfsWalkScan(const Chunk* chunk,
         cvector_push_back(queue, pos);
     }
     cvector_free(queue);
-    return visibility;
 }
 
 void binaryGreedyMesherBuildMesh(Chunk* chunk) {
@@ -833,23 +847,27 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
     FacesColumns faces_cols_opaque = {0};
     FacesColumns col_face_masks = {0};
     // Inner chunk blocks
-    // Duplication here is just to optimise away lots of if statements
-    // when this chunk has no breaking state available as a paramater
-    for (u32 z = 0; z < CHUNK_SIZE; z++) {
-        for (u32 x = 0; x < CHUNK_SIZE; x++) {
-            for (u32 y = 0; y < CHUNK_SIZE; y++) {
-                const Block* block = chunkGetBlock(chunk, x, y, z);
-                addVoxelToFaceColumns(
-                    faces_cols,
-                    faces_cols_opaque,
-                    block,
-                    x + 1,
-                    y + 1,
-                    z + 1
-                );
-            }
-        }
-    }
+    chunkVisibilityDfsWalkScan(
+        chunk,
+        faces_cols,
+        faces_cols_opaque,
+        col_face_masks
+    );
+    /*for (u32 z = 0; z < CHUNK_SIZE; z++) {*/
+    /*    for (u32 x = 0; x < CHUNK_SIZE; x++) {*/
+    /*        for (u32 y = 0; y < CHUNK_SIZE; y++) {*/
+    /*            const Block* block = chunkGetBlock(chunk, x, y, z);*/
+    /*            addVoxelToFaceColumns(*/
+    /*                faces_cols,*/
+    /*                faces_cols_opaque,*/
+    /*                block,*/
+    /*                x + 1,*/
+    /*                y + 1,*/
+    /*                z + 1*/
+    /*            );*/
+    /*        }*/
+    /*    }*/
+    /*}*/
     // Neighbouring chunk blocks
     // Z
     for (u32 z_i = 0; z_i < AXIAL_EDGES_COUNT; z_i++) {
