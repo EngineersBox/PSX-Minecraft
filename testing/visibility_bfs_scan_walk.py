@@ -1,6 +1,5 @@
 from enum import Enum
 import math
-from dataclasses import dataclass
 from collections import deque
 from typing import Deque, Optional, Tuple
 
@@ -63,21 +62,12 @@ class ChunkBitmap:
         for y in range(CHUNK_SIZE):
             for z in range(CHUNK_SIZE):
                 x_bits = self.bitmap[(y * CHUNK_SIZE) + z]
-                # print(f"X bits: {x_bits:04b}")
                 if (x_bits == (2 ** CHUNK_SIZE) - 1):
                     continue
                 for x in range(CHUNK_SIZE):
                     if (x_bits & (0b1 << x) == 0 and voxel((x, y, z)) == 0):
                         return (x, y, z)
         return None
-
-class FaceDirection(Enum):
-    FACE_DIR_DOWN = 0,
-    FACE_DIR_UP = 1,
-    FACE_DIR_LEFT = 2,
-    FACE_DIR_RIGHT = 3,
-    FACE_DIR_BACK = 4,
-    FACE_DIR_FRONT = 5
 
 class ChunkVisibility:
     # Direction bitmask
@@ -226,7 +216,10 @@ def chunk_visibility_bfs_walk_scan() -> ChunkVisibility:
     # queued position
     total_blocks_processed = (root[1] * (CHUNK_SIZE ** 2)) + (root[2] * CHUNK_SIZE) + root[0]
     visibility = ChunkVisibility()
-    while (total_blocks_processed < CHUNK_SIZE ** 3):
+    while (True):
+        # TODO: Can we XOR the visibility bitset from each cluster,
+        #       and only mark side cominations not visible if their
+        #       bit pairs are both 1's in the XOR result?
         visible_sides = 0b000000
         while (len(queue) > 0):
             x, y, z = pos = queue.pop()
