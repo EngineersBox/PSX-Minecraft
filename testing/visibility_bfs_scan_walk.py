@@ -80,6 +80,48 @@ class FaceDirection(Enum):
     FACE_DIR_FRONT = 5
 
 class ChunkVisibility:
+    # Direction bitmask
+    # LRFBUD   Pow2  Idx
+    # 000001 ->  1 -> 0 = D
+    # 000010 ->  2 -> 1 = U
+    # 000100 ->  4 -> 2 = B
+    # 001000 ->  8 -> 3 = F
+    # 010000 -> 16 -> 4 = R
+    # 100000 -> 32 -> 5 = L
+    #
+    #    Bitmask   Rep   Idx   Num
+    # LR 110000 -> 48 -> 14  -+
+    # LF 101000 -> 40 -> 13   |
+    # LB 100100 -> 36 -> 12   | 5
+    # LU 100010 -> 34 -> 11   |
+    # LD 100001 -> 33 -> 10  -+
+    # RF 011000 -> 24 ->  9  -+
+    # RB 010100 -> 20 ->  8   | 4
+    # RU 010010 -> 18 ->  7   |
+    # RD 010001 -> 17 ->  6  -+
+    # FB 001100 -> 12 ->  5  -+
+    # FU 001010 -> 10 ->  4   | 3
+    # FD 001001 ->  9 ->  3  -+
+    # BU 000110 ->  6 ->  2  -+ 2
+    # BD 000101 ->  5 ->  1  -+
+    # UD 000011 ->  3 ->  0   ] 1
+    # 
+    # The combined bitmask is just a monotonic
+    # series of sequential integers. The offset
+    # to any of the sections of the bitmask sections
+    # is ((n - 1) * n) >> 1, where n is the max(a,b)
+    # of the two directions in question. We then
+    # just add the min(a,b) of of these directions
+    # onto that value to get the bit index into
+    # the bitset.
+    # 
+    # I.e. for directions L and B with directional
+    # bitmasks of 100000 and 000100 repectively, this
+    # is:
+    # max(5, 2) => 5
+    # min(5, 2) => 2
+    # ((5 - 1) * 5) >> 2 => 10
+    # therefore bit index = 10 + 2 => 12
     bitset = 0b0000_0000_0000_000
 
     def getBit(self, a: int, b: int) -> int:
