@@ -81,7 +81,7 @@ class FaceDirection(Enum):
 
 class ChunkVisibility:
     # Direction bitmask
-    # LRFBUD   Pow2  Idx
+    # LRFBUD   Val   Idx <- AKA log2(Val)
     # 000001 ->  1 -> 0 = D
     # 000010 ->  2 -> 1 = U
     # 000100 ->  4 -> 2 = B
@@ -89,7 +89,7 @@ class ChunkVisibility:
     # 010000 -> 16 -> 4 = R
     # 100000 -> 32 -> 5 = L
     #
-    #    Bitmask   Rep   Idx   Num
+    #    Bitmask   Val   Idx   Num
     # LR 110000 -> 48 -> 14  -+
     # LF 101000 -> 40 -> 13   |
     # LB 100100 -> 36 -> 12   | 5
