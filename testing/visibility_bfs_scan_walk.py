@@ -143,11 +143,6 @@ class ChunkVisibility:
         offset = (((n - 1) * n) >> 1) + m
         self.bitset |= 0b1 << offset
 
-def main() -> None:
-    visibility = chunk_visibility_bfs_walk_scan()
-    print(f"{visibility.bitset:015b}")
-    pass
-
 def find_root(bitmap: ChunkBitmap) -> Optional[Vector]:
     for y in range(CHUNK_SIZE):
         for z in range(CHUNK_SIZE):
@@ -278,6 +273,10 @@ def chunk_visibility_bfs_walk_scan() -> ChunkVisibility:
     print(f"Cluster count: {len(clusters)}")
     return visibility
 
+def main() -> None:
+    visibility = chunk_visibility_bfs_walk_scan()
+    print(f"{visibility.bitset:015b}")
+    pass
 
 if __name__ == "__main__":
     main()
