@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 #include "hashmap.h"
+#include "cvector.h"
 
 typedef uint8_t u8;
 typedef int8_t i8;
@@ -96,6 +97,151 @@ typedef struct _DVECTOR {
 #define vec3_i8_all(v) vec3_i8(v, v, v)
 #define vec3_rgb_all(v) vec3_rgb(v, v, v)
 #define vec2_i16_all(v) vec2_i16(v, v)
+
+// Comparison
+
+#define vec2_equal(v0, v1) ((v0).vx == (v1).vx && (v0).vy == (v1).vy)
+#define vec3_equal(v0, v1) (vec2_equal(v0, v1) && (v0).vz == (v1).vz)
+
+// TODO: Add vec+const variations
+
+// Field operations
+#define _vector_op(a, b, c, op) a = b op c
+#define _vector_iop(a, b, op) a op= b
+
+#define _vector_op_mm(field, v0, v1, op) _vector_op(.field, (v0).field, (v1).field, op)
+#define _vector_op_mc(field, v0, c, op) _vector_op(.field, (v0).field, c, op)
+#define _vector_p_op_mm(field, v0, v1, op) _vector_op(.field, (v0)->field, (v1)->field, op)
+#define _vector_p_op_mc(field, v0, c, op) _vector_op(.field, (v0)->field, c, op)
+
+#define _vector_i_op_mm(field, v0, v1, op) _vector_iop((v0).field, (v1).field, op)
+#define _vector_i_op_mc(field, v0, c, op) _vector_iop((v0).field, c, op)
+#define _vector_ip_op_mm(field, v0, v1, op) _vector_iop((v0)->field, (v1)->field, op)
+#define _vector_ip_op_mc(field, v0, c, op) _vector_iop((v0)->field, c, op)
+
+// Vector varaint operation bindings
+
+#define vec3_op(v0, op, v1) ({ \
+    const __typeof__(v0) _v0 = (v0); \
+    const __typeof__(v1) _v1 = (v1); \
+    (__typeof__(v0)) { \
+        _vector_op_mm(vx, _v0, _v1, op), \
+        _vector_op_mm(vy, _v0, _v1, op), \
+        _vector_op_mm(vz, _v0, _v1, op) \
+    }; \
+})
+#define vec3_const_op(v0, op, c) ({ \
+    const __typeof__(v0) _v0 = (v0); \
+    (__typeof__(v0)) { \
+        _vector_op_mc(vx, _v0, c, op), \
+        _vector_op_mc(vy, _v0, c, op), \
+        _vector_op_mc(vz, _v0, c, op) \
+    }; \
+})
+
+#define pvec3_op(v0, op, v1) ({ \
+    const __typeof__(v0)* _v0 = (v0); \
+    const __typeof__(v1)* _v1 = (v1); \
+    (__typeof__(v0)) { \
+        _vector_p_op_mm(vx, _v0, _v1, op), \
+        _vector_p_op_mm(vy, _v0, _v1, op), \
+        _vector_p_op_mm(vz, _v0, _v1, op) \
+    }; \
+})
+#define pvec3_const_op(v0, op, c) ({ \
+    cosnt __typeof__(v0)* _v0 = (v0); \
+    (__typeof__(v0)) { \
+        _vector_p_op_mc(vx, _v0, c, op), \
+        _vector_p_op_mc(vy, _v0, c, op), \
+        _vector_p_op_mc(vz, _v0, c, op) \
+    }; \
+})
+
+#define vec2_op(v0, op, v1) ({ \
+    const __typeof__(v0) _v0 = (v0); \
+    const __typeof__(v1) _v1 = (v1); \
+    (__typeof__(v0)) { \
+        _vector_op_mm(vx, _v0, _v1, op), \
+        _vector_op_mm(vy, _v0, _v1, op) \
+    }; \
+})
+#define vec2_const_op(v0, op, c) ({ \
+    const __typeof__(v0) _v0 = (v0); \
+    (__typeof__(v0)) { \
+        _vector_op_mc(vx, _v0, c, op), \
+        _vector_op_mc(vy, _v0, c, op) \
+    }; \
+})
+
+#define pvec2_op(v0, op, v1) ({ \
+    const __typeof__(v0)* _v0 = (v0); \
+    const __typeof__(v1)* _v1 = (v1); \
+    (__typeof__(v0)) { \
+        _vector_p_op_mm(vx, _v0, _v1, op), \
+        _vector_p_op_mm(vy, _v0, _v1, op) \
+    }; \
+})
+#define pvec2_const_op(v0, op, c) ({ \
+    cosnt __typeof__(v0)* _v0 = (v0); \
+    (__typeof__(v0)) { \
+        _vector_p_op_mc(vx, _v0, c, op), \
+        _vector_p_op_mc(vy, _v0, c, op) \
+    }; \
+})
+
+// Operations
+
+// - Operands vec3, vec3
+
+#define vec3_add(v0, v1) vec3_op(v0, +, v1)
+#define vec3_sub(v0, v1) vec3_op(v0, -, v1)
+#define vec3_div(v0, v1) vec3_op(v0, /, v1)
+#define vec3_mul(v0, v1) vec3_op(v0, *, v1)
+#define vec3_lshift(v0, v1) vec3_op(v0, <<, v1)
+#define vec3_rshift(v0, v1) vec3_op(v0, >>, v1)
+#define vec3_mod(v0, v1) vec3_op(v0, %, v1)
+#define vec3_and(v0, v1) vec3_op(v0, &, v1)
+#define vec3_or(v0, v1) vec3_op(v0, |, v1)
+#define vec3_xor(v0, v1) vec3_op(v0, ^, v1)
+
+// - Operands vec3*, vec3*
+
+#define pvec3_add(v0, v1) pvec3_op(v0, +, v1)
+#define pvec3_sub(v0, v1) pvec3_op(v0, -, v1)
+#define pvec3_div(v0, v1) pvec3_op(v0, /, v1)
+#define pvec3_mul(v0, v1) pvec3_op(v0, *, v1)
+#define pvec3_lshift(v0, v1) pvec3_op(v0, <<, v1)
+#define pvec3_rshift(v0, v1) pvec3_op(v0, >>, v1)
+#define pvec3_mod(v0, v1) pvec3_op(v0, %, v1)
+#define pvec3_and(v0, v1) pvec3_op(v0, &, v1)
+#define pvec3_or(v0, v1) pvec3_op(v0, |, v1)
+#define pvec3_xor(v0, v1) pvec3_op(v0, ^, v1)
+
+// - Operands vec3, integer
+
+#define vec3_const_add(v0, c) vec3_const_op(v0, +, c)
+#define vec3_const_sub(v0, c) vec3_const_op(v0, -, c)
+#define vec3_const_div(v0, c) vec3_const_op(v0, /, c)
+#define vec3_const_mul(v0, c) vec3_const_op(v0, *, c)
+#define vec3_const_lshift(v0, c) vec3_const_op(v0, <<, c)
+#define vec3_const_rshift(v0, c) vec3_const_op(v0, >>, c)
+#define vec3_const_mod(v0, c) vec3_const_op(v0, %, c)
+#define vec3_const_and(v0, c) vec3_const_op(v0, &, c)
+#define vec3_const_or(v0, c) vec3_const_op(v0, |, c)
+#define vec3_const_xor(v0, c) vec3_const_op(v0, ^, c)
+
+// - Operands vec3*, integer
+
+#define pvec3_const_add(v0, c) pvec3_const_op(v0, +, c)
+#define pvec3_const_sub(v0, c) pvec3_const_op(v0, -, c)
+#define pvec3_const_div(v0, c) pvec3_const_op(v0, /, c)
+#define pvec3_const_mul(v0, c) pvec3_const_op(v0, *, c)
+#define pvec3_const_lshift(v0, c) pvec3_const_op(v0, <<, c)
+#define pvec3_const_rshift(v0, c) pvec3_const_op(v0, >>, c)
+#define pvec3_const_mod(v0, c) pvec3_const_op(v0, %, c)
+#define pvec3_const_and(v0, c) pvec3_const_op(v0, &, c)
+#define pvec3_const_or(v0, c) pvec3_const_op(v0, |, c)
+#define pvec3_const_xor(v0, c) pvec3_const_op(v0, ^, c)
 
 #define _isPowerOf2(x) (((_x) & ((_x) - 1)) == 0)
 #define isPowerOf2(x) ({ \
@@ -276,7 +422,6 @@ typedef enum FaceDirection {
 
 #define ONE (1 << 12)
 
-
 #define INLINE __attribute__((always_inline)) inline
 #define CHUNK_SIZE_PADDED (CHUNK_SIZE + 2)
 #define AXIS_COUNT 3
@@ -362,6 +507,324 @@ void binaryGreedyMesherConstructPlane(Chunk* chunk,
             y += h;
         }
     }
+}
+
+typedef u16 ChunkVisibility;
+
+#if defined(CHUNK_SIZE) && CHUNK_SIZE > 0 && CHUNK_SIZE <= 32 && _isPowerOf2(CHUNK_SIZE)
+    #define bitmapType(size, name) \
+        typedef GLUE(u, size) ChunkBitmapBitset; \
+        typedef ChunkBitmapBitset name[size * size]
+    bitmapType(CHUNK_SIZE, ChunkBitmap);
+    #undef bitmapType
+#else
+#error CHUNK_SIZE must be in the interval (0, 32] and be a power of 2
+#endif
+
+#define chunkBitmapGetBit(bitmap, pos) (((bitmap)[((pos)->vy * CHUNK_SIZE) + (pos)->vz] >> (pos)->vx) & 0b1)
+#define chunkBitmapSetBit(bitmap, pos) ((bitmap)[((pos)->vy * CHUNK_SIZE) + (pos)->vz] |= 1 << (pos)->vx)
+
+bool chunkBitmapFindUnsetPosition(ChunkBitmap bitmap,
+                                  const Chunk* chunk,
+                                  VECTOR* out_pos) {
+    for (u8 y = 0; y < CHUNK_SIZE; y++) {
+        for (u8 z = 0; z < CHUNK_SIZE; z++) {
+            const ChunkBitmapBitset x_bits = bitmap[(y * CHUNK_SIZE) + z];
+            if (x_bits == (CHUNK_SIZE * CHUNK_SIZE) - 1) {
+                continue;
+            }
+            for (u8 x = 0; x < CHUNK_SIZE; x++) {
+                const VECTOR pos = vec3_i32(x, y, z);
+                if ((x_bits & (0b1 << x)) != 0) {
+                    continue;
+                }
+                const Block* block = chunkGetBlock(chunk, x, y, z);
+                if (block->transparent) {
+                    *out_pos = pos;
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+bool chunkBitmapFindRoot(ChunkBitmap bitmap,
+                         const Chunk* chunk,
+                         FacesColumns faces_cols,
+                         FacesColumns faces_cols_opaque,
+                         FacesColumns col_face_masks,
+                         VECTOR* out_pos) {
+    for (u8 y = 0; y < CHUNK_SIZE; y++) {
+        for (u8 z = 0; z < CHUNK_SIZE; z++) {
+            for (u8 x = 0; x < CHUNK_SIZE; x++) {
+                const Block* block = chunkGetBlock(chunk, x, y, z);
+                const VECTOR pos = vec3_i32(x, y, z);
+                if (block->transparent) {
+                    *out_pos = pos;
+                    return true;
+                }
+                // Update masks for BGM
+                addVoxelToFaceColumns(
+                    faces_cols,
+                    faces_cols_opaque,
+                    block,
+                    x + 1,
+                    y + 1,
+                    z + 1
+                );
+                chunkBitmapSetBit(bitmap, &pos);
+            }
+        }
+    }
+    return false;
+}
+
+u8 chunkBitmapFillSolidDirection(ChunkBitmap bitmap,
+                                 const Chunk* chunk,
+                                 VECTOR pos,
+                                 const VECTOR dir,
+                                 FacesColumns faces_cols,
+                                 FacesColumns faces_cols_opaque,
+                                 FacesColumns col_face_masks) {
+    u8 processed = 0;
+    while (true) {
+        pos = vec3_add(pos, dir);
+        if (chunkBitmapGetBit(bitmap, &pos) == 1) {
+            // Already visited
+            break;
+        }
+        const Block* block = chunkGetBlock(chunk, pos.vx, pos.vy, pos.vz);
+        // Update masks for BGM
+        addVoxelToFaceColumns(
+            faces_cols,
+            faces_cols_opaque,
+            block,
+            pos.vx + 1,
+            pos.vy + 1,
+            pos.vz + 1
+        );
+        if (!block->transparent) {
+            // Not solid
+            break;
+        }
+        chunkBitmapSetBit(bitmap, &pos);
+        processed++;
+    }
+    return processed;
+}
+
+typedef u16 ChunkVisibility;
+
+INLINE u8 chunkVisibilityGetBit(const ChunkVisibility vis, const u8 a, const u8 b) {
+    if (a == b) {
+        return 0;
+    }
+    u8 n;
+    u8 m;
+    if (a > b) {
+        n = a;
+        m = b;
+    } else {
+        n = b;
+        m = a;
+    }
+    const u8 offset = (((n - 1) * n) >> 1) + m;
+    return (vis >> offset) & 0b1;
+}
+
+INLINE void chunkVisibilitySetBit(ChunkVisibility* vis, const u8 a, const u8 b) {
+    if (a == b) {
+        return;
+    }
+    u8 n;
+    u8 m;
+    if (a > b) {
+        n = a;
+        m = b;
+    } else {
+        n = b;
+        m = a;
+    }
+    const u8 offset = (((n - 1) * n) >> 1) + m;
+    *vis |= 0b1 << offset;
+}
+
+u8 visitBlock(ChunkBitmap bitmap,
+              const Chunk* chunk,
+              VECTOR pos,
+              const VECTOR dir,
+              cvector(VECTOR) queue,
+              FacesColumns faces_cols,
+              FacesColumns faces_cols_opaque,
+              FacesColumns col_face_masks) {
+    const VECTOR next_pos = vec3_add(pos, dir);
+    const Block* block = chunkGetBlock(chunk, next_pos.vx, next_pos.vy, next_pos.vz);
+    if (block == NULL) {
+        // Outside the chunk
+        return 0;
+    } else if (chunkBitmapGetBit(bitmap, &next_pos)) {
+        // Already visited
+        return 0;
+    } else if (block->transparent) {
+        cvector_push_back(queue, next_pos);
+        chunkBitmapSetBit(bitmap, &next_pos);
+        return 0;
+    }
+    return chunkBitmapFillSolidDirection(
+        bitmap,
+        chunk,
+        pos,
+        dir,
+        faces_cols,
+        faces_cols_opaque,
+        col_face_masks
+    );
+}
+
+ChunkVisibility visibilityBfsWalkScan(const Chunk* chunk,
+                                      FacesColumns faces_cols,
+                                      FacesColumns faces_cols_opaque,
+                                      FacesColumns col_face_masks) {
+    ChunkBitmap bitmap = {0};
+    VECTOR root = vec3_i32_all(0);
+    if (!chunkBitmapFindRoot(
+        bitmap,
+        chunk,
+        faces_cols,
+        faces_cols_opaque,
+        col_face_masks,
+        &root
+    )) {
+        return 0;
+    }
+    cvector(VECTOR) queue = {0};
+    cvector_init(queue, 0, NULL);
+    cvector_push_back(queue, root);
+    chunkBitmapSetBit(bitmap, &root);
+    // We mark every solid block until the first free block
+    // in the bitmap, so we start with already having processed
+    // those. This accounts for that, minus an extra 1 for the
+    // queued position
+    u16 total_blocks_processed = (root.vy * CHUNK_SIZE * CHUNK_SIZE) + (root.vz * CHUNK_SIZE) + root.vx;
+    ChunkVisibility visibility = 0;
+    while (total_blocks_processed < CHUNK_SIZE * CHUNK_SIZE  * CHUNK_SIZE) {
+        u8 visible_sides = 0b000000;
+        while (cvector_size(queue) > 0) {
+            const VECTOR pos = queue[0];
+            total_blocks_processed++;
+            // Left
+            if (pos.vx == 0) {
+                visible_sides |= 0b100000;
+            }
+            total_blocks_processed += visitBlock(
+                bitmap,
+                chunk,
+                pos,
+                vec3_i32(-1, 0 ,0),
+                queue,
+                faces_cols,
+                faces_cols_opaque,
+                col_face_masks
+            );
+            // Right
+            if (pos.vx == CHUNK_SIZE - 1) {
+                visible_sides |= 0b010000;
+            }
+            total_blocks_processed += visitBlock(
+                bitmap,
+                chunk,
+                pos,
+                vec3_i32(+1, 0 ,0),
+                queue,
+                faces_cols,
+                faces_cols_opaque,
+                col_face_masks
+            );
+            // Front
+            if (pos.vz == 0) {
+                visible_sides |= 0b001000;
+            }
+            total_blocks_processed += visitBlock(
+                bitmap,
+                chunk,
+                pos,
+                vec3_i32(0, 0 ,-1),
+                queue,
+                faces_cols,
+                faces_cols_opaque,
+                col_face_masks
+            );
+            // Back
+            if (pos.vz == CHUNK_SIZE - 1) {
+                visible_sides |= 0b000100;
+            }
+            total_blocks_processed += visitBlock(
+                bitmap,
+                chunk,
+                pos,
+                vec3_i32(0, 0 ,+1),
+                queue,
+                faces_cols,
+                faces_cols_opaque,
+                col_face_masks
+            );
+            // Down
+            if (pos.vy == 0) {
+                visible_sides |= 0b000010;
+            }
+            total_blocks_processed += visitBlock(
+                bitmap,
+                chunk,
+                pos,
+                vec3_i32(0, -1 ,0),
+                queue,
+                faces_cols,
+                faces_cols_opaque,
+                col_face_masks
+            );
+            // Up
+            if (pos.vy == CHUNK_SIZE - 1) {
+                visible_sides |= 0b000001;
+            }
+            total_blocks_processed += visitBlock(
+                bitmap,
+                chunk,
+                pos,
+                vec3_i32(0, +1 ,0),
+                queue,
+                faces_cols,
+                faces_cols_opaque,
+                col_face_masks
+            );
+        }
+        if (isPowerOf2(visible_sides)) {
+            VECTOR pos = vec3_i32_all(0);
+            if (chunkBitmapFindUnsetPosition(bitmap, chunk, &pos)) {
+                cvector_push_back(queue, pos);
+                continue;
+            }
+            break;
+        }
+        for (u8 i = 0; i < 6; i++) {
+            if ((visible_sides & (0b1 << i)) == 0) {
+                continue;
+            }
+            for (u8 j = i + 1; j < 6; j++) {
+                if ((visible_sides & (0b1 << j)) == 0) {
+                    continue;
+                }
+                chunkVisibilitySetBit(&visibility, i, j);
+            }
+        }
+        VECTOR pos = vec3_i32_all(0);
+        if (!chunkBitmapFindUnsetPosition(bitmap, chunk, &pos)) {
+            break;
+        }
+        cvector_push_back(queue, pos);
+    }
+    cvector_free(queue);
+    return visibility;
 }
 
 void binaryGreedyMesherBuildMesh(Chunk* chunk) {
