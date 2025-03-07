@@ -1,11 +1,17 @@
-from enum import Enum
 import math
 from collections import deque
-from typing import Deque, Optional, Tuple
+from typing import Deque, Optional, NamedTuple
 
 CHUNK_SIZE = 4
 
-Pos = Tuple[int, int, int]
+class Vector(NamedTuple):
+    x: int
+    y: int
+    z: int
+
+class Cluster:
+    blocks: list[Vector] = []
+    visible_sides: int = 0b000000
 
 VOXELS = [
     1, 0, 0, 0,
@@ -29,15 +35,14 @@ VOXELS = [
     1, 0, 0, 1,
 ]
 
-def voxel(pos: Pos) -> Optional[int]:
-    x, y, z = pos
-    if (x < 0 or x >= CHUNK_SIZE):
+def voxel(pos: Vector) -> Optional[int]:
+    if (pos.x < 0 or pos.x >= CHUNK_SIZE):
         return None
-    elif (y < 0 or y >= CHUNK_SIZE):
+    elif (pos.y < 0 or pos.y >= CHUNK_SIZE):
         return None
-    elif (z < 0 or z >= CHUNK_SIZE):
+    elif (pos.z < 0 or pos.z >= CHUNK_SIZE):
         return None
-    return VOXELS[(y * (CHUNK_SIZE ** 2)) + (z * CHUNK_SIZE) + x]
+    return VOXELS[(pos.y * (CHUNK_SIZE ** 2)) + (pos.z * CHUNK_SIZE) + pos.x]
 
 class ChunkBitmap:
     bitmap: list[int]
@@ -45,28 +50,26 @@ class ChunkBitmap:
     def __init__(self):
         self.bitmap = [0] * (CHUNK_SIZE ** 2)
 
-    def getBit(self, pos: Pos) -> int:
+    def getBit(self, pos: Vector) -> int:
         x, y, z = pos
         return (self.bitmap[(y * CHUNK_SIZE) + z] >> x) & 0b1
 
-    def setBit(self, pos: Pos) -> None:
-        x, y, z = pos
-        self.bitmap[(y * CHUNK_SIZE) + z] |= 1 << x
-        print(self.bitmap)
+    def setBit(self, pos: Vector) -> None:
+        self.bitmap[(pos.y * CHUNK_SIZE) + pos.z] |= 1 << pos.x
 
-    def clearBit(self, pos: Pos) -> None:
-        x, y, z = pos
-        self.bitmap[(y * CHUNK_SIZE) + z] &= ~(1 << x);
+    def clearBit(self, pos: Vector) -> None:
+        self.bitmap[(pos.y * CHUNK_SIZE) + pos.z] &= ~(1 << pos.x);
 
-    def find_unset_pos(self) -> Optional[Pos]:
+    def find_unset_pos(self) -> Optional[Vector]:
         for y in range(CHUNK_SIZE):
             for z in range(CHUNK_SIZE):
                 x_bits = self.bitmap[(y * CHUNK_SIZE) + z]
                 if (x_bits == (2 ** CHUNK_SIZE) - 1):
                     continue
                 for x in range(CHUNK_SIZE):
-                    if (x_bits & (0b1 << x) == 0 and voxel((x, y, z)) == 0):
-                        return (x, y, z)
+                    pos = Vector(x, y, z)
+                    if (x_bits & (0b1 << x) == 0 and voxel(pos) == 0):
+                        return pos
         return None
 
 class ChunkVisibility:
@@ -138,33 +141,31 @@ class ChunkVisibility:
         n = max(a, b)
         m = min(a, b)
         offset = (((n - 1) * n) >> 1) + m
-        print(f"Offset: {offset}")
         self.bitset |= 0b1 << offset
-        print(f"[VIS] Bitset: {self.bitset:015b}")
 
 def main() -> None:
     visibility = chunk_visibility_bfs_walk_scan()
     print(f"{visibility.bitset:015b}")
     pass
 
-def find_root(bitmap: ChunkBitmap) -> Optional[Pos]:
+def find_root(bitmap: ChunkBitmap) -> Optional[Vector]:
     for y in range(CHUNK_SIZE):
         for z in range(CHUNK_SIZE):
             for x in range(CHUNK_SIZE):
-                pos = (x, y, z)
+                pos = Vector(x, y, z)
                 v = voxel(pos)
                 if (v == 0):
                     return pos
                 bitmap.setBit(pos)
     return None
 
-def fill_bitmap_solid_direction(bitmap: ChunkBitmap, pos: Pos, dir: Pos) -> int:
+def fill_bitmap_solid_direction(bitmap: ChunkBitmap, pos: Vector, dir: Vector) -> int:
     processed = 0
     while (True):
-        pos = (
-            pos[0] + dir[0],
-            pos[1] + dir[1],
-            pos[2] + dir[2]
+        pos = Vector(
+            pos.x + dir.x,
+            pos.y + dir.y,
+            pos.z + dir.z
         )
         v = voxel(pos)
         if (v != 1 or bitmap.getBit(pos) == 1):
@@ -174,11 +175,11 @@ def fill_bitmap_solid_direction(bitmap: ChunkBitmap, pos: Pos, dir: Pos) -> int:
         processed += 1
     return processed
 
-def visit_node(pos: Pos, dir: Pos, queue: Deque[Pos], bitmap: ChunkBitmap) -> int:
-    next_pos = (
-        pos[0] + dir[0],
-        pos[1] + dir[1],
-        pos[2] + dir[2]
+def visit_node(pos: Vector, dir: Vector, queue: Deque[Vector], bitmap: ChunkBitmap) -> int:
+    next_pos = Vector(
+        pos.x + dir.x,
+        pos.y + dir.y,
+        pos.z + dir.z
     )
     v = voxel(next_pos)
     if (v == None):
@@ -203,76 +204,78 @@ def is_power_of_two(n: int) -> bool:
 
 def chunk_visibility_bfs_walk_scan() -> ChunkVisibility:
     bitmap = ChunkBitmap()
-    root: Optional[Pos] = find_root(bitmap)
+    root: Optional[Vector] = find_root(bitmap)
     if (root == None):
         return ChunkVisibility()
     print(f"Root: ({root})")
-    queue: Deque[Pos] = deque()
+    queue: Deque[Vector] = deque()
     queue.appendleft(root)
     bitmap.setBit(root)
     # We mark every solid block until the first free block
     # in the bitmap, so we start with already having processed
     # those. This accounts for that, minus an extra 1 for the
     # queued position
-    total_blocks_processed = (root[1] * (CHUNK_SIZE ** 2)) + (root[2] * CHUNK_SIZE) + root[0]
+    total_blocks_processed = (root.y * (CHUNK_SIZE ** 2)) + (root.z * CHUNK_SIZE) + root.x
     visibility = ChunkVisibility()
-    while (True):
+    clusters: list[Cluster] = []
+    while (total_blocks_processed < CHUNK_SIZE ** 3):
         # TODO: Can we XOR the visibility bitset from each cluster,
         #       and only mark side cominations not visible if their
         #       bit pairs are both 1's in the XOR result?
-        visible_sides = 0b000000
+        cluster = Cluster()
+        clusters.append(cluster)
         while (len(queue) > 0):
-            x, y, z = pos = queue.pop()
+            pos = queue.pop()
             total_blocks_processed += 1
+            cluster.blocks.append(pos)
             # Left
-            if (x == 0):
-                visible_sides |= 0b100000
-            total_blocks_processed += visit_node(pos, (-1, 0, 0), queue, bitmap)
+            if (pos.x == 0):
+                cluster.visible_sides |= 0b100000
+            total_blocks_processed += visit_node(pos, Vector(-1, 0, 0), queue, bitmap)
             # Right
-            if (x == CHUNK_SIZE - 1):
-                visible_sides |= 0b010000
-            total_blocks_processed += visit_node(pos, (+1, 0, 0), queue, bitmap)
+            if (pos.x == CHUNK_SIZE - 1):
+                cluster.visible_sides |= 0b010000
+            total_blocks_processed += visit_node(pos, Vector(+1, 0, 0), queue, bitmap)
             # Front
-            if (z == 0):
-                visible_sides |= 0b001000
-            total_blocks_processed += visit_node(pos, (0, 0, -1), queue, bitmap)
+            if (pos.z == 0):
+                cluster.visible_sides |= 0b001000
+            total_blocks_processed += visit_node(pos, Vector(0, 0, -1), queue, bitmap)
             # Back
-            if (z == CHUNK_SIZE - 1):
-                visible_sides |= 0b000100
-            total_blocks_processed += visit_node(pos, (0, 0, +1), queue, bitmap)
+            if (pos.z == CHUNK_SIZE - 1):
+                cluster.visible_sides |= 0b000100
+            total_blocks_processed += visit_node(pos, Vector(0, 0, +1), queue, bitmap)
             # Down
-            if (y == 0):
-                visible_sides |= 0b000001
-            total_blocks_processed += visit_node(pos, (0, -1, 0), queue, bitmap)
+            if (pos.y == 0):
+                cluster.visible_sides |= 0b000001
+            total_blocks_processed += visit_node(pos, Vector(0, -1, 0), queue, bitmap)
             # Up
-            if (y == CHUNK_SIZE - 1):
-                visible_sides |= 0b000010
-            total_blocks_processed += visit_node(pos, (0, +1, 0), queue, bitmap)
-        print(f"Visibile sides: {visible_sides:06b}")
-        if (is_power_of_two(visible_sides)):
+            if (pos.y == CHUNK_SIZE - 1):
+                cluster.visible_sides |= 0b000010
+            total_blocks_processed += visit_node(pos, Vector(0, +1, 0), queue, bitmap)
+        print(f"Visibile sides: {cluster.visible_sides:06b}")
+        if (is_power_of_two(cluster.visible_sides)):
             pos = bitmap.find_unset_pos()
             if (pos != None):
-                print(f"Unset pos: ({pos})")
+                print(f"Found unset pos: ({pos})")
                 queue.appendleft(pos)
                 # Only 0 or 1 bit set, no visibility
                 continue
             else:
-                print("No unset pos")
                 break
         for i in range(6):
-            if (visible_sides & (0b1 << i) == 0):
+            if (cluster.visible_sides & (0b1 << i) == 0):
                 continue
             for j in range(i + 1, 6):
-                if (visible_sides & (0b1 << j) == 0):
+                if (cluster.visible_sides & (0b1 << j) == 0):
                     continue
-                print(f"Visible {i} & {j}")
                 visibility.setBitLiteral(i, j)
         pos = bitmap.find_unset_pos()
         if (pos == None):
             break
         queue.appendleft(pos)
-        print(f"Unset pos 2: ({pos})")
+        print(f"Found unset pos 2: ({pos})")
     print(f"Total blocks processed: {total_blocks_processed}/{CHUNK_SIZE ** 3}")
+    print(f"Cluster count: {len(clusters)}")
     return visibility
 
 
