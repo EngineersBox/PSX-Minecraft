@@ -546,7 +546,7 @@ bool chunkBitmapFindUnsetPosition(ChunkBitmap bitmap,
                             CHUNK_SIZE - 1 - y,
                             CHUNK_SIZE - 1 - z
                         );
-                        if ((x_bwd_bits & (0b1 << x)) != 0) {
+                        if ((x_bwd_bits & (0b1 << x)) == 1) {
                             continue;
                         }
                         const Block* block = chunkGetBlock(chunk, x, y, z);
@@ -554,9 +554,10 @@ bool chunkBitmapFindUnsetPosition(ChunkBitmap bitmap,
                             *out_pos = pos;
                             return true;
                         }
+                        chunkBitmapSetBit(bitmap, &pos);
                     } else {
                         const VECTOR pos = vec3_i32(x, y, z);
-                        if ((x_fwd_bits & (0b1 << x)) != 0) {
+                        if ((x_fwd_bits & (0b1 << x)) == 1) {
                             continue;
                         }
                         const Block* block = chunkGetBlock(chunk, x, y, z);
@@ -564,6 +565,7 @@ bool chunkBitmapFindUnsetPosition(ChunkBitmap bitmap,
                             *out_pos = pos;
                             return true;
                         }
+                        chunkBitmapSetBit(bitmap, &pos);
                     }
                 }
             }
@@ -584,7 +586,7 @@ bool chunkBitmapFindUnsetPosition(ChunkBitmap bitmap,
             }
             for (u8 x = start; x != end; x += increment) {
                 const VECTOR pos = vec3_i32(x, y, z);
-                if ((x_bits & (0b1 << x)) != 0) {
+                if ((x_bits & (0b1 << x)) == 1) {
                     continue;
                 }
                 const Block* block = chunkGetBlock(chunk, x, y, z);
@@ -592,6 +594,7 @@ bool chunkBitmapFindUnsetPosition(ChunkBitmap bitmap,
                     *out_pos = pos;
                     return true;
                 }
+                chunkBitmapSetBit(bitmap, &pos);
             }
         }
     }

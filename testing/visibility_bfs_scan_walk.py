@@ -104,12 +104,18 @@ class ChunkBitmap:
                                 CHUNK_SIZE - 1 - y,
                                 CHUNK_SIZE - 1 - z
                             )
-                            if (x_bwd_bits & (0b1 << x) == 0 and voxel(pos) == 0):
+                            if (x_bwd_bits & (0b1 << x) == 1):
+                                continue
+                            elif (voxel(pos) == 0):
                                 return pos
+                            self.setBit(pos)
                         else:
                             pos = Vector(x, y, z)
-                            if (x_fwd_bits & (0b1 << x) == 0 and voxel(pos) == 0):
+                            if (x_fwd_bits & (0b1 << x) == 1):
+                                continue
+                            elif (voxel(pos) == 0):
                                 return pos
+                            self.setBit(pos)
                 if (fwd_some_set):
                     x_bits = x_fwd_bits
                     start = 0
@@ -120,8 +126,11 @@ class ChunkBitmap:
                     end = -1
                 for x in range(start, end):
                     pos = Vector(x, y, z)
-                    if (x_bits & (0b1 << x) == 0 and voxel(pos) == 0):
+                    if (x_bits & (0b1 << x) == 1):
+                        continue
+                    elif (voxel(pos) == 0):
                         return pos
+                    self.setBit(pos)
         return None
 
 class ChunkVisibility:
