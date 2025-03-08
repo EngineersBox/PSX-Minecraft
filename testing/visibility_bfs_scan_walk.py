@@ -83,6 +83,10 @@ class ChunkBitmap:
         self.bitmap[(pos.y * CHUNK_SIZE) + pos.z] &= ~(1 << pos.x);
 
     def find_unset_pos(self) -> Optional[Vector]:
+        # This is doubled ended iteration that moves between
+        # two opposing corners of the chunk. Explicit handling
+        # for entire X rows is accounted for as an extra
+        # optimisation to avoid excessive iteration
         for y in range(CHUNK_SIZE):
             for z in range(CHUNK_SIZE):
                 x_fwd_bits = self.bitmap[(y * CHUNK_SIZE) + z]
