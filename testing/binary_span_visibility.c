@@ -530,11 +530,59 @@ bool chunkBitmapFindUnsetPosition(ChunkBitmap bitmap,
                                   VECTOR* out_pos) {
     for (u8 y = 0; y < CHUNK_SIZE; y++) {
         for (u8 z = 0; z < CHUNK_SIZE; z++) {
-            const ChunkBitmapBitset x_bits = bitmap[(y * CHUNK_SIZE) + z];
-            if (x_bits == (CHUNK_SIZE * CHUNK_SIZE) - 1) {
+            const ChunkBitmapBitset x_fwd_bits = bitmap[(y * CHUNK_SIZE) + z];
+            const bool fwd_some_set = x_fwd_bits != (CHUNK_SIZE * CHUNK_SIZE) - 1;
+            const ChunkBitmapBitset x_bwd_bits = bitmap[((CHUNK_SIZE - 1 - y) * CHUNK_SIZE) + (CHUNK_SIZE - 1 -z)];
+            const bool bwd_some_set = x_bwd_bits != (CHUNK_SIZE * CHUNK_SIZE) - 1;
+            if (!fwd_some_set && !bwd_some_set) {
                 continue;
             }
-            for (u8 x = 0; x < CHUNK_SIZE; x++) {
+            const u8 i = y + z;
+            if (fwd_some_set && bwd_some_set) {
+                for (u8 x = 0; x < CHUNK_SIZE; x++) {
+                    if (i + x % 2 != 0) {
+                        const VECTOR pos = vec3_i32(
+                            CHUNK_SIZE - 1 - x,
+                            CHUNK_SIZE - 1 - y,
+                            CHUNK_SIZE - 1 - z
+                        );
+                        if ((x_bwd_bits & (0b1 << x)) != 0) {
+                            continue;
+                        }
+                        const Block* block = chunkGetBlock(chunk, x, y, z);
+                        if (block->transparent) {
+                            *out_pos = pos;
+                            return true;
+                        }
+                    } else {
+                        const VECTOR pos = vec3_i32(x, y, z);
+                        if ((x_fwd_bits & (0b1 << x)) != 0) {
+                            continue;
+                        }
+                        const Block* block = chunkGetBlock(chunk, x, y, z);
+                        if (block->transparent) {
+                            *out_pos = pos;
+                            return true;
+                        }
+                    }
+                }
+            }
+            u8 x_bits;
+            u8 start;
+            u8 end;
+            int increment;
+            if (fwd_some_set) {
+                x_bits = x_fwd_bits;
+                start = 0;
+                end = CHUNK_SIZE - 1;
+                increment = 1;
+            } else {
+                x_bits = x_bwd_bits;
+                start = CHUNK_SIZE - 1;
+                end = 0;
+                increment = -1;
+            }
+            for (u8 x = start; x != end; x += increment) {
                 const VECTOR pos = vec3_i32(x, y, z);
                 if ((x_bits & (0b1 << x)) != 0) {
                     continue;

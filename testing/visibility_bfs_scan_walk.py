@@ -63,10 +63,36 @@ class ChunkBitmap:
     def find_unset_pos(self) -> Optional[Vector]:
         for y in range(CHUNK_SIZE):
             for z in range(CHUNK_SIZE):
-                x_bits = self.bitmap[(y * CHUNK_SIZE) + z]
-                if (x_bits == (2 ** CHUNK_SIZE) - 1):
+                x_fwd_bits = self.bitmap[(y * CHUNK_SIZE) + z]
+                fwd_some_set = x_fwd_bits != (2 ** CHUNK_SIZE) - 1
+                x_bwd_bits = self.bitmap[((CHUNK_SIZE - 1 - y) * CHUNK_SIZE) + (CHUNK_SIZE - 1 - z)]
+                bwd_some_set = x_bwd_bits != (2 ** CHUNK_SIZE) - 1
+                if (not fwd_some_set and not bwd_some_set):
                     continue
-                for x in range(CHUNK_SIZE):
+                i = y + z
+                if (fwd_some_set and bwd_some_set):
+                    for x in range(CHUNK_SIZE):
+                        if (i + x % 2 != 0):
+                            pos = Vector(
+                                CHUNK_SIZE - 1 - x,
+                                CHUNK_SIZE - 1 - y,
+                                CHUNK_SIZE - 1 - z
+                            )
+                            if (x_bwd_bits & (0b1 << x) == 0 and voxel(pos) == 0):
+                                return pos
+                        else:
+                            pos = Vector(x, y, z)
+                            if (x_fwd_bits & (0b1 << x) == 0 and voxel(pos) == 0):
+                                return pos
+                if (fwd_some_set):
+                    x_bits = x_fwd_bits
+                    start = 0
+                    end = CHUNK_SIZE
+                else:
+                    x_bits = x_bwd_bits
+                    start = CHUNK_SIZE - 1
+                    end = -1
+                for x in range(start, end):
                     pos = Vector(x, y, z)
                     if (x_bits & (0b1 << x) == 0 and voxel(pos) == 0):
                         return pos
