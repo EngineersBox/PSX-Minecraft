@@ -103,8 +103,6 @@ typedef struct _DVECTOR {
 #define vec2_equal(v0, v1) ((v0).vx == (v1).vx && (v0).vy == (v1).vy)
 #define vec3_equal(v0, v1) (vec2_equal(v0, v1) && (v0).vz == (v1).vz)
 
-// TODO: Add vec+const variations
-
 // Field operations
 #define _vector_op(a, b, c, op) a = b op c
 #define _vector_iop(a, b, op) a op= b
@@ -527,6 +525,8 @@ void binaryGreedyMesherConstructPlane(Chunk* chunk,
 
 bool chunkBitmapFindUnsetPosition(ChunkBitmap bitmap,
                                   const Chunk* chunk,
+                                  FacesColumns faces_cols,
+                                  FacesColumns faces_cols_opaque,
                                   VECTOR* out_pos) {
     for (u8 y = 0; y < CHUNK_SIZE; y++) {
         for (u8 z = 0; z < CHUNK_SIZE; z++) {
@@ -554,6 +554,15 @@ bool chunkBitmapFindUnsetPosition(ChunkBitmap bitmap,
                             *out_pos = pos;
                             return true;
                         }
+                        // Update masks for BGM
+                        addVoxelToFaceColumns(
+                            faces_cols,
+                            faces_cols_opaque,
+                            block,
+                            x + 1,
+                            y + 1,
+                            z + 1
+                        );
                         chunkBitmapSetBit(bitmap, &pos);
                     } else {
                         const VECTOR pos = vec3_i32(x, y, z);
@@ -565,6 +574,15 @@ bool chunkBitmapFindUnsetPosition(ChunkBitmap bitmap,
                             *out_pos = pos;
                             return true;
                         }
+                        // Update masks for BGM
+                        addVoxelToFaceColumns(
+                            faces_cols,
+                            faces_cols_opaque,
+                            block,
+                            x + 1,
+                            y + 1,
+                            z + 1
+                        );
                         chunkBitmapSetBit(bitmap, &pos);
                     }
                 }
@@ -594,6 +612,15 @@ bool chunkBitmapFindUnsetPosition(ChunkBitmap bitmap,
                     *out_pos = pos;
                     return true;
                 }
+                // Update masks for BGM
+                addVoxelToFaceColumns(
+                    faces_cols,
+                    faces_cols_opaque,
+                    block,
+                    x + 1,
+                    y + 1,
+                    z + 1
+                );
                 chunkBitmapSetBit(bitmap, &pos);
             }
         }
@@ -605,7 +632,6 @@ bool chunkBitmapFindRoot(ChunkBitmap bitmap,
                          const Chunk* chunk,
                          FacesColumns faces_cols,
                          FacesColumns faces_cols_opaque,
-                         FacesColumns col_face_masks,
                          VECTOR* out_pos) {
     for (u8 y = 0; y < CHUNK_SIZE; y++) {
         for (u8 z = 0; z < CHUNK_SIZE; z++) {
@@ -637,8 +663,7 @@ u8 chunkBitmapFillSolidDirection(ChunkBitmap bitmap,
                                  VECTOR pos,
                                  const VECTOR dir,
                                  FacesColumns faces_cols,
-                                 FacesColumns faces_cols_opaque,
-                                 FacesColumns col_face_masks) {
+                                 FacesColumns faces_cols_opaque) {
     u8 processed = 0;
     while (true) {
         pos = vec3_add(pos, dir);
@@ -708,8 +733,7 @@ u8 visitBlock(ChunkBitmap bitmap,
               const VECTOR dir,
               cvector(VECTOR) queue,
               FacesColumns faces_cols,
-              FacesColumns faces_cols_opaque,
-              FacesColumns col_face_masks) {
+              FacesColumns faces_cols_opaque) {
     const VECTOR next_pos = vec3_add(pos, dir);
     const Block* block = chunkGetBlock(chunk, next_pos.vx, next_pos.vy, next_pos.vz);
     if (block == NULL) {
@@ -729,15 +753,13 @@ u8 visitBlock(ChunkBitmap bitmap,
         pos,
         dir,
         faces_cols,
-        faces_cols_opaque,
-        col_face_masks
+        faces_cols_opaque
     );
 }
 
 void chunkVisibilityDfsWalkScan(Chunk* chunk,
                                 FacesColumns faces_cols,
-                                FacesColumns faces_cols_opaque,
-                                FacesColumns col_face_masks) {
+                                FacesColumns faces_cols_opaque) {
     ChunkBitmap bitmap = {0};
     VECTOR root = vec3_i32_all(0);
     if (!chunkBitmapFindRoot(
@@ -745,7 +767,6 @@ void chunkVisibilityDfsWalkScan(Chunk* chunk,
         chunk,
         faces_cols,
         faces_cols_opaque,
-        col_face_masks,
         &root
     )) {
         chunk->visibility = 0;
@@ -790,8 +811,7 @@ void chunkVisibilityDfsWalkScan(Chunk* chunk,
                 vec3_i32(-1, 0 ,0),
                 queue,
                 faces_cols,
-                faces_cols_opaque,
-                col_face_masks
+                faces_cols_opaque
             );
             // Right
             if (pos.vx == CHUNK_SIZE - 1) {
@@ -804,8 +824,7 @@ void chunkVisibilityDfsWalkScan(Chunk* chunk,
                 vec3_i32(+1, 0 ,0),
                 queue,
                 faces_cols,
-                faces_cols_opaque,
-                col_face_masks
+                faces_cols_opaque
             );
             // Front
             if (pos.vz == 0) {
@@ -818,9 +837,7 @@ void chunkVisibilityDfsWalkScan(Chunk* chunk,
                 vec3_i32(0, 0 ,-1),
                 queue,
                 faces_cols,
-                faces_cols_opaque,
-                col_face_masks
-            );
+                faces_cols_opaque            );
             // Back
             if (pos.vz == CHUNK_SIZE - 1) {
                 visible_sides |= 0b000100;
@@ -832,9 +849,7 @@ void chunkVisibilityDfsWalkScan(Chunk* chunk,
                 vec3_i32(0, 0 ,+1),
                 queue,
                 faces_cols,
-                faces_cols_opaque,
-                col_face_masks
-            );
+                faces_cols_opaque            );
             // Down
             if (pos.vy == 0) {
                 visible_sides |= 0b000010;
@@ -846,8 +861,7 @@ void chunkVisibilityDfsWalkScan(Chunk* chunk,
                 vec3_i32(0, -1 ,0),
                 queue,
                 faces_cols,
-                faces_cols_opaque,
-                col_face_masks
+                faces_cols_opaque
             );
             // Up
             if (pos.vy == CHUNK_SIZE - 1) {
@@ -860,13 +874,17 @@ void chunkVisibilityDfsWalkScan(Chunk* chunk,
                 vec3_i32(0, +1 ,0),
                 queue,
                 faces_cols,
-                faces_cols_opaque,
-                col_face_masks
-            );
+                faces_cols_opaque            );
         }
         if (isPowerOf2(visible_sides)) {
             VECTOR pos = vec3_i32_all(0);
-            if (chunkBitmapFindUnsetPosition(bitmap, chunk, &pos)) {
+            if (chunkBitmapFindUnsetPosition(
+                bitmap,
+                chunk,
+                faces_cols,
+                faces_cols_opaque,
+                &pos
+            )) {
                 cvector_push_back(queue, pos);
                 continue;
             }
@@ -884,7 +902,13 @@ void chunkVisibilityDfsWalkScan(Chunk* chunk,
             }
         }
         VECTOR pos = vec3_i32_all(0);
-        if (!chunkBitmapFindUnsetPosition(bitmap, chunk, &pos)) {
+        if (!chunkBitmapFindUnsetPosition(
+            bitmap,
+            chunk,
+            faces_cols,
+            faces_cols_opaque,
+            &pos
+        )) {
             break;
         }
         cvector_push_back(queue, pos);
@@ -901,8 +925,7 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
     chunkVisibilityDfsWalkScan(
         chunk,
         faces_cols,
-        faces_cols_opaque,
-        col_face_masks
+        faces_cols_opaque
     );
     /*for (u32 z = 0; z < CHUNK_SIZE; z++) {*/
     /*    for (u32 x = 0; x < CHUNK_SIZE; x++) {*/
