@@ -727,13 +727,13 @@ INLINE void chunkVisibilitySetBit(ChunkVisibility* vis, const u8 a, const u8 b) 
     *vis |= 0b1 << offset;
 }
 
-u8 visitBlock(ChunkBitmap bitmap,
-              const Chunk* chunk,
-              VECTOR pos,
-              const VECTOR dir,
-              cvector(VECTOR) queue,
-              FacesColumns faces_cols,
-              FacesColumns faces_cols_opaque) {
+INLINE u8 visitBlock(ChunkBitmap bitmap,
+                     const Chunk* chunk,
+                     VECTOR pos,
+                     const VECTOR dir,
+                     cvector(VECTOR) queue,
+                     FacesColumns faces_cols,
+                     FacesColumns faces_cols_opaque) {
     const VECTOR next_pos = vec3_add(pos, dir);
     const Block* block = chunkGetBlock(chunk, next_pos.vx, next_pos.vy, next_pos.vz);
     if (block == NULL) {
