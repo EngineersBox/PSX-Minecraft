@@ -84,6 +84,13 @@ static bool chunkBitmapFindUnsetPosition(ChunkBitmap bitmap,
                                          FacesColumns faces_cols,
                                          FacesColumns faces_cols_opaque,
                                          VECTOR* out_pos) {
+    // This alternates iteration between two corners of the chunk
+    // working inwards. Allows for slightly higher probability of
+    // finding an unset position faster than uni-directional iteration.
+    // If there is an efficient way to iterate over 4 corners in
+    // opposing diagonals, then it would be good to replace this
+    // with that conditional on keeping bit lookups on an X-axis
+    // bitset efficient.
     for (u8 y = 0; y < CHUNK_SIZE; y++) {
         for (u8 z = 0; z < CHUNK_SIZE; z++) {
             const ChunkBitmapBitset x_fwd_bits = bitmap[(y * CHUNK_SIZE) + z];
