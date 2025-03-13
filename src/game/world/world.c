@@ -347,6 +347,12 @@ void worldRender(const World* world,
     //       if there are still bits that are missing traverse to next chunks in the direction
     //       the player is facing and render them. Stop drawing if screen is full and/or there
     //       are no more loaded chunks to traverse to.
+    //
+    // TODO: Refactor to use ChunkVisibility to render based on DFS
+    //       that queries visibility of exiting the current chunk.
+    //       Also need to consider if the chunk is outside the FOV
+    //       angle width-wise and stop searching in that direction if
+    //       so.
     for (i32 x = x_start; x <= x_end; x++) {
         for (i32 z = z_start; z <= z_end; z++) {
             for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
