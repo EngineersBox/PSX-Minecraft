@@ -436,6 +436,9 @@ void chunkVisibilityDfsWalkScan(Chunk* chunk,
             );
         }
         if (isPowerOf2(visible_sides)) {
+            // Power of 2 implies a single bit is set,
+            // thus only one side in the visibility set
+            // so that side cannot see another.
             VECTOR pos = vec3_i32_all(0);
             if (chunkBitmapFindUnsetPosition(
                 bitmap,
