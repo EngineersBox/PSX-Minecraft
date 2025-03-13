@@ -7,6 +7,7 @@
 #include "../../../structure/hashmap.h"
 #include "chunk_mesh.h"
 #include "chunk_defines.h"
+#include "chunk_visibility.h"
 #include "../position.h"
 #include "../../blocks/blocks.h"
 #include "../../../lighting/lightmap.h"
@@ -54,6 +55,7 @@ typedef struct Chunk {
     bool lightmap_updated: 1;
     bool mesh_updated: 1;
     u8 _pad: 6;
+    ChunkVisibility visibility;
     VECTOR position;
     ChunkMesh mesh;
     IBlock* blocks[CHUNK_DATA_SIZE];
