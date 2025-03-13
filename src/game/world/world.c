@@ -338,7 +338,6 @@ void worldRender(const World* world,
         &player_world_pos,
         CHUNK_SIZE
     ).chunk;
-    // PERF: Revamp with BFS for visible chunks occlusion (use frustum culling too?)
     const i32 x_start = world->centre.vx - LOADED_CHUNKS_RADIUS;
     const i32 x_end = world->centre.vx + LOADED_CHUNKS_RADIUS;
     const i32 z_start = world->centre.vz - LOADED_CHUNKS_RADIUS;
@@ -348,7 +347,7 @@ void worldRender(const World* world,
     //       the player is facing and render them. Stop drawing if screen is full and/or there
     //       are no more loaded chunks to traverse to.
     //
-    // TODO: Refactor to use ChunkVisibility to render based on DFS
+    // PERF: Refactor to use ChunkVisibility to render based on DFS
     //       that queries visibility of exiting the current chunk.
     //       Also need to consider if the chunk is outside the FOV
     //       angle width-wise and stop searching in that direction if
