@@ -54,7 +54,7 @@ typedef struct Chunk {
     bool is_top: 1;
     bool lightmap_updated: 1;
     bool mesh_updated: 1;
-    u8 _pad: 6;
+    u8 _pad: 5;
     ChunkVisibility visibility;
     VECTOR position;
     ChunkMesh mesh;
