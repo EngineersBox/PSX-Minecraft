@@ -79,11 +79,11 @@ INLINE void addVoxelToFaceColumns(FacesColumns axis_cols,
 #undef bitsetAt
 }
 
-bool chunkBitmapFindUnsetPosition(ChunkBitmap bitmap,
-                                  const Chunk* chunk,
-                                  FacesColumns faces_cols,
-                                  FacesColumns faces_cols_opaque,
-                                  VECTOR* out_pos) {
+static bool chunkBitmapFindUnsetPosition(ChunkBitmap bitmap,
+                                         const Chunk* chunk,
+                                         FacesColumns faces_cols,
+                                         FacesColumns faces_cols_opaque,
+                                         VECTOR* out_pos) {
     for (u8 y = 0; y < CHUNK_SIZE; y++) {
         for (u8 z = 0; z < CHUNK_SIZE; z++) {
             const ChunkBitmapBitset x_fwd_bits = bitmap[(y * CHUNK_SIZE) + z];
@@ -259,14 +259,14 @@ static u8 chunkBitmapFillSolidDirection(ChunkBitmap bitmap,
     return processed;
 }
 
-INLINE u8 visitBlock(ChunkBitmap bitmap,
-                     const Chunk* chunk,
-                     const Block* current_block,
-                     VECTOR pos,
-                     const VECTOR normal,
-                     cvector(VECTOR) queue,
-                     FacesColumns faces_cols,
-                     FacesColumns faces_cols_opaque) {
+INLINE static u8 visitBlock(ChunkBitmap bitmap,
+                            const Chunk* chunk,
+                            const Block* current_block,
+                            VECTOR pos,
+                            const VECTOR normal,
+                            cvector(VECTOR) queue,
+                            FacesColumns faces_cols,
+                            FacesColumns faces_cols_opaque) {
     const VECTOR next_pos = vec3_add(pos, normal);
     const IBlock* iblock = chunkGetBlock(chunk, next_pos.vx, next_pos.vy, next_pos.vz);
     if (iblock == NULL) {
@@ -306,9 +306,9 @@ INLINE u8 visitBlock(ChunkBitmap bitmap,
     return 0;
 }
 
-void chunkVisibilityDfsWalkScan(Chunk* chunk,
-                                FacesColumns faces_cols,
-                                FacesColumns faces_cols_opaque) {
+static void chunkVisibilityDfsWalkScan(Chunk* chunk,
+                                       FacesColumns faces_cols,
+                                       FacesColumns faces_cols_opaque) {
     ChunkBitmap bitmap = {0};
     VECTOR root = vec3_i32_all(0);
     if (!chunkBitmapFindRoot(
