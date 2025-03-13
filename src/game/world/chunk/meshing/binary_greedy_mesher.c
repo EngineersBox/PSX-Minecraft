@@ -105,8 +105,9 @@ bool chunkBitmapFindUnsetPosition(ChunkBitmap bitmap,
                         if ((x_bwd_bits & (0b1 << x)) == 1) {
                             continue;
                         }
-                        const Block* block = chunkGetBlock(chunk, x, y, z);
-                        if (block->transparent) {
+                        const IBlock* iblock = chunkGetBlock(chunk, x, y, z);
+                        const Block* block = VCAST_PTR(Block*, iblock);
+                        if (blockGetOpacityBitset(block->id, block->orientation) != 0b111111) {
                             *out_pos = pos;
                             return true;
                         }
@@ -114,7 +115,7 @@ bool chunkBitmapFindUnsetPosition(ChunkBitmap bitmap,
                         addVoxelToFaceColumns(
                             faces_cols,
                             faces_cols_opaque,
-                            block,
+                            iblock,
                             x + 1,
                             y + 1,
                             z + 1
@@ -125,8 +126,9 @@ bool chunkBitmapFindUnsetPosition(ChunkBitmap bitmap,
                         if ((x_fwd_bits & (0b1 << x)) == 1) {
                             continue;
                         }
-                        const Block* block = chunkGetBlock(chunk, x, y, z);
-                        if (block->transparent) {
+                        const IBlock* iblock = chunkGetBlock(chunk, x, y, z);
+                        const Block* block = VCAST_PTR(Block*, iblock);
+                        if (blockGetOpacityBitset(block->id, block->orientation) != 0b111111) {
                             *out_pos = pos;
                             return true;
                         }
@@ -134,7 +136,7 @@ bool chunkBitmapFindUnsetPosition(ChunkBitmap bitmap,
                         addVoxelToFaceColumns(
                             faces_cols,
                             faces_cols_opaque,
-                            block,
+                            iblock,
                             x + 1,
                             y + 1,
                             z + 1
@@ -163,8 +165,9 @@ bool chunkBitmapFindUnsetPosition(ChunkBitmap bitmap,
                 if ((x_bits & (0b1 << x)) == 1) {
                     continue;
                 }
-                const Block* block = chunkGetBlock(chunk, x, y, z);
-                if (block->transparent) {
+                const IBlock* iblock = chunkGetBlock(chunk, x, y, z);
+                const Block* block = VCAST_PTR(Block*, iblock);
+                if (blockGetOpacityBitset(block->id, block->orientation) != 0b111111) {
                     *out_pos = pos;
                     return true;
                 }
@@ -172,7 +175,7 @@ bool chunkBitmapFindUnsetPosition(ChunkBitmap bitmap,
                 addVoxelToFaceColumns(
                     faces_cols,
                     faces_cols_opaque,
-                    block,
+                    iblock,
                     x + 1,
                     y + 1,
                     z + 1
