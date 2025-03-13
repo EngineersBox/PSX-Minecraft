@@ -259,14 +259,14 @@ static u8 chunkBitmapFillSolidDirection(ChunkBitmap bitmap,
     return processed;
 }
 
-INLINE static u8 visitBlock(ChunkBitmap bitmap,
-                            const Chunk* chunk,
-                            const Block* current_block,
-                            VECTOR pos,
-                            const VECTOR normal,
-                            cvector(VECTOR) queue,
-                            FacesColumns faces_cols,
-                            FacesColumns faces_cols_opaque) {
+static u8 visitBlock(ChunkBitmap bitmap,
+                     const Chunk* chunk,
+                     const Block* current_block,
+                     VECTOR pos,
+                     const VECTOR normal,
+                     cvector(VECTOR) queue,
+                     FacesColumns faces_cols,
+                     FacesColumns faces_cols_opaque) {
     const VECTOR next_pos = vec3_add(pos, normal);
     const IBlock* iblock = chunkGetBlock(chunk, next_pos.vx, next_pos.vy, next_pos.vz);
     if (iblock == NULL) {
