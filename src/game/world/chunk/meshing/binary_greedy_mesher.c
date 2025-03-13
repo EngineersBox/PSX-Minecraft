@@ -89,7 +89,7 @@ static bool chunkBitmapFindUnsetPosition(ChunkBitmap bitmap,
     // finding an unset position faster than uni-directional iteration.
     // If there is an efficient way to iterate over 4 corners in
     // opposing diagonals, then it would be good to replace this
-    // with that conditional on keeping bit lookups on an X-axis
+    // with that, conditional on keeping bit lookups on an X-axis
     // bitset efficient.
     for (u8 y = 0; y < CHUNK_SIZE; y++) {
         for (u8 z = 0; z < CHUNK_SIZE; z++) {
