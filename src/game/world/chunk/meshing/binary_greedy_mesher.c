@@ -327,8 +327,7 @@ void chunkVisibilityDfsWalkScan(Chunk* chunk,
     chunkBitmapSetBit(bitmap, &root);
     // We mark every solid block until the first free block
     // in the bitmap, so we start with already having processed
-    // those. This accounts for that, minus an extra 1 for the
-    // queued position
+    // those.
     u16 total_blocks_processed = (root.vy * CHUNK_SIZE * CHUNK_SIZE) + (root.vz * CHUNK_SIZE) + root.vx;
     while (total_blocks_processed < CHUNK_SIZE * CHUNK_SIZE  * CHUNK_SIZE) {
         u8 visible_sides = 0b000000;
