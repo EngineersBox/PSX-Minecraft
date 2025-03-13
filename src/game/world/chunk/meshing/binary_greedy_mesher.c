@@ -33,6 +33,19 @@ static const u32 AXIAL_EDGES[AXIAL_EDGES_COUNT] = { 0, CHUNK_SIZE_PADDED - 1 };
 
 typedef u32 FacesColumns[FACE_DIRECTION_COUNT][CHUNK_SIZE_PADDED][CHUNK_SIZE_PADDED];
 
+#if defined(CHUNK_SIZE) && CHUNK_SIZE > 0 && CHUNK_SIZE <= 32 && _isPowerOf2(CHUNK_SIZE)
+    #define bitmapType(size, name) \
+        typedef GLUE(u, size) ChunkBitmapBitset; \
+        typedef ChunkBitmapBitset name[size * size]
+    bitmapType(CHUNK_SIZE, ChunkBitmap);
+    #undef bitmapType
+#else
+#error CHUNK_SIZE must be in the interval (0, 32] and be a power of 2
+#endif
+
+#define chunkBitmapGetBit(bitmap, pos) (((bitmap)[((pos)->vy * CHUNK_SIZE) + (pos)->vz] >> (pos)->vx) & 0b1)
+#define chunkBitmapSetBit(bitmap, pos) ((bitmap)[((pos)->vy * CHUNK_SIZE) + (pos)->vz] |= 1 << (pos)->vx)
+
 INLINE void addVoxelToFaceColumns(FacesColumns axis_cols,
                                   FacesColumns axis_cols_opaque,
                                   const IBlock* iblock,
@@ -66,14 +79,376 @@ INLINE void addVoxelToFaceColumns(FacesColumns axis_cols,
 #undef bitsetAt
 }
 
+bool chunkBitmapFindUnsetPosition(ChunkBitmap bitmap,
+                                  const Chunk* chunk,
+                                  FacesColumns faces_cols,
+                                  FacesColumns faces_cols_opaque,
+                                  VECTOR* out_pos) {
+    for (u8 y = 0; y < CHUNK_SIZE; y++) {
+        for (u8 z = 0; z < CHUNK_SIZE; z++) {
+            const ChunkBitmapBitset x_fwd_bits = bitmap[(y * CHUNK_SIZE) + z];
+            const bool fwd_some_set = x_fwd_bits != (CHUNK_SIZE * CHUNK_SIZE) - 1;
+            const ChunkBitmapBitset x_bwd_bits = bitmap[((CHUNK_SIZE - 1 - y) * CHUNK_SIZE) + (CHUNK_SIZE - 1 -z)];
+            const bool bwd_some_set = x_bwd_bits != (CHUNK_SIZE * CHUNK_SIZE) - 1;
+            if (!fwd_some_set && !bwd_some_set) {
+                continue;
+            }
+            const u8 i = y + z;
+            if (fwd_some_set && bwd_some_set) {
+                for (u8 x = 0; x < CHUNK_SIZE; x++) {
+                    if (i + x % 2 != 0) {
+                        const VECTOR pos = vec3_i32(
+                            CHUNK_SIZE - 1 - x,
+                            CHUNK_SIZE - 1 - y,
+                            CHUNK_SIZE - 1 - z
+                        );
+                        if ((x_bwd_bits & (0b1 << x)) == 1) {
+                            continue;
+                        }
+                        const Block* block = chunkGetBlock(chunk, x, y, z);
+                        if (block->transparent) {
+                            *out_pos = pos;
+                            return true;
+                        }
+                        // Update masks for BGM
+                        addVoxelToFaceColumns(
+                            faces_cols,
+                            faces_cols_opaque,
+                            block,
+                            x + 1,
+                            y + 1,
+                            z + 1
+                        );
+                        chunkBitmapSetBit(bitmap, &pos);
+                    } else {
+                        const VECTOR pos = vec3_i32(x, y, z);
+                        if ((x_fwd_bits & (0b1 << x)) == 1) {
+                            continue;
+                        }
+                        const Block* block = chunkGetBlock(chunk, x, y, z);
+                        if (block->transparent) {
+                            *out_pos = pos;
+                            return true;
+                        }
+                        // Update masks for BGM
+                        addVoxelToFaceColumns(
+                            faces_cols,
+                            faces_cols_opaque,
+                            block,
+                            x + 1,
+                            y + 1,
+                            z + 1
+                        );
+                        chunkBitmapSetBit(bitmap, &pos);
+                    }
+                }
+            }
+            u8 x_bits;
+            u8 start;
+            u8 end;
+            int increment;
+            if (fwd_some_set) {
+                x_bits = x_fwd_bits;
+                start = 0;
+                end = CHUNK_SIZE - 1;
+                increment = 1;
+            } else {
+                x_bits = x_bwd_bits;
+                start = CHUNK_SIZE - 1;
+                end = 0;
+                increment = -1;
+            }
+            for (u8 x = start; x != end; x += increment) {
+                const VECTOR pos = vec3_i32(x, y, z);
+                if ((x_bits & (0b1 << x)) == 1) {
+                    continue;
+                }
+                const Block* block = chunkGetBlock(chunk, x, y, z);
+                if (block->transparent) {
+                    *out_pos = pos;
+                    return true;
+                }
+                // Update masks for BGM
+                addVoxelToFaceColumns(
+                    faces_cols,
+                    faces_cols_opaque,
+                    block,
+                    x + 1,
+                    y + 1,
+                    z + 1
+                );
+                chunkBitmapSetBit(bitmap, &pos);
+            }
+        }
+    }
+    return false;
+}
+
+bool chunkBitmapFindRoot(ChunkBitmap bitmap,
+                         const Chunk* chunk,
+                         FacesColumns faces_cols,
+                         FacesColumns faces_cols_opaque,
+                         VECTOR* out_pos) {
+    for (u8 y = 0; y < CHUNK_SIZE; y++) {
+        for (u8 z = 0; z < CHUNK_SIZE; z++) {
+            for (u8 x = 0; x < CHUNK_SIZE; x++) {
+                const Block* block = chunkGetBlock(chunk, x, y, z);
+                const VECTOR pos = vec3_i32(x, y, z);
+                if (block->transparent) {
+                    *out_pos = pos;
+                    return true;
+                }
+                // Update masks for BGM
+                addVoxelToFaceColumns(
+                    faces_cols,
+                    faces_cols_opaque,
+                    block,
+                    x + 1,
+                    y + 1,
+                    z + 1
+                );
+                chunkBitmapSetBit(bitmap, &pos);
+            }
+        }
+    }
+    return false;
+}
+
+u8 chunkBitmapFillSolidDirection(ChunkBitmap bitmap,
+                                 const Chunk* chunk,
+                                 VECTOR pos,
+                                 const VECTOR dir,
+                                 FacesColumns faces_cols,
+                                 FacesColumns faces_cols_opaque) {
+    u8 processed = 0;
+    while (true) {
+        pos = vec3_add(pos, dir);
+        if (chunkBitmapGetBit(bitmap, &pos) == 1) {
+            // Already visited
+            break;
+        }
+        const Block* block = chunkGetBlock(chunk, pos.vx, pos.vy, pos.vz);
+        // Update masks for BGM
+        addVoxelToFaceColumns(
+            faces_cols,
+            faces_cols_opaque,
+            block,
+            pos.vx + 1,
+            pos.vy + 1,
+            pos.vz + 1
+        );
+        if (!block->transparent) {
+            // Not solid
+            break;
+        }
+        chunkBitmapSetBit(bitmap, &pos);
+        processed++;
+    }
+    return processed;
+}
+
+INLINE u8 visitBlock(ChunkBitmap bitmap,
+                     const Chunk* chunk,
+                     VECTOR pos,
+                     const VECTOR dir,
+                     cvector(VECTOR) queue,
+                     FacesColumns faces_cols,
+                     FacesColumns faces_cols_opaque) {
+    const VECTOR next_pos = vec3_add(pos, dir);
+    const Block* block = chunkGetBlock(chunk, next_pos.vx, next_pos.vy, next_pos.vz);
+    if (block == NULL) {
+        // Outside the chunk
+        return 0;
+    } else if (chunkBitmapGetBit(bitmap, &next_pos)) {
+        // Already visited
+        return 0;
+    } else if (block->transparent) {
+        cvector_push_back(queue, next_pos);
+        chunkBitmapSetBit(bitmap, &next_pos);
+        return 0;
+    }
+    return chunkBitmapFillSolidDirection(
+        bitmap,
+        chunk,
+        pos,
+        dir,
+        faces_cols,
+        faces_cols_opaque
+    );
+}
+
+void chunkVisibilityDfsWalkScan(Chunk* chunk,
+                                FacesColumns faces_cols,
+                                FacesColumns faces_cols_opaque) {
+    ChunkBitmap bitmap = {0};
+    VECTOR root = vec3_i32_all(0);
+    if (!chunkBitmapFindRoot(
+        bitmap,
+        chunk,
+        faces_cols,
+        faces_cols_opaque,
+        &root
+    )) {
+        chunk->visibility = 0;
+        return;
+    }
+    cvector(VECTOR) queue = {0};
+    cvector_init(queue, 0, NULL);
+    cvector_push_back(queue, root);
+    chunkBitmapSetBit(bitmap, &root);
+    // We mark every solid block until the first free block
+    // in the bitmap, so we start with already having processed
+    // those. This accounts for that, minus an extra 1 for the
+    // queued position
+    u16 total_blocks_processed = (root.vy * CHUNK_SIZE * CHUNK_SIZE) + (root.vz * CHUNK_SIZE) + root.vx;
+    while (total_blocks_processed < CHUNK_SIZE * CHUNK_SIZE  * CHUNK_SIZE) {
+        u8 visible_sides = 0b000000;
+        while (cvector_size(queue) > 0) {
+            // This makes this DFS, we save on needing to
+            // do a swap with the last element before popping
+            // for an efficient pseudo-BFS. So might as well
+            // just do DFS instead.
+            const VECTOR pos = queue[cvector_size(queue) - 1];
+            cvector_pop_back(queue);
+            total_blocks_processed++;
+            // Update masks for BGM
+            addVoxelToFaceColumns(
+                faces_cols,
+                faces_cols_opaque,
+                chunkGetBlock(chunk, pos.vx, pos.vy, pos.vz),
+                pos.vx + 1,
+                pos.vy + 1,
+                pos.vz + 1
+            );
+            // Left
+            if (pos.vx == 0) {
+                visible_sides |= 0b100000;
+            }
+            total_blocks_processed += visitBlock(
+                bitmap,
+                chunk,
+                pos,
+                vec3_i32(-1, 0 ,0),
+                queue,
+                faces_cols,
+                faces_cols_opaque
+            );
+            // Right
+            if (pos.vx == CHUNK_SIZE - 1) {
+                visible_sides |= 0b010000;
+            }
+            total_blocks_processed += visitBlock(
+                bitmap,
+                chunk,
+                pos,
+                vec3_i32(+1, 0 ,0),
+                queue,
+                faces_cols,
+                faces_cols_opaque
+            );
+            // Front
+            if (pos.vz == 0) {
+                visible_sides |= 0b001000;
+            }
+            total_blocks_processed += visitBlock(
+                bitmap,
+                chunk,
+                pos,
+                vec3_i32(0, 0 ,-1),
+                queue,
+                faces_cols,
+                faces_cols_opaque            );
+            // Back
+            if (pos.vz == CHUNK_SIZE - 1) {
+                visible_sides |= 0b000100;
+            }
+            total_blocks_processed += visitBlock(
+                bitmap,
+                chunk,
+                pos,
+                vec3_i32(0, 0 ,+1),
+                queue,
+                faces_cols,
+                faces_cols_opaque            );
+            // Down
+            if (pos.vy == 0) {
+                visible_sides |= 0b000010;
+            }
+            total_blocks_processed += visitBlock(
+                bitmap,
+                chunk,
+                pos,
+                vec3_i32(0, -1 ,0),
+                queue,
+                faces_cols,
+                faces_cols_opaque
+            );
+            // Up
+            if (pos.vy == CHUNK_SIZE - 1) {
+                visible_sides |= 0b000001;
+            }
+            total_blocks_processed += visitBlock(
+                bitmap,
+                chunk,
+                pos,
+                vec3_i32(0, +1 ,0),
+                queue,
+                faces_cols,
+                faces_cols_opaque            );
+        }
+        if (isPowerOf2(visible_sides)) {
+            VECTOR pos = vec3_i32_all(0);
+            if (chunkBitmapFindUnsetPosition(
+                bitmap,
+                chunk,
+                faces_cols,
+                faces_cols_opaque,
+                &pos
+            )) {
+                cvector_push_back(queue, pos);
+                continue;
+            }
+            break;
+        }
+        for (u8 i = 0; i < 6; i++) {
+            if ((visible_sides & (0b1 << i)) == 0) {
+                continue;
+            }
+            for (u8 j = i + 1; j < 6; j++) {
+                if ((visible_sides & (0b1 << j)) == 0) {
+                    continue;
+                }
+                chunkVisibilitySetBit(&chunk->visibility, i, j);
+            }
+        }
+        VECTOR pos = vec3_i32_all(0);
+        if (!chunkBitmapFindUnsetPosition(
+            bitmap,
+            chunk,
+            faces_cols,
+            faces_cols_opaque,
+            &pos
+        )) {
+            break;
+        }
+        cvector_push_back(queue, pos);
+    }
+    cvector_free(queue);
+}
+
 void binaryGreedyMesherBuildMesh(Chunk* chunk, const BreakingState* breaking_state) {
     FacesColumns faces_cols = {0};
     // See binary_greedy_mesher_transparency.md
     FacesColumns faces_cols_opaque = {0};
     FacesColumns col_face_masks = {0};
-    // Inner chunk blocks
     // Duplication here is just to optimise away lots of if statements
     // when this chunk has no breaking state available as a paramater
+    chunkVisibilityDfsWalkScan(
+        chunk,
+        faces_cols,
+        faces_cols_opaque
+    );
+    // Inner chunk blocks
     for (u32 z = 0; z < CHUNK_SIZE; z++) {
         for (u32 x = 0; x < CHUNK_SIZE; x++) {
             for (u32 y = 0; y < CHUNK_SIZE; y++) {
@@ -257,7 +632,7 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk, const BreakingState* breaking_sta
                     if (current_block == NULL) {
                         errorAbort(
                             "[BINARY GREEDY MESHER] Null block returned while constructing mask [Face: %d] [Chunk: " VEC_PATTERN "] [Block: " VEC_PATTERN "]\n",
-                            face,
+face,
                             VEC_LAYOUT(chunk->position),
                             VEC_LAYOUT(chunk_block_position.block)
                         );
