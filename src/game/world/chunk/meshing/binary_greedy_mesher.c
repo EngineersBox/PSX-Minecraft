@@ -217,7 +217,6 @@ static bool chunkBitmapFindRoot(ChunkBitmap bitmap,
 
 static u8 chunkBitmapFillSolidDirection(ChunkBitmap bitmap,
                                         const Chunk* chunk,
-                                        Block const* current_block,
                                         VECTOR pos,
                                         const VECTOR normal,
                                         const VECTOR opposing_normal,
@@ -249,7 +248,6 @@ static u8 chunkBitmapFillSolidDirection(ChunkBitmap bitmap,
             && blockIsFaceOpaque(block, opposing_face_direction)) {
             chunkBitmapSetBit(bitmap, &pos);
             processed++;
-            current_block = block;
             continue;
         }
         // Not solid
@@ -291,7 +289,6 @@ INLINE u8 visitBlock(ChunkBitmap bitmap,
         return chunkBitmapFillSolidDirection(
             bitmap,
             chunk,
-            block,
             pos,
             normal,
             opposing_normal,
