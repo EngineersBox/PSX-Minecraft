@@ -481,8 +481,6 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk, const BreakingState* breaking_sta
     // See binary_greedy_mesher_transparency.md
     FacesColumns faces_cols_opaque = {0};
     FacesColumns col_face_masks = {0};
-    // Duplication here is just to optimise away lots of if statements
-    // when this chunk has no breaking state available as a paramater
     chunkVisibilityDfsWalkScan(
         chunk,
         faces_cols,
