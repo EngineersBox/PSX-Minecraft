@@ -358,6 +358,7 @@ void chunkVisibilityDfsWalkScan(Chunk* chunk,
             total_blocks_processed += visitBlock(
                 bitmap,
                 chunk,
+                block,
                 pos,
                 vec3_i32(-1, 0 ,0),
                 queue,
@@ -371,6 +372,7 @@ void chunkVisibilityDfsWalkScan(Chunk* chunk,
             total_blocks_processed += visitBlock(
                 bitmap,
                 chunk,
+                block,
                 pos,
                 vec3_i32(+1, 0 ,0),
                 queue,
@@ -384,11 +386,13 @@ void chunkVisibilityDfsWalkScan(Chunk* chunk,
             total_blocks_processed += visitBlock(
                 bitmap,
                 chunk,
+                block,
                 pos,
                 vec3_i32(0, 0 ,-1),
                 queue,
                 faces_cols,
-                faces_cols_opaque            );
+                faces_cols_opaque
+            );
             // Back
             if (pos.vz == CHUNK_SIZE - 1) {
                 visible_sides |= 0b000100;
@@ -396,11 +400,13 @@ void chunkVisibilityDfsWalkScan(Chunk* chunk,
             total_blocks_processed += visitBlock(
                 bitmap,
                 chunk,
+                block,
                 pos,
                 vec3_i32(0, 0 ,+1),
                 queue,
                 faces_cols,
-                faces_cols_opaque            );
+                faces_cols_opaque
+            );
             // Down
             if (pos.vy == 0) {
                 visible_sides |= 0b000010;
@@ -408,6 +414,7 @@ void chunkVisibilityDfsWalkScan(Chunk* chunk,
             total_blocks_processed += visitBlock(
                 bitmap,
                 chunk,
+                block,
                 pos,
                 vec3_i32(0, -1 ,0),
                 queue,
@@ -421,11 +428,13 @@ void chunkVisibilityDfsWalkScan(Chunk* chunk,
             total_blocks_processed += visitBlock(
                 bitmap,
                 chunk,
+                block,
                 pos,
                 vec3_i32(0, +1 ,0),
                 queue,
                 faces_cols,
-                faces_cols_opaque            );
+                faces_cols_opaque
+            );
         }
         if (isPowerOf2(visible_sides)) {
             VECTOR pos = vec3_i32_all(0);
