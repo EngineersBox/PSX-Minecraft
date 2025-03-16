@@ -428,6 +428,9 @@ static void chunkVisibilityDfsWalkScan(Chunk* chunk,
     cvector_free(queue);
 }
 
+#undef chunkBitmapGetBit
+#undef chunkBitmapSetBit
+
 void binaryGreedyMesherBuildMesh(Chunk* chunk, const BreakingState* breaking_state) {
     FacesColumns faces_cols = {0};
     // See binary_greedy_mesher_transparency.md
