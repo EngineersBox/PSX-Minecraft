@@ -357,90 +357,33 @@ static void chunkVisibilityDfsWalkScan(Chunk* chunk,
             );
             const IBlock* iblock = chunkGetBlock(chunk, pos.vx, pos.vy, pos.vz);
             const Block* block = VCAST_PTR(Block*, iblock);
+            #define _visitBlock(condition, bits, normal) \
+                if (condition) { \
+                    visible_sides |= bits; \
+                } \
+                total_blocks_processed += visitBlock( \
+                    bitmap, \
+                    chunk, \
+                    block, \
+                    pos, \
+                    normal, \
+                    queue, \
+                    faces_cols, \
+                    faces_cols_opaque \
+                )
             // Left
-            if (pos.vx == 0) {
-                visible_sides |= 0b100000;
-            }
-            total_blocks_processed += visitBlock(
-                bitmap,
-                chunk,
-                block,
-                pos,
-                vec3_i32(-1, 0 ,0),
-                queue,
-                faces_cols,
-                faces_cols_opaque
-            );
+            _visitBlock(pos.vx == 0, 0b100000, vec3_i32(-1, 0, 0));
             // Right
-            if (pos.vx == CHUNK_SIZE - 1) {
-                visible_sides |= 0b010000;
-            }
-            total_blocks_processed += visitBlock(
-                bitmap,
-                chunk,
-                block,
-                pos,
-                vec3_i32(+1, 0 ,0),
-                queue,
-                faces_cols,
-                faces_cols_opaque
-            );
+            _visitBlock(pos.vx == CHUNK_SIZE - 1, 0b010000, vec3_i32(1, 0, 0));
             // Front
-            if (pos.vz == 0) {
-                visible_sides |= 0b001000;
-            }
-            total_blocks_processed += visitBlock(
-                bitmap,
-                chunk,
-                block,
-                pos,
-                vec3_i32(0, 0 ,-1),
-                queue,
-                faces_cols,
-                faces_cols_opaque
-            );
+            _visitBlock(pos.vz == 0, 0b001000, vec3_i32(0, 0, -1));
             // Back
-            if (pos.vz == CHUNK_SIZE - 1) {
-                visible_sides |= 0b000100;
-            }
-            total_blocks_processed += visitBlock(
-                bitmap,
-                chunk,
-                block,
-                pos,
-                vec3_i32(0, 0 ,+1),
-                queue,
-                faces_cols,
-                faces_cols_opaque
-            );
+            _visitBlock(pos.vz == CHUNK_SIZE - 1, 0b000100, vec3_i32(0, 0, 1));
             // Down
-            if (pos.vy == 0) {
-                visible_sides |= 0b000010;
-            }
-            total_blocks_processed += visitBlock(
-                bitmap,
-                chunk,
-                block,
-                pos,
-                vec3_i32(0, -1 ,0),
-                queue,
-                faces_cols,
-                faces_cols_opaque
-            );
+            _visitBlock(pos.vy == 0, 0b000010, vec3_i32(0, -1, 0));
             // Up
-            if (pos.vy == CHUNK_SIZE - 1) {
-                visible_sides |= 0b000001;
-            }
-            total_blocks_processed += visitBlock(
-                bitmap,
-                chunk,
-                block,
-                pos,
-                vec3_i32(0, +1 ,0),
-                queue,
-                faces_cols,
-                faces_cols_opaque
-            );
+            _visitBlock(pos.vy == CHUNK_SIZE - 1, 0b000001, vec3_i32(0, 1, 0));
+            #undef _visitBlock
         }
         if (isPowerOf2(visible_sides)) {
             // Power of 2 implies a single bit is set,
