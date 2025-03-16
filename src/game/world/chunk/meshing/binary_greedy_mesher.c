@@ -117,67 +117,52 @@ static bool chunkBitmapFindUnsetPosition(ChunkBitmap bitmap,
                         pos = vec3_i32(x, y, z);
                         x_bitset = x_fwd_bits;
                     }
-                    if ((x_bitset & (0b1 << x)) == 1) {
-                        continue;
-                    }
-                    const IBlock* iblock = chunkGetBlockVec(chunk, &pos);
-                    const Block* block = VCAST_PTR(Block*, iblock);
-                    if (blockGetOpacityBitset(block->id, block->orientation) != 0b111111) {
-                        *out_pos = pos;
-                        return true;
-                    }
-                    // Update masks for BGM
-                    addVoxelToFaceColumns(
-                        faces_cols,
-                        faces_cols_opaque,
-                        iblock,
-                        pos.vx + 1,
-                        pos.vy + 1,
-                        pos.vz + 1
-                    );
-                    chunkBitmapSetBit(bitmap, &pos);
+                #define updateBitmap(x_bitset, _x, _y, _z) \
+                    if (((x_bitset) & (0b1 << x)) == 1) { \
+                        continue; \
+                    } \
+                    const IBlock* iblock = chunkGetBlockVec(chunk, &pos); \
+                    const Block* block = VCAST_PTR(Block*, iblock); \
+                    if (blockGetOpacityBitset(block->id, block->orientation) != 0b111111) { \
+                        *out_pos = pos; \
+                        return true; \
+                    } \
+                    /* Update masks for BGM */ \
+                    addVoxelToFaceColumns( \
+                        faces_cols, \
+                        faces_cols_opaque, \
+                        iblock, \
+                        (_x) + 1, \
+                        (_y) + 1, \
+                        (_z) + 1 \
+                    ); \
+                    chunkBitmapSetBit(bitmap, &pos)
+                    updateBitmap(x_bitset, pos.vx, pos.vy, pos.vz);
                 }
             }
-            u8 x_bits;
+            u8 x_bitset;
             u8 start;
             u8 end;
             int increment;
             if (fwd_some_set) {
-                x_bits = x_fwd_bits;
+                x_bitset = x_fwd_bits;
                 start = 0;
                 end = CHUNK_SIZE - 1;
                 increment = 1;
             } else {
-                x_bits = x_bwd_bits;
+                x_bitset = x_bwd_bits;
                 start = CHUNK_SIZE - 1;
                 end = 0;
                 increment = -1;
             }
             for (u8 x = start; x != end; x += increment) {
                 const VECTOR pos = vec3_i32(x, y, z);
-                if ((x_bits & (0b1 << x)) == 1) {
-                    continue;
-                }
-                const IBlock* iblock = chunkGetBlockVec(chunk, &pos);
-                const Block* block = VCAST_PTR(Block*, iblock);
-                if (blockGetOpacityBitset(block->id, block->orientation) != 0b111111) {
-                    *out_pos = pos;
-                    return true;
-                }
-                // Update masks for BGM
-                addVoxelToFaceColumns(
-                    faces_cols,
-                    faces_cols_opaque,
-                    iblock,
-                    x + 1,
-                    y + 1,
-                    z + 1
-                );
-                chunkBitmapSetBit(bitmap, &pos);
+                updateBitmap(x_bitset, x, y, z);
             }
         }
     }
     return false;
+    #undef updateBitmap
 }
 
 static bool chunkBitmapFindRoot(ChunkBitmap bitmap,
