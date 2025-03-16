@@ -19,6 +19,7 @@
 FWD_DECL typedef struct World World;
 FWD_DECL IBlock* worldGetBlock(const World* world, const VECTOR* position);
 FWD_DECL IBlock* worldGetChunkBlock(const World* world, const ChunkBlockPosition* position);
+FWD_DECL IBlock* chunkGetBlockVec(const Chunk* chunk, const VECTOR* position);
 FWD_DECL IBlock* chunkGetBlock(const Chunk* chunk, i32 x, i32 y, i32 z);
 FWD_DECL void chunkSetLightValue(Chunk* chunk,
                                  const VECTOR* position,
@@ -112,7 +113,7 @@ static bool chunkBitmapFindUnsetPosition(ChunkBitmap bitmap,
                         if ((x_bwd_bits & (0b1 << x)) == 1) {
                             continue;
                         }
-                        const IBlock* iblock = chunkGetBlock(chunk, x, y, z);
+                        const IBlock* iblock = chunkGetBlockVec(chunk, &pos);
                         const Block* block = VCAST_PTR(Block*, iblock);
                         if (blockGetOpacityBitset(block->id, block->orientation) != 0b111111) {
                             *out_pos = pos;
@@ -123,9 +124,9 @@ static bool chunkBitmapFindUnsetPosition(ChunkBitmap bitmap,
                             faces_cols,
                             faces_cols_opaque,
                             iblock,
-                            x + 1,
-                            y + 1,
-                            z + 1
+                            CHUNK_SIZE - x,
+                            CHUNK_SIZE - y,
+                            CHUNK_SIZE - z
                         );
                         chunkBitmapSetBit(bitmap, &pos);
                     } else {
