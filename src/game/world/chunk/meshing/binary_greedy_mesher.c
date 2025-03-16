@@ -47,12 +47,12 @@ typedef u32 FacesColumns[FACE_DIRECTION_COUNT][CHUNK_SIZE_PADDED][CHUNK_SIZE_PAD
 #define chunkBitmapGetBit(bitmap, pos) (((bitmap)[((pos)->vy * CHUNK_SIZE) + (pos)->vz] >> (pos)->vx) & 0b1)
 #define chunkBitmapSetBit(bitmap, pos) ((bitmap)[((pos)->vy * CHUNK_SIZE) + (pos)->vz] |= 1 << (pos)->vx)
 
-INLINE void addVoxelToFaceColumns(FacesColumns axis_cols,
-                                  FacesColumns axis_cols_opaque,
-                                  const IBlock* iblock,
-                                  const u32 x,
-                                  const u32 y,
-                                  const u32 z) {
+INLINE static void addVoxelToFaceColumns(FacesColumns axis_cols,
+                                         FacesColumns axis_cols_opaque,
+                                         const IBlock* iblock,
+                                         const u32 x,
+                                         const u32 y,
+                                         const u32 z) {
     if (iblock == NULL) {
         return;
     }
