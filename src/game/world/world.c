@@ -31,6 +31,8 @@ const LightUpdateLimits world_chunk_init_limits = (LightUpdateLimits) {
     .remove_sky = 0
 };
 
+static cvector(Chunk*) render_queue = {0};
+
 // NOTE: Cast to i32 is necessary here since computing modulo of 0 - 1
 //       is actually computing modulo over 0u32 - 1 == u32::MAX so we end
 //       up with a result of 0. This means that you can never move in a
@@ -97,6 +99,7 @@ void worldInit(World* world, RenderContext* ctx) {
         .raining = false,
         .storming = false
     };
+    cvector_init(render_queue, 0, NULL);
     memset(
         world->heightmap,
         '\0',
@@ -220,6 +223,7 @@ void worldInit(World* world, RenderContext* ctx) {
 }
 
 void worldDestroy(World* world) {
+    cvector_free(render_queue);
     const i32 x_start = world->centre.vx - LOADED_CHUNKS_RADIUS;
     const i32 x_end = world->centre.vz + LOADED_CHUNKS_RADIUS;
     const i32 z_start = world->centre.vz - LOADED_CHUNKS_RADIUS;
@@ -322,10 +326,10 @@ render_moon:;
 
 DEFN_DURATION_COMPONENT(world_render);
 
-void worldRender(const World* world,
-                 const Player* player,
-                 RenderContext* ctx,
-                 Transforms* transforms) {
+void worldRenderBfs(const World* world,
+                    const Player* player,
+                    RenderContext* ctx,
+                    Transforms* transforms) {
     durationComponentInitOnce(world_render, "worldRender");
     durationComponentStart(world_render_duration);
     const VECTOR player_world_pos = vec3_i32(
@@ -334,10 +338,10 @@ void worldRender(const World* world,
         fixedFloor(player->entity.physics_object.position.vz, ONE_BLOCK) / ONE_BLOCK
     );
     worldRenderSkybox(world, &player_world_pos, ctx, transforms);
-    const VECTOR player_chunk_pos = worldToChunkBlockPosition(
+    const ChunkBlockPosition cb_pos = worldToChunkBlockPosition(
         &player_world_pos,
         CHUNK_SIZE
-    ).chunk;
+    );
     const i32 x_start = world->centre.vx - LOADED_CHUNKS_RADIUS;
     const i32 x_end = world->centre.vx + LOADED_CHUNKS_RADIUS;
     const i32 z_start = world->centre.vz - LOADED_CHUNKS_RADIUS;
@@ -352,6 +356,46 @@ void worldRender(const World* world,
     //       Also need to consider if the chunk is outside the FOV
     //       angle width-wise and stop searching in that direction if
     //       so.
+    u8 rendered_distance = 0;
+    cvector_push_back(
+        render_queue,
+        &world->chunks[arrayCoord(world, vz, cb_pos.chunk.vz)]
+                      [arrayCoord(world, vz, cb_pos.chunk.vx)]
+                      [cb_pos.chunk.vy]
+    );
+    while (cvector_size(render_queue) > 0) {
+        const Chunk* chunk = cvector_pop_back(render_queue);
+        // TODO: Traverse neighouring visible chunks within
+        //       FOV AKA Y-only part of frustum
+    }
+    durationComponentEnd();
+    durationTreeRender(world_render_duration, ctx, transforms);
+}
+
+void worldRender(const World* world,
+                 const Player* player,
+                 RenderContext* ctx,
+                 Transforms* transforms) {
+    durationComponentInitOnce(world_render, "worldRender");
+    durationComponentStart(world_render_duration);
+    const VECTOR player_world_pos = vec3_i32(
+        fixedFloor(player->entity.physics_object.position.vx, ONE_BLOCK) / ONE_BLOCK,
+        fixedFloor(player->entity.physics_object.position.vy, ONE_BLOCK) / ONE_BLOCK,
+        fixedFloor(player->entity.physics_object.position.vz, ONE_BLOCK) / ONE_BLOCK
+    );
+    worldRenderSkybox(world, &player_world_pos, ctx, transforms);
+    const ChunkBlockPosition cb_pos = worldToChunkBlockPosition(
+        &player_world_pos,
+        CHUNK_SIZE
+    );
+    const i32 x_start = world->centre.vx - LOADED_CHUNKS_RADIUS;
+    const i32 x_end = world->centre.vx + LOADED_CHUNKS_RADIUS;
+    const i32 z_start = world->centre.vz - LOADED_CHUNKS_RADIUS;
+    const i32 z_end = world->centre.vz + LOADED_CHUNKS_RADIUS;
+    // TODO: Render current chunk and track how much of the screen has been drawn (somehow?)
+    //       if there are still bits that are missing traverse to next chunks in the direction
+    //       the player is facing and render them. Stop drawing if screen is full and/or there
+    //       are no more loaded chunks to traverse to.
     for (i32 x = x_start; x <= x_end; x++) {
         for (i32 z = z_start; z <= z_end; z++) {
             for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
@@ -359,9 +403,9 @@ void worldRender(const World* world,
                     world->chunks[arrayCoord(world, vz, z)]
                                  [arrayCoord(world, vx, x)]
                                  [y],
-                    player_chunk_pos.vx == x
-                        && player_chunk_pos.vz == z
-                        && player_chunk_pos.vy == y,
+                        cb_pos.chunk.vx == x
+                        && cb_pos.chunk.vz == z
+                        && cb_pos.chunk.vy == y,
                     ctx,
                     transforms
                 );
