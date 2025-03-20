@@ -326,6 +326,8 @@ render_moon:;
 
 DEFN_DURATION_COMPONENT(world_render);
 
+
+
 void worldRenderBfs(const World* world,
                     const Player* player,
                     RenderContext* ctx,
@@ -363,11 +365,17 @@ void worldRenderBfs(const World* world,
                       [arrayCoord(world, vz, cb_pos.chunk.vx)]
                       [cb_pos.chunk.vy]
     );
+    u8 chunk_bitset[AXIS_LOADED_CHUNKS * WORLD_CHUNKS_HEIGHT] = {0};
+    #define markChunk(x, y, z) chunk_bitset[((y) * AXIS_LOADED_CHUNKS) + (z)] |= 1 << (x)
+    #define isChunkMarked(x, y, z) ((chunk_bitset[((y) * AXIS_LOADED_CHUNKS) + (z)] >> (x) & 0b1) == 1)
     while (cvector_size(render_queue) > 0) {
-        const Chunk* chunk = cvector_pop_back(render_queue);
+        const Chunk* chunk = render_queue[cvector_size(render_queue) - 1];
+        cvector_pop_back(render_queue);
         // TODO: Traverse neighouring visible chunks within
         //       FOV AKA Y-only part of frustum
     }
+    #undef markChunk
+    #undef isChunkMarked
     durationComponentEnd();
     durationTreeRender(world_render_duration, ctx, transforms);
 }
