@@ -31,7 +31,7 @@ const LightUpdateLimits world_chunk_init_limits = (LightUpdateLimits) {
     .remove_sky = 0
 };
 
-static cvector(Chunk*) render_queue = {0};
+static cvector(VECTOR) render_queue = {0};
 
 // NOTE: Cast to i32 is necessary here since computing modulo of 0 - 1
 //       is actually computing modulo over 0u32 - 1 == u32::MAX so we end
@@ -344,10 +344,8 @@ void worldRenderBfs(const World* world,
         &player_world_pos,
         CHUNK_SIZE
     );
-    const i32 x_start = world->centre.vx - LOADED_CHUNKS_RADIUS;
-    const i32 x_end = world->centre.vx + LOADED_CHUNKS_RADIUS;
-    const i32 z_start = world->centre.vz - LOADED_CHUNKS_RADIUS;
-    const i32 z_end = world->centre.vz + LOADED_CHUNKS_RADIUS;
+    const i32 x_offset = world->centre.vx - LOADED_CHUNKS_RADIUS;
+    const i32 z_offset = world->centre.vz - LOADED_CHUNKS_RADIUS;
     // TODO: Render current chunk and track how much of the screen has been drawn (somehow?)
     //       if there are still bits that are missing traverse to next chunks in the direction
     //       the player is facing and render them. Stop drawing if screen is full and/or there
@@ -361,16 +359,22 @@ void worldRenderBfs(const World* world,
     u8 rendered_distance = 0;
     cvector_push_back(
         render_queue,
-        &world->chunks[arrayCoord(world, vz, cb_pos.chunk.vz)]
-                      [arrayCoord(world, vz, cb_pos.chunk.vx)]
-                      [cb_pos.chunk.vy]
+        cb_pos.chunk
     );
     u8 chunk_bitset[AXIS_LOADED_CHUNKS * WORLD_CHUNKS_HEIGHT] = {0};
     #define markChunk(x, y, z) chunk_bitset[((y) * AXIS_LOADED_CHUNKS) + (z)] |= 1 << (x)
     #define isChunkMarked(x, y, z) ((chunk_bitset[((y) * AXIS_LOADED_CHUNKS) + (z)] >> (x) & 0b1) == 1)
+    markChunk(
+        cb_pos.chunk.vx - x_offset,
+        cb_pos.chunk.vz - z_offset,
+        cb_pos.chunk.vy
+    );
     while (cvector_size(render_queue) > 0) {
-        const Chunk* chunk = render_queue[cvector_size(render_queue) - 1];
+        const VECTOR pos = render_queue[cvector_size(render_queue) - 1];
         cvector_pop_back(render_queue);
+        const Chunk* chunk = world->chunks[arrayCoord(world, vz, pos.vz)]
+                                          [arrayCoord(world, vx, pos.vx)]
+                                          [pos.vy];
         // TODO: Traverse neighouring visible chunks within
         //       FOV AKA Y-only part of frustum
     }
