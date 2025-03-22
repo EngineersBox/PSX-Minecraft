@@ -407,6 +407,7 @@ void worldRender(const World* world,
                 markChunk(mark_pos.vx, mark_pos.vy, mark_pos.vz);
             } else if (squareDistance(cb_pos.chunk, next_chunk) >= WORLD_RENDER_DISTACE_SQUARED) {
                 // Max render distance
+                // NOTE: cb_pos.chunk is the player chunk
                 continue;
             }
             const AABB aabb = (AABB) {
