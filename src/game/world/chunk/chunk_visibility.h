@@ -51,13 +51,7 @@
 // ((5 - 1) * 5) >> 2 => 10
 // therefore bit index = 10 + 2 => 12
 
-#if defined(CHUNK_SIZE) && CHUNK_SIZE > 0 && CHUNK_SIZE <= 32 && _isPowerOf2(CHUNK_SIZE)
-    #define visibilityType(size, name) typedef GLUE(u, size) name
-    visibilityType(CHUNK_SIZE, ChunkVisibility);
-#undef visibilityType
-#else
-#error CHUNK_SIZE must be in the interval (0, 32] and be a power of 2
-#endif
+typedef u16 ChunkVisibility;
 
 u8 chunkVisibilityGetBit(const ChunkVisibility vis, const u8 a, const u8 b);
 void chunkVisibilitySetBit(ChunkVisibility* vis, const u8 a, const u8 b);
