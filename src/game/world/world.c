@@ -357,13 +357,6 @@ void worldRender(const World* world,
     //       if there are still bits that are missing traverse to next chunks in the direction
     //       the player is facing and render them. Stop drawing if screen is full and/or there
     //       are no more loaded chunks to traverse to.
-    //
-    // PERF: Refactor to use ChunkVisibility to render based on DFS
-    //       that queries visibility of exiting the current chunk.
-    //       Also need to consider if the chunk is outside the FOV
-    //       angle width-wise and stop searching in that direction if
-    //       so.
-    u8 rendered_distance = 0;
     const FaceDirection player_camera_direction = faceDirectionClosestNormal(player->camera->rotation);
     cvector_push_back(
         render_queue,
@@ -394,7 +387,7 @@ void worldRender(const World* world,
                 continue;
             }
             const VECTOR face_normal = faceDirectionFromNormal(face_dir);
-            if (vec3_dot(face_normal, player->camera->rotation) >= 0) {
+            if (dot_i32(face_normal, player->camera->rotation) >= 0) {
                 // Don't traverse to chunks through faces that go back
                 // towards the camera
                 continue;
@@ -412,6 +405,9 @@ void worldRender(const World* world,
                     continue;
                 }
                 markChunk(mark_pos.vx, mark_pos.vy, mark_pos.vz);
+            } else if (squareDistance(cb_pos.chunk, next_chunk) >= WORLD_RENDER_DISTACE_SQUARED) {
+                // Max render distance
+                continue;
             }
             const AABB aabb = (AABB) {
                 .min = vec3_i32(
