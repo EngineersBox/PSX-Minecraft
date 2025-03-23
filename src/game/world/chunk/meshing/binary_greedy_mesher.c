@@ -207,7 +207,6 @@ static u8 chunkBitmapFillSolidDirection(ChunkBitmap bitmap,
     const FaceDirection opposing_face_direction = faceDirectionFromNormal(opposing_normal);
     u8 processed = 0;
     while (true) {
-        pos = vec3_add(pos, normal);
         if (chunkBlockIndexOOB(pos.vx, pos.vy, pos.vz)
             || chunkBitmapGetBit(bitmap, &pos) == 1) {
             // OOB or Already visited
@@ -228,6 +227,7 @@ static u8 chunkBitmapFillSolidDirection(ChunkBitmap bitmap,
             && blockIsFaceOpaque(block, opposing_face_direction)) {
             chunkBitmapSetBit(bitmap, &pos);
             processed++;
+            pos = vec3_add(pos, normal);
             continue;
         }
         // Not solid
@@ -327,8 +327,7 @@ static void chunkVisibilityDfsWalkScan(Chunk* chunk,
                 pos.vy + 1,
                 pos.vz + 1
             );
-            const IBlock* iblock = chunkGetBlock(chunk, pos.vx, pos.vy, pos.vz);
-            const Block* block = VCAST_PTR(Block*, iblock);
+            const Block* block = VCAST_PTR(Block*, chunkGetBlock(chunk, pos.vx, pos.vy, pos.vz));
             #define _visitBlock(condition, bits, normal) \
                 if (condition) { \
                     visible_sides |= bits; \
