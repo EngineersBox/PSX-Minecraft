@@ -298,7 +298,7 @@ static void chunkVisibilityDfsWalkScan(Chunk* chunk,
         chunk->visibility = 0;
         return;
     }
-    cvector(VECTOR) queue = {0};
+    cvector(VECTOR) queue = NULL;
     cvector_init(queue, 0, NULL);
     cvector_push_back(queue, root);
     chunkBitmapSetBit(bitmap, &root);

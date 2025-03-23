@@ -40,7 +40,7 @@ typedef struct ChunkVisit {
     /*bool outside_world: 1;*/
     u8 _pad: 4;
 } ChunkVisit;
-static cvector(ChunkVisit) render_queue = {0};
+static cvector(ChunkVisit) render_queue = NULL;
 
 // NOTE: Cast to i32 is necessary here since computing modulo of 0 - 1
 //       is actually computing modulo over 0u32 - 1 == u32::MAX so we end
@@ -233,6 +233,7 @@ void worldInit(World* world, RenderContext* ctx) {
 
 void worldDestroy(World* world) {
     cvector_free(render_queue);
+    render_queue = NULL;
     const i32 x_start = world->centre.vx - LOADED_CHUNKS_RADIUS;
     const i32 x_end = world->centre.vz + LOADED_CHUNKS_RADIUS;
     const i32 z_start = world->centre.vz - LOADED_CHUNKS_RADIUS;
