@@ -245,12 +245,9 @@ static u8 visitBlock(ChunkBitmap bitmap,
                      FacesColumns faces_cols,
                      FacesColumns faces_cols_opaque) {
     const VECTOR next_pos = vec3_add(pos, normal);
-    if (chunkBlockIndexOOB(next_pos.vx, next_pos.vy, next_pos.vz)) {
-        // Outside chunk
-        return 0;
-    }
-    if (chunkBitmapGetBit(bitmap, &next_pos)) {
-        // Already visited
+    if (chunkBlockIndexOOB(next_pos.vx, next_pos.vy, next_pos.vz)
+        || chunkBitmapGetBit(bitmap, &next_pos) == 1) {
+        // Outside chunk or already visisted
         return 0;
     }
     const Block* block = VCAST_PTR(Block*, chunkGetBlockVec(chunk, &next_pos));
@@ -411,6 +408,7 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk, const BreakingState* breaking_sta
         faces_cols,
         faces_cols_opaque
     );
+    DEBUG_LOG("After DFS\n");
     // Inner chunk blocks
     /*for (u32 z = 0; z < CHUNK_SIZE; z++) {*/
     /*    for (u32 x = 0; x < CHUNK_SIZE; x++) {*/
