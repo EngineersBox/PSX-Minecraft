@@ -13,6 +13,7 @@
 #include "../../../../resources/assets.h"
 #include "../../../../structure/primitive/cube.h"
 #include "../../position.h"
+#include "../chunk_structure.h"
 #include "plane_meshing_data.h"
 
 // Forward declarations
@@ -196,10 +197,6 @@ static bool chunkBitmapFindRoot(ChunkBitmap bitmap,
     return false;
 }
 
-#define checkIndexOOB(x, y, z) ((x) >= CHUNK_SIZE || (x) < 0 \
-	|| (y) >= CHUNK_SIZE || (y) < 0 \
-	|| (z) >= CHUNK_SIZE || (z) < 0)
-
 static u8 chunkBitmapFillSolidDirection(ChunkBitmap bitmap,
                                         const Chunk* chunk,
                                         VECTOR pos,
@@ -211,7 +208,7 @@ static u8 chunkBitmapFillSolidDirection(ChunkBitmap bitmap,
     u8 processed = 0;
     while (true) {
         pos = vec3_add(pos, normal);
-        if (checkIndexOOB(pos.vx, pos.vy, pos.vz)
+        if (chunkBlockIndexOOB(pos.vx, pos.vy, pos.vz)
             || chunkBitmapGetBit(bitmap, &pos) == 1) {
             // OOB or Already visited
             break;
@@ -248,7 +245,7 @@ static u8 visitBlock(ChunkBitmap bitmap,
                      FacesColumns faces_cols,
                      FacesColumns faces_cols_opaque) {
     const VECTOR next_pos = vec3_add(pos, normal);
-    if (checkIndexOOB(next_pos.vx, next_pos.vy, next_pos.vz)) {
+    if (chunkBlockIndexOOB(next_pos.vx, next_pos.vy, next_pos.vz)) {
         // Outside chunk
         return 0;
     }

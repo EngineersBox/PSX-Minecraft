@@ -22,6 +22,13 @@ typedef struct LightUpdateLimits {
 extern const LightUpdateLimits chunk_light_update_limits;
 
 #define chunkBlockIndex(x, y, z) ((z) + ((y) * CHUNK_SIZE) + ((x) * CHUNK_SIZE * CHUNK_SIZE))
+#define chunkBlockIndexOOB(x, y, z) ((x) >= CHUNK_SIZE || (x) < 0 \
+	|| (y) >= CHUNK_SIZE || (y) < 0 \
+	|| (z) >= CHUNK_SIZE || (z) < 0)
+
+#define chunkBlockIndexInBounds(x, y, z) ((x) < CHUNK_SIZE && (x) >= 0 \
+	&& (y) < CHUNK_SIZE && (y) >= 0 \
+	&& (z) < CHUNK_SIZE && (z) >= 0)
 
 // Forward declaration
 FWD_DECL typedef struct World World;

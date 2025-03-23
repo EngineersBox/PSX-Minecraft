@@ -383,21 +383,13 @@ void chunkRender(Chunk* chunk,
     durationComponentEnd();
 }
 
-#define checkIndexOOB(x, y, z) ((x) >= CHUNK_SIZE || (x) < 0 \
-	|| (y) >= CHUNK_SIZE || (y) < 0 \
-	|| (z) >= CHUNK_SIZE || (z) < 0)
-
-#define checkIndexInBounds(x, y, z) ((x) < CHUNK_SIZE && (x) >= 0 \
-	&& (y) < CHUNK_SIZE && (y) >= 0 \
-	&& (z) < CHUNK_SIZE && (z) >= 0)
-
 IBlock* chunkGetBlock(const Chunk* chunk, const i32 x, const i32 y, const i32 z) {
-    assert(checkIndexInBounds(x, y, z));
+    assert(chunkBlockIndexInBounds(x, y, z));
     return chunk->blocks[chunkBlockIndex(x, y, z)];
 }
 
 IBlock* chunkGetBlockVec(const Chunk* chunk, const VECTOR* position) {
-    assert(checkIndexInBounds(position->vx, position->vy, position->vz));
+    assert(chunkBlockIndexInBounds(position->vx, position->vy, position->vz));
     return chunk->blocks[chunkBlockIndex(
         position->vx,
         position->vy,
@@ -495,7 +487,7 @@ static int modifyVoxel0(Chunk* chunk,
     const i32 x = position->vx;
     const i32 y = position->vy;
     const i32 z = position->vz;
-    if (checkIndexOOB(x, y, z)) {
+    if (chunkBlockIndexOOB(x, y, z)) {
         return 2;
     }
     const IBlock* old_iblock = chunk->blocks[chunkBlockIndex(x, y, z)];
@@ -786,14 +778,14 @@ void chunkUpdate(Chunk* chunk, const Player* player, BreakingState* breaking_sta
 
 LightLevel chunkGetLightValue(const Chunk* chunk,
                               const VECTOR* position) {
-    assert(checkIndexInBounds(position->vx, position->vy, position->vz));
+    assert(chunkBlockIndexInBounds(position->vx, position->vy, position->vz));
     return lightMapGetValue(chunk->lightmap, *position);
 }
 
 LightLevel chunkGetLightType(const Chunk* chunk,
                              const VECTOR* position,
                              const LightType light_type) {
-    assert(checkIndexInBounds(position->vx, position->vy, position->vz));
+    assert(chunkBlockIndexInBounds(position->vx, position->vy, position->vz));
     return lightMapGetType(chunk->lightmap, *position, light_type);
 }
 
@@ -801,7 +793,7 @@ void chunkSetLightValue(Chunk* chunk,
                         const VECTOR* position,
                         const LightLevel light_value,
                         const LightType light_type) {
-    assert(checkIndexInBounds(position->vx, position->vy, position->vz));
+    assert(chunkBlockIndexInBounds(position->vx, position->vy, position->vz));
     lightMapSetValue(
         chunk->lightmap,
         *position,
@@ -836,7 +828,7 @@ void chunkSetLightValue(Chunk* chunk,
 void chunkRemoveLightValue(Chunk* chunk,
                            const VECTOR* position,
                            const LightType light_type) {
-    assert(checkIndexInBounds(position->vx, position->vy, position->vz));
+    assert(chunkBlockIndexInBounds(position->vx, position->vy, position->vz));
     const LightLevel light_value = lightMapGetType(
         chunk->lightmap,
         *position,
