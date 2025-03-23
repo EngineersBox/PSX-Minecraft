@@ -360,10 +360,10 @@ void worldRender(const World* world,
     const FaceDirection player_camera_direction = faceDirectionClosestNormal(player->camera->rotation);
     cvector_push_back(
         render_queue,
-        (ChunkVisit) {
+        ((ChunkVisit) {
             .position = cb_pos.chunk,
             .visited_from = faceDirectionOpposing(player_camera_direction)
-        }
+        })
     );
     u8 chunk_bitset[AXIS_LOADED_CHUNKS * WORLD_CHUNKS_HEIGHT] = {0};
     #define markChunk(x, y, z) chunk_bitset[((y) * AXIS_LOADED_CHUNKS) + (z)] |= 1 << (x)
@@ -380,13 +380,13 @@ void worldRender(const World* world,
         // NOTE: If chunk is NULL, then always traverse to next chunks, ignoring
         //       visibility, since it's always visible.
         ChunkVisibility visibility = chunk == NULL ? 0b111111111111111 : chunk->visibility;
-        for (FaceDirection face_dir = FACE_DIR_DOWN; i < FACE_DIR_FRONT; i++) {
-            if (face_dir == visit.visisted_from
-                || chunkVisibilityGetBit(visibility, face_dir, visit.visisted_from) == 0) {
+        for (FaceDirection face_dir = FACE_DIR_DOWN; face_dir < FACE_DIR_FRONT; face_dir++) {
+            if (face_dir == visit.visited_from
+                || chunkVisibilityGetBit(visibility, face_dir, visit.visited_from) == 0) {
                 // Cannot exit chunk in this direction from the entered face
                 continue;
             }
-            const VECTOR face_normal = faceDirectionFromNormal(face_dir);
+            const SVECTOR face_normal = FACE_DIRECTION_NORMALS[face_dir];
             if (dot_i32(face_normal, player->camera->rotation) >= 0) {
                 // Don't traverse to chunks through faces that go back
                 // towards the camera
@@ -400,12 +400,12 @@ void worldRender(const World* world,
                     next_chunk.vy,
                     next_chunk.vz - z_offset
                 );
-                if (cisChunkMarked(mark_pos.vx, mark_pos.vy, mark_pos.vz)) {
+                if (isChunkMarked(mark_pos.vx, mark_pos.vy, mark_pos.vz)) {
                     // Within the world and already visited, skip it
                     continue;
                 }
                 markChunk(mark_pos.vx, mark_pos.vy, mark_pos.vz);
-            } else if (squareDistance(cb_pos.chunk, next_chunk) >= WORLD_RENDER_DISTACE_SQUARED) {
+            } else if (squareDistance(&cb_pos.chunk, &next_chunk) >= WORLD_RENDER_DISTANCE_SQUARED) {
                 // Max render distance
                 // NOTE: cb_pos.chunk is the player chunk
                 continue;
@@ -414,12 +414,12 @@ void worldRender(const World* world,
                 .min = vec3_i32(
                     next_chunk.vx * CHUNK_BLOCK_SIZE,
                     -next_chunk.vy * CHUNK_BLOCK_SIZE,
-                    next_chunk.vz * CHUNK_BLOCK_SIZE,
+                    next_chunk.vz * CHUNK_BLOCK_SIZE
                 ),
                 .max = vec3_i32(
                     (next_chunk.vx + 1) * CHUNK_BLOCK_SIZE,
                     -(next_chunk.vy + 1) * CHUNK_BLOCK_SIZE,
-                    (next_chunk.vz + 1) * CHUNK_BLOCK_SIZE,
+                    (next_chunk.vz + 1) * CHUNK_BLOCK_SIZE
                 )
             };
             // TODO: Create AABB for next_chunk and frustum cull it
@@ -428,10 +428,10 @@ void worldRender(const World* world,
             }
             cvector_push_back(
                 render_queue,
-                (ChunkVisit) {
+                ((ChunkVisit) {
                     .position = next_chunk,
-                    .visisted_from = face_dir
-                }
+                    .visited_from = face_dir
+                })
             );
         }
     }
