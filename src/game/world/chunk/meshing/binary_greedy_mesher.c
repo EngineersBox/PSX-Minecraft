@@ -122,9 +122,7 @@ static bool chunkBitmapFindUnsetPosition(ChunkBitmap bitmap,
                         continue; \
                     } \
                     chunkBitmapSetBit(bitmap, &pos); \
-                    DEBUG_LOG("Unset before get: " VEC_PATTERN "\n", VEC_LAYOUT(pos)); \
                     const IBlock* iblock = chunkGetBlockVec(chunk, &pos); \
-                    DEBUG_LOG("Unset after get\n"); \
                     const Block* block = VCAST_PTR(Block*, iblock); \
                     if (blockGetOpacityBitset(block->id, block->orientation) != 0b111111) { \
                         *out_pos = pos; \
@@ -218,9 +216,7 @@ static u8 chunkBitmapFillSolidDirection(ChunkBitmap bitmap,
             // OOB or Already visited
             break;
         }
-        DEBUG_LOG("Fill before get: " VEC_PATTERN "\n", VEC_LAYOUT(pos));
         const IBlock* iblock = chunkGetBlockVec(chunk, &pos);
-        DEBUG_LOG("Fill after get\n");
         // Update masks for BGM
         addVoxelToFaceColumns(
             faces_cols,
@@ -260,9 +256,7 @@ static u8 visitBlock(ChunkBitmap bitmap,
         // Already visited
         return 0;
     }
-    DEBUG_LOG("Visit before get: " VEC_PATTERN "\n", VEC_LAYOUT(next_pos));
     const Block* block = VCAST_PTR(Block*, chunkGetBlockVec(chunk, &next_pos));
-    DEBUG_LOG("Visit after get\n");
     const VECTOR opposing_normal = vec3_i32(
         -normal.vx,
         -normal.vy,
@@ -318,7 +312,6 @@ static void chunkVisibilityDfsWalkScan(Chunk* chunk,
     while (total_blocks_processed < CHUNK_SIZE * CHUNK_SIZE  * CHUNK_SIZE) {
         u8 visible_sides = 0b000000;
         while (cvector_size(queue) > 0) {
-            DEBUG_LOG("Queue size: %d\n", cvector_size(queue));
             // This makes this DFS, we save on needing to
             // do a swap with the last element before popping
             // for an efficient pseudo-BFS. So might as well
@@ -335,9 +328,7 @@ static void chunkVisibilityDfsWalkScan(Chunk* chunk,
                 pos.vy + 1,
                 pos.vz + 1
             );
-            DEBUG_LOG("DFS before get: " VEC_PATTERN "\n", VEC_LAYOUT(pos));
             const IBlock* iblock = chunkGetBlock(chunk, pos.vx, pos.vy, pos.vz);
-            DEBUG_LOG("DFS after get\n");
             const Block* block = VCAST_PTR(Block*, iblock);
             #define _visitBlock(condition, bits, normal) \
                 if (condition) { \
@@ -380,11 +371,6 @@ static void chunkVisibilityDfsWalkScan(Chunk* chunk,
                 &pos
             )) {
                 cvector_push_back(queue, pos);
-                DEBUG_LOG(
-                    "Total blocks processed: %d/%d\n", 
-                    total_blocks_processed,
-                    CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE
-                );
                 continue;
             }
             break;
@@ -411,11 +397,6 @@ static void chunkVisibilityDfsWalkScan(Chunk* chunk,
             break;
         }
         cvector_push_back(queue, pos);
-        DEBUG_LOG(
-            "Total blocks processed 2: %d/%d\n", 
-            total_blocks_processed,
-            CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE
-        );
     }
     cvector_free(queue);
 }
