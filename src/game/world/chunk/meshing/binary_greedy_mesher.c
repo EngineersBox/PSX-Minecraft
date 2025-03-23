@@ -96,7 +96,7 @@ static bool chunkBitmapFindUnsetPosition(ChunkBitmap bitmap,
         for (u8 z = 0; z < CHUNK_SIZE; z++) {
             const ChunkBitmapBitset x_fwd_bits = bitmap[(y * CHUNK_SIZE) + z];
             const bool fwd_some_set = x_fwd_bits != (CHUNK_SIZE * CHUNK_SIZE) - 1;
-            const ChunkBitmapBitset x_bwd_bits = bitmap[((CHUNK_SIZE - 1 - y) * CHUNK_SIZE) + (CHUNK_SIZE - 1 -z)];
+            const ChunkBitmapBitset x_bwd_bits = bitmap[((CHUNK_SIZE - 1 - y) * CHUNK_SIZE) + (CHUNK_SIZE - 1 - z)];
             const bool bwd_some_set = x_bwd_bits != (CHUNK_SIZE * CHUNK_SIZE) - 1;
             if (!fwd_some_set && !bwd_some_set) {
                 continue;
@@ -118,10 +118,13 @@ static bool chunkBitmapFindUnsetPosition(ChunkBitmap bitmap,
                         x_bitset = x_fwd_bits;
                     }
                 #define updateBitmap(x_bitset, _x, _y, _z) \
-                    if (((x_bitset) & (0b1 << x)) == 1) { \
+                    if ((((x_bitset) >> (_x)) & 0b1) == 1) { \
                         continue; \
                     } \
+                    chunkBitmapSetBit(bitmap, &pos); \
+                    DEBUG_LOG("Unset before get: " VEC_PATTERN "\n", VEC_LAYOUT(pos)); \
                     const IBlock* iblock = chunkGetBlockVec(chunk, &pos); \
+                    DEBUG_LOG("Unset after get\n"); \
                     const Block* block = VCAST_PTR(Block*, iblock); \
                     if (blockGetOpacityBitset(block->id, block->orientation) != 0b111111) { \
                         *out_pos = pos; \
@@ -135,8 +138,7 @@ static bool chunkBitmapFindUnsetPosition(ChunkBitmap bitmap,
                         (_x) + 1, \
                         (_y) + 1, \
                         (_z) + 1 \
-                    ); \
-                    chunkBitmapSetBit(bitmap, &pos)
+                    )
                     updateBitmap(x_bitset, pos.vx, pos.vy, pos.vz);
                 }
             }
@@ -196,6 +198,10 @@ static bool chunkBitmapFindRoot(ChunkBitmap bitmap,
     return false;
 }
 
+#define checkIndexOOB(x, y, z) ((x) >= CHUNK_SIZE || (x) < 0 \
+	|| (y) >= CHUNK_SIZE || (y) < 0 \
+	|| (z) >= CHUNK_SIZE || (z) < 0)
+
 static u8 chunkBitmapFillSolidDirection(ChunkBitmap bitmap,
                                         const Chunk* chunk,
                                         VECTOR pos,
@@ -207,14 +213,14 @@ static u8 chunkBitmapFillSolidDirection(ChunkBitmap bitmap,
     u8 processed = 0;
     while (true) {
         pos = vec3_add(pos, normal);
-        if (chunkBitmapGetBit(bitmap, &pos) == 1) {
-            // Already visited
+        if (checkIndexOOB(pos.vx, pos.vy, pos.vz)
+            || chunkBitmapGetBit(bitmap, &pos) == 1) {
+            // OOB or Already visited
             break;
         }
+        DEBUG_LOG("Fill before get: " VEC_PATTERN "\n", VEC_LAYOUT(pos));
         const IBlock* iblock = chunkGetBlockVec(chunk, &pos);
-        if (iblock == NULL) {
-            break;
-        }
+        DEBUG_LOG("Fill after get\n");
         // Update masks for BGM
         addVoxelToFaceColumns(
             faces_cols,
@@ -246,15 +252,17 @@ static u8 visitBlock(ChunkBitmap bitmap,
                      FacesColumns faces_cols,
                      FacesColumns faces_cols_opaque) {
     const VECTOR next_pos = vec3_add(pos, normal);
-    const IBlock* iblock = chunkGetBlockVec(chunk, &next_pos);
-    if (iblock == NULL) {
-        // Outside the chunk
+    if (checkIndexOOB(next_pos.vx, next_pos.vy, next_pos.vz)) {
+        // Outside chunk
         return 0;
-    } else if (chunkBitmapGetBit(bitmap, &next_pos)) {
+    }
+    if (chunkBitmapGetBit(bitmap, &next_pos)) {
         // Already visited
         return 0;
     }
-    const Block* block = VCAST_PTR(Block*, iblock);
+    DEBUG_LOG("Visit before get: " VEC_PATTERN "\n", VEC_LAYOUT(next_pos));
+    const Block* block = VCAST_PTR(Block*, chunkGetBlockVec(chunk, &next_pos));
+    DEBUG_LOG("Visit after get\n");
     const VECTOR opposing_normal = vec3_i32(
         -normal.vx,
         -normal.vy,
@@ -310,6 +318,7 @@ static void chunkVisibilityDfsWalkScan(Chunk* chunk,
     while (total_blocks_processed < CHUNK_SIZE * CHUNK_SIZE  * CHUNK_SIZE) {
         u8 visible_sides = 0b000000;
         while (cvector_size(queue) > 0) {
+            DEBUG_LOG("Queue size: %d\n", cvector_size(queue));
             // This makes this DFS, we save on needing to
             // do a swap with the last element before popping
             // for an efficient pseudo-BFS. So might as well
@@ -326,7 +335,9 @@ static void chunkVisibilityDfsWalkScan(Chunk* chunk,
                 pos.vy + 1,
                 pos.vz + 1
             );
+            DEBUG_LOG("DFS before get: " VEC_PATTERN "\n", VEC_LAYOUT(pos));
             const IBlock* iblock = chunkGetBlock(chunk, pos.vx, pos.vy, pos.vz);
+            DEBUG_LOG("DFS after get\n");
             const Block* block = VCAST_PTR(Block*, iblock);
             #define _visitBlock(condition, bits, normal) \
                 if (condition) { \
@@ -369,6 +380,11 @@ static void chunkVisibilityDfsWalkScan(Chunk* chunk,
                 &pos
             )) {
                 cvector_push_back(queue, pos);
+                DEBUG_LOG(
+                    "Total blocks processed: %d/%d\n", 
+                    total_blocks_processed,
+                    CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE
+                );
                 continue;
             }
             break;
@@ -395,6 +411,11 @@ static void chunkVisibilityDfsWalkScan(Chunk* chunk,
             break;
         }
         cvector_push_back(queue, pos);
+        DEBUG_LOG(
+            "Total blocks processed 2: %d/%d\n", 
+            total_blocks_processed,
+            CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE
+        );
     }
     cvector_free(queue);
 }
