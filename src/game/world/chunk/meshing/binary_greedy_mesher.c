@@ -305,12 +305,17 @@ static void chunkVisibilityDfsWalkScan(Chunk* chunk,
     u16 total_blocks_processed = (root.vy * CHUNK_SIZE * CHUNK_SIZE) + (root.vz * CHUNK_SIZE) + root.vx;
     while (total_blocks_processed < CHUNK_SIZE * CHUNK_SIZE  * CHUNK_SIZE) {
         u8 visible_sides = 0b000000;
+        // BUG: This continuously considers the same block, then searches
+        //      for a next unset position after loop ends and then repeats.
+        //      Seems like we are not marking blocks as visited in the bitmap
+        //      correctly somewhere.
         while (cvector_size(queue) > 0) {
             // This makes this DFS, we save on needing to
             // do a swap with the last element before popping
             // for an efficient pseudo-BFS. So might as well
             // just do DFS instead.
             const VECTOR pos = queue[cvector_size(queue) - 1];
+            DEBUG_LOG("Pos: " VEC_PATTERN "\n", VEC_LAYOUT(pos));
             cvector_pop_back(queue);
             total_blocks_processed++;
             // Update masks for BGM
