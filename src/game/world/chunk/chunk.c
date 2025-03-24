@@ -529,7 +529,10 @@ static int modifyVoxel0(Chunk* chunk,
     if (iitem != NULL && iitem->self != NULL) {
         cvector_push_back(
             chunk->dropped_items,
-            iitem
+            ((DroppedIItem) {
+                .iitem = iitem,
+                .lifetime = time_ms + ITEM_DROPPED_LIFETIME_MS
+            })
         );
         Item* item = VCAST(Item*, *iitem);
         applyItemWorldState(chunk, item, position);
@@ -655,7 +658,7 @@ bool itemPickupValidator(const Item* item, void* ctx) {
 }
 
 void updateItemChunkOwnership(const Chunk* chunk,
-                              IItem* iitem,
+                              DroppedIItem* dropped,
                               const u32 index) {
     // NOTE: This could be callback invoked from the PhysicsObject
     //       when there is movement as opposed to an explicit check
@@ -669,7 +672,7 @@ void updateItemChunkOwnership(const Chunk* chunk,
     //       to determine if the item has moved on each update cycle
     //       (as a precondition for checking the chunk ownership) is
     //       substantially cheaper.
-    const Item* item = VCAST_PTR(Item*, iitem);
+    const Item* item = VCAST_PTR(Item*, dropped->iitem);
     if (!vec3_equal(item->world_entity->physics_object.velocity, VEC3_I32_ZERO)) {
         // No velocity implies no movement, so we can't have changed
         // chunks since we last checked
@@ -690,7 +693,7 @@ void updateItemChunkOwnership(const Chunk* chunk,
     // Has moved to different chunk
     cvector_erase(chunk->dropped_items, index);
     Chunk* new_chunk = worldGetChunkFromChunkBlock(chunk->world, &cb_pos);
-    cvector_push_back(new_chunk->dropped_items, iitem);
+    cvector_push_back(new_chunk->dropped_items, *dropped);
 }
 
 void chunkUpdate(Chunk* chunk, const Player* player, BreakingState* breaking_state) {
@@ -710,18 +713,23 @@ void chunkUpdate(Chunk* chunk, const Player* player, BreakingState* breaking_sta
     //       the cvector will not run into issues with compiler
     //       optimisations around reads in loop conditions.
     for (u32 i = 0; i < cvector_size(chunk->dropped_items);) {
-        IItem* iitem = chunk->dropped_items[i];
-        if (iitem == NULL) {
+        DroppedIItem* dropped = &chunk->dropped_items[i];
+        if (dropped->iitem == NULL) {
             i++;
             continue;
+        } else if (time_ms - dropped->lifetime >= ITEM_DROPPED_LIFETIME_MS) {
+            VCALL(*dropped->iitem, destroy);
+            itemDestroy(dropped->iitem);
+            cvector_erase(chunk->dropped_items, i);
+            continue;
         }
-        Item* item = VCAST(Item*, *iitem);
+        Item* item = VCAST(Item*, *dropped->iitem);
         if (itemUpdate(item,
                        chunk->world,
                        &pos,
                        inventory,
                        itemPickupValidator)) {
-            const InventoryStoreResult result = inventoryStoreItem(inventory, iitem);
+            const InventoryStoreResult result = inventoryStoreItem(inventory, dropped->iitem);
             switch (result) {
                 case INVENTORY_STORE_RESULT_ADDED_SOME:
                     // Do nothing, already updated iitem that was picked up as dropped.
@@ -735,8 +743,8 @@ void chunkUpdate(Chunk* chunk, const Player* player, BreakingState* breaking_sta
                     // Nuke it, added all so this item instance is not needed any more.
                     // Break is not used here since we still need to erase this array
                     // entry.
-                    VCALL(*iitem, destroy);
-                    itemDestroy(iitem);
+                    VCALL(*dropped->iitem, destroy);
+                    itemDestroy(dropped->iitem);
                     FALLTHROUGH;
                 case INVENTORY_STORE_RESULT_ADDED_NEW_SLOT:
                     // We reuse this item instance as the inventory instance now so don't
@@ -747,7 +755,7 @@ void chunkUpdate(Chunk* chunk, const Player* player, BreakingState* breaking_sta
                     break;
             }
         }
-        updateItemChunkOwnership(chunk, iitem, i);
+        updateItemChunkOwnership(chunk, dropped, i);
         i++;
     }
     chunkUpdateLight(chunk, chunk_light_update_limits);

@@ -139,6 +139,12 @@ ItemActionState IItem_useAction(VSelf);
 #define IItem_EXTENDS (Renderable)
 interface(IItem);
 
+#define ITEM_DROPPED_LIFETIME_MS (5 * 60 * 1000)
+typedef struct DroppedIItem {
+    IItem* iitem;
+    Timestamp lifetime;
+} DroppedIItem;
+
 void itemDestroy(IItem* item);
 ALLOC_CALL(itemDestroy, 1) IItem* itemCreate();
 

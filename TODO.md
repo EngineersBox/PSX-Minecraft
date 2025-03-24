@@ -100,6 +100,7 @@
 * [X] Hotbar attributes (health, armour and air) with damaged animation
 * [X] D-pad or analogue stick controlled cursor in UIs with item movement between slots being held by cursor
 * [X] Only process/search for a crafting recipe when the grid or output slot changes to avoid redundant re-processing and searches
+* [X] Items despawn after 5 minutes
 * [ ] Culling of direction sub-meshes in chunk meshes to avoid any clipping tests in that direction
 * [ ] Camera far plane cutoff with fog relative to chunk render distance
 * [ ] Frustum and culling

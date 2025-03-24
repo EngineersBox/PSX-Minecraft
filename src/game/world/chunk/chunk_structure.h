@@ -68,7 +68,7 @@ typedef struct Chunk {
     IBlock* blocks[CHUNK_DATA_SIZE];
     LightMap lightmap;
     ChunkUpdates updates;
-    cvector(IItem*) dropped_items;
+    cvector(DroppedIItem) dropped_items;
 } Chunk;
 
 #endif // _PSXMC__GAME_WORLD_CHUNK__CHUNK_STRUCTURE_H_
