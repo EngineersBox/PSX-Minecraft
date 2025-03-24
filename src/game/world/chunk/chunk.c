@@ -303,12 +303,9 @@ void chunkPropagateLightmap(Chunk* chunk, ChunkGenerationContext* gen_ctx) {
 #undef getSunlight
 
 static void chunkRenderDroppedItems(const Chunk* chunk, RenderContext* ctx, Transforms* transforms) {
-    IItem** item;
-    cvector_for_each_in(item, chunk->dropped_items) {
-        if (*item == NULL) {
-            continue;
-        }
-        VCALL_SUPER(**item, Renderable, renderWorld, chunk, ctx, transforms);
+    DroppedIItem* dropped;
+    cvector_for_each_in(dropped, chunk->dropped_items) {
+        VCALL_SUPER(*dropped->iitem, Renderable, renderWorld, chunk, ctx, transforms);
     }
 }
 
