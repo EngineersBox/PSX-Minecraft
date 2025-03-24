@@ -1336,5 +1336,11 @@ void worldDropItemStack(World* world,
         velocity
     );
     VCALL_SUPER(*droppable_iitem, Renderable, applyWorldRenderAttributes);
-    cvector_push_back(chunk->dropped_items, droppable_iitem);
+    cvector_push_back(
+        chunk->dropped_items,
+        ((DroppedIItem) {
+            .iitem = droppable_iitem,
+            .lifetime = ITEM_DROPPED_LIFETIME_MS
+        })
+    );
 }
