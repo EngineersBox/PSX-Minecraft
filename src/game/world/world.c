@@ -6,6 +6,7 @@
 #include <inline_c.h>
 #include <psxgpu.h>
 
+#include "../../util/preprocessor.h"
 #include "../../util/interface99_extensions.h"
 #include "../../structure/primitive/clip.h"
 #include "../../render/duration_tree.h"
@@ -342,11 +343,8 @@ void worldRender(const World* world,
                  Transforms* transforms) {
     durationComponentInitOnce(world_render, "worldRender");
     durationComponentStart(world_render_duration);
-    const VECTOR player_world_pos = vec3_i32(
-        fixedFloor(player->entity.physics_object.position.vx, ONE_BLOCK) / ONE_BLOCK,
-        fixedFloor(player->entity.physics_object.position.vy, ONE_BLOCK) / ONE_BLOCK,
-        fixedFloor(player->entity.physics_object.position.vz, ONE_BLOCK) / ONE_BLOCK
-    );
+    const VECTOR player_world_pos = vec3_const_div(player->camera->position, BLOCK_SIZE);
+    DEBUG_LOG("[WORLD] Player pos " VEC_PATTERN "\n", VEC_LAYOUT(player_world_pos));
     worldRenderSkybox(world, &player_world_pos, ctx, transforms);
     const ChunkBlockPosition cb_pos = worldToChunkBlockPosition(
         &player_world_pos,
@@ -377,10 +375,24 @@ void worldRender(const World* world,
     while (cvector_size(render_queue) > 0) {
         const ChunkVisit visit = render_queue[cvector_size(render_queue) - 1];
         cvector_pop_back(render_queue);
-        const Chunk* chunk = worldGetChunk(world, &visit.position);
+        /*DEBUG_LOG("[WORLD] Visit chunk " VEC_PATTERN "\n", VEC_LAYOUT(visit.position));*/
+        Chunk* chunk = worldGetChunk(world, &visit.position);
         // NOTE: If chunk is NULL, then always traverse to next chunks, ignoring
         //       visibility, since it's always visible.
-        ChunkVisibility visibility = chunk == NULL ? 0b111111111111111 : chunk->visibility;
+        ChunkVisibility visibility;
+        if (chunk == NULL) {
+            visibility = 0b111111111111111;
+        } else {
+            visibility = chunk->visibility;
+            DEBUG_LOG("Rendering chunk " VEC_PATTERN "\n", VEC_LAYOUT(visit.position));
+            chunkRender(
+                chunk,
+                vec3_equal(cb_pos.chunk, visit.position),
+                ctx,
+                transforms
+            );
+        }
+        DEBUG_LOG("Chunk vis: " INT16_BIN_PATTERN "\n", INT16_BIN_LAYOUT(visibility));
         for (FaceDirection face_dir = FACE_DIR_DOWN; face_dir < FACE_DIR_FRONT; face_dir++) {
             if (face_dir == visit.visited_from
                 || chunkVisibilityGetBit(visibility, face_dir, visit.visited_from) == 0) {
@@ -936,7 +948,7 @@ void worldUpdate(World* world,
                 }
             }
         }
-        DEBUG_LOG("[WORLD] End world update (no breaking state)\n");
+        /*DEBUG_LOG("[WORLD] End world update (no breaking state)\n");*/
         return;
     }
     u8 coords_check = 0b000; // XYZ
@@ -964,7 +976,7 @@ void worldUpdate(World* world,
         }
     }
     #undef updateCoordBit
-    DEBUG_LOG("[WORLD] End world update (with breaking state)\n");
+    /*DEBUG_LOG("[WORLD] End world update (with breaking state)\n");*/
 }
 
 INLINE Chunk* worldGetChunkFromChunkBlock(const World* world, const ChunkBlockPosition* position) {
