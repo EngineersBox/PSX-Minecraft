@@ -241,7 +241,7 @@ static u8 visitBlock(ChunkBitmap bitmap,
                      const Block* current_block,
                      VECTOR pos,
                      const VECTOR normal,
-                     cvector(VECTOR) queue,
+                     cvector(VECTOR)* queue,
                      FacesColumns faces_cols,
                      FacesColumns faces_cols_opaque) {
     const VECTOR next_pos = vec3_add(pos, normal);
@@ -274,7 +274,7 @@ static u8 visitBlock(ChunkBitmap bitmap,
         );
     } else if (!facing_opaque && !opposing_opaque) {
         // Both transparent
-        cvector_push_back(queue, next_pos);
+        cvector_push_back_safe(queue, next_pos);
         chunkBitmapSetBit(bitmap, &next_pos);
     }
     return 0;
@@ -305,10 +305,6 @@ static void chunkVisibilityDfsWalkScan(Chunk* chunk,
     u16 total_blocks_processed = (root.vy * CHUNK_SIZE * CHUNK_SIZE) + (root.vz * CHUNK_SIZE) + root.vx;
     while (total_blocks_processed < CHUNK_SIZE * CHUNK_SIZE  * CHUNK_SIZE) {
         u8 visible_sides = 0b000000;
-        // BUG: This continuously considers the same block, then searches
-        //      for a next unset position after loop ends and then repeats.
-        //      Seems like we are not marking blocks as visited in the bitmap
-        //      correctly somewhere.
         while (cvector_size(queue) > 0) {
             // This makes this DFS, we save on needing to
             // do a swap with the last element before popping
@@ -338,7 +334,7 @@ static void chunkVisibilityDfsWalkScan(Chunk* chunk,
                     block, \
                     pos, \
                     normal, \
-                    queue, \
+                    &queue, \
                     faces_cols, \
                     faces_cols_opaque \
                 )

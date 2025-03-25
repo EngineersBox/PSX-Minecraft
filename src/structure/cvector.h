@@ -269,6 +269,22 @@ typedef struct cvector_metadata_t {
     } while (0)
 
 /**
+ * @brief cvector_push_back_safe - adds an element to the end of a vector
+ *                                 behind a pointer ensuring the vector
+ *                                 address is stored if modified in the
+ *                                 storage of the vector pointer
+ * @param vec_ptr - pointer to the vector
+ * @param value - the value to add
+ * @return void
+ */
+#define cvector_push_back_safe(vec_ptr, value)                        \
+    do {                                                              \
+        __typeof__(*(vec_ptr)) vec = *(vec_ptr);                      \
+        cvector_push_back(vec, value);                                \
+        *(vec_ptr) = vec;                                             \
+    } while (0)
+
+/**
  * @brief cvector_insert - insert element at position pos to the vector
  * @param vec - the vector
  * @param pos - position in the vector where the new elements are inserted.
