@@ -343,6 +343,8 @@ void worldRender(const World* world,
                  Transforms* transforms) {
     durationComponentInitOnce(world_render, "worldRender");
     durationComponentStart(world_render_duration);
+    // BUG: These coords never change for some reason, despite the
+    //      player being able to move around in the world.
     const VECTOR player_world_pos = vec3_const_div(player->camera->position, BLOCK_SIZE);
     DEBUG_LOG("[WORLD] Player pos " VEC_PATTERN "\n", VEC_LAYOUT(player_world_pos));
     worldRenderSkybox(world, &player_world_pos, ctx, transforms);
