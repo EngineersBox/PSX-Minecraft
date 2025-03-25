@@ -122,13 +122,13 @@ static bool chunkBitmapFindUnsetPosition(ChunkBitmap bitmap,
                     if ((((x_bitset) >> (_x)) & 0b1) == 1) { \
                         continue; \
                     } \
-                    chunkBitmapSetBit(bitmap, &pos); \
                     const IBlock* iblock = chunkGetBlockVec(chunk, &pos); \
                     const Block* block = VCAST_PTR(Block*, iblock); \
                     if (blockGetOpacityBitset(block->id, block->orientation) != 0b111111) { \
                         *out_pos = pos; \
                         return true; \
                     } \
+                    chunkBitmapSetBit(bitmap, &pos); \
                     /* Update masks for BGM */ \
                     addVoxelToFaceColumns( \
                         faces_cols, \
