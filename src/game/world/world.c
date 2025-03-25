@@ -378,7 +378,7 @@ void worldRender(const World* world,
     while (cvector_size(render_queue) > 0) {
         const ChunkVisit visit = render_queue[cvector_size(render_queue) - 1];
         cvector_pop_back(render_queue);
-        /*DEBUG_LOG("[WORLD] Visit chunk " VEC_PATTERN "\n", VEC_LAYOUT(visit.position));*/
+        DEBUG_LOG("[WORLD] Visit chunk " VEC_PATTERN "\n", VEC_LAYOUT(visit.position));
         Chunk* chunk = worldGetChunk(world, &visit.position);
         // NOTE: If chunk is NULL, then always traverse to next chunks, ignoring
         //       visibility, since it's always visible.
@@ -416,6 +416,7 @@ void worldRender(const World* world,
                     next_chunk.vy,
                     next_chunk.vz - z_offset
                 );
+                DEBUG_LOG("[WORLD] Mark pos: " VEC_PATTERN "\n", VEC_LAYOUT(mark_pos));
                 if (isChunkMarked(mark_pos.vx, mark_pos.vy, mark_pos.vz)) {
                     // Within the world and already visited, skip it
                     continue;
