@@ -444,7 +444,7 @@ void worldRender(const World* world,
                     (next_chunk.vz + 1) * CHUNK_BLOCK_SIZE
                 )
             };
-            // TODO: Create AABB for next_chunk and frustum cull it
+            // BUG: This culling is busted, need to figure it out
             /*if (frustumContainsAABB(&player->camera->frustum, &aabb) == FRUSTUM_OUTSIDE) {*/
             /*    continue;*/
             /*}*/
