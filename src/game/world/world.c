@@ -359,7 +359,12 @@ void worldRender(const World* world,
     //       if there are still bits that are missing traverse to next chunks in the direction
     //       the player is facing and render them. Stop drawing if screen is full and/or there
     //       are no more loaded chunks to traverse to.
-    const FaceDirection player_camera_direction = faceDirectionClosestNormal(player->camera->rotation);
+    const VECTOR opposite_rotation = vec3_i32(
+        -player->camera->rotation.vx,
+        -player->camera->rotation.vy,
+        -player->camera->rotation.vz
+    );
+    const FaceDirection player_camera_direction = faceDirectionClosestNormal(opposite_rotation);
     cvector_push_back(
         render_queue,
         ((ChunkVisit) {
@@ -403,7 +408,7 @@ void worldRender(const World* world,
                 continue;
             }
             const SVECTOR face_normal = FACE_DIRECTION_NORMALS[face_dir];
-            if (dot_i32(face_normal, player->camera->rotation) >= 0) {
+            if (dot_i32(face_normal, opposite_rotation) >= 0) {
                 // Don't traverse to chunks through faces that go back
                 // towards the camera
                 continue;
@@ -440,9 +445,9 @@ void worldRender(const World* world,
                 )
             };
             // TODO: Create AABB for next_chunk and frustum cull it
-            if (frustumContainsAABB(&player->camera->frustum, &aabb) == FRUSTUM_OUTSIDE) {
-                continue;
-            }
+            /*if (frustumContainsAABB(&player->camera->frustum, &aabb) == FRUSTUM_OUTSIDE) {*/
+            /*    continue;*/
+            /*}*/
             cvector_push_back(
                 render_queue,
                 ((ChunkVisit) {
