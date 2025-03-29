@@ -306,10 +306,6 @@ static void chunkVisibilityDfsWalkScan(Chunk* chunk,
     u16 total_blocks_processed = (root.vy * CHUNK_SIZE * CHUNK_SIZE) + (root.vz * CHUNK_SIZE) + root.vx;
     while (total_blocks_processed < CHUNK_SIZE * CHUNK_SIZE  * CHUNK_SIZE) {
         u8 visible_sides = 0b000000;
-        // BUG: This continuously considers the same block, then searches
-        //      for a next unset position after loop ends and then repeats.
-        //      Seems like we are not marking blocks as visited in the bitmap
-        //      correctly somewhere.
         while (cvector_size(queue) > 0) {
             // This makes this DFS, we save on needing to
             // do a swap with the last element before popping
@@ -398,7 +394,6 @@ static void chunkVisibilityDfsWalkScan(Chunk* chunk,
         cvector_push_back(queue, pos);
     }
     cvector_free(queue);
-    DEBUG_LOG("[Chunk] Visibility: " INT16_BIN_PATTERN "\n", INT16_BIN_LAYOUT(chunk->visibility));
 }
 
 #undef chunkBitmapGetBit
@@ -415,6 +410,7 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk, const BreakingState* breaking_sta
         faces_cols_opaque
     );
     DEBUG_LOG("After DFS\n");
+    DEBUG_LOG("[Chunk] Visibility: " INT16_BIN_PATTERN "\n", INT16_BIN_LAYOUT(chunk->visibility));
     // Inner chunk blocks
     /*for (u32 z = 0; z < CHUNK_SIZE; z++) {*/
     /*    for (u32 x = 0; x < CHUNK_SIZE; x++) {*/
