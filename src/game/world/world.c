@@ -230,7 +230,6 @@ void worldInit(World* world, RenderContext* ctx) {
     }
 #undef displayProgress
     DEBUG_LOG("[WORLD] Finished loading\n");
-    abort();
 }
 
 void worldDestroy(World* world) {
