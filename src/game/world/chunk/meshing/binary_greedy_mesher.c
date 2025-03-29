@@ -6,6 +6,7 @@
 #include "../../../../lighting/lightmap.h"
 #include "../../../../util/interface99_extensions.h"
 #include "../../../../util/bits.h"
+#include "../../../../util/preprocessor.h"
 #include "../../../../math/vector.h"
 #include "../../../../structure/hashmap.h"
 #include "../../../../resources/asset_indices.h"
@@ -397,6 +398,7 @@ static void chunkVisibilityDfsWalkScan(Chunk* chunk,
         cvector_push_back(queue, pos);
     }
     cvector_free(queue);
+    DEBUG_LOG("[Chunk] Visibility: " INT16_BIN_PATTERN "\n", INT16_BIN_LAYOUT(chunk->visibility));
 }
 
 #undef chunkBitmapGetBit

@@ -230,6 +230,7 @@ void worldInit(World* world, RenderContext* ctx) {
     }
 #undef displayProgress
     DEBUG_LOG("[WORLD] Finished loading\n");
+    abort();
 }
 
 void worldDestroy(World* world) {
@@ -355,6 +356,7 @@ void worldRender(const World* world,
     );
     const i32 x_offset = world->centre.vx - LOADED_CHUNKS_RADIUS;
     const i32 z_offset = world->centre.vz - LOADED_CHUNKS_RADIUS;
+    DEBUG_LOG("[WORLD] Array offset [X: %d] [Z: %d]\n", x_offset, z_offset);
     // TODO: Render current chunk and track how much of the screen has been drawn (somehow?)
     //       if there are still bits that are missing traverse to next chunks in the direction
     //       the player is facing and render them. Stop drawing if screen is full and/or there
@@ -377,8 +379,8 @@ void worldRender(const World* world,
     #define isChunkMarked(x, y, z) ((chunk_bitset[((y) * AXIS_LOADED_CHUNKS) + (z)] >> (x) & 0b1) == 1)
     markChunk(
         cb_pos.chunk.vx - x_offset,
-        cb_pos.chunk.vz - z_offset,
-        cb_pos.chunk.vy
+        cb_pos.chunk.vy,
+        cb_pos.chunk.vz - z_offset
     );
     while (cvector_size(render_queue) > 0) {
         const ChunkVisit visit = render_queue[cvector_size(render_queue) - 1];
@@ -405,12 +407,14 @@ void worldRender(const World* world,
             if (face_dir == visit.visited_from
                 || chunkVisibilityGetBit(visibility, face_dir, visit.visited_from) == 0) {
                 // Cannot exit chunk in this direction from the entered face
+                DEBUG_LOG("[WORLD] Face dir equal or no visibility\n");
                 continue;
             }
             const SVECTOR face_normal = FACE_DIRECTION_NORMALS[face_dir];
             if (dot_i32(face_normal, opposite_rotation) >= 0) {
                 // Don't traverse to chunks through faces that go back
                 // towards the camera
+                DEBUG_LOG("[WORLD] Positve dot product\n");
                 continue;
             }
             const VECTOR next_chunk = vec3_add(visit.position, face_normal);
@@ -424,6 +428,7 @@ void worldRender(const World* world,
                 DEBUG_LOG("[WORLD] Mark pos: " VEC_PATTERN "\n", VEC_LAYOUT(mark_pos));
                 if (isChunkMarked(mark_pos.vx, mark_pos.vy, mark_pos.vz)) {
                     // Within the world and already visited, skip it
+                    DEBUG_LOG("[WORLD] Already visited\n");
                     continue;
                 }
                 markChunk(mark_pos.vx, mark_pos.vy, mark_pos.vz);
@@ -431,6 +436,7 @@ void worldRender(const World* world,
             if (squareDistance(&cb_pos.chunk, &next_chunk) >= WORLD_RENDER_DISTANCE_SQUARED) {
                 // Max render distance
                 // NOTE: cb_pos.chunk is the player chunk
+                DEBUG_LOG("[WORLD] Exceeded render limit\n");
                 continue;
             }
             /*const AABB aabb = (AABB) {*/
