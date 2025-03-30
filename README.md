@@ -41,6 +41,9 @@ Remake of Minecraft for PS1 with PSn00bSDK
 
 * Emulator: [PCSX Redux](https://github.com/grumpycoders/pcsx-redux), [Duckstation](https://github.com/stenzek/duckstation)
 * PS1 Library: [PSn00bSDK](https://github.com/Lameguy64/PSn00bSDK)
+* Data structures:
+    * [hashmap](https://github.com/tidwall/hashmap.c/tree/master)
+    * [cvector](https://github.com/eteran/c-vector/tree/master)
 
 ## References
 
