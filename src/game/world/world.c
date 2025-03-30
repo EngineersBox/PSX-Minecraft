@@ -230,6 +230,7 @@ void worldInit(World* world, RenderContext* ctx) {
     }
 #undef displayProgress
     DEBUG_LOG("[WORLD] Finished loading\n");
+    /*abort();*/
 }
 
 void worldDestroy(World* world) {
@@ -402,9 +403,14 @@ void worldRender(const World* world,
             );
         }
         DEBUG_LOG("Chunk vis: " INT16_BIN_PATTERN "\n", INT16_BIN_LAYOUT(visibility));
+        const u8 visibility_bit_mask = 0b1 << (u8) visit.visited_from;
         for (FaceDirection face_dir = FACE_DIR_DOWN; face_dir < FACE_DIR_FRONT; face_dir++) {
             if (face_dir == visit.visited_from
-                || chunkVisibilityGetBit(visibility, face_dir, visit.visited_from) == 0) {
+                || chunkVisibilityGetBit(
+                    visibility,
+                    0b1 << (u8) face_dir,
+                    visibility_bit_mask
+                ) == 0) {
                 // Cannot exit chunk in this direction from the entered face
                 DEBUG_LOG("[WORLD] Face dir equal or no visibility\n");
                 continue;

@@ -86,6 +86,7 @@ static bool chunkBitmapFindUnsetPosition(ChunkBitmap bitmap,
                                          const Chunk* chunk,
                                          FacesColumns faces_cols,
                                          FacesColumns faces_cols_opaque,
+                                         u16* total_blocks_processed,
                                          VECTOR* out_pos) {
     // This alternates iteration between two corners of the chunk
     // working inwards. Allows for slightly higher probability of
@@ -138,7 +139,8 @@ static bool chunkBitmapFindUnsetPosition(ChunkBitmap bitmap,
                         (_x) + 1, \
                         (_y) + 1, \
                         (_z) + 1 \
-                    )
+                    ); \
+                    (*total_blocks_processed)++
                     updateBitmap(x_bitset, pos.vx, pos.vy, pos.vz);
                 }
             }
@@ -340,17 +342,17 @@ static void chunkVisibilityDfsWalkScan(Chunk* chunk,
                     faces_cols_opaque \
                 )
             // Left
-            _visitBlock(pos.vx == 0, 0b100000, vec3_i32(-1, 0, 0));
+            _visitBlock(pos.vx == 0, 0b000100, vec3_i32(-1, 0, 0));
             // Right
-            _visitBlock(pos.vx == CHUNK_SIZE - 1, 0b010000, vec3_i32(1, 0, 0));
+            _visitBlock(pos.vx == CHUNK_SIZE - 1, 0b001000, vec3_i32(1, 0, 0));
             // Front
-            _visitBlock(pos.vz == 0, 0b001000, vec3_i32(0, 0, -1));
+            _visitBlock(pos.vz == 0, 0b100000, vec3_i32(0, 0, -1));
             // Back
-            _visitBlock(pos.vz == CHUNK_SIZE - 1, 0b000100, vec3_i32(0, 0, 1));
+            _visitBlock(pos.vz == CHUNK_SIZE - 1, 0b010000, vec3_i32(0, 0, 1));
             // Down
-            _visitBlock(pos.vy == 0, 0b000010, vec3_i32(0, -1, 0));
+            _visitBlock(pos.vy == 0, 0b000001, vec3_i32(0, -1, 0));
             // Up
-            _visitBlock(pos.vy == CHUNK_SIZE - 1, 0b000001, vec3_i32(0, 1, 0));
+            _visitBlock(pos.vy == CHUNK_SIZE - 1, 0b000010, vec3_i32(0, 1, 0));
             #undef _visitBlock
         }
         if (isPowerOf2(visible_sides)) {
@@ -363,6 +365,7 @@ static void chunkVisibilityDfsWalkScan(Chunk* chunk,
                 chunk,
                 faces_cols,
                 faces_cols_opaque,
+                &total_blocks_processed,
                 &pos
             )) {
                 cvector_push_back(queue, pos);
@@ -387,6 +390,7 @@ static void chunkVisibilityDfsWalkScan(Chunk* chunk,
             chunk,
             faces_cols,
             faces_cols_opaque,
+            &total_blocks_processed,
             &pos
         )) {
             break;
@@ -394,6 +398,11 @@ static void chunkVisibilityDfsWalkScan(Chunk* chunk,
         cvector_push_back(queue, pos);
     }
     cvector_free(queue);
+    DEBUG_LOG(
+        "[Chunk] Blocks processed: %d/%d\n",
+        total_blocks_processed,
+        CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE
+    );
 }
 
 #undef chunkBitmapGetBit
@@ -409,7 +418,6 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk, const BreakingState* breaking_sta
         faces_cols,
         faces_cols_opaque
     );
-    DEBUG_LOG("After DFS\n");
     DEBUG_LOG("[Chunk] Visibility: " INT16_BIN_PATTERN "\n", INT16_BIN_LAYOUT(chunk->visibility));
     // Inner chunk blocks
     /*for (u32 z = 0; z < CHUNK_SIZE; z++) {*/
