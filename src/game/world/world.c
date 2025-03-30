@@ -5,6 +5,7 @@
 #include <psxgte.h>
 #include <inline_c.h>
 #include <psxgpu.h>
+#include <stdint.h>
 
 #include "../../util/preprocessor.h"
 #include "../../util/interface99_extensions.h"
@@ -391,7 +392,7 @@ void worldRender(const World* world,
         //       visibility, since it's always visible.
         ChunkVisibility visibility;
         if (chunk == NULL) {
-            visibility = 0b111111111111111;
+            visibility = UINT16_MAX;
         } else {
             visibility = chunk->visibility;
             DEBUG_LOG("Rendering chunk " VEC_PATTERN "\n", VEC_LAYOUT(visit.position));
