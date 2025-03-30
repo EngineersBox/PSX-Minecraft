@@ -306,7 +306,7 @@ static void chunkVisibilityDfsWalkScan(Chunk* chunk,
     // in the bitmap, so we start with already having processed
     // those.
     u16 total_blocks_processed = (root.vy * CHUNK_SIZE * CHUNK_SIZE) + (root.vz * CHUNK_SIZE) + root.vx;
-    while (total_blocks_processed < CHUNK_SIZE * CHUNK_SIZE  * CHUNK_SIZE) {
+    while (total_blocks_processed < CHUNK_DATA_SIZE) {
         u8 visible_sides = 0b000000;
         while (cvector_size(queue) > 0) {
             // This makes this DFS, we save on needing to
@@ -401,7 +401,7 @@ static void chunkVisibilityDfsWalkScan(Chunk* chunk,
     DEBUG_LOG(
         "[Chunk] Blocks processed: %d/%d\n",
         total_blocks_processed,
-        CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE
+        CHUNK_DATA_SIZE
     );
 }
 
