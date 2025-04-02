@@ -404,7 +404,7 @@ void worldRender(const World* world,
             );
         }
         DEBUG_LOG("Chunk vis: " INT16_BIN_PATTERN "\n", INT16_BIN_LAYOUT(visibility));
-        for (FaceDirection face_dir = FACE_DIR_DOWN; face_dir < FACE_DIR_FRONT; face_dir++) {
+        for (FaceDirection face_dir = FACE_DIR_DOWN; face_dir <= FACE_DIR_FRONT; face_dir++) {
             if (face_dir == visit.visited_from
                 || chunkVisibilityGetBit(
                     visibility,

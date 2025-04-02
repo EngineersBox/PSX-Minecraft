@@ -327,9 +327,9 @@ static void chunkVisibilityDfsWalkScan(Chunk* chunk,
                 pos.vz + 1
             );
             const Block* block = VCAST_PTR(Block*, chunkGetBlock(chunk, pos.vx, pos.vy, pos.vz));
-            #define _visitBlock(condition, bits, normal) \
+            #define _visitBlock(condition, direction, normal) \
                 if (condition) { \
-                    visible_sides |= bits; \
+                    visible_sides |= 0b1 << direction; \
                 } \
                 total_blocks_processed += visitBlock( \
                     bitmap, \
@@ -342,17 +342,17 @@ static void chunkVisibilityDfsWalkScan(Chunk* chunk,
                     faces_cols_opaque \
                 )
             // Left
-            _visitBlock(pos.vx == 0, 0b000100, vec3_i32(-1, 0, 0));
+            _visitBlock(pos.vx == 0, FACE_DIR_LEFT, vec3_i32(-1, 0, 0));
             // Right
-            _visitBlock(pos.vx == CHUNK_SIZE - 1, 0b001000, vec3_i32(1, 0, 0));
+            _visitBlock(pos.vx == CHUNK_SIZE - 1, FACE_DIR_RIGHT, vec3_i32(1, 0, 0));
             // Front
-            _visitBlock(pos.vz == 0, 0b100000, vec3_i32(0, 0, -1));
+            _visitBlock(pos.vz == 0, FACE_DIR_FRONT, vec3_i32(0, 0, -1));
             // Back
-            _visitBlock(pos.vz == CHUNK_SIZE - 1, 0b010000, vec3_i32(0, 0, 1));
+            _visitBlock(pos.vz == CHUNK_SIZE - 1, FACE_DIR_BACK, vec3_i32(0, 0, 1));
             // Down
-            _visitBlock(pos.vy == 0, 0b000001, vec3_i32(0, -1, 0));
+            _visitBlock(pos.vy == 0, FACE_DIR_DOWN, vec3_i32(0, -1, 0));
             // Up
-            _visitBlock(pos.vy == CHUNK_SIZE - 1, 0b000010, vec3_i32(0, 1, 0));
+            _visitBlock(pos.vy == CHUNK_SIZE - 1, FACE_DIR_UP, vec3_i32(0, 1, 0));
             #undef _visitBlock
         }
         if (isPowerOf2(visible_sides)) {
