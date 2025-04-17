@@ -312,7 +312,7 @@ static void chunkRenderDroppedItems(const Chunk* chunk, RenderContext* ctx, Tran
     }
 }
 
-#if isOverlayEnabled(DURATION_TREE)
+#if isDebugTagEnabled(OVERLAY_DURATION_TREE)
 static char chunk_render_duration_names[AXIS_CHUNKS][AXIS_CHUNKS][WORLD_CHUNKS_HEIGHT][30] = {0};
 static DurationComponent* chunk_render_duration[AXIS_CHUNKS][AXIS_CHUNKS][WORLD_CHUNKS_HEIGHT] = {0};
 #endif
@@ -323,7 +323,7 @@ void chunkRender(Chunk* chunk,
                  bool subdivide,
                  RenderContext* ctx,
                  Transforms* transforms) {
-#if isOverlayEnabled(DURATION_TREE)
+#if isDebugTagEnabled(OVERLAY_DURATION_TREE)
     DurationComponent** duration = &chunk_render_duration[shiftChunkPos(chunk, vx)]
                                                          [shiftChunkPos(chunk, vz)]
                                                          [chunk->position.vy];

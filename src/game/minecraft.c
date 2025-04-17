@@ -34,6 +34,7 @@
 #include "world/level/overworld_perlin.h"
 #include "weather/weather.h"
 #include "../core/console.h"
+#include "../debug/debug_defines.h"
 
 World* world;
 IInputHandler player_handler;
@@ -117,7 +118,11 @@ void Minecraft_init(VSelf, void* ctx) {
         0
     );
     iPhysicsObjectSetPosition(&player->entity.physics_object, &player_positon);
+#if isDebugTagEnabled(PLAYER_NOCLIP)
     player->entity.physics_object.flags.no_clip = true;
+#else
+    player->entity.physics_object.flags.no_clip = false;
+#endif
     player_handler = DYN(Player, IInputHandler, player);
     VCALL(player_handler, registerInputHandler, &input, world);
     // Register handlers
@@ -261,7 +266,7 @@ static DurationComponent* render_duration = NULL;
 void minecraftRender(VSelf, const Stats* stats) ALIAS("Minecraft_render");
 void Minecraft_render(VSelf, const Stats* stats) {
     VSELF(Minecraft);
-#if isOverlayEnabled(DURATION_TREE)
+#if isDebugTagEnabled(OVERLAY_DURATION_TREE)
     durationTreeMakeCurrent(&render_duration_tree);
     if (render_duration == NULL) {
         render_duration = durationTreeAddComponent("render");

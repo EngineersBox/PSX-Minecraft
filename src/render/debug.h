@@ -7,7 +7,7 @@
 #include "../structure/circular_buffer.h"
 #include "../core/app_logic.h"
 #include "../core/camera.h"
-#include "debug_defines.h"
+#include "../debug/debug_defines.h"
 #include "../util/inttypes.h"
 #include "../game/world/world_structure.h"
 

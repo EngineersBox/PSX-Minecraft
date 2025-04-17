@@ -87,10 +87,10 @@ void debugDrawPacketBufferUsageGraph(RenderContext* ctx, const u16 base_screen_x
 }
 
 void drawLeftDebugText(const Stats* stats, const Camera* camera, const World* world) {
-#if isOverlayEnabled(FPS)
+#if isDebugTagEnabled(OVERLAY_FPS)
     FntPrint(0, "FT=%dms FPS=%d TPS=%d\n", stats->frame_diff_ms, stats->fps, stats->tps);
 #endif
-#if isOverlayEnabled(POS)
+#if isDebugTagEnabled(OVERLAY_POS)
     const i32 x = camera->position.vx / BLOCK_SIZE;
     const i32 y_down = camera->position.vy / BLOCK_SIZE;
     const i32 y_up = -camera->position.vy / BLOCK_SIZE;
@@ -110,10 +110,10 @@ void drawLeftDebugText(const Stats* stats, const Camera* camera, const World* wo
     );
     #undef fracToFloat
 #endif
-#if (isOverlayEnabled(DIR) || isOverlayEnabled(FACING))
+#if (isDebugTagEnabled(OVERLAY_DIR) || isDebugTagEnabled(OVERLAY_FACING))
     const VECTOR direction = rotationToDirection(&camera->rotation);
 #endif
-#if isOverlayEnabled(DIR)
+#if isDebugTagEnabled(OVERLAY_DIR)
     FntPrint(
         0,
         "RX=%d RY=%d\n",
@@ -126,7 +126,7 @@ void drawLeftDebugText(const Stats* stats, const Camera* camera, const World* wo
         VEC_LAYOUT(direction)
     );
 #endif
-#if isOverlayEnabled(FACING)
+#if isDebugTagEnabled(OVERLAY_FACING)
     char facing;
     switch (faceDirectionClosestNormal(direction)) {
         // NOTE: Up and down are swapping since the above function
@@ -146,7 +146,7 @@ void drawLeftDebugText(const Stats* stats, const Camera* camera, const World* wo
         facing
     );
 #endif
-#if isOverlayEnabled(WORLD)
+#if isDebugTagEnabled(OVERLAY_WORLD)
     char* weather;
     if (world->weather.storming) {
         weather = "storming";
@@ -166,7 +166,7 @@ void drawLeftDebugText(const Stats* stats, const Camera* camera, const World* wo
 }
 
 void drawRightDebugText(const Stats* stats) {
-#if isOverlayEnabled(MEM)
+#if isDebugTagEnabled(OVERLAY_MEM)
     HeapUsage* usage = {0};
     GetHeapUsage(usage);
     char* suffix;
