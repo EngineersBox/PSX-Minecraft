@@ -140,6 +140,15 @@ Remake of Minecraft for PS1 with PSn00bSDK
 
 </details>
 
+## Development
+
+There are two core branches:
+
+* `main`: stable changes that you can build, run and do stuff with.
+* `dev`: active development, unstable and potentially doesn't compile.
+
+Ideally, you'll want to use the `main` branch, or any tagged releases if they exist.
+
 ## Building
 
 Configuring the project can be done with
