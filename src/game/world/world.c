@@ -932,19 +932,19 @@ void worldUpdate(World* world,
         CHUNK_SIZE
     );
     if (isPlayerInEdgeChunks(world, &player_pos)) {
-        DEBUG_LOG("Player chunk pos: " VEC_PATTERN "\n", VEC_LAYOUT(player_pos.chunk));
+        // DEBUG_LOG("Player chunk pos: " VEC_PATTERN "\n", VEC_LAYOUT(player_pos.chunk));
         worldLoadChunks(world, &player_pos.chunk);
-        DEBUG_LOG(
-            "[WORLD] Head { x: %d, z: %d } Centre { x: %d, z: %d}\n",
-            world->head.vx, world->head.vz,
-            world->centre.vx, world->centre.vz
-        );
-        for (i32 z = 0; z < AXIS_CHUNKS; z++) {
-            for (i32 x = 0; x < AXIS_CHUNKS; x++) {
-                DEBUG_LOG("%d ", world->chunks[z][x][0] != NULL);
-            }
-            DEBUG_LOG("\n");
-        }
+        // DEBUG_LOG(
+        //     "[WORLD] Head { x: %d, z: %d } Centre { x: %d, z: %d}\n",
+        //     world->head.vx, world->head.vz,
+        //     world->centre.vx, world->centre.vz
+        // );
+        // for (i32 z = 0; z < AXIS_CHUNKS; z++) {
+        //     for (i32 x = 0; x < AXIS_CHUNKS; x++) {
+        //         DEBUG_LOG("%d ", world->chunks[z][x][0] != NULL);
+        //     }
+        //     DEBUG_LOG("\n");
+        // }
     }
     const VECTOR chunk_position = worldToChunkBlockPosition(
         &breaking_state->position,
@@ -969,7 +969,7 @@ void worldUpdate(World* world,
                 }
             }
         }
-        /*DEBUG_LOG("[WORLD] End world update (no breaking state)\n");*/
+        // DEBUG_LOG("[WORLD] End world update (no breaking state)\n");
         return;
     }
     u8 coords_check = 0b000; // XYZ
@@ -997,7 +997,7 @@ void worldUpdate(World* world,
         }
     }
     #undef updateCoordBit
-    /*DEBUG_LOG("[WORLD] End world update (with breaking state)\n");*/
+    // DEBUG_LOG("[WORLD] End world update (with breaking state)\n");
 }
 
 INLINE Chunk* worldGetChunkFromChunkBlock(const World* world, const ChunkBlockPosition* position) {

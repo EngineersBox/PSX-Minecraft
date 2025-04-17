@@ -8,7 +8,7 @@
 #include "../math/math_utils.h"
 #include "../structure/cvector_utils.h"
 
-#if isOverlayEnabled(DURATION_TREE)
+#if isDebugTagEnabled(OVERLAY_DURATION_TREE)
 #include <stdlib.h>
 
 #include "../logging/logging.h"

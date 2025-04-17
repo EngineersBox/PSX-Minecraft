@@ -8,7 +8,7 @@
 
 #include "../structure/cvector.h"
 #include "../hardware/counters.h"
-#include "debug_defines.h"
+#include "../debug/debug_defines.h"
 #include "font.h"
 #include "render_context.h"
 #include "transforms.h"
@@ -23,7 +23,7 @@ typedef struct DurationComponent {
     cvector(struct DurationComponent) components;
 } DurationComponent;
 
-#if isOverlayEnabled(DURATION_TREE)
+#if isDebugTagEnabled(OVERLAY_DURATION_TREE)
 extern DurationComponent render_duration_tree;
 extern DurationComponent update_duration_tree;
 extern u8 duration_stack_next_index;

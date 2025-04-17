@@ -23,6 +23,9 @@ Remake of Minecraft for PS1 with PSn00bSDK
       * [Weather Raining](#weather-raining)
       * [Crafting with Cursor](#crafting-with-cursor)
       * [Hotbar Attributes](#hotbar-attributes)
+  * [Development](#development)
+    * [Branches](#branches)
+    * [Debug Flags](#debug-flags)
   * [Building](#building)
   * [Docker Environment](#docker-environment)
     * [Utility Build Script](#utility-build-script)
@@ -142,12 +145,22 @@ Remake of Minecraft for PS1 with PSn00bSDK
 
 ## Development
 
+### Branches
+
 There are two core branches:
 
 * `main`: stable changes that you can build, run and do stuff with.
 * `dev`: active development, unstable and potentially doesn't compile.
 
 Ideally, you'll want to use the `main` branch, or any tagged releases if they exist.
+
+### Debug Flags
+
+There are many debug flags you can set to inspect various things, such as position,
+camera angle, render times of chunks, ordering table usage, noclip, etc.
+
+These are all configured through `compile_flags.cmake`, set these as you like before
+compiling to use them. Each has it's own brief description.
 
 ## Building
 

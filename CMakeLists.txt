@@ -77,17 +77,9 @@ if(CMAKE_C_COMPILER_ID STREQUAL "Clang")
 elseif(CMAKE_C_COMPILER_ID STREQUAL "GNU")
 	target_compile_options(PSXMC PRIVATE -ftrack-macro-expansion=0)
 endif()
-
-target_compile_definitions(PSXMC PUBLIC -DPSXMC_VERSION_STRING="PSXMC Infdev")
 target_compile_definitions(PSXMC PUBLIC -DFPT_BITS=32 -DFPT_WBITS=20)
-target_compile_definitions(PSXMC PUBLIC -DPSXMC_DEBUG=1)
-target_compile_definitions(PSXMC PUBLIC -DPSXMC_DEBUG_OVERLAY_FPS=1)
-target_compile_definitions(PSXMC PUBLIC -DPSXMC_DEBUG_OVERLAY_POS=1)
-target_compile_definitions(PSXMC PUBLIC -DPSXMC_DEBUG_OVERLAY_DIR=1)
-target_compile_definitions(PSXMC PUBLIC -DPSXMC_DEBUG_OVERLAY_FACING=1)
-target_compile_definitions(PSXMC PUBLIC -DPSXMC_DEBUG_OVERLAY_WORLD=0)
-target_compile_definitions(PSXMC PUBLIC -DPSXMC_DEBUG_OVERLAY_MEM=0)
-target_compile_definitions(PSXMC PUBLIC -DPSXMC_DEBUG_OVERLAY_DURATION_TREE=1)
+
+include(${PROJECT_SOURCE_DIR}/compile_flags.cmake)
 
 set_property(TARGET PSXMC PROPERTY C_STANDARD 23)
 
