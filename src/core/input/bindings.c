@@ -25,6 +25,7 @@ WEAK PadButton BINDING_OPEN_INVENTORY = PAD_START; // PAD_TRIANGLE
 WEAK PadButton BINDING_CURSOR_CLICK = PAD_R2;
 WEAK PadButton BINDING_SPLIT_OR_STORE_ONE = PAD_L2; 
 // Need to adjust these since they don't feel right for these actions
+// Hotbar selector
 WEAK PadButton BINDING_PREVIOUS = PAD_L3;
 WEAK PadButton BINDING_NEXT = PAD_R3;
 

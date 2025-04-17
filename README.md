@@ -23,6 +23,7 @@ Remake of Minecraft for PS1 with PSn00bSDK
       * [Weather Raining](#weather-raining)
       * [Crafting with Cursor](#crafting-with-cursor)
       * [Hotbar Attributes](#hotbar-attributes)
+  * [Playing](#playing)
   * [Development](#development)
     * [Branches](#branches)
     * [Debug Flags](#debug-flags)
@@ -139,6 +140,17 @@ Remake of Minecraft for PS1 with PSn00bSDK
 ![Hotbar Attributes](./docs/hotbar_attributes.png)
 
 </details>
+
+## Playing
+
+First, clone the repo and build the artefacts according to the [development](#development),
+[building](#building) and [docker environment](#docker-environment) sections of this README.
+
+Then load up the binary `build/PSXMC.bin` you favourite emulator (i.e. PCSX-Redux or Duckstations),
+or burn it to a CD and put it in an actual PS1 console.
+
+See the `src/core/input/bindings.c` file for the bindings, and customise them as you see fit (i'll 
+make this easier via debug flags at some point and eventually in-game), recompiling afterwards.
 
 ## Development
 
