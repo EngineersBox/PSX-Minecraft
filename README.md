@@ -146,7 +146,7 @@ Remake of Minecraft for PS1 with PSn00bSDK
 First, clone the repo and build the artefacts according to the [development](#development),
 [building](#building) and [docker environment](#docker-environment) sections of this README.
 
-Then load up the binary `build/PSXMC.bin` you favourite emulator (i.e. PCSX-Redux or Duckstations),
+Then load up the binary `build/PSXMC.bin` you favourite emulator (i.e. PCSX-Redux or Duckstation),
 or burn it to a CD and put it in an actual PS1 console.
 
 See the `src/core/input/bindings.c` file for the bindings, and customise them as you see fit (i'll 
