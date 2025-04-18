@@ -60,7 +60,9 @@ static void* _loadTextures(const void* ctx) {
         textures = (Texture*) calloc(file_count, sizeof(Texture));
     }
     for (int i = 0; i < file_count; i++) {
+#if isDebugEnabled()
         const QLP_FILE* file = qlpFileEntry(i, tex_buff);
+#endif
         if (!GetTimInfo((uint32_t*) qlpFileAddr(i, tex_buff), &tim)) {
             assetLoadImage(&tim, &textures[i]);
             DEBUG_LOG(

@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.21)
 project(
 	PSX-Minecraft
 	LANGUAGES    C CXX ASM
-	VERSION      1.0.0
+	VERSION      0.1.0
 	DESCRIPTION  "PSX Minecraft"
 	HOMEPAGE_URL "https://github.com/EngineersBox/PSX-Minecraft"
 )
