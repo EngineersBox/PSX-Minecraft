@@ -67,7 +67,7 @@ void _durationTreeRender(const DurationComponent* tree, RenderContext* ctx, Tran
 #define durationComponentStart(node) ({})
 #define durationComponentEnd(node) ({})
 
-#define DEFN_DURATION_COMPONENT(name) ({})
+#define DEFN_DURATION_COMPONENT(name)
 #define durationComponentInitOnce(defn_name, name) ({})
 #define durationTreeChangeStackIndex(tree, adjustment) ({})
 #define durationTreeRender(tree, ctx, transforms) ({})

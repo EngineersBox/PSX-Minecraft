@@ -261,7 +261,7 @@ void frustumRenderNormals(const Frustum* frustum, RenderContext* ctx) {
     renderCtxUnbindMatrix();
 }
 
-static DurationComponent* render_duration = NULL;
+DEFN_DURATION_COMPONENT(render);
 
 void minecraftRender(VSelf, const Stats* stats) ALIAS("Minecraft_render");
 void Minecraft_render(VSelf, const Stats* stats) {
@@ -314,11 +314,13 @@ void Minecraft_render(VSelf, const Stats* stats) {
     renderClearConstraints(&self->ctx);
     FntPrint(0, PSXMC_VERSION_STRING "\n");
     drawDebugText(stats, &self->camera, world);
+#if isDebugEnabled()
     debugDrawPacketBufferUsageGraph(
         &self->ctx,
         0,
         SCREEN_YRES - HOTBAR_HEIGHT - 20
     );
+#endif
     // Flush font to screen
     FntFlush(0);
     // Swap buffers and draw the primitives
