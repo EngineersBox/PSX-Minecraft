@@ -163,4 +163,28 @@
     (p) |= (st) << 5
 #define setTPageSemiTrans(p, st) setTPageSemiTrans_T((p)->code[0], st)
 
+// ==== DEFER OPERATION IN SCOPE ====
+
+#if defined(__clang__)
+// Source: https://stackoverflow.com/questions/24959440/rewrite-gcc-cleanup-macro-with-nested-function-for-clang
+typedef void (^__cleanup_block)(void);
+static inline void __do_cleanup(__cleanup_block* b) { (*b)(); }
+#define __DEFER__(V) __cleanup_block __attribute__((cleanup(__do_cleanup))) V = ^
+#define __DEFER_(N) __DEFER__(__DEFER_VARIABLE_ ## N)
+#define __DEFER(N) __DEFER_(N)
+#define defer __DEFER(__COUNTER__)
+#elif defined(__GNUC__)
+// Source: https://gustedt.wordpress.com/2025/01/06/simple-defer-ready-to-use/
+#define __block
+#define __DEFER__(F, V) \
+    auto void F(int*); \
+    __attribute__((cleanup(F))) int V; \
+    auto void F(int*)
+#define __DEFER_(N) __DEFER__(__DEFER_FUNCTION_ ## N, __DEFER_VARIABLE_ ## N)
+#define __DEFER(N) __DEFER_(N)
+#define defer __DEFER(__COUNTER__)
+#elif
+#error defer macro not supported as nested functions not supported with this compiler
+#endif
+
 #endif // PSXMC_PREPROCESSOR_H

@@ -19,7 +19,6 @@
 #include "../../logging/logging.h"
 #include "../items/items.h"
 #include "chunk/chunk.h"
-#include "chunk/chunk_defines.h"
 #include "chunk/chunk_mesh.h"
 #include "chunk/chunk_structure.h"
 #include "chunk/chunk_visibility.h"
@@ -444,22 +443,22 @@ void worldRender(const World* world,
                 DEBUG_LOG("[WORLD] Exceeded render limit\n");
                 continue;
             }
-            /*const AABB aabb = (AABB) {*/
-            /*    .min = vec3_i32(*/
-            /*        next_chunk.vx * CHUNK_BLOCK_SIZE,*/
-            /*        -next_chunk.vy * CHUNK_BLOCK_SIZE,*/
-            /*        next_chunk.vz * CHUNK_BLOCK_SIZE*/
-            /*    ),*/
-            /*    .max = vec3_i32(*/
-            /*        (next_chunk.vx + 1) * CHUNK_BLOCK_SIZE,*/
-            /*        -(next_chunk.vy + 1) * CHUNK_BLOCK_SIZE,*/
-            /*        (next_chunk.vz + 1) * CHUNK_BLOCK_SIZE*/
-            /*    )*/
-            /*};*/
-            // BUG: This culling is busted, need to figure it out
-            /*if (frustumContainsAABB(&player->camera->frustum, &aabb) == FRUSTUM_OUTSIDE) {*/
-            /*    continue;*/
-            /*}*/
+            // const AABB aabb = (AABB) {
+            //     .min = vec3_i32(
+            //         next_chunk.vx * CHUNK_BLOCK_SIZE,
+            //         -next_chunk.vy * CHUNK_BLOCK_SIZE,
+            //         next_chunk.vz * CHUNK_BLOCK_SIZE
+            //     ),
+            //     .max = vec3_i32(
+            //         (next_chunk.vx + 1) * CHUNK_BLOCK_SIZE,
+            //         -(next_chunk.vy + 1) * CHUNK_BLOCK_SIZE,
+            //         (next_chunk.vz + 1) * CHUNK_BLOCK_SIZE
+            //     )
+            // };
+            // // BUG: This culling is busted, need to figure it out
+            // if (frustumContainsAABB(&player->camera->frustum, &aabb) == FRUSTUM_OUTSIDE) {
+            //     continue;
+            // }
             cvector_push_back(
                 render_queue,
                 ((ChunkVisit) {

@@ -81,11 +81,13 @@ done
 # flag is set
 COMMAND="python3 scripts/asset_bundler.py"
 if [ $rebuild -eq 0 ]; then
-  COMMAND="$COMMAND && cmake --build $outDir"
+    # CMake policy definition is for compatibility
+    # with metalang99
+  COMMAND="$COMMAND && CMAKE_POLICY_VERSION_MINIMUM=3.5 cmake  --build $outDir"
 else
   rm -r "$outDir"
   echo "Removed build directory at: $outDir"
-  COMMAND="$COMMAND && cmake --preset=default . && cmake --build $outDir"
+  COMMAND="$COMMAND && cmake --preset=default . && CMAKE_POLICY_VERSION_MINIMUM=3.5 cmake --build $outDir"
 fi
 
 docker run -it \
