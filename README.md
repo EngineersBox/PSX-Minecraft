@@ -216,6 +216,11 @@ Using this, we can build as follows:
 docker build -t psxmc:latest -f Dockerfile .
 ```
 
+> [!NOTE]
+> The `Dockerfile` uses `--platform=linux/amd64` for compatibility with building on a non-x86/-x64 machine such as as ARM Apple Silicon
+> Macs. This might cause issues for you on an x86/x64 architecture in which case it can be removed. I will make this more stable and
+> adapt to the build architecture in future.
+
 ### Utility Build Script
 
 Using the above image, the utility script `build_container.sh` can be used to bundle assets

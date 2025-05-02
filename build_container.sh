@@ -83,9 +83,9 @@ COMMAND="python3 scripts/asset_bundler.py"
 if [ $rebuild -eq 0 ]; then
   COMMAND="$COMMAND && cmake --build $outDir"
 else
-  rm -r "$outDir"
+  rm -r "$outDir" || true
   echo "Removed build directory at: $outDir"
-  COMMAND="$COMMAND && cmake --preset=default . && cmake --build $outDir"
+  COMMAND="$COMMAND; cmake --preset=default . && cmake --build $outDir"
 fi
 
 docker run -it \
