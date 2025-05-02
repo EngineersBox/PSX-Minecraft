@@ -8,7 +8,7 @@
 #    -f Dockerfile .
 
 # TODO: Use a slimmer distro than bloaty ubuntu
-FROM ubuntu:latest
+FROM --platform=linux/amd64 ubuntu:22.04
 
 ARG REPO_TARGET=Lameguy64/PSn00bSDK
 ARG REPO_COMMIT_ISH=master
@@ -90,7 +90,7 @@ RUN cd include-what-you-use && git checkout clang_18 && cd ..
 RUN mkdir iwyu_build
 
 WORKDIR /iwyu_build
-RUN cmake -G "Unix Makefiles" -DCMAKE_PREFIX_PATH=/usr/lib/llvm-7 ../include-what-you-use
+RUN cmake -G "Unix Makefiles" -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DCMAKE_PREFIX_PATH=/usr/lib/llvm-7 ../include-what-you-use
 RUN make
 ENV PATH="$PATH:/iwyu_build/bin"
 
@@ -115,7 +115,7 @@ RUN wget "https://github.com/Lameguy64/PSn00bSDK/releases/download/$GCC_MIPSEL_E
     && unzip gcc-mipsel-none-elf-12.3.0-linux.zip -d /opt/psn00bsdk/mipsel-none-elf-gcc \
     && rm gcc-mipsel-none-elf-12.3.0-linux.zip
 # Build the SDK
-RUN cmake -D PSN00BSDK_LIBC_ALLOCATOR=$PSN00BSDK_LIBC_ALLOCATOR --preset default --install-prefix /opt/psn00bsdk . \
+RUN cmake -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DPSN00BSDK_LIBC_ALLOCATOR=$PSN00BSDK_LIBC_ALLOCATOR --preset default --install-prefix /opt/psn00bsdk . \
     && cmake --build ./build  \
     && cmake --install ./build
 

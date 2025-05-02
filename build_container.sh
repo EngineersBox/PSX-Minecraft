@@ -85,9 +85,9 @@ if [ $rebuild -eq 0 ]; then
     # with metalang99
   COMMAND="$COMMAND && CMAKE_POLICY_VERSION_MINIMUM=3.5 cmake  --build $outDir"
 else
-  rm -r "$outDir"
+  rm -r "$outDir" || true
   echo "Removed build directory at: $outDir"
-  COMMAND="$COMMAND && cmake --preset=default . && CMAKE_POLICY_VERSION_MINIMUM=3.5 cmake --build $outDir"
+  COMMAND="$COMMAND; cmake --preset=default . && cmake --build $outDir"
 fi
 
 docker run -it \
