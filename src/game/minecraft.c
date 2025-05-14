@@ -4,7 +4,7 @@
 #include <psxgpu.h>
 #include <psxgte.h>
 #include <psxcd.h>
-#include <stdlib.h>
+#include "../core/std/stdlib.h"
 /*#include <sys/ioctl.h>*/
 /*#include <sys/fcntl.h>*/
 /*#include <psxsio.h>*/
