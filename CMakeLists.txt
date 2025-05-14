@@ -14,16 +14,8 @@ set(COMPILE_OPTIMISATION_LEVEL 0)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -fshort-enums -Wno-unused-parameter -Wno-comments -Wno-expansion-to-defined")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O${COMPILE_OPTIMISATION_LEVEL}")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O${COMPILE_OPTIMISATION_LEVEL} -g")
 # set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fanalyzer")
-# FIXME: Rework PSn00bSDK GCC build to include libsanitize for static linking
-#        with --enable-libsanitize in configure.ac and figure out how to use
-#        with --no-libstd and custom malloc impls. Also we should auto-configure
-#        the linker flags and ASan flags/exports necessary to symbolize builds
-#        automatically when building in a non-release level (i.e. -O0).
-
-# set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -static-libasan -fsanitize=address -fno-omit-frame-pointer")
-# set(LDFLAGS "${LDFLAGS} -fsanitize=address -static-libasan")
 set(CMAKE_C_INCLUDE_WHAT_YOU_USE "include-what-you-use;-w;-Xiwyu;--verbose=7")
 include(${PROJECT_SOURCE_DIR}/bundles.cmake)
 ConstructAssetBundles()
