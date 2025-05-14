@@ -9,7 +9,7 @@
 #include "../structure/cvector_utils.h"
 
 #if isDebugTagEnabled(OVERLAY_DURATION_TREE)
-#include <stdlib.h>
+#include "../core/std/stdlib.h"
 
 #include "../logging/logging.h"
 

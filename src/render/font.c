@@ -1,7 +1,7 @@
 #include "font.h"
 
 #include <string.h>
-#include <stdlib.h>
+#include "../core/std/stdlib.h"
 #include <stdarg.h>
 #include <stdio.h>
 #include <ctype.h>

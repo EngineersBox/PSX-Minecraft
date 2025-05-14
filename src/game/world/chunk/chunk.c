@@ -4,7 +4,7 @@
 #include <inline_c.h>
 #include <stdbool.h>
 #include <string.h>
-#include <stdlib.h>
+#include "../../../core/std/stdlib.h"
 #include <psxapi.h>
 #include <assert.h>
 

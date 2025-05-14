@@ -4,12 +4,13 @@
 #define PSXMC_PREPROCESSOR_H
 
 #include <stdio.h>
-#include <stdlib.h>
+#include "../core/std/stdlib.h"
 #include <assert.h>
 #include <metalang99.h>
 #include <inttypes.h>
 
 #include "../logging/logging.h"
+#include "../debug/debug_defines.h"
 
 // ==== META MACROS ====
 
@@ -36,8 +37,9 @@
 // ==== MARKERS ====
 
 #define __ALLOC_CALL(...) __attribute__((malloc, ##__VA_ARGS__))
-
-#if GNU_VERSION >=100000
+#if isDebugTagEnabled(PCSX_ASAN)
+    #define ALLOC_CALL(destructor, idx)
+#elif GNU_VERSION >=100000
     #define ALLOC_CALL(destructor, idx) __ALLOC_CALL(malloc(destructor,idx))
 #else
     #define ALLOC_CALL(destructor, idx) __ALLOC_CALL()
@@ -45,6 +47,7 @@
 
 #define UNAVAILABLE __attribute__((unavailable("Unavailable function/method")))
 #define UNUSED __attribute__((unused))
+#define MAYBE_UNUSED __attribute__((unused))
 #define ALIAS(name) __attribute__((alias(name)))
 #define ASM_ALIAS(name) asm(name)
 #define MAY_ALIAS __attribute__((may_alias))
@@ -52,7 +55,6 @@
 #define WEAK __attribute__((weak))
 #define PACKED __attribute__((packed))
 #define FALLTHROUGH __attribute__((fallthrough))
-#define MAYBE_UNUSED __attribute__((unused))
 
 // Forward declaration
 #define FWD_DECL

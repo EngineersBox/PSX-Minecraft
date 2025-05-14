@@ -13,19 +13,19 @@
  * allow these defines to be overridden.
  */
 #ifndef cvector_clib_free
-#include <stdlib.h> /* for free */
+#include "../core/std/stdlib.h" /* for free */
 #define cvector_clib_free free
 #endif
 #ifndef cvector_clib_malloc
-#include <stdlib.h> /* for malloc */
+#include "../core/std/stdlib.h" /* for malloc */
 #define cvector_clib_malloc malloc
 #endif
 #ifndef cvector_clib_calloc
-#include <stdlib.h> /* for calloc */
+#include "../core/std/stdlib.h" /* for calloc */
 #define cvector_clib_calloc calloc
 #endif
 #ifndef cvector_clib_realloc
-#include <stdlib.h> /* for realloc */
+#include "../core/std/stdlib.h" /* for realloc */
 #define cvector_clib_realloc realloc
 #endif
 #ifndef cvector_clib_assert

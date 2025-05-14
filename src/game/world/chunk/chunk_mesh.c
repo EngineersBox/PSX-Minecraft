@@ -1,7 +1,7 @@
 #include "chunk_mesh.h"
 
 #include <inline_c.h>
-#include <stdlib.h>
+#include "../../../core/std/stdlib.h"
 #include <psxgpu.h>
 
 #include "../../../util/preprocessor.h"

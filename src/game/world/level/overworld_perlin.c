@@ -1,6 +1,6 @@
 #include "overworld_perlin.h"
 
-#include <stdlib.h>
+#include "../../../core/std/stdlib.h"
 
 #include "../../../util/interface99_extensions.h"
 #include "../chunk/chunk_structure.h"

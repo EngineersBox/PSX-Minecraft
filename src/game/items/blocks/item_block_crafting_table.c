@@ -1,6 +1,6 @@
 #include "item_block_crafting_table.h"
 
-#include <stdlib.h>
+#include "../../../core/std/stdlib.h"
 #include <interface99.h>
 
 #include "../../../util/interface99_extensions.h"

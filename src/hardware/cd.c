@@ -1,6 +1,6 @@
 #include "cd.h"
 
-#include <stdlib.h>
+#include "../core/std/stdlib.h"
 
 void* cdReadDataSync(const char* filename, CdlModeFlag mode) {
     CdlFILE file;

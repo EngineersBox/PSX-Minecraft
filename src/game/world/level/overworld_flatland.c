@@ -2,7 +2,7 @@
 
 #include <debug.h>
 #include <interface99_extensions.h>
-#include <stdlib.h>
+#include "../../../core/std/stdlib.h"
 
 #include "../chunk/chunk_structure.h"
 #include "../generation/noise.h"

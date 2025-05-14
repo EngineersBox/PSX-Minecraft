@@ -1,7 +1,7 @@
 #include "item_block_dirt.h"
 
 #include <interface99.h>
-#include <stdlib.h>
+#include "../../../core/std/stdlib.h"
 
 #include "../../../util/interface99_extensions.h"
 #include "../item_id.h"

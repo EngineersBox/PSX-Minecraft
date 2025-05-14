@@ -1,5 +1,6 @@
 #include "recipe.h"
 
+#include "../../core/std/stdlib.h"
 #include "../../util/interface99_extensions.h"
 #include "../items/items.h"
 

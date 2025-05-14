@@ -1,7 +1,7 @@
 #include "debug.h"
 
 #include <psxgpu.h>
-#include <stdlib.h>
+#include "../core/std/stdlib.h"
 
 #include "../math/math_utils.h"
 #include "../structure/primitive/primitive.h"

@@ -7,7 +7,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
-#include <stdlib.h>
+#include "../core/std/stdlib.h"
 #include <psxetc.h>
 #include <psxapi.h>
 #include <psxpad.h>
