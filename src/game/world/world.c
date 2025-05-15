@@ -44,9 +44,7 @@ const LightUpdateLimits world_chunk_init_limits = (LightUpdateLimits) {
 )
 
 INLINE World* worldNew() {
-    World* world = (World*) malloc(sizeof(World));
-    *world = (World) {0};
-    return world;
+    return (World*) malloc(sizeof(World));
 }
 
 static void displayProgress(RenderContext* ctx,
@@ -104,18 +102,34 @@ void worldInit(World* world, RenderContext* ctx) {
         .raining = false,
         .storming = false
     };
+    DEBUG_LOG("Defaulted world fields\n");
+    // FIXME: Seems like the PSn00bSDK/libpsn00b/libc/memset.s
+    //        implementation reads uninitialised memory because
+    //        of it's use of the swr instruction variant with no
+    //        constant source or address values:
+    //        swr   $a1, 0($a0)
+    //        which PCSX-Redux implements this by first reading
+    //        from the aligned address $0, mutate the 1-4 bytes in
+    //        the low (right) end of the value, then write it back.
+    //        As such it invokes call(read32Wrapper) which ends up
+    //        hitting PCSX::Memory::read32, then msanGetStatus and
+    //        thus the error message + breakpoint.
+    DEBUG_LOG("Heightmap addr: %p\n", world->heightmap);
     memset(
         world->heightmap,
         '\0',
         sizeof(u32) * AXIS_CHUNKS * AXIS_CHUNKS * CHUNK_SIZE * CHUNK_SIZE
     );
+    DEBUG_LOG("Zeroed heightmap\n");
     VCALL(world->chunk_provider, init);
+    DEBUG_LOG("Invoked chunk provider\n");
     // Clear the chunks first to ensure they are all NULL upon initialisation
     memset(
         world->chunks,
         0,
         sizeof(Chunk*) * WORLD_CHUNKS_COUNT
     );
+    DEBUG_LOG("Zeroed chunks\n");
     ChunkGenerationContext gen_ctx[AXIS_CHUNKS][AXIS_CHUNKS][WORLD_CHUNKS_HEIGHT] = {0};
     const i32 x_start = world->centre.vx - LOADED_CHUNKS_RADIUS;
     const i32 x_end = world->centre.vx + LOADED_CHUNKS_RADIUS;
