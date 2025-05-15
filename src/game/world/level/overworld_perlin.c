@@ -105,6 +105,7 @@ Chunk* OverworldPerlinChunkProvider_provide(VSelf, const VECTOR position, ChunkH
     VSELF(OverworldPerlinChunkProvider);
     Chunk* chunk = malloc(sizeof(Chunk));
     assert(chunk != NULL);
+    *chunk = (Chunk) {0}; // Init mem to avoid ASAN trigger
     chunk->position = position;
     chunkInit(chunk);
     VCALL(self->generator, generate, chunk, heightmap);

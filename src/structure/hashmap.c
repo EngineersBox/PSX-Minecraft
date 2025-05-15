@@ -136,7 +136,7 @@ struct hashmap *hashmap_new_with_allocator(void *(*_malloc)(size_t),
     if (!map) {
         return NULL;
     }
-    memset(map, 0, sizeof(struct hashmap));
+    *map = (struct hashmap) {0};
     map->elsize = elsize;
     map->bucketsz = bucketsz;
     map->seed0 = seed0;

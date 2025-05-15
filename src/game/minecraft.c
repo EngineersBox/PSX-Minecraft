@@ -74,37 +74,47 @@ void Minecraft_init(VSelf, void* ctx) {
         .lighting_mtx = lighting_direction
     };
     self->camera = cameraCreate(&self->transforms),
+    DEBUG_LOG("Initialised camera\n");
     self->ctx.camera = &self->camera;
     initRenderContext(&self->ctx);
+    DEBUG_LOG("Initialised render context\n");
     // Input initialisation needs to be before block init
     // since some blocks need to register handlers
     /*AddSIO(0x1c200);*/
     CdInit();
+    DEBUG_LOG("Initialised CD\n");
     inputInit(&input);
+    DEBUG_LOG("Initialised input\n");
     // Unpack LZP archive and load assets
     assetsLoad();
+    DEBUG_LOG("Unpacked and loaded assets\n");
     fontLoad();
+    DEBUG_LOG("Loaded fonts\n");
     // Load font and open a text stream
     FntLoad(960, 256);
+    DEBUG_LOG("Loaded font into framebuffer\n");
     FntOpen(0, 8, 320, 216, 0, 160);
+    DEBUG_LOG("Opened font handler\n");
     // Debugging
     durationTreesInit();
+    DEBUG_LOG("Initialised duration trees\n");
     // Initialise game elements
     blocksInitialiseBuiltin();
+    DEBUG_LOG("Initialised blocks\n");
     itemsInitialiseBuiltin();
+    DEBUG_LOG("Initialised items\n");
     // Initialise world
-    world = (World*) malloc(sizeof(World));
-    world->head.vx = 0;
-    world->head.vz = 0;
-    world->centre = vec3_i32_all(0);
-    world->centre_next = vec3_i32_all(0);
+    world = worldNew();
+    DEBUG_LOG("Created world\n");
     DYN_PTR(
         &world->chunk_provider,
         OverworldPerlinChunkProvider,
         IChunkProvider,
         malloc(sizeof(OverworldPerlinChunkProvider))
     );
+    DEBUG_LOG("Initialised chunk provider\n");
     worldInit(world, &self->ctx);
+    DEBUG_LOG("Initialised world\n");
     // Initialise player
     player = (Player*) malloc(sizeof(Player));
     DYN_PTR(&player_entity, Player, IEntity, player);

@@ -18,6 +18,7 @@
 #include "../../../util/interface99_extensions.h"
 #include "../../items/items.h"
 #include "../generation/noise.h"
+#include "chunk_defines.h"
 #include "chunk_mesh.h"
 #include "chunk_structure.h"
 #include "heightmap.h"
@@ -110,6 +111,7 @@ void chunkInit(Chunk* chunk) {
     chunk->mesh_updated = false;
     chunk->dropped_items = NULL;
     cvector_init(chunk->dropped_items, 0, chunkDestroyDroppedItem);
+    DEBUG_LOG("Init dropped items array\n");
     chunk->updates.sunlight_add_queue = hashmap_new(
         sizeof(LightAddNode),
         1,
@@ -120,6 +122,7 @@ void chunkInit(Chunk* chunk) {
         NULL,
         NULL
     );
+    DEBUG_LOG("Loaded sunlight add queue hashmap\n");
     chunk->updates.light_add_queue = hashmap_new(
         sizeof(LightAddNode),
         1,

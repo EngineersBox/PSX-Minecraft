@@ -21,6 +21,7 @@
 #include "chunk/chunk_mesh.h"
 #include "chunk/chunk_structure.h"
 #include "chunk/heightmap.h"
+#include "generation/chunk_provider.h"
 #include "position.h"
 #include "world_defines.h"
 
@@ -41,6 +42,12 @@ const LightUpdateLimits world_chunk_init_limits = (LightUpdateLimits) {
     axis, \
     ((value) - (world->centre.axis - LOADED_CHUNKS_RADIUS - SHIFT_ZONE))\
 )
+
+INLINE World* worldNew() {
+    World* world = (World*) malloc(sizeof(World));
+    *world = (World) {0};
+    return world;
+}
 
 static void displayProgress(RenderContext* ctx,
                             ProgressBar* progress_bar,
@@ -114,6 +121,7 @@ void worldInit(World* world, RenderContext* ctx) {
     const i32 x_end = world->centre.vx + LOADED_CHUNKS_RADIUS;
     const i32 z_start = world->centre.vz - LOADED_CHUNKS_RADIUS;
     const i32 z_end = world->centre.vz + LOADED_CHUNKS_RADIUS;
+    #define WORLD_LOADING_STAGES_COUNT 5
     ProgressBar bar = (ProgressBar) {
         .position = {
             .x = CENTRE_X - (CENTRE_X / 3),
@@ -124,7 +132,10 @@ void worldInit(World* world, RenderContext* ctx) {
             .height = 4
         },
         .value = 0,
-        .maximum = ((x_end + 1) - x_start) * ((z_end + 1) - z_start) * WORLD_CHUNKS_HEIGHT * 5
+        .maximum = ((x_end + 1) - x_start)
+            * ((z_end + 1) - z_start)
+            * WORLD_CHUNKS_HEIGHT
+            * WORLD_LOADING_STAGES_COUNT
     };
     DEBUG_LOG("[WORLD] Loading chunks\n");
     for (i32 x = x_start; x <= x_end; x++) {
@@ -215,6 +226,7 @@ void worldInit(World* world, RenderContext* ctx) {
             }
         }
     }
+#undef WORLD_LOADING_STAGES_COUNT
 #undef displayProgress
     DEBUG_LOG("[WORLD] Finished loading\n");
 }
@@ -378,15 +390,15 @@ Chunk* worldLoadChunk(World* world, const VECTOR chunk_position) {
                          [arrayCoord(world, vx, chunk_position.vx)]
     );
     assert(chunk != NULL);
-    // DEBUG_LOG(
-    //     "[CHUNK: %d,%d,%d, INDEX: %d,%d,%d] Generating heightmap and terrain\n",
-    //     chunk_position.vx,
-    //     chunk_position.vy,
-    //     chunk_position.vz,
-    //     arrayCoord(world, vx, chunk_position.vx),
-    //     chunk_position.vy,
-    //     arrayCoord(world, vz, chunk_position.vz)
-    // );
+    DEBUG_LOG(
+        "[CHUNK: %d,%d,%d, INDEX: %d,%d,%d] Generating heightmap and terrain\n",
+        chunk_position.vx,
+        chunk_position.vy,
+        chunk_position.vz,
+        arrayCoord(world, vx, chunk_position.vx),
+        chunk_position.vy,
+        arrayCoord(world, vz, chunk_position.vz)
+    );
     chunk->world = world;
     return chunk;
 }

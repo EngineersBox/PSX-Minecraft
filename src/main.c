@@ -10,6 +10,7 @@ int main() {
     minecraft = (Minecraft*) &app_logic;
     Engine engine = (Engine) {
         .app_logic =  &app_logic,
+        .running = true,
         .target_fps = 60,
         .target_tps = 20
     };
