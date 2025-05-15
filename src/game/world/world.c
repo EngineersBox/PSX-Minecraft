@@ -100,7 +100,7 @@ void worldInit(World* world, RenderContext* ctx) {
         .rain_time_ticks = 0,
         .storm_time_ticks = 0,
         .raining = false,
-        .storming = false
+        .storming = false,
     };
     DEBUG_LOG("Defaulted world fields\n");
     // FIXME: Seems like the PSn00bSDK/libpsn00b/libc/memset.s
