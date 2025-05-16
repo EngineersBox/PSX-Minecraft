@@ -77,6 +77,7 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk, const BreakingState* breaking_sta
     for (u32 z = 0; z < CHUNK_SIZE; z++) {
         for (u32 x = 0; x < CHUNK_SIZE; x++) {
             for (u32 y = 0; y < CHUNK_SIZE; y++) {
+                // TODO: [DEBUG] Start debugging from here
                 const IBlock* iblock = chunkGetBlock(chunk, x, y, z);
                 addVoxelToFaceColumns(
                     faces_cols,

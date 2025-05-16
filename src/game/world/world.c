@@ -94,6 +94,10 @@ void worldInit(World* world, RenderContext* ctx) {
     world->time_ticks = WORLD_TIME_DAWN;
     world->day_count = 0;
     world->celestial_angle = 0;
+    world->centre = vec3_i32_all(0);
+    world->centre_next = vec3_i32_all(0);
+    world->head.vx = 0;
+    world->head.vz = 0;
     world->weather = (Weather) {
         .rain_strength = 0,
         .storm_strength = 0,
@@ -102,7 +106,6 @@ void worldInit(World* world, RenderContext* ctx) {
         .raining = false,
         .storming = false,
     };
-    DEBUG_LOG("Defaulted world fields\n");
     // FIXME: Seems like the PSn00bSDK/libpsn00b/libc/memset.s
     //        implementation reads uninitialised memory because
     //        of it's use of the swr instruction variant with no
@@ -114,22 +117,18 @@ void worldInit(World* world, RenderContext* ctx) {
     //        As such it invokes call(read32Wrapper) which ends up
     //        hitting PCSX::Memory::read32, then msanGetStatus and
     //        thus the error message + breakpoint.
-    DEBUG_LOG("Heightmap addr: %p\n", world->heightmap);
     memset(
         world->heightmap,
         '\0',
         sizeof(u32) * AXIS_CHUNKS * AXIS_CHUNKS * CHUNK_SIZE * CHUNK_SIZE
     );
-    DEBUG_LOG("Zeroed heightmap\n");
     VCALL(world->chunk_provider, init);
-    DEBUG_LOG("Invoked chunk provider\n");
     // Clear the chunks first to ensure they are all NULL upon initialisation
     memset(
         world->chunks,
         0,
         sizeof(Chunk*) * WORLD_CHUNKS_COUNT
     );
-    DEBUG_LOG("Zeroed chunks\n");
     ChunkGenerationContext gen_ctx[AXIS_CHUNKS][AXIS_CHUNKS][WORLD_CHUNKS_HEIGHT] = {0};
     const i32 x_start = world->centre.vx - LOADED_CHUNKS_RADIUS;
     const i32 x_end = world->centre.vx + LOADED_CHUNKS_RADIUS;
