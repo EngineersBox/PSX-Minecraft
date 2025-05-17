@@ -146,6 +146,7 @@ DEFN_UI(Inventory,
     Timestamp debounce;
 );
 
+Inventory* inventoryNew();
 void inventoryInit(Inventory* inventory, Hotbar* hotbar);
 
 // Groups indicates which slot groups to render,

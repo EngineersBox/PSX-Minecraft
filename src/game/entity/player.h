@@ -47,6 +47,7 @@ typedef struct {
     World* world;
 } PlayerInputHandlerContext;
 
+Player* playerNew();
 void playerInit(Player* player);
 void playerDestroy(const Player* player);
 void playerUpdate(Player* player, World* world);

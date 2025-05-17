@@ -103,10 +103,10 @@ void Minecraft_init(VSelf, void* ctx) {
     worldInit(world, &self->ctx);
     DEBUG_LOG("Initialised world\n");
     // Initialise player
-    player = (Player*) malloc(sizeof(Player));
+    player = playerNew();
     DYN_PTR(&player_entity, Player, IEntity, player);
-    ((player_entity).vptr->damage((player_entity).self, 0));
     playerInit(player);
+    DEBUG_LOG("Initialised player\n");
     block_input_handler_context.inventory = &player->inventory;
     player->camera = &self->camera;
     const VECTOR player_positon = vec3_i32(
@@ -115,6 +115,7 @@ void Minecraft_init(VSelf, void* ctx) {
         0
     );
     iPhysicsObjectSetPosition(&player->entity.physics_object, &player_positon);
+    DEBUG_LOG("Set player physics object position\n");
 #if isDebugTagEnabled(PLAYER_NOCLIP)
     player->entity.physics_object.flags.no_clip = true;
 #else

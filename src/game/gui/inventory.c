@@ -13,12 +13,19 @@
 #include "utils.h"
 #include "../../util/debounce.h"
 #include "../recipe/crafting.h"
+#include "../../util/memory.h"
 
 FWD_DECL void worldDropItemStack(World* world, IItem* item, const u8 count);
 
 /*const char* INVENTORY_STORE_RESULT_NAMES[] = {*/
 /*    MK_INVENTORY_STORE_RESULT_LIST(P99_STRING_ARRAY_INDEX)*/
 /*};*/
+
+INLINE Inventory* inventoryNew() {
+    Inventory* inventory = malloc(sizeof(Inventory));
+    zeroed(inventory);
+    return inventory;
+}
 
 void inventoryInit(Inventory* inventory, Hotbar* hotbar) {
     uiInit(&inventory->ui);

@@ -2,11 +2,18 @@
 
 #include "../../structure/cvector_utils.h"
 #include "../../util/interface99_extensions.h"
+#include "../../util/memory.h"
 #include "../../util/debounce.h"
 #include "../../ui/components/background.h"
 #include "../../structure/primitive/primitive.h"
 #include "psxgpu.h"
 #include "slot.h"
+
+INLINE Hotbar* hotbarNew() {
+    Hotbar* hotbar = malloc(sizeof(Hotbar));
+    zeroed(hotbar);
+    return hotbar;
+}
 
 void hotbarInit(Hotbar* hotbar) {
     uiInit(&hotbar->ui);
@@ -20,6 +27,7 @@ void hotbarInit(Hotbar* hotbar) {
     }
     IUIComponent* component = uiAddComponent(&hotbar->ui);
     UIBackground* background = (UIBackground*) malloc(sizeof(UIBackground));
+    *background = (UIBackground) {0};
     background->component.position = (DVECTOR) {
         .vx = CENTRE_X - (HOTBAR_WIDTH / 2),
         .vy = SCREEN_YRES - HOTBAR_HEIGHT - 1

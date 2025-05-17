@@ -7,6 +7,7 @@
 #include <psxgpu.h>
 
 #include "../../util/interface99_extensions.h"
+#include "../../util/memory.h"
 #include "../../structure/primitive/clip.h"
 #include "../../render/duration_tree.h"
 #include "../../render/font.h"
@@ -44,7 +45,9 @@ const LightUpdateLimits world_chunk_init_limits = (LightUpdateLimits) {
 )
 
 INLINE World* worldNew() {
-    return (World*) malloc(sizeof(World));
+    World* world = malloc(sizeof(World));
+    zeroed(world);
+    return world;
 }
 
 static void displayProgress(RenderContext* ctx,
