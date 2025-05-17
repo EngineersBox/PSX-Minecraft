@@ -76,16 +76,12 @@ void durationComponentStart0(DurationComponentIndex* index) {
         );
         return;
     }
-    DEBUG_LOG("Valid stack depth\n");
     // Single threaded env means we are always one element ahead of the
     // parent node which is where we use `index` on with the `components`
     // member
     DurationComponent* node = &duration_stack[duration_stack_next_index - 1]->components[index->index];
     duration_stack[duration_stack_next_index++] = node;
-    DEBUG_LOG("Assigned node\n");
-    DEBUG_LOG("Current start value: %d\n", node->start);
     node->start = time_ms;
-    DEBUG_LOG("Set node start time\n");
 }
 
 void durationComponentEnd0() {

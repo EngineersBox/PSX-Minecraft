@@ -382,7 +382,6 @@ void worldRender(const World* world,
                 Chunk* chunk = world->chunks[arrayCoord(world, vz, z)]
                                  [arrayCoord(world, vx, x)]
                                  [y];
-                DEBUG_LOG("[World] rendering chunk " VEC_PATTERN "\n", VEC_LAYOUT(chunk->position));
                 chunkRender(
                     chunk,
                     player_chunk_pos.vx == x
