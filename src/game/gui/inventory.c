@@ -371,6 +371,11 @@ static void processCraftingRecipe(Inventory* inventory) {
     if (!recipe_has_changed) {
         return;
     }
+    // TODO: Start debugging inventory click crash from here.
+    //       It's likely generic crafting processing not working
+    //       as the crafting table was being weird with recipes
+    //       in previous testing as well.
+    DEBUG_LOG("Processing crating recipe\n");
     RECIPE_PATTERN(pattern, slotGroupSize(INVENTORY_CRAFTING)) = {0};
     memset(ingredient_consume_sizes, '\0', sizeof(u8) * slotGroupSize(INVENTORY_CRAFTING));
     for (int i = slotGroupIndexOffset(INVENTORY_CRAFTING);
