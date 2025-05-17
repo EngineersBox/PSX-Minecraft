@@ -101,12 +101,10 @@ void Minecraft_init(VSelf, void* ctx) {
         malloc(sizeof(OverworldPerlinChunkProvider))
     );
     worldInit(world, &self->ctx);
-    DEBUG_LOG("Initialised world\n");
     // Initialise player
     player = playerNew();
     DYN_PTR(&player_entity, Player, IEntity, player);
     playerInit(player);
-    DEBUG_LOG("Initialised player\n");
     block_input_handler_context.inventory = &player->inventory;
     player->camera = &self->camera;
     const VECTOR player_positon = vec3_i32(
@@ -115,7 +113,6 @@ void Minecraft_init(VSelf, void* ctx) {
         0
     );
     iPhysicsObjectSetPosition(&player->entity.physics_object, &player_positon);
-    DEBUG_LOG("Set player physics object position\n");
 #if isDebugTagEnabled(PLAYER_NOCLIP)
     player->entity.physics_object.flags.no_clip = true;
 #else

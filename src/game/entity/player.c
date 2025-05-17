@@ -63,15 +63,13 @@ void playerInit(Player* player) {
     player->entity.health = PLAYER_MAX_HEALTH;
     player->entity.armour = 0;
     player->entity.air = PLAYER_MAX_AIR;
-    DEBUG_LOG("Breaking state reset\n");
     breakingStateReset(player->breaking);
     Inventory* inventory = inventoryNew();
     Hotbar* hotbar = hotbarNew();
     hotbarInit(hotbar);
     inventoryInit(inventory, hotbar);
-    DEBUG_LOG("IUI set\n");
-    DYN_PTR(&player->hotbar, Hotbar, IUI, hotbar);
-    DYN_PTR(&player->inventory, Inventory, IUI, inventory);
+    DYN_PTR(&player->hotbar, Hotbar, IUI, &hotbar->ui);
+    DYN_PTR(&player->inventory, Inventory, IUI, &inventory->ui);
     DEBUG_LOG("Physics object init\n");
     iPhysicsObjectInit(
         &player->entity.physics_object,

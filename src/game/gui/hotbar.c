@@ -26,8 +26,7 @@ void hotbarInit(Hotbar* hotbar) {
         slot->data.item = NULL;
     }
     IUIComponent* component = uiAddComponent(&hotbar->ui);
-    UIBackground* background = (UIBackground*) malloc(sizeof(UIBackground));
-    *background = (UIBackground) {0};
+    UIBackground* background = UIBackgroundNew();
     background->component.position = (DVECTOR) {
         .vx = CENTRE_X - (HOTBAR_WIDTH / 2),
         .vy = SCREEN_YRES - HOTBAR_HEIGHT - 1

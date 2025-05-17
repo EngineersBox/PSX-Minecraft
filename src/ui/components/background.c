@@ -5,6 +5,13 @@
 #include "../../logging/logging.h"
 #include "../../structure/primitive/primitive.h"
 #include "../../util/preprocessor.h"
+#include "../../util/memory.h"
+
+INLINE UIBackground* UIBackgroundNew() {
+    UIBackground* bg = malloc(sizeof(UIBackground));
+    zeroed(bg);
+    return bg;
+};
 
 void uiBackgroundRender(VSelf, RenderContext* ctx, Transforms* transforms) ALIAS("UIBackground_render");
 void UIBackground_render(VSelf, RenderContext* ctx, Transforms* transforms) {

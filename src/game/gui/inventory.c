@@ -30,7 +30,7 @@ INLINE Inventory* inventoryNew() {
 void inventoryInit(Inventory* inventory, Hotbar* hotbar) {
     uiInit(&inventory->ui);
     IUIComponent* component = uiAddComponent(&inventory->ui);
-    UIBackground* background = (UIBackground*) malloc(sizeof(UIBackground));
+    UIBackground* background = UIBackgroundNew();
     background->component.position = (DVECTOR) {
         .vx = CENTRE_X - (INVENTORY_WIDTH >> 1),
         .vy = CENTRE_Y - (INVENTORY_HEIGHT >> 1)
