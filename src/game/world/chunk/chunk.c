@@ -323,35 +323,48 @@ static void chunkRenderDroppedItems(const Chunk* chunk, RenderContext* ctx, Tran
 }
 
 #if isDebugTagEnabled(OVERLAY_DURATION_TREE)
-static char chunk_render_duration_names[AXIS_CHUNKS][AXIS_CHUNKS][WORLD_CHUNKS_HEIGHT][30] = {0};
-static DurationComponent* chunk_render_duration[AXIS_CHUNKS][AXIS_CHUNKS][WORLD_CHUNKS_HEIGHT] = {0};
+#define RENDER_DURATION_NAME_MAX_LEN 30
+static char chunk_render_duration_names[AXIS_CHUNKS][AXIS_CHUNKS][WORLD_CHUNKS_HEIGHT][RENDER_DURATION_NAME_MAX_LEN] = {0};
+static DurationComponentIndex chunk_render_duration[AXIS_CHUNKS][AXIS_CHUNKS][WORLD_CHUNKS_HEIGHT] = {0};
 #endif
 
-#define shiftChunkPos(chunk, axis) positiveModulo((chunk->position.axis + (AXIS_CHUNKS >> 1)), AXIS_CHUNKS)
+#define shiftChunkPos(chunk, axis) positiveModulo((chunk->position.axis + (AXIS_CHUNKS >> 1) - 1), AXIS_CHUNKS)
 
 void chunkRender(Chunk* chunk,
                  bool subdivide,
                  RenderContext* ctx,
                  Transforms* transforms) {
+    DEBUG_LOG(
+        "Chunk render start @ (%d,%d,%d)\n",
+        shiftChunkPos(chunk, vx),
+        chunk->position.vy % WORLD_CHUNKS_HEIGHT,
+        shiftChunkPos(chunk, vz)
+    );
 #if isDebugTagEnabled(OVERLAY_DURATION_TREE)
-    DurationComponent** duration = &chunk_render_duration[shiftChunkPos(chunk, vx)]
-                                                         [shiftChunkPos(chunk, vz)]
-                                                         [chunk->position.vy];
+    DurationComponentIndex* duration = &chunk_render_duration[shiftChunkPos(chunk, vx)]
+                                                             [shiftChunkPos(chunk, vz)]
+                                                             [chunk->position.vy % WORLD_CHUNKS_HEIGHT];
+    DEBUG_LOG("Retrieved duration array\n");
     char* name = chunk_render_duration_names[shiftChunkPos(chunk, vx)]
                                             [shiftChunkPos(chunk, vz)]
                                             [chunk->position.vy % WORLD_CHUNKS_HEIGHT];
-    if (*duration == NULL) {
+    DEBUG_LOG("Got name\n");
+    if (!duration->init) {
+        DEBUG_LOG("Null duration\n");
         *duration = durationTreeAddComponent(name);
-        assert(*duration != NULL);
+        DEBUG_LOG("Added component\n");
     }
-    sprintf(
+    snprintf(
         name,
-        VEC_PATTERN,
+        RENDER_DURATION_NAME_MAX_LEN,
+        VEC_PATTERN "\0",
         shiftChunkPos(chunk, vx),
         shiftChunkPos(chunk, vz),
         chunk->position.vy % WORLD_CHUNKS_HEIGHT
     );
-    durationComponentStart(*duration);
+    DEBUG_LOG("Printed component name\n");
+    durationComponentStart(duration);
+    DEBUG_LOG("Started render component\n");
 #endif
 #undef shiftChunkPos
     const AABB aabb = (AABB) {
@@ -379,6 +392,7 @@ void chunkRender(Chunk* chunk,
         &VEC3_I16_ZERO,
         &chunk->position
     );
+    DEBUG_LOG("Bind matrix\n");
     // Sort + render mesh
     chunkMeshRender(
         &chunk->mesh,
@@ -388,8 +402,11 @@ void chunkRender(Chunk* chunk,
         ctx,
         transforms
     );
+    DEBUG_LOG("Render mesh\n");
     renderCtxUnbindMatrix();
+    DEBUG_LOG("Unbind matrix\n");
     chunkRenderDroppedItems(chunk, ctx, transforms);
+    DEBUG_LOG("Rendered dropped items\n");
     durationComponentEnd();
 }
 

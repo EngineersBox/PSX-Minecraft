@@ -264,13 +264,13 @@ void Minecraft_render(VSelf, const Stats* stats) {
     VSELF(Minecraft);
 #if isDebugTagEnabled(OVERLAY_DURATION_TREE)
     durationTreeMakeCurrent(&render_duration_tree);
-    if (render_duration == NULL) {
+    if (!render_duration.init) {
         render_duration = durationTreeAddComponent("render");
     } else {
         // TODO: Render duration tree here
     }
 #endif
-    durationComponentStart(render_duration);
+    durationComponentStart(&render_duration);
     // Update breaking state textures
     breakingStateUpdateRenderTarget(&player->breaking, &self->ctx);
     // Draw the world

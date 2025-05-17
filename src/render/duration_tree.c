@@ -33,37 +33,42 @@ static void __durationComponentFree(void* ctx) {
     cvector_free(component->components);
 }
 
-void _durationTreesInit() {
+void durationTreesInit0() {
     render_duration_tree.components = NULL;
     cvector_init(render_duration_tree.components, 0, __durationComponentFree);
     update_duration_tree.components = NULL;
     cvector_init(update_duration_tree.components, 0, __durationComponentFree);
-    for (u8 i = 0; i < DURATION_STACK_MAX_DEPTH; i++) {
-        duration_stack[i] = NULL;
-    }
+    memset(
+        duration_stack,
+        0,
+        sizeof(DurationComponent*) * DURATION_STACK_MAX_DEPTH
+    );
     duration_stack_next_index = 0;
 }
 
-void _durationTreesDestroy() {
+void durationTreesDestroy0() {
     cvector_free(render_duration_tree.components);
     cvector_free(update_duration_tree.components);
 }
 
-DurationComponent* _durationTreeAddComponent(const char* name) {
+DurationComponentIndex durationTreeAddComponent0(const char* name) {
     DurationComponent* tree = durationComponentCurrent();
     assert(tree != NULL);
-    cvector_push_back(tree->components, (DurationComponent) {});
-    DurationComponent* new_component = &tree->components[cvector_size(tree->components) - 1];
-    new_component->name = name;
-    return new_component;
+    cvector_push_back(tree->components, (DurationComponent) {0});
+    const size_t index = cvector_size(tree->components) - 1;
+    tree->components[index].name = name;
+    return (DurationComponentIndex) {
+        .init = false,
+        .index = index,
+    };
 }
 
-void _durationTreeMakeCurrent(DurationComponent* tree) {
+void durationTreeMakeCurrent0(DurationComponent* tree) {
     duration_stack[0] = tree;
     duration_stack_next_index = 1;
 }
 
-void _durationComponentStart(DurationComponent* node) {
+void durationComponentStart0(DurationComponentIndex* index) {
     if (duration_stack_next_index >= DURATION_STACK_MAX_DEPTH) {
         errorAbort(
             "Exceeded max duration stack depth of %d\n",
@@ -71,11 +76,19 @@ void _durationComponentStart(DurationComponent* node) {
         );
         return;
     }
+    DEBUG_LOG("Valid stack depth\n");
+    // Single threaded env means we are always one element ahead of the
+    // parent node which is where we use `index` on with the `components`
+    // member
+    DurationComponent* node = &duration_stack[duration_stack_next_index - 1]->components[index->index];
     duration_stack[duration_stack_next_index++] = node;
+    DEBUG_LOG("Assigned node\n");
+    DEBUG_LOG("Current start value: %d\n", node->start);
     node->start = time_ms;
+    DEBUG_LOG("Set node start time\n");
 }
 
-void _durationComponentEnd() {
+void durationComponentEnd0() {
     if (duration_stack_next_index > DURATION_STACK_MAX_DEPTH) {
         errorAbort(
             "Invalid duration stack index: %d\n",
@@ -83,10 +96,9 @@ void _durationComponentEnd() {
         );
         return;
     }
-    duration_stack_next_index--;
-    DurationComponent* node = duration_stack[duration_stack_next_index];
-    duration_stack[duration_stack_next_index] = NULL;
+    DurationComponent* node = duration_stack[--duration_stack_next_index];
     node->end = time_ms;
+    duration_stack[duration_stack_next_index] = NULL;
 }
 
 #define STACK_GRAPH_COLOUR_COUNT 11
@@ -117,7 +129,7 @@ static const CVECTOR stack_graph_colours[STACK_GRAPH_COLOUR_COUNT] = {
 
 int selected_rendered_stack_index = 3;
 
-void _durationTreeChangeStackIndex(const DurationComponent* tree, int adjustment) {
+void durationTreeChangeStackIndex0(const DurationComponent* tree, int adjustment) {
     const int component_count = cvector_size(tree->components);
     selected_rendered_stack_index = clamp(
         selected_rendered_stack_index + adjustment,
@@ -126,7 +138,7 @@ void _durationTreeChangeStackIndex(const DurationComponent* tree, int adjustment
     );
 }
 
-void _durationTreeRender(const DurationComponent* tree,
+void durationTreeRender0(const DurationComponent* tree,
                          RenderContext* ctx,
                          Transforms* transforms) {
     if (tree == NULL || cvector_size(tree->components) == 0) {

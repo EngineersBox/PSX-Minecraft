@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdint.h>
 #ifndef _PSXMC__RENDER__DURATION_TREE_H_
 #define _PSXMC__RENDER__DURATION_TREE_H_
 
@@ -23,6 +24,11 @@ typedef struct DurationComponent {
     cvector(struct DurationComponent) components;
 } DurationComponent;
 
+typedef struct DurationComponentIndex {
+    bool init: 1;
+    size_t index: SIZE_WIDTH - 1;
+} DurationComponentIndex;
+
 #if isDebugTagEnabled(OVERLAY_DURATION_TREE)
 extern DurationComponent render_duration_tree;
 extern DurationComponent update_duration_tree;
@@ -30,31 +36,32 @@ extern u8 duration_stack_next_index;
 extern DurationComponent* duration_stack[DURATION_STACK_MAX_DEPTH];
 extern int selected_rendered_stack_index;
 
-void _durationTreesInit();
-void _durationTreesDestroy();
+void durationTreesInit0();
+void durationTreesDestroy0();
 
-DurationComponent* _durationTreeAddComponent(const char* name);
-void _durationTreeMakeCurrent(DurationComponent* tree);
-void _durationComponentStart(DurationComponent* node);
-void _durationComponentEnd();
-void _durationTreeChangeStackIndex(const DurationComponent* tree, int adjustment);
-void _durationTreeRender(const DurationComponent* tree, RenderContext* ctx, Transforms* transforms);
+DurationComponentIndex durationTreeAddComponent0(const char* name);
+void durationTreeMakeCurrent0(DurationComponent* tree);
+void durationComponentStart0(DurationComponentIndex* index);
+void durationComponentEnd0();
+void durationTreeChangeStackIndex0(const DurationComponent* tree, int adjustment);
+void durationTreeRender0(const DurationComponent* tree, RenderContext* ctx, Transforms* transforms);
 
-#define durationTreesInit _durationTreesInit
-#define durationTreesDestroy _durationTreesDestroy
-#define durationTreeAddComponent _durationTreeAddComponent
-#define durationTreeMakeCurrent _durationTreeMakeCurrent
-#define durationComponentCurrent() duration_stack_next_index == 0 \
+#define durationTreesInit durationTreesInit0
+#define durationTreesDestroy durationTreesDestroy0
+#define durationTreeAddComponent durationTreeAddComponent0
+#define durationTreeMakeCurrent durationTreeMakeCurrent0
+#define durationComponentCurrent() (duration_stack_next_index == 0 \
     ? NULL \
-    : duration_stack[duration_stack_next_index - 1]
-#define durationComponentStart _durationComponentStart
-#define durationComponentEnd _durationComponentEnd
-#define durationTreeChangeStackIndex _durationTreeChangeStackIndex
-#define durationTreeRender _durationTreeRender
+    : duration_stack[duration_stack_next_index - 1])
+#define durationComponentCurrentAtIndex(idx) &durationComponentCurrent()->components[(idx)]
+#define durationComponentStart durationComponentStart0
+#define durationComponentEnd durationComponentEnd0
+#define durationTreeChangeStackIndex durationTreeChangeStackIndex0
+#define durationTreeRender durationTreeRender0
 
-#define DEFN_DURATION_COMPONENT(defn_name) static DurationComponent* defn_name##_duration = NULL
+#define DEFN_DURATION_COMPONENT(defn_name) static DurationComponentIndex defn_name##_duration = (DurationComponentIndex){0} 
 #define durationComponentInitOnce(defn_name, name) ({ \
-    if (defn_name##_duration == NULL) { \
+    if (!defn_name##_duration.init) { \
         defn_name##_duration = durationTreeAddComponent(name); \
     } \
 })
@@ -64,6 +71,7 @@ void _durationTreeRender(const DurationComponent* tree, RenderContext* ctx, Tran
 #define durationTreeAddComponent(name) ({})
 #define durationTreeMakeCurrent() ({})
 #define durationComponentCurrent() ({})
+#define durationComponentCurrentAtIndex(idx) ({})
 #define durationComponentStart(node) ({})
 #define durationComponentEnd(node) ({})
 

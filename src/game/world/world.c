@@ -356,7 +356,7 @@ void worldRender(const World* world,
                  RenderContext* ctx,
                  Transforms* transforms) {
     durationComponentInitOnce(world_render, "worldRender");
-    durationComponentStart(world_render_duration);
+    durationComponentStart(&world_render_duration);
     const VECTOR player_world_pos = vec3_i32(
         fixedFloor(player->entity.physics_object.position.vx, ONE_BLOCK) / ONE_BLOCK,
         fixedFloor(player->entity.physics_object.position.vy, ONE_BLOCK) / ONE_BLOCK,
@@ -379,10 +379,12 @@ void worldRender(const World* world,
     for (i32 x = x_start; x <= x_end; x++) {
         for (i32 z = z_start; z <= z_end; z++) {
             for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
-                chunkRender(
-                    world->chunks[arrayCoord(world, vz, z)]
+                Chunk* chunk = world->chunks[arrayCoord(world, vz, z)]
                                  [arrayCoord(world, vx, x)]
-                                 [y],
+                                 [y];
+                DEBUG_LOG("[World] rendering chunk " VEC_PATTERN "\n", VEC_LAYOUT(chunk->position));
+                chunkRender(
+                    chunk,
                     player_chunk_pos.vx == x
                         && player_chunk_pos.vz == z
                         && player_chunk_pos.vy == y,
@@ -393,7 +395,11 @@ void worldRender(const World* world,
         }
     }
     durationComponentEnd();
-    durationTreeRender(world_render_duration, ctx, transforms);
+    durationTreeRender(
+        durationComponentCurrentAtIndex(world_render_duration.index),
+        ctx,
+        transforms
+    );
 }
 
 // NOTE: Should this just take i32 x,y,z params instead of a
