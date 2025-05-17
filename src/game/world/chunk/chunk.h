@@ -23,6 +23,7 @@
 // structure without creating circular dependencies with
 // the methods and implementations therein.
 
+Chunk* chunkNew();
 void chunkInit(Chunk* chunk);
 void chunkDestroy(const Chunk* chunk);
 

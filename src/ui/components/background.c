@@ -9,6 +9,7 @@
 
 INLINE UIBackground* UIBackgroundNew() {
     UIBackground* bg = malloc(sizeof(UIBackground));
+    assert(bg != NULL);
     zeroed(bg);
     return bg;
 };

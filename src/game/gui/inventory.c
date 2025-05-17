@@ -23,6 +23,7 @@ FWD_DECL void worldDropItemStack(World* world, IItem* item, const u8 count);
 
 INLINE Inventory* inventoryNew() {
     Inventory* inventory = malloc(sizeof(Inventory));
+    assert(inventory != NULL);
     zeroed(inventory);
     return inventory;
 }

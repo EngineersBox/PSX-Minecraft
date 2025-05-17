@@ -103,9 +103,7 @@ void OverworldPerlinChunkProvider_destroy(VSelf) {
 Chunk* overworldPerlinProvideChunk(VSelf, const VECTOR position, ChunkHeightmap* heightmap) ALIAS("OverworldPerlinChunkProvider_provide");
 Chunk* OverworldPerlinChunkProvider_provide(VSelf, const VECTOR position, ChunkHeightmap* heightmap) {
     VSELF(OverworldPerlinChunkProvider);
-    Chunk* chunk = malloc(sizeof(Chunk));
-    assert(chunk != NULL);
-    *chunk = (Chunk) {0}; // Init mem to avoid ASAN trigger
+    Chunk* chunk = chunkNew();
     chunk->position = position;
     chunkInit(chunk);
     VCALL(self->generator, generate, chunk, heightmap);

@@ -92,8 +92,7 @@ void OverworldFlatlandChunkProvider_destroy(VSelf) {
 Chunk* overworldFlatlandProvideChunk(VSelf, const VECTOR position, ChunkHeightmap* heightmap) ALIAS("OverworldFlatlandChunkProvider_provide");
 Chunk* OverworldFlatlandChunkProvider_provide(VSelf, const VECTOR position, ChunkHeightmap* heightmap) {
     VSELF(OverworldFlatlandChunkProvider);
-    Chunk* chunk = malloc(sizeof(Chunk));
-    assert(chunk != NULL);
+    Chunk* chunk = chunkNew();
     chunk->position = position;
     chunkInit(chunk);
     VCALL(self->generator, generate, chunk, heightmap);

@@ -16,6 +16,7 @@
 #include "../../../structure/cvector_utils.h"
 #include "../../../structure/primitive/direction.h"
 #include "../../../util/interface99_extensions.h"
+#include "../../../util/memory.h"
 #include "../../items/items.h"
 #include "../generation/noise.h"
 #include "chunk_defines.h"
@@ -103,6 +104,14 @@ static int lightRemoveNodeCompare(const void* a, const void* b, void* ignored) {
     // cmp(..) function in the standard library, where a return
     // value of 0 implies equivalence.
     return !vec3_equal(node_a->position, node_b->position);
+}
+
+
+INLINE Chunk* chunkNew() {
+    Chunk* chunk = malloc(sizeof(Chunk));
+    assert(chunk != NULL);
+    zeroed(chunk);
+    return chunk;
 }
 
 void chunkInit(Chunk* chunk) {

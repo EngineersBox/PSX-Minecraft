@@ -46,6 +46,7 @@ const LightUpdateLimits world_chunk_init_limits = (LightUpdateLimits) {
 
 INLINE World* worldNew() {
     World* world = malloc(sizeof(World));
+    assert(world != NULL);
     zeroed(world);
     return world;
 }
@@ -611,19 +612,13 @@ void worldLoadChunks(World* world, const VECTOR* player_chunk_pos) {
     world->centre_next.vz += z_direction;
     // Load chunks
     if (x_direction != 0) {
-        DEBUG_LOG("[WORLD] Load chunks X\n");
         worldLoadChunksX(world, x_direction, z_direction);
-        DEBUG_LOG("[WORLD] Load chunks X ... done\n");
     }
     if (z_direction != 0) {
-        DEBUG_LOG("[WORLD] Load chunks Z\n");
         worldLoadChunksZ(world, x_direction, z_direction);
-        DEBUG_LOG("[WORLD] Load chunks Z ... done\n");
     }
     if (x_direction != 0 && z_direction != 0) {
-        DEBUG_LOG("[WORLD] Load chunks XZ\n");
         worldLoadChunksXZ(world, x_direction, z_direction);
-        DEBUG_LOG("[WORLD] Load chunks XZ ... done\n");
     }
     // Synchronise centre
     world->head.vx = wrapCoord(world, vx, x_direction);

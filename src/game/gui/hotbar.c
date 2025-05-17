@@ -11,6 +11,7 @@
 
 INLINE Hotbar* hotbarNew() {
     Hotbar* hotbar = malloc(sizeof(Hotbar));
+    assert(hotbar != NULL);
     zeroed(hotbar);
     return hotbar;
 }
