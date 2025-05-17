@@ -1,6 +1,7 @@
 #include "direction.h"
 
 #include "../../util/preprocessor.h"
+#include "../../logging/logging.h"
 #include "../../math/math_utils.h"
 #include "../../math/vector.h"
 

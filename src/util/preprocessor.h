@@ -9,7 +9,7 @@
 #include <metalang99.h>
 #include <inttypes.h>
 
-#include "../logging/logging.h"
+// #include "../logging/logging.h"
 #include "../debug/debug_defines.h"
 
 // ==== META MACROS ====
@@ -55,33 +55,10 @@
 #define WEAK __attribute__((weak))
 #define PACKED __attribute__((packed))
 #define FALLTHROUGH __attribute__((fallthrough))
+#define NO_RETURN __attribute__((noreturn))
 
 // Forward declaration
 #define FWD_DECL
-
-/**
- * @brief Indicates not yet implemented functionality,
- *        implying that it will be implemented later
- * @param msg Intention of the functionality to be implemented
- */
-#define TODO(msg) ({ \
-    printf( \
-        "[TODO :: Start]\nLocation: %s @ %s:%d\n"msg"\n[TODO :: End]\n", \
-        __func__, \
-        __FILE__, \
-        __LINE__ \
-    ); \
-})
-/**
- * @brief Indicates not yet implemented functionality,
- *        but does not claim it will be implemented later
- */
-#define UNIMPLEMENTED() errorAbort( \
-    "[ERROR] Invoked unimplemented function %s @ %s:%d\n", \
-    __func__, \
-    __FILE__, \
-    __LINE__ \
-)
 
 // ==== PRINTING ====
 

@@ -403,15 +403,15 @@ Chunk* worldLoadChunk(World* world, const VECTOR chunk_position) {
                          [arrayCoord(world, vx, chunk_position.vx)]
     );
     assert(chunk != NULL);
-    DEBUG_LOG(
-        "[CHUNK: %d,%d,%d, INDEX: %d,%d,%d] Generating heightmap and terrain\n",
-        chunk_position.vx,
-        chunk_position.vy,
-        chunk_position.vz,
-        arrayCoord(world, vx, chunk_position.vx),
-        chunk_position.vy,
-        arrayCoord(world, vz, chunk_position.vz)
-    );
+    // DEBUG_LOG(
+    //     "[CHUNK: %d,%d,%d, INDEX: %d,%d,%d] Generating heightmap and terrain\n",
+    //     chunk_position.vx,
+    //     chunk_position.vy,
+    //     chunk_position.vz,
+    //     arrayCoord(world, vx, chunk_position.vx),
+    //     chunk_position.vy,
+    //     arrayCoord(world, vz, chunk_position.vz)
+    // );
     chunk->world = world;
     return chunk;
 }
