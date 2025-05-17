@@ -160,6 +160,7 @@ void Minecraft_init(VSelf, void* ctx) {
     slot = inventoryFindFreeSlot(inventory, slotGroupIndexOffset(INVENTORY_MAIN));
     inventorySlotSetItem(slot, item);
     VCALL_SUPER(*item, Renderable, applyInventoryRenderAttributes);
+    DEBUG_LOG("[Minecraft] Finished init\n");
 }
 
 void minecraftCleanup(VSelf) ALIAS("Minecraft_cleanup");

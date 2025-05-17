@@ -70,7 +70,6 @@ void playerInit(Player* player) {
     inventoryInit(inventory, hotbar);
     DYN_PTR(&player->hotbar, Hotbar, IUI, &hotbar->ui);
     DYN_PTR(&player->inventory, Inventory, IUI, &inventory->ui);
-    DEBUG_LOG("Physics object init\n");
     iPhysicsObjectInit(
         &player->entity.physics_object,
         &player_physics_object_config,
