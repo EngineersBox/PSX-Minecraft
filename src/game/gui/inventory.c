@@ -394,6 +394,10 @@ static void processCraftingRecipe(Inventory* inventory) {
         }
     }
     Slot* output_slot = &inventory->slots[slotGroupIndexOffset(INVENTORY_CRAFTING_RESULT)];
+    // TODO: Even with a valid recipe of 4 cobblestone in a sqaure,
+    //       this still doesn't result in a valid result being produced.
+    //       I have a feeling that it is because the recipe tree starts with
+    //       an empty/air element which is now unnecessary?
     recipeProcess(
         crafting_recipes,
         pattern,
