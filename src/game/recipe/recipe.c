@@ -139,7 +139,7 @@ bool sufficientSpaceInOutputSlots(const RecipeQueryResult* query_result,
     for (u8 i = 0; i < output_slot_count; i++) {
         const Item* output_item = VCAST_PTR(Item*, output_slots[i]->data.item);
         const Item* result_item = VCAST_PTR(Item*, query_result->results[i]);
-        if (itemGetMaxStackSize(output_item->id) - output_item->stack_size < result_item->stack_size) {
+        if (output_item != NULL && itemGetMaxStackSize(output_item->id) - output_item->stack_size < result_item->stack_size) {
             return false;
         }
     }
@@ -147,12 +147,12 @@ bool sufficientSpaceInOutputSlots(const RecipeQueryResult* query_result,
 }
 
 RecipeProcessResult recipeProcess(const RecipeNode* root,
-                                      const RecipePattern pattern,
-                                      Dimension pattern_dimension,
-                                      Slot** output_slots,
-                                      u8 output_slot_count,
-                                      u8* ingredient_consume_sizes,
-                                      bool merge_output) {
+                                  const RecipePattern pattern,
+                                  Dimension pattern_dimension,
+                                  Slot** output_slots,
+                                  u8 output_slot_count,
+                                  u8* ingredient_consume_sizes,
+                                  bool merge_output) {
     RecipeQueryResult query_result = {0};
     query_result.results = calloc(output_slot_count, sizeof(IItem*));
     assert(query_result.results != NULL);

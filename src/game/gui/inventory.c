@@ -374,41 +374,48 @@ static void processCraftingRecipe(Inventory* inventory) {
     }
     // pcsx_debugbreak();
     RECIPE_PATTERN(pattern, slotGroupSize(INVENTORY_CRAFTING)) = {0};
-    memset(ingredient_consume_sizes, 0, sizeof(u8) * slotGroupSize(INVENTORY_CRAFTING));
+    memset(
+        ingredient_consume_sizes,
+        0,
+        sizeof(u8) * slotGroupSize(INVENTORY_CRAFTING)
+    );
     for (int i = slotGroupIndexOffset(INVENTORY_CRAFTING);
         i < slotGroupIndexOffset(INVENTORY_CRAFTING_RESULT); i++) {
-        const int slot_index = i - slotGroupIndexOffset(INVENTORY_CRAFTING);
-        const Slot* slot = &inventory->slots[slot_index];
+        const Slot* slot = &inventory->slots[i];
         const IItem* iitem = slot->data.item;
+        const int pattern_index = i - slotGroupIndexOffset(INVENTORY_CRAFTING);
         if (iitem != NULL) {
             const Item* item = VCAST_PTR(Item*, iitem);
-            pattern[slot_index] = (RecipePatternEntry) {
+            pattern[pattern_index] = (RecipePatternEntry) {
                 .id = RECIPE_COMPOSITE_ID(item->id, item->metadata_id),
                 .stack_size = item->stack_size,
             };
         } else {
-            pattern[slot_index] = (RecipePatternEntry) {
+            pattern[pattern_index] = (RecipePatternEntry) {
                 .id = RECIPE_COMPOSITE_ID(0, ITEMID_AIR),
                 .stack_size = 0,
             };
         }
     }
     Slot* output_slot = &inventory->slots[slotGroupIndexOffset(INVENTORY_CRAFTING_RESULT)];
-    // TODO: Even with a valid recipe of 4 cobblestone in a sqaure,
-    //       this still doesn't result in a valid result being produced.
-    //       I have a feeling that it is because the recipe tree starts with
-    //       an empty/air element which is now unnecessary?
     recipeProcess(
         crafting_recipes,
         pattern,
         (Dimension){ 
-            .width = slotGroupDim(INVENTORY_CRAFTING_RESULT, X),
-            .height = slotGroupDim(INVENTORY_CRAFTING_RESULT, Y)
+            .width = slotGroupDim(INVENTORY_CRAFTING, X),
+            .height = slotGroupDim(INVENTORY_CRAFTING, Y)
         },
         &output_slot,
         slotGroupSize(INVENTORY_CRAFTING_RESULT),
         ingredient_consume_sizes,
         false
+    );
+    DEBUG_LOG(
+        "Ingredient consume sizes: %d %d %d %d\n",
+        ingredient_consume_sizes[0],
+        ingredient_consume_sizes[1],
+        ingredient_consume_sizes[2],
+        ingredient_consume_sizes[3]
     );
     recipe_has_changed = false;
 }
@@ -449,6 +456,7 @@ static void cursorHandler(Inventory* inventory,
         Item* result_item = VCAST_PTR(Item*, result_iitem);
         IItem* held_iitem = (IItem*) cursor.held_data;
         if (held_iitem == NULL) {
+            DEBUG_LOG("No held item, consume ingredients\n");
             recipeConsumeIngredients(
                 inventory->slots,
                 ingredient_consume_sizes,
