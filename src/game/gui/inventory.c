@@ -14,6 +14,7 @@
 #include "../../util/debounce.h"
 #include "../recipe/crafting.h"
 #include "../../util/memory.h"
+#include "../../debug/pcsx.h"
 
 FWD_DECL void worldDropItemStack(World* world, IItem* item, const u8 count);
 
@@ -371,13 +372,9 @@ static void processCraftingRecipe(Inventory* inventory) {
     if (!recipe_has_changed) {
         return;
     }
-    // TODO: Start debugging inventory click crash from here.
-    //       It's likely generic crafting processing not working
-    //       as the crafting table was being weird with recipes
-    //       in previous testing as well.
-    DEBUG_LOG("Processing crating recipe\n");
+    // pcsx_debugbreak();
     RECIPE_PATTERN(pattern, slotGroupSize(INVENTORY_CRAFTING)) = {0};
-    memset(ingredient_consume_sizes, '\0', sizeof(u8) * slotGroupSize(INVENTORY_CRAFTING));
+    memset(ingredient_consume_sizes, 0, sizeof(u8) * slotGroupSize(INVENTORY_CRAFTING));
     for (int i = slotGroupIndexOffset(INVENTORY_CRAFTING);
         i < slotGroupIndexOffset(INVENTORY_CRAFTING_RESULT); i++) {
         const int slot_index = i - slotGroupIndexOffset(INVENTORY_CRAFTING);
@@ -385,12 +382,12 @@ static void processCraftingRecipe(Inventory* inventory) {
         const IItem* iitem = slot->data.item;
         if (iitem != NULL) {
             const Item* item = VCAST_PTR(Item*, iitem);
-            pattern[i] = (RecipePatternEntry) {
+            pattern[slot_index] = (RecipePatternEntry) {
                 .id = RECIPE_COMPOSITE_ID(item->id, item->metadata_id),
                 .stack_size = item->stack_size,
             };
         } else {
-            pattern[i] = (RecipePatternEntry) {
+            pattern[slot_index] = (RecipePatternEntry) {
                 .id = RECIPE_COMPOSITE_ID(0, ITEMID_AIR),
                 .stack_size = 0,
             };

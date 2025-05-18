@@ -37,6 +37,6 @@ target_compile_definitions(PSXMC PUBLIC -DPSXMC_DEBUG_PLAYER_NOCLIP=1)
 # Address sanitiser
 target_compile_definitions(PSXMC PUBLIC -DPSXMC_DEBUG_PCSX_ASAN=1)
 # Kernel checker
-target_compile_definitions(PSXMC PUBLIC -DPSXMC_DEBUG_PCSX_KERNEL_CHECKER=1)
+target_compile_definitions(PSXMC PUBLIC -DPSXMC_DEBUG_PCSX_KERNEL_CHECKER=0)
 # Debugging utils (breakpoint, lua exec, exit, dialog box, putc)
-target_compile_definitions(PSXMC PUBLIC -DPSXMC_DEBUG_PCSX_UTILS=0)
+target_compile_definitions(PSXMC PUBLIC -DPSXMC_DEBUG_PCSX_UTILS=1)

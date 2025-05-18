@@ -37,7 +37,7 @@
 
 // ==== UTILS ====
 
-#if isDebugTagEnabled(PSXC_UTILS)
+#if isDebugTagEnabled(PCSX_UTILS)
 // Print ASCII character with code c to console/stdout.
 void pcsx_putc(int c);
 // Break execution (Pause emulation).
