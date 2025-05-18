@@ -457,6 +457,10 @@ static void cursorHandler(Inventory* inventory,
         IItem* held_iitem = (IItem*) cursor.held_data;
         if (held_iitem == NULL) {
             DEBUG_LOG("No held item, consume ingredients\n");
+            // FIXME: Even though we consume the ingredients and get a
+            //        result stack in the cursorm these ingredients
+            //        appear back in the slots with another stack in the
+            //        output slot.
             recipeConsumeIngredients(
                 inventory->slots,
                 ingredient_consume_sizes,
