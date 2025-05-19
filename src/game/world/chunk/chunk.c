@@ -686,8 +686,8 @@ void updateItemChunkOwnership(const Chunk* chunk,
     //       item definition that just isn't worth it. So this exists
     //       to do the update check every time, checking the velocity
     //       to determine if the item has moved on each update cycle
-    //       (as a precondition for checking the chunk ownership) is
-    //       substantially cheaper.
+    //       (as a precondition for checking the chunk ownership) which
+    //       is substantially cheaper.
     const Item* item = VCAST_PTR(Item*, iitem);
     if (!vec3_equal(item->world_entity->physics_object.velocity, VEC3_I32_ZERO)) {
         // No velocity implies no movement, so we can't have changed
