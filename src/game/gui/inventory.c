@@ -536,8 +536,6 @@ void inventoryCursorHandler(Inventory* inventory,
     processCraftingRecipe(inventory);
     VCALL(cursor_component, update);
     const PADTYPE* pad = input->pad;
-    // FIXME: Putting items into slots (only crafting?) sometimes
-    //        causes freeing of invalid pointers.
     if (!debounce(&inventory->debounce, INVENTORY_DEBOUNCE_MS)) {
         return;
     } else if (isPressed(pad, BINDING_CURSOR_CLICK)) {
