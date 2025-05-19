@@ -238,6 +238,9 @@ INLINE static bool playerInputHandlerAttack(const PlayerInputHandlerContext* ctx
     if (result.block != NULL) {
         const Block* block = VCAST_PTR(Block*, result.block);
         if (block->id != BLOCKID_AIR) {
+            // FIXME: Breaking a block leads to 8-bit uninit reads
+            //        on the final breaking stage (at or maybe before
+            //        dropping an item).
             updateBreakingState(player, &result, ctx->world);
             return true;
         }
