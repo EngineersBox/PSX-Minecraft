@@ -410,13 +410,6 @@ static void processCraftingRecipe(Inventory* inventory) {
         ingredient_consume_sizes,
         false
     );
-    DEBUG_LOG(
-        "Ingredient consume sizes: %d %d %d %d\n",
-        ingredient_consume_sizes[0],
-        ingredient_consume_sizes[1],
-        ingredient_consume_sizes[2],
-        ingredient_consume_sizes[3]
-    );
     recipe_has_changed = false;
 }
 
@@ -522,7 +515,6 @@ static void cursorHandler(Inventory* inventory,
     } else {
         return;
     }
-    DEBUG_LOG("split_or_store_one: %s\n", split_or_store_one ? "true" : "false");
     if (split_or_store_one) {
         cursorSplitOrStoreOne(
             slot,
@@ -544,8 +536,11 @@ void inventoryCursorHandler(Inventory* inventory,
     processCraftingRecipe(inventory);
     VCALL(cursor_component, update);
     const PADTYPE* pad = input->pad;
-    if (isPressed(pad, BINDING_CURSOR_CLICK)
-        && debounce(&inventory->debounce, INVENTORY_DEBOUNCE_MS)) {
+    // FIXME: Putting items into slots (only crafting?) sometimes
+    //        causes freeing of invalid pointers.
+    if (!debounce(&inventory->debounce, INVENTORY_DEBOUNCE_MS)) {
+        return;
+    } else if (isPressed(pad, BINDING_CURSOR_CLICK)) {
         cursorHandler(inventory, groups, false);
     } else if (isPressed(pad, BINDING_DROP_ITEM) && cursor.held_data != NULL) {
         worldDropItemStack(

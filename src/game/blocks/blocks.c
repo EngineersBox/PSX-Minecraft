@@ -59,6 +59,8 @@ u8 block_type_opacity_bitset[BLOCK_TYPE_COUNT][FACE_DIRECTION_COUNT] = {
 #undef ALL_FACE_DIRECTIONS_TRANSPARENT
 #undef ALL_FACE_DIRECTIONS_OPAQUE
 
+// ==== START WRAPPER MACROS ====
+
 #define DECL_STATELESS_METADATA_BLOCK(type, extern_name, metadata_id) \
     type extern_name##_##metadata_id##_BLOCK_SINGLETON = {0}; \
     IBlock extern_name##_##metadata_id##_IBLOCK_SINGLETON = {0}
@@ -73,7 +75,11 @@ u8 block_type_opacity_bitset[BLOCK_TYPE_COUNT][FACE_DIRECTION_COUNT] = {
 })
 
 #define initBlockMetadataSingleton(type, extern_name, metadata_id) ({ \
-    extern_name##_##metadata_id##_IBLOCK_SINGLETON = DYN(type, IBlock, &extern_name##_##metadata_id##_BLOCK_SINGLETON); \
+    extern_name##_##metadata_id##_IBLOCK_SINGLETON = DYN( \
+        type, \
+        IBlock, \
+        &extern_name##_##metadata_id##_BLOCK_SINGLETON \
+    ); \
     VCALL(extern_name##_##metadata_id##_IBLOCK_SINGLETON, init); \
 })
 
@@ -82,6 +88,8 @@ u8 block_type_opacity_bitset[BLOCK_TYPE_COUNT][FACE_DIRECTION_COUNT] = {
     block_attributes[BLOCKID_##extern_name] = attributes; \
     block_constructors[BLOCKID_##extern_name] = constructor; \
 })
+
+// ==== END WRAPPER MACROS ====
 
 DECL_STATELESS_BLOCK(AirBlock, AIR, 1, airBlockFaceAttributes()); 
 DECL_STATELESS_BLOCK(StoneBlock, STONE, 1, stoneBlockFaceAttributes());
