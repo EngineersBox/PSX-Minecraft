@@ -16,6 +16,7 @@ void cursorSplitOrStoreOne(Slot* slot,
     }
     IItem* held_iitem = (IItem*) cursor.held_data;
     IItem* slot_iitem = getter(slot);
+    DEBUG_LOG("Held iitem: %p Slot iitem: %p\n", held_iitem, slot_iitem);
     if (held_iitem == NULL) {
         // Split targetted slot stack
         if (slot_iitem == NULL) {
@@ -48,12 +49,14 @@ void cursorSplitOrStoreOne(Slot* slot,
     Item* slot_item = VCAST_PTR(Item*, slot_iitem);
     Item* held_item = VCAST_PTR(Item*, held_iitem);
     if (slot_iitem == NULL) {
+        DEBUG_LOG("Held stack size: %d\n", held_item->stack_size);
         // No items in targetted slot, store one
         if (held_item->stack_size == 1) {
             // Single item, just move the stack to avoid
             // creating a new IItem and copying the held
             // item data then deleting the held item
             setter(slot, held_iitem);
+            uiCursorSetHeldData(&cursor, NULL);
             return;
         }
         // Create a new item with a stack size of 1
@@ -67,8 +70,10 @@ void cursorSplitOrStoreOne(Slot* slot,
         new_slot_item->stack_size = 1;
         setter(slot, new_slot_iitem);
         held_item->stack_size--;
+        DEBUG_LOG("Finished cursor handler\n");
         return;
-    } else if (!itemEquals(held_item, slot_item) || slot_item->stack_size == itemGetMaxStackSize(slot_item->id)) {
+    } else if (!itemEquals(held_item, slot_item)
+                || slot_item->stack_size == itemGetMaxStackSize(slot_item->id)) {
         // Can't override an existing item in the slot
         // that doesn't match or we cant add an item to
         // an already full stack

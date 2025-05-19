@@ -60,8 +60,8 @@ u8 block_type_opacity_bitset[BLOCK_TYPE_COUNT][FACE_DIRECTION_COUNT] = {
 #undef ALL_FACE_DIRECTIONS_OPAQUE
 
 #define DECL_STATELESS_METADATA_BLOCK(type, extern_name, metadata_id) \
-    type extern_name##_##metadata_id##_BLOCK_SINGLETON = {}; \
-    IBlock extern_name##_##metadata_id##_IBLOCK_SINGLETON;
+    type extern_name##_##metadata_id##_BLOCK_SINGLETON = {0}; \
+    IBlock extern_name##_##metadata_id##_IBLOCK_SINGLETON = {0}
 
 #define DECL_STATELESS_BLOCK(type, extern_name, metadata_variant_count, face_attributes) \
     DECL_STATELESS_METADATA_BLOCK(type, extern_name, 0); \

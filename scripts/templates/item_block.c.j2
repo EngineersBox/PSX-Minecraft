@@ -3,11 +3,14 @@
 #include <stdlib.h>
 
 #include "../../../util/preprocessor.h"
+#include "../../../util/memory.h"
 #include "../../../math/vector.h"
 #include "../item_id.h"
 
 {{ name_capital }}ItemBlock* {{ name_lower }}ItemBlockCreate() {
-    return ({{ name_capital }}ItemBlock*) malloc(sizeof({{ name_capital }}ItemBlock));
+    {{ name_capital }}ItemBlock* itemblock = malloc(sizeof({{ name_capital }}ItemBlock));
+    zeroed(itemblock);
+    return itemblock;
 }
 
 DEFN_ITEM_CONSTRUCTOR({{ name_lower }) {

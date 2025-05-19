@@ -4,11 +4,14 @@
 #include "../../../core/std/stdlib.h"
 
 #include "../../../util/interface99_extensions.h"
+#include "../../../util/memory.h"
 #include "../item_id.h"
 #include "item_block.h"
 
 DirtItemBlock* dirtItemBlockCreate() {
-    return (DirtItemBlock*) malloc(sizeof(DirtItemBlock));
+    DirtItemBlock* itemblock = malloc(sizeof(DirtItemBlock));
+    zeroed(itemblock);
+    return itemblock;
 }
 
 DEFN_ITEM_CONSTRUCTOR(dirt) {

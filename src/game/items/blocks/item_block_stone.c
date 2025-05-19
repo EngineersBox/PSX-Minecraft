@@ -4,11 +4,14 @@
 #include "../../../core/std/stdlib.h"
 
 #include "../../../util/interface99_extensions.h"
+#include "../../../util/memory.h"
 #include "../item_id.h"
 #include "item_block.h"
 
 StoneItemBlock* stoneItemBlockCreate() {
-    return (StoneItemBlock*) malloc(sizeof(StoneItemBlock));
+    StoneItemBlock* itemblock = malloc(sizeof(StoneItemBlock));
+    zeroed(itemblock);
+    return itemblock;
 }
 
 DEFN_ITEM_CONSTRUCTOR(stone) {

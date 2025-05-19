@@ -25,7 +25,7 @@ DEFN_BLOCK_CONSTRUCTOR(air);
     .face_attributes = AIR_FACE_ATTRIBUTES, \
     .name = "air" \
 })
-#define airBlockFaceAttributes() {}
+#define airBlockFaceAttributes() {0}
 
 void airBlockInit(VSelf);
 void AirBlock_init(VSelf);

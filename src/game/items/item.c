@@ -5,6 +5,7 @@
 
 #include "../../logging/logging.h"
 #include "items.h"
+#include "../../util/memory.h"
 
 #define HEIGHT_INTERVALS 2
 #define RADIUS_INTERVALS 2
@@ -97,7 +98,9 @@ bool itemUpdate(Item* item,
 }
 
 IItem* itemCreate() {
-    return (IItem*) malloc(sizeof(IItem));
+    IItem* iitem = malloc(sizeof(IItem));
+    zeroed(iitem);
+    return iitem;
 }
 
 void iitemApplyDamage(VSelf, i16 damage) ALIAS("IItem_applyDamage");

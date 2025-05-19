@@ -57,6 +57,7 @@ assemble_new_item:;
         IItem* iitem = itemGetConstructor(result->item.separated.id)(result->item.separated.metadata);
         assert(iitem != NULL);
         Item* item = VCAST_PTR(Item*, iitem);
+        DEBUG_LOG("Item: %d:%d\n", item->id, item->metadata_id);
         itemSetWorldState(item, false);
         VCALL_SUPER(*iitem, Renderable, applyInventoryRenderAttributes);
         item->bob_offset = 1;
@@ -215,6 +216,7 @@ RecipeProcessResult recipeProcess(const RecipeNode* root,
     return RECIPE_PROCESSING_SUCCEEDED;
 }
 
+// Start index is inclusive and end index is exclusive
 void recipeConsumeIngredients(Slot* slots,
                               const u8* ingredient_consume_sizes,
                               int start_index,
@@ -227,7 +229,7 @@ void recipeConsumeIngredients(Slot* slots,
         }
         Item* item = VCAST_PTR(Item*, iitem);
         assert(item->stack_size > 0);
-        item->stack_size -= ingredient_consume_sizes[i];
+        item->stack_size -= ingredient_consume_sizes[i - start_index];
         if (item->stack_size == 0) {
             VCALL(*iitem, destroy);
             slot->data.item = NULL;

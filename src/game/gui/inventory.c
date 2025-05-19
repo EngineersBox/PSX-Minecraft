@@ -456,11 +456,6 @@ static void cursorHandler(Inventory* inventory,
         Item* result_item = VCAST_PTR(Item*, result_iitem);
         IItem* held_iitem = (IItem*) cursor.held_data;
         if (held_iitem == NULL) {
-            DEBUG_LOG("No held item, consume ingredients\n");
-            // FIXME: Even though we consume the ingredients and get a
-            //        result stack in the cursorm these ingredients
-            //        appear back in the slots with another stack in the
-            //        output slot.
             recipeConsumeIngredients(
                 inventory->slots,
                 ingredient_consume_sizes,
@@ -527,6 +522,7 @@ static void cursorHandler(Inventory* inventory,
     } else {
         return;
     }
+    DEBUG_LOG("split_or_store_one: %s\n", split_or_store_one ? "true" : "false");
     if (split_or_store_one) {
         cursorSplitOrStoreOne(
             slot,
