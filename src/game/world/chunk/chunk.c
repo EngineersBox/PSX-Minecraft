@@ -45,7 +45,7 @@ FWD_DECL void worldSetLightValue(const World* world,
                                  const LightType light_type);
 FWD_DECL void worldSetLightValueChunkBlock(const World* world,
                                            const ChunkBlockPosition* position,
-u8 light_value,
+                                           u8 light_value,
                                            const LightType light_type);
 FWD_DECL LightLevel worldGetLightTypeChunkBlock(const World* world,
                                                 const ChunkBlockPosition* position,
@@ -735,11 +735,13 @@ void chunkUpdate(Chunk* chunk, const Player* player, BreakingState* breaking_sta
             continue;
         }
         Item* item = VCAST(Item*, *iitem);
-        if (itemUpdate(item,
-                       chunk->world,
-                       &pos,
-                       inventory,
-                       itemPickupValidator)) {
+        if (itemUpdate(
+            item,
+            chunk->world,
+            &pos,
+            inventory,
+            itemPickupValidator
+        )) {
             const InventoryStoreResult result = inventoryStoreItem(inventory, iitem);
             switch (result) {
                 case INVENTORY_STORE_RESULT_ADDED_SOME:
