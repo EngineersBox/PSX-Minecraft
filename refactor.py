@@ -10,7 +10,7 @@ def rewriteImport(file, rel_dir):
 def main():
     for dir_, _, files in os.walk("src"):
         for file_name in files:
-            if (file_name == "main.c"):
+            if (file_name == "main.c" or file_name == "stdlib.h"):
                 continue
             rel_dir = os.path.relpath(dir_, "src")
             rel_file = os.path.join(rel_dir, file_name)
