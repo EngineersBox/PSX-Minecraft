@@ -239,7 +239,7 @@ bool CraftingTableBlock_useAction(VSelf) {
         ASSET_TEXTURE__GUI__CRAFTING,
         &block_render_ui_context.background.texture
     );
-    block_render_ui_context.background.texture_coords = vec2_i16_all(0);
+    block_render_ui_context.background.texture_coords = vec2_i16(0);
     block_render_ui_context.background.texture_width = vec2_i16(
         CRAFTING_TABLE_TEXTURE_WIDTH,
         CRAFTING_TABLE_TEXTURE_HEIGHT

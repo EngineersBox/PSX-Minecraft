@@ -19,15 +19,15 @@ Frustum frustumCreate() {
         .planes = {
             /*[FRUSTUM_PLANE_NEAR] = (Plane) {*/
             /*    .normal = vec3_i32(4096, 0, 0),*/
-            /*    .point = vec3_i32_all(0),*/
+            /*    .point = vec3_i32(0),*/
             /*    .distance = 0*/
             /*},*/
             [FRUSTUM_PLANE_NEAR] = (Plane) { .normal = vec3_i32(0, 0, -4096), .distance = 1/*409*/, .point = vec3_i32(0, 0, 1/*409*/) },
             [FRUSTUM_PLANE_FAR] = (Plane) { .normal = vec3_i32(0, 0, 4096), .distance = 4096, .point = vec3_i32(0, 0, 4096) },
-            [FRUSTUM_PLANE_LEFT] = (Plane) { .normal = vec3_i32(-2457, 0, 3276), .distance = 0, .point = vec3_i32_all(0) },
-            [FRUSTUM_PLANE_RIGHT] = (Plane) { .normal = vec3_i32(2457, 0, 3276), .distance = 0, .point = vec3_i32_all(0) },
-            [FRUSTUM_PLANE_TOP] = (Plane) { .normal = vec3_i32(0, -2896, 2896), .distance = 0, .point = vec3_i32_all(0) },
-            [FRUSTUM_PLANE_BOTTOM] = (Plane) { .normal = vec3_i32(0, 2896, 2896), .distance = 0, .point = vec3_i32_all(0) },
+            [FRUSTUM_PLANE_LEFT] = (Plane) { .normal = vec3_i32(-2457, 0, 3276), .distance = 0, .point = vec3_i32(0) },
+            [FRUSTUM_PLANE_RIGHT] = (Plane) { .normal = vec3_i32(2457, 0, 3276), .distance = 0, .point = vec3_i32(0) },
+            [FRUSTUM_PLANE_TOP] = (Plane) { .normal = vec3_i32(0, -2896, 2896), .distance = 0, .point = vec3_i32(0) },
+            [FRUSTUM_PLANE_BOTTOM] = (Plane) { .normal = vec3_i32(0, 2896, 2896), .distance = 0, .point = vec3_i32(0) },
         }
     };
 }

@@ -11,8 +11,8 @@ Camera cameraCreate(Transforms* transforms) {
     return (Camera) {
         .transforms = transforms,
         .frustum = frustumCreate(),
-        .position = vec3_i32_all(0),
-        .rotation = vec3_i32_all(0),
+        .position = vec3_i32(0),
+        .rotation = vec3_i32(0),
         .mode = CAMERA_MODE_FIRST_PERSON
     };
 }

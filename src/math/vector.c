@@ -6,8 +6,8 @@
 #include "../logging/logging.h"
 #include "../util/preprocessor.h"
 
-const VECTOR VEC3_I32_ZERO = vec3_i32_all(0);
-const SVECTOR VEC3_I16_ZERO = vec3_i16_all(0);
+const VECTOR VEC3_I32_ZERO = vec3_i32(0);
+const SVECTOR VEC3_I16_ZERO = vec3_i16(0);
 
 VECTOR rotationToDirection(const VECTOR* rotation) {
     // printf("Rotation: " VEC_PATTERN "\n", rotation->vx, rotation->vy, rotation->vz);

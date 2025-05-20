@@ -110,8 +110,8 @@ void worldInit(World* world, RenderContext* ctx) {
     world->time_ticks = WORLD_TIME_DAWN;
     world->day_count = 0;
     world->celestial_angle = 0;
-    world->centre = vec3_i32_all(0);
-    world->centre_next = vec3_i32_all(0);
+    world->centre = vec3_i32(0);
+    world->centre_next = vec3_i32(0);
     world->head.vx = 0;
     world->head.vz = 0;
     world->weather = (Weather) {
@@ -833,7 +833,7 @@ void worldUpdateInternalLightLevel(World* world, RenderContext* ctx) {
         createLightLevel(0, 15)
     );
     const u8 colour = fixedMul(0x7F, light_level_colour_scalar);
-    const CVECTOR ambient_colour = vec3_rgb_all(colour);
+    const CVECTOR ambient_colour = vec3_rgb(colour);
     // TODO: Tint the colour 
     gte_SetBackColor(
         ambient_colour.r,
@@ -1390,7 +1390,7 @@ void worldDropItemStack(World* world,
         velocity,
         4096
     );
-    item->world_entity->physics_object.velocity = vec3_i32_all(0);
+    item->world_entity->physics_object.velocity = vec3_i32(0);
     // TODO: Add a timestamp marker into the item fields
     //       as the minimum time that it should be considered
     //       when testing for items to pick up around the

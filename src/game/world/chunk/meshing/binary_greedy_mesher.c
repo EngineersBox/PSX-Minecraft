@@ -286,7 +286,7 @@ static void chunkVisibilityDfsWalkScan(Chunk* chunk,
                                        FacesColumns faces_cols,
                                        FacesColumns faces_cols_opaque) {
     ChunkBitmap bitmap = {0};
-    VECTOR root = vec3_i32_all(0);
+    VECTOR root = vec3_i32(0);
     if (!chunkBitmapFindRoot(
         bitmap,
         chunk,
@@ -358,7 +358,7 @@ static void chunkVisibilityDfsWalkScan(Chunk* chunk,
             // Power of 2 implies a single bit is set,
             // thus only one side in the visibility set
             // so that side cannot see another.
-            VECTOR pos = vec3_i32_all(0);
+            VECTOR pos = vec3_i32(0);
             if (chunkBitmapFindUnsetPosition(
                 bitmap,
                 chunk,
@@ -383,7 +383,7 @@ static void chunkVisibilityDfsWalkScan(Chunk* chunk,
                 chunkVisibilitySetBit(&chunk->visibility, i, j);
             }
         }
-        VECTOR pos = vec3_i32_all(0);
+        VECTOR pos = vec3_i32(0);
         if (!chunkBitmapFindUnsetPosition(
             bitmap,
             chunk,
@@ -545,11 +545,11 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk, const BreakingState* breaking_sta
                     // Clear least significant bit set
                     col &= col - 1;
                     ChunkBlockPosition chunk_block_position = {
-                        .block = vec3_i32_all(0),
+                        .block = vec3_i32(0),
                         .chunk = chunk->position
                     };
                     ChunkBlockPosition light_cb_pos = {
-                        .block = vec3_i32_all(0),
+                        .block = vec3_i32(0),
                         .chunk = chunk->position
                     };
                     switch (face) {
@@ -921,7 +921,7 @@ void binaryGreedyMesherConstructBreakingOverlay(Chunk* chunk, const BreakingStat
             x = chunk_block_position.block.v##_x; \
             y = chunk_block_position.block.v##_y
         ChunkBlockPosition light_cb_pos = (ChunkBlockPosition) {
-            .block = vec3_i32_all(0),
+            .block = vec3_i32(0),
             .chunk = chunk->position
         };
         #define lightPos(_x, _y, _z) \

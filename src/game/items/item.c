@@ -51,7 +51,7 @@ void itemSetWorldState(Item* item, const bool in_world) {
     }
     // In inventory
     free(item->world_entity);
-    item->position = vec3_i32_all(0);
+    item->position = vec3_i32(0);
 }
 
 bool itemUpdate(Item* item,

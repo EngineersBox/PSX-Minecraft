@@ -98,7 +98,7 @@ bool aabbIntersects(const AABB* a, const AABB* b) {
 }
 
 VECTOR aabbVertexClosestToPoint(const AABB* aabb, const VECTOR* point) {
-    VECTOR vertex = vec3_i32_all(0);
+    VECTOR vertex = vec3_i32(0);
     int max_diff;
     int min_diff;
 #define pickBoundsFromSign(axis) \

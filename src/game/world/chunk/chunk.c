@@ -446,7 +446,7 @@ static LightLevel inferSunlightValueFromNeighbours(const Chunk* chunk,
                                                    const VECTOR* position) {
     ChunkBlockPosition cb_pos = (ChunkBlockPosition) {
         .chunk = chunk->position,
-        .block = vec3_i32_all(0)
+        .block = vec3_i32(0)
     };
     LightLevel current_max = 0;
     #pragma GCC unroll 6

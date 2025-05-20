@@ -71,7 +71,7 @@ extern const RECT breaking_texture_offscreen;
         .ticks_precise = 0, \
         .ticks_per_stage = 0, \
         .ticks_so_far = 0, \
-        .position = vec3_i32_all(0), \
+        .position = vec3_i32(0), \
         .visible_sides_bitset = 0, \
         .chunk_remesh_trigger = false, \
         .reset_trigger = false, \

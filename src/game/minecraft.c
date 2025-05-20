@@ -61,12 +61,12 @@ void Minecraft_init(VSelf, UNUSED void* ctx) {
         .camera = NULL,
     };
     self->transforms = (Transforms) {
-        .translation_rotation = vec3_i16_all(0),
-        .negative_translation_rotation = vec3_i16_all(0),
-        .translation_position = vec3_i32_all(0),
-        .negative_translation_position = vec3_i32_all(0),
-        .geometry_mtx = mat4_all(0),
-        .frustum_mtx = mat4_all(0),
+        .translation_rotation = vec3_i16(0),
+        .negative_translation_rotation = vec3_i16(0),
+        .translation_position = vec3_i32(0),
+        .negative_translation_position = vec3_i32(0),
+        .geometry_mtx = mat4_i16_i32(0),
+        .frustum_mtx = mat4_i16_i32(0),
         .lighting_mtx = lighting_direction
     };
     self->camera = cameraCreate(&self->transforms),

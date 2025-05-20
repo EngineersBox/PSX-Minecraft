@@ -49,7 +49,7 @@ const i32 item_block_anim_sin_lut[ITEM_BLOCK_BOB_ANIM_SAMPLES] = {
 };
 
 const VECTOR item_stack_render_offsets[5] = {
-    [0] = vec3_i32_all(0),
+    [0] = vec3_i32(0),
     [1] = vec3_i32(4,4,4),
     [2] = vec3_i32(-5,2,3),
     [3] = vec3_i32(2,5,-4),
@@ -487,8 +487,8 @@ void itemBlockApplyInventoryRenderAttributes(VSelf) {
 
 void itemBlockApplyWorldRenderAttributes(VSelf) {
     VSELF(ItemBlock);
-    self->item.position = vec3_i32_all(0);
-    self->item.rotation = vec3_i16_all(0);
+    self->item.position = vec3_i32(0);
+    self->item.rotation = vec3_i16(0);
 }
 
 void itemBlockApplyHandRenderAttributes(UNUSED VSelf) {
