@@ -2,7 +2,6 @@
 
 #include <psxgpu.h>
 
-#include "../../logging/logging.h"
 #include "../../structure/primitive/primitive.h"
 #include "../../util/preprocessor.h"
 #include "../../util/memory.h"
@@ -15,7 +14,7 @@ INLINE UIBackground* UIBackgroundNew() {
 };
 
 void uiBackgroundRender(VSelf, RenderContext* ctx, Transforms* transforms) ALIAS("UIBackground_render");
-void UIBackground_render(VSelf, RenderContext* ctx, Transforms* transforms) {
+void UIBackground_render(VSelf, RenderContext* ctx, UNUSED Transforms* transforms) {
     VSELF(UIBackground);
     POLY_FT4* pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
     setXYWH(

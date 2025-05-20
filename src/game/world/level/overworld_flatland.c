@@ -5,8 +5,6 @@
 #include "../../../core/std/stdlib.h"
 
 #include "../chunk/chunk_structure.h"
-#include "../generation/noise.h"
-#include "../../blocks/blocks.h"
 
 // ==== GENERATOR ====
 
@@ -15,17 +13,17 @@ void chunkInit(Chunk *chunk);
 void chunkDestroy(const Chunk* chunk);
 
 void overworldFlatlandChunkGeneratorInit(VSelf) ALIAS("OverworldFlatlandChunkGenerator_init");
-void OverworldFlatlandChunkGenerator_init(VSelf) {
+void OverworldFlatlandChunkGenerator_init(UNUSED VSelf) {
     // Do nothing
 }
 
 void overworldFlatlandChunkGeneratorDestroy(VSelf) ALIAS("OverworldFlatlandChunkGenerator_destroy");
-void OverworldFlatlandChunkGenerator_destroy(VSelf) {
+void OverworldFlatlandChunkGenerator_destroy(UNUSED VSelf) {
     // Do nothing
 }
 
 void overworldFlatlandGeneneratorGenerate(VSelf, Chunk* chunk, ChunkHeightmap* heightmap) ALIAS("OverworldFlatlandChunkGenerator_generate");
-void OverworldFlatlandChunkGenerator_generate(VSelf, Chunk* chunk, ChunkHeightmap* heightmap) {
+void OverworldFlatlandChunkGenerator_generate(UNUSED VSelf, Chunk* chunk, ChunkHeightmap* heightmap) {
     for (i32 x = 0; x < CHUNK_SIZE; x++) {
         for (i32 z = 0; z < CHUNK_SIZE; z++) {
             for (i32 y = 0; y < CHUNK_SIZE; y++) {
@@ -100,7 +98,7 @@ Chunk* OverworldFlatlandChunkProvider_provide(VSelf, const VECTOR position, Chun
 }
 
 bool overworldFlatlandSaveChunk(VSelf, Chunk* chunk) ALIAS("OverworldFlatlandChunkProvider_save");
-bool OverworldFlatlandChunkProvider_save(VSelf, Chunk* chunk) {
+bool OverworldFlatlandChunkProvider_save(UNUSED VSelf, Chunk* chunk) {
     // TODO: Implement this when world saving is possible
     chunkDestroy(chunk);
     return true;

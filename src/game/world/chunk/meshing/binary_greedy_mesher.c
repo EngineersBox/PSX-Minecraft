@@ -12,7 +12,6 @@
 #include "../../../../resources/asset_indices.h"
 #include "../../../../structure/primitive/primitive.h"
 #include "../../../../resources/assets.h"
-#include "../../../../structure/primitive/cube.h"
 #include "../../position.h"
 #include "../chunk_structure.h"
 #include "plane_meshing_data.h"
@@ -665,8 +664,6 @@ face,
 
 static MeshPrimitive* createPrimitive(ChunkMesh* mesh,
                                       const PlaneMeshingDataKey* data,
-                                      const u32 x,
-                                      const u32 y,
                                       const u32 width,
                                       const u32 height,
                                       const Texture* texture_override,
@@ -811,8 +808,6 @@ static void createMesh(Chunk* chunk,
     MeshPrimitive* primitive = createPrimitive(
         &chunk->mesh,
         data,
-        x,
-        y,
         w,
         h,
         texture_override,

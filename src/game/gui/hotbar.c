@@ -1,6 +1,5 @@
 #include "hotbar.h"
 
-#include "../../structure/cvector_utils.h"
 #include "../../util/interface99_extensions.h"
 #include "../../util/memory.h"
 #include "../../util/debounce.h"
@@ -96,7 +95,7 @@ void hotbarRenderAttributes(u8 health,
                             u8 air,
                             bool in_water,
                             RenderContext* ctx,
-                            Transforms* transforms) {
+                            UNUSED Transforms* transforms) {
     if (health_start_flash) {
         health_flash_animation = FLASH_FRAMES;
     } else if (health_flash_animation > 0) {
@@ -282,12 +281,12 @@ void hotbarRenderAttributes(u8 health,
 }
 
 void hotbarOpen(VSelf) ALIAS("Hotbar_open");
-void Hotbar_open(VSelf) {
+void Hotbar_open(UNUSED VSelf) {
     // Always open
 }
 
 void hotbarClose(VSelf) ALIAS("Hotbar_close");
-void Hotbar_close(VSelf) {
+void Hotbar_close(UNUSED VSelf) {
     // Always open
 }
 
@@ -308,7 +307,7 @@ InputHandlerState hotbarInputHandler(const Input* input, void* ctx) {
 }
 
 void hotbarRegisterInputHandler(VSelf, Input* input, void* ctx) ALIAS("Hotbar_registerInputHandler");
-void Hotbar_registerInputHandler(VSelf, Input* input, void* ctx) {
+void Hotbar_registerInputHandler(VSelf, Input* input, UNUSED void* ctx) {
     VSELF(Hotbar);
     const InputHandlerVTable handler = (InputHandlerVTable) {
         .ctx = self,

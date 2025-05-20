@@ -2,7 +2,7 @@
 
 #include "../../../../structure/hashmap.h"
 
-int plane_meshing_data_compare(const void* a, const void* b, void* ignored) {
+int plane_meshing_data_compare(const void* a, const void* b, UNUSED void* ignored) {
     const PlaneMeshingData* pa = a;
     const PlaneMeshingData* pb = b;
     const int axis = cmp(pa->key.face, pb->key.face);

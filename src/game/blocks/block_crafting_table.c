@@ -172,7 +172,7 @@ static void cursorHandler(bool split_or_store_one) {
     }
 }
 
-InputHandlerState craftingTableBlockInputHandler(const Input* input, void* ctx) {
+InputHandlerState craftingTableBlockInputHandler(const Input* input, UNUSED void* ctx) {
     processCraftingRecipe();
     VCALL(cursor_component, update);
     inventoryCursorHandler(

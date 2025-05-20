@@ -332,6 +332,6 @@ void IPhysicsObject_moveFlying(VSelf, i32 move_strafe, i32 move_forward, const i
 }
 
 void iPhysicsObjectFall(VSelf, i32 distance) ALIAS("IPhysicsObject_fall");
-void IPhysicsObject_fall(VSelf, i32 distance) {
+void IPhysicsObject_fall(UNUSED VSelf, UNUSED i32 distance) {
     // Do nothing by default
 }

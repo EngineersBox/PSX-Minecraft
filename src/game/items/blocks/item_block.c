@@ -425,7 +425,9 @@ MATRIX inventory_item_block_lighting_direction = {
         {0, 0, 0}
     }
 };
-void itemBlockRenderInventory(ItemBlock* item, RenderContext* ctx, Transforms* transforms) {
+void itemBlockRenderInventory(ItemBlock* item,
+                              RenderContext* ctx,
+                              UNUSED Transforms* transforms) {
     VECTOR position = vec3_i32(0, 0, item->item.position.vz);
     // Object and light matrix for object
     MATRIX omtx, olmtx;
@@ -471,8 +473,10 @@ void itemBlockRenderInventory(ItemBlock* item, RenderContext* ctx, Transforms* t
     );
 }
 
-void itemBlockRenderHand(ItemBlock* item, RenderContext* ctx, Transforms* transforms) {
-
+void itemBlockRenderHand(UNUSED ItemBlock* item,
+                         UNUSED RenderContext* ctx,
+                         UNUSED Transforms* transforms) {
+    UNIMPLEMENTED();
 }
 
 void itemBlockApplyInventoryRenderAttributes(VSelf) {
@@ -487,6 +491,6 @@ void itemBlockApplyWorldRenderAttributes(VSelf) {
     self->item.rotation = vec3_i16_all(0);
 }
 
-void itemBlockApplyHandRenderAttributes(VSelf) {
+void itemBlockApplyHandRenderAttributes(UNUSED VSelf) {
     UNIMPLEMENTED();
 }

@@ -4,14 +4,11 @@
 #include "../../../core/std/stdlib.h"
 #include <psxgpu.h>
 
-#include "../../../util/preprocessor.h"
 #include "../../../structure/cvector.h"
 #include "../../../structure/cvector_utils.h"
 #include "../../../structure/primitive/clip.h"
 #include "../../../logging/logging.h"
-#include "../../../render/commands.h"
 #include "../../blocks/block.h"
-#include "chunk_structure.h"
 
 #ifndef QUAD_DUAL_TRI_NCLIP
 #define QUAD_DUAL_TRI_NCLIP 0
@@ -61,12 +58,16 @@ void chunkMeshClear(ChunkMesh* mesh) {
     }
 }
 
-static void renderLine(MeshPrimitive* primitive, RenderContext* ctx, Transforms* transforms) {
-    // TODO
+static void renderLine(UNUSED MeshPrimitive* primitive,
+                       UNUSED RenderContext* ctx,
+                       UNUSED Transforms* transforms) {
+    UNIMPLEMENTED();
 }
 
-static void renderTriangle(MeshPrimitive* primitive, RenderContext* ctx, Transforms* transforms) {
-    // TODO
+static void renderTriangle(UNUSED MeshPrimitive* primitive,
+                           UNUSED RenderContext* ctx,
+                           UNUSED Transforms* transforms) {
+    UNIMPLEMENTED();
 }
 
 const RECT lightmap_merge_offscreen = (RECT) {
@@ -79,9 +80,9 @@ const RECT lightmap_merge_offscreen = (RECT) {
 static void renderQuad(const Mesh* mesh,
                        const LightLevel internal_light_level,
                        const MeshPrimitive* primitive,
-                       bool subdivide,
+                       UNUSED bool subdivide,
                        RenderContext* ctx,
-                       Transforms* transforms) {
+                       UNUSED Transforms* transforms) {
     // TODO: Generalise for textured and non-textured
     int p;
     // int dp;
@@ -229,11 +230,11 @@ void chunkMeshRenderFaceDirection(const Mesh* mesh,
 #define POS_DECREASED 2
 
 static bool faceDirectionHidden(FaceDirection face_dir,
-                                const VECTOR* aabb_closest_vertex,
+                                UNUSED const VECTOR* aabb_closest_vertex,
                                 u8 pos_state_x,
                                 u8 pos_state_y,
                                 u8 pos_state_z,
-                                RenderContext* ctx) {
+                                UNUSED RenderContext* ctx) {
     /*const SVECTOR* normal = &FACE_DIRECTION_NORMALS[face_dir];*/
     switch (face_dir) {
         case FACE_DIR_DOWN:

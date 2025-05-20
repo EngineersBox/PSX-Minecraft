@@ -1,12 +1,9 @@
 #include "debug.h"
 
 #include <psxgpu.h>
-#include "../core/std/stdlib.h"
 
-#include "../math/math_utils.h"
 #include "../structure/primitive/primitive.h"
 #include "../game/blocks/block.h"
-#include "../util/memory.h"
 #include "../../logging/logging.h"
 
 DEFINE_CIRCULAR_BUFFER(ordering_table_usage, SAMPLE_WINDOW_SIZE);
@@ -87,7 +84,7 @@ void debugDrawPacketBufferUsageGraph(RenderContext* ctx, const u16 base_screen_x
     renderUsageGraph(ctx, &packet_buffer_usage, base_screen_x, base_screen_y);
 }
 
-void drawLeftDebugText(const Stats* stats, const Camera* camera, const World* world) {
+void drawLeftDebugText(const Stats* stats, const Camera* camera, MAYBE_UNUSED const World* world) {
 #if isDebugTagEnabled(OVERLAY_FPS)
     FntPrint(0, "FT=%dms FPS=%d TPS=%d\n", stats->frame_diff_ms, stats->fps, stats->tps);
 #endif
@@ -166,7 +163,7 @@ void drawLeftDebugText(const Stats* stats, const Camera* camera, const World* wo
 #endif
 }
 
-void drawRightDebugText(const Stats* stats) {
+void drawRightDebugText(MAYBE_UNUSED const Stats* stats) {
 #if isDebugTagEnabled(OVERLAY_MEM)
     HeapUsage* usage = {0};
     GetHeapUsage(usage);

@@ -88,18 +88,22 @@ static u64 lightRemoveNodeDataHash(const void* item, u64 seed0, u64 seed1) {
     );
 }
 
-static int lightAddNodeCompare(const void* a, const void* b, void* ignored) {
+static int lightAddNodeCompare(const void* a,
+                               const void* b,
+                               UNUSED void* ignored) {
     const LightAddNode* node_a = a;
-    const LightAddNode* node_b = a;
+    const LightAddNode* node_b = b;
     // Negation here since this compare function is like the
     // cmp(..) function in the standard library, where a return
     // value of 0 implies equivalence.
     return !vec3_equal(node_a->position, node_b->position);
 }
 
-static int lightRemoveNodeCompare(const void* a, const void* b, void* ignored) {
+static int lightRemoveNodeCompare(const void* a,
+                                  const void* b,
+                                  UNUSED void* ignored) {
     const LightRemoveNode* node_a = a;
-    const LightRemoveNode* node_b = a;
+    const LightRemoveNode* node_b = b;
     // Negation here since this compare function is like the
     // cmp(..) function in the standard library, where a return
     // value of 0 implies equivalence.

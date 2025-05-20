@@ -8,6 +8,10 @@ def rewriteImport(file, rel_dir):
         f.write(data)
 
 def main():
+    dir = os.path.basename(os.getcwd())
+    if (dir != "PSX-Minecraft"):
+        print(f"[ERROR] Script must be run from 'PSX-Minecraft' directory, not '{dir}'")
+        exit(1)
     for dir_, _, files in os.walk("src"):
         for file_name in files:
             if (file_name == "main.c" or file_name == "stdlib.h"):

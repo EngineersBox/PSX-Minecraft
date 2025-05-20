@@ -354,7 +354,7 @@ InputHandlerState inventoryInputHandler(const Input* input, void* ctx) {
 }
 
 void inventoryRegisterInputHandler(VSelf, Input* input, void* ctx) ALIAS("Inventory_registerInputHandler");
-void Inventory_registerInputHandler(VSelf, Input* input, void* ctx) {
+void Inventory_registerInputHandler(VSelf, Input* input, UNUSED void* ctx) {
     VSELF(Inventory);
     const InputHandlerVTable handler = (InputHandlerVTable) {
         .ctx = self,

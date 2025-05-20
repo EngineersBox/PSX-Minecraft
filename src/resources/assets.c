@@ -98,7 +98,7 @@ void assetLoadImage(const TIM_IMAGE* tim, Texture* texture) {
     );
 }
 
-static void _freeTextures(void* ctx) {
+static void _freeTextures(UNUSED void* ctx) {
     free(textures);
 }
 
