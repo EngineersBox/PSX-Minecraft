@@ -3,6 +3,7 @@
 #include "../core/std/stdlib.h"
 #include "../math/math_utils.h"
 #include "../util/memory.h"
+#include "../logging/logging.h"
 
 Entity* entityNew() {
     Entity* entity = malloc(sizeof(Entity));
@@ -27,14 +28,14 @@ bool iEntityAttackFrom(VSelf,
                        const DamageContext* ctx) ALIAS("IEntity_attackFrom");
 bool IEntity_attackFrom(VSelf,
                         IEntityVTable* vtable,
-                        const Entity*
-                        damage_source,
+                        MAYBE_UNUSED const Entity* damage_source,
                         const DamageContext* ctx) {
     VSELF(Entity);
     if (self->health <= 0) {
         return false;
     }
     vtable->damage(self, ctx->amount);
+    UNIMPLEMENTED();
     // TODO: Apply dmanage based on context
     return false;
 }

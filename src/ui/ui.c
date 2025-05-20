@@ -26,6 +26,6 @@ IUIComponent* uiAddComponent(UI* ui) {
 }
 
 void iuiComponentUpdate(VSelf) ALIAS("IUIComponent_update");
-void IUIComponent_update(VSelf) {
+void IUIComponent_update(UNUSED VSelf) {
     // Do nothing
 }

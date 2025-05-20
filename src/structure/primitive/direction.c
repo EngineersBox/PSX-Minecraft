@@ -1,6 +1,5 @@
 #include "direction.h"
 
-#include "../../util/preprocessor.h"
 #include "../../logging/logging.h"
 #include "../../math/math_utils.h"
 #include "../../math/vector.h"
@@ -37,10 +36,10 @@ FaceDirection faceDirectionClosestNormal(const VECTOR vec) {
     return FACE_DIR_RIGHT;
 }
 
-FaceDirection faceDirectionRelative(FaceDirection target_direction,
-                                    FaceDirection front_direction,
-                                    FaceDirection right_direction,
-                                    FaceDirection up_direction) {
+FaceDirection faceDirectionRelative(UNUSED FaceDirection target_direction,
+                                    UNUSED FaceDirection front_direction,
+                                    UNUSED FaceDirection right_direction,
+                                    UNUSED FaceDirection up_direction) {
     UNIMPLEMENTED();
     return 0;
 }

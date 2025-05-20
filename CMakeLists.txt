@@ -14,7 +14,7 @@ set(COMPILE_OPTIMISATION_LEVEL 0)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(CMAKE_C_STANDARD 23)
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -fshort-enums -Wunused-parameter -Wno-comments -Wno-expansion-to-defined")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -fshort-enums -Wunused-parameter -Wcomments -Wno-expansion-to-defined")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O${COMPILE_OPTIMISATION_LEVEL} -g")
 # set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fanalyzer")
 set(CMAKE_C_INCLUDE_WHAT_YOU_USE "include-what-you-use;-w;-Xiwyu;--verbose=7")

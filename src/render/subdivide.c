@@ -15,7 +15,7 @@ void subdividePolyFT4(SVECTOR* v0, SVECTOR* v1, SVECTOR* v2, SVECTOR* v3,
                       BDVECTOR* uv0, BDVECTOR* uv1, BDVECTOR* uv2, BDVECTOR* uv3,
                       DIVPOLY4* divp,
                       RenderContext* ctx,
-                      const Transforms* transforms) {
+                      UNUSED const Transforms* transforms) {
     const DivisionLayout pos_div = (DivisionLayout) {
         (v1->vx - v0->vx) / divp->n_div_x,
         (v3->vx - v2->vx) / divp->n_div_x,

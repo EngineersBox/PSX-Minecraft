@@ -5,7 +5,6 @@
 #include <psxgte.h>
 #include <inline_c.h>
 #include <smd/smd.h>
-#include "../core/std/stdlib.h"
 
 #include "../logging/logging.h"
 #include "../math/math_utils.h"
@@ -170,7 +169,7 @@ void renderClearConstraints(RenderContext* ctx) {
     renderClearConstraintsIndex(ctx, 0);
 }
 
-void renderCtxBindMatrix(RenderContext* ctx,
+void renderCtxBindMatrix(UNUSED RenderContext* ctx,
                          Transforms* transforms,
                          const SVECTOR* rotation,
                          const VECTOR* translation) {

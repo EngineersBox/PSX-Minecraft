@@ -1,7 +1,7 @@
 #include "button.h"
 
 #include "../../math/math_utils.h"
-#include "../../util/interface99_extensions.h"
+#include "../../logging/logging.h"
 #include "cursor.h"
 
 void uiButtonUpdate(VSelf) ALIAS("UIButton_update");
@@ -28,6 +28,6 @@ void UIButton_update(VSelf) {
 }
 
 void uiButtonRender(VSelf, RenderContext* ctx, Transforms* transforms) ALIAS("UIButton_render");
-void UIButton_render(VSelf, RenderContext* ctx, Transforms* transforms) {
-
+void UIButton_render(UNUSED VSelf, UNUSED RenderContext* ctx, UNUSED Transforms* transforms) {
+    UNIMPLEMENTED();
 }
