@@ -17,7 +17,7 @@ void IBlock_update(UNUSED VSelf) {
 bool iBlockUseAction(VSelf) ALIAS("IBlock_useAction");
 bool IBlock_useAction(UNUSED VSelf) {
     // By default blocks don't react to being interacted with
-    return BLOCK_USE_ACTION_NOT_CONUMED;
+    return BLOCK_USE_ACTION_NOT_CONSUMED;
 }
 
 bool iBlockCanPlace(VSelf,

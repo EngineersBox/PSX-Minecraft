@@ -92,7 +92,7 @@ typedef struct Block {
 FWD_DECL typedef struct World World;
 
 #define BLOCK_USE_ACTION_CONSUMED true
-#define BLOCK_USE_ACTION_NOT_CONUMED false
+#define BLOCK_USE_ACTION_NOT_CONSUMED false
 
 #define IBlock_IFACE \
     vfunc(void, init, VSelf) \
