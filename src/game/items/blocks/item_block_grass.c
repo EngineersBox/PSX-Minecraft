@@ -1,14 +1,17 @@
 #include "item_block_grass.h"
 
 #include <interface99.h>
-#include <stdlib.h>
+#include "../../../core/std/stdlib.h"
 
 #include "../../../util/interface99_extensions.h"
+#include "../../../util/memory.h"
 #include "../item_id.h"
 #include "item_block.h"
 
 GrassItemBlock* grassItemBlockCreate() {
-    return (GrassItemBlock*) malloc(sizeof(GrassItemBlock));
+    GrassItemBlock* itemblock = malloc(sizeof(GrassItemBlock));
+    zeroed(itemblock);
+    return itemblock;
 }
 
 DEFN_ITEM_CONSTRUCTOR(grass) {

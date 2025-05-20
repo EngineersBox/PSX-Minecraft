@@ -19,6 +19,7 @@
 #include "level/overworld_flatland.h"
 #include "level/overworld_perlin.h"
 
+World* worldNew();
 void worldInit(World* world, RenderContext* ctx);
 void worldDestroy(World* world);
 

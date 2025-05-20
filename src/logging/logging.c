@@ -1,6 +1,6 @@
 #include "logging.h"
 
-#include <stdlib.h>
+#include "../core/std/stdlib.h"
 #include <string.h>
 
 __attribute__((

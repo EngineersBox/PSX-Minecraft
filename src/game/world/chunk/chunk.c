@@ -4,7 +4,7 @@
 #include <inline_c.h>
 #include <stdbool.h>
 #include <string.h>
-#include <stdlib.h>
+#include "../../../core/std/stdlib.h"
 #include <psxapi.h>
 #include <assert.h>
 
@@ -16,8 +16,10 @@
 #include "../../../structure/cvector_utils.h"
 #include "../../../structure/primitive/direction.h"
 #include "../../../util/interface99_extensions.h"
+#include "../../../util/memory.h"
 #include "../../items/items.h"
 #include "../generation/noise.h"
+#include "chunk_defines.h"
 #include "chunk_mesh.h"
 #include "chunk_structure.h"
 #include "heightmap.h"
@@ -43,7 +45,7 @@ FWD_DECL void worldSetLightValue(const World* world,
                                  const LightType light_type);
 FWD_DECL void worldSetLightValueChunkBlock(const World* world,
                                            const ChunkBlockPosition* position,
-u8 light_value,
+                                           u8 light_value,
                                            const LightType light_type);
 FWD_DECL LightLevel worldGetLightTypeChunkBlock(const World* world,
                                                 const ChunkBlockPosition* position,
@@ -102,6 +104,14 @@ static int lightRemoveNodeCompare(const void* a, const void* b, void* ignored) {
     // cmp(..) function in the standard library, where a return
     // value of 0 implies equivalence.
     return !vec3_equal(node_a->position, node_b->position);
+}
+
+
+INLINE Chunk* chunkNew() {
+    Chunk* chunk = malloc(sizeof(Chunk));
+    assert(chunk != NULL);
+    zeroed(chunk);
+    return chunk;
 }
 
 void chunkInit(Chunk* chunk) {
@@ -310,35 +320,36 @@ static void chunkRenderDroppedItems(const Chunk* chunk, RenderContext* ctx, Tran
 }
 
 #if isDebugTagEnabled(OVERLAY_DURATION_TREE)
-static char chunk_render_duration_names[AXIS_CHUNKS][AXIS_CHUNKS][WORLD_CHUNKS_HEIGHT][30] = {0};
-static DurationComponent* chunk_render_duration[AXIS_CHUNKS][AXIS_CHUNKS][WORLD_CHUNKS_HEIGHT] = {0};
+#define RENDER_DURATION_NAME_MAX_LEN 30
+static char chunk_render_duration_names[AXIS_CHUNKS][AXIS_CHUNKS][WORLD_CHUNKS_HEIGHT][RENDER_DURATION_NAME_MAX_LEN] = {0};
+static DurationComponentIndex chunk_render_duration[AXIS_CHUNKS][AXIS_CHUNKS][WORLD_CHUNKS_HEIGHT] = {0};
 #endif
 
-#define shiftChunkPos(chunk, axis) positiveModulo((chunk->position.axis + (AXIS_CHUNKS >> 1)), AXIS_CHUNKS)
+#define shiftChunkPos(chunk, axis) positiveModulo((chunk->position.axis + (AXIS_CHUNKS >> 1) - 1), AXIS_CHUNKS)
 
 void chunkRender(Chunk* chunk,
                  bool subdivide,
                  RenderContext* ctx,
                  Transforms* transforms) {
 #if isDebugTagEnabled(OVERLAY_DURATION_TREE)
-    DurationComponent** duration = &chunk_render_duration[shiftChunkPos(chunk, vx)]
-                                                         [shiftChunkPos(chunk, vz)]
-                                                         [chunk->position.vy];
+    DurationComponentIndex* duration = &chunk_render_duration[shiftChunkPos(chunk, vx)]
+                                                             [shiftChunkPos(chunk, vz)]
+                                                             [chunk->position.vy % WORLD_CHUNKS_HEIGHT];
     char* name = chunk_render_duration_names[shiftChunkPos(chunk, vx)]
                                             [shiftChunkPos(chunk, vz)]
                                             [chunk->position.vy % WORLD_CHUNKS_HEIGHT];
-    if (*duration == NULL) {
+    if (!duration->init) {
         *duration = durationTreeAddComponent(name);
-        assert(*duration != NULL);
     }
-    sprintf(
+    snprintf(
         name,
-        VEC_PATTERN,
+        RENDER_DURATION_NAME_MAX_LEN,
+        VEC_PATTERN "\0",
         shiftChunkPos(chunk, vx),
         shiftChunkPos(chunk, vz),
         chunk->position.vy % WORLD_CHUNKS_HEIGHT
     );
-    durationComponentStart(*duration);
+    durationComponentStart(duration);
 #endif
 #undef shiftChunkPos
     const AABB aabb = (AABB) {
@@ -667,8 +678,8 @@ void updateItemChunkOwnership(const Chunk* chunk,
     //       item definition that just isn't worth it. So this exists
     //       to do the update check every time, checking the velocity
     //       to determine if the item has moved on each update cycle
-    //       (as a precondition for checking the chunk ownership) is
-    //       substantially cheaper.
+    //       (as a precondition for checking the chunk ownership) which
+    //       is substantially cheaper.
     const Item* item = VCAST_PTR(Item*, dropped->iitem);
     if (!vec3_equal(item->world_entity->physics_object.velocity, VEC3_I32_ZERO)) {
         // No velocity implies no movement, so we can't have changed
@@ -721,11 +732,13 @@ void chunkUpdate(Chunk* chunk, const Player* player, BreakingState* breaking_sta
             continue;
         }
         Item* item = VCAST(Item*, *dropped->iitem);
-        if (itemUpdate(item,
-                       chunk->world,
-                       &pos,
-                       inventory,
-                       itemPickupValidator)) {
+        if (itemUpdate(
+            item,
+            chunk->world,
+            &pos,
+            inventory,
+            itemPickupValidator
+        )) {
             const InventoryStoreResult result = inventoryStoreItem(inventory, dropped->iitem);
             switch (result) {
                 case INVENTORY_STORE_RESULT_ADDED_SOME:

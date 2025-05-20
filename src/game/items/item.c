@@ -1,10 +1,11 @@
 #include "item.h"
 
-#include <stdlib.h>
+#include "../../core/std/stdlib.h"
 #include <stdbool.h>
 
 #include "../../logging/logging.h"
 #include "items.h"
+#include "../../util/memory.h"
 
 #define HEIGHT_INTERVALS 2
 #define RADIUS_INTERVALS 2
@@ -39,7 +40,7 @@ void itemSetWorldState(Item* item, const bool in_world) {
     item->in_world = in_world;
     if (in_world) {
         // In world
-        item->world_entity = malloc(sizeof(Entity));
+        item->world_entity = entityNew();
         entityInit(item->world_entity);
         iPhysicsObjectInit(
             &item->world_entity->physics_object,
@@ -97,7 +98,9 @@ bool itemUpdate(Item* item,
 }
 
 IItem* itemCreate() {
-    return (IItem*) malloc(sizeof(IItem));
+    IItem* iitem = malloc(sizeof(IItem));
+    zeroed(iitem);
+    return iitem;
 }
 
 void iitemApplyDamage(VSelf, i16 damage) ALIAS("IItem_applyDamage");

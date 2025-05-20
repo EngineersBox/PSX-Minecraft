@@ -4,7 +4,7 @@
 #include <psxgpu.h>
 #include <psxgte.h>
 #include <psxcd.h>
-#include <stdlib.h>
+#include "../core/std/stdlib.h"
 /*#include <sys/ioctl.h>*/
 /*#include <sys/fcntl.h>*/
 /*#include <psxsio.h>*/
@@ -93,11 +93,7 @@ void Minecraft_init(VSelf, void* ctx) {
     blocksInitialiseBuiltin();
     itemsInitialiseBuiltin();
     // Initialise world
-    world = (World*) malloc(sizeof(World));
-    world->head.vx = 0;
-    world->head.vz = 0;
-    world->centre = vec3_i32_all(0);
-    world->centre_next = vec3_i32_all(0);
+    world = worldNew();
     DYN_PTR(
         &world->chunk_provider,
         OverworldPerlinChunkProvider,
@@ -106,9 +102,8 @@ void Minecraft_init(VSelf, void* ctx) {
     );
     worldInit(world, &self->ctx);
     // Initialise player
-    player = (Player*) malloc(sizeof(Player));
+    player = playerNew();
     DYN_PTR(&player_entity, Player, IEntity, player);
-    ((player_entity).vptr->damage((player_entity).self, 0));
     playerInit(player);
     block_input_handler_context.inventory = &player->inventory;
     player->camera = &self->camera;
@@ -165,6 +160,7 @@ void Minecraft_init(VSelf, void* ctx) {
     slot = inventoryFindFreeSlot(inventory, slotGroupIndexOffset(INVENTORY_MAIN));
     inventorySlotSetItem(slot, item);
     VCALL_SUPER(*item, Renderable, applyInventoryRenderAttributes);
+    DEBUG_LOG("[Minecraft] Finished init\n");
 }
 
 void minecraftCleanup(VSelf) ALIAS("Minecraft_cleanup");
@@ -268,13 +264,13 @@ void Minecraft_render(VSelf, const Stats* stats) {
     VSELF(Minecraft);
 #if isDebugTagEnabled(OVERLAY_DURATION_TREE)
     durationTreeMakeCurrent(&render_duration_tree);
-    if (render_duration == NULL) {
+    if (!render_duration.init) {
         render_duration = durationTreeAddComponent("render");
     } else {
         // TODO: Render duration tree here
     }
 #endif
-    durationComponentStart(render_duration);
+    durationComponentStart(&render_duration);
     // Update breaking state textures
     breakingStateUpdateRenderTarget(&player->breaking, &self->ctx);
     // Draw the world

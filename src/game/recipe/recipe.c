@@ -1,5 +1,6 @@
 #include "recipe.h"
 
+#include "../../core/std/stdlib.h"
 #include "../../util/interface99_extensions.h"
 #include "../items/items.h"
 
@@ -56,6 +57,7 @@ assemble_new_item:;
         IItem* iitem = itemGetConstructor(result->item.separated.id)(result->item.separated.metadata);
         assert(iitem != NULL);
         Item* item = VCAST_PTR(Item*, iitem);
+        DEBUG_LOG("Item: %d:%d\n", item->id, item->metadata_id);
         itemSetWorldState(item, false);
         VCALL_SUPER(*iitem, Renderable, applyInventoryRenderAttributes);
         item->bob_offset = 1;
@@ -138,7 +140,7 @@ bool sufficientSpaceInOutputSlots(const RecipeQueryResult* query_result,
     for (u8 i = 0; i < output_slot_count; i++) {
         const Item* output_item = VCAST_PTR(Item*, output_slots[i]->data.item);
         const Item* result_item = VCAST_PTR(Item*, query_result->results[i]);
-        if (itemGetMaxStackSize(output_item->id) - output_item->stack_size < result_item->stack_size) {
+        if (output_item != NULL && itemGetMaxStackSize(output_item->id) - output_item->stack_size < result_item->stack_size) {
             return false;
         }
     }
@@ -146,12 +148,12 @@ bool sufficientSpaceInOutputSlots(const RecipeQueryResult* query_result,
 }
 
 RecipeProcessResult recipeProcess(const RecipeNode* root,
-                                      const RecipePattern pattern,
-                                      Dimension pattern_dimension,
-                                      Slot** output_slots,
-                                      u8 output_slot_count,
-                                      u8* ingredient_consume_sizes,
-                                      bool merge_output) {
+                                  const RecipePattern pattern,
+                                  Dimension pattern_dimension,
+                                  Slot** output_slots,
+                                  u8 output_slot_count,
+                                  u8* ingredient_consume_sizes,
+                                  bool merge_output) {
     RecipeQueryResult query_result = {0};
     query_result.results = calloc(output_slot_count, sizeof(IItem*));
     assert(query_result.results != NULL);
@@ -214,6 +216,7 @@ RecipeProcessResult recipeProcess(const RecipeNode* root,
     return RECIPE_PROCESSING_SUCCEEDED;
 }
 
+// Start index is inclusive and end index is exclusive
 void recipeConsumeIngredients(Slot* slots,
                               const u8* ingredient_consume_sizes,
                               int start_index,
@@ -226,7 +229,7 @@ void recipeConsumeIngredients(Slot* slots,
         }
         Item* item = VCAST_PTR(Item*, iitem);
         assert(item->stack_size > 0);
-        item->stack_size -= ingredient_consume_sizes[i];
+        item->stack_size -= ingredient_consume_sizes[i - start_index];
         if (item->stack_size == 0) {
             VCALL(*iitem, destroy);
             slot->data.item = NULL;

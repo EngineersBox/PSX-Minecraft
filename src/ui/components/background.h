@@ -17,6 +17,8 @@ DEFN_UI_COMPONENT(
     DVECTOR texture_width;
 );
 
+UIBackground* UIBackgroundNew();
+
 void uiBackgroundRender(VSelf, RenderContext* ctx, Transforms* transforms);
 void UIBackground_render(VSelf, RenderContext* ctx, Transforms* transforms);
 

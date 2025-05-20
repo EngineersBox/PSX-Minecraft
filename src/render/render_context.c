@@ -5,7 +5,7 @@
 #include <psxgte.h>
 #include <inline_c.h>
 #include <smd/smd.h>
-#include <stdlib.h>
+#include "../core/std/stdlib.h"
 
 #include "../logging/logging.h"
 #include "../math/math_utils.h"

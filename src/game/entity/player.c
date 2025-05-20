@@ -5,6 +5,7 @@
 #include "../../math/vector.h"
 #include "../../ui/components/cursor.h"
 #include "../../util/interface99_extensions.h"
+#include "../../util/memory.h"
 #include "../blocks/blocks.h"
 #include "../items/items.h"
 #include "../world/chunk/chunk_structure.h"
@@ -51,18 +52,24 @@ const PhysicsObjectUpdateHandlers player_physics_object_update_handlers = (Physi
     .fall_handler = (PhysicsObjectFall) playerFallHandler
 };
 
+INLINE Player* playerNew() {
+    Player* player = malloc(sizeof(Player));
+    zeroed(player);
+    return player;
+}
+
 void playerInit(Player* player) {
     entityInit(&player->entity);
     player->entity.health = PLAYER_MAX_HEALTH;
     player->entity.armour = 0;
     player->entity.air = PLAYER_MAX_AIR;
     breakingStateReset(player->breaking);
-    Inventory* inventory = (Inventory*) malloc(sizeof(Inventory));
-    Hotbar* hotbar = (Hotbar*) malloc(sizeof(Hotbar));
+    Inventory* inventory = inventoryNew();
+    Hotbar* hotbar = hotbarNew();
     hotbarInit(hotbar);
     inventoryInit(inventory, hotbar);
-    DYN_PTR(&player->hotbar, Hotbar, IUI, hotbar);
-    DYN_PTR(&player->inventory, Inventory, IUI, inventory);
+    DYN_PTR(&player->hotbar, Hotbar, IUI, &hotbar->ui);
+    DYN_PTR(&player->inventory, Inventory, IUI, &inventory->ui);
     iPhysicsObjectInit(
         &player->entity.physics_object,
         &player_physics_object_config,
@@ -231,6 +238,9 @@ INLINE static bool playerInputHandlerAttack(const PlayerInputHandlerContext* ctx
     if (result.block != NULL) {
         const Block* block = VCAST_PTR(Block*, result.block);
         if (block->id != BLOCKID_AIR) {
+            // FIXME: Breaking a block leads to 8-bit uninit reads
+            //        on the final breaking stage (at or maybe before
+            //        dropping an item).
             updateBreakingState(player, &result, ctx->world);
             return true;
         }

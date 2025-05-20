@@ -54,6 +54,7 @@ void cursorSplitOrStoreOne(Slot* slot,
             // creating a new IItem and copying the held
             // item data then deleting the held item
             setter(slot, held_iitem);
+            uiCursorSetHeldData(&cursor, NULL);
             return;
         }
         // Create a new item with a stack size of 1
@@ -68,7 +69,8 @@ void cursorSplitOrStoreOne(Slot* slot,
         setter(slot, new_slot_iitem);
         held_item->stack_size--;
         return;
-    } else if (!itemEquals(held_item, slot_item) || slot_item->stack_size == itemGetMaxStackSize(slot_item->id)) {
+    } else if (!itemEquals(held_item, slot_item)
+                || slot_item->stack_size == itemGetMaxStackSize(slot_item->id)) {
         // Can't override an existing item in the slot
         // that doesn't match or we cant add an item to
         // an already full stack
@@ -91,6 +93,10 @@ void cursorInteractSlot(Slot* slot,
     IItem* held_iitem = (IItem*) cursor.held_data;
     IItem* slot_iitem = getter(slot);
     if (slot_iitem == NULL || held_iitem == NULL) {
+        // NOTE: Swapping items between slot and cursor
+        //       1. Both null, nothing changes, essentially just assigning null to both
+        //       2. Slot null, slot gets non-null item from cursor and cursor gets null slot item
+        //       3. Cursor null, slot gets null cursor item and cursor gets non-null slot item
         setter(slot, held_iitem);
         uiCursorSetHeldData(&cursor, slot_iitem);
         return;

@@ -24,4 +24,12 @@
 // Player no-clip
 // #define PSXMC_DEBUG_PLAYER_NOCLIP 0
 
+// PCSX-Redux MIPS API
+// Address sanitiser
+// #define PSXMC_DEBUG_PCSX_ASAN 0
+// Kernel checker
+// #define PSXMC_DEBUG_PCSX_KERNEL_CHECKER 0
+// Debugging utils
+// #define PSXMC_DEBUG_PCSX_UTILS 0
+
 #endif // _PSXMC__RENDER__DEBUG_DEFINES_H_

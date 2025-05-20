@@ -1,12 +1,13 @@
 #include "debug.h"
 
 #include <psxgpu.h>
-#include <stdlib.h>
+#include "../core/std/stdlib.h"
 
 #include "../math/math_utils.h"
 #include "../structure/primitive/primitive.h"
 #include "../game/blocks/block.h"
 #include "../util/memory.h"
+#include "../../logging/logging.h"
 
 DEFINE_CIRCULAR_BUFFER(ordering_table_usage, SAMPLE_WINDOW_SIZE);
 #define OT_DATA_POINT_PER_PIXEL (ORDERING_TABLE_LENGTH / SAMPLE_MAX_VALUE)

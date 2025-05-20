@@ -3,7 +3,7 @@
 #ifndef _PSXMC__CORE__CONSOLE_H_
 #define _PSXMC__CORE__CONSOLE_H_
 
-#include <stdlib.h>
+#include "../core/std/stdlib.h"
 
 #define CONSOLE_BUFFER_SIZE 128
 #define CONSOLE_MAX_TOKENS (CONSOLE_BUFFER_SIZE >> 1)

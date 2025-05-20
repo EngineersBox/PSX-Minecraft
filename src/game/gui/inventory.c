@@ -13,6 +13,8 @@
 #include "utils.h"
 #include "../../util/debounce.h"
 #include "../recipe/crafting.h"
+#include "../../util/memory.h"
+#include "../../debug/pcsx.h"
 
 FWD_DECL void worldDropItemStack(World* world, IItem* item, const u8 count);
 
@@ -20,10 +22,17 @@ FWD_DECL void worldDropItemStack(World* world, IItem* item, const u8 count);
 /*    MK_INVENTORY_STORE_RESULT_LIST(P99_STRING_ARRAY_INDEX)*/
 /*};*/
 
+INLINE Inventory* inventoryNew() {
+    Inventory* inventory = malloc(sizeof(Inventory));
+    assert(inventory != NULL);
+    zeroed(inventory);
+    return inventory;
+}
+
 void inventoryInit(Inventory* inventory, Hotbar* hotbar) {
     uiInit(&inventory->ui);
     IUIComponent* component = uiAddComponent(&inventory->ui);
-    UIBackground* background = (UIBackground*) malloc(sizeof(UIBackground));
+    UIBackground* background = UIBackgroundNew();
     background->component.position = (DVECTOR) {
         .vx = CENTRE_X - (INVENTORY_WIDTH >> 1),
         .vy = CENTRE_Y - (INVENTORY_HEIGHT >> 1)
@@ -363,21 +372,26 @@ static void processCraftingRecipe(Inventory* inventory) {
     if (!recipe_has_changed) {
         return;
     }
+    // pcsx_debugbreak();
     RECIPE_PATTERN(pattern, slotGroupSize(INVENTORY_CRAFTING)) = {0};
-    memset(ingredient_consume_sizes, '\0', sizeof(u8) * slotGroupSize(INVENTORY_CRAFTING));
+    memset(
+        ingredient_consume_sizes,
+        0,
+        sizeof(u8) * slotGroupSize(INVENTORY_CRAFTING)
+    );
     for (int i = slotGroupIndexOffset(INVENTORY_CRAFTING);
         i < slotGroupIndexOffset(INVENTORY_CRAFTING_RESULT); i++) {
-        const int slot_index = i - slotGroupIndexOffset(INVENTORY_CRAFTING);
-        const Slot* slot = &inventory->slots[slot_index];
+        const Slot* slot = &inventory->slots[i];
         const IItem* iitem = slot->data.item;
+        const int pattern_index = i - slotGroupIndexOffset(INVENTORY_CRAFTING);
         if (iitem != NULL) {
             const Item* item = VCAST_PTR(Item*, iitem);
-            pattern[i] = (RecipePatternEntry) {
+            pattern[pattern_index] = (RecipePatternEntry) {
                 .id = RECIPE_COMPOSITE_ID(item->id, item->metadata_id),
                 .stack_size = item->stack_size,
             };
         } else {
-            pattern[i] = (RecipePatternEntry) {
+            pattern[pattern_index] = (RecipePatternEntry) {
                 .id = RECIPE_COMPOSITE_ID(0, ITEMID_AIR),
                 .stack_size = 0,
             };
@@ -388,8 +402,8 @@ static void processCraftingRecipe(Inventory* inventory) {
         crafting_recipes,
         pattern,
         (Dimension){ 
-            .width = slotGroupDim(INVENTORY_CRAFTING_RESULT, X),
-            .height = slotGroupDim(INVENTORY_CRAFTING_RESULT, Y)
+            .width = slotGroupDim(INVENTORY_CRAFTING, X),
+            .height = slotGroupDim(INVENTORY_CRAFTING, Y)
         },
         &output_slot,
         slotGroupSize(INVENTORY_CRAFTING_RESULT),
@@ -522,8 +536,9 @@ void inventoryCursorHandler(Inventory* inventory,
     processCraftingRecipe(inventory);
     VCALL(cursor_component, update);
     const PADTYPE* pad = input->pad;
-    if (isPressed(pad, BINDING_CURSOR_CLICK)
-        && debounce(&inventory->debounce, INVENTORY_DEBOUNCE_MS)) {
+    if (!debounce(&inventory->debounce, INVENTORY_DEBOUNCE_MS)) {
+        return;
+    } else if (isPressed(pad, BINDING_CURSOR_CLICK)) {
         cursorHandler(inventory, groups, false);
     } else if (isPressed(pad, BINDING_DROP_ITEM) && cursor.held_data != NULL) {
         worldDropItemStack(

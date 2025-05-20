@@ -3,7 +3,7 @@
 #include <psxgpu.h>
 #include <psxgte.h>
 #include <inline_c.h>
-#include <stdlib.h>
+#include "../../core/std/stdlib.h"
 
 #include "../../resources/assets.h"
 #include "../../render/render_context.h"

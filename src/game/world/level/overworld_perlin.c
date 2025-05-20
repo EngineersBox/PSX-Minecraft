@@ -1,6 +1,6 @@
 #include "overworld_perlin.h"
 
-#include <stdlib.h>
+#include "../../../core/std/stdlib.h"
 
 #include "../../../util/interface99_extensions.h"
 #include "../chunk/chunk_structure.h"
@@ -103,8 +103,7 @@ void OverworldPerlinChunkProvider_destroy(VSelf) {
 Chunk* overworldPerlinProvideChunk(VSelf, const VECTOR position, ChunkHeightmap* heightmap) ALIAS("OverworldPerlinChunkProvider_provide");
 Chunk* OverworldPerlinChunkProvider_provide(VSelf, const VECTOR position, ChunkHeightmap* heightmap) {
     VSELF(OverworldPerlinChunkProvider);
-    Chunk* chunk = malloc(sizeof(Chunk));
-    assert(chunk != NULL);
+    Chunk* chunk = chunkNew();
     chunk->position = position;
     chunkInit(chunk);
     VCALL(self->generator, generate, chunk, heightmap);

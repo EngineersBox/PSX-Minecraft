@@ -9,6 +9,7 @@
 
 #include "../../util/preprocessor.h"
 #include "../../util/interface99_extensions.h"
+#include "../../util/memory.h"
 #include "../../structure/primitive/clip.h"
 #include "../../render/duration_tree.h"
 #include "../../render/font.h"
@@ -23,6 +24,7 @@
 #include "chunk/chunk_structure.h"
 #include "chunk/chunk_visibility.h"
 #include "chunk/heightmap.h"
+#include "generation/chunk_provider.h"
 #include "position.h"
 #include "world_defines.h"
 
@@ -53,6 +55,13 @@ static cvector(ChunkVisit) render_queue = NULL;
     axis, \
     ((value) - (world->centre.axis - LOADED_CHUNKS_RADIUS - SHIFT_ZONE))\
 )
+
+INLINE World* worldNew() {
+    World* world = malloc(sizeof(World));
+    assert(world != NULL);
+    zeroed(world);
+    return world;
+}
 
 static void displayProgress(RenderContext* ctx,
                             ProgressBar* progress_bar,
@@ -101,15 +110,30 @@ void worldInit(World* world, RenderContext* ctx) {
     world->time_ticks = WORLD_TIME_DAWN;
     world->day_count = 0;
     world->celestial_angle = 0;
+    world->centre = vec3_i32_all(0);
+    world->centre_next = vec3_i32_all(0);
+    world->head.vx = 0;
+    world->head.vz = 0;
     world->weather = (Weather) {
         .rain_strength = 0,
         .storm_strength = 0,
         .rain_time_ticks = 0,
         .storm_time_ticks = 0,
         .raining = false,
-        .storming = false
+        .storming = false,
     };
     cvector_init(render_queue, 0, NULL);
+    // FIXME: Seems like the PSn00bSDK/libpsn00b/libc/memset.s
+    //        implementation reads uninitialised memory because
+    //        of it's use of the swr instruction variant with no
+    //        constant source or address values:
+    //        swr   $a1, 0($a0)
+    //        which PCSX-Redux implements this by first reading
+    //        from the aligned address $0, mutate the 1-4 bytes in
+    //        the low (right) end of the value, then write it back.
+    //        As such it invokes call(read32Wrapper) which ends up
+    //        hitting PCSX::Memory::read32, then msanGetStatus and
+    //        thus the error message + breakpoint.
     memset(
         world->heightmap,
         '\0',
@@ -127,6 +151,7 @@ void worldInit(World* world, RenderContext* ctx) {
     const i32 x_end = world->centre.vx + LOADED_CHUNKS_RADIUS;
     const i32 z_start = world->centre.vz - LOADED_CHUNKS_RADIUS;
     const i32 z_end = world->centre.vz + LOADED_CHUNKS_RADIUS;
+    #define WORLD_LOADING_STAGES_COUNT 5
     ProgressBar bar = (ProgressBar) {
         .position = {
             .x = CENTRE_X - (CENTRE_X / 3),
@@ -137,7 +162,10 @@ void worldInit(World* world, RenderContext* ctx) {
             .height = 4
         },
         .value = 0,
-        .maximum = ((x_end + 1) - x_start) * ((z_end + 1) - z_start) * WORLD_CHUNKS_HEIGHT * 5
+        .maximum = ((x_end + 1) - x_start)
+            * ((z_end + 1) - z_start)
+            * WORLD_CHUNKS_HEIGHT
+            * WORLD_LOADING_STAGES_COUNT
     };
     DEBUG_LOG("[WORLD] Loading chunks\n");
     for (i32 x = x_start; x <= x_end; x++) {
@@ -228,6 +256,7 @@ void worldInit(World* world, RenderContext* ctx) {
             }
         }
     }
+#undef WORLD_LOADING_STAGES_COUNT
 #undef displayProgress
     DEBUG_LOG("[WORLD] Finished loading\n");
     /*abort();*/
@@ -343,7 +372,7 @@ void worldRender(const World* world,
                  RenderContext* ctx,
                  Transforms* transforms) {
     durationComponentInitOnce(world_render, "worldRender");
-    durationComponentStart(world_render_duration);
+    durationComponentStart(&world_render_duration);
     const VECTOR player_world_pos = vec3_i32(
         fixedFloor(player->camera->position.vx, ONE_BLOCK) / ONE_BLOCK,
         fixedFloor(player->camera->position.vy, ONE_BLOCK) / ONE_BLOCK,
@@ -471,7 +500,11 @@ void worldRender(const World* world,
     #undef markChunk
     #undef isChunkMarked
     durationComponentEnd();
-    durationTreeRender(world_render_duration, ctx, transforms);
+    durationTreeRender(
+        durationComponentCurrentAtIndex(world_render_duration.index),
+        ctx,
+        transforms
+    );
 }
 
 void worldRenderOld(const World* world,
@@ -479,7 +512,7 @@ void worldRenderOld(const World* world,
                     RenderContext* ctx,
                     Transforms* transforms) {
     durationComponentInitOnce(world_render, "worldRender");
-    durationComponentStart(world_render_duration);
+    durationComponentStart(&world_render_duration);
     const VECTOR player_world_pos = vec3_i32(
         fixedFloor(player->entity.physics_object.position.vx, ONE_BLOCK) / ONE_BLOCK,
         fixedFloor(player->entity.physics_object.position.vy, ONE_BLOCK) / ONE_BLOCK,
@@ -501,11 +534,12 @@ void worldRenderOld(const World* world,
     for (i32 x = x_start; x <= x_end; x++) {
         for (i32 z = z_start; z <= z_end; z++) {
             for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
-                chunkRender(
-                    world->chunks[arrayCoord(world, vz, z)]
+                Chunk* chunk = world->chunks[arrayCoord(world, vz, z)]
                                  [arrayCoord(world, vx, x)]
-                                 [y],
-                        cb_pos.chunk.vx == x
+                                 [y];
+                chunkRender(
+                    chunk,
+                    cb_pos.chunk.vx == x
                         && cb_pos.chunk.vz == z
                         && cb_pos.chunk.vy == y,
                     ctx,
@@ -515,7 +549,11 @@ void worldRenderOld(const World* world,
         }
     }
     durationComponentEnd();
-    durationTreeRender(world_render_duration, ctx, transforms);
+    durationTreeRender(
+        durationComponentCurrentAtIndex(world_render_duration.index),
+        ctx,
+        transforms
+    );
 }
 
 // NOTE: Should this just take i32 x,y,z params instead of a
@@ -734,19 +772,13 @@ void worldLoadChunks(World* world, const VECTOR* player_chunk_pos) {
     world->centre_next.vz += z_direction;
     // Load chunks
     if (x_direction != 0) {
-        DEBUG_LOG("[WORLD] Load chunks X\n");
         worldLoadChunksX(world, x_direction, z_direction);
-        DEBUG_LOG("[WORLD] Load chunks X ... done\n");
     }
     if (z_direction != 0) {
-        DEBUG_LOG("[WORLD] Load chunks Z\n");
         worldLoadChunksZ(world, x_direction, z_direction);
-        DEBUG_LOG("[WORLD] Load chunks Z ... done\n");
     }
     if (x_direction != 0 && z_direction != 0) {
-        DEBUG_LOG("[WORLD] Load chunks XZ\n");
         worldLoadChunksXZ(world, x_direction, z_direction);
-        DEBUG_LOG("[WORLD] Load chunks XZ ... done\n");
     }
     // Synchronise centre
     world->head.vx = wrapCoord(world, vx, x_direction);

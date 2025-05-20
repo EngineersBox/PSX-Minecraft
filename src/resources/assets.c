@@ -5,7 +5,7 @@
 #include <smd/smd.h>
 #include <psxgpu.h>
 #include <stdio.h>
-#include <stdlib.h>
+#include "../core/std/stdlib.h"
 #include <string.h>
 #include <sys/types.h>
 

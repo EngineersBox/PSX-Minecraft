@@ -87,6 +87,7 @@ DEFN_UI(
     Timestamp debounce;
 );
 
+Hotbar* hotbarNew();
 void hotbarInit(Hotbar* hotbar);
 
 void hotbarRenderSlots(const Hotbar* hotbar, RenderContext* ctx, Transforms* transforms);

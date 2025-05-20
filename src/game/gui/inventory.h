@@ -111,7 +111,7 @@ slotGroupCheck(INVENTORY_MAIN);
 #define INVENTORY_HOTBAR_SLOT_GROUP_INDEX_OFFSET 36
 slotGroupCheck(INVENTORY_HOTBAR);
 
-#define INVENTORY_DEBOUNCE_MS 200
+#define INVENTORY_DEBOUNCE_MS 50
 
 // * 0-3: armour
 // * 4-7: crafting input
@@ -146,6 +146,7 @@ DEFN_UI(Inventory,
     Timestamp debounce;
 );
 
+Inventory* inventoryNew();
 void inventoryInit(Inventory* inventory, Hotbar* hotbar);
 
 // Groups indicates which slot groups to render,

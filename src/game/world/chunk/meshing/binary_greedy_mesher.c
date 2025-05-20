@@ -602,7 +602,7 @@ face,
                             VEC_LAYOUT(chunk->position),
                             VEC_LAYOUT(chunk_block_position.block)
                         );
-                        continue;
+                        return;
                     }
                     const Block* block = VCAST_PTR(Block*, current_block);
                     if (blockGetType(block->id) == BLOCKTYPE_EMPTY) {
@@ -612,7 +612,7 @@ face,
                             VEC_LAYOUT(chunk->position),
                             VEC_LAYOUT(chunk_block_position.block)
                         );
-                        continue;
+                        return;
                     }
                     // NOTE: For blocks that are transparent to sunlight, we should
                     //       look up the position of the block without the direction

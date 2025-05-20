@@ -3,6 +3,7 @@
 #include "../../util/interface99_extensions.h"
 #include "block_id.h"
 #include "../items/blocks/item_block_dirt.h"
+#include "../../logging/logging.h"
 
 DEFN_BLOCK_CONSTRUCTOR_IMPL_STATELESS(dirt, DIRT)
 

@@ -1,7 +1,7 @@
 #include "chunk_mesh.h"
 
 #include <inline_c.h>
-#include <stdlib.h>
+#include "../../../core/std/stdlib.h"
 #include <psxgpu.h>
 
 #include "../../../util/preprocessor.h"
@@ -27,15 +27,16 @@ void __svectorDestructor(void* elem) {
 
 void chunkMeshInit(ChunkMesh* mesh) {
     for (int i = 0; i < FACE_DIRECTION_COUNT; i++) {
+        Mesh face_mesh = {0};
         // NOTE: This null init is important for cvector to ensure allocation is done initially
-        Mesh* face_mesh = &mesh->face_meshes[i];
         cvector(MeshPrimitive) p_prims = NULL;
         cvector_init(p_prims, 0, NULL);
-        face_mesh->p_prims = p_prims;
-        face_mesh->p_verts = NULL;
-        cvector_init(face_mesh->p_verts, 0, NULL);
-        face_mesh->p_norms = NULL;
-        cvector_init(face_mesh->p_norms, 0, NULL);
+        face_mesh.p_prims = p_prims;
+        face_mesh.p_verts = NULL;
+        cvector_init(face_mesh.p_verts, 0, NULL);
+        face_mesh.p_norms = NULL;
+        cvector_init(face_mesh.p_norms, 0, NULL);
+        mesh->face_meshes[i] = face_mesh;
     }
 }
 

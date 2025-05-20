@@ -3,6 +3,7 @@
 #include "../blocks/blocks.h"
 #include "../../math/vector.h"
 #include "../../util/interface99_extensions.h"
+#include "../../logging/logging.h"
 
 // Forward declaration
 IBlock* worldGetBlock(const World* world, const VECTOR* position);

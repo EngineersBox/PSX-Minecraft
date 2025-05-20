@@ -42,7 +42,7 @@ const RecipeNode* crafting_recipes = RECIPE_ITEM {
                                             .results = RECIPE_RESULT_LIST {
                                                 RECIPE_RESULT_ITEM {
                                                     .item = RECIPE_COMPOSITE_ID(ITEMID_COBBLESTONE, 0),
-                                                    .stack_size = 1,
+                                                    .stack_size = 4,
                                                 }
                                             }
                                         }

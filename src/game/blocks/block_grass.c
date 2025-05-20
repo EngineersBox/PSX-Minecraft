@@ -3,12 +3,12 @@
 #include "../../util/interface99_extensions.h"
 #include "block_id.h"
 #include "../items/blocks/item_block_grass.h"
+#include "../../logging/logging.h"
 
 DEFN_BLOCK_CONSTRUCTOR_IMPL_STATELESS(grass, GRASS)
 
 void grassBlockInit(VSelf) ALIAS("GrassBlock_init");
 void GrassBlock_init(VSelf) {
-    // TODO: Can make this VSELF(Block) since GrassBlock composes Block as the first struct element
     VSELF(GrassBlock);
     self->block = declareSimpleBlock(BLOCKID_GRASS);
 }

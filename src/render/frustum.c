@@ -39,7 +39,7 @@ static Plane current_planes[6] = {0};
 // TODO: Only transform/restore when the camera has moved, otherwise keep reusing the current planes
 void frustumTransform(Frustum* frustum, Transforms* transforms) {
     durationComponentInitOnce(frustum_render, "frustumTransform");
-    durationComponentStart(frustum_render_duration);
+    durationComponentStart(&frustum_render_duration);
     // NOTE: Plane normals should be rotated without translation vector 
     //       applied to geometry matrix. The reason is that we never
     //       transform normals with homogeneous coordinates. See This

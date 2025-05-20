@@ -1,15 +1,18 @@
 #include "item_block_cobblestone.h"
 
-#include <stdlib.h>
+#include "../../../core/std/stdlib.h"
 #include <interface99.h>
 
 #include "../../../util/interface99_extensions.h"
+#include "../../../util/memory.h"
 #include "../../../util/preprocessor.h"
 #include "../../../math/vector.h"
 #include "../item_id.h"
 
 CobblestoneItemBlock* cobblestoneItemBlockCreate() {
-    return (CobblestoneItemBlock*) malloc(sizeof(CobblestoneItemBlock));
+    CobblestoneItemBlock* itemblock = malloc(sizeof(CobblestoneItemBlock));
+    zeroed(itemblock);
+    return itemblock;
 }
 
 DEFN_ITEM_CONSTRUCTOR(cobblestone) {
