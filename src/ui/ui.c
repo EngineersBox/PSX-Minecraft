@@ -21,7 +21,7 @@ void uiRender(const UI* ui, RenderContext* ctx, Transforms* transforms) {
 }
 
 IUIComponent* uiAddComponent(UI* ui) {
-    cvector_push_back(ui->components, (IUIComponent) {});
+    cvector_push_back(ui->components, (IUIComponent) {0});
     return &ui->components[cvector_size(ui->components) - 1];
 }
 

@@ -670,7 +670,7 @@ static MeshPrimitive* createPrimitive(ChunkMesh* mesh,
                                       const TextureAttributes texture_attributes_override[FACE_DIRECTION_COUNT]) {
     Mesh* face_dir_mesh = &mesh->face_meshes[data->face];
     cvector(MeshPrimitive) prims = face_dir_mesh->p_prims;
-    cvector_push_back(prims, (MeshPrimitive){});
+    cvector_push_back(prims, (MeshPrimitive){0});
     // cvector can be reallocated by pushing a
     // new element, thus we should re-set it to
     // the mesh object that owns it.
@@ -700,7 +700,7 @@ static MeshPrimitive* createPrimitive(ChunkMesh* mesh,
 }
 
 #define nextRenderAttribute(mesh, attribute_field, index_field, count_field) ({ \
-        cvector_push_back((mesh)->attribute_field, (SVECTOR){}); \
+        cvector_push_back((mesh)->attribute_field, (SVECTOR){0}); \
         primitive->index_field = (mesh)->count_field; \
         (&cvector_begin((mesh)->attribute_field)[(mesh)->count_field++]); \
 })
