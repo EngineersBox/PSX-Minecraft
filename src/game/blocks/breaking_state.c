@@ -77,7 +77,7 @@ void breakingStateCalculateTicks(BreakingState* state,
         return;
     }
     state->ticks_precise = fixedFixedDiv(ONE, damage);
-    state->ticks_per_stage = ceilDiv(state->ticks_precise, 10); // 10 == number of breaking textures
+    state->ticks_per_stage = ceilDiv(state->ticks_precise, BREAKING_STAGES); // number of breaking textures
     state->ticks_so_far = 0;
 }
 

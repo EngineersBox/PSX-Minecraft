@@ -14,7 +14,9 @@
 #include "block.h"
 
 // Forward declaration
-typedef struct World World;
+FWD_DECL typedef struct World World;
+
+#define BREAKING_STAGES 10
 
 typedef struct BreakingState {
     /**
