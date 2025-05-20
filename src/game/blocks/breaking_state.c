@@ -9,8 +9,8 @@
 #include "../../structure/primitive/cube.h"
 #include "../../resources/assets.h"
 #include "../../resources/asset_indices.h"
-#include "../../render/commands.h"
 #include "../items/items.h"
+#include "../items/tools/item_tool.h"
 #include "blocks.h"
 
 // Forward declaration

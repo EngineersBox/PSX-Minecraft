@@ -9,7 +9,6 @@
 #include "../../resources/texture.h"
 #include "../../util/preprocessor.h"
 #include "../items/item.h"
-#include "../items/tools/item_tool.h"
 #include "../../structure/primitive/direction.h"
 #include "../../physics/aabb.h"
 #include "../../ui/ui.h"
