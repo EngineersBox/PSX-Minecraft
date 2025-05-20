@@ -209,7 +209,7 @@ VECTOR vec3_i32_normalize(const VECTOR v);
     }; \
 })
 #define pvec3_const_op(v0, op, c) ({ \
-    cosnt __typeof__(v0)* _v0 = (v0); \
+    const __typeof__(v0)* _v0 = (v0); \
     (__typeof__(v0)) { \
         _vector_p_op_mc(vx, _v0, c, op), \
         _vector_p_op_mc(vy, _v0, c, op), \
@@ -242,7 +242,7 @@ VECTOR vec3_i32_normalize(const VECTOR v);
     }; \
 })
 #define pvec2_const_op(v0, op, c) ({ \
-    cosnt __typeof__(v0)* _v0 = (v0); \
+    const __typeof__(v0)* _v0 = (v0); \
     (__typeof__(v0)) { \
         _vector_p_op_mc(vx, _v0, c, op), \
         _vector_p_op_mc(vy, _v0, c, op) \
