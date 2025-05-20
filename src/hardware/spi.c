@@ -13,6 +13,8 @@
 #include <psxpad.h>
 #include <hwregs_c.h>
 
+#include "../util/memory.h"
+
 /* Internal structures and globals */
 
 typedef struct _SPI_Context {
@@ -129,10 +131,7 @@ static void _spi_ack_irq_handler(void) {
 
 SPI_Request* SPI_CreateRequest(void) {
 	SPI_Request* req = malloc(sizeof(SPI_Request));
-	req->len = 0;
-	req->port = 0;
-	req->callback = 0;
-	req->next = 0;
+    zeroed(req);
 	// Find the last queued request by traversing the linked list and append a
 	// pointer to the new request.
 	if (!_current_req) {

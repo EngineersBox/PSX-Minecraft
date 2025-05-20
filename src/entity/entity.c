@@ -1,6 +1,14 @@
 #include "entity.h"
 
+#include "../core/std/stdlib.h"
 #include "../math/math_utils.h"
+#include "../util/memory.h"
+
+Entity* entityNew() {
+    Entity* entity = malloc(sizeof(Entity));
+    zeroed(entity);
+    return entity;
+}
 
 void entityInit(Entity* entity) {
     entity->flags = (EntityFlags) {

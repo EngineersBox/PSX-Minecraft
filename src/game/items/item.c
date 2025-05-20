@@ -40,7 +40,7 @@ void itemSetWorldState(Item* item, const bool in_world) {
     item->in_world = in_world;
     if (in_world) {
         // In world
-        item->world_entity = malloc(sizeof(Entity));
+        item->world_entity = entityNew();
         entityInit(item->world_entity);
         iPhysicsObjectInit(
             &item->world_entity->physics_object,

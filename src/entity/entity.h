@@ -47,6 +47,7 @@ FWD_DECL typedef struct IEntityVTable IEntityVTable;
     vfuncDefault(void, damage, VSelf, const i16 amount) \
     vfuncDefault(void, kill, VSelf)
 
+Entity* entityNew();
 void entityInit(Entity* entity);
 
 bool iEntityAttackFrom(VSelf, IEntityVTable* vtable, const Entity* damage_source, const DamageContext* ctx);
