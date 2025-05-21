@@ -333,6 +333,7 @@ static DurationComponentIndex chunk_render_duration[AXIS_CHUNKS][AXIS_CHUNKS][WO
 
 void chunkRender(Chunk* chunk,
                  bool subdivide,
+                 bool should_render,
                  RenderContext* ctx,
                  Transforms* transforms) {
 #if isDebugTagEnabled(OVERLAY_DURATION_TREE)
@@ -387,6 +388,7 @@ void chunkRender(Chunk* chunk,
         worldGetInternalLightLevel(chunk->world),
         &aabb,
         subdivide,
+        should_render,
         ctx,
         transforms
     );

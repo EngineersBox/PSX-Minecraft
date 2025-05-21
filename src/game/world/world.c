@@ -414,7 +414,13 @@ void worldRender(const World* world,
     while (cvector_size(render_queue) > 0) {
         const ChunkVisit visit = render_queue[cvector_size(render_queue) - 1];
         cvector_pop_back(render_queue);
-        DEBUG_LOG("[WORLD] Visit chunk " VEC_PATTERN "\n", VEC_LAYOUT(visit.position));
+        DEBUG_LOG(
+            "[WORLD] Visit chunk " VEC_PATTERN " @ " VEC_PATTERN "\n", 
+            VEC_LAYOUT(visit.position),
+            visit.position.vx - x_offset,
+            visit.position.vy,
+            visit.position.vz - z_offset
+        );
         Chunk* chunk = worldGetChunk(world, &visit.position);
         // NOTE: If chunk is NULL, then always traverse to next chunks, ignoring
         //       visibility, since it's always visible.
@@ -424,12 +430,12 @@ void worldRender(const World* world,
         } else {
             visibility = chunk->visibility;
             DEBUG_LOG("Rendering chunk " VEC_PATTERN "\n", VEC_LAYOUT(visit.position));
-            chunkRender(
-                chunk,
-                vec3_equal(cb_pos.chunk, visit.position),
-                ctx,
-                transforms
-            );
+            // chunkRender(
+            //     chunk,
+            //     vec3_equal(cb_pos.chunk, visit.position),
+            //     ctx,
+            //     transforms
+            // );
         }
         DEBUG_LOG("Chunk vis: " INT16_BIN_PATTERN "\n", INT16_BIN_LAYOUT(visibility));
         for (FaceDirection face_dir = FACE_DIR_DOWN; face_dir <= FACE_DIR_FRONT; face_dir++) {
@@ -497,6 +503,31 @@ void worldRender(const World* world,
             );
         }
     }
+    const i32 x_end = world->centre.vx + LOADED_CHUNKS_RADIUS;
+    const i32 z_end = world->centre.vz + LOADED_CHUNKS_RADIUS;
+    // TODO: Render current chunk and track how much of the screen has been drawn (somehow?)
+    //       if there are still bits that are missing traverse to next chunks in the direction
+    //       the player is facing and render them. Stop drawing if screen is full and/or there
+    //       are no more loaded chunks to traverse to.
+    for (i32 x = x_offset; x <= x_end; x++) {
+        for (i32 z = z_offset; z <= z_end; z++) {
+            for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
+                DEBUG_LOG("[WORLD] Rendering " VEC_PATTERN "\n", x - x_offset, y, z - z_offset);
+                Chunk* chunk = world->chunks[z - z_offset]
+                                 [x - x_offset]
+                                 [y];
+                chunkRender(
+                    chunk,
+                    cb_pos.chunk.vx == x
+                        && cb_pos.chunk.vz == z
+                        && cb_pos.chunk.vy == y,
+                    isChunkMarked(x - x_offset, y, z - z_offset),
+                    ctx,
+                    transforms
+                );
+            }
+        }
+    }
     #undef markChunk
     #undef isChunkMarked
     durationComponentEnd();
@@ -542,6 +573,7 @@ void worldRenderOld(const World* world,
                     cb_pos.chunk.vx == x
                         && cb_pos.chunk.vz == z
                         && cb_pos.chunk.vy == y,
+                    false,
                     ctx,
                     transforms
                 );

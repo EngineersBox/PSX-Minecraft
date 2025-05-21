@@ -81,6 +81,7 @@ static void renderQuad(const Mesh* mesh,
                        const LightLevel internal_light_level,
                        const MeshPrimitive* primitive,
                        UNUSED bool subdivide,
+                       bool should_render,
                        RenderContext* ctx,
                        UNUSED Transforms* transforms) {
     // TODO: Generalise for textured and non-textured
@@ -150,11 +151,14 @@ static void renderQuad(const Mesh* mesh,
         internal_light_level,
         primitive->light_level
     );
+    const CVECTOR colour = should_render
+        ? vec3_rgb(primitive->r, primitive->g, primitive->b)
+        : vec3_rgb(0xf0, 0x0, 0x0);
     setRGB0(
         pol4,
-        fixedMul(primitive->r, light_level_colour_scalar),
-        fixedMul(primitive->g, light_level_colour_scalar),
-        fixedMul(primitive->b, light_level_colour_scalar)
+        fixedMul(colour.r, light_level_colour_scalar),
+        fixedMul(colour.g, light_level_colour_scalar),
+        fixedMul(colour.b, light_level_colour_scalar)
     );
     // Load primitive color even though gte_ncs() doesn't use it.
     // This is so the GTE will output a color result with the
@@ -194,6 +198,7 @@ static void renderQuad(const Mesh* mesh,
 void chunkMeshRenderFaceDirection(const Mesh* mesh,
                                   const LightLevel internal_light_level,
                                   bool subdivide,
+                                  bool should_render,
                                   RenderContext* ctx,
                                   Transforms* transforms) {
     MeshPrimitive* p_prims = (MeshPrimitive*) mesh->p_prims;
@@ -212,6 +217,7 @@ void chunkMeshRenderFaceDirection(const Mesh* mesh,
                     internal_light_level,
                     primitive,
                     subdivide,
+                    should_render,
                     ctx,
                     transforms);
                 break;
@@ -257,6 +263,7 @@ void chunkMeshRender(const ChunkMesh* mesh,
                      const LightLevel internal_light_level,
                      const AABB* chunk_aabb,
                      bool subdivide,
+                     bool should_render,
                      RenderContext* ctx,
                      Transforms* transforms) {
     const VECTOR position = vec3_const_div(ctx->camera->position, ONE);
@@ -301,6 +308,7 @@ void chunkMeshRender(const ChunkMesh* mesh,
             &mesh->face_meshes[i],
             internal_light_level,
             subdivide,
+            should_render,
             ctx,
             transforms
         );
