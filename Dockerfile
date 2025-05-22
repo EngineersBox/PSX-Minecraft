@@ -114,11 +114,10 @@ RUN git submodule update --init --recursive
 RUN wget "https://github.com/Lameguy64/PSn00bSDK/releases/download/$GCC_MIPSEL_ELF_TAG/gcc-mipsel-none-elf-12.3.0-linux.zip" \
     && unzip gcc-mipsel-none-elf-12.3.0-linux.zip -d /opt/psn00bsdk/mipsel-none-elf-gcc \
     && rm gcc-mipsel-none-elf-12.3.0-linux.zip
+
 # Build the SDK
-RUN cmake -DCMAKE_POLICY_VERSION_MINIMUM=3.10 -DPSN00BSDK_LIBC_ALLOCATOR=$PSN00BSDK_LIBC_ALLOCATOR --preset default --install-prefix /opt/psn00bsdk .
-
+RUN cmake -DPSN00BSDK_LIBC_ALLOCATOR=$PSN00BSDK_LIBC_ALLOCATOR --preset default --install-prefix /opt/psn00bsdk .
 RUN cmake --build ./build
-
 RUN cmake --install ./build
 
 WORKDIR /
