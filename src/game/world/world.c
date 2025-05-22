@@ -512,6 +512,7 @@ void worldRender(const World* world,
                 Chunk* chunk = world->chunks[z - z_offset]
                                  [x - x_offset]
                                  [y];
+                DEBUG_LOG("chunkRender\n");
                 chunkRender(
                     chunk,
                     cb_pos.chunk.vx == x

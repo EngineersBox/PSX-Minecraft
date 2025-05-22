@@ -313,7 +313,7 @@ static void chunkVisibilityDfsWalkScan(Chunk* chunk,
             // for an efficient pseudo-BFS. So might as well
             // just do DFS instead.
             const VECTOR pos = queue[cvector_size(queue) - 1];
-            DEBUG_LOG("Pos: " VEC_PATTERN "\n", VEC_LAYOUT(pos));
+            // DEBUG_LOG("Pos: " VEC_PATTERN "\n", VEC_LAYOUT(pos));
             cvector_pop_back(queue);
             total_blocks_processed++;
             // Update masks for BGM

@@ -382,6 +382,7 @@ void chunkRender(Chunk* chunk,
         &VEC3_I16_ZERO,
         &chunk->position
     );
+    DEBUG_LOG("chunkMeshRender\n");
     // Sort + render mesh
     chunkMeshRender(
         &chunk->mesh,
@@ -392,6 +393,7 @@ void chunkRender(Chunk* chunk,
         ctx,
         transforms
     );
+    DEBUG_LOG("Unbind matrix\n");
     renderCtxUnbindMatrix();
     chunkRenderDroppedItems(chunk, ctx, transforms);
     durationComponentEnd();
