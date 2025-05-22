@@ -8,7 +8,7 @@ target_compile_definitions(PSXMC PUBLIC -DPSXMC_VERSION_STRING="PSXMC Infdev")
 # For all boolean flags: (1 = enabled, 0 = disabled)
 
 # Global toggle of debug flags
-target_compile_definitions(PSXMC PUBLIC -DPSXMC_DEBUG=1)
+target_compile_definitions(PSXMC PUBLIC -DPSXMC_DEBUG=0)
 
 # ==== In-game UI overlays ====
 
