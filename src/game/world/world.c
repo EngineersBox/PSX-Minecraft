@@ -375,7 +375,7 @@ void worldRender(const World* world,
     durationComponentStart(&world_render_duration);
     const VECTOR player_world_pos = vec3_i32(
         fixedFloor(player->camera->position.vx, ONE_BLOCK) / ONE_BLOCK,
-        fixedFloor(player->camera->position.vy, ONE_BLOCK) / ONE_BLOCK,
+        fixedFloor(-player->camera->position.vy, ONE_BLOCK) / ONE_BLOCK,
         fixedFloor(player->camera->position.vz, ONE_BLOCK) / ONE_BLOCK
     );
     worldRenderSkybox(world, &player_world_pos, ctx, transforms);
@@ -390,12 +390,8 @@ void worldRender(const World* world,
     //       if there are still bits that are missing traverse to next chunks in the direction
     //       the player is facing and render them. Stop drawing if screen is full and/or there
     //       are no more loaded chunks to traverse to.
-    const VECTOR opposite_rotation = vec3_i32(
-        -player->camera->rotation.vx,
-        -player->camera->rotation.vy,
-        -player->camera->rotation.vz
-    );
-    const FaceDirection player_camera_direction = faceDirectionClosestNormal(opposite_rotation);
+    const VECTOR direction = rotationToDirection(&player->camera->rotation);
+    const FaceDirection player_camera_direction = faceDirectionClosestNormal(direction);
     cvector_push_back(
         render_queue,
         ((ChunkVisit) {
@@ -406,11 +402,17 @@ void worldRender(const World* world,
     u8 chunk_bitset[AXIS_LOADED_CHUNKS * WORLD_CHUNKS_HEIGHT] = {0};
     #define markChunk(x, y, z) chunk_bitset[((y) * AXIS_LOADED_CHUNKS) + (z)] |= 1 << (x)
     #define isChunkMarked(x, y, z) ((chunk_bitset[((y) * AXIS_LOADED_CHUNKS) + (z)] >> (x) & 0b1) == 1)
-    markChunk(
-        arrayCoord(world, vx, cb_pos.chunk.vx),
-        cb_pos.chunk.vy,
-        arrayCoord(world, vz, cb_pos.chunk.vz)
-    );
+    // Only mark chunk if we are within world bounds. Note that 
+    // X and Z coords are always valid based on invariant of
+    // player being placed within world at beginning and loaded
+    // chunks changing with player position.
+    if (player_world_pos.vy > 0 && player_world_pos.vy < WORLD_CHUNKS_HEIGHT) {
+        markChunk(
+            arrayCoord(world, vx, cb_pos.chunk.vx),
+            cb_pos.chunk.vy,
+            arrayCoord(world, vz, cb_pos.chunk.vz)
+        );
+    }
     while (cvector_size(render_queue) > 0) {
         const ChunkVisit visit = render_queue[cvector_size(render_queue) - 1];
         cvector_pop_back(render_queue);
@@ -421,7 +423,11 @@ void worldRender(const World* world,
             visit.position.vy,
             arrayCoord(world, vz, visit.position.vz)
         );
-        Chunk* chunk = worldGetChunk(world, &visit.position);
+        ChunkBlockPosition chunk_pos = (ChunkBlockPosition) {
+            .chunk = visit.position,
+            .block = vec3_i32(0)
+        };
+        Chunk* chunk = worldGetChunkFromChunkBlock(world, &chunk_pos);
         // NOTE: If chunk is NULL, then always traverse to next chunks, ignoring
         //       visibility, since it's always visible.
         ChunkVisibility visibility;
@@ -449,12 +455,15 @@ void worldRender(const World* world,
                 continue;
             }
             const SVECTOR face_normal = FACE_DIRECTION_NORMALS[face_dir];
-            if (dot_i32(face_normal, opposite_rotation) >= 0) {
+            if (dot_i32(vec3_const_mul(face_normal, ONE), direction) <= 0) {
                 // Don't traverse to chunks through faces that go back
                 // towards the camera
                 DEBUG_LOG("[WORLD] Positve dot product\n");
                 continue;
             }
+            // TODO: If current position is within world bounds and next
+            //       position is out of bounds, ignore the next position
+            //       as it will just lead to pointless iterations.
             const VECTOR next_chunk = vec3_add(visit.position, face_normal);
             if (chunk != NULL) {
                 // Transform world position to world chunk array indices
@@ -463,10 +472,10 @@ void worldRender(const World* world,
                     next_chunk.vy,
                     arrayCoord(world, vz, next_chunk.vz)
                 );
-                DEBUG_LOG("[WORLD] Mark pos: " VEC_PATTERN "\n", VEC_LAYOUT(mark_pos));
+                // DEBUG_LOG("[WORLD] Mark pos: " VEC_PATTERN "\n", VEC_LAYOUT(mark_pos));
                 if (isChunkMarked(mark_pos.vx, mark_pos.vy, mark_pos.vz)) {
                     // Within the world and already visited, skip it
-                    DEBUG_LOG("[WORLD] Already visited\n");
+                    // DEBUG_LOG("[WORLD] Already visited\n");
                     continue;
                 }
                 markChunk(mark_pos.vx, mark_pos.vy, mark_pos.vz);
@@ -534,6 +543,7 @@ void worldRender(const World* world,
         ctx,
         transforms
     );
+    // pcsx_debugbreak();
 }
 
 void worldRenderOld(const World* world,
@@ -1090,7 +1100,7 @@ INLINE Chunk* worldGetChunkFromChunkBlock(const World* world, const ChunkBlockPo
 
 INLINE Chunk* worldGetChunk(const World* world, const VECTOR* position) {
     // World is void below 0 and above world-height on y-axis
-    if (position->vy < 0 || position->vy >= WORLD_HEIGHT) {
+    if (position->vy < 0 || position->vy >= WORLD_CHUNKS_HEIGHT) {
         return NULL;
     }
     const ChunkBlockPosition chunk_block_position = worldToChunkBlockPosition(position, CHUNK_SIZE);
