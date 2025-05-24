@@ -10,4 +10,4 @@ docker run -it \
   -w "$(pwd)" \
   --name "psx_minecraft" \
   "$IMAGE" \
-  /bin/bash gdb -ix ~/.gdbinit
+  /bin/bash gdb -ix .gdbinit

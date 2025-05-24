@@ -214,8 +214,8 @@ void worldInit(World* world, RenderContext* ctx) {
             for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
                 DEBUG_LOG("[CHUNK: %d,%d,%d] Processing Light Updates\n", x, 0, z);
            Chunk* chunk = world->chunks[arrayCoord(world, vz, z)]
-                                            [arrayCoord(world, vx, x)]
-                                            [y];
+                                       [arrayCoord(world, vx, x)]
+                                       [y];
                 chunkUpdateLight(chunk, world_chunk_init_limits);
                 displayProgress(ctx, &bar, x, y, z, "Processing Light Updates");
             }
@@ -407,9 +407,9 @@ void worldRender(const World* world,
     #define markChunk(x, y, z) chunk_bitset[((y) * AXIS_LOADED_CHUNKS) + (z)] |= 1 << (x)
     #define isChunkMarked(x, y, z) ((chunk_bitset[((y) * AXIS_LOADED_CHUNKS) + (z)] >> (x) & 0b1) == 1)
     markChunk(
-        cb_pos.chunk.vx - x_offset,
+        arrayCoord(world, vx, cb_pos.chunk.vx),
         cb_pos.chunk.vy,
-        cb_pos.chunk.vz - z_offset
+        arrayCoord(world, vz, cb_pos.chunk.vz)
     );
     while (cvector_size(render_queue) > 0) {
         const ChunkVisit visit = render_queue[cvector_size(render_queue) - 1];
@@ -417,9 +417,9 @@ void worldRender(const World* world,
         DEBUG_LOG(
             "[WORLD] Visit chunk " VEC_PATTERN " @ " VEC_PATTERN "\n", 
             VEC_LAYOUT(visit.position),
-            visit.position.vx - x_offset,
+            arrayCoord(world, vx, visit.position.vx),
             visit.position.vy,
-            visit.position.vz - z_offset
+            arrayCoord(world, vz, visit.position.vz)
         );
         Chunk* chunk = worldGetChunk(world, &visit.position);
         // NOTE: If chunk is NULL, then always traverse to next chunks, ignoring
@@ -429,7 +429,6 @@ void worldRender(const World* world,
             visibility = UINT16_MAX;
         } else {
             visibility = chunk->visibility;
-            DEBUG_LOG("Rendering chunk " VEC_PATTERN "\n", VEC_LAYOUT(visit.position));
             // chunkRender(
             //     chunk,
             //     vec3_equal(cb_pos.chunk, visit.position),
@@ -460,9 +459,9 @@ void worldRender(const World* world,
             if (chunk != NULL) {
                 // Transform world position to world chunk array indices
                 const VECTOR mark_pos = vec3_i32(
-                    next_chunk.vx - x_offset,
+                    arrayCoord(world, vx, next_chunk.vx),
                     next_chunk.vy,
-                    next_chunk.vz - z_offset
+                    arrayCoord(world, vz, next_chunk.vz)
                 );
                 DEBUG_LOG("[WORLD] Mark pos: " VEC_PATTERN "\n", VEC_LAYOUT(mark_pos));
                 if (isChunkMarked(mark_pos.vx, mark_pos.vy, mark_pos.vz)) {
@@ -508,17 +507,19 @@ void worldRender(const World* world,
     for (i32 x = x_offset; x <= x_end; x++) {
         for (i32 z = z_offset; z <= z_end; z++) {
             for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
-                DEBUG_LOG("[WORLD] Rendering " VEC_PATTERN "\n", x - x_offset, y, z - z_offset);
-                Chunk* chunk = world->chunks[z - z_offset]
-                                 [x - x_offset]
-                                 [y];
-                DEBUG_LOG("chunkRender\n");
+                Chunk* chunk = world->chunks[arrayCoord(world, vz, z)]
+                                            [arrayCoord(world, vx, x)]
+                                            [y];
                 chunkRender(
                     chunk,
                     cb_pos.chunk.vx == x
                         && cb_pos.chunk.vz == z
                         && cb_pos.chunk.vy == y,
-                    isChunkMarked(x - x_offset, y, z - z_offset),
+                    isChunkMarked(
+                        arrayCoord(world, vx, x),
+                        y,
+                        arrayCoord(world, vz, z)
+                    ),
                     ctx,
                     transforms
                 );

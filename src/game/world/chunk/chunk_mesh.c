@@ -201,7 +201,7 @@ void chunkMeshRenderFaceDirection(const Mesh* mesh,
                                   bool should_render,
                                   RenderContext* ctx,
                                   Transforms* transforms) {
-    MeshPrimitive* p_prims = (MeshPrimitive*) mesh->p_prims;
+    cvector(MeshPrimitive) p_prims = mesh->p_prims;
     cvector_iterator(MeshPrimitive) primitive;
     cvector_for_each_in(primitive, p_prims) {
         switch (primitive->type) {
@@ -219,7 +219,8 @@ void chunkMeshRenderFaceDirection(const Mesh* mesh,
                     subdivide,
                     should_render,
                     ctx,
-                    transforms);
+                    transforms
+                );
                 break;
             default:
                 errorAbort(
