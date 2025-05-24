@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+lua .githooks/order_todo.lua

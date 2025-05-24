@@ -411,9 +411,17 @@ At this point your LSP configuration should work with `PSn00bSDK` (assuming the 
 ## Git Hooks
 
 A custom git pre-commit hook is used to sort the TODO list so that unfinished items are grouped together
-in each sublist. This relies on hooks in a non-default location within the repository under `.git/hooks`.
+in each sublist. This relies on hooks in a non-default location within the repository under `.githooks`.
 
-This is configured to run automatically and requires no intervention from the user who cloned the repo.
+If you want to be able to use these, then you will need to run the following which will override the git
+config parameter `core.hooksPath` for only this cloned repository (does not affect your normal git config
+located in `~/.gitconfig`). If you have externally global hooks, then they will need to be reconciled
+manually to work with this repository.
+
+```shell
+git config --local core.hooksPath "$(pwd)/.githooks"
+```
+
 You can of course also run these manually if you'd like to instead:
 
 ```shell
