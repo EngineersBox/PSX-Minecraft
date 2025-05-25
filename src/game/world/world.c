@@ -373,10 +373,13 @@ void worldRender(const World* world,
                  Transforms* transforms) {
     durationComponentInitOnce(world_render, "worldRender");
     durationComponentStart(&world_render_duration);
-    const VECTOR player_world_pos = vec3_i32(
-        fixedFloor(player->camera->position.vx, ONE_BLOCK) / ONE_BLOCK,
-        fixedFloor(-player->camera->position.vy, ONE_BLOCK) / ONE_BLOCK,
-        fixedFloor(player->camera->position.vz, ONE_BLOCK) / ONE_BLOCK
+    const VECTOR player_world_pos = vec3_const_div(
+        vec3_i32(
+            fixedFloor(player->camera->position.vx, ONE_BLOCK),
+            fixedFloor(-player->camera->position.vy, ONE_BLOCK),
+            fixedFloor(player->camera->position.vz, ONE_BLOCK)
+        ),
+        ONE_BLOCK
     );
     worldRenderSkybox(world, &player_world_pos, ctx, transforms);
     const ChunkBlockPosition cb_pos = worldToChunkBlockPosition(
@@ -435,6 +438,7 @@ void worldRender(const World* world,
             visibility = UINT16_MAX;
         } else {
             visibility = chunk->visibility;
+            // TODO: Uncomment after all rendering issues resolved
             // chunkRender(
             //     chunk,
             //     vec3_equal(cb_pos.chunk, visit.position),
@@ -480,9 +484,9 @@ void worldRender(const World* world,
                 }
                 markChunk(mark_pos.vx, mark_pos.vy, mark_pos.vz);
             }
+            // NOTE: cb_pos.chunk is the player chunk
             if (squareDistance(&cb_pos.chunk, &next_chunk) >= WORLD_RENDER_DISTANCE_SQUARED) {
                 // Max render distance
-                // NOTE: cb_pos.chunk is the player chunk
                 DEBUG_LOG("[WORLD] Exceeded render limit\n");
                 continue;
             }
@@ -849,7 +853,11 @@ fixedi32 calculateCelestialAngle(u16 time_ticks) {
     }
     fixedi32 cached_scaled = scaled;
     scaled = ONE - ((cos5o(fixedMul(scaled, FIXED_PI)) + ONE) >> 1);
-    scaled = cached_scaled + ((scaled - cached_scaled) / 3);
+    // NOTE:: Using (ONE * 1/3) = 1365.3... approximation
+    //       to do (scaled - cached_scaled) * 1365 instead
+    //       of div by 3. Accuracy isn't that important here
+    // scaled = cached_scaled + ((scaled - cached_scaled) / 3);
+    scaled = cached_scaled + fixedMul((scaled - cached_scaled), 1365);
     return scaled;
 }
 
@@ -993,10 +1001,13 @@ void worldUpdate(World* world,
     worldUpdateWeather(&world->weather);
     worldUpdateInternalLightLevel(world, ctx);
     world->time_ticks = positiveModulo(world->time_ticks + 1, WORLD_TIME_CYCLE);
-    const VECTOR player_world_pos = vec3_i32(
-        fixedFloor(player->entity.physics_object.position.vx, ONE_BLOCK) / ONE_BLOCK,
-        fixedFloor(player->entity.physics_object.position.vy, ONE_BLOCK) / ONE_BLOCK,
-        fixedFloor(player->entity.physics_object.position.vz, ONE_BLOCK) / ONE_BLOCK
+    const VECTOR player_world_pos = vec3_const_div(
+        vec3_i32(
+            fixedFloor(player->entity.physics_object.position.vx, ONE_BLOCK),
+            fixedFloor(-player->entity.physics_object.position.vy, ONE_BLOCK),
+            fixedFloor(player->entity.physics_object.position.vz, ONE_BLOCK)
+        ),
+        ONE_BLOCK
     );
     const ChunkBlockPosition player_pos = worldToChunkBlockPosition(
         &player_world_pos,
@@ -1417,7 +1428,7 @@ void worldDropItemStack(World* world,
         item = VCAST_PTR(Item*, droppable_iitem);
         item->stack_size = count;
     }
-    // Force transition
+    // Ensure that item uses correct world rendering attributes
     item->in_world = false;
     itemSetWorldState(item, true);
     VECTOR velocity = vec3_i32(
