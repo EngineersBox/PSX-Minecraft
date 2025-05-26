@@ -365,6 +365,31 @@ render_moon:;
     renderCtxUnbindMatrix();
 }
 
+INLINE bool worldIsOutsideBounds(const World* world, const ChunkBlockPosition* position) {
+    // World is void below 0 on y-axis and nothing above height limit
+    if ((position->chunk.vy <= 0 && position->block.vy < 0)
+        || position->chunk.vy >= WORLD_CHUNKS_HEIGHT) {
+        return true;
+    }
+    const i32 neg_x_limit = world->centre_next.vx - LOADED_CHUNKS_RADIUS;
+    if (position->chunk.vx < neg_x_limit) {
+        return true;
+    }
+    const i32 pos_x_limit = world->centre_next.vx + LOADED_CHUNKS_RADIUS;
+    if (position->chunk.vx > pos_x_limit) {
+        return true;
+    }
+    const i32 neg_z_limit = world->centre_next.vz - LOADED_CHUNKS_RADIUS;
+    if (position->chunk.vz < neg_z_limit) {
+        return true;
+    }
+    const i32 pos_z_limit = world->centre_next.vz + LOADED_CHUNKS_RADIUS;
+    if (position->chunk.vz > pos_z_limit) {
+        return true;
+    }
+    return false;
+}
+
 DEFN_DURATION_COMPONENT(world_render);
 
 void worldRender(const World* world,
@@ -465,9 +490,6 @@ void worldRender(const World* world,
                 DEBUG_LOG("[WORLD] Positve dot product\n");
                 continue;
             }
-            // TODO: If current position is within world bounds and next
-            //       position is out of bounds, ignore the next position
-            //       as it will just lead to pointless iterations.
             const VECTOR next_chunk = vec3_add(visit.position, face_normal);
             if (chunk != NULL) {
                 // Transform world position to world chunk array indices
@@ -483,6 +505,16 @@ void worldRender(const World* world,
                     continue;
                 }
                 markChunk(mark_pos.vx, mark_pos.vy, mark_pos.vz);
+            }
+            const ChunkBlockPosition next_cb_pos = (ChunkBlockPosition) {
+                .chunk = next_chunk,
+                .block = vec3_i32(0)
+            };
+            // If current position is within world bounds and next
+            // position is out of bounds, ignore the next position
+            // as it will just lead to pointless iterations.
+            if (chunk != NULL && worldIsOutsideBounds(world, &next_cb_pos)) {
+                continue;
             }
             // NOTE: cb_pos.chunk is the player chunk
             if (squareDistance(&cb_pos.chunk, &next_chunk) >= WORLD_RENDER_DISTANCE_SQUARED) {
@@ -1083,25 +1115,7 @@ void worldUpdate(World* world,
 }
 
 INLINE Chunk* worldGetChunkFromChunkBlock(const World* world, const ChunkBlockPosition* position) {
-    // World is void below 0 on y-axis and nothing above height limit
-    if ((position->chunk.vy <= 0 && position->block.vy < 0)
-        || position->chunk.vy >= WORLD_CHUNKS_HEIGHT) {
-        return NULL;
-    }
-    const i32 neg_x_limit = world->centre_next.vx - LOADED_CHUNKS_RADIUS;
-    if (position->chunk.vx < neg_x_limit) {
-        return NULL;
-    }
-    const i32 pos_x_limit = world->centre_next.vx + LOADED_CHUNKS_RADIUS;
-    if (position->chunk.vx > pos_x_limit) {
-        return NULL;
-    }
-    const i32 neg_z_limit = world->centre_next.vz - LOADED_CHUNKS_RADIUS;
-    if (position->chunk.vz < neg_z_limit) {
-        return NULL;
-    }
-    const i32 pos_z_limit = world->centre_next.vz + LOADED_CHUNKS_RADIUS;
-    if (position->chunk.vz > pos_z_limit) {
+    if (worldIsOutsideBounds(world, position)) {
         return NULL;
     }
     return world->chunks[arrayCoord(world, vz, position->chunk.vz)]
