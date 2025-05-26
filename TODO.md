@@ -39,6 +39,7 @@
 * [X] Once we close an inventory and release the input handler, it is possible to open the player inventory immediately after if we don't press fast enough. As such we should debounce when we release a handler before allowing a new handler to be aquired.
 * [X] Opening a block inventory with a block in hand will place the block and open the inventory at the same time
 * [X] SDK builds are failing due to compress defines not being set correctly. Possibly some weird CMake issue with defining `PSN00BSDK=1`. (See: <https://github.com/Lameguy64/PSn00bSDK/issues/95>).
+* [X] In world rendering, if current position is within world bounds and next position is out of bounds, ignore the next position as it will just lead to pointless iterations.
 * [ ] Cull faces on chunk edges that face outward on the render limit
 * [ ] Mesh vertices z-depth is inconsistent leading to faces drawn in wrong order and thus culling fails
 * [ ] Vertices are distorted (in their location) when very close to the camera
@@ -47,7 +48,6 @@
 * [ ] Weather texture does not scroll correctly, some planes are static and only in some places does it work correctly. Potentially an issue with texture windowing and UV positions.
 * [ ] Out-of-bounds read occurs when loading chunks (i.e. moving to last block in loaded chunks boundary)
 * [ ] The DFS chunk scan continuously considers the same block, then searches for a next unset position after loop ends and then repeats. Seems like we are not marking blocks as visited in the bitmap correctly somewhere.
-* [X] In world rendering, if current position is within world bounds and next position is out of bounds, ignore the next position as it will just lead to pointless iterations.
 
 ## Implement
 

@@ -411,9 +411,6 @@ void worldRender(const World* world,
         &player_world_pos,
         CHUNK_SIZE
     );
-    const i32 x_offset = world->centre.vx - LOADED_CHUNKS_RADIUS;
-    const i32 z_offset = world->centre.vz - LOADED_CHUNKS_RADIUS;
-    DEBUG_LOG("[WORLD] Array offset [X: %d] [Z: %d]\n", x_offset, z_offset);
     // TODO: Render current chunk and track how much of the screen has been drawn (somehow?)
     //       if there are still bits that are missing traverse to next chunks in the direction
     //       the player is facing and render them. Stop drawing if screen is full and/or there
@@ -547,10 +544,12 @@ void worldRender(const World* world,
             );
         }
     }
+    const i32 x_start = world->centre.vx - LOADED_CHUNKS_RADIUS;
     const i32 x_end = world->centre.vx + LOADED_CHUNKS_RADIUS;
+    const i32 z_start = world->centre.vz - LOADED_CHUNKS_RADIUS;
     const i32 z_end = world->centre.vz + LOADED_CHUNKS_RADIUS;
-    for (i32 x = x_offset; x <= x_end; x++) {
-        for (i32 z = z_offset; z <= z_end; z++) {
+    for (i32 x = x_start; x <= x_end; x++) {
+        for (i32 z = z_start; z <= z_end; z++) {
             for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
                 Chunk* chunk = world->chunks[arrayCoord(world, vz, z)]
                                             [arrayCoord(world, vx, x)]
