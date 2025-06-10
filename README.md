@@ -157,14 +157,8 @@ make this easier via debug flags at some point and eventually in-game), recompil
 
 ## Development
 
-### Branches
-
-There are two core branches:
-
-* `main`: stable changes that you can build, run and do stuff with.
-* `dev`: active development, unstable and potentially doesn't compile.
-
-Ideally, you'll want to use the `main` branch, or any tagged releases if they exist.
+The `main` branch contains active development, which is unstable and potentially doesn't compile.
+Generally, you'll want to use the tagged commits or releases if any exist.
 
 ### Debug Flags
 
