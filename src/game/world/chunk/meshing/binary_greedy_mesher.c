@@ -108,7 +108,7 @@ static bool chunkBitmapFindUnsetPosition(ChunkBitmap bitmap,
                 for (u8 x = 0; x < CHUNK_SIZE; x++) {
                     VECTOR pos;
                     ChunkBitmapBitset x_bitset;
-                    if (i + x % 2 != 0) {
+                    if ((i + x) % 2 != 0) {
                         pos = vec3_i32(
                             CHUNK_SIZE - 1 - x,
                             CHUNK_SIZE - 1 - y,
@@ -144,21 +144,21 @@ static bool chunkBitmapFindUnsetPosition(ChunkBitmap bitmap,
                 }
             }
             u8 x_bitset;
-            u8 start;
-            u8 end;
+            int start;
+            int end;
             int increment;
             if (fwd_some_set) {
                 x_bitset = x_fwd_bits;
                 start = 0;
-                end = CHUNK_SIZE - 1;
+                end = CHUNK_SIZE;
                 increment = 1;
             } else {
                 x_bitset = x_bwd_bits;
                 start = CHUNK_SIZE - 1;
-                end = 0;
+                end = -1;
                 increment = -1;
             }
-            for (u8 x = start; x != end; x += increment) {
+            for (int x = start; x != end; x += increment) {
                 const VECTOR pos = vec3_i32(x, y, z);
                 updateBitmap(x_bitset, x, y, z);
             }
