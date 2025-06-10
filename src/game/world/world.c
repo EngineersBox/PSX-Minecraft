@@ -259,7 +259,7 @@ void worldInit(World* world, RenderContext* ctx) {
 #undef WORLD_LOADING_STAGES_COUNT
 #undef displayProgress
     DEBUG_LOG("[WORLD] Finished loading\n");
-    /*abort();*/
+    abort();
 }
 
 void worldDestroy(World* world) {

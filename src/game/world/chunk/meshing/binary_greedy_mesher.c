@@ -129,6 +129,7 @@ static bool chunkBitmapFindUnsetPosition(ChunkBitmap bitmap,
                         *out_pos = pos; \
                         return true; \
                     } \
+                    DEBUG_LOG("Found unset, marking: " VEC_PATTERN "\n", VEC_LAYOUT(pos)); \
                     chunkBitmapSetBit(bitmap, &pos); \
                     /* Update masks for BGM */ \
                     addVoxelToFaceColumns( \
@@ -227,6 +228,7 @@ static u8 chunkBitmapFillSolidDirection(ChunkBitmap bitmap,
         const Block* block = VCAST_PTR(Block*, iblock);
         if (blockGetType(block->id) == BLOCKTYPE_SOLID
             && blockIsFaceOpaque(block, opposing_face_direction)) {
+            DEBUG_LOG("Filling solid: " VEC_PATTERN "\n", VEC_LAYOUT(pos));
             chunkBitmapSetBit(bitmap, &pos);
             processed++;
             pos = vec3_add(pos, normal);
@@ -252,7 +254,7 @@ static u8 visitBlock(ChunkBitmap bitmap,
         // Outside chunk or already visisted
         return 0;
     }
-    const Block* block = VCAST_PTR(Block*, chunkGetBlockVec(chunk, &next_pos));
+    const Block* opposing_block = VCAST_PTR(Block*, chunkGetBlockVec(chunk, &next_pos));
     const VECTOR opposing_normal = vec3_i32(
         -normal.vx,
         -normal.vy,
@@ -261,23 +263,26 @@ static u8 visitBlock(ChunkBitmap bitmap,
     const FaceDirection face_direction = faceDirectionFromNormal(normal);
     const bool facing_opaque = blockIsFaceOpaque(current_block, face_direction);
     const FaceDirection opposing_face_direction = faceDirectionFromNormal(opposing_normal);
-    const bool opposing_opaque = blockIsFaceOpaque(block, opposing_face_direction);
-    const BlockType block_type = blockGetType(block->id);
-    if (opposing_opaque && block_type == BLOCKTYPE_SOLID) {
-        // Solid opaque
+    const bool opposing_opaque = blockIsFaceOpaque(opposing_block, opposing_face_direction);
+    const BlockType opposing_block_type = blockGetType(opposing_block->id);
+    if (opposing_opaque && opposing_block_type == BLOCKTYPE_SOLID) {
+        // Solid opaque, light cannot pass through to the next
+        // block from this direction
         return chunkBitmapFillSolidDirection(
             bitmap,
             chunk,
-            pos,
+            next_pos,
             normal,
             opposing_normal,
             faces_cols,
             faces_cols_opaque
         );
     } else if (!facing_opaque && !opposing_opaque) {
-        // Both transparent
+        // Both transparent, light can traverse "between"
+        // these two blocks
         cvector_push_back_safe(queue, next_pos);
         chunkBitmapSetBit(bitmap, &next_pos);
+        DEBUG_LOG("Set bit: " VEC_PATTERN "\n", VEC_LAYOUT(next_pos));
     }
     return 0;
 }
@@ -325,6 +330,8 @@ static void chunkVisibilityDfsWalkScan(Chunk* chunk,
                 pos.vy + 1,
                 pos.vz + 1
             );
+            // We assume that when the block position was pushed into the queue,
+            // it had already been validated, thus block properties check here.
             const Block* block = VCAST_PTR(Block*, chunkGetBlock(chunk, pos.vx, pos.vy, pos.vz));
             #define _visitBlock(condition, direction, normal) \
                 if (condition) { \
@@ -368,6 +375,7 @@ static void chunkVisibilityDfsWalkScan(Chunk* chunk,
                 &pos
             )) {
                 cvector_push_back(queue, pos);
+                chunkBitmapSetBit(bitmap, &pos);
                 continue;
             }
             break;
@@ -395,6 +403,7 @@ static void chunkVisibilityDfsWalkScan(Chunk* chunk,
             break;
         }
         cvector_push_back(queue, pos);
+        chunkBitmapSetBit(bitmap, &pos);
     }
     cvector_free(queue);
     DEBUG_LOG(
@@ -402,6 +411,7 @@ static void chunkVisibilityDfsWalkScan(Chunk* chunk,
         total_blocks_processed,
         CHUNK_DATA_SIZE
     );
+    assert(total_blocks_processed == CHUNK_DATA_SIZE);
 }
 
 #undef chunkBitmapGetBit
