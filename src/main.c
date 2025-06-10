@@ -1,3 +1,5 @@
+#include <interface99_extensions.h>
+
 #include "core/engine.h"
 #include "core/app_logic.h"
 #include "game/minecraft.h"
@@ -7,7 +9,7 @@ static Minecraft* minecraft;
 
 int main() {
     app_logic = DYN_LIT(Minecraft, AppLogic, {});
-    minecraft = (Minecraft*) &app_logic;
+    minecraft = VCAST(Minecraft*, app_logic);
     Engine engine = (Engine) {
         .app_logic =  &app_logic,
         .running = true,
@@ -18,14 +20,3 @@ int main() {
     engineRun(&engine);
     return 0;
 }
-
-// int main() {
-//     u32* array = malloc(sizeof(u32));
-//     memset(array, '\0', 1);
-//     // int byte_value = '\0';
-//     // asm ("swr %1, 0(%0)"
-//     //     :
-//     //     : "r" (array), "r" (byte_value));
-//     free(array);
-//     return 0;
-// }

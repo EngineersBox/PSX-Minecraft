@@ -23,17 +23,18 @@ if [[ $? -ne 4 ]]; then
 fi
 
 function printHelp() {
-    echo "Usage: ./build_container.sh [<options>]"
+    echo "Usage: ./build_image.sh [<options>]"
     echo "Options:"
-    echo "    -h | --help               Print this help message"
-    echo "    -r | --rebuild            Clean the build directory and initialise CMake again (default: false)"
-    echo "    -o | --output=<dir>       Set the directory to use as the build output (default: ./build)"
-    echo "    -i | --image=<image:tag>  Specify which image to use when building (default: psxmc:latest)"
+    echo "    -h | --help                 Print this help message"
+    echo "    -c | --commit=<commit ish>  SDK commit-ish to check out (default: multiple-allocators)"
+    echo "    -r | --repo=<SDK repo>      Namespaced SDK on GitHub (default: EngineersBox/PSn00bSDK)"
+    echo "    -a | --allocator=<type>     Allocator type to use if using the EngineersBox/PSn00bSDK repo with multiple-allocators (default: TLSF)"
+    echo "    -i | --image=<image:tag>    Specify which image to use when building (default: psxmc:latest)"
 }
 
 # Note that options with a ':' require an argument
-LONGOPTS=help,rebuild,output:,image:
-OPTIONS=hro:i:
+LONGOPTS=help,commit:,repo:,allocator:,image:
+OPTIONS=hc:r:a:i:
 
 # 1. Temporarily store output to be able to check for errors
 # 2. Activate quoting/enhanced mode (e.g. by writing out “--options”)
@@ -43,8 +44,9 @@ PARSED=$(getopt --options=$OPTIONS --longoptions=$LONGOPTS --name "$0" -- "$@") 
 # Read getopt’s output this way to handle the quoting right:
 eval set -- "$PARSED"
 
-rebuild=0
-outDir="./build"
+commit="multiple-allocators"
+repo="EngineersBox/PSn00bSDK"
+allocator="TLSF"
 image="psxmc:latest"
 # Handle options in order and nicely split until we see --
 while true; do
@@ -53,12 +55,16 @@ while true; do
             printHelp
             exit 1
             ;;
-        -r|--rebuild)
-            rebuild=1
-            shift
+        -c|--commit)
+            commit="$2"
+            shift 2
             ;;
-        -o|--output)
-            outDir="$2"
+        -r|--repo)
+            repo="$2"
+            shift 2
+            ;;
+        -a|--allocator)
+            allocator="$2"
             shift 2
             ;;
         -i|--image)
@@ -76,23 +82,8 @@ while true; do
     esac
 done
 
-# Construct the command to run in the container,
-# only invoking a cmake build recreation when the
-# flag is set
-COMMAND="python3 scripts/asset_bundler.py"
-if [ $rebuild -eq 0 ]; then
-    # CMake policy definition is for compatibility
-    # with metalang99
-  COMMAND="$COMMAND && CMAKE_POLICY_VERSION_MINIMUM=3.5 cmake  --build $outDir"
-else
-  rm -r "$outDir" || true
-  echo "Removed build directory at: $outDir"
-  COMMAND="$COMMAND; cmake --preset=default . && cmake --build $outDir"
-fi
-
-docker run -it \
-  --rm \
-  -v "$(pwd):/tmp/PSX-Minecraft" \
-  -w "/tmp/PSX-Minecraft" \
-  "$image" \
-  /bin/bash -c "$COMMAND"
+docker build "$image" \
+    --build-arg="REPO_TARGET=$repo" \
+    --build-arg="REPO_COMMIT_ISH=$commit" \
+    --build-arg="PSN00BSDK_LIBC_ALLOCATOR=$allocator" \
+    -f Dockerfile .

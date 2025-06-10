@@ -88,9 +88,9 @@ RayCastResult worldRayCastIntersection(const World* world,
     const double dz = direction[2];
     if (dx == 0 && dy == 0 && dz == 0) {
         return (RayCastResult) {
-            .pos = vec3_i32_all(0),
+            .pos = vec3_i32(0),
             .block = NULL,
-            .face = vec3_i32_all(0)
+            .face = vec3_i32(0)
         };
     }
     // Direction to increment x,y,z when stepping
@@ -107,7 +107,7 @@ RayCastResult worldRayCastIntersection(const World* world,
     const double tDeltaY = stepY/dy;
     const double tDeltaZ = stepZ/dz;
     // Buffer for reporting faces to the callback.
-    VECTOR face = vec3_i32_all(0);
+    VECTOR face = vec3_i32(0);
     const double rad = ((double) radius * (double) radius) / (dx * dx + dy * dy + dz * dz);
     while (true) {
         // Check what the current block position is, if its non-empty
@@ -124,8 +124,8 @@ RayCastResult worldRayCastIntersection(const World* world,
             goto check_block_boundaries;
 #else
             return (RayCastResult) {
-                .pos = vec3_i32_all(0),
-                .face = vec3_i32_all(0),
+                .pos = vec3_i32(0),
+                .face = vec3_i32(0),
                 .block = NULL
             };
 #endif
@@ -186,8 +186,8 @@ check_block_boundaries:;
         }
     }
     return (RayCastResult) {
-        .pos = vec3_i32_all(0),
+        .pos = vec3_i32(0),
         .block = NULL,
-        .face = vec3_i32_all(0)
+        .face = vec3_i32(0)
     };
 }

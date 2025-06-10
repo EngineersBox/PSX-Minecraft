@@ -4,6 +4,7 @@
 #define _PSXMC__MATH__VECTOR_H_
 
 #include <psxgte.h>
+#include <metalang99.h>
 
 #include "fixed_point.h"
 #include "../util/inttypes.h"
@@ -85,28 +86,59 @@ MATRIX* InvRotMatrix(const SVECTOR* r, MATRIX* m);
 
 // Matrix init
 #define _mat4_layout(_m, _t) .m = _m, .t = _t
-#define mat4_i16_i32(_m, _t) ((MATRIX) { _mat4_layout((_m), (_t)) )
-#define mat4_all(v) ((MATRIX) { _mat4_layout(P99_PROTECT({ [0]={v}, [1]={v}, [2]={v} }), P99_PROTECT({v})) })
+
+// Either a i16 matrix and i32 translation vector
+// or a single i16 to fill matrix and translation vector
+#define mat4_i16_i32(...) ML99_OVERLOAD(_mat4_i16_i32_, __VA_ARGS__)
+#define _mat4_i16_i32_2(_m, _t) ((MATRIX) { _mat4_layout((_m), (_t)) )
+#define _mat4_i16_i32_1(v) ((MATRIX) { _mat4_layout(P99_PROTECT({ [0]={v}, [1]={v}, [2]={v} }), P99_PROTECT({v})) })
 
 // Vector init
 
 #define _vec2_layout(x, y) .vx = (x), .vy = (y)
 #define _vec3_layout(x, y, z) _vec2_layout(x, y), .vz = (z)
-#define vec3_i64(x, y, z) ((LVECTOR) { _vec3_layout(x, y, z) })
-#define vec3_i32(x, y, z) ((VECTOR) { _vec3_layout(x, y, z) })
-#define vec3_i16(x, y, z) ((SVECTOR) { _vec3_layout(x, y, z) })
-#define vec3_i8(x, y, z) ((IBVECTOR) { _vec3_layout(x, y, z) })
-#define vec3_u8(x, y, z) ((BVECTOR) { _vec3_layout(x, y, z) })
-#define vec2_i16(x, y) ((DVECTOR) { _vec2_layout(x, y) })
-#define vec3_rgb(_r, _g, _b) ((CVECTOR) { .r = (_r), .g = (_g), .b = (_b) })
 
-// Unified vector init
+// Either 3 distinct i64 values for x, y, z
+// or a single i64 for all x, y, z
+#define vec3_i64(...) ML99_OVERLOAD(_vec3_i64_, __VA_ARGS__)
+#define _vec3_i64_3(x, y, z) ((LVECTOR) { _vec3_layout(x, y, z) })
+#define _vec3_i64_1(v) _vec3_i64_3(v, v, v)
 
-#define vec3_i32_all(v) vec3_i32(v, v, v)
-#define vec3_i16_all(v) vec3_i16(v, v, v)
-#define vec3_i8_all(v) vec3_i8(v, v, v)
-#define vec3_rgb_all(v) vec3_rgb(v, v, v)
-#define vec2_i16_all(v) vec2_i16(v, v)
+// Either 3 distinct i32 values for x, y, z
+// or a single i32 for all x, y, z
+#define vec3_i32(...) ML99_OVERLOAD(_vec3_i32_, __VA_ARGS__)
+#define _vec3_i32_3(x, y, z) ((VECTOR) { _vec3_layout(x, y, z) })
+#define _vec3_i32_1(_v) _vec3_i32_3(_v, _v, _v)
+
+// Either 3 distinct i16 values for x, y, z
+// or a single i16 for all x, y, z
+#define vec3_i16(...) ML99_OVERLOAD(_vec3_i16_, __VA_ARGS__)
+#define _vec3_i16_3(x, y, z) ((SVECTOR) { _vec3_layout(x, y, z) })
+#define _vec3_i16_1(v) _vec3_i16_3(v, v, v)
+
+// Either 3 distinct i8 values for x, y, z
+// or a single i8 for all x, y, z
+#define vec3_i8(...) ML99_OVERLOAD(_vec3_i8_, __VA_ARGS__)
+#define _vec3_i8_3(x, y, z) ((IBVECTOR) { _vec3_layout(x, y, z) })
+#define _vec3_i8_1(v) _vec3_i8_3(v, v, v)
+
+// Either 3 distinct u8 values for x, y, z
+// or a single u8 for all x, y, z
+#define vec3_u8(...) ML99_OVERLOAD(_vec3_u8_, __VA_ARGS__)
+#define _vec3_u8_3(x, y, z) ((BVECTOR) { _vec3_layout(x, y, z) })
+#define _vec3_u8_1(v) _vec3_u8_3(v, v, v)
+
+// Either 2 distinct i16 values for x, y
+// or a single i16 for all x, y
+#define vec2_i16(...) ML99_OVERLOAD(_vec2_i16_, __VA_ARGS__)
+#define _vec2_i16_2(x, y) ((DVECTOR) { _vec2_layout(x, y) })
+#define _vec2_i16_1(v) _vec2_i16_2(v, v)
+
+// Either 3 distinct u8 values for r, g, b
+// or a single u8 for all r, g, b
+#define vec3_rgb(...) ML99_OVERLOAD(_vec3_rgb_, __VA_ARGS__)
+#define _vec3_rgb_3(_r, _g, _b) ((CVECTOR) { .r = (_r), .g = (_g), .b = (_b) })
+#define _vec3_rgb_1(v) _vec3_rgb_3(v, v, v)
 
 // Swizzle
 
@@ -120,7 +152,7 @@ MATRIX* InvRotMatrix(const SVECTOR* r, MATRIX* m);
     (_v).GLUE(v,z), \
 )
 #define vec3_swizzle(_v, x, y, z) ((__typeof__(_v)) { _vec3_layout_swizzle(_v, x, y, z) })
-#define vec2_swizzle(_v, x, y) ((__typeof__(v)) { _vec2_layout_swizzle(_v, x, y) })
+#define vec2_swizzle(_v, x, y) ((__typeof__(_v)) { _vec2_layout_swizzle(_v, x, y) })
 
 // Normalisation
 
@@ -177,7 +209,7 @@ VECTOR vec3_i32_normalize(const VECTOR v);
     }; \
 })
 #define pvec3_const_op(v0, op, c) ({ \
-    cosnt __typeof__(v0)* _v0 = (v0); \
+    const __typeof__(v0)* _v0 = (v0); \
     (__typeof__(v0)) { \
         _vector_p_op_mc(vx, _v0, c, op), \
         _vector_p_op_mc(vy, _v0, c, op), \
@@ -210,7 +242,7 @@ VECTOR vec3_i32_normalize(const VECTOR v);
     }; \
 })
 #define pvec2_const_op(v0, op, c) ({ \
-    cosnt __typeof__(v0)* _v0 = (v0); \
+    const __typeof__(v0)* _v0 = (v0); \
     (__typeof__(v0)) { \
         _vector_p_op_mc(vx, _v0, c, op), \
         _vector_p_op_mc(vy, _v0, c, op) \

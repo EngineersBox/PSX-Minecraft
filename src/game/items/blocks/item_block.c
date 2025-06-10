@@ -49,7 +49,7 @@ const i32 item_block_anim_sin_lut[ITEM_BLOCK_BOB_ANIM_SAMPLES] = {
 };
 
 const VECTOR item_stack_render_offsets[5] = {
-    [0] = vec3_i32_all(0),
+    [0] = vec3_i32(0),
     [1] = vec3_i32(4,4,4),
     [2] = vec3_i32(-5,2,3),
     [3] = vec3_i32(2,5,-4),
@@ -425,7 +425,9 @@ MATRIX inventory_item_block_lighting_direction = {
         {0, 0, 0}
     }
 };
-void itemBlockRenderInventory(ItemBlock* item, RenderContext* ctx, Transforms* transforms) {
+void itemBlockRenderInventory(ItemBlock* item,
+                              RenderContext* ctx,
+                              UNUSED Transforms* transforms) {
     VECTOR position = vec3_i32(0, 0, item->item.position.vz);
     // Object and light matrix for object
     MATRIX omtx, olmtx;
@@ -471,8 +473,10 @@ void itemBlockRenderInventory(ItemBlock* item, RenderContext* ctx, Transforms* t
     );
 }
 
-void itemBlockRenderHand(ItemBlock* item, RenderContext* ctx, Transforms* transforms) {
-
+void itemBlockRenderHand(UNUSED ItemBlock* item,
+                         UNUSED RenderContext* ctx,
+                         UNUSED Transforms* transforms) {
+    UNIMPLEMENTED();
 }
 
 void itemBlockApplyInventoryRenderAttributes(VSelf) {
@@ -483,10 +487,10 @@ void itemBlockApplyInventoryRenderAttributes(VSelf) {
 
 void itemBlockApplyWorldRenderAttributes(VSelf) {
     VSELF(ItemBlock);
-    self->item.position = vec3_i32_all(0);
-    self->item.rotation = vec3_i16_all(0);
+    self->item.position = vec3_i32(0);
+    self->item.rotation = vec3_i16(0);
 }
 
-void itemBlockApplyHandRenderAttributes(VSelf) {
+void itemBlockApplyHandRenderAttributes(UNUSED VSelf) {
     UNIMPLEMENTED();
 }

@@ -130,12 +130,13 @@ void playerRender(const Player* player, RenderContext* ctx, Transforms* transfor
     uiRender(&inventory->ui, ctx, transforms);
 }
 
-void playerFallHandler(PhysicsObject* physics_object, const i32 distance, void* ctx) {
+void playerFallHandler(UNUSED PhysicsObject* physics_object, const i32 distance, UNUSED void* ctx) {
     // Player* player = (Player*) ctx;
     if (distance >= ONE_BLOCK * 3) {
         // NULL as the source indicates direct damage application
         // iEntityAttackFrom(&player->entity, NULL, (distance / ONE_BLOCK) - 3);
     }
+    UNIMPLEMENTED();
 }
 
 void updateBreakingState(Player* player, const RayCastResult* result, const World* world) {
@@ -495,7 +496,7 @@ InputHandlerState playerInputHandler(const Input* input, void* ctx) {
     return playerInputHandlerMovement(input, context);
 }
 
-void playerInputHandlerDestroy(Input* input, void* ctx) {
+void playerInputHandlerDestroy(UNUSED Input* input, void* ctx) {
     PlayerInputHandlerContext* context = ctx;
     free(context);
 }

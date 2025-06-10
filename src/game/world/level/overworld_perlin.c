@@ -5,7 +5,6 @@
 #include "../../../util/interface99_extensions.h"
 #include "../chunk/chunk_structure.h"
 #include "../generation/noise.h"
-#include "../../blocks/blocks.h"
 
 // ==== GENERATOR ====
 
@@ -14,17 +13,17 @@ void chunkInit(Chunk *chunk);
 void chunkDestroy(const Chunk* chunk);
 
 void overworldPerlinChunkGeneratorInit(VSelf) ALIAS("OverworldPerlinChunkGenerator_init");
-void OverworldPerlinChunkGenerator_init(VSelf) {
+void OverworldPerlinChunkGenerator_init(UNUSED VSelf) {
     // Do nothing
 }
 
 void overworldPerlinChunkGeneratorDestroy(VSelf) ALIAS("OverworldPerlinChunkGenerator_destroy");
-void OverworldPerlinChunkGenerator_destroy(VSelf) {
+void OverworldPerlinChunkGenerator_destroy(UNUSED VSelf) {
     // Do nothing
 }
 
 void overworldPerlinGeneneratorGenerate(VSelf, Chunk* chunk, ChunkHeightmap* heightmap) ALIAS("OverworldPerlinChunkGenerator_generate");
-void OverworldPerlinChunkGenerator_generate(VSelf, Chunk* chunk, ChunkHeightmap* heightmap) {
+void OverworldPerlinChunkGenerator_generate(UNUSED VSelf, Chunk* chunk, ChunkHeightmap* heightmap) {
     const VECTOR* position = &chunk->position;
     for (i32 x = 0; x < CHUNK_SIZE; x++) {
         for (i32 z = 0; z < CHUNK_SIZE; z++) {
@@ -111,7 +110,7 @@ Chunk* OverworldPerlinChunkProvider_provide(VSelf, const VECTOR position, ChunkH
 }
 
 bool overworldPerlinSaveChunk(VSelf, Chunk* chunk) ALIAS("OverworldPerlinChunkProvider_save");
-bool OverworldPerlinChunkProvider_save(VSelf, Chunk* chunk) {
+bool OverworldPerlinChunkProvider_save(UNUSED VSelf, Chunk* chunk) {
     // TODO: Implement this when world saving is possible
     chunkDestroy(chunk);
     return true;

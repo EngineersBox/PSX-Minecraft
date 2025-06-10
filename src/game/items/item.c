@@ -51,7 +51,7 @@ void itemSetWorldState(Item* item, const bool in_world) {
     }
     // In inventory
     free(item->world_entity);
-    item->position = vec3_i32_all(0);
+    item->position = vec3_i32(0);
 }
 
 bool itemUpdate(Item* item,
@@ -118,12 +118,12 @@ void IItem_applyDamage(VSelf, i16 damage) {
 }
 
 ItemActionState iitemAttackAction(VSelf) ALIAS("IItem_attackAction");
-ItemActionState IItem_attackAction(VSelf) {
+ItemActionState IItem_attackAction(UNUSED VSelf) {
     return ITEM_ACTION_STATE_NONE;
 }
 
 ItemActionState iitemUseAction(VSelf) ALIAS("IItem_useAction");
-ItemActionState IItem_useAction(VSelf) {
+ItemActionState IItem_useAction(UNUSED VSelf) {
     return ITEM_ACTION_STATE_NONE;
 }
 

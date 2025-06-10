@@ -45,6 +45,9 @@ Remake of Minecraft for PS1 with PSn00bSDK
 
 * Emulator: [PCSX Redux](https://github.com/grumpycoders/pcsx-redux), [Duckstation](https://github.com/stenzek/duckstation)
 * PS1 Library: [PSn00bSDK](https://github.com/Lameguy64/PSn00bSDK)
+* Data structures:
+    * [hashmap](https://github.com/tidwall/hashmap.c/tree/master)
+    * [cvector](https://github.com/eteran/c-vector/tree/master)
 
 ## References
 
@@ -154,14 +157,8 @@ make this easier via debug flags at some point and eventually in-game), recompil
 
 ## Development
 
-### Branches
-
-There are two core branches:
-
-* `main`: stable changes that you can build, run and do stuff with.
-* `dev`: active development, unstable and potentially doesn't compile.
-
-Ideally, you'll want to use the `main` branch, or any tagged releases if they exist.
+The `main` branch contains active development, which is unstable and potentially doesn't compile.
+Generally, you'll want to use the tagged commits or releases if any exist.
 
 ### Debug Flags
 
@@ -408,7 +405,7 @@ At this point your LSP configuration should work with `PSn00bSDK` (assuming the 
 ## Git Hooks
 
 A custom git pre-commit hook is used to sort the TODO list so that unfinished items are grouped together
-in each sublist. This relies on hooks in a non-default location within the repository under `.githooks/`.
+in each sublist. This relies on hooks in a non-default location within the repository under `.githooks`.
 
 If you want to be able to use these, then you will need to run the following which will override the git
 config parameter `core.hooksPath` for only this cloned repository (does not affect your normal git config

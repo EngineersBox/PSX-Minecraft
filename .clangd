@@ -1,2 +1,14 @@
 CompileFlags:
   Remove: [-march=*, -mabi=*, -ftrack-macro-expansion=0, -mno-llsc, -mdivide-breaks]
+  Add: [-fblocks, -lBlocksRuntime]
+  Compiler: /opt/psn00bsdk/mipsel-none-elf-gcc/bin/mipsel-none-elf-gcc
+InlayHints:
+  BlockEnd: yes
+  Designators: yes
+  ParameterNames: yes
+  DeducedTypes: yes
+  Enabled: yes
+Diagnostics:
+  UnusedIncludes: Strict
+Hover:
+  ShowAKA: yes

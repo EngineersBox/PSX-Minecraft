@@ -37,7 +37,7 @@ SVECTOR pos_before_1 = vec3_i16(
     (-chunk->position.vy * CHUNK_BLOCK_SIZE),
     (chunk->position.vz * CHUNK_BLOCK_SIZE)
 );
-SVECTOR pos_after_1 = vec3_i16_all(0);
+SVECTOR pos_after_1 = vec3_i16(0);
 PushMatrix();
 gte_SetRotMatrix(&transforms->geometry_mtx);
 gte_SetTransMatrix(&transforms->geometry_mtx);

@@ -8,7 +8,7 @@
 #    -f Dockerfile .
 
 # TODO: Use a slimmer distro than bloaty ubuntu
-FROM --platform=linux/amd64 ubuntu:22.04
+FROM --platform=linux/amd64 debian:sid-slim
 
 ARG REPO_TARGET=Lameguy64/PSn00bSDK
 ARG REPO_COMMIT_ISH=master
@@ -22,10 +22,10 @@ RUN apt-get update \
         gcc \
         g++ \
         gdb \
-        clang-15 \
-        clangd-15 \
-        llvm-15-dev \
-        libclang-15-dev \
+        clang-18 \
+        clangd-18 \
+        llvm-18-dev \
+        libclang-18-dev \
         make \
         ninja-build \
         autoconf \
@@ -48,10 +48,10 @@ RUN apt-get update \
     && apt-get clean
 
 # Create clang(d) symlinks to avoid versioned binaries
-RUN ln -s /usr/bin/clangd-15 /usr/bin/clangd \
-    && ln -s /usr/bin/clang-cpp-15 /usr/bin/clang-cpp \
-    && ln -s /usr/bin/clang-15 /usr/bin/clang \
-    && ln -s /usr/bin/clang++-15 /usr/bin/clang++
+RUN ln -s /usr/bin/clangd-18 /usr/bin/clangd \
+    && ln -s /usr/bin/clang-cpp-18 /usr/bin/clang-cpp \
+    && ln -s /usr/bin/clang-18 /usr/bin/clang \
+    && ln -s /usr/bin/clang++-18 /usr/bin/clang++
 
 # Ensure we don't have an existing CMake installation
 RUN apt-get --yes purge --auto-remove cmake
@@ -78,7 +78,7 @@ RUN apt update \
     && apt-get clean
 
 ADD scripts/requirements.txt /opt/requirements.txt
-RUN python3 -m pip install -r /opt/requirements.txt
+RUN python3 -m pip install --break-system-packages -r /opt/requirements.txt
 
 # Add cclangd script for LSPs
 ADD cclangd /usr/local/bin/cclangd
@@ -86,7 +86,7 @@ ADD cclangd /usr/local/bin/cclangd
 # Install include-what-you-use
 WORKDIR /
 RUN git clone https://github.com/include-what-you-use/include-what-you-use.git
-RUN cd include-what-you-use && git checkout clang_15 && cd ..
+RUN cd include-what-you-use && git checkout clang_18 && cd ..
 RUN mkdir iwyu_build
 
 WORKDIR /iwyu_build
@@ -114,11 +114,10 @@ RUN git submodule update --init --recursive
 RUN wget "https://github.com/Lameguy64/PSn00bSDK/releases/download/$GCC_MIPSEL_ELF_TAG/gcc-mipsel-none-elf-12.3.0-linux.zip" \
     && unzip gcc-mipsel-none-elf-12.3.0-linux.zip -d /opt/psn00bsdk/mipsel-none-elf-gcc \
     && rm gcc-mipsel-none-elf-12.3.0-linux.zip
+
 # Build the SDK
-RUN cmake -DCMAKE_POLICY_VERSION_MINIMUM=3.10 -DPSN00BSDK_LIBC_ALLOCATOR=$PSN00BSDK_LIBC_ALLOCATOR --preset default --install-prefix /opt/psn00bsdk .
-
+RUN cmake -DPSN00BSDK_LIBC_ALLOCATOR=$PSN00BSDK_LIBC_ALLOCATOR --preset default --install-prefix /opt/psn00bsdk .
 RUN cmake --build ./build
-
 RUN cmake --install ./build
 
 WORKDIR /

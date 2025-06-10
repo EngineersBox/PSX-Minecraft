@@ -16,7 +16,7 @@
 #define SCALE_PER_LIGHT_LEVEL 256
 
 typedef u8 LightLevel;
-typedef LightLevel LightMap[CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE];
+typedef LightLevel LightMap[CHUNK_DATA_SIZE];
 
 extern const u16 LIGHT_LEVEL_COLOUR_SCALARS[16];
 

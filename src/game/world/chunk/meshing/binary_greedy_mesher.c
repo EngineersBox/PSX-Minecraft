@@ -6,19 +6,21 @@
 #include "../../../../lighting/lightmap.h"
 #include "../../../../util/interface99_extensions.h"
 #include "../../../../util/bits.h"
+#include "../../../../util/preprocessor.h"
 #include "../../../../math/vector.h"
 #include "../../../../structure/hashmap.h"
 #include "../../../../resources/asset_indices.h"
 #include "../../../../structure/primitive/primitive.h"
 #include "../../../../resources/assets.h"
-#include "../../../../structure/primitive/cube.h"
 #include "../../position.h"
+#include "../chunk_structure.h"
 #include "plane_meshing_data.h"
 
 // Forward declarations
 FWD_DECL typedef struct World World;
 FWD_DECL IBlock* worldGetBlock(const World* world, const VECTOR* position);
 FWD_DECL IBlock* worldGetChunkBlock(const World* world, const ChunkBlockPosition* position);
+FWD_DECL IBlock* chunkGetBlockVec(const Chunk* chunk, const VECTOR* position);
 FWD_DECL IBlock* chunkGetBlock(const Chunk* chunk, i32 x, i32 y, i32 z);
 FWD_DECL void chunkSetLightValue(Chunk* chunk,
                                  const VECTOR* position,
@@ -33,12 +35,25 @@ static const u32 AXIAL_EDGES[AXIAL_EDGES_COUNT] = { 0, CHUNK_SIZE_PADDED - 1 };
 
 typedef u32 FacesColumns[FACE_DIRECTION_COUNT][CHUNK_SIZE_PADDED][CHUNK_SIZE_PADDED];
 
-INLINE void addVoxelToFaceColumns(FacesColumns axis_cols,
-                                  FacesColumns axis_cols_opaque,
-                                  const IBlock* iblock,
-                                  const u32 x,
-                                  const u32 y,
-                                  const u32 z) {
+#if defined(CHUNK_SIZE) && CHUNK_SIZE > 0 && CHUNK_SIZE <= 32 && _isPowerOf2(CHUNK_SIZE)
+    #define bitmapType(size, name) \
+        typedef GLUE(u, size) ChunkBitmapBitset; \
+        typedef ChunkBitmapBitset name[size * size]
+    bitmapType(CHUNK_SIZE, ChunkBitmap);
+    #undef bitmapType
+#else
+#error CHUNK_SIZE must be in the interval (0, 32] and be a power of 2
+#endif
+
+#define chunkBitmapGetBit(bitmap, pos) (((bitmap)[((pos)->vy * CHUNK_SIZE) + (pos)->vz] >> (pos)->vx) & 0b1)
+#define chunkBitmapSetBit(bitmap, pos) ((bitmap)[((pos)->vy * CHUNK_SIZE) + (pos)->vz] |= 1 << (pos)->vx)
+
+INLINE static void addVoxelToFaceColumns(FacesColumns axis_cols,
+                                         FacesColumns axis_cols_opaque,
+                                         const IBlock* iblock,
+                                         const u32 x,
+                                         const u32 y,
+                                         const u32 z) {
     if (iblock == NULL) {
         return;
     }
@@ -66,18 +81,109 @@ INLINE void addVoxelToFaceColumns(FacesColumns axis_cols,
 #undef bitsetAt
 }
 
-void binaryGreedyMesherBuildMesh(Chunk* chunk, const BreakingState* breaking_state) {
-    FacesColumns faces_cols = {0};
-    // See binary_greedy_mesher_transparency.md
-    FacesColumns faces_cols_opaque = {0};
-    FacesColumns col_face_masks = {0};
-    // Inner chunk blocks
-    // Duplication here is just to optimise away lots of if statements
-    // when this chunk has no breaking state available as a paramater
-    for (u32 z = 0; z < CHUNK_SIZE; z++) {
-        for (u32 x = 0; x < CHUNK_SIZE; x++) {
-            for (u32 y = 0; y < CHUNK_SIZE; y++) {
-                const IBlock* iblock = chunkGetBlock(chunk, x, y, z);
+static bool chunkBitmapFindUnsetPosition(ChunkBitmap bitmap,
+                                         const Chunk* chunk,
+                                         FacesColumns faces_cols,
+                                         FacesColumns faces_cols_opaque,
+                                         u16* total_blocks_processed,
+                                         VECTOR* out_pos) {
+    // This alternates iteration between two corners of the chunk
+    // working inwards. Allows for slightly higher probability of
+    // finding an unset position faster than uni-directional iteration.
+    // If there is an efficient way to iterate over 4 corners in
+    // opposing diagonals, then it would be good to replace this
+    // with that, conditional on keeping bit lookups on an X-axis
+    // bitset efficient.
+    for (u8 y = 0; y < CHUNK_SIZE; y++) {
+        for (u8 z = 0; z < CHUNK_SIZE; z++) {
+            const ChunkBitmapBitset x_fwd_bits = bitmap[(y * CHUNK_SIZE) + z];
+            const bool fwd_some_set = x_fwd_bits != (CHUNK_SIZE * CHUNK_SIZE) - 1;
+            const ChunkBitmapBitset x_bwd_bits = bitmap[((CHUNK_SIZE - 1 - y) * CHUNK_SIZE) + (CHUNK_SIZE - 1 - z)];
+            const bool bwd_some_set = x_bwd_bits != (CHUNK_SIZE * CHUNK_SIZE) - 1;
+            if (!fwd_some_set && !bwd_some_set) {
+                continue;
+            }
+            const u8 i = y + z;
+            if (fwd_some_set && bwd_some_set) {
+                for (u8 x = 0; x < CHUNK_SIZE; x++) {
+                    VECTOR pos;
+                    ChunkBitmapBitset x_bitset;
+                    if (i + x % 2 != 0) {
+                        pos = vec3_i32(
+                            CHUNK_SIZE - 1 - x,
+                            CHUNK_SIZE - 1 - y,
+                            CHUNK_SIZE - 1 - z
+                        );
+                        x_bitset = x_bwd_bits;
+                    } else {
+                        pos = vec3_i32(x, y, z);
+                        x_bitset = x_fwd_bits;
+                    }
+                #define updateBitmap(x_bitset, _x, _y, _z) \
+                    if ((((x_bitset) >> (_x)) & 0b1) == 1) { \
+                        continue; \
+                    } \
+                    const IBlock* iblock = chunkGetBlockVec(chunk, &pos); \
+                    const Block* block = VCAST_PTR(Block*, iblock); \
+                    if (blockGetOpacityBitset(block->id, block->orientation) != 0b111111) { \
+                        *out_pos = pos; \
+                        return true; \
+                    } \
+                    chunkBitmapSetBit(bitmap, &pos); \
+                    /* Update masks for BGM */ \
+                    addVoxelToFaceColumns( \
+                        faces_cols, \
+                        faces_cols_opaque, \
+                        iblock, \
+                        (_x) + 1, \
+                        (_y) + 1, \
+                        (_z) + 1 \
+                    ); \
+                    (*total_blocks_processed)++
+                    updateBitmap(x_bitset, pos.vx, pos.vy, pos.vz);
+                }
+            }
+            u8 x_bitset;
+            u8 start;
+            u8 end;
+            int increment;
+            if (fwd_some_set) {
+                x_bitset = x_fwd_bits;
+                start = 0;
+                end = CHUNK_SIZE - 1;
+                increment = 1;
+            } else {
+                x_bitset = x_bwd_bits;
+                start = CHUNK_SIZE - 1;
+                end = 0;
+                increment = -1;
+            }
+            for (u8 x = start; x != end; x += increment) {
+                const VECTOR pos = vec3_i32(x, y, z);
+                updateBitmap(x_bitset, x, y, z);
+            }
+        }
+    }
+    return false;
+    #undef updateBitmap
+}
+
+static bool chunkBitmapFindRoot(ChunkBitmap bitmap,
+                                const Chunk* chunk,
+                                FacesColumns faces_cols,
+                                FacesColumns faces_cols_opaque,
+                                VECTOR* out_pos) {
+    for (u8 y = 0; y < CHUNK_SIZE; y++) {
+        for (u8 z = 0; z < CHUNK_SIZE; z++) {
+            for (u8 x = 0; x < CHUNK_SIZE; x++) {
+                const VECTOR pos = vec3_i32(x, y, z);
+                const IBlock* iblock = chunkGetBlockVec(chunk, &pos);
+                const Block* block = VCAST_PTR(Block*, iblock);
+                if (blockGetType(block->id) != BLOCKTYPE_SOLID) {
+                    *out_pos = pos;
+                    return true;
+                }
+                // Update masks for BGM
                 addVoxelToFaceColumns(
                     faces_cols,
                     faces_cols_opaque,
@@ -86,9 +192,248 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk, const BreakingState* breaking_sta
                     y + 1,
                     z + 1
                 );
+                chunkBitmapSetBit(bitmap, &pos);
             }
         }
     }
+    return false;
+}
+
+static u8 chunkBitmapFillSolidDirection(ChunkBitmap bitmap,
+                                        const Chunk* chunk,
+                                        VECTOR pos,
+                                        const VECTOR normal,
+                                        const VECTOR opposing_normal,
+                                        FacesColumns faces_cols,
+                                        FacesColumns faces_cols_opaque) {
+    const FaceDirection opposing_face_direction = faceDirectionFromNormal(opposing_normal);
+    u8 processed = 0;
+    while (true) {
+        if (chunkBlockIndexOOB(pos.vx, pos.vy, pos.vz)
+            || chunkBitmapGetBit(bitmap, &pos) == 1) {
+            // OOB or Already visited
+            break;
+        }
+        const IBlock* iblock = chunkGetBlockVec(chunk, &pos);
+        // Update masks for BGM
+        addVoxelToFaceColumns(
+            faces_cols,
+            faces_cols_opaque,
+            iblock,
+            pos.vx + 1,
+            pos.vy + 1,
+            pos.vz + 1
+        );
+        const Block* block = VCAST_PTR(Block*, iblock);
+        if (blockGetType(block->id) == BLOCKTYPE_SOLID
+            && blockIsFaceOpaque(block, opposing_face_direction)) {
+            chunkBitmapSetBit(bitmap, &pos);
+            processed++;
+            pos = vec3_add(pos, normal);
+            continue;
+        }
+        // Not solid
+        break;
+    }
+    return processed;
+}
+
+static u8 visitBlock(ChunkBitmap bitmap,
+                     const Chunk* chunk,
+                     const Block* current_block,
+                     VECTOR pos,
+                     const VECTOR normal,
+                     cvector(VECTOR)* queue,
+                     FacesColumns faces_cols,
+                     FacesColumns faces_cols_opaque) {
+    const VECTOR next_pos = vec3_add(pos, normal);
+    if (chunkBlockIndexOOB(next_pos.vx, next_pos.vy, next_pos.vz)
+        || chunkBitmapGetBit(bitmap, &next_pos) == 1) {
+        // Outside chunk or already visisted
+        return 0;
+    }
+    const Block* block = VCAST_PTR(Block*, chunkGetBlockVec(chunk, &next_pos));
+    const VECTOR opposing_normal = vec3_i32(
+        -normal.vx,
+        -normal.vy,
+        -normal.vz
+    );
+    const FaceDirection face_direction = faceDirectionFromNormal(normal);
+    const bool facing_opaque = blockIsFaceOpaque(current_block, face_direction);
+    const FaceDirection opposing_face_direction = faceDirectionFromNormal(opposing_normal);
+    const bool opposing_opaque = blockIsFaceOpaque(block, opposing_face_direction);
+    const BlockType block_type = blockGetType(block->id);
+    if (opposing_opaque && block_type == BLOCKTYPE_SOLID) {
+        // Solid opaque
+        return chunkBitmapFillSolidDirection(
+            bitmap,
+            chunk,
+            pos,
+            normal,
+            opposing_normal,
+            faces_cols,
+            faces_cols_opaque
+        );
+    } else if (!facing_opaque && !opposing_opaque) {
+        // Both transparent
+        cvector_push_back_safe(queue, next_pos);
+        chunkBitmapSetBit(bitmap, &next_pos);
+    }
+    return 0;
+}
+
+static void chunkVisibilityDfsWalkScan(Chunk* chunk,
+                                       FacesColumns faces_cols,
+                                       FacesColumns faces_cols_opaque) {
+    ChunkBitmap bitmap = {0};
+    VECTOR root = vec3_i32(0);
+    if (!chunkBitmapFindRoot(
+        bitmap,
+        chunk,
+        faces_cols,
+        faces_cols_opaque,
+        &root
+    )) {
+        chunk->visibility = 0;
+        return;
+    }
+    cvector(VECTOR) queue = NULL;
+    cvector_init(queue, 0, NULL);
+    cvector_push_back(queue, root);
+    chunkBitmapSetBit(bitmap, &root);
+    // We mark every solid block until the first free block
+    // in the bitmap, so we start with already having processed
+    // those.
+    u16 total_blocks_processed = (root.vy * CHUNK_SIZE * CHUNK_SIZE) + (root.vz * CHUNK_SIZE) + root.vx;
+    while (total_blocks_processed < CHUNK_DATA_SIZE) {
+        u8 visible_sides = 0b000000;
+        while (cvector_size(queue) > 0) {
+            // This makes this DFS, we save on needing to
+            // do a swap with the last element before popping
+            // for an efficient pseudo-BFS. So might as well
+            // just do DFS instead.
+            const VECTOR pos = queue[cvector_size(queue) - 1];
+            // DEBUG_LOG("Pos: " VEC_PATTERN "\n", VEC_LAYOUT(pos));
+            cvector_pop_back(queue);
+            total_blocks_processed++;
+            // Update masks for BGM
+            addVoxelToFaceColumns(
+                faces_cols,
+                faces_cols_opaque,
+                chunkGetBlockVec(chunk, &pos),
+                pos.vx + 1,
+                pos.vy + 1,
+                pos.vz + 1
+            );
+            const Block* block = VCAST_PTR(Block*, chunkGetBlock(chunk, pos.vx, pos.vy, pos.vz));
+            #define _visitBlock(condition, direction, normal) \
+                if (condition) { \
+                    visible_sides |= 0b1 << direction; \
+                } \
+                total_blocks_processed += visitBlock( \
+                    bitmap, \
+                    chunk, \
+                    block, \
+                    pos, \
+                    normal, \
+                    &queue, \
+                    faces_cols, \
+                    faces_cols_opaque \
+                )
+            // Left
+            _visitBlock(pos.vx == 0, FACE_DIR_LEFT, vec3_i32(-1, 0, 0));
+            // Right
+            _visitBlock(pos.vx == CHUNK_SIZE - 1, FACE_DIR_RIGHT, vec3_i32(1, 0, 0));
+            // Front
+            _visitBlock(pos.vz == 0, FACE_DIR_FRONT, vec3_i32(0, 0, -1));
+            // Back
+            _visitBlock(pos.vz == CHUNK_SIZE - 1, FACE_DIR_BACK, vec3_i32(0, 0, 1));
+            // Down
+            _visitBlock(pos.vy == 0, FACE_DIR_DOWN, vec3_i32(0, -1, 0));
+            // Up
+            _visitBlock(pos.vy == CHUNK_SIZE - 1, FACE_DIR_UP, vec3_i32(0, 1, 0));
+            #undef _visitBlock
+        }
+        if (isPowerOf2(visible_sides)) {
+            // Power of 2 implies a single bit is set,
+            // thus only one side in the visibility set
+            // so that side cannot see another.
+            VECTOR pos = vec3_i32(0);
+            if (chunkBitmapFindUnsetPosition(
+                bitmap,
+                chunk,
+                faces_cols,
+                faces_cols_opaque,
+                &total_blocks_processed,
+                &pos
+            )) {
+                cvector_push_back(queue, pos);
+                continue;
+            }
+            break;
+        }
+        for (u8 i = 0; i < 6; i++) {
+            if ((visible_sides & (0b1 << i)) == 0) {
+                continue;
+            }
+            for (u8 j = i + 1; j < 6; j++) {
+                if ((visible_sides & (0b1 << j)) == 0) {
+                    continue;
+                }
+                chunkVisibilitySetBit(&chunk->visibility, i, j);
+            }
+        }
+        VECTOR pos = vec3_i32(0);
+        if (!chunkBitmapFindUnsetPosition(
+            bitmap,
+            chunk,
+            faces_cols,
+            faces_cols_opaque,
+            &total_blocks_processed,
+            &pos
+        )) {
+            break;
+        }
+        cvector_push_back(queue, pos);
+    }
+    cvector_free(queue);
+    DEBUG_LOG(
+        "[Chunk] Blocks processed: %d/%d\n",
+        total_blocks_processed,
+        CHUNK_DATA_SIZE
+    );
+}
+
+#undef chunkBitmapGetBit
+#undef chunkBitmapSetBit
+
+void binaryGreedyMesherBuildMesh(Chunk* chunk, const BreakingState* breaking_state) {
+    FacesColumns faces_cols = {0};
+    // See binary_greedy_mesher_transparency.md
+    FacesColumns faces_cols_opaque = {0};
+    FacesColumns col_face_masks = {0};
+    chunkVisibilityDfsWalkScan(
+        chunk,
+        faces_cols,
+        faces_cols_opaque
+    );
+    DEBUG_LOG("[Chunk] Visibility: " INT16_BIN_PATTERN "\n", INT16_BIN_LAYOUT(chunk->visibility));
+    // Inner chunk blocks
+    /*for (u32 z = 0; z < CHUNK_SIZE; z++) {*/
+    /*    for (u32 x = 0; x < CHUNK_SIZE; x++) {*/
+    /*        for (u32 y = 0; y < CHUNK_SIZE; y++) {*/
+    /*            const IBlock* iblock = chunkGetBlock(chunk, x, y, z);*/
+    /*            addVoxelToFaceColumns(*/
+    /*                faces_cols,*/
+    /*                faces_cols_opaque,*/
+    /*                iblock,*/
+    /*                x + 1,*/
+    /*                y + 1,*/
+    /*                z + 1*/
+    /*            );*/
+    /*        }*/
+    /*    }*/
+    /*}*/
     // Neighbouring chunk blocks
     // Z
     for (u32 z_i = 0; z_i < AXIAL_EDGES_COUNT; z_i++) {
@@ -157,11 +502,6 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk, const BreakingState* breaking_sta
     for (u32 axis = 0; axis < AXIS_COUNT; axis++) {
         for (u32 z = 0; z < CHUNK_SIZE_PADDED; z++) {
             for (u32 x = 0; x < CHUNK_SIZE_PADDED; x++) {
-                // TODO: For chunks that are on the edge of the render distance
-                //       we should not generate faces that face outward toward
-                //       unloaded chunks. To do this we should ensure that the
-                //       padding area in col and col_opaque are always set to 1's
-                //       for the parts that face outwards.
                 const u8 axis0 = (2 * axis) + 0;
                 const u8 axis1 = (2 * axis) + 1;
                 const u32 col_axis0 = faces_cols[axis0][z][x];
@@ -205,11 +545,11 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk, const BreakingState* breaking_sta
                     // Clear least significant bit set
                     col &= col - 1;
                     ChunkBlockPosition chunk_block_position = {
-                        .block = vec3_i32_all(0),
+                        .block = vec3_i32(0),
                         .chunk = chunk->position
                     };
                     ChunkBlockPosition light_cb_pos = {
-                        .block = vec3_i32_all(0),
+                        .block = vec3_i32(0),
                         .chunk = chunk->position
                     };
                     switch (face) {
@@ -257,7 +597,7 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk, const BreakingState* breaking_sta
                     if (current_block == NULL) {
                         errorAbort(
                             "[BINARY GREEDY MESHER] Null block returned while constructing mask [Face: %d] [Chunk: " VEC_PATTERN "] [Block: " VEC_PATTERN "]\n",
-                            face,
+face,
                             VEC_LAYOUT(chunk->position),
                             VEC_LAYOUT(chunk_block_position.block)
                         );
@@ -324,15 +664,13 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk, const BreakingState* breaking_sta
 
 static MeshPrimitive* createPrimitive(ChunkMesh* mesh,
                                       const PlaneMeshingDataKey* data,
-                                      const u32 x,
-                                      const u32 y,
                                       const u32 width,
                                       const u32 height,
                                       const Texture* texture_override,
                                       const TextureAttributes texture_attributes_override[FACE_DIRECTION_COUNT]) {
     Mesh* face_dir_mesh = &mesh->face_meshes[data->face];
     cvector(MeshPrimitive) prims = face_dir_mesh->p_prims;
-    cvector_push_back(prims, (MeshPrimitive){});
+    cvector_push_back(prims, (MeshPrimitive){0});
     // cvector can be reallocated by pushing a
     // new element, thus we should re-set it to
     // the mesh object that owns it.
@@ -362,7 +700,7 @@ static MeshPrimitive* createPrimitive(ChunkMesh* mesh,
 }
 
 #define nextRenderAttribute(mesh, attribute_field, index_field, count_field) ({ \
-        cvector_push_back((mesh)->attribute_field, (SVECTOR){}); \
+        cvector_push_back((mesh)->attribute_field, (SVECTOR){0}); \
         primitive->index_field = (mesh)->count_field; \
         (&cvector_begin((mesh)->attribute_field)[(mesh)->count_field++]); \
 })
@@ -470,8 +808,6 @@ static void createMesh(Chunk* chunk,
     MeshPrimitive* primitive = createPrimitive(
         &chunk->mesh,
         data,
-        x,
-        y,
         w,
         h,
         texture_override,
@@ -585,7 +921,7 @@ void binaryGreedyMesherConstructBreakingOverlay(Chunk* chunk, const BreakingStat
             x = chunk_block_position.block.v##_x; \
             y = chunk_block_position.block.v##_y
         ChunkBlockPosition light_cb_pos = (ChunkBlockPosition) {
-            .block = vec3_i32_all(0),
+            .block = vec3_i32(0),
             .chunk = chunk->position
         };
         #define lightPos(_x, _y, _z) \

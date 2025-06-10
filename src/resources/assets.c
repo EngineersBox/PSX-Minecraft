@@ -11,8 +11,9 @@
 
 #include "../logging/logging.h"
 #include "../hardware/cd.h"
-#include "asset_indices.h"
 #include "../util/preprocessor.h"
+#include "../util/memory.h"
+#include "asset_indices.h"
 
 typedef void* (*AssetLoad)(const void* ctx);
 typedef void (*AssetFree)(void* ctx);
@@ -51,13 +52,15 @@ u8* _lz_resources = NULL;
 
 static void* _loadTextures(const void* ctx) {
     const int lzp_index = (int) ctx;
-    TIM_IMAGE tim = {};
-    QLP_HEAD* tex_buff = (QLP_HEAD*) malloc(lzpFileSize(lz_resources, lzp_index));
+    TIM_IMAGE tim = {0};
+    QLP_HEAD* tex_buff = malloc(lzpFileSize(lz_resources, lzp_index));
+    zeroed(tex_buff);
     lzpUnpackFile(tex_buff, lz_resources, lzp_index);
     const int file_count = qlpFileCount(tex_buff);
     DEBUG_LOG("[TEXTURE] Loading %d texture(s)\n", file_count);
     if (file_count > 0) {
-        textures = (Texture*) calloc(file_count, sizeof(Texture));
+        textures = calloc(file_count, sizeof(Texture));
+        zeroed(textures);
     }
     for (int i = 0; i < file_count; i++) {
 #if isDebugEnabled()
@@ -98,7 +101,7 @@ void assetLoadImage(const TIM_IMAGE* tim, Texture* texture) {
     );
 }
 
-static void _freeTextures(void* ctx) {
+static void _freeTextures(UNUSED void* ctx) {
     free(textures);
 }
 
@@ -143,9 +146,10 @@ void assetLoadTextureDirect(const size_t bundle, const int file_index, Texture* 
         errorAbort("[ERROR] Asset bundle not found: %s\n", asset_bundle->name);
         return;
     }
-    QLP_HEAD* tex_buff = (QLP_HEAD*) malloc(lzpFileSize(archive, lzp_index));
+    QLP_HEAD* tex_buff = malloc(lzpFileSize(archive, lzp_index));
+    zeroed(tex_buff);
     lzpUnpackFile(tex_buff, archive, lzp_index);
-    TIM_IMAGE tim = {};
+    TIM_IMAGE tim = {0};
     if (file_index >= qlpFileCount(tex_buff)) {
         errorAbort(
             "[ERROR] No such file index %d in asset bundle %d\n",

@@ -9,8 +9,6 @@
 #include "../structure/cvector_utils.h"
 
 #if isDebugTagEnabled(OVERLAY_DURATION_TREE)
-#include "../core/std/stdlib.h"
-
 #include "../logging/logging.h"
 
 DurationComponent render_duration_tree = (DurationComponent) {
@@ -136,7 +134,7 @@ void durationTreeChangeStackIndex0(const DurationComponent* tree, int adjustment
 
 void durationTreeRender0(const DurationComponent* tree,
                          RenderContext* ctx,
-                         Transforms* transforms) {
+                         UNUSED Transforms* transforms) {
     if (tree == NULL || cvector_size(tree->components) == 0) {
         // We were passed a non-existent tree
         // or there are no child components, and

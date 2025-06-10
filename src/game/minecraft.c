@@ -10,7 +10,6 @@
 /*#include <psxsio.h>*/
 
 #include "../ui/axis.h"
-#include "../structure/primitive/cube.h"
 #include "../render/debug.h"
 #include "../math/vector.h"
 #include "../ui/ui.h"
@@ -25,16 +24,13 @@
 #include "gui/inventory.h"
 #include "gui/slot.h"
 #include "items/blocks/item_block.h"
-#include "items/blocks/item_block_crafting_table.h"
 #include "items/item_id.h"
 #include "items/items.h"
-#include "items/blocks/item_block_grass.h"
-#include "items/blocks/item_block_stone.h"
-#include "world/level/overworld_flatland.h"
 #include "world/level/overworld_perlin.h"
 #include "weather/weather.h"
-#include "../core/console.h"
+// #include "../core/console.h"
 #include "../debug/debug_defines.h"
+#include "../structure/primitive/primitive.h"
 
 World* world;
 IInputHandler player_handler;
@@ -56,7 +52,7 @@ Player* player;
 /*};*/
 
 void minecraftInit(VSelf, void* ctx) ALIAS("Minecraft_init");
-void Minecraft_init(VSelf, void* ctx) {
+void Minecraft_init(VSelf, UNUSED void* ctx) {
     VSELF(Minecraft);
     self->ctx = (RenderContext) {
         .active = 0,
@@ -65,12 +61,12 @@ void Minecraft_init(VSelf, void* ctx) {
         .camera = NULL,
     };
     self->transforms = (Transforms) {
-        .translation_rotation = vec3_i16_all(0),
-        .negative_translation_rotation = vec3_i16_all(0),
-        .translation_position = vec3_i32_all(0),
-        .negative_translation_position = vec3_i32_all(0),
-        .geometry_mtx = mat4_all(0),
-        .frustum_mtx = mat4_all(0),
+        .translation_rotation = vec3_i16(0),
+        .negative_translation_rotation = vec3_i16(0),
+        .translation_position = vec3_i32(0),
+        .negative_translation_position = vec3_i32(0),
+        .geometry_mtx = mat4_i16_i32(0),
+        .frustum_mtx = mat4_i16_i32(0),
         .lighting_mtx = lighting_direction
     };
     self->camera = cameraCreate(&self->transforms),
@@ -164,7 +160,7 @@ void Minecraft_init(VSelf, void* ctx) {
 }
 
 void minecraftCleanup(VSelf) ALIAS("Minecraft_cleanup");
-void Minecraft_cleanup(VSelf) {
+void Minecraft_cleanup(UNUSED VSelf) {
     durationTreesDestroy();
     worldDestroy(world);
     free(world);
@@ -192,7 +188,7 @@ void Minecraft_cleanup(VSelf) {
 /*}*/
 
 void minecraftInput(VSelf, const Stats* stats) ALIAS("Minecraft_input");
-void Minecraft_input(VSelf, const Stats* stats) {
+void Minecraft_input(VSelf, UNUSED const Stats* stats) {
     VSELF(Minecraft);
     /*if (ioctl(0, FIOCSCAN, 0) && getchar() == '`') {*/
     /*    handleConsole();*/
@@ -202,7 +198,7 @@ void Minecraft_input(VSelf, const Stats* stats) {
 }
 
 void minecraftUpdate(VSelf, const Stats* stats) ALIAS("Minecraft_update");
-void Minecraft_update(VSelf, const Stats* stats) {
+void Minecraft_update(VSelf, UNUSED const Stats* stats) {
     VSELF(Minecraft);
     worldUpdate(
         world,
@@ -277,7 +273,7 @@ void Minecraft_render(VSelf, const Stats* stats) {
     /*frustumTransform(&self->ctx.camera->frustum, &self->transforms);*/
     worldRender(
         world,
-        (const Player*) &player,
+        player,
         &self->ctx,
         &self->transforms
     );

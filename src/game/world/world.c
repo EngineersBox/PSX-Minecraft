@@ -5,7 +5,9 @@
 #include <psxgte.h>
 #include <inline_c.h>
 #include <psxgpu.h>
+#include <stdint.h>
 
+#include "../../util/preprocessor.h"
 #include "../../util/interface99_extensions.h"
 #include "../../util/memory.h"
 #include "../../structure/primitive/clip.h"
@@ -18,9 +20,9 @@
 #include "../../logging/logging.h"
 #include "../items/items.h"
 #include "chunk/chunk.h"
-#include "chunk/chunk_defines.h"
 #include "chunk/chunk_mesh.h"
 #include "chunk/chunk_structure.h"
+#include "chunk/chunk_visibility.h"
 #include "chunk/heightmap.h"
 #include "generation/chunk_provider.h"
 #include "position.h"
@@ -32,6 +34,16 @@ const LightUpdateLimits world_chunk_init_limits = (LightUpdateLimits) {
     .remove_block = 0,
     .remove_sky = 0
 };
+
+typedef struct ChunkVisit {
+    VECTOR position;
+    FaceDirection visited_from: FACE_DIRECTION_COUNT_BITS;
+    // Allows us to use the same logic even if the
+    // camera is outside the world height limit.
+    /*bool outside_world: 1;*/
+    u8 _pad: 4;
+} ChunkVisit;
+static cvector(ChunkVisit) render_queue = NULL;
 
 // NOTE: Cast to i32 is necessary here since computing modulo of 0 - 1
 //       is actually computing modulo over 0u32 - 1 == u32::MAX so we end
@@ -98,8 +110,8 @@ void worldInit(World* world, RenderContext* ctx) {
     world->time_ticks = WORLD_TIME_DAWN;
     world->day_count = 0;
     world->celestial_angle = 0;
-    world->centre = vec3_i32_all(0);
-    world->centre_next = vec3_i32_all(0);
+    world->centre = vec3_i32(0);
+    world->centre_next = vec3_i32(0);
     world->head.vx = 0;
     world->head.vz = 0;
     world->weather = (Weather) {
@@ -110,6 +122,7 @@ void worldInit(World* world, RenderContext* ctx) {
         .raining = false,
         .storming = false,
     };
+    cvector_init(render_queue, 0, NULL);
     // FIXME: Seems like the PSn00bSDK/libpsn00b/libc/memset.s
     //        implementation reads uninitialised memory because
     //        of it's use of the swr instruction variant with no
@@ -201,8 +214,8 @@ void worldInit(World* world, RenderContext* ctx) {
             for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
                 DEBUG_LOG("[CHUNK: %d,%d,%d] Processing Light Updates\n", x, 0, z);
            Chunk* chunk = world->chunks[arrayCoord(world, vz, z)]
-                                            [arrayCoord(world, vx, x)]
-                                            [y];
+                                       [arrayCoord(world, vx, x)]
+                                       [y];
                 chunkUpdateLight(chunk, world_chunk_init_limits);
                 displayProgress(ctx, &bar, x, y, z, "Processing Light Updates");
             }
@@ -246,9 +259,12 @@ void worldInit(World* world, RenderContext* ctx) {
 #undef WORLD_LOADING_STAGES_COUNT
 #undef displayProgress
     DEBUG_LOG("[WORLD] Finished loading\n");
+    /*abort();*/
 }
 
 void worldDestroy(World* world) {
+    cvector_free(render_queue);
+    render_queue = NULL;
     const i32 x_start = world->centre.vx - LOADED_CHUNKS_RADIUS;
     const i32 x_end = world->centre.vz + LOADED_CHUNKS_RADIUS;
     const i32 z_start = world->centre.vz - LOADED_CHUNKS_RADIUS;
@@ -349,6 +365,31 @@ render_moon:;
     renderCtxUnbindMatrix();
 }
 
+INLINE bool worldIsOutsideBounds(const World* world, const ChunkBlockPosition* position) {
+    // World is void below 0 on y-axis and nothing above height limit
+    if ((position->chunk.vy <= 0 && position->block.vy < 0)
+        || position->chunk.vy >= WORLD_CHUNKS_HEIGHT) {
+        return true;
+    }
+    const i32 neg_x_limit = world->centre_next.vx - LOADED_CHUNKS_RADIUS;
+    if (position->chunk.vx < neg_x_limit) {
+        return true;
+    }
+    const i32 pos_x_limit = world->centre_next.vx + LOADED_CHUNKS_RADIUS;
+    if (position->chunk.vx > pos_x_limit) {
+        return true;
+    }
+    const i32 neg_z_limit = world->centre_next.vz - LOADED_CHUNKS_RADIUS;
+    if (position->chunk.vz < neg_z_limit) {
+        return true;
+    }
+    const i32 pos_z_limit = world->centre_next.vz + LOADED_CHUNKS_RADIUS;
+    if (position->chunk.vz > pos_z_limit) {
+        return true;
+    }
+    return false;
+}
+
 DEFN_DURATION_COMPONENT(world_render);
 
 void worldRender(const World* world,
@@ -357,17 +398,205 @@ void worldRender(const World* world,
                  Transforms* transforms) {
     durationComponentInitOnce(world_render, "worldRender");
     durationComponentStart(&world_render_duration);
+    const VECTOR player_world_pos = vec3_const_div(
+        vec3_i32(
+            fixedFloor(player->camera->position.vx, ONE_BLOCK),
+            fixedFloor(-player->camera->position.vy, ONE_BLOCK),
+            fixedFloor(player->camera->position.vz, ONE_BLOCK)
+        ),
+        ONE_BLOCK
+    );
+    worldRenderSkybox(world, &player_world_pos, ctx, transforms);
+    const ChunkBlockPosition cb_pos = worldToChunkBlockPosition(
+        &player_world_pos,
+        CHUNK_SIZE
+    );
+    // TODO: Render current chunk and track how much of the screen has been drawn (somehow?)
+    //       if there are still bits that are missing traverse to next chunks in the direction
+    //       the player is facing and render them. Stop drawing if screen is full and/or there
+    //       are no more loaded chunks to traverse to.
+    const VECTOR direction = rotationToDirection(&player->camera->rotation);
+    const FaceDirection player_camera_direction = faceDirectionClosestNormal(direction);
+    cvector_push_back(
+        render_queue,
+        ((ChunkVisit) {
+            .position = cb_pos.chunk,
+            .visited_from = faceDirectionOpposing(player_camera_direction)
+        })
+    );
+    u8 chunk_bitset[AXIS_LOADED_CHUNKS * WORLD_CHUNKS_HEIGHT] = {0};
+    #define markChunk(x, y, z) chunk_bitset[((y) * AXIS_LOADED_CHUNKS) + (z)] |= 1 << (x)
+    #define isChunkMarked(x, y, z) ((chunk_bitset[((y) * AXIS_LOADED_CHUNKS) + (z)] >> (x) & 0b1) == 1)
+    // Only mark chunk if we are within world bounds. Note that 
+    // X and Z coords are always valid based on invariant of
+    // player being placed within world at beginning and loaded
+    // chunks changing with player position.
+    if (player_world_pos.vy > 0 && player_world_pos.vy < WORLD_CHUNKS_HEIGHT) {
+        markChunk(
+            arrayCoord(world, vx, cb_pos.chunk.vx),
+            cb_pos.chunk.vy,
+            arrayCoord(world, vz, cb_pos.chunk.vz)
+        );
+    }
+    while (cvector_size(render_queue) > 0) {
+        const ChunkVisit visit = render_queue[cvector_size(render_queue) - 1];
+        cvector_pop_back(render_queue);
+        DEBUG_LOG(
+            "[WORLD] Visit chunk " VEC_PATTERN " @ " VEC_PATTERN "\n", 
+            VEC_LAYOUT(visit.position),
+            arrayCoord(world, vx, visit.position.vx),
+            visit.position.vy,
+            arrayCoord(world, vz, visit.position.vz)
+        );
+        ChunkBlockPosition chunk_pos = (ChunkBlockPosition) {
+            .chunk = visit.position,
+            .block = vec3_i32(0)
+        };
+        Chunk* chunk = worldGetChunkFromChunkBlock(world, &chunk_pos);
+        // NOTE: If chunk is NULL, then always traverse to next chunks, ignoring
+        //       visibility, since it's always visible.
+        ChunkVisibility visibility;
+        if (chunk == NULL) {
+            visibility = UINT16_MAX;
+        } else {
+            visibility = chunk->visibility;
+            // TODO: Uncomment after all rendering issues resolved
+            // chunkRender(
+            //     chunk,
+            //     vec3_equal(cb_pos.chunk, visit.position),
+            //     ctx,
+            //     transforms
+            // );
+        }
+        DEBUG_LOG("Chunk vis: " INT16_BIN_PATTERN "\n", INT16_BIN_LAYOUT(visibility));
+        for (FaceDirection face_dir = FACE_DIR_DOWN; face_dir <= FACE_DIR_FRONT; face_dir++) {
+            if (face_dir == visit.visited_from
+                || chunkVisibilityGetBit(
+                    visibility,
+                    face_dir,
+                    visit.visited_from
+                ) == 0) {
+                // Cannot exit chunk in this direction from the entered face
+                DEBUG_LOG("[WORLD] Face dir equal or no visibility\n");
+                continue;
+            }
+            const SVECTOR face_normal = FACE_DIRECTION_NORMALS[face_dir];
+            if (dot_i32(vec3_const_mul(face_normal, ONE), direction) <= 0) {
+                // Don't traverse to chunks through faces that go back
+                // towards the camera
+                DEBUG_LOG("[WORLD] Positve dot product\n");
+                continue;
+            }
+            const VECTOR next_chunk = vec3_add(visit.position, face_normal);
+            if (chunk != NULL) {
+                // Transform world position to world chunk array indices
+                const VECTOR mark_pos = vec3_i32(
+                    arrayCoord(world, vx, next_chunk.vx),
+                    next_chunk.vy,
+                    arrayCoord(world, vz, next_chunk.vz)
+                );
+                // DEBUG_LOG("[WORLD] Mark pos: " VEC_PATTERN "\n", VEC_LAYOUT(mark_pos));
+                if (isChunkMarked(mark_pos.vx, mark_pos.vy, mark_pos.vz)) {
+                    // Within the world and already visited, skip it
+                    // DEBUG_LOG("[WORLD] Already visited\n");
+                    continue;
+                }
+                markChunk(mark_pos.vx, mark_pos.vy, mark_pos.vz);
+            }
+            const ChunkBlockPosition next_cb_pos = (ChunkBlockPosition) {
+                .chunk = next_chunk,
+                .block = vec3_i32(0)
+            };
+            // If current position is within world bounds and next
+            // position is out of bounds, ignore the next position
+            // as it will just lead to pointless iterations.
+            if (chunk != NULL && worldIsOutsideBounds(world, &next_cb_pos)) {
+                continue;
+            }
+            // NOTE: cb_pos.chunk is the player chunk
+            if (squareDistance(&cb_pos.chunk, &next_chunk) >= WORLD_RENDER_DISTANCE_SQUARED) {
+                // Max render distance
+                DEBUG_LOG("[WORLD] Exceeded render limit\n");
+                continue;
+            }
+            // const AABB aabb = (AABB) {
+            //     .min = vec3_i32(
+            //         next_chunk.vx * CHUNK_BLOCK_SIZE,
+            //         -next_chunk.vy * CHUNK_BLOCK_SIZE,
+            //         next_chunk.vz * CHUNK_BLOCK_SIZE
+            //     ),
+            //     .max = vec3_i32(
+            //         (next_chunk.vx + 1) * CHUNK_BLOCK_SIZE,
+            //         -(next_chunk.vy + 1) * CHUNK_BLOCK_SIZE,
+            //         (next_chunk.vz + 1) * CHUNK_BLOCK_SIZE
+            //     )
+            // };
+            // // BUG: This culling is busted, need to figure it out
+            // if (frustumContainsAABB(&player->camera->frustum, &aabb) == FRUSTUM_OUTSIDE) {
+            //     continue;
+            // }
+            cvector_push_back(
+                render_queue,
+                ((ChunkVisit) {
+                    .position = next_chunk,
+                    .visited_from = face_dir
+                })
+            );
+        }
+    }
+    const i32 x_start = world->centre.vx - LOADED_CHUNKS_RADIUS;
+    const i32 x_end = world->centre.vx + LOADED_CHUNKS_RADIUS;
+    const i32 z_start = world->centre.vz - LOADED_CHUNKS_RADIUS;
+    const i32 z_end = world->centre.vz + LOADED_CHUNKS_RADIUS;
+    for (i32 x = x_start; x <= x_end; x++) {
+        for (i32 z = z_start; z <= z_end; z++) {
+            for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
+                Chunk* chunk = world->chunks[arrayCoord(world, vz, z)]
+                                            [arrayCoord(world, vx, x)]
+                                            [y];
+                chunkRender(
+                    chunk,
+                    cb_pos.chunk.vx == x
+                        && cb_pos.chunk.vz == z
+                        && cb_pos.chunk.vy == y,
+                    isChunkMarked(
+                        arrayCoord(world, vx, x),
+                        y,
+                        arrayCoord(world, vz, z)
+                    ),
+                    ctx,
+                    transforms
+                );
+            }
+        }
+    }
+    #undef markChunk
+    #undef isChunkMarked
+    durationComponentEnd();
+    durationTreeRender(
+        durationComponentCurrentAtIndex(world_render_duration.index),
+        ctx,
+        transforms
+    );
+    // pcsx_debugbreak();
+}
+
+void worldRenderOld(const World* world,
+                    const Player* player,
+                    RenderContext* ctx,
+                    Transforms* transforms) {
+    durationComponentInitOnce(world_render, "worldRender");
+    durationComponentStart(&world_render_duration);
     const VECTOR player_world_pos = vec3_i32(
         fixedFloor(player->entity.physics_object.position.vx, ONE_BLOCK) / ONE_BLOCK,
         fixedFloor(player->entity.physics_object.position.vy, ONE_BLOCK) / ONE_BLOCK,
         fixedFloor(player->entity.physics_object.position.vz, ONE_BLOCK) / ONE_BLOCK
     );
     worldRenderSkybox(world, &player_world_pos, ctx, transforms);
-    const VECTOR player_chunk_pos = worldToChunkBlockPosition(
+    const ChunkBlockPosition cb_pos = worldToChunkBlockPosition(
         &player_world_pos,
         CHUNK_SIZE
-    ).chunk;
-    // PERF: Revamp with BFS for visible chunks occlusion (use frustum culling too?)
+    );
     const i32 x_start = world->centre.vx - LOADED_CHUNKS_RADIUS;
     const i32 x_end = world->centre.vx + LOADED_CHUNKS_RADIUS;
     const i32 z_start = world->centre.vz - LOADED_CHUNKS_RADIUS;
@@ -384,9 +613,10 @@ void worldRender(const World* world,
                                  [y];
                 chunkRender(
                     chunk,
-                    player_chunk_pos.vx == x
-                        && player_chunk_pos.vz == z
-                        && player_chunk_pos.vy == y,
+                    cb_pos.chunk.vx == x
+                        && cb_pos.chunk.vz == z
+                        && cb_pos.chunk.vy == y,
+                    false,
                     ctx,
                     transforms
                 );
@@ -654,7 +884,11 @@ fixedi32 calculateCelestialAngle(u16 time_ticks) {
     }
     fixedi32 cached_scaled = scaled;
     scaled = ONE - ((cos5o(fixedMul(scaled, FIXED_PI)) + ONE) >> 1);
-    scaled = cached_scaled + ((scaled - cached_scaled) / 3);
+    // NOTE:: Using (ONE * 1/3) = 1365.3... approximation
+    //       to do (scaled - cached_scaled) * 1365 instead
+    //       of div by 3. Accuracy isn't that important here
+    // scaled = cached_scaled + ((scaled - cached_scaled) / 3);
+    scaled = cached_scaled + fixedMul((scaled - cached_scaled), 1365);
     return scaled;
 }
 
@@ -678,7 +912,7 @@ void worldUpdateInternalLightLevel(World* world, RenderContext* ctx) {
         createLightLevel(0, 15)
     );
     const u8 colour = fixedMul(0x7F, light_level_colour_scalar);
-    const CVECTOR ambient_colour = vec3_rgb_all(colour);
+    const CVECTOR ambient_colour = vec3_rgb(colour);
     // TODO: Tint the colour 
     gte_SetBackColor(
         ambient_colour.r,
@@ -798,10 +1032,13 @@ void worldUpdate(World* world,
     worldUpdateWeather(&world->weather);
     worldUpdateInternalLightLevel(world, ctx);
     world->time_ticks = positiveModulo(world->time_ticks + 1, WORLD_TIME_CYCLE);
-    const VECTOR player_world_pos = vec3_i32(
-        fixedFloor(player->entity.physics_object.position.vx, ONE_BLOCK) / ONE_BLOCK,
-        fixedFloor(player->entity.physics_object.position.vy, ONE_BLOCK) / ONE_BLOCK,
-        fixedFloor(player->entity.physics_object.position.vz, ONE_BLOCK) / ONE_BLOCK
+    const VECTOR player_world_pos = vec3_const_div(
+        vec3_i32(
+            fixedFloor(player->entity.physics_object.position.vx, ONE_BLOCK),
+            fixedFloor(-player->entity.physics_object.position.vy, ONE_BLOCK),
+            fixedFloor(player->entity.physics_object.position.vz, ONE_BLOCK)
+        ),
+        ONE_BLOCK
     );
     const ChunkBlockPosition player_pos = worldToChunkBlockPosition(
         &player_world_pos,
@@ -877,25 +1114,7 @@ void worldUpdate(World* world,
 }
 
 INLINE Chunk* worldGetChunkFromChunkBlock(const World* world, const ChunkBlockPosition* position) {
-    // World is void below 0 on y-axis and nothing above height limit
-    if ((position->chunk.vy <= 0 && position->block.vy < 0)
-        || position->chunk.vy >= WORLD_CHUNKS_HEIGHT) {
-        return NULL;
-    }
-    const i32 neg_x_limit = world->centre_next.vx - LOADED_CHUNKS_RADIUS;
-    if (position->chunk.vx < neg_x_limit) {
-        return NULL;
-    }
-    const i32 pos_x_limit = world->centre_next.vx + LOADED_CHUNKS_RADIUS;
-    if (position->chunk.vx > pos_x_limit) {
-        return NULL;
-    }
-    const i32 neg_z_limit = world->centre_next.vz - LOADED_CHUNKS_RADIUS;
-    if (position->chunk.vz < neg_z_limit) {
-        return NULL;
-    }
-    const i32 pos_z_limit = world->centre_next.vz + LOADED_CHUNKS_RADIUS;
-    if (position->chunk.vz > pos_z_limit) {
+    if (worldIsOutsideBounds(world, position)) {
         return NULL;
     }
     return world->chunks[arrayCoord(world, vz, position->chunk.vz)]
@@ -905,7 +1124,7 @@ INLINE Chunk* worldGetChunkFromChunkBlock(const World* world, const ChunkBlockPo
 
 INLINE Chunk* worldGetChunk(const World* world, const VECTOR* position) {
     // World is void below 0 and above world-height on y-axis
-    if (position->vy < 0 || position->vy >= WORLD_HEIGHT) {
+    if (position->vy < 0 || position->vy >= WORLD_CHUNKS_HEIGHT) {
         return NULL;
     }
     const ChunkBlockPosition chunk_block_position = worldToChunkBlockPosition(position, CHUNK_SIZE);
@@ -1222,7 +1441,7 @@ void worldDropItemStack(World* world,
         item = VCAST_PTR(Item*, droppable_iitem);
         item->stack_size = count;
     }
-    // Force transition
+    // Ensure that item uses correct world rendering attributes
     item->in_world = false;
     itemSetWorldState(item, true);
     VECTOR velocity = vec3_i32(
@@ -1235,7 +1454,7 @@ void worldDropItemStack(World* world,
         velocity,
         4096
     );
-    item->world_entity->physics_object.velocity = vec3_i32_all(0);
+    item->world_entity->physics_object.velocity = vec3_i32(0);
     // TODO: Add a timestamp marker into the item fields
     //       as the minimum time that it should be considered
     //       when testing for items to pick up around the
@@ -1245,5 +1464,11 @@ void worldDropItemStack(World* world,
         velocity
     );
     VCALL_SUPER(*droppable_iitem, Renderable, applyWorldRenderAttributes);
-    cvector_push_back(chunk->dropped_items, droppable_iitem);
+    cvector_push_back(
+        chunk->dropped_items,
+        ((DroppedIItem) {
+            .iitem = droppable_iitem,
+            .lifetime = ITEM_DROPPED_LIFETIME_MS
+        })
+    );
 }

@@ -21,11 +21,11 @@ void uiRender(const UI* ui, RenderContext* ctx, Transforms* transforms) {
 }
 
 IUIComponent* uiAddComponent(UI* ui) {
-    cvector_push_back(ui->components, (IUIComponent) {});
+    cvector_push_back(ui->components, (IUIComponent) {0});
     return &ui->components[cvector_size(ui->components) - 1];
 }
 
 void iuiComponentUpdate(VSelf) ALIAS("IUIComponent_update");
-void IUIComponent_update(VSelf) {
+void IUIComponent_update(UNUSED VSelf) {
     // Do nothing
 }

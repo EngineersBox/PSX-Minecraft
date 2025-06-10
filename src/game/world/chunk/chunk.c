@@ -88,18 +88,22 @@ static u64 lightRemoveNodeDataHash(const void* item, u64 seed0, u64 seed1) {
     );
 }
 
-static int lightAddNodeCompare(const void* a, const void* b, void* ignored) {
+static int lightAddNodeCompare(const void* a,
+                               const void* b,
+                               UNUSED void* ignored) {
     const LightAddNode* node_a = a;
-    const LightAddNode* node_b = a;
+    const LightAddNode* node_b = b;
     // Negation here since this compare function is like the
     // cmp(..) function in the standard library, where a return
     // value of 0 implies equivalence.
     return !vec3_equal(node_a->position, node_b->position);
 }
 
-static int lightRemoveNodeCompare(const void* a, const void* b, void* ignored) {
+static int lightRemoveNodeCompare(const void* a,
+                                  const void* b,
+                                  UNUSED void* ignored) {
     const LightRemoveNode* node_a = a;
-    const LightRemoveNode* node_b = a;
+    const LightRemoveNode* node_b = b;
     // Negation here since this compare function is like the
     // cmp(..) function in the standard library, where a return
     // value of 0 implies equivalence.
@@ -313,12 +317,9 @@ void chunkPropagateLightmap(Chunk* chunk, ChunkGenerationContext* gen_ctx) {
 #undef getSunlight
 
 static void chunkRenderDroppedItems(const Chunk* chunk, RenderContext* ctx, Transforms* transforms) {
-    IItem** item;
-    cvector_for_each_in(item, chunk->dropped_items) {
-        if (*item == NULL) {
-            continue;
-        }
-        VCALL_SUPER(**item, Renderable, renderWorld, chunk, ctx, transforms);
+    DroppedIItem* dropped;
+    cvector_for_each_in(dropped, chunk->dropped_items) {
+        VCALL_SUPER(*dropped->iitem, Renderable, renderWorld, chunk, ctx, transforms);
     }
 }
 
@@ -332,6 +333,7 @@ static DurationComponentIndex chunk_render_duration[AXIS_CHUNKS][AXIS_CHUNKS][WO
 
 void chunkRender(Chunk* chunk,
                  bool subdivide,
+                 bool should_render,
                  RenderContext* ctx,
                  Transforms* transforms) {
 #if isDebugTagEnabled(OVERLAY_DURATION_TREE)
@@ -386,6 +388,7 @@ void chunkRender(Chunk* chunk,
         worldGetInternalLightLevel(chunk->world),
         &aabb,
         subdivide,
+        should_render,
         ctx,
         transforms
     );
@@ -394,21 +397,13 @@ void chunkRender(Chunk* chunk,
     durationComponentEnd();
 }
 
-#define checkIndexOOB(x, y, z) ((x) >= CHUNK_SIZE || (x) < 0 \
-	|| (y) >= CHUNK_SIZE || (y) < 0 \
-	|| (z) >= CHUNK_SIZE || (z) < 0)
-
-#define checkIndexInBounds(x, y, z) ((x) < CHUNK_SIZE && (x) >= 0 \
-	&& (y) < CHUNK_SIZE && (y) >= 0 \
-	&& (z) < CHUNK_SIZE && (z) >= 0)
-
 IBlock* chunkGetBlock(const Chunk* chunk, const i32 x, const i32 y, const i32 z) {
-    assert(checkIndexInBounds(x, y, z));
+    assert(chunkBlockIndexInBounds(x, y, z));
     return chunk->blocks[chunkBlockIndex(x, y, z)];
 }
 
 IBlock* chunkGetBlockVec(const Chunk* chunk, const VECTOR* position) {
-    assert(checkIndexInBounds(position->vx, position->vy, position->vz));
+    assert(chunkBlockIndexInBounds(position->vx, position->vy, position->vz));
     return chunk->blocks[chunkBlockIndex(
         position->vx,
         position->vy,
@@ -453,7 +448,7 @@ static LightLevel inferSunlightValueFromNeighbours(const Chunk* chunk,
                                                    const VECTOR* position) {
     ChunkBlockPosition cb_pos = (ChunkBlockPosition) {
         .chunk = chunk->position,
-        .block = vec3_i32_all(0)
+        .block = vec3_i32(0)
     };
     LightLevel current_max = 0;
     #pragma GCC unroll 6
@@ -506,7 +501,7 @@ static int modifyVoxel0(Chunk* chunk,
     const i32 x = position->vx;
     const i32 y = position->vy;
     const i32 z = position->vz;
-    if (checkIndexOOB(x, y, z)) {
+    if (chunkBlockIndexOOB(x, y, z)) {
         return 2;
     }
     const IBlock* old_iblock = chunk->blocks[chunkBlockIndex(x, y, z)];
@@ -548,7 +543,10 @@ static int modifyVoxel0(Chunk* chunk,
     if (iitem != NULL && iitem->self != NULL) {
         cvector_push_back(
             chunk->dropped_items,
-            iitem
+            ((DroppedIItem) {
+                .iitem = iitem,
+                .lifetime = time_ms + ITEM_DROPPED_LIFETIME_MS
+            })
         );
         Item* item = VCAST(Item*, *iitem);
         applyItemWorldState(chunk, item, position);
@@ -674,7 +672,7 @@ bool itemPickupValidator(const Item* item, void* ctx) {
 }
 
 void updateItemChunkOwnership(const Chunk* chunk,
-                              IItem* iitem,
+                              DroppedIItem* dropped,
                               const u32 index) {
     // NOTE: This could be callback invoked from the PhysicsObject
     //       when there is movement as opposed to an explicit check
@@ -688,7 +686,7 @@ void updateItemChunkOwnership(const Chunk* chunk,
     //       to determine if the item has moved on each update cycle
     //       (as a precondition for checking the chunk ownership) which
     //       is substantially cheaper.
-    const Item* item = VCAST_PTR(Item*, iitem);
+    const Item* item = VCAST_PTR(Item*, dropped->iitem);
     if (!vec3_equal(item->world_entity->physics_object.velocity, VEC3_I32_ZERO)) {
         // No velocity implies no movement, so we can't have changed
         // chunks since we last checked
@@ -709,7 +707,7 @@ void updateItemChunkOwnership(const Chunk* chunk,
     // Has moved to different chunk
     cvector_erase(chunk->dropped_items, index);
     Chunk* new_chunk = worldGetChunkFromChunkBlock(chunk->world, &cb_pos);
-    cvector_push_back(new_chunk->dropped_items, iitem);
+    cvector_push_back(new_chunk->dropped_items, *dropped);
 }
 
 void chunkUpdate(Chunk* chunk, const Player* player, BreakingState* breaking_state) {
@@ -729,12 +727,17 @@ void chunkUpdate(Chunk* chunk, const Player* player, BreakingState* breaking_sta
     //       the cvector will not run into issues with compiler
     //       optimisations around reads in loop conditions.
     for (u32 i = 0; i < cvector_size(chunk->dropped_items);) {
-        IItem* iitem = chunk->dropped_items[i];
-        if (iitem == NULL) {
+        DroppedIItem* dropped = &chunk->dropped_items[i];
+        if (dropped->iitem == NULL) {
             i++;
             continue;
+        } else if (time_ms - dropped->lifetime >= ITEM_DROPPED_LIFETIME_MS) {
+            VCALL(*dropped->iitem, destroy);
+            itemDestroy(dropped->iitem);
+            cvector_erase(chunk->dropped_items, i);
+            continue;
         }
-        Item* item = VCAST(Item*, *iitem);
+        Item* item = VCAST(Item*, *dropped->iitem);
         if (itemUpdate(
             item,
             chunk->world,
@@ -742,7 +745,7 @@ void chunkUpdate(Chunk* chunk, const Player* player, BreakingState* breaking_sta
             inventory,
             itemPickupValidator
         )) {
-            const InventoryStoreResult result = inventoryStoreItem(inventory, iitem);
+            const InventoryStoreResult result = inventoryStoreItem(inventory, dropped->iitem);
             switch (result) {
                 case INVENTORY_STORE_RESULT_ADDED_SOME:
                     // Do nothing, already updated iitem that was picked up as dropped.
@@ -756,8 +759,8 @@ void chunkUpdate(Chunk* chunk, const Player* player, BreakingState* breaking_sta
                     // Nuke it, added all so this item instance is not needed any more.
                     // Break is not used here since we still need to erase this array
                     // entry.
-                    VCALL(*iitem, destroy);
-                    itemDestroy(iitem);
+                    VCALL(*dropped->iitem, destroy);
+                    itemDestroy(dropped->iitem);
                     FALLTHROUGH;
                 case INVENTORY_STORE_RESULT_ADDED_NEW_SLOT:
                     // We reuse this item instance as the inventory instance now so don't
@@ -768,7 +771,7 @@ void chunkUpdate(Chunk* chunk, const Player* player, BreakingState* breaking_sta
                     break;
             }
         }
-        updateItemChunkOwnership(chunk, iitem, i);
+        updateItemChunkOwnership(chunk, dropped, i);
         i++;
     }
     chunkUpdateLight(chunk, chunk_light_update_limits);
@@ -799,14 +802,14 @@ void chunkUpdate(Chunk* chunk, const Player* player, BreakingState* breaking_sta
 
 LightLevel chunkGetLightValue(const Chunk* chunk,
                               const VECTOR* position) {
-    assert(checkIndexInBounds(position->vx, position->vy, position->vz));
+    assert(chunkBlockIndexInBounds(position->vx, position->vy, position->vz));
     return lightMapGetValue(chunk->lightmap, *position);
 }
 
 LightLevel chunkGetLightType(const Chunk* chunk,
                              const VECTOR* position,
                              const LightType light_type) {
-    assert(checkIndexInBounds(position->vx, position->vy, position->vz));
+    assert(chunkBlockIndexInBounds(position->vx, position->vy, position->vz));
     return lightMapGetType(chunk->lightmap, *position, light_type);
 }
 
@@ -814,7 +817,7 @@ void chunkSetLightValue(Chunk* chunk,
                         const VECTOR* position,
                         const LightLevel light_value,
                         const LightType light_type) {
-    assert(checkIndexInBounds(position->vx, position->vy, position->vz));
+    assert(chunkBlockIndexInBounds(position->vx, position->vy, position->vz));
     lightMapSetValue(
         chunk->lightmap,
         *position,
@@ -849,7 +852,7 @@ void chunkSetLightValue(Chunk* chunk,
 void chunkRemoveLightValue(Chunk* chunk,
                            const VECTOR* position,
                            const LightType light_type) {
-    assert(checkIndexInBounds(position->vx, position->vy, position->vz));
+    assert(chunkBlockIndexInBounds(position->vx, position->vy, position->vz));
     const LightLevel light_value = lightMapGetType(
         chunk->lightmap,
         *position,

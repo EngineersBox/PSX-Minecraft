@@ -65,7 +65,7 @@ IBlock* chunkModifyVoxelConstructed(Chunk* chunk,
                                     bool drop_item,
                                     IItem** item_result);
 
-void chunkRender(Chunk* chunk, bool subdivide, RenderContext* ctx, Transforms* transforms);
+void chunkRender(Chunk* chunk, bool subdivide, bool should_render, RenderContext* ctx, Transforms* transforms);
 
 IBlock* chunkGetBlock(const Chunk* chunk, i32 x, i32 y, i32 z);
 IBlock* chunkGetBlockVec(const Chunk* chunk, const VECTOR* position);

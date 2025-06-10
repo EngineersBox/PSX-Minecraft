@@ -55,12 +55,14 @@ void chunkMeshClear(ChunkMesh* mesh);
 void chunkMeshRenderFaceDirection(const Mesh* mesh,
                                   const LightLevel internal_light_level,
                                   bool subdivide,
+                                  bool should_render,
                                   RenderContext* ctx,
                                   Transforms* transforms);
 void chunkMeshRender(const ChunkMesh* mesh,
                      const LightLevel internal_light_level,
                      const AABB* chunk_aabb,
                      bool subdivide,
+                     bool should_render,
                      RenderContext* ctx,
                      Transforms* transforms);
 

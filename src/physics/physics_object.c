@@ -24,7 +24,7 @@ void iPhysicsObjectInit(PhysicsObject* physics_object,
     }
     physics_object->rotation.pitch = 0;
     physics_object->rotation.yaw = 0;
-    physics_object->velocity = vec3_i32_all(0);
+    physics_object->velocity = vec3_i32(0);
     physics_object->move.forward = 0;
     physics_object->move.strafe = 0;
     physics_object->fall_distance = 0;
@@ -38,7 +38,7 @@ void iPhysicsObjectInit(PhysicsObject* physics_object,
 }
 
 void iPhysicsObjectSetPosition(PhysicsObject* physics_object, const VECTOR* position) {
-    physics_object->position = position == NULL ? vec3_i32_all(0) : *position;
+    physics_object->position = position == NULL ? vec3_i32(0) : *position;
     physics_object->aabb = (AABB) {
         .min = vec3_i32(
             physics_object->position.vx - physics_object->config->radius,
@@ -332,6 +332,6 @@ void IPhysicsObject_moveFlying(VSelf, i32 move_strafe, i32 move_forward, const i
 }
 
 void iPhysicsObjectFall(VSelf, i32 distance) ALIAS("IPhysicsObject_fall");
-void IPhysicsObject_fall(VSelf, i32 distance) {
+void IPhysicsObject_fall(UNUSED VSelf, UNUSED i32 distance) {
     // Do nothing by default
 }

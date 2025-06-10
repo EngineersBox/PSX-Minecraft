@@ -4,14 +4,11 @@
 #include "../../../core/std/stdlib.h"
 #include <psxgpu.h>
 
-#include "../../../util/preprocessor.h"
 #include "../../../structure/cvector.h"
 #include "../../../structure/cvector_utils.h"
 #include "../../../structure/primitive/clip.h"
 #include "../../../logging/logging.h"
-#include "../../../render/commands.h"
 #include "../../blocks/block.h"
-#include "chunk_structure.h"
 
 #ifndef QUAD_DUAL_TRI_NCLIP
 #define QUAD_DUAL_TRI_NCLIP 0
@@ -61,12 +58,16 @@ void chunkMeshClear(ChunkMesh* mesh) {
     }
 }
 
-static void renderLine(MeshPrimitive* primitive, RenderContext* ctx, Transforms* transforms) {
-    // TODO
+static void renderLine(UNUSED MeshPrimitive* primitive,
+                       UNUSED RenderContext* ctx,
+                       UNUSED Transforms* transforms) {
+    UNIMPLEMENTED();
 }
 
-static void renderTriangle(MeshPrimitive* primitive, RenderContext* ctx, Transforms* transforms) {
-    // TODO
+static void renderTriangle(UNUSED MeshPrimitive* primitive,
+                           UNUSED RenderContext* ctx,
+                           UNUSED Transforms* transforms) {
+    UNIMPLEMENTED();
 }
 
 const RECT lightmap_merge_offscreen = (RECT) {
@@ -79,9 +80,10 @@ const RECT lightmap_merge_offscreen = (RECT) {
 static void renderQuad(const Mesh* mesh,
                        const LightLevel internal_light_level,
                        const MeshPrimitive* primitive,
-                       bool subdivide,
+                       UNUSED bool subdivide,
+                       bool should_render,
                        RenderContext* ctx,
-                       Transforms* transforms) {
+                       UNUSED Transforms* transforms) {
     // TODO: Generalise for textured and non-textured
     int p;
     // int dp;
@@ -149,11 +151,14 @@ static void renderQuad(const Mesh* mesh,
         internal_light_level,
         primitive->light_level
     );
+    const CVECTOR colour = should_render
+        ? vec3_rgb(primitive->r, primitive->g, primitive->b)
+        : vec3_rgb(0xf0, 0x0, 0x0);
     setRGB0(
         pol4,
-        fixedMul(primitive->r, light_level_colour_scalar),
-        fixedMul(primitive->g, light_level_colour_scalar),
-        fixedMul(primitive->b, light_level_colour_scalar)
+        fixedMul(colour.r, light_level_colour_scalar),
+        fixedMul(colour.g, light_level_colour_scalar),
+        fixedMul(colour.b, light_level_colour_scalar)
     );
     // Load primitive color even though gte_ncs() doesn't use it.
     // This is so the GTE will output a color result with the
@@ -193,9 +198,10 @@ static void renderQuad(const Mesh* mesh,
 void chunkMeshRenderFaceDirection(const Mesh* mesh,
                                   const LightLevel internal_light_level,
                                   bool subdivide,
+                                  bool should_render,
                                   RenderContext* ctx,
                                   Transforms* transforms) {
-    MeshPrimitive* p_prims = (MeshPrimitive*) mesh->p_prims;
+    cvector(MeshPrimitive) p_prims = mesh->p_prims;
     cvector_iterator(MeshPrimitive) primitive;
     cvector_for_each_in(primitive, p_prims) {
         switch (primitive->type) {
@@ -211,8 +217,10 @@ void chunkMeshRenderFaceDirection(const Mesh* mesh,
                     internal_light_level,
                     primitive,
                     subdivide,
+                    should_render,
                     ctx,
-                    transforms);
+                    transforms
+                );
                 break;
             default:
                 errorAbort(
@@ -229,11 +237,11 @@ void chunkMeshRenderFaceDirection(const Mesh* mesh,
 #define POS_DECREASED 2
 
 static bool faceDirectionHidden(FaceDirection face_dir,
-                                const VECTOR* aabb_closest_vertex,
+                                UNUSED const VECTOR* aabb_closest_vertex,
                                 u8 pos_state_x,
                                 u8 pos_state_y,
                                 u8 pos_state_z,
-                                RenderContext* ctx) {
+                                UNUSED RenderContext* ctx) {
     /*const SVECTOR* normal = &FACE_DIRECTION_NORMALS[face_dir];*/
     switch (face_dir) {
         case FACE_DIR_DOWN:
@@ -256,6 +264,7 @@ void chunkMeshRender(const ChunkMesh* mesh,
                      const LightLevel internal_light_level,
                      const AABB* chunk_aabb,
                      bool subdivide,
+                     bool should_render,
                      RenderContext* ctx,
                      Transforms* transforms) {
     const VECTOR position = vec3_const_div(ctx->camera->position, ONE);
@@ -300,6 +309,7 @@ void chunkMeshRender(const ChunkMesh* mesh,
             &mesh->face_meshes[i],
             internal_light_level,
             subdivide,
+            should_render,
             ctx,
             transforms
         );

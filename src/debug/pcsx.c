@@ -12,8 +12,20 @@ void pcsx_debugbreak() { *((volatile char* const)0x1f802081) = 0; }
 void pcsx_execSlot(uint8_t slot) { *((volatile uint8_t* const)0x1f802081) = slot; }
 // Exit emulator and forward code as exit code.
 void pcsx_exit(int code) { *((volatile int16_t* const)0x1f802082) = code; }
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wincompatible-pointer-types-discards-qualifiers"
+#elif defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdiscarded-qualifiers"
+#endif
 // Create a UI dialog displaying msg
 void pcsx_message(const char* msg) { *((volatile char** const)0x1f802084) = msg; }
+#ifdef __clang__
+#pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
 #endif
 
 // ==== KERNEL CHECKING ====

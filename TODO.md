@@ -38,6 +38,8 @@
 * [X] Output slot item is not rendered in crafting table
 * [X] Once we close an inventory and release the input handler, it is possible to open the player inventory immediately after if we don't press fast enough. As such we should debounce when we release a handler before allowing a new handler to be aquired.
 * [X] Opening a block inventory with a block in hand will place the block and open the inventory at the same time
+* [X] SDK builds are failing due to compress defines not being set correctly. Possibly some weird CMake issue with defining `PSN00BSDK=1`. (See: <https://github.com/Lameguy64/PSn00bSDK/issues/95>).
+* [X] In world rendering, if current position is within world bounds and next position is out of bounds, ignore the next position as it will just lead to pointless iterations.
 * [ ] Cull faces on chunk edges that face outward on the render limit
 * [ ] Mesh vertices z-depth is inconsistent leading to faces drawn in wrong order and thus culling fails
 * [ ] Vertices are distorted (in their location) when very close to the camera
@@ -45,6 +47,7 @@
 * [ ] Lighting on dropped items is pure black sometimes despite being in light (possibly bad world position when retrieving light value). The physics object position for items isn't properly aligned to the bounding box since the position (which should be the centre of the AABB) isn't aligned properly and thus when converting to world position and querying the light level, it can query the next block over (in the direction that the item moved when it was dropped) and thus can get a light level of 0 and the item is rendered as black in the world.
 * [ ] Weather texture does not scroll correctly, some planes are static and only in some places does it work correctly. Potentially an issue with texture windowing and UV positions.
 * [ ] Out-of-bounds read occurs when loading chunks (i.e. moving to last block in loaded chunks boundary)
+* [ ] The DFS chunk scan continuously considers the same block, then searches for a next unset position after loop ends and then repeats. Seems like we are not marking blocks as visited in the bitmap correctly somewhere.
 
 ## Implement
 
@@ -99,6 +102,7 @@
 * [X] Hotbar attributes (health, armour and air) with damaged animation
 * [X] D-pad or analogue stick controlled cursor in UIs with item movement between slots being held by cursor
 * [X] Only process/search for a crafting recipe when the grid or output slot changes to avoid redundant re-processing and searches
+* [X] Items despawn after 5 minutes
 * [ ] Culling of direction sub-meshes in chunk meshes to avoid any clipping tests in that direction
 * [ ] Camera far plane cutoff with fog relative to chunk render distance
 * [ ] Frustum and culling

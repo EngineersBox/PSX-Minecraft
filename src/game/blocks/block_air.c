@@ -19,12 +19,12 @@ void AirBlock_init(VSelf) {
 }
 
 IItem* airBlockDestroy(VSelf, bool drop_item) ALIAS("AirBlock_destroy");
-IItem* AirBlock_destroy(VSelf, const bool drop_item) {
+IItem* AirBlock_destroy(VSelf, UNUSED const bool drop_item) {
     VSELF(AirBlock);
     return airBlockProvideItem(self);
 }
 
 IItem* airBlockProvideItem(VSelf) ALIAS("AirBlock_provideItem");
-IItem* AirBlock_provideItem(VSelf) {
+IItem* AirBlock_provideItem(UNUSED VSelf) {
     return NULL;
 }

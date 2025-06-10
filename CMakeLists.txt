@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.21)
-set(CMAKE_POLICY_VERSION_MINIMUM 3.10)
+set(CMAKE_POLICY_VERSION_MINIMUM 3.21)
 
 project(
 	PSX-Minecraft
@@ -13,7 +13,8 @@ set(COMPILE_OPTIMISATION_LEVEL 0)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -fshort-enums -Wno-unused-parameter -Wno-comments -Wno-expansion-to-defined")
+set(CMAKE_C_STANDARD 23)
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -fshort-enums -Wno-expansion-to-defined")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O${COMPILE_OPTIMISATION_LEVEL} -g")
 # set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fanalyzer")
 set(CMAKE_C_INCLUDE_WHAT_YOU_USE "include-what-you-use;-w;-Xiwyu;--verbose=7")
@@ -51,11 +52,11 @@ include(FetchContent)
 
 FetchContent_Declare(
 		metalang99
-		URL https://github.com/Hirrolot/metalang99/archive/refs/tags/v1.13.3.tar.gz
+		URL https://github.com/Hirrolot/metalang99/archive/refs/tags/v1.13.5.tar.gz
 )
 FetchContent_Declare(
 		interface99
-		URL https://github.com/Hirrolot/interface99/archive/refs/tags/v1.0.1.tar.gz
+		URL https://github.com/Hirrolot/interface99/archive/refs/tags/v1.0.2.tar.gz
 )
 
 FetchContent_MakeAvailable(metalang99)
