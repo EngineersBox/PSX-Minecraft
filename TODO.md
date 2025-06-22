@@ -163,3 +163,4 @@
 * [X] Infer opacity bitset from `orientation` and `block_type` fields on block struct
 * [ ] Support other resolutions that aren't 320x240
 * [ ] Refactor the `chunkRemoveLightType` call into the `chunkSetLightType` when the light value is `0` and update the necessary logic changes to accomodate this (seems to cause infinite lighting update loops if this is done at the moment)
+* [ ] Instead of just filling in a single direction (line) which can cause blocks to be missed in certain configs (i.e. perpendicular direction was already traversed, stopping the current traversal early and leaving blocks behind the intersection untouched), we can just flood fill the solid part and move on. This ends up being more efficient anyway

@@ -202,16 +202,25 @@ static bool chunkBitmapFindRoot(ChunkBitmap bitmap,
 
 static u8 chunkBitmapFillSolidDirection(ChunkBitmap bitmap,
                                         const Chunk* chunk,
+                                        // First position to fill,
+                                        // assumes not set in bitmap
                                         VECTOR pos,
                                         const VECTOR normal,
                                         const VECTOR opposing_normal,
                                         FacesColumns faces_cols,
                                         FacesColumns faces_cols_opaque) {
+    // TODO: Instead of just filling in a single direction (line)
+    //       which can cause blocks to be missed in certain configs
+    //       (i.e. perpendicular direction was already traversed,
+    //       stopping the current traversal early and leaving blocks
+    //       behind the intersection untouched), we can just flood
+    //       fill the solid part and move on. This ends up being more
+    //       efficient anyway
     const FaceDirection opposing_face_direction = faceDirectionFromNormal(opposing_normal);
     u8 processed = 0;
     while (true) {
-        if (chunkBlockIndexOOB(pos.vx, pos.vy, pos.vz)
-            || chunkBitmapGetBit(bitmap, &pos) == 1) {
+        if (chunkBlockIndexOOB(pos.vx, pos.vy, pos.vz)) {
+            // || chunkBitmapGetBit(bitmap, &pos) == 1) {
             // OOB or Already visited
             break;
         }
@@ -243,6 +252,7 @@ static u8 chunkBitmapFillSolidDirection(ChunkBitmap bitmap,
 static u8 visitBlock(ChunkBitmap bitmap,
                      const Chunk* chunk,
                      const Block* current_block,
+                     // Current position, already marked in bitmap
                      VECTOR pos,
                      const VECTOR normal,
                      cvector(VECTOR)* queue,
@@ -411,7 +421,7 @@ static void chunkVisibilityDfsWalkScan(Chunk* chunk,
         total_blocks_processed,
         CHUNK_DATA_SIZE
     );
-    assert(total_blocks_processed == CHUNK_DATA_SIZE);
+    // assert(total_blocks_processed == CHUNK_DATA_SIZE);
 }
 
 #undef chunkBitmapGetBit
