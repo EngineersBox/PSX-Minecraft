@@ -219,8 +219,8 @@ static u8 chunkBitmapFillSolidDirection(ChunkBitmap bitmap,
     const FaceDirection opposing_face_direction = faceDirectionFromNormal(opposing_normal);
     u8 processed = 0;
     while (true) {
-        if (chunkBlockIndexOOB(pos.vx, pos.vy, pos.vz)) {
-            // || chunkBitmapGetBit(bitmap, &pos) == 1) {
+        if (chunkBlockIndexOOB(pos.vx, pos.vy, pos.vz)
+            || chunkBitmapGetBit(bitmap, &pos) == 1) {
             // OOB or Already visited
             break;
         }
@@ -245,6 +245,64 @@ static u8 chunkBitmapFillSolidDirection(ChunkBitmap bitmap,
         }
         // Not solid
         break;
+    }
+    return processed;
+}
+
+static u8 chunkBitmapFillSolid(ChunkBitmap bitmap,
+                               const Chunk* chunk,
+                               VECTOR starting_pos,
+                               FacesColumns faces_cols,
+                               FacesColumns faces_cols_opaque) {
+    cvector(VECTOR) queue = NULL;
+    cvector_init(queue, 0, NULL);
+    cvector_push_back(queue, starting_pos);
+    chunkBitmapSetBit(bitmap, &starting_pos);
+    u8 processed = 0;
+    while (cvector_size(queue) > 0) {
+        const VECTOR pos = queue[cvector_size(queue) - 1];
+        cvector_pop_back(queue);
+        processed++;
+        const IBlock* iblock = chunkGetBlockVec(chunk, &pos);
+        // Update masks for BGM
+        addVoxelToFaceColumns(
+            faces_cols,
+            faces_cols_opaque,
+            iblock,
+            pos.vx + 1,
+            pos.vy + 1,
+            pos.vz + 1
+        );
+        const Block* block = VCAST_PTR(Block*, iblock);
+        for (FaceDirection face_direction = FACE_DIR_DOWN; face_direction <= FACE_DIR_FRONT; face_direction++) {
+            const VECTOR normal = vec3_i32(
+                FACE_DIRECTION_NORMALS[face_direction].vx,
+                FACE_DIRECTION_NORMALS[face_direction].vy,
+                FACE_DIRECTION_NORMALS[face_direction].vz
+            );
+            const VECTOR next_pos = vec3_add(pos, normal);
+            if (chunkBlockIndexOOB(next_pos.vx, next_pos.vy, next_pos.vz)
+                || chunkBitmapGetBit(bitmap, &next_pos) == 1) {
+                // OOB or Already visited
+                continue;
+            }
+            const Block* opposing_block = VCAST_PTR(Block*, chunkGetBlockVec(chunk, &next_pos));
+            const VECTOR opposing_normal = vec3_i32(
+                -normal.vx,
+                -normal.vy,
+                -normal.vz
+            );
+            const FaceDirection face_direction = faceDirectionFromNormal(normal);
+            const bool facing_opaque = blockIsFaceOpaque(block, face_direction);
+            const FaceDirection opposing_face_direction = faceDirectionFromNormal(opposing_normal);
+            const bool opposing_opaque = blockIsFaceOpaque(opposing_block, opposing_face_direction);
+            const BlockType opposing_block_type = blockGetType(opposing_block->id);
+            // TODO: Do we need the blocktype check, or are the dual opaque faces sufficient?
+            if (facing_opaque && opposing_opaque && opposing_block_type == BLOCKTYPE_SOLID) {
+                cvector_push_back(queue, next_pos);
+                chunkBitmapSetBit(bitmap, &next_pos);
+            }
+        }
     }
     return processed;
 }
@@ -278,12 +336,19 @@ static u8 visitBlock(ChunkBitmap bitmap,
     if (opposing_opaque && opposing_block_type == BLOCKTYPE_SOLID) {
         // Solid opaque, light cannot pass through to the next
         // block from this direction
-        return chunkBitmapFillSolidDirection(
+        // return chunkBitmapFillSolidDirection(
+        //     bitmap,
+        //     chunk,
+        //     next_pos,
+        //     normal,
+        //     opposing_normal,
+        //     faces_cols,
+        //     faces_cols_opaque
+        // );
+        return chunkBitmapFillSolid(
             bitmap,
             chunk,
             next_pos,
-            normal,
-            opposing_normal,
             faces_cols,
             faces_cols_opaque
         );

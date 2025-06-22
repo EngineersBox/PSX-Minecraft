@@ -47,7 +47,7 @@
 * [ ] Lighting on dropped items is pure black sometimes despite being in light (possibly bad world position when retrieving light value). The physics object position for items isn't properly aligned to the bounding box since the position (which should be the centre of the AABB) isn't aligned properly and thus when converting to world position and querying the light level, it can query the next block over (in the direction that the item moved when it was dropped) and thus can get a light level of 0 and the item is rendered as black in the world.
 * [ ] Weather texture does not scroll correctly, some planes are static and only in some places does it work correctly. Potentially an issue with texture windowing and UV positions.
 * [ ] Out-of-bounds read occurs when loading chunks (i.e. moving to last block in loaded chunks boundary)
-* [ ] The DFS chunk scan continuously considers the same block, then searches for a next unset position after loop ends and then repeats. Seems like we are not marking blocks as visited in the bitmap correctly somewhere.
+* [ ] The DFS chunk scan either correctly considers all blocks (512) in a chunk (each once), or exactly half of all blocks (256). There must be some missing direction consideration or missing condition for an edge case.
 
 ## Implement
 
