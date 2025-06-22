@@ -200,55 +200,6 @@ static bool chunkBitmapFindRoot(ChunkBitmap bitmap,
     return false;
 }
 
-static u8 chunkBitmapFillSolidDirection(ChunkBitmap bitmap,
-                                        const Chunk* chunk,
-                                        // First position to fill,
-                                        // assumes not set in bitmap
-                                        VECTOR pos,
-                                        const VECTOR normal,
-                                        const VECTOR opposing_normal,
-                                        FacesColumns faces_cols,
-                                        FacesColumns faces_cols_opaque) {
-    // TODO: Instead of just filling in a single direction (line)
-    //       which can cause blocks to be missed in certain configs
-    //       (i.e. perpendicular direction was already traversed,
-    //       stopping the current traversal early and leaving blocks
-    //       behind the intersection untouched), we can just flood
-    //       fill the solid part and move on. This ends up being more
-    //       efficient anyway
-    const FaceDirection opposing_face_direction = faceDirectionFromNormal(opposing_normal);
-    u8 processed = 0;
-    while (true) {
-        if (chunkBlockIndexOOB(pos.vx, pos.vy, pos.vz)
-            || chunkBitmapGetBit(bitmap, &pos) == 1) {
-            // OOB or Already visited
-            break;
-        }
-        const IBlock* iblock = chunkGetBlockVec(chunk, &pos);
-        // Update masks for BGM
-        addVoxelToFaceColumns(
-            faces_cols,
-            faces_cols_opaque,
-            iblock,
-            pos.vx + 1,
-            pos.vy + 1,
-            pos.vz + 1
-        );
-        const Block* block = VCAST_PTR(Block*, iblock);
-        if (blockGetType(block->id) == BLOCKTYPE_SOLID
-            && blockIsFaceOpaque(block, opposing_face_direction)) {
-            DEBUG_LOG("Filling solid: " VEC_PATTERN "\n", VEC_LAYOUT(pos));
-            chunkBitmapSetBit(bitmap, &pos);
-            processed++;
-            pos = vec3_add(pos, normal);
-            continue;
-        }
-        // Not solid
-        break;
-    }
-    return processed;
-}
-
 static u8 chunkBitmapFillSolid(ChunkBitmap bitmap,
                                const Chunk* chunk,
                                VECTOR starting_pos,
