@@ -5,6 +5,8 @@
 #include "../../../util/interface99_extensions.h"
 #include "../chunk/chunk_structure.h"
 #include "../generation/noise.h"
+#include "../../../util/preprocessor.h"
+#include "../../../logging/logging.h"
 
 // ==== GENERATOR ====
 

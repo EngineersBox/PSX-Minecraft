@@ -122,6 +122,7 @@ void chunkInit(Chunk* chunk) {
     chunk->is_top = true;
     chunk->lightmap_updated = false;
     chunk->mesh_updated = false;
+    chunk->solid_block_count = 0;
     chunk->dropped_items = NULL;
     cvector_init(chunk->dropped_items, 0, chunkDestroyDroppedItem);
     chunk->updates.sunlight_add_queue = hashmap_new(

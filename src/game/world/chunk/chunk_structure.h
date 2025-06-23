@@ -64,8 +64,8 @@ typedef struct Chunk {
     bool is_top: 1;
     bool lightmap_updated: 1;
     bool mesh_updated: 1;
-    u16 solid_block_count: 9;
-    u8 _pad: 4;
+    u16 solid_block_count: 10;
+    u8 _pad: 3;
     ChunkVisibility visibility;
     VECTOR position;
     ChunkMesh mesh;
