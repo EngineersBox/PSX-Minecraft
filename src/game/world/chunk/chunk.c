@@ -572,6 +572,11 @@ static int modifyVoxel0(Chunk* chunk,
     } else if (top < world_y && !new_is_air) {
         (*heightmap)[index] = world_y;
     }
+    if (new_is_air && !old_is_air) {
+        chunk->solid_block_count--;
+    } else if (!new_is_air && old_is_air) {
+        chunk->solid_block_count++;
+    }
     return !old_is_air;
 }
 

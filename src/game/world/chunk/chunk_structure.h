@@ -45,6 +45,9 @@ typedef struct LightRemoveNode {
     LightLevel light_value;
 } LightRemoveNode;
 
+// TODO: Since each block location is unique, this can
+//       be a cvector + bitmap for each type + action
+//       (i.e. sunglight + add).
 typedef struct ChunkUpdates {
     HashMap* sunlight_add_queue;
     HashMap* sunlight_remove_queue;
@@ -61,7 +64,8 @@ typedef struct Chunk {
     bool is_top: 1;
     bool lightmap_updated: 1;
     bool mesh_updated: 1;
-    u8 _pad: 5;
+    u16 solid_block_count: 9;
+    u8 _pad: 4;
     ChunkVisibility visibility;
     VECTOR position;
     ChunkMesh mesh;

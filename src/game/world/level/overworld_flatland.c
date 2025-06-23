@@ -24,6 +24,7 @@ void OverworldFlatlandChunkGenerator_destroy(UNUSED VSelf) {
 
 void overworldFlatlandGeneneratorGenerate(VSelf, Chunk* chunk, ChunkHeightmap* heightmap) ALIAS("OverworldFlatlandChunkGenerator_generate");
 void OverworldFlatlandChunkGenerator_generate(UNUSED VSelf, Chunk* chunk, ChunkHeightmap* heightmap) {
+    u16 solid_block_count = 0;
     for (i32 x = 0; x < CHUNK_SIZE; x++) {
         for (i32 z = 0; z < CHUNK_SIZE; z++) {
             for (i32 y = 0; y < CHUNK_SIZE; y++) {
@@ -32,15 +33,19 @@ void OverworldFlatlandChunkGenerator_generate(UNUSED VSelf, Chunk* chunk, ChunkH
                 if (y < 2) {
                     iblock = chunk->blocks[chunkBlockIndex(x, y, z)] = stoneBlockCreate(NULL,0 );
                     // chunk->blocks[chunkBlockIndex(x, y, z)] = airBlockCreate(NULL);
+                    solid_block_count++;
                 } else if (y < 4) {
                     iblock = chunk->blocks[chunkBlockIndex(x, y, z)] = dirtBlockCreate(NULL, 0);
                     // chunk->blocks[chunkBlockIndex(x, y, z)] = airBlockCreate(NULL);
+                    solid_block_count++;
                 } else if (y == 4) {
                     iblock = chunk->blocks[chunkBlockIndex(x, y, z)] = grassBlockCreate(NULL, 0);
+                    solid_block_count++;
                 } else {
                     if (y == 5 && x % 3 == 0 && z % 3 == 0) {
                         iblock = chunk->blocks[chunkBlockIndex(x, y, z)] = grassBlockCreate(NULL, 0);
                         // chunk->blocks[chunkBlockIndex(x, y, z)] = airBlockCreate(NULL);
+                        solid_block_count++;
                     } else {
                         iblock = chunk->blocks[chunkBlockIndex(x, y, z)] = airBlockCreate(NULL, 0);
                     }
@@ -64,6 +69,7 @@ void OverworldFlatlandChunkGenerator_generate(UNUSED VSelf, Chunk* chunk, ChunkH
             }
         }
     }
+    chunk->solid_block_count = solid_block_count;
 }
 
 // ==== PROVIDER ====

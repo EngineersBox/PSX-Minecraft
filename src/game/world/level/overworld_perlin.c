@@ -25,6 +25,7 @@ void OverworldPerlinChunkGenerator_destroy(UNUSED VSelf) {
 void overworldPerlinGeneneratorGenerate(VSelf, Chunk* chunk, ChunkHeightmap* heightmap) ALIAS("OverworldPerlinChunkGenerator_generate");
 void OverworldPerlinChunkGenerator_generate(UNUSED VSelf, Chunk* chunk, ChunkHeightmap* heightmap) {
     const VECTOR* position = &chunk->position;
+    u16 solid_block_count = 0;
     for (i32 x = 0; x < CHUNK_SIZE; x++) {
         for (i32 z = 0; z < CHUNK_SIZE; z++) {
             const i32 xPos = x + (position->vx * CHUNK_SIZE);
@@ -50,10 +51,13 @@ void OverworldPerlinChunkGenerator_generate(UNUSED VSelf, Chunk* chunk, ChunkHei
                 IBlock* iblock;
                 if (offset_world_y < height - 3) {
                     iblock = chunk->blocks[chunkBlockIndex(x, y, z)] = stoneBlockCreate(NULL, 0);
+                    solid_block_count++;
                 } else if (offset_world_y < height - 1) {
                     iblock = chunk->blocks[chunkBlockIndex(x, y, z)] = dirtBlockCreate(NULL, 0);
+                    solid_block_count++;
                 } else if (offset_world_y == height - 1) {
                     iblock = chunk->blocks[chunkBlockIndex(x, y, z)] = grassBlockCreate(NULL, 0);
+                    solid_block_count++;
                 } else {
                     iblock = chunk->blocks[chunkBlockIndex(x, y, z)] = airBlockCreate(NULL,0);
                 }
@@ -76,6 +80,7 @@ void OverworldPerlinChunkGenerator_generate(UNUSED VSelf, Chunk* chunk, ChunkHei
             }
         }
     }
+    chunk->solid_block_count = solid_block_count;
 }
 
 // ==== PROVIDER ====

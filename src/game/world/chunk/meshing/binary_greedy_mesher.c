@@ -255,6 +255,7 @@ static u8 chunkBitmapFillSolid(ChunkBitmap bitmap,
             }
         }
     }
+    cvector_free(queue);
     return processed;
 }
 
@@ -287,15 +288,6 @@ static u8 visitBlock(ChunkBitmap bitmap,
     if (opposing_opaque && opposing_block_type == BLOCKTYPE_SOLID) {
         // Solid opaque, light cannot pass through to the next
         // block from this direction
-        // return chunkBitmapFillSolidDirection(
-        //     bitmap,
-        //     chunk,
-        //     next_pos,
-        //     normal,
-        //     opposing_normal,
-        //     faces_cols,
-        //     faces_cols_opaque
-        // );
         return chunkBitmapFillSolid(
             bitmap,
             chunk,
@@ -308,7 +300,6 @@ static u8 visitBlock(ChunkBitmap bitmap,
         // these two blocks
         cvector_push_back_safe(queue, next_pos);
         chunkBitmapSetBit(bitmap, &next_pos);
-        DEBUG_LOG("Set bit: " VEC_PATTERN "\n", VEC_LAYOUT(next_pos));
     }
     return 0;
 }
@@ -444,6 +435,13 @@ static void chunkVisibilityDfsWalkScan(Chunk* chunk,
 #undef chunkBitmapSetBit
 
 void binaryGreedyMesherBuildMesh(Chunk* chunk, const BreakingState* breaking_state) {
+    if (chunk->solid_block_count == 0) {
+        // Short circuit this entire process since we don't need to
+        // mesh an empty chunk and it is guaranteed to have uniform
+        // visibility on all sides.
+        chunk->visibility = 0b111111111111111;
+        return;
+    }
     FacesColumns faces_cols = {0};
     // See binary_greedy_mesher_transparency.md
     FacesColumns faces_cols_opaque = {0};
