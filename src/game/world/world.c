@@ -481,13 +481,26 @@ void worldRender(const World* world,
                 continue;
             }
             const SVECTOR face_normal = FACE_DIRECTION_NORMALS[face_dir];
-            if (dot_i32(vec3_const_mul(face_normal, ONE), direction) <= 0) {
+            // NOTE: Must be less-than and not-LEQ because we want to avoid
+            //       perpedicular traversal as some other direction taken
+            //       should take care of it if it is visible.
+            const VECTOR next_chunk = vec3_add(visit.position, face_normal);
+            const i32 dot_result = dot_i32(
+                vec3_const_mul(face_normal, ONE),
+                vec3_const_mul(vec3_sub(next_chunk, cb_pos.chunk), ONE)
+            );
+            DEBUG_LOG(
+                "Normal: " VEC_PATTERN " Direction: " VEC_PATTERN " Dot: %d\n",
+                VEC_LAYOUT(vec3_const_mul(face_normal, ONE)),
+                vec3_const_mul(vec3_sub(next_chunk, cb_pos.chunk), ONE),
+                dot_result
+            );
+            if (dot_result < 0) {
                 // Don't traverse to chunks through faces that go back
                 // towards the camera
-                DEBUG_LOG("[WORLD] Positve dot product\n");
+                DEBUG_LOG("[WORLD] Negative dot product\n");
                 continue;
             }
-            const VECTOR next_chunk = vec3_add(visit.position, face_normal);
             if (chunk != NULL) {
                 // Transform world position to world chunk array indices
                 const VECTOR mark_pos = vec3_i32(
@@ -498,7 +511,7 @@ void worldRender(const World* world,
                 // DEBUG_LOG("[WORLD] Mark pos: " VEC_PATTERN "\n", VEC_LAYOUT(mark_pos));
                 if (isChunkMarked(mark_pos.vx, mark_pos.vy, mark_pos.vz)) {
                     // Within the world and already visited, skip it
-                    // DEBUG_LOG("[WORLD] Already visited\n");
+                    DEBUG_LOG("[WORLD] Already visited\n");
                     continue;
                 }
                 markChunk(mark_pos.vx, mark_pos.vy, mark_pos.vz);
@@ -511,6 +524,7 @@ void worldRender(const World* world,
             // position is out of bounds, ignore the next position
             // as it will just lead to pointless iterations.
             if (chunk != NULL && worldIsOutsideBounds(world, &next_cb_pos)) {
+                DEBUG_LOG("[WORLD] Outside world\n");
                 continue;
             }
             // NOTE: cb_pos.chunk is the player chunk
@@ -522,17 +536,18 @@ void worldRender(const World* world,
             const AABB aabb = (AABB) {
                 .min = vec3_i32(
                     next_chunk.vx * CHUNK_BLOCK_SIZE,
-                    -next_chunk.vy * CHUNK_BLOCK_SIZE,
+                    next_chunk.vy * CHUNK_BLOCK_SIZE,
                     next_chunk.vz * CHUNK_BLOCK_SIZE
                 ),
                 .max = vec3_i32(
                     (next_chunk.vx + 1) * CHUNK_BLOCK_SIZE,
-                    -(next_chunk.vy + 1) * CHUNK_BLOCK_SIZE,
+                    (next_chunk.vy + 1) * CHUNK_BLOCK_SIZE,
                     (next_chunk.vz + 1) * CHUNK_BLOCK_SIZE
                 )
             };
             // BUG: This culling is busted, need to figure it out
             if (frustumContainsAABB(&player->camera->frustum, &aabb) == FRUSTUM_OUTSIDE) {
+                DEBUG_LOG("[WORLD] Culled\n");
                 continue;
             }
             cvector_push_back(

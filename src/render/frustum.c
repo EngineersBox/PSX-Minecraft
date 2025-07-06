@@ -120,7 +120,7 @@ static FrustumQueryResult frustumTestAABBPlane(const AABB* aabb, const Plane* pl
     /*    INT64_LAYOUT(dot_1),*/
     /*    INT64_LAYOUT(plane->distance)*/
     /*);*/
-    if (dot_1 > 0) {
+    if (dot_1 < 0) {
         // AABB max point is outside the frustum
         return FRUSTUM_OUTSIDE;
     }
@@ -139,7 +139,7 @@ static FrustumQueryResult frustumTestAABBPlane(const AABB* aabb, const Plane* pl
     /*    INT64_LAYOUT(dot_2),*/
     /*    INT64_LAYOUT(plane->distance)*/
     /*);*/
-    if (dot_2 >= 0) {
+    if (dot_2 <= 0) {
         // AABB min point is outside or on the edge of the frustum
         return FRUSTUM_INTERSECTS;
     }
