@@ -119,18 +119,18 @@ static bool chunkBitmapFindUnsetPosition(ChunkBitmap bitmap,
                         pos = vec3_i32(x, y, z);
                         x_bitset = x_fwd_bits;
                     }
-                #define updateBitmap(x_bitset, _x, _y, _z) \
+                #define updateBitmap(x_bitset, _x, _y, _z, _pos) \
                     if ((((x_bitset) >> (_x)) & 0b1) == 1) { \
                         continue; \
                     } \
-                    const IBlock* iblock = chunkGetBlockVec(chunk, &pos); \
+                    const IBlock* iblock = chunkGetBlockVec(chunk, &_pos); \
                     const Block* block = VCAST_PTR(Block*, iblock); \
                     if (blockGetOpacityBitset(block->id, block->orientation) != 0b111111) { \
-                        *out_pos = pos; \
+                        *out_pos = _pos; \
                         return true; \
                     } \
                     DEBUG_LOG("Found unset, marking: " VEC_PATTERN "\n", VEC_LAYOUT(pos)); \
-                    chunkBitmapSetBit(bitmap, &pos); \
+                    chunkBitmapSetBit(bitmap, &_pos); \
                     /* Update masks for BGM */ \
                     addVoxelToFaceColumns( \
                         faces_cols, \
@@ -141,7 +141,7 @@ static bool chunkBitmapFindUnsetPosition(ChunkBitmap bitmap,
                         (_z) + 1 \
                     ); \
                     (*total_blocks_processed)++
-                    updateBitmap(x_bitset, pos.vx, pos.vy, pos.vz);
+                    updateBitmap(x_bitset, pos.vx, pos.vy, pos.vz, pos);
                 }
             }
             u8 x_bitset;
@@ -161,7 +161,7 @@ static bool chunkBitmapFindUnsetPosition(ChunkBitmap bitmap,
             }
             for (int x = start; x != end; x += increment) {
                 const VECTOR pos = vec3_i32(x, y, z);
-                updateBitmap(x_bitset, x, y, z);
+                updateBitmap(x_bitset, x, y, z, pos);
             }
         }
     }
@@ -348,7 +348,7 @@ static void chunkVisibilityDfsWalkScan(Chunk* chunk,
                 pos.vz + 1
             );
             // We assume that when the block position was pushed into the queue,
-            // it had already been validated, thus block properties check here.
+            // it had already been validated, thus no block properties check here.
             const Block* block = VCAST_PTR(Block*, chunkGetBlock(chunk, pos.vx, pos.vy, pos.vz));
             #define _visitBlock(condition, direction, normal) \
                 if (condition) { \
@@ -378,34 +378,20 @@ static void chunkVisibilityDfsWalkScan(Chunk* chunk,
             _visitBlock(pos.vy == CHUNK_SIZE - 1, FACE_DIR_UP, vec3_i32(0, 1, 0));
             #undef _visitBlock
         }
-        if (isPowerOf2(visible_sides)) {
+        if (!isPowerOf2(visible_sides)) {
             // Power of 2 implies a single bit is set,
             // thus only one side in the visibility set
             // so that side cannot see another.
-            VECTOR pos = vec3_i32(0);
-            if (chunkBitmapFindUnsetPosition(
-                bitmap,
-                chunk,
-                faces_cols,
-                faces_cols_opaque,
-                &total_blocks_processed,
-                &pos
-            )) {
-                cvector_push_back(queue, pos);
-                chunkBitmapSetBit(bitmap, &pos);
-                continue;
-            }
-            break;
-        }
-        for (u8 i = 0; i < 6; i++) {
-            if ((visible_sides & (0b1 << i)) == 0) {
-                continue;
-            }
-            for (u8 j = i + 1; j < 6; j++) {
-                if ((visible_sides & (0b1 << j)) == 0) {
+            for (u8 i = 0; i < 6; i++) {
+                if ((visible_sides & (0b1 << i)) == 0) {
                     continue;
                 }
-                chunkVisibilitySetBit(&chunk->visibility, i, j);
+                for (u8 j = i + 1; j < 6; j++) {
+                    if ((visible_sides & (0b1 << j)) == 0) {
+                        continue;
+                    }
+                    chunkVisibilitySetBit(&chunk->visibility, i, j);
+                }
             }
         }
         VECTOR pos = vec3_i32(0);
