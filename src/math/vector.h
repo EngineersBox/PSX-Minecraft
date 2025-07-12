@@ -181,6 +181,15 @@ VECTOR vec3_i32_normalize(const VECTOR v);
 
 // Vector varaint operation bindings
 
+#define vec3_as(vec_type, v0) ({ \
+    const __typeof__(v0) _v0 = (v0); \
+    (vec_type) { _vec3_layout( \
+        _v0.vx, \
+        _v0.vy, \
+        _v0.vz \
+    ) }; \
+})
+
 #define vec3_op(v0, op, v1) ({ \
     const __typeof__(v0) _v0 = (v0); \
     const __typeof__(v1) _v1 = (v1); \
