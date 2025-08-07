@@ -153,7 +153,7 @@ FrustumQueryResult frustumContainsAABB(const Frustum* frustum, const AABB* aabb)
     // NOTE: Skip near/far culling as we do that in chunk traversal
     //       during worldRender as a bounded traversal depth
     for (u8 i = 2; i < 6; i++) {
-        switch (frustumTestAABBPlane(aabb, &frustum->planes[FRUSTUM_PLANE_NEAR])) {
+        switch (frustumTestAABBPlane(aabb, &frustum->planes[i])) {
             case FRUSTUM_OUTSIDE: return FRUSTUM_OUTSIDE;
             case FRUSTUM_INTERSECTS: result = FRUSTUM_INTERSECTS; break;
             case FRUSTUM_INSIDE: break;

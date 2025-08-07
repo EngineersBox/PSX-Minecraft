@@ -464,7 +464,8 @@ void worldRender(const World* world,
             // TODO: Uncomment after all rendering issues resolved
             // chunkRender(
             //     chunk,
-            //     vec3_equal(cb_pos.chunk, visit.position),
+            //     vec3_equal(chunk_pos.chunk, visit.position),
+            //     true,
             //     ctx,
             //     transforms
             // );
