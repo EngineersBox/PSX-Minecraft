@@ -396,6 +396,7 @@ void worldRender(const World* world,
                  const Player* player,
                  RenderContext* ctx,
                  Transforms* transforms) {
+    DEBUG_LOG("==== START WORLD RENDER ====\n");
     durationComponentInitOnce(world_render, "worldRender");
     durationComponentStart(&world_render_duration);
     const VECTOR player_world_pos = vec3_const_div(
@@ -520,15 +521,15 @@ void worldRender(const World* world,
             //      infinitely as nothing prevents 
             const i32 dot_result = dot_i32(
                 vec3_const_mul(face_normal, ONE),
-                vec3_const_mul(vec3_sub(next_chunk, player_pos.chunk), ONE)
+                vec3_i32_normalize(vec3_const_lshift(vec3_sub(next_chunk, player_pos.chunk), FIXED_POINT_SHIFT))
             );
             DEBUG_LOG(
                 "Normal: " VEC_PATTERN " Direction: " VEC_PATTERN " Dot: %d\n",
                 VEC_LAYOUT(vec3_const_mul(face_normal, ONE)),
-                vec3_const_mul(vec3_sub(next_chunk, player_pos.chunk), ONE),
+                vec3_i32_normalize(vec3_const_lshift(vec3_sub(next_chunk, player_pos.chunk), FIXED_POINT_SHIFT)),
                 dot_result
             );
-            if (dot_result < 0) {
+            if (dot_result <= 0) {
                 // Don't traverse to chunks through faces that go back
                 // towards the camera
                 DEBUG_LOG("[WORLD] Negative dot product\n");
@@ -575,16 +576,18 @@ void worldRender(const World* world,
                 Chunk* chunk = world->chunks[arrayCoord(world, vz, z)]
                                             [arrayCoord(world, vx, x)]
                                             [y];
+                const bool should_render = isChunkMarked(
+                    arrayCoord(world, vx, x),
+                    y,
+                    arrayCoord(world, vz, z)
+                );
+                DEBUG_LOG("[CHUNK] " VEC_PATTERN " Render: %s\n", x, y, z, should_render ? "true" : "false");
                 chunkRender(
                     chunk,
                     player_pos.chunk.vx == x
                         && player_pos.chunk.vz == z
                         && player_pos.chunk.vy == y,
-                    isChunkMarked(
-                        arrayCoord(world, vx, x),
-                        y,
-                        arrayCoord(world, vz, z)
-                    ),
+                    should_render,
                     ctx,
                     transforms
                 );
@@ -599,6 +602,7 @@ void worldRender(const World* world,
         ctx,
         transforms
     );
+    DEBUG_LOG("==== END WORLD RENDER ====\n");
     // pcsx_debugbreak();
 }
 
