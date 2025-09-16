@@ -10,6 +10,7 @@
 #include "blocks/item_block_grass.h"
 #include "blocks/item_block_dirt.h"
 #include "blocks/item_block_cobblestone.h"
+#include "blocks/item_block_plank.h"
 #include "blocks/item_block_crafting_table.h"
 
 #define ITEM_COUNT 59

@@ -3,6 +3,8 @@
 #include "../../util/interface99_extensions.h"
 #include "../../logging/logging.h"
 #include "block.h"
+#include "block_plank.h"
+#include "block_planks.h"
 
 BlockAttributes block_attributes[BLOCK_COUNT] = {0};
 BlockConstructor block_constructors[BLOCK_COUNT] = {0};
@@ -96,6 +98,7 @@ DECL_STATELESS_BLOCK(StoneBlock, STONE, 1, stoneBlockFaceAttributes());
 DECL_STATELESS_BLOCK(GrassBlock, GRASS, 1, grassBlockFaceAttributes());
 DECL_STATELESS_BLOCK(DirtBlock, DIRT, 1, dirtBlockFaceAttributes());
 DECL_STATELESS_BLOCK(CobblestoneBlock, COBBLESTONE, 1, cobblestoneBlockFaceAttrbutes());
+DECL_STATELESS_BLOCK(PlankBlock, PLANK, 1, plankBlockFaceAttributes());
 DECL_STATELESS_BLOCK(CraftingTableBlock, CRAFTING_TABLE, 1, craftingTableBlockFaceAttributes());
 
 void blocksInitialiseBuiltin() {
@@ -118,6 +121,10 @@ void blocksInitialiseBuiltin() {
     initBlockSingleton(
         CobblestoneBlock, COBBLESTONE,
         cobblestoneBlockCreateAttributes(), cobblestoneBlockCreate
+    );
+    initBlockSingleton(
+        PlankBlock, PLANK,
+        plankBlockCreateAttributes(), plankBlockCreate
     );
     initBlockSingleton(
         CraftingTableBlock, CRAFTING_TABLE,

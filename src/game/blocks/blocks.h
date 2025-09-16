@@ -14,6 +14,7 @@
 #include "block_grass.h"
 #include "block_dirt.h"
 #include "block_cobblestone.h"
+#include "block_plank.h"
 #include "block_crafting_table.h"
 
 #define BLOCK_COUNT 59

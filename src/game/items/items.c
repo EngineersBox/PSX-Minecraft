@@ -33,6 +33,11 @@ void itemsInitialiseBuiltin() {
         cobblestoneItemBlockAttributes()
     );
     initItem(
+        ITEMID_PLANK,
+        itemConstructor(plank),
+        plankItemBlockAttributes()
+    );
+    initItem(
         ITEMID_CRAFTING_TABLE,
         itemConstructor(craftingTable),
         craftingTableItemBlockAttributes()
