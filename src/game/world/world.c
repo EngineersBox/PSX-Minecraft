@@ -488,9 +488,6 @@ void worldRender(const World* world,
                 continue;
             }
             const VECTOR face_normal = vec3_as(VECTOR, FACE_DIRECTION_NORMALS[face_dir]);
-            // NOTE: Must be less-than and not-LEQ because we want to avoid
-            //       perpedicular traversal as some other direction taken
-            //       should take care of it if it is visible.
             const VECTOR next_chunk = vec3_add(visit.position, face_normal);
             DEBUG_LOG("[WORLD] Next chunk: " VEC_PATTERN "\n", VEC_LAYOUT(next_chunk));
             const ChunkBlockPosition next_cb_pos = (ChunkBlockPosition) {
@@ -529,7 +526,10 @@ void worldRender(const World* world,
                 vec3_i32_normalize(vec3_const_lshift(vec3_sub(next_chunk, player_pos.chunk), FIXED_POINT_SHIFT)),
                 dot_result
             );
-            if (dot_result <= 0) {
+            // NOTE: Must be LT and not LEQ because we want to avoid
+            //       perpedicular traversal as some other direction
+            //       taken should take care of it if it is visible.
+            if (dot_result < 0) {
                 // Don't traverse to chunks through faces that go back
                 // towards the camera
                 DEBUG_LOG("[WORLD] Negative dot product\n");
