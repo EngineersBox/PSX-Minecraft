@@ -67,7 +67,7 @@ Remake of Minecraft for PS1 with PSn00bSDK
 
 ### Goal
 
- Current work is frustum culling, ordered directional sub-mesh culling and crafting system
+ Current work is world rendering rework, frustum culling and ordered directional sub-mesh culling
 
 ### Screenshots
 
