@@ -1,11 +1,13 @@
 #include "item_block_{{ name_snake_lower }}.h"
 
 #include <stdlib.h>
+#include <interface99_extensions.h>
 
+#include "../item_id.h"
+#include "../../../logging/logging.h"
+#include "../../../math/vector.h"
 #include "../../../util/preprocessor.h"
 #include "../../../util/memory.h"
-#include "../../../math/vector.h"
-#include "../item_id.h"
 
 {{ name_capital }}ItemBlock* {{ name_lower }}ItemBlockCreate() {
     {{ name_capital }}ItemBlock* itemblock = malloc(sizeof({{ name_capital }}ItemBlock));
@@ -13,11 +15,11 @@
     return itemblock;
 }
 
-DEFN_ITEM_CONSTRUCTOR({{ name_lower }) {
+DEFN_ITEM_CONSTRUCTOR({{ name_lower }}) {
     IItem* item = itemCreate();
-    {{ name_upper }}ItemBlock* {{ name_snake_lower }}_item_block = {{ name_lower }}ItemBlockCreate();
+    {{ name_capital }}ItemBlock* {{ name_snake_lower }}_item_block = {{ name_lower }}ItemBlockCreate();
     {{ name_snake_lower }}_item_block->item_block.item.metadata_id = metadata_id;
-    DYN_PTR(item, {{ name_upper }}ItemBlock, IItem, {{ name_snake_lower }}_item_block);
+    DYN_PTR(item, {{ name_capital }}ItemBlock, IItem, {{ name_snake_lower }}_item_block);
     VCALL(*item, init);
     return item;
 }
@@ -71,10 +73,10 @@ void {{ name_capital }}ItemBlock_init(VSelf) {
             ITEMID_{{ name_snake_upper }},
             0
         ),
-{% if face_attributes != None %}
-        .face_attributes = declareFaceAttributes({{ face_attributes }})
-{% elif tinted_face_attributes != None %}
-        .face_attributes = declareTintedFaceAttributes({{ tinted_face_attributes }})
+{%- if face_attributes != None %}
+        .face_attributes = { defaultFaceAttributes({{ face_attributes }}) },
+{%- elif tinted_face_attributes != None %}
+        .face_attributes = { declareTintedFaceAttributes({{ tinted_face_attributes }}) },
 {% endif %}
     };
 }

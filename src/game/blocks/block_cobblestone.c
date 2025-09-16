@@ -1,9 +1,9 @@
 #include "block_cobblestone.h"
 
-#include "../../util/interface99_extensions.h"
 #include "block_id.h"
 #include "../items/blocks/item_block_cobblestone.h"
 #include "../../logging/logging.h"
+#include "../../util/interface99_extensions.h"
 
 DEFN_BLOCK_CONSTRUCTOR_IMPL_STATELESS(cobblestone, COBBLESTONE)
 
@@ -16,9 +16,6 @@ void CobblestoneBlock_init(VSelf) {
 IItem* cobblestoneBlockDestroy(VSelf, bool drop_item) ALIAS("CobblestoneBlock_destroy");
 IItem* CobblestoneBlock_destroy(VSelf, const bool drop_item) {
     VSELF(CobblestoneBlock);
-    if (!drop_item) {
-        return NULL;
-    }
     return drop_item ? cobblestoneBlockProvideItem(self) : NULL;
 }
 
