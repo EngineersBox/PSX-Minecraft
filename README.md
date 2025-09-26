@@ -1,6 +1,6 @@
 # PSX-Minecraft
 
-> ![NOTE]
+> [!NOTE]
 > I've put this on hold for a bit as i have other
 > more pressing things to do with work and research.
 > I'll be back to this soon (a month or two i think)
