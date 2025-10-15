@@ -51,43 +51,33 @@ Player* player;
 /*    }*/
 /*};*/
 
-void renderLoadingScreen(RenderContext* ctx, Transforms* transforms) {
-
-    // Change to white clear colour
-    setRGB0(
-        &ctx->db[ctx->active].draw_env,
-        0xFF,
-        0xFF,
-        0xFF
-    );
-    ctx->db[1].draw_env.isbg = 1; // Background
-    ctx->db[1].draw_env.dtd = 1; // Dithered
-    // Apply drawing environment to first double buffer
-    PutDrawEnv(&ctx->db[ctx->active].draw_env);
+void renderLoadingScreen(RenderContext* ctx) {
+    swapBuffers(ctx);
     // Draw logo
-    POLY_FT4* pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
+    POLY_FT4* poly_ft4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
     setXYWH(
-        pol4,
+        poly_ft4,
         CENTRE_X - (128 >> 1),
         CENTRE_Y - (128 >> 1),
         128,
         128
     );
-    setRGB0(pol4, 0xFF, 0xFF, 0xFF);
-    setUVWH(pol4, 0, 0, 128, 128);
+    setRGB0(poly_ft4, 0x7F, 0x7F, 0x7F);
+    setUVWH(poly_ft4, 0, 0, 128, 128);
     Texture mojang_logo = {0};
     assetLoadTextureDirect(
         ASSET_BUNDLE__START,
         ASSET_TEXTURE__START__MOJANG,
         &mojang_logo
     );
+    poly_ft4->tpage = mojang_logo.tpage;
+    poly_ft4->clut = mojang_logo.clut;
+    polyFT4Render(poly_ft4, 1, ctx);
+    POLY_F4* poly_f4 = (POLY_F4*) allocatePrimitive(ctx, sizeof(POLY_F4));
+    setXYWH(poly_f4, 0, 0, SCREEN_XRES, SCREEN_YRES);
+    setRGB0(poly_f4, 0xFF, 0xFF, 0xFF);
+    polyF4Render(poly_f4, 1, ctx);
     swapBuffers(ctx);
-    pol4->tpage = mojang_logo.tpage;
-    pol4->clut = mojang_logo.clut;
-    polyFT4Render(pol4, 1, ctx);
-    renderClearConstraintsIndex(ctx, 1);
-    swapBuffers(ctx);
-    pcsx_debugbreak();
 }
 
 void minecraftInit(VSelf, void* ctx) ALIAS("Minecraft_init");
@@ -115,8 +105,8 @@ void Minecraft_init(VSelf, UNUSED void* ctx) {
     // since some blocks need to register handlers
     /*AddSIO(0x1c200);*/
     CdInit();
+    renderLoadingScreen(&self->ctx);
     inputInit(&input);
-    renderLoadingScreen(&self->ctx, &self->transforms);
     // Unpack LZP archive and load assets
     assetsLoad();
     fontLoad();

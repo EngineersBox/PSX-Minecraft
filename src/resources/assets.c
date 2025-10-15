@@ -143,15 +143,16 @@ static void* _loadDynamicTextures(const void* ctx) {
 }
 
 void assetLoadTextureDirect(const size_t bundle, const int file_index, Texture* texture) {
-    if (bundle == 0) {
-        texture->tpage = textures[file_index].tpage;
-        texture->clut = textures[file_index].clut;
-        return;
-    } else if (bundle > ASSET_BUNDLES_COUNT) {
+    if (bundle > ASSET_BUNDLES_COUNT) {
         errorAbort("[ERROR] No such asset bundle at index: %d\n", bundle);
         return;
     }
     const AssetBundle* asset_bundle = &ASSET_BUNDLES[bundle];
+    if ((uintptr_t) asset_bundle->load == (uintptr_t) _loadTextures) {
+        texture->tpage = textures[file_index].tpage;
+        texture->clut = textures[file_index].clut;
+        return;
+    }
     LZP_HEAD* archive = asset_bundle->load(asset_bundle);
     const int lzp_index = lzpSearchFile(asset_bundle->name, archive);
     if (lzp_index < 0) {

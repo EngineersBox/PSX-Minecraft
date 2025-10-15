@@ -7,6 +7,8 @@
 #include "block_id.h"
 #include "block.h"
 #include "../items/tools/tool_type.h"
+// Used in macro
+#include "../logging/logging.h"
 // These includes allow for only including blocks.h
 // and getting access to all blocks instantly
 #include "block_air.h"
