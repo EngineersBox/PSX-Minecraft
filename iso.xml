@@ -52,6 +52,8 @@
 				or global variable by its name.
 			-->
             <!--<file name="TEMPLATE.MAP"	type="data" source="template.map" />-->
+            <file name="START.LZP" type="data" source="start.lzp" />
+            <file name="MENU.LZP" type="data" source="menu.lzp" />
         </directory_tree>
     </track>
     <!--

@@ -20,9 +20,11 @@ function(PackAssets bundle byproducts)
     endforeach()
 endfunction()
 
-set(ASSET_BUNDLE_ARCHIVES static.lzp gui.lzp)
+set(ASSET_BUNDLE_ARCHIVES start.lzp static.lzp menu.lzp gui.lzp)
 
 macro(ConstructAssetBundles)
+	PackAssets(start start.qlp)
 	PackAssets(static static.qlp)
+	PackAssets(menu menu.qlp)
 	PackAssets(gui gui.qlp)
 endmacro()

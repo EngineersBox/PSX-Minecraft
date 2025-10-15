@@ -43,6 +43,18 @@ AssetBundle ASSET_BUNDLES[ASSET_BUNDLES_COUNT] = {
         .name = "gui",
         .pack = "\\GUI.LZP"
     },
+    [ASSET_BUNDLE__START]=(AssetBundle) {
+        .load = _loadDynamicTextures,
+        .free = free,
+        .name = "start",
+        .pack = "\\START.LZP"
+    },
+    [ASSET_BUNDLE__MENU]=(AssetBundle) {
+        .load = _loadDynamicTextures,
+        .free = free,
+        .name = "menu",
+        .pack = "\\MENU.LZP"
+    },
     [ASSET_BUNDLES_COUNT - 1]=(AssetBundle) { NULL, NULL, NULL, NULL }
 };
 
@@ -106,7 +118,7 @@ static void _freeTextures(UNUSED void* ctx) {
 }
 
 void assetsLoad() {
-    const AssetBundle* bundle = &ASSET_BUNDLES[0];
+    const AssetBundle* bundle = &ASSET_BUNDLES[ASSET_BUNDLE__STATIC];
     _lz_resources = (u8*) cdReadDataSync(bundle->pack, CdlModeSpeed);
     const int lzp_index = lzpSearchFile(bundle->name, lz_resources);
     if (lzp_index < 0) {
@@ -121,7 +133,7 @@ void assetsLoad() {
 }
 
 void assetsFree() {
-    ASSET_BUNDLES[0].free(NULL);
+    ASSET_BUNDLES[ASSET_BUNDLE__STATIC].free(NULL);
     assets_loaded = false;
 }
 
@@ -174,4 +186,5 @@ void assetLoadTextureDirect(const size_t bundle, const int file_index, Texture* 
     assetLoadImage(&tim, texture);
     asset_bundle->free(archive);
     free(tex_buff);
+    DEBUG_LOG("Loaded asset bundle: %s\n", asset_bundle->name);
 }

@@ -4,7 +4,6 @@
 #include "../../logging/logging.h"
 #include "block.h"
 #include "block_plank.h"
-#include "block_planks.h"
 
 BlockAttributes block_attributes[BLOCK_COUNT] = {0};
 BlockConstructor block_constructors[BLOCK_COUNT] = {0};
