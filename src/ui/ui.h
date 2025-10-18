@@ -28,13 +28,17 @@ typedef struct UIComponent {
 } UIComponent;
 
 #define DEFN_UI_COMPONENT(name, ...) typedef struct {\
-        UIComponent component; \
-        __VA_ARGS__ \
-    } name
+    UIComponent component; \
+    __VA_ARGS__ \
+} name
 
 #define IUI_IFACE \
     vfunc(void, open, VSelf) \
-    vfunc(void, close, VSelf)
+    vfunc(void, close, VSelf) \
+    vfuncDefault(void, render, VSelf, RenderContext* ctx, Transforms* transforms)
+
+void iuiRender(VSelf, RenderContext* ctx, Transforms* transforms);
+void IUI_render(VSelf, RenderContext* ctx, Transforms* transforms);
 
 #define IUI_EXTENDS (IInputHandler)
 interface(IUI);

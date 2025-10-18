@@ -26,11 +26,13 @@
 #include "items/blocks/item_block.h"
 #include "items/item_id.h"
 #include "items/items.h"
+#include "menu/menu.h"
 #include "world/level/overworld_perlin.h"
 #include "weather/weather.h"
 // #include "../core/console.h"
 #include "../debug/debug_defines.h"
 #include "../structure/primitive/primitive.h"
+#include "menu/menu.h"
 
 World* world;
 IInputHandler player_handler;
@@ -224,6 +226,7 @@ void Minecraft_input(VSelf, UNUSED const Stats* stats) {
     /*    handleConsole();*/
     /*}*/
     self->camera.mode = CAMERA_MODE_FIRST_PERSON;
+    // NOTE: If a menu is open, this will handle the input handlers for it
     inputUpdate(&input);
 }
 
@@ -297,6 +300,11 @@ void Minecraft_render(VSelf, const Stats* stats) {
     }
 #endif
     durationComponentStart(&render_duration);
+    if (menuIsOpen()) {
+        menuRender(&self->ctx, &self->transforms);
+        renderClearConstraints(&self->ctx);
+        goto minecraftRenderFinalise;
+    }
     // Update breaking state textures
     breakingStateUpdateRenderTarget(&player->breaking, &self->ctx);
     // Draw the world
@@ -334,7 +342,6 @@ void Minecraft_render(VSelf, const Stats* stats) {
         &self->transforms
     );
     renderClearConstraints(&self->ctx);
-    FntPrint(0, PSXMC_VERSION_STRING "\n");
     drawDebugText(stats, &self->camera, world);
 #if isDebugEnabled()
     debugDrawPacketBufferUsageGraph(
@@ -343,6 +350,8 @@ void Minecraft_render(VSelf, const Stats* stats) {
         SCREEN_YRES - HOTBAR_HEIGHT - 20
     );
 #endif
+minecraftRenderFinalise:;
+    FntPrint(0, PSXMC_VERSION_STRING "\n");
     // Flush font to screen
     FntFlush(0);
     // Swap buffers and draw the primitives

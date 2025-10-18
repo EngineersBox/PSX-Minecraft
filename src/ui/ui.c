@@ -20,6 +20,13 @@ void uiRender(const UI* ui, RenderContext* ctx, Transforms* transforms) {
     }
 }
 
+
+void iuiRender(VSelf, RenderContext* ctx, Transforms* transforms) ALIAS("IUI_render");
+INLINE void IUI_render(VSelf, RenderContext* ctx, Transforms* transforms) {
+    VSELF(UI);
+    uiRender(self, ctx, transforms);
+}
+
 IUIComponent* uiAddComponent(UI* ui) {
     cvector_push_back(ui->components, (IUIComponent) {0});
     return &ui->components[cvector_size(ui->components) - 1];

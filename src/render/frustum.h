@@ -9,11 +9,11 @@
 #include "../util/preprocessor.h"
 
 #define FRUSTUM_PLANES_LIST(f) \
-    f(ENUM_ENTRY(FRUSTUM_PLANE_NEAR)), \
-    f(ENUM_ENTRY(FRUSTUM_PLANE_FAR)), \
-    f(ENUM_ENTRY(FRUSTUM_PLANE_LEFT)), \
-    f(ENUM_ENTRY(FRUSTUM_PLANE_RIGHT)), \
-    f(ENUM_ENTRY(FRUSTUM_PLANE_TOP)), \
+    f(ENUM_ENTRY(FRUSTUM_PLANE_NEAR)) \
+    f(ENUM_ENTRY(FRUSTUM_PLANE_FAR)) \
+    f(ENUM_ENTRY(FRUSTUM_PLANE_LEFT)) \
+    f(ENUM_ENTRY(FRUSTUM_PLANE_RIGHT)) \
+    f(ENUM_ENTRY(FRUSTUM_PLANE_TOP)) \
     f(ENUM_ENTRY(FRUSTUM_PLANE_BOTTOM))
 
 typedef enum {
@@ -28,9 +28,9 @@ typedef struct {
 // to treat the query result as a regular C bool,
 // where 0 is false and anything else is true
 #define FRUSTUM_QUERY_RESULT_LIST(f) \
-    f(ENUM_ENTRY_ORD(FRUSTUM_OUTSIDE, 0)), \
-    f(ENUM_ENTRY_ORD(FRUSTUM_INSIDE, 1)), \
-    f(ENUM_ENTRY_ORD(FRUSTUM_INTERSECTS, 2)),
+    f(ENUM_ENTRY_ORD(FRUSTUM_OUTSIDE, 0)) \
+    f(ENUM_ENTRY_ORD(FRUSTUM_INSIDE, 1)) \
+    f(ENUM_ENTRY_ORD(FRUSTUM_INTERSECTS, 2))
 
 typedef enum {
     FRUSTUM_QUERY_RESULT_LIST(enumConstruct)

@@ -125,8 +125,8 @@
 #define ENUM_ENTRY(name) ML99_choice(v(ENUM_ENTRY), v(name))
 #define ENUM_ENTRY_ORD(name, id) ML99_choice(v(ENUM_ENTRY_ORD), v(name), v(id))
 
-#define constructEnum_ENUM_ENTRY_IMPL(name) v(name)
-#define constructEnum_ENUM_ENTRY_ORD_IMPL(name, id) v(name = id)
+#define constructEnum_ENUM_ENTRY_IMPL(name) v(name,)
+#define constructEnum_ENUM_ENTRY_ORD_IMPL(name, id) v(name = id,)
 
 #define enumConstruct(entry) ML99_EVAL(ML99_match(entry, v(constructEnum_)))
 #define enumExtractNames(entry) ML99_EVAL(ML99_stringify( \
@@ -134,6 +134,11 @@
         ML99_tuple(ML99_choiceData(entry)) \
     ) \
 ))
+
+#define count_ENUM_ENTRY_IMPL(name) v(1 +)
+#define count_ENUM_ENTRY_ORD_IMPL(name, id) count_ENUM_ENTRY_IMPL(name)
+
+#define count(entry) ML99_EVAL(ML99_match(entry, v(count_)))
 
 // ==== PRIMITIVE OPERANDS ====
 

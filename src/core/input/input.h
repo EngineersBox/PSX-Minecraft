@@ -48,6 +48,7 @@ void inputInit(Input* input);
 void inputUpdate(Input* input);
 
 #define inputAddHandler(input, handler) cvector_push_back((input)->handlers, (InputHandlerVTable)(handler))
+#define inputRemoveLastHandler(input) cvector_pop_back((input)->handlers)
 #define isPressed(input_pad, pad_button) (!((input_pad)->btn & (pad_button)))
 #define inputSetFocusedHandler(input, handler) (input)->in_focus = (InputHandlerVTable*)(handler)
 

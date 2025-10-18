@@ -1,12 +1,12 @@
 #include "inventory.h"
 
 #include <interface99.h>
+#include <psxpad.h>
 
 #include "../../logging/logging.h"
 #include "../items/items.h"
 #include "../../ui/components/background.h"
 #include "../../util/interface99_extensions.h"
-#include "psxpad.h"
 #include "slot.h"
 #include "../../ui/components/cursor.h"
 #include "../world/world_structure.h"

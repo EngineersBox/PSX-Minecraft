@@ -19,7 +19,6 @@
 #include "block_plank.h"
 #include "block_crafting_table.h"
 
-#define BLOCK_COUNT 59
 #define DEBUG_BLOCK_ID_CHECK 1
 
 extern BlockAttributes block_attributes[BLOCK_COUNT];

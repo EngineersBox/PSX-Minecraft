@@ -18,6 +18,8 @@ DEFN_UI_COMPONENT(
     UIButtonState state;
 );
 
+UIButton* uiButtonNew();
+
 #define UIButton_update_CUSTOM ()
 void uiButtonUpdate(VSelf);
 void UIButton_update(VSelf);

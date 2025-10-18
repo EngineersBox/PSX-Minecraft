@@ -1,12 +1,10 @@
 #include "background.h"
 
-#include <noise.h>
-#include <primitive.h>
+#include <psxgpu.h>
 
 #include "../resources/assets.h"
 #include "../resources/asset_indices.h"
 #include "../resources/texture.h"
-#include "psxgpu.h"
 
 #ifndef BLOCK_TEXTURE_SIZE
 #define BLOCK_TEXTURE_SIZE 16

@@ -4,6 +4,7 @@
 #define _PSXMC__GAME_ITEMS__ITEMS_H_
 
 #include "item.h"
+#include "item_id.h"
 // These includes allow for only including items.h
 // and getting access to all items instantly
 #include "blocks/item_block_stone.h"
@@ -13,7 +14,6 @@
 #include "blocks/item_block_plank.h"
 #include "blocks/item_block_crafting_table.h"
 
-#define ITEM_COUNT 59
 #define DEBUG_ITEM_ID_CHECK 1
 
 extern ItemConstructor item_constructors[ITEM_COUNT];

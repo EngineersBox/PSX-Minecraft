@@ -2,7 +2,15 @@
 
 #include "../../math/math_utils.h"
 #include "../../logging/logging.h"
+#include "../../util/memory.h"
 #include "cursor.h"
+
+INLINE UIButton* uiButtonNew() {
+    UIButton* button = malloc(sizeof(UIButton));
+    assert(button != NULL);
+    zeroed(button);
+    return button;
+};
 
 void uiButtonUpdate(VSelf) ALIAS("UIButton_update");
 void UIButton_update(VSelf) {
