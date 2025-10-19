@@ -51,7 +51,7 @@ void fontPrintCentreOffset(RenderContext* ctx,
     ctx->primitive = fontSort(
         allocateOrderingTable(ctx, ot_entry_index),
         ctx->primitive,
-        x_offset - (fontStringWidth(buf) / 2),
+        x_offset - (fontStringWidth(buf) >> 1),
         y,
         true,
         buf

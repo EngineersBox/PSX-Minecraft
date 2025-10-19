@@ -1,7 +1,12 @@
 #include "main.h"
 
+#include <psxgpu.h>
+
+#include "menu.h"
+#include "menu_id.h"
 #include "../blocks/block.h"
 #include "../../render/render_context.h"
+#include "../../render/font.h"
 #include "../../resources/assets.h"
 #include "../../resources/asset_indices.h"
 #include "../../structure/cvector_utils.h"
@@ -11,10 +16,6 @@
 #include "../../ui/background.h"
 #include "../../ui/components/button.h"
 #include "../../ui/components/cursor.h"
-#include "menu.h"
-#include "menu_id.h"
-#include "psxgpu.h"
-#include "stdlib.h"
 
 #define LOGO_TEXTURE_WIDTH 128
 #define LOGO_TEXTURE_HEIGHT 96
@@ -242,6 +243,14 @@ void MainMenu_render(VSelf, RenderContext* ctx, Transforms* transforms) {
     renderClearConstraintsIndex(ctx, 2);
     uiRender(&self->ui, ctx, transforms);
     renderLogo(ctx);
+    fontPrintCentreOffset(
+        ctx,
+        SCREEN_XRES - ((39 * FONT_CHARACTER_SPRITE_WIDTH) >> 1),
+        SCREEN_YRES - FONT_CHARACTER_SPRITE_HEIGHT - 3,
+        0,
+        1,
+        "Copyright Mojang AB. Do not distribute."
+    );
     renderClearConstraintsIndex(ctx, 1);
     uiCursorRender(
         &cursor,
