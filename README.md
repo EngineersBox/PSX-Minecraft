@@ -19,6 +19,7 @@ Remake of Minecraft for PS1 with PSn00bSDK
   * [Progress](#progress)
     * [Goal](#goal)
     * [Screenshots](#screenshots)
+      * [Main Menu](#main-menu)
       * [Breaking Blocks](#breaking-blocks)
       * [Placing Blocks](#placing-blocks)
       * [Item Drops](#item-drops)
@@ -78,6 +79,13 @@ Remake of Minecraft for PS1 with PSn00bSDK
 ### Screenshots
 
 <details>
+<summary><h4>Main Menu</h4></summary>
+
+![Main Menu](./docs/main_menu.png)
+
+</details>
+
+<details>
 <summary><h4>Breaking Blocks</h4></summary>
 
 ![Breaking Overlay](./docs/breaking_overlay.png)
@@ -100,7 +108,6 @@ Remake of Minecraft for PS1 with PSn00bSDK
 
 <details>
 <summary><h4>Inventory</h4></summary>
-
 
 ![Inventory](./docs/inventory.png)
 

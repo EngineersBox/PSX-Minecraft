@@ -2,6 +2,7 @@
 
 #include <psxgpu.h>
 
+#include "cursor.h"
 #include "../../logging/logging.h"
 #include "../../math/math_utils.h"
 #include "../../render/font.h"
@@ -9,7 +10,6 @@
 #include "../../resources/assets.h"
 #include "../../resources/texture.h"
 #include "../../structure/primitive/primitive.h"
-#include "cursor.h"
 
 UIButton* uiButtonNew(const char* text,
                       i16 x,
@@ -38,6 +38,7 @@ void UIButton_update(VSelf) {
             &self->component.dimensions
         )) {
         self->state = BUTTON_NONE;
+        return;
     }
     switch (cursor.state) {
         case CURSOR_NONE:
@@ -54,8 +55,6 @@ void UIButton_update(VSelf) {
 void uiButtonRender(VSelf, RenderContext* ctx, Transforms* transforms) ALIAS("UIButton_render");
 void UIButton_render(VSelf, RenderContext* ctx, UNUSED Transforms* transforms) {
     VSELF(UIButton);
-    DEBUG_LOG("[BUTTON] Start render\n");
-    DEBUG_LOG("[BUTTON] Print text\n");
     fontPrintCentreOffset(
         ctx,
         self->component.position.vx + (self->component.dimensions.vx >> 1),
@@ -64,7 +63,6 @@ void UIButton_render(VSelf, RenderContext* ctx, UNUSED Transforms* transforms) {
         0,
         self->text
     );
-    DEBUG_LOG("[BUTTON] Allocate primitive\n");
     POLY_FT4* poly_ft4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
     setXYWH(
         poly_ft4,
@@ -73,6 +71,7 @@ void UIButton_render(VSelf, RenderContext* ctx, UNUSED Transforms* transforms) {
         self->component.dimensions.vx,
         self->component.dimensions.vy
     );
+    setRGB0(poly_ft4, 0x7F, 0x7F, 0x7F);
     switch (self->state) {
         case BUTTON_NONE:
             setUVWH(
@@ -119,5 +118,4 @@ void UIButton_render(VSelf, RenderContext* ctx, UNUSED Transforms* transforms) {
         self->ot_entry_index,
         ctx
     );
-    DEBUG_LOG("[BUTTON] End render\n");
 }

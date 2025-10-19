@@ -5,6 +5,7 @@
 #include "../../resources/assets.h"
 #include "../../resources/asset_indices.h"
 #include "../../structure/cvector_utils.h"
+#include "../../structure/primitive/primitive.h"
 #include "../../util/preprocessor.h"
 #include "../../util/interface99_extensions.h"
 #include "../../ui/background.h"
@@ -12,7 +13,12 @@
 #include "../../ui/components/cursor.h"
 #include "menu.h"
 #include "menu_id.h"
+#include "psxgpu.h"
 #include "stdlib.h"
+
+#define LOGO_TEXTURE_WIDTH 128
+#define LOGO_TEXTURE_HEIGHT 96
+#define LOGO_TEXTURE_HEIGHT_HALF (LOGO_TEXTURE_HEIGHT >> 1)
 
 static Texture logo = {0};
 
@@ -93,7 +99,7 @@ IUI* mainMenuNew() {
         &main_menu->ui, 
         "Options...",
         BUTTONS_POS_X,
-        BUTTONS_START_POS_Y + (BUTTONS_OFFSET_POS_Y * 2) + 12,
+        BUTTONS_START_POS_Y + (BUTTONS_OFFSET_POS_Y * 3) + 12,
         BUTTONS_SMALL_WIDTH
     );
     // Quit
@@ -101,7 +107,7 @@ IUI* mainMenuNew() {
         &main_menu->ui, 
         "Quit Game",
         (SCREEN_XRES >> 1) + 2,
-        BUTTONS_START_POS_Y + (BUTTONS_OFFSET_POS_Y * 2) + 12,
+        BUTTONS_START_POS_Y + (BUTTONS_OFFSET_POS_Y * 3) + 12,
         BUTTONS_SMALL_WIDTH
     );
     return iui;
@@ -139,9 +145,13 @@ bool isButtonPressed(const UI* ui, MainMenuButton index) {
 }
 
 InputHandlerState mainMenuInputHandler(UNUSED const Input* input, void* ctx) {
-    const MainMenu* main_menu = (MainMenu*) ctx;
     VCALL(cursor_component, update);
+    const MainMenu* main_menu = (MainMenu*) ctx;
     const UI* ui = &main_menu->ui;
+    IUIComponent* component;
+    cvector_for_each_in(component, ui->components) {
+        VCALL(*component, update);
+    }
     if (isButtonPressed(ui, MAIN_MENU_SINGLEPLAYER)) {
         menuOpen(MENUID_SINGLEPLAYER);
         return INPUT_HANDLER_RELINQUISH;
@@ -168,6 +178,57 @@ void MainMenu_registerInputHandler(VSelf, Input* input, UNUSED void* ctx) {
     );
 }
 
+void renderLogo(RenderContext* ctx) {
+    // First half
+    POLY_FT4* poly_ft4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
+    setXYWH(
+        poly_ft4,
+        (SCREEN_XRES >> 1) - LOGO_TEXTURE_WIDTH,
+        (BUTTONS_START_POS_Y >> 1) - (LOGO_TEXTURE_HEIGHT_HALF >> 1),
+        LOGO_TEXTURE_WIDTH,
+        LOGO_TEXTURE_HEIGHT_HALF
+    );
+    setUVWH(
+        poly_ft4,
+        0,
+        0,
+        LOGO_TEXTURE_WIDTH,
+        LOGO_TEXTURE_HEIGHT_HALF
+    );
+    setRGB0(poly_ft4, 0x7F, 0x7F, 0x7F);
+    poly_ft4->tpage = logo.tpage;
+    poly_ft4->clut = logo.clut;
+    polyFT4Render(
+        poly_ft4,
+        1,
+        ctx
+    );
+    // Second half
+    poly_ft4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
+    setXYWH(
+        poly_ft4,
+        SCREEN_XRES >> 1,
+        (BUTTONS_START_POS_Y >> 1) - (LOGO_TEXTURE_HEIGHT_HALF >> 1),
+        LOGO_TEXTURE_WIDTH,
+        LOGO_TEXTURE_HEIGHT_HALF
+    );
+    setUVWH(
+        poly_ft4,
+        0,
+        LOGO_TEXTURE_HEIGHT_HALF,
+        LOGO_TEXTURE_WIDTH,
+        LOGO_TEXTURE_HEIGHT_HALF
+    );
+    setRGB0(poly_ft4, 0x7F, 0x7F, 0x7F);
+    poly_ft4->tpage = logo.tpage;
+    poly_ft4->clut = logo.clut;
+    polyFT4Render(
+        poly_ft4,
+        1,
+        ctx
+    );
+}
+
 void mainMenuRender(VSelf, RenderContext* ctx, Transforms* transforms) ALIAS("MainMenu_render");
 void MainMenu_render(VSelf, RenderContext* ctx, Transforms* transforms) {
     VSELF(MainMenu);
@@ -178,7 +239,10 @@ void MainMenu_render(VSelf, RenderContext* ctx, Transforms* transforms) {
         2 * BLOCK_TEXTURE_SIZE,
         0 * BLOCK_TEXTURE_SIZE
     );
+    renderClearConstraintsIndex(ctx, 2);
     uiRender(&self->ui, ctx, transforms);
+    renderLogo(ctx);
+    renderClearConstraintsIndex(ctx, 1);
     uiCursorRender(
         &cursor,
         ctx,
