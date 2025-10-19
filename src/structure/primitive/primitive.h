@@ -24,5 +24,6 @@ void lineF2Render(const LINE_F2* line, int ot_entry, RenderContext* ctx);
 void polyF4Render(const POLY_F4* pol4, int ot_entry, RenderContext* ctx);
 void polyFT4Render(const POLY_FT4* pol4, int ot_entry, RenderContext* ctx);
 void tileRender(const TILE* tile, int ot_entry, RenderContext* ctx);
+void fillRender(const FILL* fill, int ot_entry, RenderContext* ctx);
 
 #endif //PSXMC_PRIMITIVE_H

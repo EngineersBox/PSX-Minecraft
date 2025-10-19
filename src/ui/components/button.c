@@ -9,7 +9,6 @@
 #include "../../resources/assets.h"
 #include "../../resources/texture.h"
 #include "../../structure/primitive/primitive.h"
-#include "../../util/memory.h"
 #include "cursor.h"
 
 UIButton* uiButtonNew(const char* text,
@@ -17,9 +16,8 @@ UIButton* uiButtonNew(const char* text,
                       i16 y,
                       i16 width,
                       u8 ot_entry_index) {
-    UIButton* button = malloc(sizeof(UIButton));
+    UIButton* button = (UIButton*) malloc(sizeof(UIButton));
     assert(button != NULL);
-    zeroed(button);
     button->component.position = vec2_i16(x, y);
     button->component.dimensions = vec2_i16(width, UI_BUTTON_HEIGHT);
     button->text = text;
@@ -43,13 +41,12 @@ void UIButton_update(VSelf) {
     }
     switch (cursor.state) {
         case CURSOR_NONE:
-            self->state = BUTTON_HOVERED;
-            break; 
-        case CURSOR_PRESSED:
-            self->state = BUTTON_PRESSED;
-            break;
+            FALLTHROUGH;
         case CURSOR_RELEASED:
             self->state = BUTTON_HOVERED;
+            break;
+        case CURSOR_PRESSED:
+            self->state = BUTTON_PRESSED;
             break;
     }
 }
@@ -57,6 +54,8 @@ void UIButton_update(VSelf) {
 void uiButtonRender(VSelf, RenderContext* ctx, Transforms* transforms) ALIAS("UIButton_render");
 void UIButton_render(VSelf, RenderContext* ctx, UNUSED Transforms* transforms) {
     VSELF(UIButton);
+    DEBUG_LOG("[BUTTON] Start render\n");
+    DEBUG_LOG("[BUTTON] Print text\n");
     fontPrintCentreOffset(
         ctx,
         self->component.position.vx + (self->component.dimensions.vx >> 1),
@@ -65,6 +64,7 @@ void UIButton_render(VSelf, RenderContext* ctx, UNUSED Transforms* transforms) {
         0,
         self->text
     );
+    DEBUG_LOG("[BUTTON] Allocate primitive\n");
     POLY_FT4* poly_ft4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
     setXYWH(
         poly_ft4,
@@ -119,4 +119,5 @@ void UIButton_render(VSelf, RenderContext* ctx, UNUSED Transforms* transforms) {
         self->ot_entry_index,
         ctx
     );
+    DEBUG_LOG("[BUTTON] End render\n");
 }

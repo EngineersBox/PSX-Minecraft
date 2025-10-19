@@ -37,7 +37,6 @@ void UICursor_render(VSelf, RenderContext* ctx, Transforms* transforms);
 void uiCursorSetHeldData(VSelf, void* data);
 
 impl(IUIComponent, UICursor);
-#undef UICursor_update_CUSTOM
 
 extern UICursor cursor;
 extern IUIComponent cursor_component;

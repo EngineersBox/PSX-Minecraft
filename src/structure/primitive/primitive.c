@@ -49,3 +49,9 @@ void tileRender(const TILE* tile, int ot_entry, RenderContext* ctx) {
     u32* ot_object = allocateOrderingTable(ctx, ot_entry);
     addPrim(ot_object, tile);
 }
+
+void fillRender(const FILL* fill, int ot_entry, RenderContext* ctx) {
+    setFill(fill);
+    u32* ot_object = allocateOrderingTable(ctx, ot_entry);
+    addPrim(ot_object, fill);
+}

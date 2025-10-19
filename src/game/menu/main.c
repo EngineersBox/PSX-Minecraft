@@ -9,6 +9,7 @@
 #include "../../util/interface99_extensions.h"
 #include "../../ui/background.h"
 #include "../../ui/components/button.h"
+#include "../../ui/components/cursor.h"
 #include "menu.h"
 #include "menu_id.h"
 #include "stdlib.h"
@@ -56,7 +57,9 @@ IUI* mainMenuNew() {
     //       together and use the offset address for the MainMenu
     //       instance like we do for inhertiance-esque objects
     IUI* iui = (IUI*) malloc(sizeof(IUI));
+    assert(iui != NULL);
     MainMenu* main_menu = (MainMenu*) malloc(sizeof(MainMenu));
+    assert(main_menu != NULL);
     uiInit(&main_menu->ui);
     DYN_PTR(iui, MainMenu, IUI, main_menu);
     // Singleplayer
@@ -64,7 +67,7 @@ IUI* mainMenuNew() {
         &main_menu->ui, 
         "Singleplayer",
         BUTTONS_POS_X,
-        BUTTONS_START_POS_Y + (BUTTONS_START_POS_Y * 0),
+        BUTTONS_START_POS_Y + (BUTTONS_OFFSET_POS_Y * 0),
         UI_BUTTON_TEXTURE_WIDTH
     );
     // Multiplayer
@@ -72,7 +75,7 @@ IUI* mainMenuNew() {
         &main_menu->ui,
         "Multiplayer",
         BUTTONS_POS_X,
-        BUTTONS_START_POS_Y + (BUTTONS_START_POS_Y * 1),
+        BUTTONS_START_POS_Y + (BUTTONS_OFFSET_POS_Y * 1),
         UI_BUTTON_TEXTURE_WIDTH
     );
     multiplayer_button->state = BUTTON_DISABLED;
@@ -81,7 +84,7 @@ IUI* mainMenuNew() {
         &main_menu->ui,
         "Mods and Texture Packs",
         BUTTONS_POS_X,
-        BUTTONS_START_POS_Y + (BUTTONS_START_POS_Y * 2),
+        BUTTONS_START_POS_Y + (BUTTONS_OFFSET_POS_Y * 2),
         UI_BUTTON_TEXTURE_WIDTH
     );
     mods_tp_button->state = BUTTON_DISABLED;
@@ -90,7 +93,7 @@ IUI* mainMenuNew() {
         &main_menu->ui, 
         "Options...",
         BUTTONS_POS_X,
-        BUTTONS_START_POS_Y + (BUTTONS_START_POS_Y * 2) + 12,
+        BUTTONS_START_POS_Y + (BUTTONS_OFFSET_POS_Y * 2) + 12,
         BUTTONS_SMALL_WIDTH
     );
     // Quit
@@ -98,7 +101,7 @@ IUI* mainMenuNew() {
         &main_menu->ui, 
         "Quit Game",
         (SCREEN_XRES >> 1) + 2,
-        BUTTONS_START_POS_Y + (BUTTONS_START_POS_Y * 2) + 12,
+        BUTTONS_START_POS_Y + (BUTTONS_OFFSET_POS_Y * 2) + 12,
         BUTTONS_SMALL_WIDTH
     );
     return iui;
@@ -122,6 +125,7 @@ void MainMenu_open(VSelf) {
         ASSET_TEXTURE__MENU__LOGO,
         &logo
     );
+    self->ui.active = true;
 }
 
 void mainMenuClose(VSelf) ALIAS("MainMenu_close");
@@ -136,6 +140,7 @@ bool isButtonPressed(const UI* ui, MainMenuButton index) {
 
 InputHandlerState mainMenuInputHandler(UNUSED const Input* input, void* ctx) {
     const MainMenu* main_menu = (MainMenu*) ctx;
+    VCALL(cursor_component, update);
     const UI* ui = &main_menu->ui;
     if (isButtonPressed(ui, MAIN_MENU_SINGLEPLAYER)) {
         menuOpen(MENUID_SINGLEPLAYER);
@@ -174,4 +179,9 @@ void MainMenu_render(VSelf, RenderContext* ctx, Transforms* transforms) {
         0 * BLOCK_TEXTURE_SIZE
     );
     uiRender(&self->ui, ctx, transforms);
+    uiCursorRender(
+        &cursor,
+        ctx,
+        transforms
+    );
 }

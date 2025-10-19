@@ -27,6 +27,7 @@
 #include "items/item_id.h"
 #include "items/items.h"
 #include "menu/menu.h"
+#include "menu/menu_id.h"
 #include "world/level/overworld_perlin.h"
 #include "weather/weather.h"
 // #include "../core/console.h"
@@ -75,10 +76,11 @@ void renderLoadingScreen(RenderContext* ctx) {
     poly_ft4->tpage = mojang_logo.tpage;
     poly_ft4->clut = mojang_logo.clut;
     polyFT4Render(poly_ft4, 1, ctx);
-    POLY_F4* poly_f4 = (POLY_F4*) allocatePrimitive(ctx, sizeof(POLY_F4));
-    setXYWH(poly_f4, 0, 0, SCREEN_XRES, SCREEN_YRES);
-    setRGB0(poly_f4, 0xFF, 0xFF, 0xFF);
-    polyF4Render(poly_f4, 1, ctx);
+    FILL* fill = (FILL*) allocatePrimitive(ctx, sizeof(FILL));
+    setXY0(fill, 0, 0);
+    setWH(fill, SCREEN_XRES, SCREEN_YRES);
+    setRGB0(fill, 0xFF, 0xFF, 0xFF);
+    fillRender(fill, 1, ctx);
     swapBuffers(ctx);
 }
 
@@ -120,6 +122,11 @@ void Minecraft_init(VSelf, UNUSED void* ctx) {
     // Initialise game elements
     blocksInitialiseBuiltin();
     itemsInitialiseBuiltin();
+
+    menuOpen(MENUID_MAIN);
+    return;
+
+
     // Initialise world
     world = worldNew();
     DYN_PTR(
@@ -233,6 +240,9 @@ void Minecraft_input(VSelf, UNUSED const Stats* stats) {
 void minecraftUpdate(VSelf, const Stats* stats) ALIAS("Minecraft_update");
 void Minecraft_update(VSelf, UNUSED const Stats* stats) {
     VSELF(Minecraft);
+    if (menuIsOpen()) {
+        return;
+    }
     worldUpdate(
         world,
         player,

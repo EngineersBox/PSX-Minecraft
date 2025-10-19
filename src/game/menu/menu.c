@@ -1,7 +1,8 @@
 #include "menu.h"
 
-#include "../../core/input/input.h"
 #include "menus.h"
+#include "../../core/input/input.h"
+#include "../../logging/logging.h"
 
 IUI* current_menu = NULL;
 
@@ -19,12 +20,17 @@ void menuSetCurrent(IUI *menu) {
         // registered to the currently opened menu.
         // This cirumstance occurs between menu
         // transitions
+        DEBUG_LOG("[MENU] Closing current menu\n");
         VCALL(*current_menu, close);
+        DEBUG_LOG("[MENU] Removing last handler\n");
         inputRemoveLastHandler(&input);
     }
+    DEBUG_LOG("[MENU] Setting current menu to new menu\n");
     current_menu = menu;
     if (menuIsOpen()) {
+        DEBUG_LOG("[MENU] Registering new menu input handler\n");
         VCALL_SUPER(*menu, IInputHandler, registerInputHandler, &input, NULL);
+        DEBUG_LOG("[MENU] Opening new menu\n");
         VCALL(*menu, open);
     }
 }
