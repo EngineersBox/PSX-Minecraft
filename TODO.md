@@ -103,6 +103,11 @@
 * [X] D-pad or analogue stick controlled cursor in UIs with item movement between slots being held by cursor
 * [X] Only process/search for a crafting recipe when the grid or output slot changes to avoid redundant re-processing and searches
 * [X] Items despawn after 5 minutes
+* [X] Menuing system, allowing traversal via some function invocation to move to target menu (i.e. on button press)
+* [X] Main menu
+* [ ] World management menu
+* [ ] Create world menu
+* [ ] Options menu
 * [ ] Culling of direction sub-meshes in chunk meshes to avoid any clipping tests in that direction
 * [ ] Camera far plane cutoff with fog relative to chunk render distance
 * [ ] Frustum and culling
