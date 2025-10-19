@@ -7,7 +7,6 @@
 #    -t <tag> \
 #    -f Dockerfile .
 
-# TODO: Use a slimmer distro than bloaty ubuntu
 FROM --platform=linux/amd64 debian:sid-slim
 
 ARG REPO_TARGET=Lameguy64/PSn00bSDK
