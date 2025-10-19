@@ -19,11 +19,13 @@ void menuSetCurrent(IUI *menu) {
         // registered to the currently opened menu.
         // This cirumstance occurs between menu
         // transitions
+        VCALL(*current_menu, close);
         inputRemoveLastHandler(&input);
     }
     current_menu = menu;
     if (menuIsOpen()) {
         VCALL_SUPER(*menu, IInputHandler, registerInputHandler, &input, NULL);
+        VCALL(*menu, open);
     }
 }
 

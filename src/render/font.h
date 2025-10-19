@@ -18,7 +18,12 @@ typedef int FontID;
 
 u32 fontStringWidth(const char* string);
 
-void fontPrintCentreOffset(RenderContext* ctx, i32 x_offset, i32 y, u32 fmt_add_bytes, const char* fmt, ...);
+void fontPrintCentreOffset(RenderContext* ctx,
+                           i32 x_offset,
+                           i32 y,
+                           u32 fmt_add_bytes,
+                           const size_t ot_entry_index,
+                           const char* fmt, ...);
 
 void fontLoad();
 FontID fontOpen(int x, int y, int w, int h, bool isbg, bool shadow, int n);

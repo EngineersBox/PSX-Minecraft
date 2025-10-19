@@ -4,7 +4,6 @@
 #include "../core/std/stdlib.h"
 #include <stdarg.h>
 #include <stdio.h>
-#include <ctype.h>
 
 #include "../logging/logging.h"
 #include "../resources/assets.h"
@@ -27,7 +26,7 @@ static int font_nstreams = 0;
 
 Texture* font_current;
 
-u32 fontStringWidth(const char* string) {
+INLINE u32 fontStringWidth(const char* string) {
     return FONT_CHARACTER_SPRITE_WIDTH * strlen(string);
 }
 
@@ -35,6 +34,7 @@ void fontPrintCentreOffset(RenderContext* ctx,
                            const i32 x_offset,
                            const i32 y,
                            const u32 fmt_add_bytes,
+                           const size_t ot_entry_index,
                            const char* fmt, ...) {
     const u32 raw_length = strlen(fmt) + 1;
     char* buf = (char*) calloc(raw_length + fmt_add_bytes, sizeof(*buf));
@@ -49,7 +49,7 @@ void fontPrintCentreOffset(RenderContext* ctx,
     );
     va_end(ap);
     ctx->primitive = fontSort(
-        allocateOrderingTable(ctx, 0),
+        allocateOrderingTable(ctx, ot_entry_index),
         ctx->primitive,
         x_offset - (fontStringWidth(buf) / 2),
         y,

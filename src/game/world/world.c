@@ -75,6 +75,7 @@ static void displayProgress(RenderContext* ctx,
         CENTRE_X,
         CENTRE_Y - ((FONT_CHARACTER_SPRITE_HEIGHT + 2) * 3),
         0,
+        0,
         "Loading World"
     );
     fontPrintCentreOffset(
@@ -82,6 +83,7 @@ static void displayProgress(RenderContext* ctx,
         CENTRE_X,
         CENTRE_Y - ((FONT_CHARACTER_SPRITE_HEIGHT + 2) * 2) - 1,
         10,
+        0,
         "Chunk [%d,%d,%d]",
         x, y, z
     );
@@ -90,6 +92,7 @@ static void displayProgress(RenderContext* ctx,
         CENTRE_X,
         CENTRE_Y - ((FONT_CHARACTER_SPRITE_HEIGHT + 2) * 1) - 1,
         10,
+        0,
         msg,
         x, y, z
     );
