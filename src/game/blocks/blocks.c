@@ -6,8 +6,14 @@
 #include "block_plank.h"
 
 BlockAttributes block_attributes[BLOCK_COUNT] = {0};
-BlockConstructor block_constructors[BLOCK_COUNT] = {0};
-
+// TODO: I think this array should be constant and initialised
+//       at compile time. We know all of the ctor's ahead of time
+//       so there is no point in leaving it to runtime init with
+//       the helper macros. A bit more dev pain, but worth the
+//       cost to allow the compiler to inline all usages of array 
+//       elements at compile time.
+BlockConstructor block_constructors[BLOCK_COUNT] = {0};           
+                                                                  
 #define ALL_FACE_DIRECTIONS_TRANSPARENT { \
     [FACE_DIR_DOWN]=opacityBitset(0, 0, 0, 0, 0, 0), \
     [FACE_DIR_UP]=opacityBitset(0, 0, 0, 0, 0, 0), \
