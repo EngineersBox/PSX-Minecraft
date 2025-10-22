@@ -11,7 +11,7 @@ extern IUI* current_menu;
 
 #define menuIsOpen() (current_menu != NULL)
 
-void menuOpen(EMenuID menu_id);
+void menuOpen(const EMenuID menu_id);
 void menuSetCurrent(IUI* menu);
 void menuRender(RenderContext* ctx, Transforms* transforms);
 

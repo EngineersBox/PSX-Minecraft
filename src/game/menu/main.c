@@ -4,6 +4,7 @@
 
 #include "menu.h"
 #include "menu_id.h"
+#include "menus.h"
 #include "../blocks/block.h"
 #include "../../render/render_context.h"
 #include "../../render/font.h"
@@ -37,11 +38,11 @@ typedef enum MainMenuButton {
 
 #define BUTTONS_SMALL_WIDTH ((UI_BUTTON_TEXTURE_WIDTH >> 1) - 2)
 
-INLINE UIButton* addButton(UI* ui,
-                           const char* text,
-                           i16 x,
-                           i16 y,
-                           i16 width) {
+INLINE static UIButton* addButton(UI* ui,
+                                  const char* text,
+                                  i16 x,
+                                  i16 y,
+                                  i16 width) {
     IUIComponent* component = uiAddComponent(ui);
     UIButton* button = uiButtonNew(
         text,

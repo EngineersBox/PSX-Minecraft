@@ -7,6 +7,7 @@
 
 #include "../item.h"
 #include "../../blocks/block.h"
+#include "../../blocks/blocks.h"
 #include "../../../resources/texture.h"
 #include "../../../render/render_context.h"
 #include "../../../render/transforms.h"

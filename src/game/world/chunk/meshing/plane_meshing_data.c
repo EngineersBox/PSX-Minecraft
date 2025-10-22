@@ -1,6 +1,7 @@
 #include "plane_meshing_data.h"
 
 #include "../../../../structure/hashmap.h"
+#include "../../../blocks/blocks.h"
 
 int plane_meshing_data_compare(const void* a, const void* b, UNUSED void* ignored) {
     const PlaneMeshingData* pa = a;

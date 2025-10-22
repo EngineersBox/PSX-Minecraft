@@ -12,6 +12,7 @@
 #include "../../../../resources/asset_indices.h"
 #include "../../../../structure/primitive/primitive.h"
 #include "../../../../resources/assets.h"
+#include "../../../blocks/blocks.h"
 #include "../../position.h"
 #include "../chunk_structure.h"
 #include "plane_meshing_data.h"

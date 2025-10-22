@@ -104,7 +104,7 @@
     f(ENUM_ENTRY_ORD(ITEMID_TRAPPED_CHEST, 95)) \
     f(ENUM_ENTRY_ORD(ITEMID_TRAPDOOR, 96))
 
-#define ITEM_COUNT (ITEM_LIST(count) 0)
+#define ITEM_COUNT (ITEM_LIST(enumCount) 0)
 
 typedef enum {
     ITEM_LIST(enumConstruct)

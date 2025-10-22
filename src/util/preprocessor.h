@@ -56,6 +56,7 @@
 #define PACKED __attribute__((packed))
 #define FALLTHROUGH __attribute__((fallthrough))
 #define NO_RETURN __attribute__((noreturn))
+#define COUNTED_BY(field) __attribute__((counted_by(field)))
 
 // Forward declaration
 #define FWD_DECL
@@ -138,7 +139,7 @@
 #define count_ENUM_ENTRY_IMPL(name) v(1 +)
 #define count_ENUM_ENTRY_ORD_IMPL(name, id) count_ENUM_ENTRY_IMPL(name)
 
-#define count(entry) ML99_EVAL(ML99_match(entry, v(count_)))
+#define enumCount(entry) ML99_EVAL(ML99_match(entry, v(count_)))
 
 // ==== PRIMITIVE OPERANDS ====
 

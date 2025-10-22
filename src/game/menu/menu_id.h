@@ -10,7 +10,7 @@
     f(ENUM_ENTRY_ORD(MENUID_SINGLEPLAYER, 1)) \
     f(ENUM_ENTRY_ORD(MENUID_OPTIONS, 2))
 
-#define MENU_COUNT (MENU_LIST(count) 0)
+#define MENU_COUNT (MENU_LIST(enumCount) 0)
 
 typedef enum EMenuID {
     MENU_LIST(enumConstruct)

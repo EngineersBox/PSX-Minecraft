@@ -6,7 +6,7 @@
 
 IUI* current_menu = NULL;
 
-void menuOpen(EMenuID menu_id) {
+void menuOpen(const EMenuID menu_id) {
     const MenuConstructor ctor = menu_constructors[menu_id];
     IUI* next_menu = ctor();
     assert(next_menu != NULL);

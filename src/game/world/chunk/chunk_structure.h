@@ -8,8 +8,7 @@
 #include "chunk_mesh.h"
 #include "chunk_defines.h"
 #include "chunk_visibility.h"
-#include "../position.h"
-#include "../../blocks/blocks.h"
+#include "../../blocks/block.h"
 #include "../../../lighting/lightmap.h"
 
 // -1 = unlimited

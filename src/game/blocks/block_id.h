@@ -104,7 +104,7 @@
     f(ENUM_ENTRY_ORD(BLOCKID_TRAPPED_CHEST, 95)) \
     f(ENUM_ENTRY_ORD(BLOCKID_TRAPDOOR, 96))
 
-#define BLOCK_COUNT (BLOCK_LIST(count) 0)
+#define BLOCK_COUNT (BLOCK_LIST(enumCount) 0)
 
 typedef enum EBlockID {
     BLOCK_LIST(enumConstruct)

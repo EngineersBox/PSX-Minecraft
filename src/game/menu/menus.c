@@ -4,10 +4,10 @@
 
 #include "main.h"
 
-MenuConstructor menu_constructors[MENU_COUNT] = {
+const MenuConstructor menu_constructors[MENU_COUNT] = {
     [MENUID_MAIN] = mainMenuNew,
 };
 
-MenuDestructor menu_destructors[MENU_COUNT] = {
+const MenuDestructor menu_destructors[MENU_COUNT] = {
     [MENUID_MAIN] = mainMenuDestroy,
 };

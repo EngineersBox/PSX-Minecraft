@@ -50,7 +50,7 @@ void PlankItemBlock_renderHand(VSelf, RenderContext* ctx, Transforms* transforms
 }
 
 void plankItemBlockApplyWorldRenderAttributes(VSelf) ALIAS("PlankItemBlock_applyWorldRenderAttributes");
-void PlankItemBlock_applyWorldRenderAttributes(VSelf) {
+void PlankItemBlock_applyWorldRenderAttributes(UNUSED VSelf) {
     UNIMPLEMENTED();
 }
 
@@ -61,7 +61,7 @@ void PlankItemBlock_applyInventoryRenderAttributes(VSelf) {
 }
 
 void plankItemBlockApplyHandRenderAttributes(VSelf) ALIAS("PlankItemBlock_applyHandRenderAttributes");
-void PlankItemBlock_applyHandRenderAttributes(VSelf) {
+void PlankItemBlock_applyHandRenderAttributes(UNUSED VSelf) {
     UNIMPLEMENTED();
 }
 
