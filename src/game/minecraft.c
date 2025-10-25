@@ -142,6 +142,7 @@ void Minecraft_init(VSelf, UNUSED void* ctx) {
     playerInit(player);
     block_input_handler_context.inventory = &player->inventory;
     player->camera = &self->camera;
+    // TODO: Algorithmically find player spawn position
     const VECTOR player_positon = vec3_i32(
         0,
         (CHUNK_BLOCK_SIZE + (BLOCK_SIZE << 1)) << FIXED_POINT_SHIFT,
