@@ -66,8 +66,8 @@ IBlock* worldModifyVoxelConstructed(const World* world,
                                     IItem** item_result);
 
 LightLevel worldGetLightType(const World* world,
-                     const VECTOR* position,
-                     const LightType light_type);
+                             const VECTOR* position,
+                             const LightType light_type);
 LightLevel worldGetLightTypeChunkBlock(const World* world,
                                        const ChunkBlockPosition* position,
                                        const LightType light_type);

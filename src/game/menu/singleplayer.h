@@ -9,7 +9,7 @@
 
 DEFN_UI(SingleplayerMenu);
 
-IUI* singleplayerMenuNew();
+ALLOC_CALL(singleplayerMenuDestroy, 1) IUI* singleplayerMenuNew();
 void singleplayerMenuDestroy(IUI* menu);
 
 void singleplayerMenuRegisterInputHandler(VSelf, Input* input, void* ctx);

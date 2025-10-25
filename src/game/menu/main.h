@@ -9,7 +9,7 @@
 
 DEFN_UI(MainMenu);
 
-IUI* mainMenuNew();
+ALLOC_CALL(mainMenuDestroy, 1) IUI* mainMenuNew();
 void mainMenuDestroy(IUI* menu);
 
 #define MainMenu_open_CUSTOM ()
