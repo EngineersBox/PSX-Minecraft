@@ -18,4 +18,8 @@ typedef struct Save {
     //       how do we reference them?
 } Save;
 
+void saveFromRaw(void* data);
+
+void saveDestroy(Save* save);
+
 #endif // _GAME_SAVE__SAVE_H_

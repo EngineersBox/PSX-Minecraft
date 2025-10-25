@@ -1,12 +1,17 @@
 #include "manager.h"
 
-#include "../../util/preprocessor.h"
+#include "../../logging/logging.h"
+#include "save.h"
+
+static void __saveDestroy(void* element) {
+    saveDestroy((Save*) element);
+}
 
 void saveManagerInit(SaveManager* save_manager) {
     assert(save_manager != NULL);
     save_manager->card_0_present = false;
     save_manager->card_1_present = false;
-    cvector_init(save_manager->saves, 0, NULL);
+    cvector_init(save_manager->saves, 0, __saveDestroy);
 }
 
 INLINE void saveManagerDestroy(SaveManager* save_manager) {
