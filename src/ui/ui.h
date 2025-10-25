@@ -33,9 +33,15 @@ typedef struct UIComponent {
 } name
 
 #define IUI_IFACE \
-    vfunc(void, open, VSelf) \
-    vfunc(void, close, VSelf) \
+    vfuncDefault(void, open, VSelf) \
+    vfuncDefault(void, close, VSelf) \
     vfuncDefault(void, render, VSelf, RenderContext* ctx, Transforms* transforms)
+
+void iuiOpen(VSelf);
+void IUI_open(VSelf);
+
+void iuiClose(VSelf);
+void IUI_close(VSelf);
 
 void iuiRender(VSelf, RenderContext* ctx, Transforms* transforms);
 void IUI_render(VSelf, RenderContext* ctx, Transforms* transforms);

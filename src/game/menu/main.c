@@ -4,7 +4,6 @@
 
 #include "menu.h"
 #include "menu_id.h"
-#include "menus.h"
 #include "../blocks/block.h"
 #include "../../render/render_context.h"
 #include "../../render/font.h"
@@ -114,6 +113,7 @@ IUI* mainMenuNew() {
     );
     return iui;
 }
+
 void mainMenuDestroy(IUI* menu) {
     MainMenu* main_menu = VCAST_PTR(MainMenu*, menu);
     IUIComponent* component;
@@ -134,10 +134,6 @@ void MainMenu_open(VSelf) {
         &logo
     );
     self->ui.active = true;
-}
-
-void mainMenuClose(VSelf) ALIAS("MainMenu_close");
-void MainMenu_close(UNUSED VSelf) {
 }
 
 bool isButtonPressed(const UI* ui, MainMenuButton index) {

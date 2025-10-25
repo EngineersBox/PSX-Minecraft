@@ -99,12 +99,6 @@ void hotbarRenderAttributes(u8 health,
                             RenderContext* ctx,
                             Transforms* transforms);
 
-void hotbarOpen(VSelf);
-void Hotbar_open(VSelf);
-
-void hotbarClose(VSelf);
-void Hotbar_close(VSelf);
-
 void hotbarRegisterInputHandler(VSelf, Input* input, void* ctx);
 void Hotbar_registerInputHandler(VSelf, Input* input, void* ctx);
 

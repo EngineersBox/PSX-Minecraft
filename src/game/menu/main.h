@@ -12,11 +12,9 @@ DEFN_UI(MainMenu);
 IUI* mainMenuNew();
 void mainMenuDestroy(IUI* menu);
 
+#define MainMenu_open_CUSTOM ()
 void mainMenuOpen(VSelf);
 void MainMenu_open(VSelf);
-
-void mainMenuClose(VSelf);
-void MainMenu_close(VSelf);
 
 void mainMenuRegisterInputHandler(VSelf, Input* input, void* ctx);
 void MainMenu_registerInputHandler(VSelf, Input* input, void* ctx);

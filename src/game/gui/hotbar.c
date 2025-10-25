@@ -280,16 +280,6 @@ void hotbarRenderAttributes(u8 health,
     addPrim(ot_object, pol4);
 }
 
-void hotbarOpen(VSelf) ALIAS("Hotbar_open");
-void Hotbar_open(UNUSED VSelf) {
-    // Always open
-}
-
-void hotbarClose(VSelf) ALIAS("Hotbar_close");
-void Hotbar_close(UNUSED VSelf) {
-    // Always open
-}
-
 InputHandlerState hotbarInputHandler(const Input* input, void* ctx) {
     const PADTYPE* pad = input->pad;
     if (pad->stat != 0) {

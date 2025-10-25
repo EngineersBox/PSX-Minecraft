@@ -166,9 +166,11 @@ Slot* inventoryFindFreeSlot(Inventory* inventory, const u8 from_slot);
 
 InventoryStoreResult inventoryStoreItem(Inventory* inventory, IItem* iitem);
 
+#define Inventory_open_CUSTOM ()
 void inventoryOpen(VSelf);
 void Inventory_open(VSelf);
 
+#define Inventory_close_CUSTOM ()
 void inventoryClose(VSelf);
 void Inventory_close(VSelf);
 
