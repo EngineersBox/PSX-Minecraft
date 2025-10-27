@@ -45,6 +45,15 @@ class PreviewButton:
         self.image.process_event(event)
         self.label.process_event(event)
 
+    def move(self, move: tuple[int, int], preview_rect: pygame.Rect):
+        if (preview_rect.contains(
+            self.rect.x + move[0],
+            self.rect.y + move[1],
+            self.rect.width,
+            self.rect.height
+        )):
+            self.rect.move(move[0], move[1])
+
 class Preview:
     manager: pygame_gui.UIManager
     button_image: pygame.Surface
@@ -52,6 +61,8 @@ class Preview:
     rect: pygame.Rect
     surface: pygame.Surface
     container: pygame_gui.elements.UIPanel
+
+    held_button: PreviewButton | None
 
     def __init__(self, manager: pygame_gui.UIManager):
         self.manager = manager
@@ -61,12 +72,27 @@ class Preview:
         self.surface = pygame.Surface((self.rect.width, self.rect.height))
         self.surface.fill(pygame.Color("#AFAFAF"))
         self.container = pygame_gui.elements.UIPanel(relative_rect=self.rect)
+        self.held_button = None
 
     def update(self, time_delta: float):
         for button in self.game_buttons:
             button.update(time_delta)
 
+    def _get_intersected_button(self, pos: tuple[int, int]) -> PreviewButton | None:
+        for button in self.game_buttons:
+            if (button.rect.collidepoint(pos[0], pos[1])):
+                return button
+        return None
+
     def process_event(self, event: pygame.Event):
+        if (event == pygame.MOUSEBUTTONDOWN):
+            self.held_button = self._get_intersected_button(pygame.mouse.get_pos())
+        elif (event == pygame.MOUSEBUTTONUP):
+            self.held_button = None
+        elif (event == pygame.MOUSEMOTION
+            and self.held_button is not None):
+            move = pygame.mouse.get_rel()
+            self.held_button.move(move, self.rect)
         for button in self.game_buttons:
             button.process_event(event)
 
