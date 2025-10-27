@@ -54,13 +54,13 @@ class PreviewButton:
             rel_rect.height
         )):
             self.image.set_relative_position((
-                ((rel_rect.x + move[0]) // PREVIEW_SCALE_X) * PREVIEW_SCALE_X,
-                ((rel_rect.y + move[1]) // PREVIEW_SCALE_Y) * PREVIEW_SCALE_Y
+                rel_rect.x + move[0],
+                rel_rect.y + move[1]
             ))
             rel_rect = self.label.get_relative_rect()
             self.label.set_relative_position((
-                ((rel_rect.x + move[0]) // PREVIEW_SCALE_X) * PREVIEW_SCALE_X,
-                ((rel_rect.y + move[1]) // PREVIEW_SCALE_Y) * PREVIEW_SCALE_Y
+                rel_rect.x + move[0],
+                rel_rect.y + move[1]
             ))
 
 class Preview:
@@ -72,6 +72,7 @@ class Preview:
     container: pygame_gui.elements.UIPanel
 
     held_button: PreviewButton | None
+    mouse_pos: tuple[int, int]
 
     def __init__(self, manager: pygame_gui.UIManager):
         self.manager = manager
@@ -82,6 +83,7 @@ class Preview:
         self.surface.fill(pygame.Color("#AFAFAF"))
         self.container = pygame_gui.elements.UIPanel(relative_rect=self.rect)
         self.held_button = None
+        self.mouse_pos = (0, 0)
 
     def update(self, time_delta: float):
         for button in self.game_buttons:
@@ -90,19 +92,26 @@ class Preview:
     def _get_intersected_button(self, pos: tuple[int, int]) -> PreviewButton | None:
         for button in self.game_buttons:
             if (button.image.hover_point(pos[0], pos[1])):
-            # if (button.image.get_abs_rect().collidepoint(pos[0], pos[1])):
                 return button
         return None
 
     def process_event(self, event: pygame.Event):
         if (event.type == pygame.MOUSEBUTTONDOWN):
             self.held_button = self._get_intersected_button(pygame.mouse.get_pos())
+            self.mouse_pos = pygame.mouse.get_pos()
         elif (event.type == pygame.MOUSEBUTTONUP):
             self.held_button = None
         elif (event.type == pygame.MOUSEMOTION
             and self.held_button is not None):
-            move = pygame.mouse.get_rel()
-            self.held_button.move(move, self.container.get_relative_rect())
+            next_mouse_pos = pygame.mouse.get_pos()
+            move_x, move_y = 0, 0
+            if (abs(next_mouse_pos[0] - self.mouse_pos[0]) >= PREVIEW_SCALE_X):
+                move_x = ((next_mouse_pos[0] - self.mouse_pos[0]) // PREVIEW_SCALE_X) * PREVIEW_SCALE_X
+                self.mouse_pos = (next_mouse_pos[0], self.mouse_pos[1])
+            if (abs(next_mouse_pos[1] - self.mouse_pos[1]) >= PREVIEW_SCALE_Y):
+                move_y = ((next_mouse_pos[1] - self.mouse_pos[1]) // PREVIEW_SCALE_Y) * PREVIEW_SCALE_Y
+                self.mouse_pos = (self.mouse_pos[0], next_mouse_pos[1])
+            self.held_button.move((move_x, move_y), self.container.get_relative_rect())
         for button in self.game_buttons:
             button.process_event(event)
 
