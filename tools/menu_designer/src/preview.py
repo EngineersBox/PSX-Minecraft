@@ -94,7 +94,11 @@ class Preview:
             button.update(time_delta)
 
     def _get_intersected_button(self, pos: tuple[int, int]) -> PreviewButton | None:
-        for button in self.game_buttons.values():
+        ordered_buttons = reversed(list(filter(
+            lambda button: button.image.get_starting_height(),
+            list(self.game_buttons.values())
+        )))
+        for button in ordered_buttons:
             if (button.image.hover_point(pos[0], pos[1])):
                 return button
         return None
