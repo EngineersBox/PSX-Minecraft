@@ -88,9 +88,8 @@ class ControlForm:
         self.on_submit = on_submit
     
     def process_event(self, event: pygame.Event):
-        self.form.process_event(event)
-        if (event.type == pygame_gui.UI_FORM_SUBMITTED):
-            print(event)
+        if (event.type == pygame_gui.UI_FORM_SUBMITTED
+            and event.ui_element == self.form):
             self.on_submit()
 
 class Control:
@@ -108,7 +107,7 @@ class Control:
         self.rect = pygame.Rect(
             preview.rect.width,
             0,
-            150,
+            200,
             preview.rect.height
         )
         self.surface = pygame.Surface((self.rect.width, self.rect.height))
@@ -121,16 +120,16 @@ class Control:
         self.button_text_input = ControlTextInput(
             0,
             0,
-            149,
-            20,
+            199,
+            60,
             self.manager,
             self.container
         )
         self.add_button_form = ControlForm(
             0,
             0,
-            149,
-            80,
+            199,
+            150,
             {
                 "button_text": self.button_text_input.input
             },
@@ -143,7 +142,7 @@ class Control:
         self.add_button_form.form.update(time_delta)
 
     def process_event(self, event: pygame.Event):
-        self.add_button_form.form.process_event(event)
+        self.add_button_form.process_event(event)
 
     def _add_button(self):
         print("Adding button")
