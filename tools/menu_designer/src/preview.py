@@ -89,7 +89,8 @@ class Preview:
 
     def _get_intersected_button(self, pos: tuple[int, int]) -> PreviewButton | None:
         for button in self.game_buttons:
-            if (button.image.get_abs_rect().collidepoint(pos[0], pos[1])):
+            if (button.image.hover_point(pos[0], pos[1])):
+            # if (button.image.get_abs_rect().collidepoint(pos[0], pos[1])):
                 return button
         return None
 
