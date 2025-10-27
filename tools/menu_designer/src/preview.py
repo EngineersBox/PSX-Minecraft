@@ -86,9 +86,6 @@ class Preview:
     def update(self, time_delta: float):
         for button in self.game_buttons:
             button.update(time_delta)
-        if (self.held_button is not None):
-            move = pygame.mouse.get_rel()
-            self.held_button.move(move, self.container.get_relative_rect())
 
     def _get_intersected_button(self, pos: tuple[int, int]) -> PreviewButton | None:
         for button in self.game_buttons:
@@ -101,6 +98,10 @@ class Preview:
             self.held_button = self._get_intersected_button(pygame.mouse.get_pos())
         elif (event.type == pygame.MOUSEBUTTONUP):
             self.held_button = None
+        elif (event.type == pygame.MOUSEMOTION
+            and self.held_button is not None):
+            move = pygame.mouse.get_rel()
+            self.held_button.move(move, self.container.get_relative_rect())
         for button in self.game_buttons:
             button.process_event(event)
 
