@@ -13,6 +13,9 @@ def main():
     gui_manager = pygame_gui.UIManager((1280, 720))
     designer = MenuDesigner(gui_manager)
 
+    pygame.mouse.set_relative_mode(True)
+    pygame.mouse.set_visible(True)
+
     is_running = True
 
     clock = pygame.time.Clock()

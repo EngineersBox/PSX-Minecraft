@@ -145,7 +145,6 @@ class Control:
         self.add_button_form.process_event(event)
 
     def _add_button(self):
-        print("Adding button")
         text = self.button_text_input.input.get_text()
         if len(text) == 0:
             return
