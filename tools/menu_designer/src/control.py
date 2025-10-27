@@ -2,6 +2,33 @@ from typing import Callable
 import pygame, pygame_gui
 from src.preview import Preview
 
+class ControlLabel:
+    rect: pygame.Rect
+    label: pygame_gui.elements.UILabel
+
+    def __init__(
+        self,
+        x: int,
+        y: int,
+        width: int,
+        height: int,
+        text: str,
+        manager: pygame_gui.UIManager,
+        control_container: pygame_gui.elements.UIPanel
+    ):
+        self.rect = pygame.Rect(
+            x,
+            y,
+            width,
+            height
+        )
+        self.label = pygame_gui.elements.UILabel(
+            relative_rect=self.rect,
+            text=text,
+            manager=manager,
+            container=control_container
+        )
+
 class ControlButton:
     rect: pygame.Rect
     button: pygame_gui.elements.UIButton
@@ -92,6 +119,34 @@ class ControlForm:
             and event.ui_element == self.form):
             self.on_submit()
 
+class ControlSelectionList:
+    rect: pygame.Rect
+    selection_list: pygame_gui.elements.UISelectionList
+
+    def __init__(
+        self,
+        x: int,
+        y: int,
+        width: int,
+        height: int,
+        item_list: list[str | tuple[str, str]],
+        manager: pygame_gui.UIManager,
+        control_container: pygame_gui.elements.UIPanel
+    ):
+        self.rect = pygame.Rect(
+            x,
+            y,
+            width,
+            height
+        )
+        self.selection_list = pygame_gui.elements.UISelectionList(
+            relative_rect=self.rect,
+            item_list=item_list,
+            allow_multi_select=False,
+            manager=manager,
+            container=control_container
+        )
+
 class Control:
     manager: pygame_gui.UIManager
     rect: pygame.Rect
@@ -99,8 +154,13 @@ class Control:
     container: pygame_gui.elements.UIPanel
     preview: Preview
 
+    buttons: dict[str, tuple[str, str]]
+
     button_text_input: ControlTextInput
-    add_button_form: ControlForm
+    create_button: ControlButton
+    buttons_list_label: ControlLabel
+    buttons_list: ControlSelectionList
+    delete_button: ControlButton
 
     def __init__(self, manager: pygame_gui.UIManager, preview: Preview):
         self.manager = manager
@@ -114,38 +174,82 @@ class Control:
         self.surface.fill(pygame.Color("#AFAFAF"))
         self.container = pygame_gui.elements.UIPanel(relative_rect=self.rect)
         self.preview = preview
+        self.buttons = {}
         self.create_panel_elements()
 
     def create_panel_elements(self):
+        y_offset = 0
         self.button_text_input = ControlTextInput(
             0,
-            0,
+            y_offset,
             199,
-            60,
+            30,
             self.manager,
             self.container
         )
-        self.add_button_form = ControlForm(
+        y_offset += self.button_text_input.rect.height
+        self.create_button = ControlButton(
             0,
-            0,
+            y_offset,
             199,
-            150,
-            {
-                "button_text": self.button_text_input.input
-            },
-            self._add_button,
+            30,
+            "Add Button",
+            self.manager,
+            self.container,
+            self._add_button
+        )
+        y_offset += self.create_button.rect.height + 5
+        self.buttons_list_label = ControlLabel(
+            0,
+            y_offset,
+            199,
+            30,
+            "Buttons",
             self.manager,
             self.container
+        )
+        y_offset += self.buttons_list_label.rect.height
+        self.buttons_list = ControlSelectionList(
+            0,
+            y_offset,
+            199,
+            200,
+            [],
+            self.manager,
+            self.container
+        )
+        y_offset += self.buttons_list.rect.height
+        self.delete_button = ControlButton(
+            0,
+            y_offset,
+            199,
+            30,
+            "Remove Button",
+            self.manager,
+            self.container,
+            self._remove_button
         )
 
     def update(self, time_delta: float):
-        self.add_button_form.form.update(time_delta)
+        pass
 
     def process_event(self, event: pygame.Event):
-        self.add_button_form.process_event(event)
+        pass
 
     def _add_button(self):
         text = self.button_text_input.input.get_text()
         if len(text) == 0:
             return
-        self.preview.add_button(text)
+        button_id = self.preview.add_button(text)
+        self.buttons[button_id] = (text, button_id)
+        self.buttons_list.selection_list.set_item_list(list(self.buttons.values()))
+        self.button_text_input.input.set_text("")
+
+    def _remove_button(self):
+        selected = self.buttons_list.selection_list.get_single_selection(include_object_id=True)
+        if selected == None:
+            return
+        self.buttons.pop(selected[1])
+        self.preview.remove_button(selected[1])
+        self.buttons_list.selection_list.set_item_list(list(self.buttons.values()))
+

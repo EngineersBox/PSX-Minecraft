@@ -1,4 +1,4 @@
-import pygame, pygame_gui
+import pygame, pygame_gui, uuid
 
 PREVIEW_SCALE_X = 3
 PREVIEW_SCALE_Y = 3
@@ -63,10 +63,14 @@ class PreviewButton:
                 rel_rect.y + move[1]
             ))
 
+    def kill(self):
+        self.image.kill()
+        self.label.kill()
+
 class Preview:
     manager: pygame_gui.UIManager
     button_image: pygame.Surface
-    game_buttons: list[PreviewButton]
+    game_buttons: dict[str, PreviewButton]
     rect: pygame.Rect
     surface: pygame.Surface
     container: pygame_gui.elements.UIPanel
@@ -77,7 +81,7 @@ class Preview:
     def __init__(self, manager: pygame_gui.UIManager):
         self.manager = manager
         self.button_image = pygame.image.load("assets/button.png")
-        self.game_buttons = []
+        self.game_buttons = {}
         self.rect = pygame.Rect(0, 0, 320 * PREVIEW_SCALE_X, 240 * PREVIEW_SCALE_Y)
         self.surface = pygame.Surface((self.rect.width, self.rect.height))
         self.surface.fill(pygame.Color("#AFAFAF"))
@@ -86,11 +90,11 @@ class Preview:
         self.mouse_pos = (0, 0)
 
     def update(self, time_delta: float):
-        for button in self.game_buttons:
+        for button in self.game_buttons.values():
             button.update(time_delta)
 
     def _get_intersected_button(self, pos: tuple[int, int]) -> PreviewButton | None:
-        for button in self.game_buttons:
+        for button in self.game_buttons.values():
             if (button.image.hover_point(pos[0], pos[1])):
                 return button
         return None
@@ -112,11 +116,11 @@ class Preview:
                 move_y = ((next_mouse_pos[1] - self.mouse_pos[1]) // PREVIEW_SCALE_Y) * PREVIEW_SCALE_Y
                 self.mouse_pos = (self.mouse_pos[0], next_mouse_pos[1])
             self.held_button.move((move_x, move_y), self.container.get_relative_rect())
-        for button in self.game_buttons:
+        for button in self.game_buttons.values():
             button.process_event(event)
 
-    def add_button(self, text: str):
-        self.game_buttons.append(PreviewButton(
+    def add_button(self, text: str) -> str:
+        button = PreviewButton(
             0,
             0,
             200,
@@ -124,4 +128,11 @@ class Preview:
             self.button_image,
             self.manager,
             self.container
-        ))
+        )
+        button_id = str(uuid.uuid4())
+        self.game_buttons[button_id] = button
+        return button_id
+
+    def remove_button(self, button_id: str):
+        button = self.game_buttons.pop(button_id)
+        button.kill()
