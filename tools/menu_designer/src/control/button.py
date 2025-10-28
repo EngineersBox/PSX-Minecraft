@@ -35,3 +35,6 @@ class ControlButton(ControlBase):
 
     def disable(self):
         self.button.disable()
+
+    def kill(self):
+        self.button.kill()

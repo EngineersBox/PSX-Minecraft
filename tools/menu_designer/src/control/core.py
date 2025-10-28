@@ -1,6 +1,6 @@
 from typing import Optional
 import pygame, pygame_gui
-from src.preview import Preview, PreviewButton
+from src.codegen.button import gen_button_html_code
 from src.control.button import ControlButton
 from src.control.checkbox import ControlCheckbox
 from src.control.horizontal_slider import ControlHorizontalSlider
@@ -8,7 +8,9 @@ from src.control.label import ControlLabel
 from src.control.panel import ControlPanel
 from src.control.resizing_panel import ControlResizingPanel
 from src.control.selection_list import ControlSelectionList
+from src.control.text_box import ControlTextBox
 from src.control.text_input import ControlTextInput
+from src.preview import Preview, PreviewButton
 
 class Control:
     manager: pygame_gui.UIManager
@@ -27,6 +29,11 @@ class Control:
     width_slider: ControlHorizontalSlider
     button_disabled_checkbox: ControlCheckbox
     remove_button: ControlButton
+    view_button_code: ControlButton
+
+    code_panel: ControlPanel
+    code_view: ControlTextBox
+    code_close: ControlButton
 
     def __init__(self, manager: pygame_gui.UIManager, preview: Preview):
         self.manager = manager
@@ -155,6 +162,19 @@ class Control:
             )
         )
         self.remove_button.disable()
+        self.view_button_code = self.modify_panel.add_element_offset(
+            lambda width, y, container: ControlButton(
+                0,
+                y,
+                width,
+                30,
+                "View Button Code",
+                self.manager,
+                container,
+                self._open_selected_button_code_panel
+            )
+        )
+        self.view_button_code.disable()
 
     def update(self, time_delta: float):
         self.create_panel.update(time_delta)
@@ -172,6 +192,7 @@ class Control:
             self.width_slider.enable()
             self.remove_button.enable()
             self.button_disabled_checkbox.enable()
+            self.view_button_code.enable()
             selected = self._get_selected_button()
             if selected is not None:
                 width = selected.get_width()
@@ -225,3 +246,44 @@ class Control:
         self.width_label.label.set_text("Width: N/A")
         self.pos_label.label.set_text("X: N/A Y: N/A")
         self.button_disabled_checkbox.disable()
+        self.view_button_code.disable()
+
+    def _close_code_panel(self):
+        self.code_view.kill()
+        self.code_close.kill()
+        self.code_panel.kill()
+
+    def _open_code_panel(self):
+        self.code_panel = ControlPanel(
+            0,
+            0,
+            pygame.display.get_window_size()[0],
+            pygame.display.get_window_size()[1],
+            self.manager
+        )
+        self.code_view = ControlTextBox(
+            0,
+            0,
+            pygame.display.get_window_size()[0],
+            pygame.display.get_window_size()[1] - 36,
+            self.manager,
+            self.code_panel.panel,
+            background_colour=pygame.Color("#232323")
+        )
+        self.code_close = ControlButton(
+            pygame.display.get_window_size()[0] - 106,
+            pygame.display.get_window_size()[1] - 36,
+            100,
+            30,
+            "Close",
+            self.manager,
+            self.code_panel.panel,
+            self._close_code_panel
+        )
+
+    def _open_selected_button_code_panel(self):
+        selected = self._get_selected_button()
+        if selected == None:
+            return
+        self._open_code_panel()
+        self.code_view.set_text(gen_button_html_code(selected))

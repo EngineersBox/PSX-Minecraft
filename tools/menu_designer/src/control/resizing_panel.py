@@ -57,7 +57,7 @@ class ControlResizingPanel(ControlPanel):
         y_spacing: int = 0
     ) -> T:
         element = element_create_fn(
-            self.rect.width - 3,
+            self.rect.width - 6,
             self.y_offset,
             self.panel
         )

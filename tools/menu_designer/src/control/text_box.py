@@ -3,9 +3,9 @@ import pygame
 import pygame_gui
 from src.control.base import ControlBase
 
-class ControlPanel(ControlBase):
+class ControlTextBox(ControlBase):
     surface: pygame.Surface
-    panel: pygame_gui.elements.UIPanel
+    text_box: pygame_gui.elements.UITextBox
 
     def __init__(
         self,
@@ -23,15 +23,21 @@ class ControlPanel(ControlBase):
             width,
             height
         )
-        self.panel = pygame_gui.elements.UIPanel(
+        self.text_box = pygame_gui.elements.UITextBox(
+            html_text="",
             relative_rect=self.rect,
             manager=manager,
-            container=container
+            container=container,
+            allow_split_dashes=False
         )
         if background_colour is not None:
             self.surface = pygame.Surface((width, height))
             self.surface.fill(background_colour)
-            self.panel.set_background_images([self.surface])
+            self.text_box.set_image(self.surface)
+            self.text_box.background_colour = background_colour
+
+    def set_text(self, text: str):
+        self.text_box.set_text(text)
 
     def kill(self):
-        self.panel.kill()
+        self.text_box.kill()

@@ -1,0 +1,14 @@
+IUIComponent* {{ name_snake_lower }}_component = uiAddComponent(ui);
+UIButton* {{ name_snake_lower }}_button = uiButtonNew(
+    "{{ text }}",
+    {{ x }},
+    {{ y }},
+    {{ width }},
+    1
+);
+DYN_PTR(
+    {{ name_snake_lower }}_component,
+    UIButton,
+    IUIComponent,
+    {{ name_snake_lower }}_button
+);
