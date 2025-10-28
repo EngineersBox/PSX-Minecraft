@@ -46,7 +46,7 @@ class Control:
         self.create_panel = ControlResizingPanel(
             self.preview.rect.width,
             0,
-            200,
+            pygame.display.get_window_size()[0] - self.preview.rect.width,
             0,
             self.manager
         )
@@ -74,8 +74,8 @@ class Control:
         )
         self.modify_panel = ControlResizingPanel(
             self.preview.rect.width,
-            int(self.create_panel.y_offset + 5),
-            200,
+            int(self.create_panel.y_offset + 20),
+            pygame.display.get_window_size()[0] - self.preview.rect.width,
             0,
             self.manager
         )
