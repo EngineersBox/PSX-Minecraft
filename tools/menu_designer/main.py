@@ -30,6 +30,7 @@ def main():
         designer.update(time_delta)
         window_surface.blit(background, (0, 0))
         gui_manager.draw_ui(window_surface)
+        designer.draw(window_surface)
         pygame.display.update()
 
 if __name__ == "__main__":

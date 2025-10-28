@@ -1,5 +1,5 @@
 import pygame, pygame_gui
-from src.control import Control
+from src.control.core import Control
 from src.preview import Preview
 
 class MenuDesigner:
@@ -19,3 +19,6 @@ class MenuDesigner:
     def process_event(self, event: pygame.Event):
         self.preview.process_event(event)
         self.control.process_event(event)
+
+    def draw(self, surface: pygame.Surface):
+        self.preview.draw(surface)

@@ -7,6 +7,9 @@ class PreviewButton:
     rect: pygame.Rect
     image: pygame_gui.elements.UIImage
     label: pygame_gui.elements.UILabel
+    draw_outline: bool
+    outline_offset_x: int
+    outline_offset_y: int
 
     def __init__(
         self,
@@ -16,7 +19,9 @@ class PreviewButton:
         text: str,
         image: pygame.Surface,
         manager: pygame_gui.UIManager,
-        preview_container: pygame_gui.elements.UIPanel
+        preview_container: pygame_gui.elements.UIPanel,
+        outline_offset_x: int = 5,
+        outline_offset_y: int = 5
     ):
         self.rect = pygame.Rect(
             x,
@@ -36,6 +41,9 @@ class PreviewButton:
             manager=manager,
             container=preview_container
         )
+        self.draw_outline = False
+        self.outline_offset_x = outline_offset_x
+        self.outline_offset_y = outline_offset_y
 
     def update(self, time_delta: float):
         self.image.update(time_delta)
@@ -62,6 +70,36 @@ class PreviewButton:
                 rel_rect.x + move[0],
                 rel_rect.y + move[1]
             ))
+
+    def draw(self, surface: pygame.Surface):
+        if not self.draw_outline:
+            return
+        pos = self.image.get_abs_rect()
+        points = [
+            (
+                pos.x - self.outline_offset_x,
+                pos.y - self.outline_offset_y
+            ),
+            (
+                pos.x + pos.width + self.outline_offset_x,
+                pos.y - self.outline_offset_y
+            ),
+            (
+                pos.x + pos.width + self.outline_offset_x,
+                pos.y + pos.height + self.outline_offset_y
+            ),
+            (
+                pos.x - self.outline_offset_x,
+                pos.y + pos.height + self.outline_offset_y
+            )
+        ]
+        pygame.draw.lines(
+            surface,
+            pygame.Color(0, 30, 200),
+            True,
+            points,
+            2
+        )
 
     def kill(self):
         self.image.kill()
@@ -106,8 +144,12 @@ class Preview:
     def process_event(self, event: pygame.Event):
         if (event.type == pygame.MOUSEBUTTONDOWN):
             self.held_button = self._get_intersected_button(pygame.mouse.get_pos())
+            if self.held_button is not None:
+                self.held_button.draw_outline = True
             self.mouse_pos = pygame.mouse.get_pos()
         elif (event.type == pygame.MOUSEBUTTONUP):
+            if self.held_button is not None:
+                self.held_button.draw_outline = False
             self.held_button = None
         elif (event.type == pygame.MOUSEMOTION
             and self.held_button is not None):
@@ -140,3 +182,7 @@ class Preview:
     def remove_button(self, button_id: str):
         button = self.game_buttons.pop(button_id)
         button.kill()
+
+    def draw(self, surface: pygame.Surface):
+        if self.held_button is not None:
+            self.held_button.draw(surface)
