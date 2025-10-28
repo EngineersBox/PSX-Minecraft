@@ -75,3 +75,9 @@ class ControlResizingPanel(ControlPanel):
     def process_event(self, event: pygame.Event):
         for element in self._process_event_elements.values():
             element.process_event(event)
+
+    def show(self):
+        self.panel.show()
+
+    def hide(self):
+        self.panel.hide()

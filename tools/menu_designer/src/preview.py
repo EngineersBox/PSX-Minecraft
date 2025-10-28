@@ -157,6 +157,8 @@ class Preview:
     held_button: PreviewButton | None
     mouse_pos: tuple[int, int]
 
+    hidden: bool
+
     def __init__(self, manager: pygame_gui.UIManager):
         self.manager = manager
         self.button_enabled_image = pygame.image.load("assets/button.png")
@@ -168,6 +170,7 @@ class Preview:
         self.container = pygame_gui.elements.UIPanel(relative_rect=self.rect)
         self.held_button = None
         self.mouse_pos = (0, 0)
+        self.hidden = False
 
     def update(self, time_delta: float):
         for button in self.game_buttons.values():
@@ -184,6 +187,8 @@ class Preview:
         return None
 
     def process_event(self, event: pygame.Event):
+        if self.hidden:
+            return
         if (event.type == pygame.MOUSEBUTTONDOWN):
             self.held_button = self._get_intersected_button(pygame.mouse.get_pos())
             if self.held_button is not None:
@@ -233,5 +238,13 @@ class Preview:
         self.held_button = self.game_buttons[button_id]
 
     def draw(self, surface: pygame.Surface):
-        if self.held_button is not None:
+        if (not self.hidden and self.held_button is not None):
             self.held_button.draw(surface)
+
+    def hide(self):
+        self.hidden = True
+        self.container.hide()
+
+    def show(self):
+        self.hidden = False
+        self.container.show()

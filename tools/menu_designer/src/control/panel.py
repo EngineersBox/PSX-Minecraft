@@ -33,5 +33,11 @@ class ControlPanel(ControlBase):
             self.surface.fill(background_colour)
             self.panel.set_background_images([self.surface])
 
+    def show(self):
+        self.panel.show()
+
+    def hide(self):
+        self.panel.hide()
+
     def kill(self):
         self.panel.kill()

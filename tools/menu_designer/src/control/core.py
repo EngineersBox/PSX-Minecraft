@@ -269,8 +269,14 @@ class Control:
         self.code_view.kill()
         self.code_close.kill()
         self.code_panel.kill()
+        self.preview.show()
+        self.create_panel.show()
+        self.modify_panel.show()
 
     def _open_code_panel(self):
+        self.preview.hide()
+        self.create_panel.hide()
+        self.modify_panel.hide()
         self.code_panel = ControlPanel(
             0,
             0,
