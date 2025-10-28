@@ -21,7 +21,8 @@ class Control:
 
     button_text_input: ControlTextInput
     buttons_list: ControlSelectionList
-    width_slider_label: ControlLabel
+    pos_label: ControlLabel
+    width_label: ControlLabel
     width_slider: ControlHorizontalSlider
     remove_button: ControlButton
 
@@ -90,13 +91,24 @@ class Control:
                 container
             )
         )
-        self.width_slider_label = self.modify_panel.add_element_offset(
+        self.pos_label = self.modify_panel.add_element_offset(
             lambda width, y, container: ControlLabel(
                 0,
                 y,
                 width,
                 15,
-                "",
+                "X: N/A Y: N/A",
+                self.manager,
+                container
+            )
+        )
+        self.width_label = self.modify_panel.add_element_offset(
+            lambda width, y, container: ControlLabel(
+                0,
+                y,
+                width,
+                15,
+                "Width: N/A",
                 self.manager,
                 container
             )
@@ -107,8 +119,8 @@ class Control:
                 y,
                 width,
                 30,
-                (0, 320 * PREVIEW_SCALE_X),
-                PREVIEW_SCALE_X,
+                (1, 320),
+                1,
                 self.manager,
                 container
             )
@@ -131,6 +143,10 @@ class Control:
     def update(self, time_delta: float):
         self.create_panel.update(time_delta)
         self.modify_panel.update(time_delta)
+        selected = self._get_selected_button()
+        if selected is not None:
+            pos = selected.get_pos()
+            self.pos_label.label.set_text(f"X: {pos[0]} Y: {pos[1]}")
 
     def process_event(self, event: pygame.Event):
         self.create_panel.process_event(event)
@@ -143,7 +159,7 @@ class Control:
             if selected is not None:
                 width = selected.get_width()
                 self.width_slider.set_value(width)
-                self.width_slider_label.label.set_text(f"{width}")
+                self.width_label.label.set_text(f"Width: {width}")
         if (event.type == pygame_gui.UI_SELECTION_LIST_DROPPED_SELECTION
             and event.ui_element == self.buttons_list.selection_list):
             self.width_slider.set_value(-1)
@@ -155,7 +171,7 @@ class Control:
             if selected is not None:
                 width = self.width_slider.get_value()
                 selected.set_width(width)
-                self.width_slider_label.label.set_text(f"{width}")
+                self.width_label.label.set_text(f"Width: {width}")
 
     def _add_button(self):
         text = self.button_text_input.input.get_text()
@@ -175,7 +191,8 @@ class Control:
         self.buttons_list.selection_list.set_item_list(list(self.buttons.values()))
         self.remove_button.disable()
         self.width_slider.disable()
-        self.width_slider_label.label.set_text("")
+        self.width_label.label.set_text("Width: N/A")
+        self.pos_label.label.set_text("X: N/A Y: N/A")
 
     def _get_selected_button(self) -> Optional[PreviewButton]:
         selected = self.buttons_list.selection_list.get_single_selection(include_object_id=True)

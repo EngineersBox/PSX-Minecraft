@@ -73,10 +73,17 @@ class PreviewButton:
             ))
 
     def get_width(self) -> int:
-        return int(self.image.get_abs_rect().width)
+        return int(self.image.get_abs_rect().width) // PREVIEW_SCALE_X
+
+    def get_pos(self) -> tuple[int, int]:
+        pos = self.image.get_relative_rect()
+        return (
+            int(pos.x) // PREVIEW_SCALE_X,
+            int(pos.y) // PREVIEW_SCALE_Y
+        )
 
     def set_width(self, width: int):
-        width = ((width // PREVIEW_SCALE_X) * PREVIEW_SCALE_X)
+        width = width * PREVIEW_SCALE_X
         self.image.set_dimensions((
             width,
             self.image.get_abs_rect().height
@@ -120,6 +127,9 @@ class PreviewButton:
         self.image.kill()
         self.label.kill()
 
+    def point_intersects(self, pos: tuple[int, int]) -> bool:
+        return self.image.hover_point(pos[0], pos[1])
+
 class Preview:
     manager: pygame_gui.UIManager
     button_image: pygame.Surface
@@ -152,7 +162,7 @@ class Preview:
             list(self.game_buttons.values())
         )))
         for button in ordered_buttons:
-            if (button.image.hover_point(pos[0], pos[1])):
+            if button.point_intersects(pos):
                 return button
         return None
 
@@ -200,6 +210,9 @@ class Preview:
         
     def get_button(self, button_id: str) -> Optional[PreviewButton]:
         return self.game_buttons[button_id]
+
+    def set_held_button(self, button_id: str):
+        self.held_button = self.game_buttons[button_id]
 
     def draw(self, surface: pygame.Surface):
         if self.held_button is not None:
