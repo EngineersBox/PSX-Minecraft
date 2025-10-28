@@ -231,6 +231,7 @@ class Control:
         self.buttons[button_id] = (text, button_id)
         self.buttons_list.selection_list.set_item_list(list(self.buttons.values()))
         self.button_text_input.input.set_text("")
+        self._reset_selection_controls()
         self.view_all_button_code.enable()
 
     def _remove_button(self):

@@ -4,6 +4,7 @@ from src.menu_designer import MenuDesigner
 
 def main():
     pygame.init()
+    pygame.font.init()
     pygame.display.set_caption("Menu Designer")
     window_surface = pygame.display.set_mode(size=(1200,720))
 

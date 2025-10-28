@@ -30,6 +30,7 @@ class ControlTextBox(ControlBase):
             container=container,
             allow_split_dashes=False
         )
+        self.text_box.line_spacing = 1
         if background_colour is not None:
             self.surface = pygame.Surface((width, height))
             self.surface.fill(background_colour)
