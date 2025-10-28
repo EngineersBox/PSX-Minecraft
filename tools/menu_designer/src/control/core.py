@@ -30,6 +30,7 @@ class Control:
     button_disabled_checkbox: ControlCheckbox
     remove_button: ControlButton
     view_button_code: ControlButton
+    view_all_button_code: ControlButton
 
     code_panel: ControlPanel
     code_view: ControlTextBox
@@ -175,6 +176,19 @@ class Control:
             )
         )
         self.view_button_code.disable()
+        self.view_all_button_code = self.modify_panel.add_element_offset(
+            lambda width, y, container: ControlButton(
+                0,
+                y,
+                width,
+                30,
+                "View All Buttons Code",
+                self.manager,
+                container,
+                self._open_all_button_code_panel
+            )
+        )
+        self.view_all_button_code.disable()
 
     def update(self, time_delta: float):
         self.create_panel.update(time_delta)
@@ -217,6 +231,7 @@ class Control:
         self.buttons[button_id] = (text, button_id)
         self.buttons_list.selection_list.set_item_list(list(self.buttons.values()))
         self.button_text_input.input.set_text("")
+        self.view_all_button_code.enable()
 
     def _remove_button(self):
         selected = self.buttons_list.selection_list.get_single_selection(include_object_id=True)
@@ -247,6 +262,8 @@ class Control:
         self.pos_label.label.set_text("X: N/A Y: N/A")
         self.button_disabled_checkbox.disable()
         self.view_button_code.disable()
+        if len(self.buttons) == 0:
+            self.view_all_button_code.disable()
 
     def _close_code_panel(self):
         self.code_view.kill()
@@ -287,3 +304,13 @@ class Control:
             return
         self._open_code_panel()
         self.code_view.set_text(gen_button_html_code(selected))
+
+    def _open_all_button_code_panel(self):
+        code_chunks = []
+        for button_id in self.buttons.keys():
+            button = self.preview.get_button(button_id)
+            if button == None:
+                continue
+            code_chunks.append(gen_button_html_code(button))
+        self._open_code_panel()
+        self.code_view.set_text("\n".join(code_chunks))
