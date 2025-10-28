@@ -30,3 +30,8 @@ class ControlButton(ControlBase):
             command=command
         )
 
+    def enable(self):
+        self.button.enable()
+
+    def disable(self):
+        self.button.disable()

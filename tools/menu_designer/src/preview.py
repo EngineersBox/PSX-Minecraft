@@ -1,3 +1,4 @@
+from typing import Optional
 import pygame, pygame_gui, uuid
 
 PREVIEW_SCALE_X = 3
@@ -70,6 +71,20 @@ class PreviewButton:
                 rel_rect.x + move[0],
                 rel_rect.y + move[1]
             ))
+
+    def get_width(self) -> int:
+        return int(self.image.get_abs_rect().width)
+
+    def set_width(self, width: int):
+        width = ((width // PREVIEW_SCALE_X) * PREVIEW_SCALE_X)
+        self.image.set_dimensions((
+            width,
+            self.image.get_abs_rect().height
+        ))
+        self.label.set_dimensions((
+            width,
+            self.label.get_abs_rect().height
+        ))
 
     def draw(self, surface: pygame.Surface):
         if not self.draw_outline:
@@ -182,6 +197,9 @@ class Preview:
     def remove_button(self, button_id: str):
         button = self.game_buttons.pop(button_id)
         button.kill()
+        
+    def get_button(self, button_id: str) -> Optional[PreviewButton]:
+        return self.game_buttons[button_id]
 
     def draw(self, surface: pygame.Surface):
         if self.held_button is not None:
