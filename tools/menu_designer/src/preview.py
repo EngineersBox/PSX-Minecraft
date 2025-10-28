@@ -11,6 +11,10 @@ class PreviewButton:
     draw_outline: bool
     outline_offset_x: int
     outline_offset_y: int
+    disabled: bool
+
+    enabled_image: pygame.Surface
+    disabled_image: pygame.Surface
 
     def __init__(
         self,
@@ -18,7 +22,8 @@ class PreviewButton:
         y: int,
         width: int,
         text: str,
-        image: pygame.Surface,
+        enabled_image: pygame.Surface,
+        disabled_image: pygame.Surface,
         manager: pygame_gui.UIManager,
         preview_container: pygame_gui.elements.UIPanel,
         outline_offset_x: int = 5,
@@ -32,7 +37,7 @@ class PreviewButton:
         )
         self.image = pygame_gui.elements.UIImage(
             relative_rect=self.rect,
-            image_surface=image,
+            image_surface=enabled_image,
             manager=manager,
             container=preview_container
         )
@@ -45,6 +50,9 @@ class PreviewButton:
         self.draw_outline = False
         self.outline_offset_x = outline_offset_x
         self.outline_offset_y = outline_offset_y
+        self.disabled = False
+        self.enabled_image = enabled_image
+        self.disabled_image = disabled_image
 
     def update(self, time_delta: float):
         self.image.update(time_delta)
@@ -130,9 +138,17 @@ class PreviewButton:
     def point_intersects(self, pos: tuple[int, int]) -> bool:
         return self.image.hover_point(pos[0], pos[1])
 
+    def set_disabled(self, disabled: bool):
+        self.disabled = disabled
+        if self.disabled:
+            self.image.set_image(self.disabled_image)
+        else:
+            self.image.set_image(self.enabled_image)
+
 class Preview:
     manager: pygame_gui.UIManager
-    button_image: pygame.Surface
+    button_enabled_image: pygame.Surface
+    button_disabled_image: pygame.Surface
     game_buttons: dict[str, PreviewButton]
     rect: pygame.Rect
     surface: pygame.Surface
@@ -143,7 +159,8 @@ class Preview:
 
     def __init__(self, manager: pygame_gui.UIManager):
         self.manager = manager
-        self.button_image = pygame.image.load("assets/button.png")
+        self.button_enabled_image = pygame.image.load("assets/button.png")
+        self.button_disabled_image = pygame.image.load("assets/disabled_button.png")
         self.game_buttons = {}
         self.rect = pygame.Rect(0, 0, 320 * PREVIEW_SCALE_X, 240 * PREVIEW_SCALE_Y)
         self.surface = pygame.Surface((self.rect.width, self.rect.height))
@@ -196,7 +213,8 @@ class Preview:
             0,
             200,
             text,
-            self.button_image,
+            self.button_enabled_image,
+            self.button_disabled_image,
             self.manager,
             self.container
         )

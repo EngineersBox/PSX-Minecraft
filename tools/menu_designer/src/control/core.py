@@ -1,7 +1,8 @@
 from typing import Optional
 import pygame, pygame_gui
-from src.preview import PREVIEW_SCALE_X, Preview, PreviewButton
+from src.preview import Preview, PreviewButton
 from src.control.button import ControlButton
+from src.control.checkbox import ControlCheckbox
 from src.control.horizontal_slider import ControlHorizontalSlider
 from src.control.label import ControlLabel
 from src.control.panel import ControlPanel
@@ -24,6 +25,7 @@ class Control:
     pos_label: ControlLabel
     width_label: ControlLabel
     width_slider: ControlHorizontalSlider
+    button_disabled_checkbox: ControlCheckbox
     remove_button: ControlButton
 
     def __init__(self, manager: pygame_gui.UIManager, preview: Preview):
@@ -126,6 +128,20 @@ class Control:
             )
         )
         self.width_slider.disable()
+        self.button_disabled_checkbox = self.modify_panel.add_element_offset(
+            lambda _, y, container: ControlCheckbox(
+                0,
+                y,
+                20,
+                20,
+                "Disabled State",
+                self.manager,
+                container,
+                self._set_button_disabled
+            ),
+            process_event=True
+        )
+        self.button_disabled_checkbox.disable()
         self.remove_button = self.modify_panel.add_element_offset(
             lambda width, y, container: ControlButton(
                 0,
@@ -155,6 +171,7 @@ class Control:
             and event.ui_element == self.buttons_list.selection_list):
             self.width_slider.enable()
             self.remove_button.enable()
+            self.button_disabled_checkbox.enable()
             selected = self._get_selected_button()
             if selected is not None:
                 width = selected.get_width()
@@ -162,9 +179,7 @@ class Control:
                 self.width_label.label.set_text(f"Width: {width}")
         if (event.type == pygame_gui.UI_SELECTION_LIST_DROPPED_SELECTION
             and event.ui_element == self.buttons_list.selection_list):
-            self.width_slider.set_value(-1)
-            self.width_slider.disable()
-            self.remove_button.disable()
+            self._reset_selection_controls()
         if (event.type == pygame_gui.UI_HORIZONTAL_SLIDER_MOVED
             and event.ui_element == self.width_slider.slider):
             selected = self._get_selected_button()
@@ -189,13 +204,24 @@ class Control:
         self.buttons.pop(selected[1])
         self.preview.remove_button(selected[1])
         self.buttons_list.selection_list.set_item_list(list(self.buttons.values()))
-        self.remove_button.disable()
-        self.width_slider.disable()
-        self.width_label.label.set_text("Width: N/A")
-        self.pos_label.label.set_text("X: N/A Y: N/A")
+        self._reset_selection_controls()
 
     def _get_selected_button(self) -> Optional[PreviewButton]:
         selected = self.buttons_list.selection_list.get_single_selection(include_object_id=True)
         if selected == None:
             return None
         return self.preview.get_button(selected[1])
+
+    def _set_button_disabled(self, disabled: bool):
+        selected = self._get_selected_button()
+        if selected == None:
+            return
+        selected.set_disabled(disabled)
+
+    def _reset_selection_controls(self):
+        self.width_slider.set_value(-1)
+        self.remove_button.disable()
+        self.width_slider.disable()
+        self.width_label.label.set_text("Width: N/A")
+        self.pos_label.label.set_text("X: N/A Y: N/A")
+        self.button_disabled_checkbox.disable()
