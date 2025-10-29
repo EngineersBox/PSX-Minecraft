@@ -249,6 +249,7 @@ class Control:
     def process_event(self, event: pygame.Event):
         self.create_panel.process_event(event)
         self.modify_panel.process_event(event)
+        self.bg_image_file_dialog.process_event(event)
         if (event.type == pygame_gui.UI_SELECTION_LIST_NEW_SELECTION
             and event.ui_element == self.buttons_list.selection_list):
             self.width_slider.enable()
@@ -380,12 +381,14 @@ class Control:
         self.preview.hide()
         self.create_panel.hide()
         self.modify_panel.hide()
+        self.preview_management_panel.hide()
         self.bg_image_file_dialog.open()
 
     def _close_bg_image_file_dialog(self):
         self.preview.show()
         self.create_panel.show()
         self.modify_panel.show()
+        self.preview_management_panel.show()
 
     def _bg_image_selected(self, path: Path):
         self.preview.show()
