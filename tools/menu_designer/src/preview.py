@@ -294,6 +294,7 @@ class Preview:
     def show_grid(self):
         self.surface.fill(pygame.color.Color("#211F1E"))
         if self.bg_image is not None:
+            # TODO: Make this span the entire surface
             self.surface.blit(
                 self.bg_image,
                 pygame.Rect(
