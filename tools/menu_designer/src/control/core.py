@@ -391,9 +391,7 @@ class Control:
         self.preview_management_panel.show()
 
     def _bg_image_selected(self, path: Path):
-        self.preview.show()
-        self.create_panel.show()
-        self.modify_panel.show()
+        self._close_bg_image_file_dialog()
         try:
             image = pygame.image.load(path)
             self.preview.set_background_image(image)

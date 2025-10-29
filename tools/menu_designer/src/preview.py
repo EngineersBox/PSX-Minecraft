@@ -169,7 +169,10 @@ class Preview:
         self.rect = pygame.Rect(0, 0, 320 * PREVIEW_SCALE_X, 240 * PREVIEW_SCALE_Y)
         self.surface = pygame.Surface((self.rect.width, self.rect.height))
         self.bg_image = None
-        self.container = pygame_gui.elements.UIPanel(relative_rect=self.rect)
+        self.container = pygame_gui.elements.UIPanel(
+            relative_rect=self.rect,
+            manager=manager
+        )
         self.held_button = None
         self.mouse_pos = (0, 0)
         self.hidden = False
@@ -260,30 +263,47 @@ class Preview:
         else:
             self.show_grid()
 
+    def _draw_border(self):
+        pygame.draw.lines(
+            self.surface,
+            pygame.color.Color("#EFEFEF"),
+            True,
+            [
+                (1, 1),
+                (self.rect.width - 1, 1),
+                (self.rect.width - 1, self.rect.height - 1),
+                (1, self.rect.height - 1)
+            ]
+        )
+
     def hide_grid(self):
         if self.bg_image == None:
-            self.surface.fill(pygame.color.Color("#232323"))
+            self.surface.fill(pygame.color.Color("#211F1E"))
         else:
             self.surface.blit(
                 self.bg_image,
                 pygame.Rect(
-                    0, 0,
-                    320 * PREVIEW_SCALE_X,
-                    240 * PREVIEW_SCALE_Y
+                    3,
+                    3,
+                    self.rect.width - 3,
+                    self.rect.height - 3
                 )
             )
+        self._draw_border()
+        self.container.add_background_image(self.surface)
         self.grid_hidden = True
 
     def show_grid(self):
         if self.bg_image == None:
-            self.surface.fill(pygame.color.Color("#232323"))
+            self.surface.fill(pygame.color.Color("#211F1E"))
         else:
             self.surface.blit(
                 self.bg_image,
                 pygame.Rect(
-                    0, 0,
-                    320 * PREVIEW_SCALE_X,
-                    240 * PREVIEW_SCALE_Y
+                    3,
+                    3,
+                    self.rect.width - 3,
+                    self.rect.height - 3
                 )
             )
         for x in range(PREVIEW_SCALE_X, 320, PREVIEW_SCALE_X):
@@ -302,4 +322,6 @@ class Preview:
                 (320 * PREVIEW_SCALE_X, y),
                 2
             )
+        self._draw_border()
+        self.container.set_background_images([self.surface])
         self.grid_hidden = False
