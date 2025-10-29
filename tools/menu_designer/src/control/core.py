@@ -48,10 +48,12 @@ class Control:
         self.preview = preview
         self.buttons = {}
         self.create_panel_elements()
+        self.modify_panel_elements()
+        self.preview_management_panel_elements()
 
     def create_panel_elements(self):
         self.create_panel = ControlResizingPanel(
-            self.preview.rect.width,
+            self.preview.rect.x + self.preview.rect.width,
             0,
             pygame.display.get_window_size()[0] - self.preview.rect.width,
             0,
@@ -79,8 +81,10 @@ class Control:
                 self._add_button
             )
         )
+
+    def modify_panel_elements(self):
         self.modify_panel = ControlResizingPanel(
-            self.preview.rect.width,
+            self.preview.rect.x + self.preview.rect.width,
             int(self.create_panel.y_offset + 20),
             pygame.display.get_window_size()[0] - self.preview.rect.width,
             0,
@@ -196,9 +200,11 @@ class Control:
             )
         )
         self.view_all_button_code.disable()
+
+    def preview_management_panel_elements(self):
         self.preview_management_panel = ControlResizingPanel(
-            self.preview.rect.width,
-            int(self.modify_panel.y_offset + 20),
+            self.preview.rect.x + self.preview.rect.width + 1,
+            int(self.modify_panel.rect.y + self.modify_panel.y_offset + 20),
             pygame.display.get_window_size()[0] - self.preview.rect.width,
             0,
             self.manager
@@ -213,7 +219,8 @@ class Control:
                 self.manager,
                 container,
                 self._show_grid
-            )
+            ),
+            process_event=True
         )
         self.button_open_bg_image_file_dialog = self.preview_management_panel.add_element_offset(
             lambda width, y, container: ControlButton(
@@ -225,7 +232,8 @@ class Control:
                 self.manager,
                 container,
                 self._open_bg_image_file_dialog
-            )
+            ),
+            process_event=True
         )
         self.bg_image_file_dialog = ControlFileDialog(
             0,
@@ -241,6 +249,7 @@ class Control:
     def update(self, time_delta: float):
         self.create_panel.update(time_delta)
         self.modify_panel.update(time_delta)
+        self.preview_management_panel.update(time_delta)
         selected = self._get_selected_button()
         if selected is not None:
             pos = selected.get_pos()
@@ -249,6 +258,7 @@ class Control:
     def process_event(self, event: pygame.Event):
         self.create_panel.process_event(event)
         self.modify_panel.process_event(event)
+        self.preview_management_panel.process_event(event)
         self.bg_image_file_dialog.process_event(event)
         if (event.type == pygame_gui.UI_SELECTION_LIST_NEW_SELECTION
             and event.ui_element == self.buttons_list.selection_list):
@@ -378,17 +388,11 @@ class Control:
             self.preview.hide_grid()
 
     def _open_bg_image_file_dialog(self):
-        self.preview.hide()
-        self.create_panel.hide()
-        self.modify_panel.hide()
-        self.preview_management_panel.hide()
+        self.button_open_bg_image_file_dialog.disable()
         self.bg_image_file_dialog.open()
 
     def _close_bg_image_file_dialog(self):
-        self.preview.show()
-        self.create_panel.show()
-        self.modify_panel.show()
-        self.preview_management_panel.show()
+        self.button_open_bg_image_file_dialog.enable()
 
     def _bg_image_selected(self, path: Path):
         self._close_bg_image_file_dialog()

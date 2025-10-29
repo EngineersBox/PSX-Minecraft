@@ -9,7 +9,7 @@ def main():
     window_surface = pygame.display.set_mode(size=(1200,720))
 
     background = pygame.Surface((1280, 720))
-    background.fill(pygame.Color("#232323"))
+    background.fill(pygame.Color("#7F7F7F"))
 
     gui_manager = pygame_gui.UIManager((1280, 720))
     designer = MenuDesigner(gui_manager)
