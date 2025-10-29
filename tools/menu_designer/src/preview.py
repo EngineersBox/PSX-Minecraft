@@ -303,6 +303,7 @@ class Preview:
                     self.rect.height
                 )
             )
+        # FIXME: These don't render for some reason
         for x in range(PREVIEW_SCALE_X, 320 * PREVIEW_SCALE_X, PREVIEW_SCALE_X):
             pygame.draw.line(
                 self.surface,
