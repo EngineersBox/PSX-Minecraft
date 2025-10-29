@@ -29,13 +29,13 @@ def gen_button_code(button: PreviewButton) -> str:
         "x": button.get_pos()[0],
         "y": button.get_pos()[1],
         "width": button.get_width(),
+        "disabled": button.disabled
     }
     return env.get_template("button.j2").render(render_parameters)
 
 def find_font() -> str:
     for font in FONTS:
         try:
-            print(f"Font: {font}")
             pygame.font.match_font(font)
             return font 
         except:
@@ -49,6 +49,7 @@ def gen_button_html_code(button: PreviewButton) -> str:
         "x": button.get_pos()[0],
         "y": button.get_pos()[1],
         "width": button.get_width(),
+        "disabled": button.disabled,
         "font": find_font()
     }
     return env.get_template("button_html.j2").render(render_parameters)

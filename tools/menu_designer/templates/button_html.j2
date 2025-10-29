@@ -6,6 +6,9 @@
     <font color="#E78A4E">{{ width }}</font><font color="#DDC7A1">,</font>
     <font color="#E78A4E">1</font>
 <font color="#DDC7A1">);</font>
+{% if disabled -%}
+<font color="#DDC7A1">{{ name_snake_lower }}_button</font><font color="#EA6962">-></font><font color="#7DAEA3">state</font> <font color="#EA6962">=</font> <font color="#7DAEA3">BUTTON_DISABLED</font><font color="#DDC7A1">;</font>
+{% endif -%}
 <font color="#D3869B">DYN_PTR</font><font color="#DDC7A1">(</font>
     <font color="#DDC7A1">{{ name_snake_lower }}_button_component,</font>
     <font color="#D8A657">UIButton</font><font color="#DDC7A1">,</font>

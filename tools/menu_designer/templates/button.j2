@@ -6,6 +6,9 @@ UIButton* {{ name_snake_lower }}_button = uiButtonNew(
     {{ width }},
     1
 );
+{% if disabled -%}
+{{ name_snake_lower }}_button->state = BUTTON_DISABLED;
+{%- endif %}
 DYN_PTR(
     {{ name_snake_lower }}_button_component,
     UIButton,
