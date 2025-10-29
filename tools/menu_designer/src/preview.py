@@ -152,12 +152,14 @@ class Preview:
     game_buttons: dict[str, PreviewButton]
     rect: pygame.Rect
     surface: pygame.Surface
+    bg_image: Optional[pygame.Surface]
     container: pygame_gui.elements.UIPanel
 
     held_button: PreviewButton | None
     mouse_pos: tuple[int, int]
 
     hidden: bool
+    grid_hidden: bool
 
     def __init__(self, manager: pygame_gui.UIManager):
         self.manager = manager
@@ -166,11 +168,13 @@ class Preview:
         self.game_buttons = {}
         self.rect = pygame.Rect(0, 0, 320 * PREVIEW_SCALE_X, 240 * PREVIEW_SCALE_Y)
         self.surface = pygame.Surface((self.rect.width, self.rect.height))
-        self.surface.fill(pygame.Color("#AFAFAF"))
+        self.bg_image = None
         self.container = pygame_gui.elements.UIPanel(relative_rect=self.rect)
         self.held_button = None
         self.mouse_pos = (0, 0)
         self.hidden = False
+        self.grid_hidden = True
+        self.hide_grid()
 
     def update(self, time_delta: float):
         for button in self.game_buttons.values():
@@ -248,3 +252,50 @@ class Preview:
     def show(self):
         self.hidden = False
         self.container.show()
+
+    def set_background_image(self, image: pygame.Surface):
+        self.bg_image = image
+
+    def hide_grid(self):
+        if self.bg_image == None:
+            self.surface.fill(pygame.color.Color("#232323"))
+        else:
+            self.surface.blit(
+                self.bg_image,
+                pygame.Rect(
+                    0, 0,
+                    320 * PREVIEW_SCALE_X,
+                    240 * PREVIEW_SCALE_Y
+                )
+            )
+        self.grid_hidden = True
+
+    def show_grid(self):
+        if self.bg_image == None:
+            self.surface.fill(pygame.color.Color("#232323"))
+        else:
+            self.surface.blit(
+                self.bg_image,
+                pygame.Rect(
+                    0, 0,
+                    320 * PREVIEW_SCALE_X,
+                    240 * PREVIEW_SCALE_Y
+                )
+            )
+        for x in range(PREVIEW_SCALE_X, 320, PREVIEW_SCALE_X):
+            pygame.draw.line(
+                self.surface,
+                pygame.color.Color("black"),
+                (x, 0),
+                (x, 240 * PREVIEW_SCALE_Y),
+                2
+            )
+        for y in range(PREVIEW_SCALE_Y, 240, PREVIEW_SCALE_Y):
+            pygame.draw.line(
+                self.surface,
+                pygame.color.Color("black"),
+                (0, y),
+                (320 * PREVIEW_SCALE_X, y),
+                2
+            )
+        self.grid_hidden = False

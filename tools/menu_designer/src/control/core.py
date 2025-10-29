@@ -1,8 +1,10 @@
+from pathlib import Path
 from typing import Optional
 import pygame, pygame_gui
 from src.codegen.button import gen_button_html_code
 from src.control.button import ControlButton
 from src.control.checkbox import ControlCheckbox
+from src.control.file_dialog import ControlFileDialog
 from src.control.horizontal_slider import ControlHorizontalSlider
 from src.control.label import ControlLabel
 from src.control.panel import ControlPanel
@@ -31,6 +33,11 @@ class Control:
     remove_button: ControlButton
     view_button_code: ControlButton
     view_all_button_code: ControlButton
+
+    preview_management_panel: ControlResizingPanel
+    show_grid_checkbox: ControlCheckbox
+    button_open_bg_image_file_dialog: ControlButton
+    bg_image_file_dialog: ControlFileDialog
 
     code_panel: ControlPanel
     code_view: ControlTextBox
@@ -189,6 +196,47 @@ class Control:
             )
         )
         self.view_all_button_code.disable()
+        self.preview_management_panel = ControlResizingPanel(
+            self.preview.rect.width,
+            int(self.modify_panel.y_offset + 20),
+            pygame.display.get_window_size()[0] - self.preview.rect.width,
+            0,
+            self.manager
+        )
+        self.show_grid_checkbox = self.preview_management_panel.add_element_offset(
+            lambda _, y, container: ControlCheckbox(
+                0,
+                y,
+                20,
+                20,
+                "Show Grid",
+                self.manager,
+                container,
+                self._show_grid
+            )
+        )
+        self.button_open_bg_image_file_dialog = self.preview_management_panel.add_element_offset(
+            lambda width, y, container: ControlButton(
+                0,
+                y,
+                width,
+                30,
+                "Select Background Image",
+                self.manager,
+                container,
+                self._open_bg_image_file_dialog
+            )
+        )
+        self.bg_image_file_dialog = ControlFileDialog(
+            0,
+            0,
+            int(self.preview.container.get_abs_rect().width),
+            int(self.preview.container.get_abs_rect().height),
+            "Select Background Image",
+            self._bg_image_selected,
+            self._close_bg_image_file_dialog,
+            self.manager
+        )
 
     def update(self, time_delta: float):
         self.create_panel.update(time_delta)
@@ -321,3 +369,32 @@ class Control:
             code_chunks.append(gen_button_html_code(button))
         self._open_code_panel()
         self.code_view.set_text("\n".join(code_chunks))
+
+    def _show_grid(self, show: bool):
+        if show:
+            self.preview.show_grid()
+        else:
+            self.preview.hide_grid()
+
+    def _open_bg_image_file_dialog(self):
+        self.preview.hide()
+        self.create_panel.hide()
+        self.modify_panel.hide()
+        self.bg_image_file_dialog.open()
+
+    def _close_bg_image_file_dialog(self):
+        self.preview.show()
+        self.create_panel.show()
+        self.modify_panel.show()
+
+    def _bg_image_selected(self, path: Path):
+        self.preview.show()
+        self.create_panel.show()
+        self.modify_panel.show()
+        try:
+            image = pygame.image.load(path)
+            self.preview.set_background_image(image)
+        except Exception as e:
+            # TODO: Show dialog with this error
+            print(e)
+            
