@@ -255,6 +255,10 @@ class Preview:
 
     def set_background_image(self, image: pygame.Surface):
         self.bg_image = image
+        if (self.grid_hidden):
+            self.hide_grid()
+        else:
+            self.show_grid()
 
     def hide_grid(self):
         if self.bg_image == None:
