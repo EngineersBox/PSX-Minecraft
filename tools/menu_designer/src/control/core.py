@@ -12,7 +12,14 @@ from src.control.resizing_panel import ControlResizingPanel
 from src.control.selection_list import ControlSelectionList
 from src.control.text_box import ControlTextBox
 from src.control.text_input import ControlTextInput
-from src.preview import Preview, PreviewButton
+from src.preview.core import Preview
+from src.preview.background import PreviewBackground
+from src.preview.button import PreviewButton
+from src.preview.element import PreviewElement
+
+# TODO : Refactor to support generic PreviewElement management
+#        and created tabbed layout for buttons and background
+#        elements
 
 class Control:
     manager: pygame_gui.UIManager
@@ -298,7 +305,7 @@ class Control:
         if selected == None:
             return
         self.buttons.pop(selected[1])
-        self.preview.remove_button(selected[1])
+        self.preview.remove_element(selected[1])
         self.buttons_list.selection_list.set_item_list(list(self.buttons.values()))
         self._reset_selection_controls()
 
@@ -306,7 +313,7 @@ class Control:
         selected = self.buttons_list.selection_list.get_single_selection(include_object_id=True)
         if selected == None:
             return None
-        return self.preview.get_button(selected[1])
+        return self.preview.get_element(selected[1])
 
     def _set_button_disabled(self, disabled: bool):
         selected = self._get_selected_button()
@@ -374,7 +381,7 @@ class Control:
     def _open_all_button_code_panel(self):
         code_chunks = []
         for button_id in self.buttons.keys():
-            button = self.preview.get_button(button_id)
+            button = self.preview.get_element(button_id)
             if button == None:
                 continue
             code_chunks.append(gen_button_html_code(button))
