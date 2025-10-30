@@ -4,9 +4,10 @@ import pygame, pygame_gui, uuid
 PREVIEW_SCALE_X = 3
 PREVIEW_SCALE_Y = 3
 
-PREVIEW_BG_COLOR = pygame.color.Color("#211F1E")
-PREVIEW_BORDER_COLOR = pygame.color.Color("#EFEFEF")
-PREVIEW_GRID_COLOR = pygame.color.Color("#7F7F7F")
+PREVIEW_BG_COLOUR = pygame.color.Color("#211F1E")
+PREVIEW_BORDER_COLOUR = pygame.color.Color("#EFEFEF")
+PREVIEW_GRID_COLOUR = pygame.color.Color("#7F7F7F")
+PREVIEW_BUTTON_OUTLINE_COLOUR = pygame.color.Color("#34c0eb")
 
 class PreviewButton:
     rect: pygame.Rect
@@ -129,7 +130,7 @@ class PreviewButton:
         ]
         pygame.draw.lines(
             surface,
-            pygame.Color(0, 30, 200),
+            PREVIEW_BUTTON_OUTLINE_COLOUR,
             True,
             points,
             2
@@ -273,7 +274,7 @@ class Preview:
     def _draw_border(self):
         pygame.draw.lines(
             self.surface,
-            PREVIEW_BORDER_COLOR,
+            PREVIEW_BORDER_COLOUR,
             True,
             [
                 (0, 0),
@@ -284,7 +285,7 @@ class Preview:
         )
 
     def hide_grid(self):
-        self.surface.fill(PREVIEW_BG_COLOR)
+        self.surface.fill(PREVIEW_BG_COLOUR)
         if self.bg_image is not None:
             self.surface.blit(
                 self.bg_image,
@@ -299,7 +300,7 @@ class Preview:
         self.grid_hidden = True
 
     def show_grid(self):
-        self.surface.fill(PREVIEW_BG_COLOR)
+        self.surface.fill(PREVIEW_BG_COLOUR)
         if self.bg_image is not None:
             self.surface.blit(
                 self.bg_image,
@@ -313,7 +314,7 @@ class Preview:
         for x in range(PREVIEW_SCALE_X, 320 * PREVIEW_SCALE_X, PREVIEW_SCALE_X):
             pygame.draw.line(
                 self.surface,
-                pygame.color.Color(PREVIEW_GRID_COLOR),
+                pygame.color.Color(PREVIEW_GRID_COLOUR),
                 (x, 0),
                 (x, 240 * PREVIEW_SCALE_Y),
                 1
@@ -321,7 +322,7 @@ class Preview:
         for y in range(PREVIEW_SCALE_Y, 240 * PREVIEW_SCALE_Y, PREVIEW_SCALE_Y):
             pygame.draw.line(
                 self.surface,
-                pygame.color.Color(PREVIEW_GRID_COLOR),
+                pygame.color.Color(PREVIEW_GRID_COLOUR),
                 (0, y),
                 (320 * PREVIEW_SCALE_X, y),
                 1
