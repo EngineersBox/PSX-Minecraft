@@ -257,7 +257,10 @@ class Preview:
         self.container.show()
 
     def set_background_image(self, image: pygame.Surface):
-        self.bg_image = image
+        self.bg_image = pygame.transform.smoothscale(
+            image,
+            (self.rect.width, self.rect.height)
+        )
         if (self.grid_hidden):
             self.hide_grid()
         else:
@@ -288,13 +291,12 @@ class Preview:
                     self.rect.height
                 )
             )
-        self.container.set_background_images([self.surface])
+        self.container.set_image(self.surface)
         self.grid_hidden = True
 
     def show_grid(self):
         self.surface.fill(pygame.color.Color("#211F1E"))
         if self.bg_image is not None:
-            # TODO: Make this span the entire surface
             self.surface.blit(
                 self.bg_image,
                 pygame.Rect(
@@ -321,5 +323,5 @@ class Preview:
                 (320 * PREVIEW_SCALE_X, y),
                 1
             )
-        self.container.set_background_images([self.surface])
+        self.container.set_image(self.surface)
         self.grid_hidden = False
