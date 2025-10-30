@@ -4,6 +4,10 @@ import pygame, pygame_gui, uuid
 PREVIEW_SCALE_X = 3
 PREVIEW_SCALE_Y = 3
 
+PREVIEW_BG_COLOR = pygame.color.Color("#211F1E")
+PREVIEW_BORDER_COLOR = pygame.color.Color("#EFEFEF")
+PREVIEW_GRID_COLOR = pygame.color.Color("#7F7F7F")
+
 class PreviewButton:
     rect: pygame.Rect
     image: pygame_gui.elements.UIImage
@@ -269,7 +273,7 @@ class Preview:
     def _draw_border(self):
         pygame.draw.lines(
             self.surface,
-            pygame.color.Color("#EFEFEF"),
+            PREVIEW_BORDER_COLOR,
             True,
             [
                 (0, 0),
@@ -280,7 +284,7 @@ class Preview:
         )
 
     def hide_grid(self):
-        self.surface.fill(pygame.color.Color("#211F1E"))
+        self.surface.fill(PREVIEW_BG_COLOR)
         if self.bg_image is not None:
             self.surface.blit(
                 self.bg_image,
@@ -295,7 +299,7 @@ class Preview:
         self.grid_hidden = True
 
     def show_grid(self):
-        self.surface.fill(pygame.color.Color("#211F1E"))
+        self.surface.fill(PREVIEW_BG_COLOR)
         if self.bg_image is not None:
             self.surface.blit(
                 self.bg_image,
@@ -306,11 +310,10 @@ class Preview:
                     self.rect.height
                 )
             )
-        # FIXME: These don't render for some reason
         for x in range(PREVIEW_SCALE_X, 320 * PREVIEW_SCALE_X, PREVIEW_SCALE_X):
             pygame.draw.line(
                 self.surface,
-                pygame.color.Color("#7F7F7F"),
+                pygame.color.Color(PREVIEW_GRID_COLOR),
                 (x, 0),
                 (x, 240 * PREVIEW_SCALE_Y),
                 1
@@ -318,7 +321,7 @@ class Preview:
         for y in range(PREVIEW_SCALE_Y, 240 * PREVIEW_SCALE_Y, PREVIEW_SCALE_Y):
             pygame.draw.line(
                 self.surface,
-                pygame.color.Color("#7F7F7F"),
+                pygame.color.Color(PREVIEW_GRID_COLOR),
                 (0, y),
                 (320 * PREVIEW_SCALE_X, y),
                 1
