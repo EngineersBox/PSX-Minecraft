@@ -23,3 +23,14 @@ class ControlSelectionList(ControlBase):
             container=control_container
         )
 
+    def disable(self):
+        self.selection_list.disable()
+
+    def enable(self):
+        self.selection_list.enable()
+
+    def hide(self):
+        self.selection_list.hide()
+
+    def show(self):
+        self.selection_list.show()

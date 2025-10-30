@@ -1,5 +1,8 @@
+from typing import cast
 import pygame
-from src.preview import PreviewButton
+from preview.background import PreviewBackground
+from src.preview.element import PreviewElement
+from src.preview.button import PreviewButton
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 import caseconverter
 
@@ -53,3 +56,15 @@ def gen_button_html_code(button: PreviewButton) -> str:
         "font": find_font()
     }
     return env.get_template("button_html.j2").render(render_parameters)
+
+def gen_background_html_code(background: PreviewBackground) -> str:
+    # TODO: Implement this
+    return ""
+
+def gen_html_code(element: PreviewElement) -> str:
+    element_type = type(element)
+    if element_type == PreviewButton:
+        return gen_button_html_code(cast(PreviewButton, element))
+    elif element_type == PreviewBackground:
+        return gen_background_html_code(cast(PreviewBackground, element))
+    raise ValueError(f"Unknown element type: {element_type}")

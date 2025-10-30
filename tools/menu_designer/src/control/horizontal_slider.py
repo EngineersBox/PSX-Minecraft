@@ -1,4 +1,4 @@
-import pygame, pygame_gui
+import pygame_gui
 from src.control.base import ControlBase
 
 class ControlHorizontalSlider(ControlBase):
@@ -35,6 +35,12 @@ class ControlHorizontalSlider(ControlBase):
 
     def disable(self):
         self.slider.disable()
+
+    def hide(self):
+        self.slider.hide()
+
+    def show(self):
+        self.slider.show()
 
     def set_value(self, value: int):
         if (value < self.slider.value_range[0]

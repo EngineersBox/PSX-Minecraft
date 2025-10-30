@@ -1,7 +1,7 @@
 from typing import Optional
 import pygame, pygame_gui, uuid
 from preview.element import PreviewElement
-from src.preview.const import PREVIEW_SCALE_X, PREVIEW_SCALE_Y
+from src.preview.const import PREVIEW_SCALE_X, PREVIEW_SCALE_Y, PREVIEW_SIZE_X, PREVIEW_SIZE_Y
 from src.preview.button import PreviewButton
 
 PREVIEW_BG_COLOUR = pygame.color.Color("#211F1E")
@@ -29,7 +29,12 @@ class Preview:
         self.button_enabled_image = pygame.image.load("assets/button.png")
         self.button_disabled_image = pygame.image.load("assets/disabled_button.png")
         self.game_elements = {}
-        self.rect = pygame.Rect(0, 0, 320 * PREVIEW_SCALE_X, 240 * PREVIEW_SCALE_Y)
+        self.rect = pygame.Rect(
+            0,
+            0,
+            PREVIEW_SIZE_X * PREVIEW_SCALE_X,
+            PREVIEW_SIZE_Y * PREVIEW_SCALE_Y
+        )
         self.surface = pygame.Surface((self.rect.width, self.rect.height))
         self.bg_image = None
         self.container = pygame_gui.elements.UIPanel(
@@ -172,20 +177,20 @@ class Preview:
                     self.rect.height
                 )
             )
-        for x in range(PREVIEW_SCALE_X, 320 * PREVIEW_SCALE_X, PREVIEW_SCALE_X):
+        for x in range(PREVIEW_SCALE_X, PREVIEW_SIZE_X * PREVIEW_SCALE_X, PREVIEW_SCALE_X):
             pygame.draw.line(
                 self.surface,
                 pygame.color.Color(PREVIEW_GRID_COLOUR),
                 (x, 0),
-                (x, 240 * PREVIEW_SCALE_Y),
+                (x, PREVIEW_SIZE_Y * PREVIEW_SCALE_Y),
                 1
             )
-        for y in range(PREVIEW_SCALE_Y, 240 * PREVIEW_SCALE_Y, PREVIEW_SCALE_Y):
+        for y in range(PREVIEW_SCALE_Y, PREVIEW_SIZE_Y * PREVIEW_SCALE_Y, PREVIEW_SCALE_Y):
             pygame.draw.line(
                 self.surface,
                 pygame.color.Color(PREVIEW_GRID_COLOUR),
                 (0, y),
-                (320 * PREVIEW_SCALE_X, y),
+                (PREVIEW_SIZE_X * PREVIEW_SCALE_X, y),
                 1
             )
         self.container.set_image(self.surface)

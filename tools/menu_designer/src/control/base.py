@@ -1,8 +1,7 @@
 import pygame, uuid
+from abc import ABC, abstractmethod
 
-import pygame_gui
-
-class ControlBase():
+class ControlBase(ABC):
     element_id: str
     rect: pygame.Rect
 
@@ -25,4 +24,20 @@ class ControlBase():
         pass
 
     def process_event(self, event: pygame.Event):
+        pass
+
+    @abstractmethod
+    def disable(self):
+        pass
+
+    @abstractmethod
+    def enable(self):
+        pass
+
+    @abstractmethod
+    def hide(self):
+        pass
+
+    @abstractmethod
+    def show(self):
         pass

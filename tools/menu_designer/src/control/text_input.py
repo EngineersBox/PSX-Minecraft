@@ -26,3 +26,14 @@ class ControlTextInput(ControlBase):
             container=control_container
         )
 
+    def disable(self):
+        self.input.disable()
+
+    def enable(self):
+        self.input.enable()
+
+    def hide(self):
+        self.input.hide()
+
+    def show(self):
+        self.input.show()

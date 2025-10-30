@@ -26,3 +26,15 @@ class ControlLabel(ControlBase):
             manager=manager,
             container=control_container
         )
+
+    def disable(self):
+        self.label.disable()
+
+    def enable(self):
+        self.label.enable()
+
+    def hide(self):
+        self.label.hide()
+
+    def show(self):
+        self.label.show()

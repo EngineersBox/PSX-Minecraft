@@ -78,3 +78,18 @@ class ControlFileDialog(ControlBase):
         else:
             self.selected_command(path)
 
+    def disable(self):
+        if (self.file_dialog):
+            self.file_dialog.disable()
+
+    def enable(self):
+        if (self.file_dialog):
+            self.file_dialog.enable()
+
+    def hide(self):
+        if (self.file_dialog):
+            self.file_dialog.hide()
+
+    def show(self):
+        if (self.file_dialog):
+            self.file_dialog.show()

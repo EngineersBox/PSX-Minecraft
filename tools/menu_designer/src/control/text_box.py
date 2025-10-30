@@ -1,6 +1,5 @@
+import pygame, pygame_gui
 from typing import Optional
-import pygame
-import pygame_gui
 from src.control.base import ControlBase
 
 class ControlTextBox(ControlBase):
@@ -42,3 +41,15 @@ class ControlTextBox(ControlBase):
 
     def kill(self):
         self.text_box.kill()
+
+    def disable(self):
+        self.text_box.disable()
+
+    def enable(self):
+        self.text_box.enable()
+
+    def hide(self):
+        self.text_box.hide()
+
+    def show(self):
+        self.text_box.show()

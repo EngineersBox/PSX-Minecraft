@@ -36,3 +36,14 @@ class ControlForm(ControlBase):
             and event.ui_element == self.form):
             self.on_submit()
 
+    def disable(self):
+        self.form.disable()
+
+    def enable(self):
+        self.form.enable()
+
+    def hide(self):
+        self.form.hide()
+
+    def show(self):
+        self.form.show()

@@ -57,3 +57,9 @@ class ControlCheckbox(ControlBase):
 
     def disable(self):
         self.checkbox.disable()
+
+    def hide(self):
+        self.checkbox.hide()
+
+    def show(self):
+        self.checkbox.show()

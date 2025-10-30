@@ -36,5 +36,13 @@ class ControlButton(ControlBase):
     def disable(self):
         self.button.disable()
 
+    def hide(self):
+        self.disable()
+        self.button.hide()
+
+    def show(self):
+        self.enable()
+        self.button.show()
+
     def kill(self):
         self.button.kill()
