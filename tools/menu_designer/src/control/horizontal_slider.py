@@ -1,8 +1,13 @@
-import pygame_gui
+from typing import Callable
+import pygame, pygame_gui
 from src.control.base import ControlBase
+
+type ControlHorizontalSliderChangedCommand = Callable[[int], None]
 
 class ControlHorizontalSlider(ControlBase):
     slider: pygame_gui.elements.UIHorizontalSlider
+
+    _changed_command: ControlHorizontalSliderChangedCommand
 
     def __init__(
         self,
@@ -13,7 +18,8 @@ class ControlHorizontalSlider(ControlBase):
         value_range: tuple[int, int],
         increment: int,
         manager: pygame_gui.UIManager,
-        container: pygame_gui.core.IContainerLikeInterface
+        container: pygame_gui.core.IContainerLikeInterface,
+        changed_command: ControlHorizontalSliderChangedCommand
     ):
         super().__init__(
             x,
@@ -29,6 +35,12 @@ class ControlHorizontalSlider(ControlBase):
             manager=manager,
             container=container
         )
+        self._changed_command = changed_command
+
+    def process_event(self, event: pygame.Event):
+        if (event.type == pygame_gui.UI_HORIZONTAL_SLIDER_MOVED
+            and event.ui_element == self.slider):
+            self._changed_command(int(self.slider.current_value))
 
     def enable(self):
         self.slider.enable()

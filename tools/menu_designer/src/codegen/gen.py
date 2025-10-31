@@ -1,4 +1,4 @@
-from typing import cast
+from typing import Optional, cast
 import pygame
 from preview.background import PreviewBackground
 from src.preview.element import PreviewElement
@@ -11,7 +11,7 @@ env = Environment(
     autoescape = select_autoescape()
 )
 
-FONTS = [
+FONTS = {
     "monocraft",
     "jetbrainsmono",
     "firacode",
@@ -23,16 +23,17 @@ FONTS = [
     "monaco",
     "consolas",
     "courier"
-]
+}
 
-def gen_button_code(button: PreviewButton) -> str:
+def gen_button_code(button: PreviewButton, font: str) -> str:
     render_parameters = {
         "name_snake_lower": caseconverter.snakecase(button.label.text),
         "text": button.label.text,
         "x": button.get_pos()[0],
         "y": button.get_pos()[1],
         "width": button.get_width(),
-        "disabled": button.disabled
+        "disabled": button.disabled,
+        "font": font
     }
     return env.get_template("button.j2").render(render_parameters)
 
@@ -45,7 +46,7 @@ def find_font() -> str:
             continue
     return pygame.font.get_default_font()
 
-def gen_button_html_code(button: PreviewButton) -> str:
+def gen_button_html_code(button: PreviewButton, font: str) -> str:
     render_parameters = {
         "name_snake_lower": caseconverter.snakecase(button.label.text),
         "text": button.label.text,
@@ -53,18 +54,19 @@ def gen_button_html_code(button: PreviewButton) -> str:
         "y": button.get_pos()[1],
         "width": button.get_width(),
         "disabled": button.disabled,
-        "font": find_font()
+        "font": font
     }
     return env.get_template("button_html.j2").render(render_parameters)
 
-def gen_background_html_code(background: PreviewBackground) -> str:
+def gen_background_html_code(background: PreviewBackground, font: str) -> str:
     # TODO: Implement this
     return ""
 
-def gen_html_code(element: PreviewElement) -> str:
+def gen_html_code(element: PreviewElement, font_name: Optional[str] = None) -> str:
+    font = font_name if font_name is not None else find_font()
     element_type = type(element)
     if element_type == PreviewButton:
-        return gen_button_html_code(cast(PreviewButton, element))
+        return gen_button_html_code(cast(PreviewButton, element), font)
     elif element_type == PreviewBackground:
-        return gen_background_html_code(cast(PreviewBackground, element))
+        return gen_background_html_code(cast(PreviewBackground, element), font)
     raise ValueError(f"Unknown element type: {element_type}")

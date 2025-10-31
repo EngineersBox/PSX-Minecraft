@@ -52,3 +52,6 @@ class ControlDropDown(ControlBase):
 
     def show(self):
         self.drop_down.show()
+
+    def kill(self):
+        self.drop_down.kill()

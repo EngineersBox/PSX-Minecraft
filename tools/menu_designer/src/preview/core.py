@@ -1,5 +1,6 @@
 from typing import Optional
 import pygame, pygame_gui, uuid
+from preview.background import PreviewBackground
 from preview.element import PreviewElement
 from src.preview.const import PREVIEW_SCALE_X, PREVIEW_SCALE_Y, PREVIEW_SIZE_X, PREVIEW_SIZE_Y
 from src.preview.button import PreviewButton
@@ -99,6 +100,18 @@ class Preview:
             self.container
         )
         return self.add_element(button)
+
+    def add_background(self, image: pygame.Surface) -> str:
+        background = PreviewBackground(
+            0,
+            0,
+            100,
+            100,
+            image,
+            self.manager,
+            self.container
+        )
+        return self.add_element(background)
 
     def add_element(self, element: PreviewElement) -> str:
         element_id = str(uuid.uuid4())

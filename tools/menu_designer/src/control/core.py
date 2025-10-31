@@ -1,7 +1,8 @@
+from os import close
 from pathlib import Path
-from typing import Optional
+from typing import Callable, Optional, cast
 import pygame, pygame_gui
-from src.codegen.gen import gen_html_code
+from src.codegen.gen import FONTS, gen_html_code
 from src.control.button import ControlButton
 from src.control.checkbox import ControlCheckbox
 from src.control.drop_down import ControlDropDown
@@ -12,10 +13,10 @@ from src.control.panel import ControlPanel
 from src.control.resizing_panel import ControlResizingPanel
 from src.control.selection_list import ControlSelectionList
 from src.control.text_box import ControlTextBox
-from src.control.text_input import ControlTextInput
+from src.control.text_input import ControlTextInput, number_only_validator
 from src.control.window import ControlWindow, ControlWindowClosedCommand
 from src.preview.core import Preview
-from src.preview.const import PREVIEW_SIZE_X, PREVIEW_SIZE_Y
+from src.preview.const import PREVIEW_SIZE_X, PREVIEW_SIZE_Y, PREVIEW_SCALE_X, PREVIEW_SCALE_Y
 from src.preview.background import PreviewBackground
 from src.preview.button import PreviewButton
 from src.preview.element import PreviewElement
@@ -26,11 +27,45 @@ from src.preview.element import PreviewElement
 
 type Elements = dict[str, tuple[str, str]]
 
-class ButtonModifiersPanel(ControlPanel):
+class ButtonModifiersPanel(ControlResizingPanel):
     diasbled_checkbox: ControlCheckbox
 
-    def __init__(self):
-        pass
+    _get_selected_element: Callable[[], Optional[PreviewElement]]
+
+    def __init__(
+        self,
+        y: int,
+        manager: pygame_gui.UIManager,
+        parent_container: pygame_gui.core.IContainerLikeInterface,
+        get_selected_element: Callable[[], Optional[PreviewElement]]
+    ):
+        super().__init__(
+            PREVIEW_SIZE_X * PREVIEW_SCALE_X,
+            y,
+            pygame.display.get_window_size()[0] - (PREVIEW_SIZE_X * PREVIEW_SCALE_X),
+            0,
+            manager,
+            parent_container
+        )
+        self.diasbled_checkbox= self.add_element_offset(
+            lambda _, y, container: ControlCheckbox(
+                0,
+                y,
+                30,
+                30,
+                "Disabled",
+                manager,
+                container,
+                self._set_button_disabled_state
+            )
+        )
+        self._get_selected_element = get_selected_element
+
+    def _set_button_disabled_state(self, disabled: bool):
+        selected = self._get_selected_element()
+        if selected == None or type(selected) != PreviewButton:
+            return
+        selected.set_disabled(disabled)
 
     def reset_controls(self):
         self.diasbled_checkbox.disable()
@@ -43,17 +78,91 @@ class BackgroundModifiersPanel(ControlPanel):
     def reset_controls(self):
         pass
 
-class ElementsPanel(ControlPanel):
+class CodePanel(ControlPanel):
+    code_view: ControlTextBox
+    close_button: ControlButton
+    font_drop_down: ControlDropDown
+    
+    _elements: list[PreviewElement]
+    _close_command: Callable[[], None]
+
+    def __init__(
+        self,
+        elements: list[PreviewElement],
+        close_command: Callable[[], None],
+        manager: pygame_gui.UIManager,
+        parent_container: Optional[pygame_gui.core.IContainerLikeInterface] = None
+    ):
+        super().__init__(
+            0,
+            0,
+            pygame.display.get_window_size()[0],
+            pygame.display.get_window_size()[1],
+            manager,
+            parent_container
+        )
+        self.code_view = ControlTextBox(
+            0,
+            0,
+            pygame.display.get_window_size()[0],
+            pygame.display.get_window_size()[1] - 36,
+            manager,
+            self.panel,
+            background_colour=pygame.Color("#232323")
+        )
+        code_blocks = []
+        for element in elements:
+            code_blocks.append(gen_html_code(element))
+        self.code_view.set_text("\n".join(code_blocks))
+        self.code_close = ControlButton(
+            pygame.display.get_window_size()[0] - 106,
+            pygame.display.get_window_size()[1] - 36,
+            100,
+            30,
+            "Close",
+            manager,
+            self.panel,
+            close_command
+        )
+        self.code_font_drop_down = self.add_element(
+            ControlDropDown(
+                0,
+                pygame.display.get_window_size()[1] - 36,
+                100,
+                30,
+                [(font, font) for font in pygame.font.get_fonts()],
+                self._update_code_view_font,
+                manager,
+                self.panel
+            ),
+            process_event=True
+        )
+        self._elements = elements
+        self._close_command = close_command
+
+    def _update_code_view_font(self, selected_font: tuple[str, str]):
+        code_blocks = []
+        for element in self._elements:
+            code_blocks.append(gen_html_code(element, selected_font[1]))
+        self.code_view.set_text("\n".join(code_blocks))
+
+    def kill(self):
+        super().kill()
+        self.code_view.kill()
+        self.close_button.kill()
+        self.font_drop_down.kill()
+
+class ElementsPanel(ControlResizingPanel):
     elements_list: ControlSelectionList
 
     remove_element_button: ControlButton
     view_element_code_button: ControlButton
     view_all_code_button: ControlButton
 
+    code_panel: Optional[CodePanel]
+
     pos_x_label: ControlLabel
-    pos_x_slider: ControlHorizontalSlider
     pos_y_label: ControlLabel
-    pos_y_slider: ControlHorizontalSlider
     width_label: ControlLabel
     width_slider: ControlHorizontalSlider
     height_label: ControlLabel
@@ -62,8 +171,163 @@ class ElementsPanel(ControlPanel):
     button_modifiers_panel: ButtonModifiersPanel
     background_modifiers_panel: BackgroundModifiersPanel
 
-    def __init__(self):
-        pass
+    _manager: pygame_gui.UIManager
+    _elements: Elements
+    _preview: Preview
+
+    def __init__(
+        self,
+        y: int,
+        manager: pygame_gui.UIManager,
+        parent_container: pygame_gui.core.IContainerLikeInterface,
+        elements: Elements,
+        preview: Preview
+    ):
+        super().__init__(
+            0,
+            y,
+            pygame.display.get_window_size()[0] - (PREVIEW_SIZE_X * PREVIEW_SCALE_X),
+            0,
+            manager,
+            parent_container
+        )
+        self.elements_list = self.add_element_offset(
+            lambda width, y, container: ControlSelectionList(
+                0,
+                y,
+                width,
+                200,
+                [],
+                self._selected_element,
+                self._dropped_element,
+                manager,
+                container
+            )
+        )
+        self.remove_element_button = self.add_element_offset(
+            lambda width, y, container: ControlButton(
+                0,
+                y,
+                width,
+                30,
+                "Remove Element",
+                manager,
+                container,
+                self._remove_element
+            )
+        )
+        self.view_element_code_button = self.add_element_offset(
+            lambda width, y, container: ControlButton(
+                0,
+                y,
+                width,
+                30,
+                "View Element Code",
+                manager,
+                container,
+                self._open_selected_element_code_panel
+            )
+        )
+        self.view_all_code_button = self.add_element_offset(
+            lambda width, y, container: ControlButton(
+                0,
+                y,
+                width,
+                30,
+                "View All Code",
+                manager,
+                container,
+                self._open_all_elements_code_panel
+            )
+        )
+        self.pos_x_label = self.add_element_offset(
+            lambda width, y, container: ControlLabel(
+                0,
+                y,
+                width,
+                30,
+                "X: N/A",
+                manager,
+                container
+            )
+        )
+        self.pos_y_label = self.add_element_offset(
+            lambda width, y, container: ControlLabel(
+                0,
+                y,
+                width,
+                30,
+                "Y: N/A",
+                manager,
+                container
+            )
+        )
+        self.width_label = self.add_element_offset(
+            lambda width, y, container: ControlLabel(
+                0,
+                y,
+                width,
+                30,
+                "Width: N/A",
+                manager,
+                container
+            )
+        )
+        self.width_slider = self.add_element_offset(
+            lambda width, y, container: ControlHorizontalSlider(
+                0,
+                y,
+                width,
+                30,
+                (0, PREVIEW_SIZE_X),
+                1,
+                manager,
+                container,
+                self._width_slider_moved
+            )
+        )
+        self.height_label = self.add_element_offset(
+            lambda width, y, container: ControlLabel(
+                0,
+                y,
+                width,
+                30,
+                "Height: N/A",
+                manager,
+                container
+            )
+        )
+        self.height_slider = self.add_element_offset(
+            lambda width, y, container: ControlHorizontalSlider(
+                0,
+                y,
+                width,
+                30,
+                (0, PREVIEW_SIZE_Y),
+                1,
+                manager,
+                container,
+                self._height_slider_moved
+            )
+        )
+        self.background_modifiers_panel = BackgroundModifiersPanel()
+        self.button_modifiers_panel = ButtonModifiersPanel(
+            self.y_offset + 1,
+            manager,
+            parent_container,
+            self.get_selected_element
+        )
+        self.code_panel = None
+        self._manager = manager
+        self._elements = elements
+        self._preview = preview
+
+    def process_event(self, event: pygame.Event):
+        super().process_event(event)
+        self.button_modifiers_panel.process_event(event)
+        self.background_modifiers_panel.process_event(event)
+        if self.code_panel is not None:
+            self.code_panel.process_event(event)
 
     def reset_controls(self):
         self.remove_element_button.disable()
@@ -71,9 +335,7 @@ class ElementsPanel(ControlPanel):
         if len(self.elements) == 0:
             self.view_all_code_button.disable()
         self.pos_x_label.label.set_text("X: N/A")
-        self.pos_x_slider.set_value(-1)
         self.pos_y_label.label.set_text("Y: N/A")
-        self.pos_y_slider.set_value(-1)
         self.width_label.label.set_text("Width: N/A")
         self.width_slider.set_value(-1)
         self.height_label.label.set_text("Height: N/A")
@@ -81,8 +343,89 @@ class ElementsPanel(ControlPanel):
         self.button_modifiers_panel.reset_controls()
         self.background_modifiers_panel.reset_controls()
 
+    def get_selected_element(self) -> Optional[PreviewElement]:
+        selected = self.elements_list.selection_list.get_single_selection(include_object_id=True)
+        if selected == None:
+            return None
+        return self._preview.get_element(selected[1])
+
+    def _selected_element(self, id: tuple[str, str]):
+        self.enable()
+        self.show()
+        selected = self._preview.get_element(id[1])
+        if selected is not None:
+            width = selected.get_width()
+            self.width_slider.set_value(width)
+            self.width_label.label.set_text(f"Width: {width}")
+
+    def _dropped_element(self):
+        self.reset_controls()
+
+    def _remove_element(self):
+        selected = self.elements_list.selection_list.get_single_selection(include_object_id=True)
+        if selected == None:
+            return
+        self._elements.pop(selected[1])
+        self._preview.remove_element(selected[1])
+        self.elements_list.selection_list.set_item_list(list(self._elements.values()))
+        self.reset_controls()
+
+    def _open_selected_element_code_panel(self):
+        selected = self.get_selected_element()
+        if selected == None:
+            return
+        self.code_panel = CodePanel(
+            [selected],
+            self._close_code_panel,
+            self._manager
+        )
+        self._preview.hide()
+        self.hide()
+        self.disable()
+
+    def _open_all_elements_code_panel(self):
+        elements = []
+        for element_id in self._elements.keys():
+            element = self._preview.get_element(element_id)
+            if element == None:
+                continue
+            elements.append(element)
+        self.code_panel = CodePanel(
+            elements,
+            self._close_code_panel,
+            self._manager
+        )
+        self._preview.hide()
+        self.hide()
+        self.disable()
+
+    def _close_code_panel(self):
+        if self.code_panel == None:
+            return
+        self.code_panel.kill()
+        self.code_panel = None
+        self._preview.show()
+        self.show()
+        self.enable()
+
+    def _width_slider_moved(self, width: int):
+        self.height_label.set_text(f"Width: {width}")
+        selected = self.get_selected_element()
+        if selected == None:
+            return
+        selected.set_width(width)
+
+    def _height_slider_moved(self, height: int):
+        self.width_label.set_text(f"Height: {height}")
+        selected = self.get_selected_element()
+        if selected == None:
+            return
+        selected.set_height(height)
+
 class CreateButtonWindow(ControlWindow):
     label_text_input: ControlTextInput
+    width_input: ControlTextInput
+    height_input: ControlTextInput
     create_button: ControlButton
 
     _elements: Elements
@@ -113,16 +456,34 @@ class CreateButtonWindow(ControlWindow):
         input_width = 200
         self.label_text_input = ControlTextInput(
             (window_width // 2) - (input_width // 2),
-            70,
+            30,
             input_width,
             30,
             manager,
             self.window
         )
+        self.width_input = ControlTextInput(
+            (window_width // 2) - 50,
+            65,
+            100,
+            30,
+            manager,
+            self.window,
+            number_only_validator
+        )
+        self.height_input = ControlTextInput(
+            (window_width // 2) - 50,
+            100,
+            100,
+            30,
+            manager,
+            self.window,
+            number_only_validator
+        )
         button_width = 70
         self.create_button = ControlButton(
             (window_width // 2) - (button_width // 2),
-            110,
+            135,
             button_width,
             30,
             "Create",
@@ -136,6 +497,8 @@ class CreateButtonWindow(ControlWindow):
         self._preview = preview
 
     def process_event(self, event: pygame.Event):
+        self.width_input.process_event(event)
+        self.height_input.process_event(event)
         if (event.type == pygame_gui.UI_TEXT_ENTRY_CHANGED
             and event.ui_element == self.label_text_input):
             if len(self.label_text_input.input.get_text()) > 0:
@@ -150,6 +513,17 @@ class CreateButtonWindow(ControlWindow):
         button_id = self._preview.add_button(text)
         self._elements[button_id] = (text, button_id)
         self._elements_panel.elements_list.selection_list.set_item_list(list(self._elements.values()))
+        element = self._preview.get_element(button_id)
+        if element == None:
+            raise Exception("Should not happen")
+        width_text = self.width_input.get_text()
+        if width_text == None and len(width_text) > 0:
+            width = int(width_text)
+            element.set_width(width)
+        height_text = self.height_input.get_text()
+        if height_text == None and len(height_text) > 0:
+            height = int(height_text)
+            element.set_height(height)
         self.label_text_input.input.set_text("")
         self._elements_panel.reset_controls()
         self._elements_panel.view_all_code_button.enable()
@@ -159,6 +533,18 @@ class CreateButtonWindow(ControlWindow):
         self.label_text_input.input.clear()
 
 class CreateBackgroundWindow(ControlWindow):
+    image_file_dialog: ControlFileDialog
+    label_text_input: ControlTextInput
+    width_label: ControlLabel
+    width_input: ControlTextInput
+    height_label: ControlLabel
+    height_input: ControlTextInput
+    create_button: ControlButton
+
+    _image: Optional[pygame.Surface]
+    _elements: Elements
+    _elements_panel: ElementsPanel
+    _preview: Preview
 
     def __init__(
         self,
@@ -181,6 +567,111 @@ class CreateBackgroundWindow(ControlWindow):
             draggable=True,
             always_on_top=True
         )
+        self.image_file_dialog = ControlFileDialog(
+            0,
+            0,
+            PREVIEW_SIZE_X,
+            PREVIEW_SIZE_Y,
+            "Select Background Image",
+            self._bg_image_selected,
+            self._close_bg_image_file_dialog,
+            manager
+        )
+        self.image_file_dialog.disable()
+        self.image_file_dialog.hide()
+        self.label_text_input = ControlTextInput(
+            (window_width // 2) - 50,
+            30,
+            100,
+            30,
+            manager,
+            self.window,
+            placeholder_text="Name..."
+        )
+        self.width_label = ControlLabel(
+            (window_width // 2) - 50 - 30,
+            60,
+            30,
+            30,
+            "Width:",
+            manager,
+            self.window,
+        )
+        self.width_input = ControlTextInput(
+            (window_width // 2) - 50,
+            60,
+            100,
+            30,
+            manager,
+            self.window,
+            number_only_validator,
+            initial_text="100"
+        )
+        self.width_label = ControlLabel(
+            (window_width // 2) - 50 - 30,
+            60,
+            100,
+            30,
+            "Height:",
+            manager,
+            self.window,
+        )
+        self.height_input = ControlTextInput(
+            (window_width // 2) - 50,
+            65,
+            100,
+            30,
+            manager,
+            self.window,
+            number_only_validator,
+            initial_text="100"
+        )
+        self.create_button = ControlButton(
+            (window_width // 2) - 35,
+            110,
+            70,
+            30,
+            "Create",
+            manager,
+            self.window,
+            self._add_background
+        )
+        self._elements = elements
+        self._elements_panel = elements_panel
+        self._preview = preview
+
+    def _bg_image_selected(self, path: Path):
+        try:
+            self._image = pygame.image.load(path)
+        except Exception as e:
+            print(f"Invalid image: {e}")
+            self._image = None
+
+    def _close_bg_image_file_dialog(self):
+        self.image_file_dialog.disable()
+        self.image_file_dialog.hide()
+
+    def _add_background(self):
+        name = self.label_text_input.get_text()
+        if (len(name) == 0 or self._image == None):
+            return
+        background_id = self._preview.add_background(self._image)
+        self._elements[background_id] = (name, background_id)
+        self._elements_panel.elements_list.selection_list.set_item_list(list(self._elements.values()))
+        element = self._preview.get_element(background_id)
+        if element == None:
+            raise Exception("Should not happen")
+        width_text = self.width_input.get_text()
+        if width_text == None and len(width_text) > 0:
+            width = int(width_text)
+            element.set_width(width)
+        height_text = self.height_input.get_text()
+        if height_text == None and len(height_text) > 0:
+            height = int(height_text)
+            element.set_height(height)
+        self.label_text_input.input.set_text("")
+        self._elements_panel.reset_controls()
+        self._elements_panel.view_all_code_button.enable()
 
 class CreatePanel(ControlResizingPanel):
     create_button_button: ControlButton
@@ -269,14 +760,6 @@ class PreviewManagementPanel(ControlPanel):
     show_grid_checkbox: ControlCheckbox
     open_bg_image_file_dialog: ControlButton
     bg_image_file_dialog: ControlFileDialog
-
-    def __init__(self):
-        pass
-
-class CodePanel(ControlPanel):
-    code_view: ControlTextBox
-    close_button: ControlButton
-    font_drop_down: ControlDropDown
 
     def __init__(self):
         pass
