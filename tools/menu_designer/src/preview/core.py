@@ -1,7 +1,7 @@
 from typing import Optional
 import pygame, pygame_gui, uuid
-from preview.background import PreviewBackground
-from preview.element import PreviewElement
+from src.preview.background import PreviewBackground
+from src.preview.element import PreviewElement
 from src.preview.const import PREVIEW_SCALE_X, PREVIEW_SCALE_Y, PREVIEW_SIZE_X, PREVIEW_SIZE_Y
 from src.preview.button import PreviewButton
 
@@ -25,6 +25,8 @@ class Preview:
     hidden: bool
     grid_hidden: bool
 
+    _render_index: int
+
     def __init__(self, manager: pygame_gui.UIManager):
         self.manager = manager
         self.button_enabled_image = pygame.image.load("assets/button.png")
@@ -47,6 +49,7 @@ class Preview:
         self.hidden = False
         self.grid_hidden = True
         self.hide_grid()
+        self._render_index = 1
 
     def update(self, time_delta: float):
         for button in self.game_elements.values():
@@ -116,6 +119,8 @@ class Preview:
     def add_element(self, element: PreviewElement) -> str:
         element_id = str(uuid.uuid4())
         self.game_elements[element_id] = element
+        element.set_render_index(self._render_index)
+        self._render_index += 1
         return element_id
 
     def remove_element(self, button_id: str):

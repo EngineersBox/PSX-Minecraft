@@ -84,4 +84,6 @@ class ControlPanel(ControlBase):
             element.hide()
 
     def kill(self):
+        self._process_event_elements.clear()
+        self._update_elements.clear()
         self.panel.kill()

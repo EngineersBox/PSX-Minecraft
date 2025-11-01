@@ -1,10 +1,9 @@
 from typing import Optional, cast
-import pygame
-from preview.background import PreviewBackground
+import pygame, caseconverter
+from src.preview.background import PreviewBackground
 from src.preview.element import PreviewElement
 from src.preview.button import PreviewButton
 from jinja2 import Environment, FileSystemLoader, select_autoescape
-import caseconverter
 
 env = Environment(
     loader = FileSystemLoader("templates"),

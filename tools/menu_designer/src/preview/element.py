@@ -41,6 +41,13 @@ class PreviewElement:
         self.outline_offset_x = outline_offset_x
         self.outline_offset_y = outline_offset_y
 
+    def get_render_index(self) -> int:
+        return self.image.starting_height
+
+    def set_render_index(self, height: int):
+        self.image.starting_height = height
+        self.image.change_layer(height)
+
     def update(self, time_delta: float):
         self.image.update(time_delta)
 
@@ -62,6 +69,9 @@ class PreviewElement:
 
     def get_width(self) -> int:
         return int(self.image.get_abs_rect().width) // PREVIEW_SCALE_X
+
+    def get_height(self) -> int:
+        return int(self.image.get_abs_rect().height) // PREVIEW_SCALE_Y
 
     def get_pos(self) -> tuple[int, int]:
         pos = self.image.get_relative_rect()

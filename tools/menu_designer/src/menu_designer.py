@@ -1,6 +1,6 @@
 import pygame, pygame_gui
 from src.control.core import Control
-from src.preview import Preview
+from src.preview.core import Preview
 
 class MenuDesigner:
     manager: pygame_gui.UIManager

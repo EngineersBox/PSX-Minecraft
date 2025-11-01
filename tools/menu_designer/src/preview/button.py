@@ -35,9 +35,15 @@ class PreviewButton(PreviewElement):
             manager=manager,
             container=preview_container
         )
+        self.label.starting_height = self.image.starting_height
         self.disabled = False
         self.enabled_image = enabled_image
         self.disabled_image = disabled_image
+
+    def set_render_index(self, height: int):
+        super().set_render_index(height)
+        self.label.starting_height = height
+        self.label.change_layer(height)
 
     def update(self, time_delta: float):
         super().update(time_delta)

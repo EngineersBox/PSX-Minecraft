@@ -27,8 +27,14 @@ class ControlLabel(ControlBase):
             container=control_container
         )
 
+    def kill(self):
+        self.label.kill()
+
     def set_text(self, text: str):
         self.label.set_text(text)
+
+    def get_text(self) -> str:
+        return self.label.text
 
     def disable(self):
         self.label.disable()

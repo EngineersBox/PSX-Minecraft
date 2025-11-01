@@ -49,6 +49,12 @@ class ControlFileDialog(ControlBase):
         self.file_dialog.enable()
         self.file_dialog.show()
 
+    def close(self):
+        if self.file_dialog == None:
+            return
+        self.file_dialog.kill()
+        self.file_dialog = None
+
     def process_event(self, event: pygame.Event):
         if (self.file_dialog == None):
             return

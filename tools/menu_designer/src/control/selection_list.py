@@ -40,7 +40,7 @@ class ControlSelectionList(ControlBase):
         if (event.type == pygame_gui.UI_SELECTION_LIST_NEW_SELECTION
             and event.ui_element == self.selection_list):
             selected = self.get_single_selection(True)
-            if selected is not None and type(selected) == tuple[str, str]:
+            if selected != None and type(selected) == tuple:
                 self._selected_command(selected)
             return
         elif (event.type == pygame_gui.UI_SELECTION_LIST_DROPPED_SELECTION

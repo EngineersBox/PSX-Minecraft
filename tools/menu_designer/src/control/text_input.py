@@ -11,7 +11,7 @@ def number_only_validator(char: str) -> bool:
     if len(char) != 1:
         return False
     match = NUMBERS_ONLY_REGEX.fullmatch(char)
-    return match != None and type(match) == re.Match[str]
+    return match != None and type(match) == re.Match
 
 class ControlTextInput(ControlBase):
     input: pygame_gui.elements.UITextEntryLine
@@ -57,6 +57,9 @@ class ControlTextInput(ControlBase):
                 return
             text = text[:-1]
             self.input.set_text(text)
+
+    def kill(self):
+        self.input.kill()
 
     def get_text(self) -> str:
         return self.input.get_text()
