@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any, Callable, Optional, cast
+from typing import Callable, Optional, cast
 import pygame, pygame_gui
 from src.codegen.gen import gen_html_code
 from src.control.button import ControlButton
@@ -15,7 +15,7 @@ from src.control.text_box import ControlTextBox
 from src.control.text_input import ControlTextInput, number_only_validator
 from src.control.window import ControlWindow, ControlWindowClosedCommand
 from src.preview.core import Preview
-from src.preview.const import PREVIEW_SIZE_X, PREVIEW_SIZE_Y, PREVIEW_SCALE_X
+from src.preview.const import PREVIEW_SCALE_Y, PREVIEW_SIZE_X, PREVIEW_SIZE_Y, PREVIEW_SCALE_X
 from src.preview.background import PreviewBackground
 from src.preview.button import PreviewButton
 from src.preview.element import PreviewElement
@@ -69,7 +69,13 @@ class ButtonModifiersPanel(ControlResizingPanel):
     def update_from_element(self, button: PreviewButton):
         self.diasbled_checkbox.set_state(button.disabled)
 
-class BackgroundModifiersPanel(ControlPanel):
+class BackgroundModifiersPanel(ControlResizingPanel):
+    tile_x_drop_down: ControlDropDown
+    tile_y_drop_down: ControlDropDown
+    pos_u_label: ControlLabel
+    pos_u_slider: ControlHorizontalSlider
+    pos_v_label: ControlLabel
+    pos_v_slider: ControlHorizontalSlider
     _get_selected_element: Callable[[], Optional[PreviewElement]]
 
     def __init__(
@@ -87,13 +93,134 @@ class BackgroundModifiersPanel(ControlPanel):
             manager,
             parent_container
         )
+        self.tile_x_drop_down = self.add_element_offset(
+            lambda width, y, container: ControlDropDown(
+                0,
+                y,
+                width,
+                30,
+                ["8", "16", "32", "64", "128", "256"],
+                self._tile_x_selected,
+                manager,
+                container,
+                starting_option="256"
+            ),
+            process_event=True
+        )
+        self.tile_y_drop_down = self.add_element_offset(
+            lambda width, y, container: ControlDropDown(
+                0,
+                y,
+                width,
+                30,
+                ["8", "16", "32", "64", "128", "256"],
+                self._tile_y_selected,
+                manager,
+                container,
+                starting_option="256"
+            ),
+            process_event=True
+        )
+        self.pos_u_label = self.add_element_offset(
+            lambda width, y, container: ControlLabel(
+                0,
+                y,
+                width,
+                30,
+                "U: N/A",
+                manager,
+                container
+            )
+        )
+        self.pos_u_slider = self.add_element_offset(
+            lambda width, y, container: ControlHorizontalSlider(
+                0,
+                y,
+                width,
+                30,
+                (0, 255),
+                1,
+                manager,
+                container,
+                self._pos_u_updated
+            ),
+            process_event=True
+        )
+        self.pos_v_label = self.add_element_offset(
+            lambda width, y, container: ControlLabel(
+                0,
+                y,
+                width,
+                30,
+                "V: N/A",
+                manager,
+                container
+            )
+        )
+        self.pos_v_slider = self.add_element_offset(
+            lambda width, y, container: ControlHorizontalSlider(
+                0,
+                y,
+                width,
+                30,
+                (0, 255),
+                1,
+                manager,
+                container,
+                self._pos_v_updated
+            ),
+            process_event=True
+        )
         self._get_selected_element = get_selected_element
 
     def reset_controls(self):
         pass
 
     def update_from_element(self, background: PreviewBackground):
-        pass
+        self.pos_u_label.set_text(f"U: {background.get_pos_u()}")
+        self.pos_u_slider.slider.value_range = (0, background.source_image.width - 1)
+        self.pos_u_slider.set_value(background.get_pos_u())
+        self.pos_v_label.set_text(f"V: {background.get_pos_v()}")
+        self.pos_v_slider.slider.value_range = (0, background.source_image.height - 1)
+        self.pos_v_slider.set_value(background.get_pos_v())
+        self.tile_x_drop_down.drop_down.selected_option = (
+            f"{background.get_tile_x()}",
+            f"{background.get_tile_x()}"
+        )
+        self.tile_y_drop_down.drop_down.selected_option = (
+            f"{background.get_tile_y()}",
+            f"{background.get_tile_y()}"
+        )
+
+    def _tile_x_selected(self, choice: tuple[str, str]):
+        element = self._get_selected_element()
+        if (element == None or type(element) != PreviewBackground):
+            return
+        background = cast(PreviewBackground, element)
+        background.set_tile_x(int(choice[0]))
+
+    def _tile_y_selected(self, choice: tuple[str, str]):
+        element = self._get_selected_element()
+        if (element == None or type(element) != PreviewBackground):
+            return
+        background = cast(PreviewBackground, element)
+        background.set_tile_y(int(choice[0]))
+
+    def _pos_u_updated(self, pos_u: int):
+        element = self._get_selected_element()
+        if (element == None or type(element) != PreviewBackground):
+            return
+        background = cast(PreviewBackground, element)
+        background.set_pos_u(pos_u)
+        self.pos_u_label.set_text(f"U: {pos_u}")
+
+    def _pos_v_updated(self, pos_v: int):
+        element = self._get_selected_element()
+        if (element == None or type(element) != PreviewBackground):
+            return
+        background = cast(PreviewBackground, element)
+        background.set_pos_v(pos_v)
+        self.pos_v_label.set_text(f"V: {pos_v}")
 
 class CodePanel(ControlPanel):
     code_view: ControlTextBox
@@ -175,17 +302,13 @@ class CodePanel(ControlPanel):
 class ElementsPanel(ControlResizingPanel):
     elements_list: ControlSelectionList
 
-    move_up_button: ControlButton
-    move_down_button: ControlButton
-
     remove_element_button: ControlButton
     view_element_code_button: ControlButton
     view_all_code_button: ControlButton
 
     code_panel: Optional[CodePanel]
 
-    pos_x_label: ControlLabel
-    pos_y_label: ControlLabel
+    pos_label: ControlLabel
     width_label: ControlLabel
     width_slider: ControlHorizontalSlider
     height_label: ControlLabel
@@ -225,32 +348,6 @@ class ElementsPanel(ControlResizingPanel):
                 self._dropped_element,
                 manager,
                 container
-            ),
-            process_event=True
-        )
-        self.move_up_button = self.add_element_offset(
-            lambda width, y, container: ControlButton(
-                0,
-                y,
-                width // 2,
-                30,
-                "Move Up",
-                manager,
-                container,
-                self._move_element_up
-            ),
-            process_event=True
-        )
-        self.move_down_button = self.add_element(
-            ControlButton(
-                self.move_up_button.rect.width,
-                self.y_offset - self.move_up_button.rect.height,
-                self.move_up_button.rect.width,
-                30,
-                "Move Down",
-                manager,
-                self.panel,
-                self._move_element_down
             ),
             process_event=True
         )
@@ -299,18 +396,7 @@ class ElementsPanel(ControlResizingPanel):
                 y,
                 width,
                 30,
-                "X: N/A",
-                manager,
-                container
-            )
-        )
-        self.pos_y_label = self.add_element_offset(
-            lambda width, y, container: ControlLabel(
-                0,
-                y,
-                width,
-                30,
-                "Y: N/A",
+                "X: N/A Y: N/A",
                 manager,
                 container
             )
@@ -401,8 +487,7 @@ class ElementsPanel(ControlResizingPanel):
         if selected == None:
             return
         pos = selected.get_pos()
-        self.pos_x_label.set_text(f"X: {pos[0]}")
-        self.pos_y_label.set_text(f"Y: {pos[1]}")
+        self.pos_x_label.set_text(f"X: {pos[0]} Y: {pos[1]}")
 
     def reset_controls(self):
         self.remove_element_button.disable()
@@ -411,8 +496,7 @@ class ElementsPanel(ControlResizingPanel):
             self.view_all_code_button.enable()
         else:
             self.view_all_code_button.disable()
-        self.pos_x_label.set_text("X: N/A")
-        self.pos_y_label.set_text("Y: N/A")
+        self.pos_x_label.set_text("X: N/A Y: N/A")
         self.width_label.set_text("Width: N/A")
         self.width_slider.set_value(-1)
         self.height_label.set_text("Height: N/A")
@@ -423,26 +507,12 @@ class ElementsPanel(ControlResizingPanel):
         self.background_modifiers_panel.reset_controls()
         self.background_modifiers_panel.disable()
         self.background_modifiers_panel.hide()
-        self.move_up_button.disable()
-        self.move_down_button.disable()
 
     def get_selected_element(self) -> Optional[PreviewElement]:
         selected = self.elements_list.selection_list.get_single_selection(include_object_id=True)
         if selected == None:
             return None
         return self._preview.get_element(selected[1])
-
-
-    def _index_selected(self) -> int:
-        selected = self.elements_list.selection_list.get_single_selection(include_object_id=True)
-        if selected == None:
-            return -1
-        index = 0
-        for item in self.elements_list.selection_list.item_list:
-            if item["object_id"] == selected[1]:
-                return index
-            index += 1
-        return -1
 
     def _selected_element(self, id: tuple[str, str]):
         self.enable()
@@ -453,8 +523,7 @@ class ElementsPanel(ControlResizingPanel):
         self.remove_element_button.enable()
         self.view_element_code_button.enable()
         pos = selected.get_pos()
-        self.pos_x_label.set_text(f"X: {pos[0]}")
-        self.pos_y_label.set_text(f"Y: {pos[1]}")
+        self.pos_x_label.set_text(f"X: {pos[0]} Y: {pos[1]}")
         width = selected.get_width()
         self.width_slider.set_value(width)
         self.width_label.set_text(f"Width: {width}")
@@ -467,96 +536,14 @@ class ElementsPanel(ControlResizingPanel):
             self.button_modifiers_panel.enable()
             self.button_modifiers_panel.show()
             self.button_modifiers_panel.update_from_element(cast(PreviewButton, selected))
+            self.width_slider.slider.value_range = (0, PREVIEW_SIZE_X)
+            self.height_slider.slider.value_range = (0, PREVIEW_SIZE_Y)
         elif type(selected) == PreviewBackground:
             self.background_modifiers_panel.enable()
             self.background_modifiers_panel.show()
             self.background_modifiers_panel.update_from_element(cast(PreviewBackground, selected))
-        index = self._index_selected()
-        list_len = len(self.elements_list.selection_list.item_list)
-        if list_len <= 1:
-            self.move_up_button.disable()
-            self.move_down_button.disable()
-            return
-        if index == 0:
-            self.move_up_button.disable()
-        elif index > 0:
-            self.move_up_button.enable()
-        if index == list_len - 1:
-            self.move_down_button.disable()
-        elif index < list_len - 1:
-            self.move_down_button.enable()
-
-    def _exchange_properties(self, a: dict[str, Any], b: dict[str, Any]):
-        a_text = a["text"]
-        a_button = a["button_element"]
-        a_selected = a["selected"]
-        a_object_id = a["object_id"]
-        a_height = a["height"]
-        b_text = a["text"]
-        b_button = a["button_element"]
-        b_selected = a["selected"]
-        b_object_id = a["object_id"]
-        b_height = a["height"]
-        a["text"] = b_text
-        a["button_element"] = b_button
-        a["selected"] = b_selected
-        a["object_id"] = b_object_id
-        a["height"] = b_height
-        b["text"] = a_text
-        b["button_element"] = a_button
-        b["selected"] = a_selected
-        b["object_id"] = a_object_id
-        b["height"] = a_height
-
-    def _move_element_up(self):
-        index = self._index_selected()
-        if index <= 0:
-            return
-        above = self.elements_list.selection_list.item_list[index - 1]
-        above_element = self._preview.get_element(above["object_id"])
-        if above_element == None:
-            raise ValueError("Should not happen")
-        above_render_index = above_element.get_render_index()
-        current = self.elements_list.selection_list.item_list[index]
-        current_element = self._preview.get_element(current["object_id"])
-        if current_element == None:
-            raise ValueError("Should not happen")
-        current_render_index = current_element.get_render_index()
-        above_element.set_render_index(current_render_index)
-        current_element.set_render_index(above_render_index)
-
-        item_list = [item for item in self.elements_list.selection_list._raw_item_list]
-        raw_above = item_list[index - 1]
-        raw_current = item_list[index]
-        item_list[index - 1] = raw_current
-        item_list[index] = raw_above
-        self.elements_list.selection_list.set_item_list(item_list)
-
-    def _move_element_down(self):
-        index = self._index_selected()
-        if (index == -1 or index == len(self.elements_list.selection_list.item_list) - 1):
-            return
-        below = self.elements_list.selection_list.item_list[index + 1]
-        below_element = self._preview.get_element(below["object_id"])
-        if below_element == None:
-            raise ValueError("Should not happen")
-        below_render_index = below_element.get_render_index()
-        current = self.elements_list.selection_list.item_list[index]
-        current_element = self._preview.get_element(current["object_id"])
-        if current_element == None:
-            raise ValueError("Should not happen")
-        current_render_index = current_element.get_render_index()
-        below_element.set_render_index(current_render_index)
-        current_element.set_render_index(below_render_index)
-        self.elements_list.selection_list.item_list[index + 1] = current
-        self.elements_list.selection_list.item_list[index] = below
-
-        item_list = [item for item in self.elements_list.selection_list._raw_item_list]
-        raw_below = item_list[index + 1]
-        raw_current = item_list[index]
-        item_list[index + 1] = raw_current
-        item_list[index] = raw_below
-        self.elements_list.selection_list.set_item_list(item_list)
+            self.width_slider.slider.value_range = (0, 256)
+            self.width_slider.slider.value_range = (0, PREVIEW_SIZE_Y)
 
     def _dropped_element(self):
         self.reset_controls()
@@ -745,7 +732,7 @@ class CreateButtonWindow(ControlWindow):
         self.closed_command()
 
 class CreateBackgroundWindow(ControlWindow):
-    image_file_dialog: ControlFileDialog
+    image_file_dialog: Optional[ControlFileDialog]
     label_text_input: ControlTextInput
     width_label: ControlLabel
     width_input: ControlTextInput
@@ -782,17 +769,8 @@ class CreateBackgroundWindow(ControlWindow):
             draggable=True,
             always_on_top=True
         )
-        self.image_file_dialog = ControlFileDialog(
-            0,
-            0,
-            PREVIEW_SIZE_X,
-            PREVIEW_SIZE_Y,
-            "Select Background Image",
-            self._bg_image_selected,
-            self._close_bg_image_file_dialog,
-            manager
-        )
         y_offset = 5
+        self.image_file_dialog = None
         self.label_text_input = ControlTextInput(
             (window_width // 2) - 50,
             y_offset,
@@ -891,15 +869,12 @@ class CreateBackgroundWindow(ControlWindow):
         self._elements = elements
         self._elements_panel = elements_panel
         self._preview = preview
+        self._image = None
 
     def process_event(self, event: pygame.Event):
         super().process_event(event)
-        if (len(self.label_text_input.get_text()) > 0
-            and self.selected_file_path.get_text() != "Image: N/A"):
-            self.create_button.enable()
-        else:
-            self.create_button.disable()
-        self.image_file_dialog.process_event(event)
+        if self.image_file_dialog != None:
+            self.image_file_dialog.process_event(event)
 
     def kill(self):
         self.width_input.kill()
@@ -910,24 +885,34 @@ class CreateBackgroundWindow(ControlWindow):
         super().kill()
 
     def _open_image_dialog(self):
+        self.image_file_dialog = ControlFileDialog(
+            0,
+            0,
+            PREVIEW_SIZE_X,
+            PREVIEW_SIZE_Y,
+            "Select Background Image",
+            self._bg_image_selected,
+            self._close_bg_image_file_dialog,
+            self._manager
+        )
         self.image_file_dialog.open()
 
     def _bg_image_selected(self, path: Path):
         try:
-            self.selected_file_path.set_text(f"Image: {path.name}")
-            self.image = pygame.image.load(path)
+            self.selected_file_path.set_text(str(path))
+            self._image = pygame.image.load(path)
         except Exception as e:
             print(f"Invalid image: {e}")
             self._image = None
 
     def _close_bg_image_file_dialog(self):
-        self.image_file_dialog.close()
+        self.image_file_dialog = None
 
     def _add_background(self):
         name = self.label_text_input.get_text()
-        if (len(name) == 0 or self.image == None):
+        if (len(name) == 0 or self._image == None):
             return
-        background_id = self._preview.add_background(self.image)
+        background_id = self._preview.add_background(self._image)
         self._elements[background_id] = (name, background_id)
         self._elements_panel.elements_list.selection_list.set_item_list(list(self._elements.values()))
         element = self._preview.get_element(background_id)
@@ -1076,10 +1061,10 @@ class PreviewManagementPanel(ControlResizingPanel):
     ):
         checkbox_height = 30
         super().__init__(
-            PREVIEW_SIZE_X * PREVIEW_SCALE_X,
-            pygame.display.get_window_size()[1] - checkbox_height - 6,
+            0, #PREVIEW_SIZE_X * PREVIEW_SCALE_X + checkbox_height,
+            PREVIEW_SIZE_Y * PREVIEW_SCALE_Y, #pygame.display.get_window_size()[1] - checkbox_height - 6,
             pygame.display.get_window_size()[0] - (PREVIEW_SIZE_X * PREVIEW_SCALE_X),
-            0,
+            36,
             manager,
             parent_container
         )
@@ -1087,7 +1072,7 @@ class PreviewManagementPanel(ControlResizingPanel):
             lambda _, y, container: ControlCheckbox(
                 0,
                 y,
-                30,
+                checkbox_height,
                 checkbox_height,
                 "Show Grid",
                 manager,

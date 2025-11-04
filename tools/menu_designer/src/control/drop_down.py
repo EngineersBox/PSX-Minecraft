@@ -18,7 +18,8 @@ class ControlDropDown(ControlBase):
         selected_command: ControlDropDownSelectedCommand,
         manager: pygame_gui.UIManager,
         container: pygame_gui.core.IContainerLikeInterface,
-        expand_upward: bool = False
+        expand_upward: bool = False,
+        starting_option: str | Tuple[str, str] | None = None
     ):
         super().__init__(
             x,
@@ -29,7 +30,7 @@ class ControlDropDown(ControlBase):
         self.drop_down = pygame_gui.elements.UIDropDownMenu(
             relative_rect=self.rect,
             options_list=options,
-            starting_option=options[0],
+            starting_option=starting_option if starting_option != None else options[0],
             manager=manager,
             container=container
         )

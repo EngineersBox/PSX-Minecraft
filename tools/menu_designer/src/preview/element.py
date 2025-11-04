@@ -8,6 +8,8 @@ class PreviewElement:
     surface: pygame.Surface
     image: pygame_gui.elements.UIImage
 
+    _width: int
+    _height: int
     draw_outline: bool
     outline_offset_x: int
     outline_offset_y: int
@@ -37,6 +39,8 @@ class PreviewElement:
             manager=manager,
             container=preview_container
         )
+        self._width = width
+        self._height = height
         self.draw_outline = False
         self.outline_offset_x = outline_offset_x
         self.outline_offset_y = outline_offset_y
@@ -81,12 +85,14 @@ class PreviewElement:
         )
 
     def set_width(self, width: int):
+        self._width = width * PREVIEW_SCALE_X
         self.image.set_dimensions((
             width * PREVIEW_SCALE_X,
             self.image.get_abs_rect().height
         ))
 
     def set_height(self, height: int):
+        self._height = height * PREVIEW_SCALE_Y
         self.image.set_dimensions((
             self.image.get_abs_rect().width,
             height * PREVIEW_SCALE_Y
