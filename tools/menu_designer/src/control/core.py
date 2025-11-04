@@ -23,6 +23,8 @@ from src.preview.element import PreviewElement
 type Elements = dict[str, tuple[str, str]]
 
 class ButtonModifiersPanel(ControlResizingPanel):
+    # TODO: Change checbox to dropbown with options for
+    #       Normal, Disabled and Active
     diasbled_checkbox: ControlCheckbox
 
     _get_selected_element: Callable[[], Optional[PreviewElement]]
@@ -78,6 +80,8 @@ class BackgroundModifiersPanel(ControlResizingPanel):
     pos_v_label: ControlLabel
     pos_v_slider: ControlHorizontalSlider
     _get_selected_element: Callable[[], Optional[PreviewElement]]
+
+    # TODO: Allow tint colour to be selected from pygame_gui.windows.UIColorPickerDialog
 
     def __init__(
         self,
