@@ -70,6 +70,7 @@ class ButtonModifiersPanel(ControlResizingPanel):
         self.diasbled_checkbox.set_state(button.disabled)
 
 class BackgroundModifiersPanel(ControlResizingPanel):
+    direct_blit_checkbox: ControlCheckbox
     tile_x_drop_down: ControlDropDown
     tile_y_drop_down: ControlDropDown
     pos_u_label: ControlLabel
@@ -92,6 +93,19 @@ class BackgroundModifiersPanel(ControlResizingPanel):
             0,
             manager,
             parent_container
+        )
+        self.direct_blit_checkbox = self.add_element_offset(
+            lambda _, y, container: ControlCheckbox(
+                0,
+                y,
+                30,
+                30,
+                "Direct Blit",
+                manager,
+                container,
+                self._direct_blit_toggled
+            ),
+            process_event=True
         )
         self.tile_x_drop_down = self.add_element_offset(
             lambda width, y, container: ControlDropDown(
@@ -177,6 +191,7 @@ class BackgroundModifiersPanel(ControlResizingPanel):
         pass
 
     def update_from_element(self, background: PreviewBackground):
+        self.direct_blit_checkbox.set_state(background.get_direct_blit())
         self.pos_u_label.set_text(f"U: {background.get_pos_u()}")
         self.pos_u_slider.slider.value_range = (0, background.source_image.width - 1)
         self.pos_u_slider.set_value(background.get_pos_u())
@@ -221,6 +236,23 @@ class BackgroundModifiersPanel(ControlResizingPanel):
         background = cast(PreviewBackground, element)
         background.set_pos_v(pos_v)
         self.pos_v_label.set_text(f"V: {pos_v}")
+
+    def _direct_blit_toggled(self, state: bool):
+        element = self._get_selected_element()
+        if (element == None or type(element) != PreviewBackground):
+            return
+        background = cast(PreviewBackground, element)
+        background.set_direct_blit(state)
+        if state:
+            self.pos_u_slider.disable()
+            self.pos_v_slider.disable()
+            self.tile_x_drop_down.disable()
+            self.tile_y_drop_down.disable()
+        else:
+            self.pos_u_slider.enable()
+            self.pos_v_slider.enable()
+            self.tile_x_drop_down.enable()
+            self.tile_y_drop_down.enable()
 
 class CodePanel(ControlPanel):
     code_view: ControlTextBox
@@ -451,6 +483,7 @@ class ElementsPanel(ControlResizingPanel):
             ),
             process_event=True
         )
+        previous_y = self.y_offset
         self.background_modifiers_panel = self.add_element(
             BackgroundModifiersPanel(
                 self.rect.y + self.y_offset + 1,
@@ -462,6 +495,8 @@ class ElementsPanel(ControlResizingPanel):
         )
         self.background_modifiers_panel.disable()
         self.background_modifiers_panel.hide()
+        bg_y_offset = self.y_offset
+        self.y_offset = previous_y
         self.button_modifiers_panel = self.add_element(
             ButtonModifiersPanel(
                 self.rect.y + self.y_offset + 1,
@@ -473,6 +508,12 @@ class ElementsPanel(ControlResizingPanel):
         )
         self.button_modifiers_panel.disable()
         self.button_modifiers_panel.hide()
+        button_y_offset = self.y_offset
+        self.y_offset = max(bg_y_offset, button_y_offset)
+        self.panel.set_dimensions((
+            self.panel.get_abs_rect().width,
+            self.panel.get_abs_rect().height + self.y_offset
+        ))
         self.code_panel = None
         self._manager = manager
         self._elements = elements
@@ -499,8 +540,10 @@ class ElementsPanel(ControlResizingPanel):
         self.pos_x_label.set_text("X: N/A Y: N/A")
         self.width_label.set_text("Width: N/A")
         self.width_slider.set_value(-1)
+        self.width_slider.disable()
         self.height_label.set_text("Height: N/A")
         self.height_slider.set_value(-1)
+        self.height_slider.disable()
         self.button_modifiers_panel.reset_controls()
         self.button_modifiers_panel.disable()
         self.button_modifiers_panel.hide()
@@ -538,12 +581,16 @@ class ElementsPanel(ControlResizingPanel):
             self.button_modifiers_panel.update_from_element(cast(PreviewButton, selected))
             self.width_slider.slider.value_range = (0, PREVIEW_SIZE_X)
             self.height_slider.slider.value_range = (0, PREVIEW_SIZE_Y)
+            self.background_modifiers_panel.disable()
+            self.background_modifiers_panel.hide()
         elif type(selected) == PreviewBackground:
             self.background_modifiers_panel.enable()
             self.background_modifiers_panel.show()
             self.background_modifiers_panel.update_from_element(cast(PreviewBackground, selected))
             self.width_slider.slider.value_range = (0, 256)
             self.width_slider.slider.value_range = (0, PREVIEW_SIZE_Y)
+            self.button_modifiers_panel.disable()
+            self.button_modifiers_panel.hide()
 
     def _dropped_element(self):
         self.reset_controls()
@@ -875,6 +922,12 @@ class CreateBackgroundWindow(ControlWindow):
         super().process_event(event)
         if self.image_file_dialog != None:
             self.image_file_dialog.process_event(event)
+        name = self.label_text_input.get_text()
+        if (len(name) == 0 or self._image == None):
+            self.create_button.disable()
+        else:
+            self.create_button.enable()
+
 
     def kill(self):
         self.width_input.kill()

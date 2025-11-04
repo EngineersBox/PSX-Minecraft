@@ -1,9 +1,10 @@
+from abc import ABC
 import pygame, pygame_gui
 from src.preview.const import PREVIEW_SCALE_X, PREVIEW_SCALE_Y
 
 PREVIEW_OUTLINE_COLOUR = pygame.color.Color("#34c0eb")
 
-class PreviewElement:
+class PreviewElement(ABC):
     rect: pygame.Rect
     surface: pygame.Surface
     image: pygame_gui.elements.UIImage
@@ -87,7 +88,7 @@ class PreviewElement:
     def set_width(self, width: int):
         self._width = width * PREVIEW_SCALE_X
         self.image.set_dimensions((
-            width * PREVIEW_SCALE_X,
+            self._width,
             self.image.get_abs_rect().height
         ))
 
@@ -95,7 +96,7 @@ class PreviewElement:
         self._height = height * PREVIEW_SCALE_Y
         self.image.set_dimensions((
             self.image.get_abs_rect().width,
-            height * PREVIEW_SCALE_Y
+            self._height
         ))
 
     def draw(self, surface: pygame.Surface):

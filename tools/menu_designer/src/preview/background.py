@@ -1,5 +1,5 @@
 import pygame, pygame_gui, math
-from src.preview.const import PREVIEW_SIZE_Y
+from src.preview.const import PREVIEW_SCALE_X, PREVIEW_SCALE_Y, PREVIEW_SIZE_Y
 from src.preview.element import PreviewElement
 
 class PreviewBackground(PreviewElement):
@@ -9,6 +9,7 @@ class PreviewBackground(PreviewElement):
     _pos_v: int
     _tile_x: int
     _tile_y: int
+    _direct_blit: bool
 
     def __init__(
         self,
@@ -20,7 +21,7 @@ class PreviewBackground(PreviewElement):
         manager: pygame_gui.UIManager,
         preview_container: pygame_gui.elements.UIPanel,
     ):
-        assert width > 0 and width <= 246
+        assert width > 0 and width <= 256
         assert height > 0 and height < PREVIEW_SIZE_Y
         self.source_image = source_image
         super().__init__(
@@ -28,9 +29,12 @@ class PreviewBackground(PreviewElement):
             y,
             width,
             height,
-            pygame.transform.smoothscale(
+            pygame.transform.scale(
                 self.source_image,
-                (width, height)
+                (
+                    width * PREVIEW_SCALE_X,
+                    height * PREVIEW_SCALE_Y
+                )
             ),
             manager,
             preview_container
@@ -39,31 +43,52 @@ class PreviewBackground(PreviewElement):
         self._pos_v = 0
         self._tile_x = 256
         self._tile_y = 256
+        self._direct_blit = True
 
     def _tile_image(self):
-        tile = pygame.transform.smoothscale(
-            self.source_image,
-            (
-                max(self.source_image.width, self._tile_x),
-                max(self.source_image.height, self._tile_y)
+        if self._direct_blit:
+            self.surface = pygame.transform.scale(
+                self.source_image,
+                (
+                    self._width,
+                    self._height
+                )
             )
+            self.image.set_image(self.surface)
+            return
+        tile_x = self._tile_x * PREVIEW_SCALE_X
+        tile_y = self._tile_y * PREVIEW_SCALE_Y
+        tile = self.source_image.subsurface(pygame.Rect(
+            self._pos_u,
+            self._pos_v,
+            min(self._tile_x, self.source_image.width),
+            min(self._tile_y, self.source_image.height)
+        ))
+        tile = pygame.transform.scale(
+            tile,
+            (tile_x, tile_y)
         )
+        self.surface = pygame.Surface((
+            self._width,
+            self._height
+        ))
         self.surface.fill(pygame.color.Color("#000000"))
-        u_count = max(1, math.ceil(self.surface.width / self._tile_x))
-        v_count = max(1, math.ceil(self.surface.height / self._tile_y))
+        u_count = max(1, math.ceil(self._width / tile_x))
+        v_count = max(1, math.ceil(self._height / tile_y))
         for i in range(u_count):
             for j in range(v_count):
                 self.surface.blit(
                     tile,
-                    (self._tile_x * i, self._tile_y * j),
-                    pygame.Rect(
-                        self._pos_u,
-                        self._pos_v,
-                        self._tile_x,
-                        self._tile_y
-                    )
+                    (tile_x * i, tile_y * j)
                 )
         self.image.set_image(self.surface)
+
+    def set_direct_blit(self, state: bool):
+        self._direct_blit = state
+        self._tile_image()
+
+    def get_direct_blit(self) -> bool:
+        return self._direct_blit
 
     def set_pos_u(self, u: int):
         self._pos_u = u
@@ -92,3 +117,11 @@ class PreviewBackground(PreviewElement):
 
     def get_tile_y(self) -> int:
         return self._tile_y
+
+    def set_width(self, width: int):
+        super().set_width(width)
+        self._tile_image()
+
+    def set_height(self, height: int):
+        super().set_height(height)
+        self._tile_image()

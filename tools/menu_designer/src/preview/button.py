@@ -20,12 +20,20 @@ class PreviewButton(PreviewElement):
         manager: pygame_gui.UIManager,
         preview_container: pygame_gui.elements.UIPanel,
     ):
+        self.enabled_image = enabled_image
+        self.disabled_image = disabled_image
         super().__init__(
             x,
             y,
             width * PREVIEW_SCALE_X,
             20 * PREVIEW_SCALE_Y,
-            enabled_image,
+            pygame.transform.scale(
+                self.enabled_image,
+                (
+                    width * PREVIEW_SCALE_X,
+                    20 * PREVIEW_SCALE_Y
+                )
+            ),
             manager,
             preview_container
         )
@@ -37,8 +45,6 @@ class PreviewButton(PreviewElement):
         )
         self.label.starting_height = self.image.starting_height
         self.disabled = False
-        self.enabled_image = enabled_image
-        self.disabled_image = disabled_image
 
     def set_render_index(self, height: int):
         super().set_render_index(height)
@@ -80,9 +86,18 @@ class PreviewButton(PreviewElement):
     def set_width(self, width: int):
         super().set_width(width)
         self.label.set_dimensions((
-            width * PREVIEW_SCALE_X,
+            self._width,
             self.label.get_abs_rect().height
         ))
+        self._update_image()
+
+    def set_height(self, height: int):
+        super().set_height(height)
+        self.label.set_dimensions((
+            self.label.get_abs_rect().width,
+            self._height
+        ))
+        self._update_image()
 
     def kill(self):
         super().kill()
@@ -90,7 +105,13 @@ class PreviewButton(PreviewElement):
 
     def set_disabled(self, disabled: bool):
         self.disabled = disabled
-        if self.disabled:
-            self.image.set_image(self.disabled_image)
-        else:
-            self.image.set_image(self.enabled_image)
+        self._update_image()
+
+    def _update_image(self):
+        self.image.set_image(pygame.transform.scale(
+            self.disabled_image if self.disabled else self.enabled_image,
+            (
+                self._width,
+                self._height
+            )
+        ))
