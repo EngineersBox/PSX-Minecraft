@@ -31,19 +31,15 @@ class PreviewBackground(PreviewElement):
         assert width > 0 and width <= 256
         assert height > 0 and height < PREVIEW_SIZE_Y
         self.source_image = source_image
-        render_surface = pygame.transform.scale(
-            self.source_image,
-            (
-                width * PREVIEW_SCALE_X,
-                height * PREVIEW_SCALE_Y
-            )
-        )
+        render_surface = pygame.Surface((
+            width * PREVIEW_SCALE_X,
+            height * PREVIEW_SCALE_Y
+        ))
         self._tint = pygame.Color("#808080")
-        render_surface = pygame.transform.hsl(
+        render_surface.fill(self._tint)
+        render_surface.blit(
             render_surface,
-            0, #normalised_dual_degrees(self._tint.hsla[0]),
-            0, #normalised_dual_unit(self._tint.hsla[1]),
-            normalised_dual_unit(self._tint.hsla[2])
+            special_flags=pygame.BLENDMODE_MUL
         )
         super().__init__(
             x,
@@ -62,18 +58,14 @@ class PreviewBackground(PreviewElement):
 
     def _tile_image(self):
         if self._direct_blit:
-            self.surface = pygame.transform.scale(
+            self.surface = pygame.Surface((
+                self._width,
+                self._height
+            ))
+            self.surface.fill(self._tint)
+            self.surface.blit(
                 self.source_image,
-                (
-                    self._width,
-                    self._height
-                )
-            )
-            self.surface = pygame.transform.hsl(
-                self.surface,
-                normalised_dual_degrees(self._tint.hsla[0]),
-                normalised_dual_unit(self._tint.hsla[1]),
-                normalised_dual_unit(self._tint.hsla[2])
+                special_flags=pygame.BLENDMODE_MUL
             )
             self.image.set_image(self.surface)
             return
@@ -89,27 +81,20 @@ class PreviewBackground(PreviewElement):
             tile,
             (tile_x, tile_y)
         )
-        # TODO: Colour picker is RGB or HSV not HSL. Need to figure
-        #       out how to replicate PS1 tinting behaviour with HSL
-        #       parameterised colour
-        tile = pygame.transform.hsl(
-            tile,
-            normalised_dual_degrees(self._tint.hsla[0]),
-            normalised_dual_unit(self._tint.hsla[1]),
-            normalised_dual_unit(self._tint.hsla[2])
-        )
+        # https://psx-spx.consoledev.net/graphicsprocessingunitgpu/#modulation-also-known-as-texture-blending
         self.surface = pygame.Surface((
             self._width,
             self._height
         ))
-        self.surface.fill(pygame.color.Color("#000000"))
+        self.surface.fill(pygame.color.Color(self._tint))
         u_count = max(1, math.ceil(self._width / tile_x))
         v_count = max(1, math.ceil(self._height / tile_y))
         for i in range(u_count):
             for j in range(v_count):
                 self.surface.blit(
                     tile,
-                    (tile_x * i, tile_y * j)
+                    (tile_x * i, tile_y * j),
+                    special_flags=pygame.BLENDMODE_MUL
                 )
         self.image.set_image(self.surface)
 
