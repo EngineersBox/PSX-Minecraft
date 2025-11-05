@@ -38,11 +38,11 @@ class PreviewBackground(PreviewElement):
                 height * PREVIEW_SCALE_Y
             )
         )
-        self._tint = pygame.Color("#7F7F7F")
+        self._tint = pygame.Color("#808080")
         render_surface = pygame.transform.hsl(
             render_surface,
-            normalised_dual_degrees(self._tint.hsla[0]),
-            normalised_dual_unit(self._tint.hsla[1]),
+            0, #normalised_dual_degrees(self._tint.hsla[0]),
+            0, #normalised_dual_unit(self._tint.hsla[1]),
             normalised_dual_unit(self._tint.hsla[2])
         )
         super().__init__(
@@ -89,6 +89,9 @@ class PreviewBackground(PreviewElement):
             tile,
             (tile_x, tile_y)
         )
+        # TODO: Colour picker is RGB or HSV not HSL. Need to figure
+        #       out how to replicate PS1 tinting behaviour with HSL
+        #       parameterised colour
         tile = pygame.transform.hsl(
             tile,
             normalised_dual_degrees(self._tint.hsla[0]),

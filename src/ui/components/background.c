@@ -32,7 +32,12 @@ void UIBackground_render(VSelf, RenderContext* ctx, UNUSED Transforms* transform
         self->texture_width.vy
     );
     // Mid point grey as mask for additive texturing
-    setRGB0(pol4, 0x80, 0x80, 0x80);
+    setRGB0(
+        pol4,
+        self->tint.r,
+        self->tint.g,
+        self->tint.b
+    );
     pol4->tpage = self->texture.tpage;
     pol4->clut = self->texture.clut;
     polyFT4Render(pol4, 1, ctx);

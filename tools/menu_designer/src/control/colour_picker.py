@@ -44,7 +44,8 @@ class ControlColourPicker(ControlBase):
     def process_event(self, event: pygame.Event):
         if self.colour_picker == None:
             return
-        if (event.type == pygame_gui.UI_COLOUR_PICKER_COLOUR_PICKED
+        if ((event.type == pygame_gui.UI_COLOUR_PICKER_COLOUR_PICKED
+             or event.type == pygame_gui.UI_COLOUR_PICKER_COLOUR_CHANNEL_CHANGED)
             and event.ui_element == self.colour_picker):
             self._selected_command(self.colour_picker.get_colour())
         elif (event.type == pygame_gui.UI_BUTTON_PRESSED

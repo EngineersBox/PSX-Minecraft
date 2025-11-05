@@ -24,6 +24,7 @@ class Preview:
     mouse_pos: tuple[int, int]
 
     hidden: bool
+    disabled: bool
     grid_hidden: bool
 
     _render_index: int
@@ -49,6 +50,7 @@ class Preview:
         self.held_element = None
         self.mouse_pos = (0, 0)
         self.hidden = False
+        self.disabled = False
         self.grid_hidden = True
         self.hide_grid()
         self._render_index = 1
@@ -68,7 +70,7 @@ class Preview:
         return None
 
     def process_event(self, event: pygame.Event):
-        if self.hidden:
+        if self.hidden or self.disabled:
             return
         if (event.type == pygame.MOUSEBUTTONDOWN):
             self.held_element = self._get_intersected_button(pygame.mouse.get_pos())
@@ -147,6 +149,14 @@ class Preview:
     def show(self):
         self.hidden = False
         self.container.show()
+
+    def disable(self):
+        self.disabled = True
+        self.container.disable()
+
+    def enable(self):
+        self.disabled = False
+        self.container.enable()
 
     def set_background_image(self, image: pygame.Surface):
         self.bg_image = pygame.transform.smoothscale(

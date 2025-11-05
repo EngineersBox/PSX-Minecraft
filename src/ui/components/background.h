@@ -15,6 +15,7 @@ DEFN_UI_COMPONENT(
     Texture texture;
     DVECTOR texture_coords;
     DVECTOR texture_width;
+    CVECTOR tint;
 );
 
 UIBackground* UIBackgroundNew();

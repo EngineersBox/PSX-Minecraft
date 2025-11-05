@@ -44,6 +44,7 @@ void hotbarInit(Hotbar* hotbar) {
         .vy = HOTBAR_HEIGHT
     };
     background->texture = textures[ASSET_TEXTURE__STATIC__GUI_PART];
+    background->tint = vec3_rgb(0x7F, 0x7F, 0x7F);
     DYN_PTR(component, UIBackground, IUIComponent, background);
 }
 

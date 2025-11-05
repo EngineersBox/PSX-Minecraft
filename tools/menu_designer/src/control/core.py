@@ -1,5 +1,6 @@
 from pathlib import Path
 from typing import Callable, Optional, cast
+from pygame.mixer import pre_init
 import pygame, pygame_gui
 from src.codegen.gen import gen_html_code
 from src.control.button import ControlButton
@@ -86,12 +87,14 @@ class BackgroundModifiersPanel(ControlResizingPanel):
     tint_picker_open_button: ControlButton
     tint_colour_picker: ControlColourPicker
 
+    _preview: Preview
     _get_selected_element: Callable[[], Optional[PreviewElement]]
 
     def __init__(
         self,
         y: int,
         get_selected_element: Callable[[], Optional[PreviewElement]],
+        preview: Preview,
         manager: pygame_gui.UIManager,
         parent_container: Optional[pygame_gui.core.IContainerLikeInterface] = None
     ):
@@ -200,7 +203,7 @@ class BackgroundModifiersPanel(ControlResizingPanel):
                 y,
                 width,
                 30,
-                "#7F7F7F",
+                "#808080",
                 manager,
                 container
             )
@@ -234,6 +237,7 @@ class BackgroundModifiersPanel(ControlResizingPanel):
         )
         self.tint_label.set_background_colour(self.tint_colour_picker.get_colour())
         self._get_selected_element = get_selected_element
+        self._preview = preview
 
     def reset_controls(self):
         pass
@@ -303,12 +307,20 @@ class BackgroundModifiersPanel(ControlResizingPanel):
             self.tile_y_drop_down.enable()
 
     def _open_tint_colour_picker(self):
+        element = self._get_selected_element()
+        if (element == None or type(element) != PreviewBackground):
+            return
+        background = cast(PreviewBackground, element)
         self.tint_colour_picker.open()
+        self.tint_colour_picker.set_colour(background.get_tint())
+        self._preview.disable()
 
     def _close_tint_colour_picker(self):
         self.tint_colour_picker.close()
+        self._preview.enable()
 
     def _tint_colour_selected(self, colour: pygame.Color):
+        self._preview.enable()
         element = self._get_selected_element()
         if (element == None or type(element) != PreviewBackground):
             return
@@ -551,6 +563,7 @@ class ElementsPanel(ControlResizingPanel):
             BackgroundModifiersPanel(
                 self.rect.y + self.y_offset + 1,
                 self.get_selected_element,
+                preview,
                 manager,
                 parent_container
             ),

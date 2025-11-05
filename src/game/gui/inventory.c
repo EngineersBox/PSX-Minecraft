@@ -51,6 +51,7 @@ void inventoryInit(Inventory* inventory, Hotbar* hotbar) {
     };
     background->texture = (Texture) {0};
     DYN_PTR(component, UIBackground, IUIComponent, background);
+    background->tint = vec3_rgb(0x7F, 0x7F, 0x7F);
     inventory->hotbar = hotbar;
     for (u8 y = 0; y < slotGroupDim(INVENTORY_ARMOUR, Y); y++) {
         for (u8 x = 0; x < slotGroupDim(INVENTORY_ARMOUR, X); x++) {
