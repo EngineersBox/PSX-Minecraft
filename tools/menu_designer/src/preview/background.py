@@ -110,6 +110,7 @@ class PreviewBackground(PreviewElement):
     ):
         # https://psx-spx.consoledev.net/graphicsprocessingunitgpu/#modulation-also-known-as-texture-blending
         dest_pixels = pygame.PixelArray(dest)
+        # TODO: Do this on GPU using BLENDMODE_XXX somehow
         for x in range(source.get_width()):
             for y in range(source.get_height()):
                 dest_pos = (pos[0] + x, pos[1] + y)
