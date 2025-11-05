@@ -2,6 +2,12 @@ import pygame, pygame_gui, math
 from src.preview.const import PREVIEW_SCALE_X, PREVIEW_SCALE_Y, PREVIEW_SIZE_Y
 from src.preview.element import PreviewElement
 
+def normalised_dual_degrees(value: float) -> float:
+    return ((value * 2.0) - 360.0) / 360.0
+
+def normalised_dual_unit(value: float) -> float:
+    return ((value * 2.0) - 100.0) / 100.0
+
 class PreviewBackground(PreviewElement):
     source_image: pygame.Surface
 
@@ -9,6 +15,7 @@ class PreviewBackground(PreviewElement):
     _pos_v: int
     _tile_x: int
     _tile_y: int
+    _tint: pygame.Color
     _direct_blit: bool
 
     def __init__(
@@ -24,18 +31,26 @@ class PreviewBackground(PreviewElement):
         assert width > 0 and width <= 256
         assert height > 0 and height < PREVIEW_SIZE_Y
         self.source_image = source_image
+        render_surface = pygame.transform.scale(
+            self.source_image,
+            (
+                width * PREVIEW_SCALE_X,
+                height * PREVIEW_SCALE_Y
+            )
+        )
+        self._tint = pygame.Color("#7F7F7F")
+        render_surface = pygame.transform.hsl(
+            render_surface,
+            normalised_dual_degrees(self._tint.hsla[0]),
+            normalised_dual_unit(self._tint.hsla[1]),
+            normalised_dual_unit(self._tint.hsla[2])
+        )
         super().__init__(
             x,
             y,
             width,
             height,
-            pygame.transform.scale(
-                self.source_image,
-                (
-                    width * PREVIEW_SCALE_X,
-                    height * PREVIEW_SCALE_Y
-                )
-            ),
+            render_surface,
             manager,
             preview_container
         )
@@ -54,6 +69,12 @@ class PreviewBackground(PreviewElement):
                     self._height
                 )
             )
+            self.surface = pygame.transform.hsl(
+                self.surface,
+                normalised_dual_degrees(self._tint.hsla[0]),
+                normalised_dual_unit(self._tint.hsla[1]),
+                normalised_dual_unit(self._tint.hsla[2])
+            )
             self.image.set_image(self.surface)
             return
         tile_x = self._tile_x * PREVIEW_SCALE_X
@@ -67,6 +88,12 @@ class PreviewBackground(PreviewElement):
         tile = pygame.transform.scale(
             tile,
             (tile_x, tile_y)
+        )
+        tile = pygame.transform.hsl(
+            tile,
+            normalised_dual_degrees(self._tint.hsla[0]),
+            normalised_dual_unit(self._tint.hsla[1]),
+            normalised_dual_unit(self._tint.hsla[2])
         )
         self.surface = pygame.Surface((
             self._width,
@@ -125,3 +152,10 @@ class PreviewBackground(PreviewElement):
     def set_height(self, height: int):
         super().set_height(height)
         self._tile_image()
+
+    def set_tint(self, tint: pygame.Color):
+        self._tint = tint
+        self._tile_image()
+
+    def get_tint(self) -> pygame.Color:
+        return self._tint

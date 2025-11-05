@@ -6,8 +6,8 @@ class PreviewButton(PreviewElement):
     label: pygame_gui.elements.UILabel
     disabled: bool
 
-    enabled_image: pygame.Surface
-    disabled_image: pygame.Surface
+    _state: tuple[str, str]
+    _images: dict[str, pygame.Surface]
 
     def __init__(
         self,
@@ -15,20 +15,25 @@ class PreviewButton(PreviewElement):
         y: int,
         width: int,
         text: str,
-        enabled_image: pygame.Surface,
+        normal_image: pygame.Surface,
         disabled_image: pygame.Surface,
+        active_image: pygame.Surface,
         manager: pygame_gui.UIManager,
         preview_container: pygame_gui.elements.UIPanel,
     ):
-        self.enabled_image = enabled_image
-        self.disabled_image = disabled_image
+        self._state = ("Normal", "normal")
+        self._images = {
+            "normal": normal_image,
+            "disabled": disabled_image,
+            "active": active_image
+        }
         super().__init__(
             x,
             y,
             width * PREVIEW_SCALE_X,
             20 * PREVIEW_SCALE_Y,
             pygame.transform.scale(
-                self.enabled_image,
+                normal_image,
                 (
                     width * PREVIEW_SCALE_X,
                     20 * PREVIEW_SCALE_Y
@@ -107,9 +112,14 @@ class PreviewButton(PreviewElement):
         self.disabled = disabled
         self._update_image()
 
+    def set_state(self, state: tuple[str, str]):
+        if state not in self._images.keys():
+            return
+        self._state = state
+
     def _update_image(self):
         self.image.set_image(pygame.transform.scale(
-            self.disabled_image if self.disabled else self.enabled_image,
+            self._images[self._state[1]],
             (
                 self._width,
                 self._height

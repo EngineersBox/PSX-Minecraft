@@ -11,8 +11,9 @@ PREVIEW_GRID_COLOUR = pygame.color.Color("#7F7F7F")
 
 class Preview:
     manager: pygame_gui.UIManager
-    button_enabled_image: pygame.Surface
+    button_normal_image: pygame.Surface
     button_disabled_image: pygame.Surface
+    button_active_image: pygame.Surface
     game_elements: dict[str, PreviewElement]
     rect: pygame.Rect
     surface: pygame.Surface
@@ -29,8 +30,9 @@ class Preview:
 
     def __init__(self, manager: pygame_gui.UIManager):
         self.manager = manager
-        self.button_enabled_image = pygame.image.load("assets/button.png")
+        self.button_normal_image = pygame.image.load("assets/button.png")
         self.button_disabled_image = pygame.image.load("assets/disabled_button.png")
+        self.button_active_image = pygame.image.load("assets/active_button.png")
         self.game_elements = {}
         self.rect = pygame.Rect(
             0,
@@ -97,8 +99,9 @@ class Preview:
             0,
             200,
             text,
-            self.button_enabled_image,
+            self.button_normal_image,
             self.button_disabled_image,
+            self.button_active_image,
             self.manager,
             self.container
         )

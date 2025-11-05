@@ -4,6 +4,7 @@ import pygame, pygame_gui
 from src.codegen.gen import gen_html_code
 from src.control.button import ControlButton
 from src.control.checkbox import ControlCheckbox
+from src.control.colour_picker import ControlColourPicker
 from src.control.drop_down import ControlDropDown
 from src.control.file_dialog import ControlFileDialog
 from src.control.horizontal_slider import ControlHorizontalSlider
@@ -23,9 +24,7 @@ from src.preview.element import PreviewElement
 type Elements = dict[str, tuple[str, str]]
 
 class ButtonModifiersPanel(ControlResizingPanel):
-    # TODO: Change checbox to dropbown with options for
-    #       Normal, Disabled and Active
-    diasbled_checkbox: ControlCheckbox
+    button_state_dropdown: ControlDropDown
 
     _get_selected_element: Callable[[], Optional[PreviewElement]]
 
@@ -44,32 +43,36 @@ class ButtonModifiersPanel(ControlResizingPanel):
             manager,
             parent_container
         )
-        self.diasbled_checkbox= self.add_element_offset(
-            lambda _, y, container: ControlCheckbox(
+        self.button_state_dropdown = self.add_element_offset(
+            lambda width, y, container: ControlDropDown(
                 0,
                 y,
+                width,
                 30,
-                30,
-                "Disabled",
+                [
+                    ("Normal", "normal"),
+                    ("Disabled", "disabled"),
+                    ("Actve", "active")
+                ],
+                self._set_button_state,
                 manager,
-                container,
-                self._set_button_disabled_state
+                container
             ),
             process_event=True
         )
         self._get_selected_element = get_selected_element
 
-    def _set_button_disabled_state(self, disabled: bool):
+    def _set_button_state(self, state: tuple[str, str]):
         selected = self._get_selected_element()
         if selected == None or type(selected) != PreviewButton:
             return
-        selected.set_disabled(disabled)
+        selected.set_state(state)
 
     def reset_controls(self):
-        self.diasbled_checkbox.disable()
+        self.button_state_dropdown.disable()
 
     def update_from_element(self, button: PreviewButton):
-        self.diasbled_checkbox.set_state(button.disabled)
+        self.button_state_dropdown.drop_down.selected_option = button._state
 
 class BackgroundModifiersPanel(ControlResizingPanel):
     direct_blit_checkbox: ControlCheckbox
@@ -79,9 +82,11 @@ class BackgroundModifiersPanel(ControlResizingPanel):
     pos_u_slider: ControlHorizontalSlider
     pos_v_label: ControlLabel
     pos_v_slider: ControlHorizontalSlider
-    _get_selected_element: Callable[[], Optional[PreviewElement]]
+    tint_label: ControlLabel
+    tint_picker_open_button: ControlButton
+    tint_colour_picker: ControlColourPicker
 
-    # TODO: Allow tint colour to be selected from pygame_gui.windows.UIColorPickerDialog
+    _get_selected_element: Callable[[], Optional[PreviewElement]]
 
     def __init__(
         self,
@@ -189,6 +194,45 @@ class BackgroundModifiersPanel(ControlResizingPanel):
             ),
             process_event=True
         )
+        self.tint_label = self.add_element_offset(
+            lambda width, y, container: ControlLabel(
+                0,
+                y,
+                width,
+                30,
+                "#7F7F7F",
+                manager,
+                container
+            )
+        )
+        self.tint_picker_open_button = self.add_element_offset(
+            lambda width, y, container: ControlButton(
+                0,
+                y,
+                width,
+                30,
+                "Select Tint",
+                manager,
+                container,
+                self._open_tint_colour_picker
+            ),
+            process_event=True
+        )
+        self.tint_colour_picker = self.add_element(
+            ControlColourPicker(
+                0,
+                0,
+                200,
+                200,
+                "Tint Colour",
+                self._tint_colour_selected,
+                self._close_tint_colour_picker,
+                manager
+            ),
+            process_event=True,
+            update=True
+        )
+        self.tint_label.set_background_colour(self.tint_colour_picker.get_colour())
         self._get_selected_element = get_selected_element
 
     def reset_controls(self):
@@ -257,6 +301,21 @@ class BackgroundModifiersPanel(ControlResizingPanel):
             self.pos_v_slider.enable()
             self.tile_x_drop_down.enable()
             self.tile_y_drop_down.enable()
+
+    def _open_tint_colour_picker(self):
+        self.tint_colour_picker.open()
+
+    def _close_tint_colour_picker(self):
+        self.tint_colour_picker.close()
+
+    def _tint_colour_selected(self, colour: pygame.Color):
+        element = self._get_selected_element()
+        if (element == None or type(element) != PreviewBackground):
+            return
+        background = cast(PreviewBackground, element)
+        background.set_tint(colour)
+        self.tint_label.set_background_colour(colour)
+        self.tint_label.set_text(colour.hex)
 
 class CodePanel(ControlPanel):
     code_view: ControlTextBox
