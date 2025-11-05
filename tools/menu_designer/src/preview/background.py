@@ -37,9 +37,10 @@ class PreviewBackground(PreviewElement):
         ))
         self._tint = pygame.Color("#808080")
         render_surface.fill(self._tint)
-        render_surface.blit(
+        self._blend_blit(
             render_surface,
-            special_flags=pygame.BLENDMODE_MUL
+            self.source_image,
+            (0, 0)
         )
         super().__init__(
             x,
@@ -63,9 +64,13 @@ class PreviewBackground(PreviewElement):
                 self._height
             ))
             self.surface.fill(self._tint)
-            self.surface.blit(
-                self.source_image,
-                special_flags=pygame.BLENDMODE_MUL
+            self._blend_blit(
+                self.surface,
+                pygame.transform.scale(
+                    self.source_image,
+                    (self._width, self._height)
+                ),
+                (0, 0)
             )
             self.image.set_image(self.surface)
             return
@@ -81,7 +86,6 @@ class PreviewBackground(PreviewElement):
             tile,
             (tile_x, tile_y)
         )
-        # https://psx-spx.consoledev.net/graphicsprocessingunitgpu/#modulation-also-known-as-texture-blending
         self.surface = pygame.Surface((
             self._width,
             self._height
@@ -91,12 +95,35 @@ class PreviewBackground(PreviewElement):
         v_count = max(1, math.ceil(self._height / tile_y))
         for i in range(u_count):
             for j in range(v_count):
-                self.surface.blit(
+                self._blend_blit(
+                    self.surface,
                     tile,
-                    (tile_x * i, tile_y * j),
-                    special_flags=pygame.BLENDMODE_MUL
+                    (tile_x * i, tile_y * j)
                 )
         self.image.set_image(self.surface)
+    
+    def _blend_blit(
+        self,
+        dest: pygame.Surface,
+        source: pygame.Surface,
+        pos: tuple[int, int]
+    ):
+        # https://psx-spx.consoledev.net/graphicsprocessingunitgpu/#modulation-also-known-as-texture-blending
+        dest_pixels = pygame.PixelArray(dest)
+        for x in range(source.get_width()):
+            for y in range(source.get_height()):
+                dest_pos = (pos[0] + x, pos[1] + y)
+                if (dest_pos[0] >= dest.get_width()
+                    or dest_pos[1] >= dest.get_height()):
+                    continue
+                dest_colour = dest.get_at(dest_pos)
+                source_colour = source.get_at((x, y))
+                dest_pixels[pos[0] + x, pos[1] + y] = (
+                    min((dest_colour.r * source_colour.r) / 128, 255),
+                    min((dest_colour.g * source_colour.g) / 128, 255),
+                    min((dest_colour.b * source_colour.b) / 128, 255)
+                )
+        dest_pixels.close()
 
     def set_direct_blit(self, state: bool):
         self._direct_blit = state
