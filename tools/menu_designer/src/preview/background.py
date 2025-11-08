@@ -109,6 +109,7 @@ class PreviewBackground(PreviewElement):
         src: cv2.typing.MatLike,
         pos: tuple[int, int]
     ):
+        # https://psx-spx.consoledev.net/graphicsprocessingunitgpu/#modulation-also-known-as-texture-blending
         img = cv2.multiply(
             src,
             np.array([
