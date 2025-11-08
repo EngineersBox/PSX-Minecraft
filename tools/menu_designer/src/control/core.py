@@ -12,6 +12,7 @@ from src.control.label import ControlLabel
 from src.control.panel import ControlPanel
 from src.control.resizing_panel import ControlResizingPanel
 from src.control.selection_list import ControlSelectionList
+from src.control.textures import Textures
 from src.control.text_box import ControlTextBox
 from src.control.text_input import ControlTextInput, number_only_validator
 from src.control.window import ControlWindow, ControlWindowClosedCommand
@@ -76,6 +77,7 @@ class ButtonModifiersPanel(ControlResizingPanel):
 
 class BackgroundModifiersPanel(ControlResizingPanel):
     direct_blit_checkbox: ControlCheckbox
+    texture_dropdown: ControlDropDown
     tile_x_drop_down: ControlDropDown
     tile_y_drop_down: ControlDropDown
     pos_u_label: ControlLabel
@@ -86,6 +88,7 @@ class BackgroundModifiersPanel(ControlResizingPanel):
     tint_picker_open_button: ControlButton
     tint_colour_picker: ControlColourPicker
 
+    _textures: Textures
     _preview: Preview
     _get_selected_element: Callable[[], Optional[PreviewElement]]
 
@@ -93,6 +96,7 @@ class BackgroundModifiersPanel(ControlResizingPanel):
         self,
         y: int,
         get_selected_element: Callable[[], Optional[PreviewElement]],
+        textures: Textures,
         preview: Preview,
         manager: pygame_gui.UIManager,
         parent_container: Optional[pygame_gui.core.IContainerLikeInterface] = None
@@ -115,6 +119,19 @@ class BackgroundModifiersPanel(ControlResizingPanel):
                 manager,
                 container,
                 self._direct_blit_toggled
+            ),
+            process_event=True
+        )
+        self.add_element_offset(
+            lambda width, y, container: ControlDropDown(
+                0,
+                y,
+                width,
+                30,
+                list(self._textures.mappings.keys()),
+                self._texture_selected,
+                manager,
+                container
             ),
             process_event=True
         )
@@ -235,6 +252,7 @@ class BackgroundModifiersPanel(ControlResizingPanel):
             update=True
         )
         self.tint_label.set_background_colour(self.tint_colour_picker.get_colour())
+        self._textures = textures
         self._get_selected_element = get_selected_element
         self._preview = preview
 
@@ -257,6 +275,25 @@ class BackgroundModifiersPanel(ControlResizingPanel):
             f"{background.get_tile_y()}",
             f"{background.get_tile_y()}"
         )
+        self.texture_dropdown.drop_down.selected_option = (
+            background.get_tim_name(),
+            background.get_tim_name()
+        )
+
+    def _texture_selected(self, texture: tuple[str, str]):
+        element = self._get_selected_element()
+        if (element == None or type(element) != PreviewBackground):
+            return
+        background = cast(PreviewBackground, element)
+        self.pos_u_label.set_text(f"U: {background.get_pos_u()}")
+        self.pos_u_slider.slider.value_range = (0, background.source_image.width - 1)
+        self.pos_u_slider.set_value(background.get_pos_u())
+        self.pos_v_label.set_text(f"V: {background.get_pos_v()}")
+        self.pos_v_slider.slider.value_range = (0, background.source_image.height - 1)
+        self.pos_v_slider.set_value(background.get_pos_v())
+        background.set_pos_u(0)
+        background.set_pos_v(0)
+        background.set_texture(texture[0], self._textures.mappings[texture[0]])
 
     def _tile_x_selected(self, choice: tuple[str, str]):
         element = self._get_selected_element()
@@ -431,6 +468,7 @@ class ElementsPanel(ControlResizingPanel):
         self,
         y: int,
         elements: Elements,
+        textures: Textures,
         preview: Preview,
         manager: pygame_gui.UIManager,
         parent_container: Optional[pygame_gui.core.IContainerLikeInterface] = None
@@ -562,6 +600,7 @@ class ElementsPanel(ControlResizingPanel):
             BackgroundModifiersPanel(
                 self.rect.y + self.y_offset + 1,
                 self.get_selected_element,
+                textures,
                 preview,
                 manager,
                 parent_container
@@ -854,18 +893,17 @@ class CreateButtonWindow(ControlWindow):
         self.closed_command()
 
 class CreateBackgroundWindow(ControlWindow):
-    image_file_dialog: Optional[ControlFileDialog]
+    texture_dropdown: ControlDropDown
     label_text_input: ControlTextInput
     width_label: ControlLabel
     width_input: ControlTextInput
     height_label: ControlLabel
     height_input: ControlTextInput
-    open_image_file_dialog_button: ControlButton
-    selected_file_path: ControlLabel
     create_button: ControlButton
 
     _manager: pygame_gui.UIManager
     _image: Optional[pygame.Surface]
+    _textures: Textures
     _elements: Elements
     _elements_panel: ElementsPanel
     _preview: Preview
@@ -876,6 +914,7 @@ class CreateBackgroundWindow(ControlWindow):
         closed_command: ControlWindowClosedCommand,
         elements: Elements,
         elements_panel: ElementsPanel,
+        textures: Textures,
         preview: Preview
     ):
         window_width = 250
@@ -892,7 +931,6 @@ class CreateBackgroundWindow(ControlWindow):
             always_on_top=True
         )
         y_offset = 5
-        self.image_file_dialog = None
         self.label_text_input = ControlTextInput(
             (window_width // 2) - 50,
             y_offset,
@@ -949,31 +987,20 @@ class CreateBackgroundWindow(ControlWindow):
             process_event=True
         )
         y_offset += self.height_input.rect.height
-        self.open_image_file_dialog_button = self.add_element(
-            ControlButton(
+        self.texture_dropdown = self.add_element(
+            ControlDropDown(
                 (window_width // 2) - 55,
                 y_offset,
                 110,
                 30,
-                "Choose Image",
+                list(textures.mappings.keys()),
+                self._texture_selected,
                 manager,
-                self.window,
-                self._open_image_dialog
+                self.window
             ),
             process_event=True
         )
-        file_path_width = window_width - 5
-        y_offset += self.open_image_file_dialog_button.rect.height
-        self.selected_file_path = ControlLabel(
-            (window_width // 2) - (file_path_width // 2),
-            y_offset,
-            file_path_width,
-            30,
-            "Image: N/A",
-            manager,
-            self.window
-        )
-        y_offset += self.selected_file_path.rect.height
+        y_offset += self.texture_dropdown.rect.height
         self.create_button = self.add_element(
             ControlButton(
                 (window_width // 2) - 35,
@@ -988,6 +1015,7 @@ class CreateBackgroundWindow(ControlWindow):
             process_event=True
         )
         self._manager = manager
+        self._textures = textures
         self._elements = elements
         self._elements_panel = elements_panel
         self._preview = preview
@@ -995,8 +1023,6 @@ class CreateBackgroundWindow(ControlWindow):
 
     def process_event(self, event: pygame.Event):
         super().process_event(event)
-        if self.image_file_dialog != None:
-            self.image_file_dialog.process_event(event)
         name = self.label_text_input.get_text()
         if (len(name) == 0 or self._image == None):
             self.create_button.disable()
@@ -1012,35 +1038,20 @@ class CreateBackgroundWindow(ControlWindow):
         self.create_button.kill()
         super().kill()
 
-    def _open_image_dialog(self):
-        self.image_file_dialog = ControlFileDialog(
-            0,
-            0,
-            PREVIEW_SIZE_X,
-            PREVIEW_SIZE_Y,
-            "Select Background Image",
-            self._bg_image_selected,
-            self._close_bg_image_file_dialog,
-            self._manager
-        )
-        self.image_file_dialog.open()
-
-    def _bg_image_selected(self, path: Path):
-        try:
-            self.selected_file_path.set_text(str(path))
-            self._image = pygame.image.load(path)
-        except Exception as e:
-            print(f"Invalid image: {e}")
-            self._image = None
-
-    def _close_bg_image_file_dialog(self):
-        self.image_file_dialog = None
+    def _texture_selected(self, _: tuple[str, str]):
+        # TODO: Preview texture in window
+        pass
 
     def _add_background(self):
         name = self.label_text_input.get_text()
         if (len(name) == 0 or self._image == None):
             return
-        background_id = self._preview.add_background(name, self._image)
+        texture = self.texture_dropdown.drop_down.selected_option
+        background_id = self._preview.add_background(
+            name,
+            texture[0],
+            pygame.image.load(self._textures.mappings[texture[0]])
+        )
         self._elements[background_id] = (name, background_id)
         self._elements_panel.elements_list.selection_list.set_item_list(list(self._elements.values()))
         element = self._preview.get_element(background_id)
@@ -1064,6 +1075,7 @@ class CreatePanel(ControlResizingPanel):
     elements_list: Elements
     elements_panel: ElementsPanel
     preview: Preview
+    textures: Textures
     create_button_button: ControlButton
     create_background_button: ControlButton
 
@@ -1075,6 +1087,7 @@ class CreatePanel(ControlResizingPanel):
         elements: Elements,
         elements_panel: ElementsPanel,
         preview: Preview,
+        textures: Textures,
         manager: pygame_gui.UIManager,
         parent_container: Optional[pygame_gui.core.IContainerLikeInterface] = None,
     ):
@@ -1118,6 +1131,7 @@ class CreatePanel(ControlResizingPanel):
         self.elements_list = elements
         self.elements_panel = elements_panel
         self.preview = preview
+        self.textures = textures
 
     def process_event(self, event: pygame.Event):
         super().process_event(event)
@@ -1155,6 +1169,7 @@ class CreatePanel(ControlResizingPanel):
                 self._close_create_background_window,
                 self.elements_list,
                 self.elements_panel,
+                self.textures,
                 self.preview
             )
         self.create_button_button.disable()
@@ -1222,6 +1237,7 @@ class Control:
     preview: Preview
 
     elements: Elements
+    textures: Textures
 
     create_panel: CreatePanel
     elements_panel: ElementsPanel
@@ -1231,9 +1247,11 @@ class Control:
         self.manager = manager
         self.preview = preview
         self.elements = {}
+        self.textures = Textures()
         self.elements_panel = ElementsPanel(
             65,
             self.elements,
+            self.textures,
             self.preview,
             manager
         )
@@ -1241,6 +1259,7 @@ class Control:
             self.elements,
             self.elements_panel,
             self.preview,
+            self.textures,
             self.manager
         )
         self.preview_management_panel = PreviewManagementPanel(

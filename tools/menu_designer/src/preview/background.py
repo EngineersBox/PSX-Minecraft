@@ -13,6 +13,7 @@ class PreviewBackground(PreviewElement):
     source_image: pygame.Surface
 
     _name: str
+    _tim_name: str
     _pos_u: int
     _pos_v: int
     _tile_x: int
@@ -27,6 +28,7 @@ class PreviewBackground(PreviewElement):
         y: int,
         width: int,
         height: int,
+        tim_name: str,
         source_image: pygame.Surface,
         manager: pygame_gui.UIManager,
         preview_container: pygame_gui.elements.UIPanel,
@@ -39,6 +41,7 @@ class PreviewBackground(PreviewElement):
             height * PREVIEW_SCALE_Y
         ))
         self._name = name
+        self._tim_name = tim_name
         self._tint = pygame.Color("#808080")
         super().__init__(
             x,
@@ -124,6 +127,14 @@ class PreviewBackground(PreviewElement):
         )
         img = pygame.image.frombuffer(img.tostring(), img.shape[1::-1], "RGBA")
         dest.blit(img, pos)
+
+    def set_texture(self, tim_name: str, png_path: str):
+        self._tim_name = tim_name
+        self.source_image = pygame.image.load(png_path)
+        self._tile_image()
+
+    def get_tim_name(self) -> str:
+        return self._tim_name
 
     def get_name(self) -> str:
         return self._name

@@ -109,13 +109,14 @@ class Preview:
         )
         return self.add_element(button)
 
-    def add_background(self, name: str, image: pygame.Surface) -> str:
+    def add_background(self, name: str, tim_name: str, image: pygame.Surface) -> str:
         background = PreviewBackground(
             name,
             0,
             0,
             100,
             100,
+            tim_name,
             image,
             self.manager,
             self.container

@@ -61,6 +61,7 @@ def gen_background_html_code(background: PreviewBackground, font: str) -> str:
     tint = background.get_tint()
     render_parameters = {
         "name_snake_lower": caseconverter.snakecase(background.get_name()),
+        "texture": background.get_tim_name(),
         "x": background.get_pos()[0],
         "y": background.get_pos()[1],
         "width": background.get_width(),
