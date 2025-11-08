@@ -1,4 +1,5 @@
-import pygame, pygame_gui, math
+import pygame, pygame_gui, math, cv2
+import numpy as np
 from src.preview.const import PREVIEW_SCALE_X, PREVIEW_SCALE_Y, PREVIEW_SIZE_Y
 from src.preview.element import PreviewElement
 
@@ -36,12 +37,6 @@ class PreviewBackground(PreviewElement):
             height * PREVIEW_SCALE_Y
         ))
         self._tint = pygame.Color("#808080")
-        render_surface.fill(self._tint)
-        self._blend_blit(
-            render_surface,
-            self.source_image,
-            (0, 0)
-        )
         super().__init__(
             x,
             y,
@@ -56,6 +51,7 @@ class PreviewBackground(PreviewElement):
         self._tile_x = 256
         self._tile_y = 256
         self._direct_blit = True
+        self._tile_image()
 
     def _tile_image(self):
         if self._direct_blit:
@@ -63,13 +59,13 @@ class PreviewBackground(PreviewElement):
                 self._width,
                 self._height
             ))
-            self.surface.fill(self._tint)
+            source = self._surface_to_cv2_mat(pygame.transform.scale(
+                self.source_image,
+                (self._width, self._height)
+            ))
             self._blend_blit(
                 self.surface,
-                pygame.transform.scale(
-                    self.source_image,
-                    (self._width, self._height)
-                ),
+                source,
                 (0, 0)
             )
             self.image.set_image(self.surface)
@@ -82,15 +78,14 @@ class PreviewBackground(PreviewElement):
             min(self._tile_x, self.source_image.width),
             min(self._tile_y, self.source_image.height)
         ))
-        tile = pygame.transform.scale(
+        tile = self._surface_to_cv2_mat(pygame.transform.scale(
             tile,
             (tile_x, tile_y)
-        )
+        ))
         self.surface = pygame.Surface((
             self._width,
             self._height
         ))
-        self.surface.fill(pygame.color.Color(self._tint))
         u_count = max(1, math.ceil(self._width / tile_x))
         v_count = max(1, math.ceil(self._height / tile_y))
         for i in range(u_count):
@@ -101,30 +96,30 @@ class PreviewBackground(PreviewElement):
                     (tile_x * i, tile_y * j)
                 )
         self.image.set_image(self.surface)
+
+    def _surface_to_cv2_mat(self, image: pygame.Surface) -> cv2.typing.MatLike:
+        view = pygame.surfarray.array3d(image)
+        # Convert from (width, height, channel) to (height, width, channel)
+        view = view.transpose([1, 0, 2])
+        return cv2.cvtColor(view, cv2.COLOR_RGB2RGBA)
     
     def _blend_blit(
         self,
         dest: pygame.Surface,
-        source: pygame.Surface,
+        src: cv2.typing.MatLike,
         pos: tuple[int, int]
     ):
-        # https://psx-spx.consoledev.net/graphicsprocessingunitgpu/#modulation-also-known-as-texture-blending
-        dest_pixels = pygame.PixelArray(dest)
-        # TODO: Do this on GPU using BLENDMODE_XXX somehow
-        for x in range(source.get_width()):
-            for y in range(source.get_height()):
-                dest_pos = (pos[0] + x, pos[1] + y)
-                if (dest_pos[0] >= dest.get_width()
-                    or dest_pos[1] >= dest.get_height()):
-                    continue
-                dest_colour = dest.get_at(dest_pos)
-                source_colour = source.get_at((x, y))
-                dest_pixels[pos[0] + x, pos[1] + y] = (
-                    min((dest_colour.r * source_colour.r) / 128, 255),
-                    min((dest_colour.g * source_colour.g) / 128, 255),
-                    min((dest_colour.b * source_colour.b) / 128, 255)
-                )
-        dest_pixels.close()
+        img = cv2.multiply(
+            src,
+            np.array([
+                self._tint.r / 128,
+                self._tint.g / 128,
+                self._tint.b / 128,
+                1
+            ])
+        )
+        img = pygame.image.frombuffer(img.tostring(), img.shape[1::-1], "RGBA")
+        dest.blit(img, pos)
 
     def set_direct_blit(self, state: bool):
         self._direct_blit = state
@@ -175,3 +170,19 @@ class PreviewBackground(PreviewElement):
 
     def get_tint(self) -> pygame.Color:
         return self._tint
+
+    @staticmethod
+    def _transform_tint(tint: pygame.Color) -> pygame.Color:
+        return pygame.Color(
+            tint.r * 2,
+            tint.g * 2,
+            tint.b * 2
+        )
+
+    @staticmethod
+    def _restore_tint(tint: pygame.Color) -> pygame.Color:
+        return pygame.Color.from_i1i2i3(
+            tint.r / 2,
+            tint.g / 2,
+            tint.b / 2
+        )
