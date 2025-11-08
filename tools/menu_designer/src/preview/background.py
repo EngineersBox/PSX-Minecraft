@@ -171,19 +171,3 @@ class PreviewBackground(PreviewElement):
 
     def get_tint(self) -> pygame.Color:
         return self._tint
-
-    @staticmethod
-    def _transform_tint(tint: pygame.Color) -> pygame.Color:
-        return pygame.Color(
-            tint.r * 2,
-            tint.g * 2,
-            tint.b * 2
-        )
-
-    @staticmethod
-    def _restore_tint(tint: pygame.Color) -> pygame.Color:
-        return pygame.Color.from_i1i2i3(
-            tint.r / 2,
-            tint.g / 2,
-            tint.b / 2
-        )
