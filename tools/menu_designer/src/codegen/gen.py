@@ -58,8 +58,23 @@ def gen_button_html_code(button: PreviewButton, font: str) -> str:
     return env.get_template("button_html.j2").render(render_parameters)
 
 def gen_background_html_code(background: PreviewBackground, font: str) -> str:
-    # TODO: Implement this
-    return ""
+    tint = background.get_tint()
+    render_parameters = {
+        "name_snake_lower": caseconverter.snakecase(background.get_name()),
+        "x": background.get_pos()[0],
+        "y": background.get_pos()[1],
+        "width": background.get_width(),
+        "height": background.get_height(),
+        "texture_u": background.get_pos_u(),
+        "texture_v": background.get_pos_v(),
+        "texture_width": background.get_tile_x(),
+        "texture_height": background.get_tile_y(),
+        "tint_r": tint.r,
+        "tint_g": tint.g,
+        "tint_b": tint.b,
+        "font": font
+    }
+    return env.get_template("background_html.j2").render(render_parameters)
 
 def gen_html_code(element: PreviewElement, font_name: Optional[str] = None) -> str:
     font = font_name if font_name is not None else find_font()

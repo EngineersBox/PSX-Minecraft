@@ -1,8 +1,7 @@
 IUIComponent* {{ name_snake_lower }}_button_component = uiAddComponent(ui);
 UIButton* {{ name_snake_lower }}_button = uiButtonNew(
     "{{ text }}",
-    {{ x }},
-    {{ y }},
+    vec2_i16({{ x }}, {{ y }}),
     {{ width }},
     1
 );

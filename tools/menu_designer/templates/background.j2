@@ -1,0 +1,16 @@
+IUIComponent* {{ name_snake_lower }}_background_component = uiAddComponent(ui);
+UIBackground* {{ name_snake_lower }}_background = uiBackgroundNew(
+    &textures[{{ texture }}],
+    vec2_i16({{ x }}, {{ y }}),
+    vec2_i16({{ width }}, {{ height }}),
+    vec2_i16({{ texture_u }}, {{ texture_v }}),
+    vec2_i16({{ texture_width }}, {{ texture_height }}),
+    vec3_rgb({{ tint_r }}, {{ tint_g }}, {{ tint_b }}),
+    1
+);
+DYN_PTR(
+    {{ name_snake_lower }}_background_component,
+    UIBackground,
+    IUIComponent,
+    {{ name_snake_lower }}_background
+);

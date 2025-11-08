@@ -1,0 +1,16 @@
+<font face="{{ font }}"><font color="#D8A657">IUIComponent</font><font color="#EA6962">*</font> <font color="#DDC7A1">{{ name_snake_lower }}_button_component</font> <font color="#EA6962">=</font> <font color="#A9B665">uiAddComponent</font><font color="#DDC7A1">(ui);</font>
+<font color="#D8A657">UIBackground</font><font color="#EA6962">*</font> <font color="#DDC7A1">{{ name_snake_lower }}_background</font> <font color="#EA6962">=</font> <font color="#A9B665">uiBackgroundNew</font><font color="#DDC7A1">(</font>
+    <font color="#EA6962">&</font><font color="#DDC7A1">textures[</font><font color="#D3869B">{{ texture }}</font><font color="#DDC7A1">],</font>
+    <font color="#D3869B">vec2_i16</font><font color="#DDC7A1">(</font><font color="#E78A4E">{{ x }}</font><font color="#DDC7A1">,</font> <font color="#E78A4E">{{ y }}</font><font color="#DDC7A1">),</font>
+    <font color="#D3869B">vec2_i16</font><font color="#DDC7A1">(</font><font color="#E78A4E">{{ width }}</font><font color="#DDC7A1">,</font> <font color="#E78A4E">{{ height }}</font><font color="#DDC7A1">),</font>
+    <font color="#D3869B">vec2_i16</font><font color="#DDC7A1">(</font><font color="#E78A4E">{{ texture_u }}</font><font color="#DDC7A1">,</font> <font color="#E78A4E">{{ texture_v }}</font><font color="#DDC7A1">),</font>
+    <font color="#D3869B">vec2_i16</font><font color="#DDC7A1">(</font><font color="#E78A4E">{{ texture_width }}</font><font color="#DDC7A1">,</font> <font color="#E78A4E">{{ texture_height }}</font><font color="#DDC7A1">),</font>
+    <font color="#D3869B">vec3_rgb</font><font color="#DDC7A1">(</font><font color="#E78A4E">{{ tint_r }}</font><font color="#DDC7A1">,</font> <font color="#E78A4E">{{ tint_g }}</font><font color="#DDC7A1">,</font> <font color="#E78A4E">{{ tint_b }}</font><font color="#DDC7A1">),</font>
+    <font color="#E78A4E">1</font>
+<font color="#DDC7A1">);</font>
+<font color="#D3869B">DYN_PTR</font><font color="#DDC7A1">(</font>
+    <font color="#DDC7A1">{{ name_snake_lower }}_background_component,</font>
+    <font color="#D8A657">UIBackground</font><font color="#DDC7A1">,</font>
+    <font color="#D8A657">IUIComponent</font><font color="#DDC7A1">,</font>
+    <font color="#DDC7A1">{{ name_snake_lower }}_background</font>
+<font color="#DDC7A1">);</font></font>

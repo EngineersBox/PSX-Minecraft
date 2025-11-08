@@ -1,6 +1,5 @@
 from pathlib import Path
 from typing import Callable, Optional, cast
-from pygame.mixer import pre_init
 import pygame, pygame_gui
 from src.codegen.gen import gen_html_code
 from src.control.button import ControlButton
@@ -1041,7 +1040,7 @@ class CreateBackgroundWindow(ControlWindow):
         name = self.label_text_input.get_text()
         if (len(name) == 0 or self._image == None):
             return
-        background_id = self._preview.add_background(self._image)
+        background_id = self._preview.add_background(name, self._image)
         self._elements[background_id] = (name, background_id)
         self._elements_panel.elements_list.selection_list.set_item_list(list(self._elements.values()))
         element = self._preview.get_element(background_id)
