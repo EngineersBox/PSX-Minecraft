@@ -1,4 +1,3 @@
-from pathlib import Path
 from typing import Callable, Optional, cast
 import pygame, pygame_gui
 from src.codegen.gen import gen_html_code
@@ -6,8 +5,8 @@ from src.control.button import ControlButton
 from src.control.checkbox import ControlCheckbox
 from src.control.colour_picker import ControlColourPicker
 from src.control.drop_down import ControlDropDown
-from src.control.file_dialog import ControlFileDialog
 from src.control.horizontal_slider import ControlHorizontalSlider
+from src.control.image import ControlImage
 from src.control.label import ControlLabel
 from src.control.panel import ControlPanel
 from src.control.resizing_panel import ControlResizingPanel
@@ -109,6 +108,7 @@ class BackgroundModifiersPanel(ControlResizingPanel):
             manager,
             parent_container
         )
+        self._textures = textures
         self.direct_blit_checkbox = self.add_element_offset(
             lambda _, y, container: ControlCheckbox(
                 0,
@@ -122,13 +122,13 @@ class BackgroundModifiersPanel(ControlResizingPanel):
             ),
             process_event=True
         )
-        self.add_element_offset(
+        self.texture_dropdown = self.add_element_offset(
             lambda width, y, container: ControlDropDown(
                 0,
                 y,
                 width,
                 30,
-                list(self._textures.mappings.keys()),
+                self._textures.tupled_keys(),
                 self._texture_selected,
                 manager,
                 container
@@ -252,7 +252,6 @@ class BackgroundModifiersPanel(ControlResizingPanel):
             update=True
         )
         self.tint_label.set_background_colour(self.tint_colour_picker.get_colour())
-        self._textures = textures
         self._get_selected_element = get_selected_element
         self._preview = preview
 
@@ -276,7 +275,7 @@ class BackgroundModifiersPanel(ControlResizingPanel):
             f"{background.get_tile_y()}"
         )
         self.texture_dropdown.drop_down.selected_option = (
-            background.get_tim_name(),
+            self._textures.mappings[background.get_tim_name()][0],
             background.get_tim_name()
         )
 
@@ -293,7 +292,7 @@ class BackgroundModifiersPanel(ControlResizingPanel):
         self.pos_v_slider.set_value(background.get_pos_v())
         background.set_pos_u(0)
         background.set_pos_v(0)
-        background.set_texture(texture[0], self._textures.mappings[texture[0]])
+        background.set_texture(texture[1], self._textures.mappings[texture[1]][1])
 
     def _tile_x_selected(self, choice: tuple[str, str]):
         element = self._get_selected_element()
@@ -773,7 +772,9 @@ class ElementsPanel(ControlResizingPanel):
 
 class CreateButtonWindow(ControlWindow):
     label_text_input: ControlTextInput
+    width_label: ControlLabel
     width_input: ControlTextInput
+    height_label: ControlLabel
     height_input: ControlTextInput
     create_button: ControlButton
 
@@ -809,7 +810,19 @@ class CreateButtonWindow(ControlWindow):
             input_width,
             30,
             manager,
-            self.window
+            self.window,
+            placeholder_text="Name..."
+        )
+        self.width_label = self.add_element(
+            ControlLabel(
+                (window_width // 2) - 50 - 50,
+                65,
+                50,
+                30,
+                "Width:",
+                manager,
+                self.window
+            )
         )
         self.width_input = self.add_element(
             ControlTextInput(
@@ -819,9 +832,21 @@ class CreateButtonWindow(ControlWindow):
                 30,
                 manager,
                 self.window,
-                number_only_validator
+                number_only_validator,
+                initial_text="200"
             ),
             process_event=True
+        )
+        self.height_label = self.add_element(
+            ControlLabel(
+                (window_width // 2) - 50 - 50,
+                100,
+                50,
+                30,
+                "Height:",
+                manager,
+                self.window
+            )
         )
         self.height_input = self.add_element(
             ControlTextInput(
@@ -831,7 +856,8 @@ class CreateButtonWindow(ControlWindow):
                 30,
                 manager,
                 self.window,
-                number_only_validator
+                number_only_validator,
+                initial_text="20"
             ),
             process_event=True
         )
@@ -893,6 +919,7 @@ class CreateButtonWindow(ControlWindow):
         self.closed_command()
 
 class CreateBackgroundWindow(ControlWindow):
+    texture_preview: ControlImage
     texture_dropdown: ControlDropDown
     label_text_input: ControlTextInput
     width_label: ControlLabel
@@ -900,6 +927,9 @@ class CreateBackgroundWindow(ControlWindow):
     height_label: ControlLabel
     height_input: ControlTextInput
     create_button: ControlButton
+    
+    _left_container: pygame_gui.core.UIContainer
+    _right_container: pygame_gui.core.UIContainer
 
     _manager: pygame_gui.UIManager
     _image: Optional[pygame.Surface]
@@ -917,8 +947,8 @@ class CreateBackgroundWindow(ControlWindow):
         textures: Textures,
         preview: Preview
     ):
-        window_width = 250
-        window_height = 230
+        window_width = 550
+        window_height = 250
         super().__init__(
             (pygame.display.get_window_size()[0] // 2) - (window_width // 2),
             (pygame.display.get_window_size()[1] // 2) - (window_height // 2),
@@ -930,34 +960,63 @@ class CreateBackgroundWindow(ControlWindow):
             draggable=True,
             always_on_top=True
         )
+        self._left_container = pygame_gui.core.UIContainer(
+            relative_rect=pygame.Rect(
+                0,
+                0,
+                window_width // 2,
+                window_height
+            ),
+            manager=manager,
+            container=self.window
+        )
+        self._right_container = pygame_gui.core.UIContainer(
+            relative_rect=pygame.Rect(
+                window_width // 2,
+                0,
+                window_width // 2,
+                window_height
+            ),
+            manager=manager,
+            container=self.window
+        )
+        left_width = int(self._left_container.get_abs_rect().width)
         y_offset = 5
-        self.label_text_input = ControlTextInput(
-            (window_width // 2) - 50,
+        self.texture_preview = ControlImage(
+            (left_width // 2) - 100,
             y_offset,
-            100,
+            200,
+            200,
+            manager,
+            self._right_container
+        )
+        self.label_text_input = ControlTextInput(
+            (left_width // 2) - 100,
+            y_offset,
+            200,
             30,
             manager,
-            self.window,
+            self._left_container,
             placeholder_text="Name..."
         )
         y_offset += self.label_text_input.rect.height
         self.width_label = ControlLabel(
-            (window_width // 2) - 50 - 50,
+            (left_width // 2) - 50 - 50,
             y_offset,
             50,
             30,
             "Width:",
             manager,
-            self.window,
+            self._left_container,
         )
         self.width_input = self.add_element(
             ControlTextInput(
-                (window_width // 2) - 50,
+                (left_width // 2) - 50,
                 y_offset,
                 100,
                 30,
                 manager,
-                self.window,
+                self._left_container,
                 number_only_validator,
                 initial_text="100"
             ),
@@ -965,22 +1024,22 @@ class CreateBackgroundWindow(ControlWindow):
         )
         y_offset += self.width_input.rect.height
         self.height_label = ControlLabel(
-            (window_width // 2) - 50 - 53,
+            (left_width // 2) - 50 - 53,
             y_offset,
             50,
             30,
             "Height:",
             manager,
-            self.window,
+            self._left_container,
         )
         self.height_input = self.add_element(
             ControlTextInput(
-                (window_width // 2) - 50,
+                (left_width // 2) - 50,
                 y_offset,
                 100,
                 30,
                 manager,
-                self.window,
+                self._left_container,
                 number_only_validator,
                 initial_text="100"
             ),
@@ -989,21 +1048,21 @@ class CreateBackgroundWindow(ControlWindow):
         y_offset += self.height_input.rect.height
         self.texture_dropdown = self.add_element(
             ControlDropDown(
-                (window_width // 2) - 55,
+                (left_width // 2) - 100,
                 y_offset,
-                110,
+                200,
                 30,
-                list(textures.mappings.keys()),
+                textures.tupled_keys(),
                 self._texture_selected,
                 manager,
-                self.window
+                self._left_container
             ),
             process_event=True
         )
         y_offset += self.texture_dropdown.rect.height
         self.create_button = self.add_element(
             ControlButton(
-                (window_width // 2) - 35,
+                (left_width // 2) - 35,
                 y_offset + 5,
                 70,
                 30,
@@ -1019,12 +1078,12 @@ class CreateBackgroundWindow(ControlWindow):
         self._elements = elements
         self._elements_panel = elements_panel
         self._preview = preview
-        self._image = None
+        self.texture_preview.set_image(self._textures.mappings[self.texture_dropdown.drop_down.selected_option[1]][1])
 
     def process_event(self, event: pygame.Event):
         super().process_event(event)
         name = self.label_text_input.get_text()
-        if (len(name) == 0 or self._image == None):
+        if len(name) == 0 :
             self.create_button.disable()
         else:
             self.create_button.enable()
@@ -1038,19 +1097,18 @@ class CreateBackgroundWindow(ControlWindow):
         self.create_button.kill()
         super().kill()
 
-    def _texture_selected(self, _: tuple[str, str]):
-        # TODO: Preview texture in window
-        pass
+    def _texture_selected(self, texture: tuple[str, str]):
+        self.texture_preview.set_image(self._textures.mappings[texture[1]][1])
 
     def _add_background(self):
         name = self.label_text_input.get_text()
-        if (len(name) == 0 or self._image == None):
+        if len(name) == 0:
             return
         texture = self.texture_dropdown.drop_down.selected_option
         background_id = self._preview.add_background(
             name,
-            texture[0],
-            pygame.image.load(self._textures.mappings[texture[0]])
+            texture[1],
+            pygame.image.load(self._textures.mappings[texture[1]][1])
         )
         self._elements[background_id] = (name, background_id)
         self._elements_panel.elements_list.selection_list.set_item_list(list(self._elements.values()))
