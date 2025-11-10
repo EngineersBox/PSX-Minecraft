@@ -1,0 +1,90 @@
+#include "{{ header_name }}.h"
+
+#include <psxgpu.h>
+
+#include "menu.h"
+#include "menu_id.h"
+#include "../blocks/block.h"
+#include "../../render/render_context.h"
+#include "../../render/font.h"
+#include "../../resources/assets.h"
+#include "../../resources/asset_indices.h"
+#include "../../resources/texture.h"
+#include "../../structure/cvector_utils.h"
+#include "../../structure/primitive/primitive.h"
+#include "../../util/preprocessor.h"
+#include "../../util/interface99_extensions.h"
+#include "../../ui/components/background.h"
+#include "../../ui/components/button.h"
+#include "../../ui/components/cursor.h"
+
+# TODO: If buttons/bg use any texture other than the static one, then
+#       we should declare static Texture variables to hold the loaded
+#       textures
+
+IUI* {{ menu_name_camel_case }}New() {
+    IUI* iui = (IUI*) malloc(sizeof(IUI));
+    assert(iui != NULL);
+    {{ menu_name_pascal_case }}* menu = ({{ menu_name_pascal_case }}*) malloc(sizeof({{ menu_name_pascal_case }}));
+    assert(menu != NULL);
+    uiInit(&menu->ui);
+    DYN_PTR(iui, {{ menu_name_pascal_case }}, IUI, menu);
+    UI* ui = &menu->ui;
+    {{ components_init_code }}
+    return iui;
+}
+
+void {{ menu_name_camel_case }}Destroy(IUI* menu) {
+    {{ menu_name_pascal_case }}* self = VCAST_PTR({{ menu_name_pascal_case }}*, self);
+    IUIComponent* component;
+    cvector_for_each_in(component, self->ui.components) {
+        void* component_instance = VCAST_PTR(void*, component);
+        free(component_instance);
+    }
+    free(self);
+    free(menu);
+}
+
+void {{ menu_name_camel_case }}Open(VSelf) ALIAS("{{ menu_name_pascal_case }}_open");
+void {{ menu_name_pascal_case }}_open(VSelf) {
+    VSELF({{ menu_name_pascal_case }});
+    # TODO: If buttons/bg use any texture other than the static one, then
+    #       it should be loaded into VRAM here.
+    self->ui.active = true;
+}
+
+static InputHandlerState {{ menu_name_camel_case }}InputHandler(UNUSED const Input* input, void* ctx) {
+    VCALL(cursor_component, update);
+    const {{ menu_name_camel_case }}* menu = ({{ menu_name_camel_case }}*) ctx;
+    const UI* ui = &menu->ui;
+    IUIComponent* component;
+    cvector_for_each_in(component, ui->components) {
+        VCALL(*component, update);
+    }
+    TODO("Finish implementing logic for components being interacted with");
+}
+
+void {{ menu_name_camel_case }}RegisterInputHandler(VSelf, Input* input, void* ctx) ALIAS("{{ menu_name_pascal_case}}_registerInputHandler");
+void {{ menu_name_pascal_case }}_registerInputHandler(VSelf, Input* input, UNUSED void* ctx) {
+    VSELF({{ menu_name_pascal_case }});
+    const InputHandlerVTable handler = (InputHandlerVTable) {
+        .ctx = self,
+        .input_handler = {{ menu_name_camel_case }}InputHandler
+    };
+    inputAddHandler(
+        input,
+        handler
+    );
+}
+
+void {{ menu_name_camel_case }}Render(VSelf, RenderContext* ctx, Transforms* transforms) ALIAS("{{ menu_name_pascal_case }}_render");
+void {{ menu_name_pascal_case }}_render(VSelf, RenderContext* ctx, Transforms* transforms) {
+    VSELF({{ menu_name_pascal_case }});
+    uiRender(&self->ui, ctx, transforms);
+    renderClearConstraintsIndex(ctx, 1);
+    uiCursorRender(
+        &cursor,
+        ctx,
+        transforms
+    );
+}
