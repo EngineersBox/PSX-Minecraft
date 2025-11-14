@@ -45,8 +45,7 @@ INLINE static UIButton* addButton(UI* ui,
     IUIComponent* component = uiAddComponent(ui);
     UIButton* button = uiButtonNew(
         text,
-        x,
-        y,
+        vec2_i16(x, y),
         width,
         1
     );
@@ -136,13 +135,13 @@ void MainMenu_open(VSelf) {
     self->ui.active = true;
 }
 
-bool isButtonPressed(const UI* ui, MainMenuButton index) {
+static bool isButtonPressed(const UI* ui, MainMenuButton index) {
     const IUIComponent* component = &ui->components[index];
     const UIButton* button = VCAST_PTR(UIButton*, component);
     return button->state == BUTTON_PRESSED;
 }
 
-InputHandlerState mainMenuInputHandler(UNUSED const Input* input, void* ctx) {
+static InputHandlerState mainMenuInputHandler(UNUSED const Input* input, void* ctx) {
     VCALL(cursor_component, update);
     const MainMenu* main_menu = (MainMenu*) ctx;
     const UI* ui = &main_menu->ui;

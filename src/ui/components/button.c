@@ -12,13 +12,12 @@
 #include "../../structure/primitive/primitive.h"
 
 UIButton* uiButtonNew(const char* text,
-                      i16 x,
-                      i16 y,
+                      const DVECTOR position,
                       i16 width,
                       u8 ot_entry_index) {
     UIButton* button = (UIButton*) malloc(sizeof(UIButton));
     assert(button != NULL);
-    button->component.position = vec2_i16(x, y);
+    button->component.position = position;
     button->component.dimensions = vec2_i16(width, UI_BUTTON_HEIGHT);
     button->text = text;
     button->state = BUTTON_NONE;

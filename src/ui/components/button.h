@@ -39,8 +39,7 @@ DEFN_UI_COMPONENT(
 );
 
 UIButton* uiButtonNew(const char* text,
-                      i16 x,
-                      i16 y,
+                      const DVECTOR position,
                       i16 width,
                       u8 ot_entry_index);
 

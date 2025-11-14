@@ -4,12 +4,23 @@
 
 #include "../../structure/primitive/primitive.h"
 #include "../../util/preprocessor.h"
-#include "../../util/memory.h"
 
-INLINE UIBackground* UIBackgroundNew() {
+UIBackground* UIBackgroundNew(const Texture* texture,
+                              const DVECTOR position,
+                              const DVECTOR dimensions,
+                              const DVECTOR texture_coords,
+                              const DVECTOR texture_dimensions,
+                              const CVECTOR tint,
+                              u8 ot_entry_index) {
     UIBackground* bg = malloc(sizeof(UIBackground));
     assert(bg != NULL);
-    zeroed(bg);
+    bg->component.position = position;
+    bg->component.dimensions = dimensions;
+    bg->texture = texture;
+    bg->texture_coords = texture_coords;
+    bg->texture_dimensions = texture_dimensions;
+    bg->tint = tint;
+    bg->ot_entry_index = ot_entry_index;
     return bg;
 };
 
@@ -28,8 +39,8 @@ void UIBackground_render(VSelf, RenderContext* ctx, UNUSED Transforms* transform
         pol4,
         self->texture_coords.vx,
         self->texture_coords.vy,
-        self->texture_width.vx,
-        self->texture_width.vy
+        self->texture_dimensions.vx,
+        self->texture_dimensions.vy
     );
     // Mid point grey as mask for additive texturing
     setRGB0(
@@ -38,8 +49,8 @@ void UIBackground_render(VSelf, RenderContext* ctx, UNUSED Transforms* transform
         self->tint.g,
         self->tint.b
     );
-    pol4->tpage = self->texture.tpage;
-    pol4->clut = self->texture.clut;
-    polyFT4Render(pol4, 1, ctx);
-    renderClearConstraintsIndex(ctx, 1);
+    pol4->tpage = self->texture->tpage;
+    pol4->clut = self->texture->clut;
+    polyFT4Render(pol4, self->ot_entry_index, ctx);
+    renderClearConstraintsIndex(ctx, self->ot_entry_index);
 }
