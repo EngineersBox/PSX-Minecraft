@@ -6,12 +6,13 @@ def main():
     pygame.init()
     pygame.font.init()
     pygame.display.set_caption("Menu Designer")
-    window_surface = pygame.display.set_mode(size=(1200,820))
+    dims = (1200, 850)
+    window_surface = pygame.display.set_mode(size=dims)
 
-    background = pygame.Surface((1280, 820))
+    background = pygame.Surface(dims)
     background.fill(pygame.Color("#7F7F7F"))
 
-    gui_manager = pygame_gui.UIManager((1280, 820))
+    gui_manager = pygame_gui.UIManager(dims)
     designer = MenuDesigner(gui_manager)
 
     pygame.mouse.set_relative_mode(True)

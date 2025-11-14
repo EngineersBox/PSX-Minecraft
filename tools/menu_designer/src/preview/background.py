@@ -78,6 +78,8 @@ class PreviewBackground(PreviewElement):
             return
         tile_x = self._tile_x * PREVIEW_SCALE_X
         tile_y = self._tile_y * PREVIEW_SCALE_Y
+        # BUG: There are cases where this rectangle is outside the source
+        #      image. Need to address those.
         tile = self.source_image.subsurface(pygame.Rect(
             self._pos_u,
             self._pos_v,
