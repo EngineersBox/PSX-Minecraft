@@ -63,3 +63,6 @@ class ControlCheckbox(ControlBase):
 
     def show(self):
         self.checkbox.show()
+
+    def kill(self):
+        self.checkbox.kill()

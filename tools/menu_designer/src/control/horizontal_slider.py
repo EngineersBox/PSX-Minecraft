@@ -53,6 +53,9 @@ class ControlHorizontalSlider(ControlBase):
 
     def show(self):
         self.slider.show()
+        
+    def kill(self):
+        self.slider.kill()
 
     def set_value(self, value: int):
         if (value < self.slider.value_range[0]

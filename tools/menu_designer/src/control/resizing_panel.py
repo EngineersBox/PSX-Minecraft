@@ -8,6 +8,7 @@ T = TypeVar("T", bound="ControlBase")
 type ElementCreateFn[T] = Callable[[int, int, pygame_gui.core.IContainerLikeInterface], T]
 
 class ControlResizingPanel(ControlPanel):
+    x_offset: int
     y_offset: int
 
     def __init__(
@@ -34,14 +35,16 @@ class ControlResizingPanel(ControlPanel):
         element_create_fn: ElementCreateFn[T],
         update: bool = False,
         process_event: bool = False,
-        y_spacing: int = 0
+        y_spacing: int = 0,
+        update_y_offset: bool = True
     ) -> T:
         element = element_create_fn(
             self.rect.width - 6,
             self.y_offset,
             self.panel
         )
-        self.y_offset += element.rect.height + y_spacing
+        if update_y_offset:
+            self.y_offset += element.rect.height + y_spacing
         self.panel.set_dimensions((
             self.panel.get_abs_rect().width,
             self.y_offset + 3

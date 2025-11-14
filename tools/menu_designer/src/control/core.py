@@ -1,9 +1,11 @@
 from typing import Callable, Optional, cast
+from pathlib import Path
 import pygame, pygame_gui
-from src.codegen.gen import gen_html_code
+from src.codegen.gen import gen_html_code, gen_menu_header_code, gen_menu_header_html_code, gen_menu_source_code, gen_menu_source_html_code
 from src.control.button import ControlButton
 from src.control.checkbox import ControlCheckbox
 from src.control.colour_picker import ControlColourPicker
+from src.control.confirmation_dialog import ControlConfirmationDialog
 from src.control.drop_down import ControlDropDown
 from src.control.horizontal_slider import ControlHorizontalSlider
 from src.control.image import ControlImage
@@ -11,6 +13,7 @@ from src.control.label import ControlLabel
 from src.control.panel import ControlPanel
 from src.control.resizing_panel import ControlResizingPanel
 from src.control.selection_list import ControlSelectionList
+from src.control.tabbed_container import ControlTabbedContainer
 from src.control.textures import Textures
 from src.control.text_box import ControlTextBox
 from src.control.text_input import ControlTextInput, number_only_validator
@@ -1249,13 +1252,275 @@ class CreatePanel(ControlResizingPanel):
         if self.create_background_window != None:
             self.create_background_window.disable()
 
-class PreviewManagementPanel(ControlResizingPanel):
-    show_grid_checkbox: ControlCheckbox
+class MenuCodePanel(ControlPanel):
+    code_view: ControlTabbedContainer
+    close_button: ControlButton
+    font_drop_down: ControlDropDown
+    
+    _elements: list[PreviewElement]
+    _close_command: Callable[[], None]
 
+    def __init__(
+        self,
+        elements: list[PreviewElement],
+        close_command: Callable[[], None],
+        manager: pygame_gui.UIManager,
+        parent_container: Optional[pygame_gui.core.IContainerLikeInterface] = None
+    ):
+        super().__init__(
+            0,
+            0,
+            pygame.display.get_window_size()[0],
+            pygame.display.get_window_size()[1],
+            manager,
+            parent_container
+        )
+        self.code_view = self.add_element(
+            ControlTabbedContainer(
+                0,
+                0,
+                pygame.display.get_window_size()[0],
+                pygame.display.get_window_size()[1] - 100,
+                manager,
+                self.panel
+            ),
+            process_event=True
+        )
+        self.close_button = self.add_element(
+            ControlButton(
+                pygame.display.get_window_size()[0] - 106,
+                pygame.display.get_window_size()[1] - 100,
+                100,
+                30,
+                "Close",
+                manager,
+                self.panel,
+                close_command
+            ),
+            process_event=True
+        )
+        self.font_drop_down = self.add_element(
+            ControlDropDown(
+                0,
+                pygame.display.get_window_size()[1] - 100,
+                200,
+                30,
+                [(font, font) for font in pygame.font.get_fonts()],
+                self._update_code_view,
+                manager,
+                self.panel,
+                expand_upward=True
+            ),
+            process_event=True
+        )
+        self._elements = elements
+        self._close_command = close_command
+        self.code_view.add_tab(lambda dim, container: (
+            "Header",
+            ControlTextBox(
+                dim.x,
+                dim.y,
+                dim.width,
+                dim.height,
+                manager,
+                container
+            )
+        ))
+        self.code_view.add_tab(lambda dim, container: (
+            "Source",
+            ControlTextBox(
+                dim.x,
+                dim.y,
+                dim.width,
+                dim.height,
+                manager,
+                container
+            )
+        ))
+        self.code_view.set_active("Header")
+        self._update_code_view(("", ""))
+
+    def _update_code_view(self, _: tuple[str, str]):
+        selected_font = self.font_drop_down.drop_down.selected_option
+        header_text = cast(ControlTextBox, self.code_view.get_tab_element("Header"))
+        header_text.set_text(gen_menu_header_html_code(
+            "example",
+            selected_font[1]
+        ))
+        header_text = cast(ControlTextBox, self.code_view.get_tab_element("Source"))
+        header_text.set_text(gen_menu_source_html_code(
+            "example",
+            self._elements,
+            selected_font[1]
+        ))
+
+    def kill(self):
+        super().kill()
+        self.code_view.kill()
+        self.close_button.kill()
+        self.font_drop_down.kill()
+
+
+class ExportMenuCodeWindow(ControlWindow):
+    name_input: ControlTextInput
+    export_button: ControlButton
+    cancel_button: ControlButton
+
+    overwrite_confirmation_dialog: Optional[ControlConfirmationDialog]
+
+    _manager: pygame_gui.UIManager
     _preview: Preview
 
     def __init__(
         self,
+        closed_command: ControlWindowClosedCommand,
+        preview: Preview,
+        manager: pygame_gui.UIManager
+    ):
+        window_width = 300
+        window_height = 150
+        super().__init__(
+            (pygame.display.get_window_size()[0] // 2) - (window_width // 2),
+            (pygame.display.get_window_size()[1] // 2) - (window_height // 2),
+            window_width,
+            window_height,
+            "Export Menu Code",
+            closed_command,
+            manager
+        )
+        input_width = 200
+        input_height = 30
+        self.name_input = self.add_element(
+            ControlTextInput(
+                (window_width // 2) - (input_width // 2),
+                20,
+                input_width,
+                input_height,
+                manager,
+                self.window,
+                placeholder_text="Menu name..."
+            ),
+            process_event=True
+        )
+        buttons_width = 200
+        button_height = 30
+        self.export_button = self.add_element(
+            ControlButton(
+                (window_width // 2) - (buttons_width // 2),
+                self.name_input.rect.y + self.name_input.rect.height + 10,
+                (buttons_width // 2),
+                button_height,
+                "Export",
+                manager,
+                self.window,
+                self._export_code
+            ),
+            process_event=True
+        )
+        self.export_button.disable()
+        self.cancel_button = self.add_element(
+            ControlButton(
+                window_width // 2,
+                self.name_input.rect.y + self.name_input.rect.height + 10,
+                (buttons_width // 2),
+                button_height,
+                "Cancel",
+                manager,
+                self.window,
+                closed_command
+            ),
+            process_event=True
+        )
+        self.overwrite_confirmation_dialog = None
+        self._manager = manager
+        self._preview = preview
+
+    def process_event(self, event: pygame.Event):
+        super().process_event(event)
+        if (event.type == pygame_gui.UI_TEXT_ENTRY_CHANGED
+            and event.ui_element == self.name_input.input):
+            if len(self.name_input.get_text()) == 0:
+                self.export_button.disable()
+            else:
+                self.export_button.enable()
+        if self.overwrite_confirmation_dialog != None:
+            self.overwrite_confirmation_dialog.process_event(event)
+
+    def _check_export_code(self):
+        menu_name = self.name_input.get_text()
+        header_path = Path(f"../../src/game/menu/{menu_name}.h")
+        source_path = Path(f"../../src/game/menu/{menu_name}.c")
+        if not ((header_path.exists() and header_path.is_file())
+            or (source_path.exists() and source_path.is_file())):
+            self._export_code()
+            return
+        dialog_width = 300
+        dialog_height = 100
+        self.overwrite_confirmation_dialog = ControlConfirmationDialog(
+            (pygame.display.get_window_size()[0] // 2) - (dialog_width // 2),
+            100,
+            dialog_width,
+            dialog_height,
+            "Confirm Overwrite",
+            f"Header and/or source already exists. Overwrite it?",
+            self._confirm_export_code,
+            self._cancel_export_code,
+            self._manager
+        )
+        self.overwrite_confirmation_dialog.enable()
+        self.overwrite_confirmation_dialog.show()
+        self.disable()
+
+    def _confirm_export_code(self):
+        if self.overwrite_confirmation_dialog == None:
+            return
+        self.overwrite_confirmation_dialog.hide()
+        self.overwrite_confirmation_dialog.disable()
+        self.overwrite_confirmation_dialog.kill()
+        self.overwrite_confirmation_dialog = None
+        self._export_code()
+
+    def _cancel_export_code(self):
+        if self.overwrite_confirmation_dialog == None:
+            return
+        self.overwrite_confirmation_dialog.hide()
+        self.overwrite_confirmation_dialog.disable()
+        self.overwrite_confirmation_dialog.kill()
+        self.overwrite_confirmation_dialog = None
+        self.enable()
+
+    def _export_code(self):
+        menu_name = self.name_input.get_text()
+        header_path = Path(f"../../src/game/menu/{menu_name}.h")
+        source_path = Path(f"../../src/game/menu/{menu_name}.c")
+        with open(header_path, "w") as f:
+            f.write(gen_menu_header_code(menu_name))
+        with open(source_path, "w") as f:
+            f.write(gen_menu_source_code(
+                menu_name,
+                self._preview.get_all_elements()
+            ))
+        self.disable()
+        self.hide()
+        self.closed_command()
+
+class PreviewManagementPanel(ControlResizingPanel):
+    show_grid_checkbox: ControlCheckbox
+    view_menu_code_button: ControlButton
+    export_menu_code_button: ControlButton
+
+    export_menu_code_window: Optional[ExportMenuCodeWindow]
+    code_view_panel: Optional[MenuCodePanel]
+
+    _create_panel: CreatePanel
+    _elements_panel: ElementsPanel
+    _manager: pygame_gui.UIManager
+    _preview: Preview
+
+    def __init__(
+        self,
+        create_panel: CreatePanel,
+        elements_panel: ElementsPanel,
         preview: Preview,
         manager: pygame_gui.UIManager,
         parent_container: Optional[pygame_gui.core.IContainerLikeInterface] = None
@@ -1264,7 +1529,7 @@ class PreviewManagementPanel(ControlResizingPanel):
         super().__init__(
             0, #PREVIEW_SIZE_X * PREVIEW_SCALE_X + checkbox_height,
             PREVIEW_SIZE_Y * PREVIEW_SCALE_Y, #pygame.display.get_window_size()[1] - checkbox_height - 6,
-            pygame.display.get_window_size()[0] - (PREVIEW_SIZE_X * PREVIEW_SCALE_X),
+            PREVIEW_SIZE_X * PREVIEW_SCALE_X,
             36,
             manager,
             parent_container
@@ -1279,15 +1544,120 @@ class PreviewManagementPanel(ControlResizingPanel):
                 manager,
                 container,
                 self._show_preview_grid
-            )
+            ),
+            process_event=True,
+            update_y_offset=False
         )
+        self.view_menu_code_button = self.add_element_offset(
+            lambda _, y, container: ControlButton(
+                113,
+                y,
+                150,
+                30,
+                "View Menu Code",
+                manager,
+                container,
+                self._open_menu_code_view
+            ),
+            process_event=True,
+            update_y_offset=False
+        )
+        self.export_menu_code_button = self.add_element_offset(
+            lambda _, y, container: ControlButton(
+                self.view_menu_code_button.rect.x + self.view_menu_code_button.rect.width + 3,
+                y,
+                150,
+                30,
+                "Export Menu Code",
+                manager,
+                container,
+                self._open_export_menu_code_dialog
+            ),
+            process_event=True,
+            update_y_offset=False
+        )
+        self.export_menu_code_window = None
+        self.code_view_panel = None
+        self._create_panel = create_panel
+        self._elements_panel = elements_panel
         self._preview = preview
+        self._manager = manager
+
+    def process_event(self, event: pygame.Event):
+        super().process_event(event)
+        if self.export_menu_code_window != None:
+            self.export_menu_code_window.process_event(event)
+        if self.code_view_panel != None:
+            self.code_view_panel.process_event(event)
 
     def _show_preview_grid(self, state: bool):
         if state:
             self._preview.show_grid()
         else:
             self._preview.hide_grid()
+
+    def _open_menu_code_view(self):
+        if self.code_view_panel != None:
+            return
+        self._elements_panel.disable()
+        self._elements_panel.hide()
+        self._create_panel.disable()
+        self._create_panel.hide()
+        self._preview.disable()
+        self._preview.hide()
+        self.hide()
+        self.disable()
+        self.code_view_panel = MenuCodePanel(
+            self._preview.get_all_elements(),
+            self._close_menu_code_view,
+            self._manager
+        )
+
+    def _close_menu_code_view(self):
+        if self.code_view_panel == None:
+            return
+        self.code_view_panel.disable()
+        self.code_view_panel.hide()
+        self.code_view_panel.kill()
+        self.code_view_panel = None
+        self._elements_panel.enable()
+        self._elements_panel.show()
+        self._elements_panel.reset_controls()
+        self._create_panel.enable()
+        self._create_panel.show()
+        self._preview.enable()
+        self._preview.show()
+        self.show()
+        self.enable()
+
+    def _open_export_menu_code_dialog(self):
+        if self.export_menu_code_window != None:
+            return
+        self.export_menu_code_window = ExportMenuCodeWindow(
+            self._close_export_menu_code_dialog,
+            self._preview,
+            self._manager
+        )
+        self.export_menu_code_window.show()
+        self.export_menu_code_window.enable()
+        self._elements_panel.disable()
+        self._create_panel.disable()
+        self._preview.hide()
+        self._preview.disable()
+        self.disable()
+
+    def _close_export_menu_code_dialog(self):
+        if self.export_menu_code_window == None:
+            return
+        self.export_menu_code_window.disable()
+        self.export_menu_code_window.hide()
+        self.export_menu_code_window.kill()
+        self.export_menu_code_window = None
+        self._elements_panel.enable()
+        self._create_panel.enable()
+        self._preview.enable()
+        self._preview.show()
+        self.enable()
 
 class Control:
     manager: pygame_gui.UIManager
@@ -1321,6 +1691,8 @@ class Control:
             self.manager
         )
         self.preview_management_panel = PreviewManagementPanel(
+            self.create_panel,
+            self.elements_panel,
             self.preview,
             manager
         )

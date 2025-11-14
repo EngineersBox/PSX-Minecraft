@@ -46,3 +46,6 @@ class ControlImage(ControlBase):
 
     def show(self):
         self.image.show()
+
+    def kill(self):
+        self.image.kill()

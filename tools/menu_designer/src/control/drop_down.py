@@ -34,7 +34,7 @@ class ControlDropDown(ControlBase):
             manager=manager,
             container=container
         )
-        self.drop_down.expand_direction = "down" if expand_upward else "up"
+        self.drop_down.expand_direction = "up" if expand_upward else "down"
         self.selected_command = selected_command
 
     def process_event(self, event: pygame.Event):

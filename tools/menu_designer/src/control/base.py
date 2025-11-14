@@ -41,3 +41,7 @@ class ControlBase(ABC):
     @abstractmethod
     def show(self):
         pass
+
+    @abstractmethod
+    def kill(self):
+        pass

@@ -59,3 +59,6 @@ class ControlSelectionList(ControlBase):
 
     def show(self):
         self.selection_list.show()
+
+    def kill(self):
+        self.selection_list.kill()

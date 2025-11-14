@@ -137,6 +137,9 @@ class Preview:
     def get_element(self, element_id: str) -> Optional[PreviewElement]:
         return self.game_elements[element_id]
 
+    def get_all_elements(self) -> list[PreviewElement]:
+        return list(self.game_elements.values())
+
     def set_held_element(self, element_id: str):
         self.held_element = self.game_elements[element_id]
 

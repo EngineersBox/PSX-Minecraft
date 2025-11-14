@@ -24,15 +24,14 @@ FONTS = {
     "courier"
 }
 
-def gen_button_code(button: PreviewButton, font: str) -> str:
+def gen_button_code(button: PreviewButton) -> str:
     render_parameters = {
         "name_snake_lower": caseconverter.snakecase(button.label.text),
         "text": button.label.text,
         "x": button.get_pos()[0],
         "y": button.get_pos()[1],
         "width": button.get_width(),
-        "disabled": button.disabled,
-        "font": font
+        "disabled": button.disabled
     }
     return env.get_template("button.j2").render(render_parameters)
 
@@ -57,6 +56,25 @@ def gen_button_html_code(button: PreviewButton, font: str) -> str:
     }
     return env.get_template("button_html.j2").render(render_parameters)
 
+def gen_background_code(background: PreviewBackground) -> str:
+    tint = background.get_tint()
+    render_parameters = {
+        "name_snake_lower": caseconverter.snakecase(background.get_name()),
+        "texture": background.get_tim_name(),
+        "x": background.get_pos()[0],
+        "y": background.get_pos()[1],
+        "width": background.get_width(),
+        "height": background.get_height(),
+        "texture_u": background.get_pos_u(),
+        "texture_v": background.get_pos_v(),
+        "texture_width": background.get_tile_x(),
+        "texture_height": background.get_tile_y(),
+        "tint_r": tint.r,
+        "tint_g": tint.g,
+        "tint_b": tint.b
+    }
+    return env.get_template("background_html.j2").render(render_parameters)
+
 def gen_background_html_code(background: PreviewBackground, font: str) -> str:
     tint = background.get_tint()
     render_parameters = {
@@ -77,6 +95,14 @@ def gen_background_html_code(background: PreviewBackground, font: str) -> str:
     }
     return env.get_template("background_html.j2").render(render_parameters)
 
+def gen_code(element: PreviewElement) -> str:
+    element_type = type(element)
+    if element_type == PreviewButton:
+        return gen_button_code(cast(PreviewButton, element))
+    elif element_type == PreviewBackground:
+        return gen_background_code(cast(PreviewBackground, element))
+    raise ValueError(f"Unknown element type: {element_type}")
+
 def gen_html_code(element: PreviewElement, font_name: Optional[str] = None) -> str:
     font = font_name if font_name is not None else find_font()
     element_type = type(element)
@@ -85,3 +111,41 @@ def gen_html_code(element: PreviewElement, font_name: Optional[str] = None) -> s
     elif element_type == PreviewBackground:
         return gen_background_html_code(cast(PreviewBackground, element), font)
     raise ValueError(f"Unknown element type: {element_type}")
+
+def gen_menu_header_code(name: str) -> str:
+    render_parameters = {
+        "name_upper_snake_case": caseconverter.macrocase(name),
+        "name_camel_case": caseconverter.camelcase(name),
+        "name_pascal_case": caseconverter.pascalcase(name)
+    }
+    return env.get_template("menu.h.j2").render(render_parameters)
+
+def gen_menu_header_html_code(name: str, font: str) -> str:
+    render_parameters = {
+        "name_upper_snake_case": caseconverter.macrocase(name),
+        "name_camel_case": caseconverter.camelcase(name),
+        "name_pascal_case": caseconverter.pascalcase(name),
+        "font": font
+    }
+    return env.get_template("menu.h_html.j2").render(render_parameters)
+
+def gen_menu_source_code(name: str, elements: list[PreviewElement]) -> str:
+    render_parameters = {
+        "name_snake_case": caseconverter.snakecase(name),
+        "name_upper_snake_case": caseconverter.macrocase(name),
+        "name_camel_case": caseconverter.camelcase(name),
+        "name_pascal_case": caseconverter.pascalcase(name),
+        "components_init_code": "    " + "\n".join(map(gen_code, elements)).replace("\n", "\n    ")
+    }
+    return env.get_template("menu.c.j2").render(render_parameters)
+
+def gen_menu_source_html_code(name: str, elements: list[PreviewElement], font: str) -> str:
+    render_parameters = {
+        "name_snake_case": caseconverter.snakecase(name),
+        "name_upper_snake_case": caseconverter.macrocase(name),
+        "name_camel_case": caseconverter.camelcase(name),
+        "name_pascal_case": caseconverter.pascalcase(name),
+        "components_init_code": "    " + "\n".join(map(gen_html_code, elements)).replace("\n", "\n    "),
+        "font": font
+    }
+    return env.get_template("menu.c_html.j2").render(render_parameters)
