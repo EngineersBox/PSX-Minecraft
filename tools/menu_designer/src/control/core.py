@@ -1,4 +1,4 @@
-from typing import Callable, Optional, cast
+from typing import Any, Callable, Optional, cast
 from pathlib import Path
 import pygame, pygame_gui
 from src.codegen.gen import gen_html_code, gen_menu_header_code, gen_menu_header_html_code, gen_menu_source_code, gen_menu_source_html_code
@@ -447,6 +447,9 @@ class CodePanel(ControlPanel):
 class ElementsPanel(ControlResizingPanel):
     elements_list: ControlSelectionList
 
+    move_up_button: ControlButton
+    move_down_button: ControlButton
+
     remove_element_button: ControlButton
     view_element_code_button: ControlButton
     view_all_code_button: ControlButton
@@ -494,6 +497,32 @@ class ElementsPanel(ControlResizingPanel):
                 self._dropped_element,
                 manager,
                 container
+            ),
+            process_event=True
+        )
+        self.move_up_button = self.add_element_offset(
+            lambda width, y, container: ControlButton(
+                0,
+                y,
+                width // 2,
+                30,
+                "Move Up",
+                manager,
+                container,
+                self._move_element_up
+            ),
+            process_event=True
+        )
+        self.move_down_button = self.add_element(
+            ControlButton(
+                self.move_up_button.rect.width,
+                self.y_offset - self.move_up_button.rect.height,
+                self.move_up_button.rect.width,
+                30,
+                "Move Down",
+                manager,
+                self.panel,
+                self._move_element_down
             ),
             process_event=True
         )
@@ -666,12 +695,25 @@ class ElementsPanel(ControlResizingPanel):
         self.background_modifiers_panel.reset_controls()
         self.background_modifiers_panel.disable()
         self.background_modifiers_panel.hide()
+        self.move_up_button.disable()
+        self.move_down_button.disable()
 
     def get_selected_element(self) -> Optional[PreviewElement]:
         selected = self.elements_list.selection_list.get_single_selection(include_object_id=True)
         if selected == None:
             return None
         return self._preview.get_element(selected[1])
+
+    def _index_selected(self) -> int:
+        selected = self.elements_list.selection_list.get_single_selection(include_object_id=True)
+        if selected == None:
+            return -1
+        index = 0
+        for item in self.elements_list.selection_list.item_list:
+            if item["object_id"] == selected[1]:
+                return index
+            index += 1
+        return -1
 
     def _selected_element(self, id: tuple[str, str]):
         self.enable()
@@ -707,6 +749,92 @@ class ElementsPanel(ControlResizingPanel):
             self.width_slider.slider.value_range = (0, PREVIEW_SIZE_Y)
             self.button_modifiers_panel.disable()
             self.button_modifiers_panel.hide()
+        index = self._index_selected()
+        list_len = len(self.elements_list.selection_list.item_list)
+        if list_len <= 1:
+            self.move_up_button.disable()
+            self.move_down_button.disable()
+            return
+        if index == 0:
+            self.move_up_button.disable()
+        elif index > 0:
+            self.move_up_button.enable()
+        if index == list_len - 1:
+            self.move_down_button.disable()
+        elif index < list_len - 1:
+            self.move_down_button.enable()
+
+    def _exchange_properties(self, a: dict[str, Any], b: dict[str, Any]):
+        a_text = a["text"]
+        a_button = a["button_element"]
+        a_selected = a["selected"]
+        a_object_id = a["object_id"]
+        a_height = a["height"]
+        b_text = a["text"]
+        b_button = a["button_element"]
+        b_selected = a["selected"]
+        b_object_id = a["object_id"]
+        b_height = a["height"]
+        a["text"] = b_text
+        a["button_element"] = b_button
+        a["selected"] = b_selected
+        a["object_id"] = b_object_id
+        a["height"] = b_height
+        b["text"] = a_text
+        b["button_element"] = a_button
+        b["selected"] = a_selected
+        b["object_id"] = a_object_id
+        b["height"] = a_height
+
+    def _move_element_up(self):
+        index = self._index_selected()
+        if index <= 0:
+            return
+        above = self.elements_list.selection_list.item_list[index - 1]
+        above_element = self._preview.get_element(above["object_id"])
+        if above_element == None:
+            raise ValueError("Should not happen")
+        above_render_index = above_element.get_render_index()
+        current = self.elements_list.selection_list.item_list[index]
+        current_element = self._preview.get_element(current["object_id"])
+        if current_element == None:
+            raise ValueError("Should not happen")
+        current_render_index = current_element.get_render_index()
+        above_element.set_render_index(current_render_index)
+        current_element.set_render_index(above_render_index)
+
+        item_list = [item for item in self.elements_list.selection_list._raw_item_list]
+        raw_above = item_list[index - 1]
+        raw_current = item_list[index]
+        item_list[index - 1] = raw_current
+        item_list[index] = raw_above
+        self.elements_list.selection_list.set_item_list(item_list)
+
+    def _move_element_down(self):
+        index = self._index_selected()
+        if (index == -1 or index == len(self.elements_list.selection_list.item_list) - 1):
+            return
+        below = self.elements_list.selection_list.item_list[index + 1]
+        below_element = self._preview.get_element(below["object_id"])
+        if below_element == None:
+            raise ValueError("Should not happen")
+        below_render_index = below_element.get_render_index()
+        current = self.elements_list.selection_list.item_list[index]
+        current_element = self._preview.get_element(current["object_id"])
+        if current_element == None:
+            raise ValueError("Should not happen")
+        current_render_index = current_element.get_render_index()
+        below_element.set_render_index(current_render_index)
+        current_element.set_render_index(below_render_index)
+        self.elements_list.selection_list.item_list[index + 1] = current
+        self.elements_list.selection_list.item_list[index] = below
+
+        item_list = [item for item in self.elements_list.selection_list._raw_item_list]
+        raw_below = item_list[index + 1]
+        raw_current = item_list[index]
+        item_list[index + 1] = raw_current
+        item_list[index] = raw_below
+        self.elements_list.selection_list.set_item_list(item_list)
 
     def _dropped_element(self):
         self.reset_controls()
