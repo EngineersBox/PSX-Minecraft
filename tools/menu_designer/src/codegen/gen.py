@@ -8,7 +8,9 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 env = Environment(
     loader = FileSystemLoader("templates"),
-    autoescape = select_autoescape()
+    autoescape = select_autoescape(),
+    trim_blocks=True,
+    lstrip_blocks=False
 )
 
 FONTS = {

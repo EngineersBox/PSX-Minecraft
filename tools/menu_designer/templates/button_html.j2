@@ -1,16 +1,16 @@
-<font face="{{ font }}"><font color="#D8A657">IUIComponent</font><font color="#EA6962">*</font> <font color="#DDC7A1">{{ name_snake_lower }}_button_component</font> <font color="#EA6962">=</font> <font color="#A9B665">uiAddComponent</font><font color="#DDC7A1">(ui);</font>
-<font color="#D8A657">UIButton</font><font color="#EA6962">*</font> <font color="#DDC7A1">{{ name_snake_lower }}_button</font> <font color="#EA6962">=</font> <font color="#A9B665">uiButtonNew</font><font color="#DDC7A1">(</font>
-    <font color="#89B482">"{{ text }}"</font><font color="#DDC7A1">,</font>
-    <font color="#D3869B">vec2_i16</font><font color="#DDC7A1">(</font><font color="#E78A4E">{{ x }}</font><font color="#DDC7A1">,</font> <font color="#E78A4E">{{ y }}</font><font color="#DDC7A1"></font><font color="#DDC7A1">),</font>
-    <font color="#E78A4E">{{ width }}</font><font color="#DDC7A1">,</font>
+<font face="{{ font }}" color="#DDC7A1"><font color="#D8A657">IUIComponent</font><font color="#EA6962">*</font> {{ name_snake_lower }}_button_component <font color="#EA6962">=</font> <font color="#A9B665">uiAddComponent</font>(ui);
+<font color="#D8A657">UIButton</font><font color="#EA6962">*</font> {{ name_snake_lower }}_button <font color="#EA6962">=</font> <font color="#A9B665">uiButtonNew</font>(
+    <font color="#89B482">"{{ text }}"</font>,
+    <font color="#D3869B">vec2_i16</font>(<font color="#E78A4E">{{ x }}</font>, <font color="#E78A4E">{{ y }}</font>),
+    <font color="#E78A4E">{{ width }}</font>,
     <font color="#E78A4E">1</font>
-<font color="#DDC7A1">);</font>
+);
 {% if disabled -%}
-<font color="#DDC7A1">{{ name_snake_lower }}_button</font><font color="#EA6962">-></font><font color="#7DAEA3">state</font> <font color="#EA6962">=</font> <font color="#7DAEA3">BUTTON_DISABLED</font><font color="#DDC7A1">;</font>
+{{ name_snake_lower }}_button<font color="#EA6962">-></font><font color="#7DAEA3">state</font> <font color="#EA6962">=</font> <font color="#7DAEA3">BUTTON_DISABLED</font>;
 {% endif -%}
-<font color="#D3869B">DYN_PTR</font><font color="#DDC7A1">(</font>
-    <font color="#DDC7A1">{{ name_snake_lower }}_button_component,</font>
-    <font color="#D8A657">UIButton</font><font color="#DDC7A1">,</font>
-    <font color="#D8A657">IUIComponent</font><font color="#DDC7A1">,</font>
-    <font color="#DDC7A1">{{ name_snake_lower }}_button</font>
-<font color="#DDC7A1">);</font></font>
+<font color="#D3869B">DYN_PTR</font>(
+    {{ name_snake_lower }}_button_component,
+    <font color="#D8A657">UIButton</font>,
+    <font color="#D8A657">IUIComponent</font>,
+    {{ name_snake_lower }}_button
+);</font>

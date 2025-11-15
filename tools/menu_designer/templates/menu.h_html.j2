@@ -1,29 +1,29 @@
-#pragma once
+<font face="{{ font }}" color="#DDC7A1"><font color="#D8A657">#pragma</font> once
 
-#ifndef _GAME_MENU__{{ name_upper_snake_case }}_H_
-#define _GAME_MENU__{{ name_upper_snake_case }}_H_
+<font color="#D8A657">#ifndef</font> <font color="#D3869B">_GAME_MENU__{{ name_upper_snake_case }}_H_</font>
+<font color="#EA6962">#define</font> <font color="#D3869B">_GAME_MENU__{{ name_upper_snake_case }}_H_</font>
 
-#include &lt;interface99.h&gt;
+<font color="#718797">#include</font> <font color="#89B482">&lt;interface99.h&gt;</font>
 
-#include "../../ui/ui.h"
+<font color="#718797">#include</font> <font color="#89B482">"../../ui/ui.h"</font>
 
-DEFN_UI({{ name_pascal_case }});
+<font color="#D3869B">DEFN_UI</font>(<font color="#D8A657">{{ name_pascal_case }}</font>);
 
-ALLOC_CALL({{ name_camel_case }}Destroy, 1) IUI* {{ name_camel_case }}New();
-void {{ name_camel_case }}Destroy(IUI* menu);
+<font color="#D3869B">ALLOC_CALL</font>({{ name_camel_case }}Destroy, <font color="#E78A4E">1</font>) <font color="#D8A657">IUI</font><font color="#EA6962">*</font> <font color="#A9B665">{{ name_camel_case }}New</font>();
+<font color="#EA6962">void</font> <font color="#A9B665">{{ name_camel_case }}Destroy</font>(<font color="#D8A657">IUI</font><font color="#EA6962">*</font> menu);
 
-#define {{ name_pascal_case }}_open_CUSTOM ()
-void {{ name_camel_case }}Open(VSelf);
-void {{ name_pascal_case}}_open(VSelf);
+<font color="#EA6962">#define</font> <font color="#D3869B">{{ name_pascal_case }}_open_CUSTOM</font> ()
+<font color="#EA6962">void</font> <font color="#A9B665">{{ name_camel_case }}Open</font>(<font color="#D3869B">VSelf</font>);
+<font color="#EA6962">void</font> <font color="#A9B665">{{ name_pascal_case}}_open</font>(<font color="#D3869B">VSelf</font>);
 
-void {{ name_camel_case }}RegisterInputHandler(VSelf, Input* input, void* ctx);
-void {{ name_pascal_case }}_registerInputHandler(VSelf, Input* input, void* ctx);
+<font color="#EA6962">void</font> <font color="#A9B665">{{ name_camel_case }}RegisterInputHandler</font>(<font color="#D3869B">VSelf</font>, <font color="#D8A657">Input</font><font color="#EA6962">*</font> input, <font color="#EA6962">void*</font> ctx);
+<font color="#EA6962">void</font> <font color="#A9B665">{{ name_pascal_case }}_registerInputHandler</font>(<font color="#D3869B">VSelf</font>, <font color="#D8A657">Input</font><font color="#EA6962">*</font> input, <font color="#EA6962">void*</font> ctx);
 
-#define {{ name_pascal_case }}_render_CUSTOM ()
-void {{ name_camel_case }}Render(VSelf, RenderContext* ctx, Transforms* transforms);
-void {{ name_pascal_case }}_render(VSelf, RenderContext* ctx, Transforms* transforms);
+<font color="#EA6962">#define</font> <font color="#D3869B">{{ name_pascal_case }}_render_CUSTOM</font> ()
+<font color="#EA6962">void</font> <font color="#A9B665">{{ name_camel_case }}Render</font>(<font color="#D3869B">VSelf</font>, <font color="#D8A657">RenderContext</font><font color="#EA6962">*</font> ctx, <font color="#D8A657">Transforms</font><font color="#EA6962">*</font> transforms);
+<font color="#EA6962">void</font> <font color="#A9B665">{{ name_pascal_case }}_render</font>(<font color="#D3869B">VSelf</font>, <font color="#D8A657">RenderContext</font><font color="#EA6962">*</font> ctx, <font color="#D8A657">Transforms</font><font color="#EA6962">*</font> transforms);
 
-impl(IInputHandler, {{ name_pascal_case }});
-impl(IUI, {{ name_pascal_case }});
+<font color="#D3869B">impl</font>(<font color="#D8A657">IInputHandler</font>, <font color="#D8A657">{{ name_pascal_case }}</font>);
+<font color="#D3869B">impl</font>(<font color="#D8A657">IUI</font>, <font color="#D8A657">{{ name_pascal_case }}</font>);
 
-#endif // _GAME_MENU__{{ name_upper_snake_case }}_H_
+<font color="#D8A657">#endif</font> <font color="#4c4a49">// _GAME_MENU__{{ name_upper_snake_case }}_H_</font></font>

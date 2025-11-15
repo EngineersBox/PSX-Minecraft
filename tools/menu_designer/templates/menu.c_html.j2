@@ -1,95 +1,100 @@
-#include "{{ name_snake_case }}.h"
+<font face="{{ font }}" color="#DDC7A1"><font color="#718797">#include</font> <font color="#89B482">"{{ name_snake_case }}.h"</font>
 
-#include &lt;psxgpu.h&gt;
+<font color="#718797">#include</font> <font color="#89B482">&lt;psxgpu.h&gt;</font>
 
-#include "menu.h"
-#include "menu_id.h"
-#include "../blocks/block.h"
-#include "../../render/render_context.h"
-#include "../../render/font.h"
-#include "../../resources/assets.h"
-#include "../../resources/asset_indices.h"
-#include "../../resources/texture.h"
-#include "../../structure/cvector_utils.h"
-#include "../../structure/primitive/primitive.h"
-#include "../../util/preprocessor.h"
-#include "../../util/interface99_extensions.h"
-#include "../../ui/components/background.h"
-#include "../../ui/components/button.h"
-#include "../../ui/components/cursor.h"
+<font color="#718797">#include</font> <font color="#89B482">"menu.h"</font>
+<font color="#718797">#include</font> <font color="#89B482">"menu_id.h"</font>
+<font color="#718797">#include</font> <font color="#89B482">"../blocks/block.h"</font>
+<font color="#718797">#include</font> <font color="#89B482">"../../render/render_context.h"</font>
+<font color="#718797">#include</font> <font color="#89B482">"../../render/font.h"</font>
+<font color="#718797">#include</font> <font color="#89B482">"../../resources/assets.h"</font>
+<font color="#718797">#include</font> <font color="#89B482">"../../resources/asset_indices.h"</font>
+<font color="#718797">#include</font> <font color="#89B482">"../../resources/texture.h"</font>
+<font color="#718797">#include</font> <font color="#89B482">"../../structure/cvector_utils.h"</font>
+<font color="#718797">#include</font> <font color="#89B482">"../../structure/primitive/primitive.h"</font>
+<font color="#718797">#include</font> <font color="#89B482">"../../util/preprocessor.h"</font>
+<font color="#718797">#include</font> <font color="#89B482">"../../util/interface99_extensions.h"</font>
+<font color="#718797">#include</font> <font color="#89B482">"../../ui/components/background.h"</font>
+<font color="#718797">#include</font> <font color="#89B482">"../../ui/components/button.h"</font>
+<font color="#718797">#include</font> <font color="#89B482">"../../ui/components/cursor.h"</font>
 
-{% for texture_params in static_textures -%}
-static Texture {{ texture_params[2] }} = {0};
+{% for texture_params in static_textures %}
+<font color="#EA6962">static</font> <font color="#D8A657">Texture</font> {{ texture_params[2] }} <font color="#EA6962">=</font> {<font color="#E78A4E">0</font>};
 {% endfor %}
 
-IUI* {{ name_camel_case }}New() {
-    IUI* iui = (IUI*) malloc(sizeof(IUI));
-    assert(iui != NULL);
-    {{ name_pascal_case }}* menu = ({{ name_pascal_case }}*) malloc(sizeof({{ name_pascal_case }}));
-    assert(menu != NULL);
-    uiInit(&menu->ui);
-    DYN_PTR(iui, {{ name_pascal_case }}, IUI, menu);
-    UI* ui = &menu->ui;
+<font color="#D8A657">IUI</font><font color="#EA6962">*</font><font color="#A9B665">{{ name_camel_case }}New</font>() {
+    <font color="#D8A657">IUI</font><font color="#EA6962">*</font> iui <font color="#EA6962">=</font> (<font color="#D8A657">IUI</font><font color="#EA6962">*</font>) <font color="#A9B665">malloc</font>(<font color="#EA6962">sizeof</font>(<font color="#D8A657">IUI</font>));
+    <font color="#EA6962">assert</font>(iui <font color="#EA6962">!=</font> <font color="#D3869B">NULL</font>);
+    <font color="#D8A657">{{ name_pascal_case }}</font><font color="#EA6962">*</font> menu <font color="#EA6962">=</font> (<font color="#D8A657">{{ name_pascal_case }}</font><font color="#EA6962">*</font>) <font color="#A9B665">malloc</font>(<font color="#EA6962">sizeof</font>(<font color="#D8A657">{{ name_pascal_case }}</font>));
+    <font color="#EA6962">assert</font>(menu <font color="#EA6962">!=</font> <font color="#D3869B">NULL</font>);
+    <font color="#A9B665">uiInit</font>(<font color="#EA6962">&</font>menu<font color="#EA6962">-></font><font color="#7DAEA3">ui</font>);
+    <font color="#D3869B">DYN_PTR</font>(
+        iui,
+        <font color="#D8A657">{{ name_pascal_case }}</font>,
+        <font color="#D8A657">IUI</font>,
+        menu
+    );
+    <font color="#D8A657">UI</font><font color="#EA6962">*</font> ui <font color="#EA6962">=</font> <font color="#EA6962">&</font>menu<font color="#EA6962">-></font><font color="#7DAEA3">ui</font>;
 {{ components_init_code }}
-    return iui;
+    <font color="#EA6962">return</font> iui;
 }
 
-void {{ name_camel_case }}Destroy(IUI* menu) {
-    {{ name_pascal_case }}* self = VCAST_PTR({{ name_pascal_case }}*, self);
-    IUIComponent* component;
-    cvector_for_each_in(component, self->ui.components) {
-        void* component_instance = VCAST_PTR(void*, component);
-        free(component_instance);
+<font color="#EA6962">void</font> <font color="#A9B665">{{ name_camel_case }}Destroy</font>(<font color="#D8A657">IUI</font><font color="#EA6962">*</font> menu) {
+    <font color="#D8A657">{{ name_pascal_case }}</font><font color="#EA6962">*</font> self <font color="#EA6962">=</font> <font color="#D3869B">VCAST_PTR</font>(<font color="#D8A657">{{ name_pascal_case }}</font><font color="#EA6962">*</font>, self);
+    <font color="#D8A657">IUIComponent</font><font color="#EA6962">*</font> component;
+    <font color="#D3869B">cvector_for_each_in</font>(component, self<font color="#EA6962">-></font><font color="#7DAEA3">ui</font><font color="#EA6962">.</font><font color="#7DAEA3">components</font>) {
+        <font color="#EA6962">void*</font> component_instance <font color="#EA6962">=</font> <font color="#D3869B">VCAST_PTR</font>(<font color="#EA6962">void*</font>, component);
+        <font color="#A9B665">free</font>(component_instance);
     }
-    free(self);
-    free(menu);
+    <font color="#A9B665">free</font>(self);
+    <font color="#A9B665">free</font>(menu);
 }
 
-void {{ name_camel_case }}Open(VSelf) ALIAS("{{ name_pascal_case }}_open");
-void {{ name_pascal_case }}_open(VSelf) {
-    VSELF({{ name_pascal_case }});
-{% for texture_params in static_textures -%}
-    assetLoadTextureDirect(
-        {{ texture_params[0] }},
-        {{ texture_params[1] }},
-        &{{ texture_params[2] }}
+<font color="#EA6962">void</font> <font color="#A9B665">{{ name_camel_case }}Open</font>(<font color="#D3869B">VSelf</font>) <font color="#D3869B">ALIAS</font>(<font color="#89B482">"{{ name_pascal_case }}_open"</font>);
+<font color="#EA6962">void</font> <font color="#A9B665">{{ name_pascal_case }}_open</font>(<font color="#D3869B">VSelf</font>) {
+    <font color="#D3869B">VSELF</font>(<font color="#D8A657">{{ name_pascal_case }}</font>);
+{% for texture_params in static_textures %}
+    <font color="#A9B665">assetLoadTextureDirect</font>(
+       <font color="#D3869B">{{ texture_params[0] }}</font>,
+       <font color="#D3869B">{{ texture_params[1] }}</font>,
+       <font color="#EA6962">&</font>{{ texture_params[2] }}
     );
 {% endfor %}
-    self->ui.active = true;
+    self<font color="#EA6962">-></font><font color="#7DAEA3">ui</font><font color="#EA6962">.</font><font color="#7DAEA3">active</font> <font color="#EA6962">=</font> <font color="#D3869B">true</font>;
 }
 
-static InputHandlerState {{ name_camel_case }}InputHandler(UNUSED const Input* input, void* ctx) {
-    VCALL(cursor_component, update);
-    const {{ name_camel_case }}* menu = ({{ name_camel_case }}*) ctx;
-    const UI* ui = &menu->ui;
-    IUIComponent* component;
-    cvector_for_each_in(component, ui->components) {
-        VCALL(*component, update);
+<font color="#EA6962">static</font> <font color="#D8A657">InputHandlerState</font> <font color="#A9B665">{{ name_camel_case }}InputHandler</font>(<font color="#D3869B">UNUSED</font> <font color="#EA6962">const</font> <font color="#D8A657">Input</font><font color="#EA6962">*</font> input, <font color="#EA6962">void*</font> ctx) {
+    <font color="#D3869B">VCALL</font>(cursor_component, <font color="#7DAEA3">update</font>);
+    <font color="#EA6962">const</font> <font color="#D8A657">{{ name_camel_case }}</font><font color="#EA6962">*</font> menu <font color="#EA6962">=</font> (<font color="#D8A657">{{ name_camel_case }}</font><font color="#EA6962">*</font>) ctx;
+    <font color="#EA6962">const</font> <font color="#D8A657">UI</font><font color="#EA6962">*</font> ui = <font color="#EA6962">&</font>menu<font color="#EA6962">-></font><font color="#7DAEA3">ui</font>;
+    <font color="#D8A657">IUIComponent</font><font color="#EA6962">*</font> component;
+    <font color="#D3869B">cvector_for_each_in</font>(component, ui<font color="#EA6962">-></font><font color="#7DAEA3">components</font>) {
+        <font color="#D3869B">VCALL</font>(<font color="#EA6962">*</font>component, <font color="#7DAEA3">update</font>);
     }
-    TODO("Finish implementing logic for components being interacted with");
+    <font color="#D3869B">TODO</font>(<font color="#89B482">"Finish implementing logic for components being interacted with"</font>);
 }
 
-void {{ name_camel_case }}RegisterInputHandler(VSelf, Input* input, void* ctx) ALIAS("{{ name_pascal_case}}_registerInputHandler");
-void {{ name_pascal_case }}_registerInputHandler(VSelf, Input* input, UNUSED void* ctx) {
-    VSELF({{ name_pascal_case }});
-    const InputHandlerVTable handler = (InputHandlerVTable) {
-        .ctx = self,
-        .input_handler = {{ name_camel_case }}InputHandler
+<font color="#EA6962">void</font> <font color="#A9B665">{{ name_camel_case }}RegisterInputHandler</font>(<font color="#D3869B">VSelf</font>, <font color="#D8A657">Input</font><font color="#EA6962">*</font> input, <font color="#EA6962">void*</font> ctx) <font color="#D3869B">ALIAS</font>(<font color="#89B482">"{{ name_pascal_case}}_registerInputHandler"</font>);
+<font color="#EA6962">void</font> <font color="#A9B665">{{ name_pascal_case }}_registerInputHandler</font>(<font color="#D3869B">VSelf</font>, <font color="#D8A657">Input</font><font color="#EA6962">*</font> input, <font color="#D3869B">UNUSED</font> <font color="#EA6962">void*</font> ctx) {
+    <font color="#D3869B">VSELF</font>(<font color="#D8A657">{{ name_pascal_case }}</font>);
+    <font color="#EA6962">const</font> <font color="#D8A657">InputHandlerVTable</font> handler <font color="#EA6962">=</font> (<font color="#D8A657">InputHandlerVTable</font>) {
+        <font color="#EA6962">.</font><font color="#7DAEA3">ctx</font> <font color="#EA6962">=</font> self,
+        <font color="#EA6962">.</font><font color="#7DAEA3">input_handler</font> <font color="#EA6962">=</font> {{ name_camel_case }}InputHandler
     };
-    inputAddHandler(
+    <font color="#D3869B">inputAddHandler</font>(
         input,
         handler
     );
 }
 
-void {{ name_camel_case }}Render(VSelf, RenderContext* ctx, Transforms* transforms) ALIAS("{{ name_pascal_case }}_render");
-void {{ name_pascal_case }}_render(VSelf, RenderContext* ctx, Transforms* transforms) {
-    VSELF({{ name_pascal_case }});
-    uiRender(&self->ui, ctx, transforms);
-    renderClearConstraintsIndex(ctx, 1);
-    uiCursorRender(
-        &cursor,
+<font color="#EA6962">void</font> <font color="#A9B665">{{ name_camel_case }}Render</font>(VSelf, <font color="#D8A657">RenderContext</font><font color="#EA6962">*</font> ctx, <font color="#D8A657">Transforms</font><font color="#EA6962">*</font> transforms) <font color="#D3869B">ALIAS</font>(<font color="#89B482">"{{ name_pascal_case }}_render"</font>);
+<font color="#EA6962">void</font> <font color="#A9B665">{{ name_pascal_case }}_render</font>(VSelf, <font color="#D8A657">RenderContext</font><font color="#EA6962">*</font> ctx, <font color="#D8A657">Transforms</font><font color="#EA6962">*</font> transforms) {
+    <font color="#D3869B">VSELF</font>(<font color="#D8A657">{{ name_pascal_case }}</font>);
+    <font color="#A9B665">uiRender</font>(<font color="#EA6962">&</font>self<font color="#EA6962">-></font>ui, ctx, transforms);
+    <font color="#A9B665">renderClearConstraintsIndex</font>(ctx, <font color="#E78A4E">1</font>);
+    <font color="#A9B665">uiCursorRender</font>(
+        <font color="#EA6962">&</font>cursor,
         ctx,
         transforms
     );
-}
+}</font>

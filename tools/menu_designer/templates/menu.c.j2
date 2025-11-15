@@ -18,9 +18,9 @@
 #include "../../ui/components/button.h"
 #include "../../ui/components/cursor.h"
 
-{% for texture_params in static_textures -%}
+{% for texture_params in static_textures %}
 static Texture {{ texture_params[2] }} = {0};
-{%- endfor %}
+{% endfor %}
 
 IUI* {{ name_camel_case }}New() {
     IUI* iui = (IUI*) malloc(sizeof(IUI));
@@ -48,13 +48,13 @@ void {{ name_camel_case }}Destroy(IUI* menu) {
 void {{ name_camel_case }}Open(VSelf) ALIAS("{{ name_pascal_case }}_open");
 void {{ name_pascal_case }}_open(VSelf) {
     VSELF({{ name_pascal_case }});
-{% for texture_params in static_textures -%}
+{% for texture_params in static_textures %}
     assetLoadTextureDirect(
         {{ texture_params[0] }},
         {{ texture_params[1] }},
         &{{ texture_params[2] }}
     );
-{%- endfor %}
+{% endfor %}
     self->ui.active = true;
 }
 

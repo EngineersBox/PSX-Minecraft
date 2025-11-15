@@ -1,10 +1,10 @@
 IUIComponent* {{ name_snake_lower }}_background_component = uiAddComponent(ui);
 UIBackground* {{ name_snake_lower }}_background = uiBackgroundNew(
-{%- if texture_is_static %}
+{% if texture_is_static %}
     &textures[{{ texture }}],
-{%- else -%}
+{% else %}
     &{{ name_snake_lower }}_background_texture,
-{% endif -%}
+{% endif %}
     vec2_i16({{ x }}, {{ y }}),
     vec2_i16({{ width }}, {{ height }}),
     vec2_i16({{ texture_u }}, {{ texture_v }}),
