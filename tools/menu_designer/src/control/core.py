@@ -278,7 +278,7 @@ class BackgroundModifiersPanel(ControlResizingPanel):
             f"{background.get_tile_y()}"
         )
         self.texture_dropdown.drop_down.selected_option = (
-            self._textures.mappings[background.get_tim_name()][0],
+            self._textures.mappings[background.get_tim_name()][1],
             background.get_tim_name()
         )
 
@@ -295,7 +295,12 @@ class BackgroundModifiersPanel(ControlResizingPanel):
         self.pos_v_slider.set_value(background.get_pos_v())
         background.set_pos_u(0)
         background.set_pos_v(0)
-        background.set_texture(texture[1], self._textures.mappings[texture[1]][1])
+        mapping = self._textures.mappings[texture[1]]
+        background.set_texture(
+            texture[1],
+            mapping[2],
+            mapping[0]
+        )
 
     def _tile_x_selected(self, choice: tuple[str, str]):
         element = self._get_selected_element()
@@ -1194,7 +1199,7 @@ class CreateBackgroundWindow(ControlWindow):
         self._elements = elements
         self._elements_panel = elements_panel
         self._preview = preview
-        self.texture_preview.set_image(self._textures.mappings[self.texture_dropdown.drop_down.selected_option[1]][1])
+        self.texture_preview.set_image(self._textures.mappings[self.texture_dropdown.drop_down.selected_option[1]][2])
 
     def process_event(self, event: pygame.Event):
         super().process_event(event)
@@ -1214,17 +1219,19 @@ class CreateBackgroundWindow(ControlWindow):
         super().kill()
 
     def _texture_selected(self, texture: tuple[str, str]):
-        self.texture_preview.set_image(self._textures.mappings[texture[1]][1])
+        self.texture_preview.set_image(self._textures.mappings[texture[1]][2])
 
     def _add_background(self):
         name = self.label_text_input.get_text()
         if len(name) == 0:
             return
         texture = self.texture_dropdown.drop_down.selected_option
+        mapping = self._textures.mappings[texture[1]]
         background_id = self._preview.add_background(
             name,
             texture[1],
-            pygame.image.load(self._textures.mappings[texture[1]][1])
+            mapping[0],
+            pygame.image.load(mapping[2])
         )
         self._elements[background_id] = (name, background_id)
         self._elements_panel.elements_list.selection_list.set_item_list(list(self._elements.values()))

@@ -18,9 +18,9 @@
 #include "../../ui/components/button.h"
 #include "../../ui/components/cursor.h"
 
-# TODO: If buttons/bg use any texture other than the static one, then
-#       we should declare static Texture variables to hold the loaded
-#       textures
+{% for texture_params in static_textures -%}
+static Texture {{ texture_params[2] }} = {0};
+{%- endfor %}
 
 IUI* {{ name_camel_case }}New() {
     IUI* iui = (IUI*) malloc(sizeof(IUI));
@@ -48,8 +48,13 @@ void {{ name_camel_case }}Destroy(IUI* menu) {
 void {{ name_camel_case }}Open(VSelf) ALIAS("{{ name_pascal_case }}_open");
 void {{ name_pascal_case }}_open(VSelf) {
     VSELF({{ name_pascal_case }});
-    # TODO: If buttons/bg use any texture other than the static one, then
-    #       it should be loaded into VRAM here.
+{% for texture_params in static_textures -%}
+    assetLoadTextureDirect(
+        {{ texture_params[0] }},
+        {{ texture_params[1] }},
+        &{{ texture_params[2] }}
+    );
+{%- endfor %}
     self->ui.active = true;
 }
 
