@@ -399,7 +399,7 @@ class CodePanel(ControlPanel):
             0,
             0,
             pygame.display.get_window_size()[0],
-            pygame.display.get_window_size()[1] - 36,
+            pygame.display.get_window_size()[1] - 100,
             manager,
             self.panel,
             background_colour=pygame.Color("#232323")
@@ -411,7 +411,7 @@ class CodePanel(ControlPanel):
         self.close_button = self.add_element(
             ControlButton(
                 pygame.display.get_window_size()[0] - 106,
-                pygame.display.get_window_size()[1] - 36,
+                pygame.display.get_window_size()[1] - 100,
                 100,
                 30,
                 "Close",
@@ -424,8 +424,8 @@ class CodePanel(ControlPanel):
         self.font_drop_down = self.add_element(
             ControlDropDown(
                 0,
-                pygame.display.get_window_size()[1] - 36,
-                100,
+                pygame.display.get_window_size()[1] - 100,
+                250,
                 30,
                 [(font, font) for font in pygame.font.get_fonts()],
                 self._update_code_view_font,
@@ -1306,6 +1306,10 @@ class CreatePanel(ControlResizingPanel):
             ),
             process_event=True
         )
+        self.panel.set_dimensions((
+            self.panel.get_abs_rect().width,
+            self.panel.get_abs_rect().height + 3
+        ))
         self.create_button_window = None
         self.create_background_window = None
         self.manager = manager
@@ -1423,7 +1427,7 @@ class MenuCodePanel(ControlPanel):
             ControlDropDown(
                 0,
                 pygame.display.get_window_size()[1] - 100,
-                200,
+                250,
                 30,
                 [(font, font) for font in pygame.font.get_fonts()],
                 self._update_code_view,
@@ -1648,10 +1652,10 @@ class PreviewManagementPanel(ControlResizingPanel):
     ):
         checkbox_height = 30
         super().__init__(
-            0, #PREVIEW_SIZE_X * PREVIEW_SCALE_X + checkbox_height,
-            PREVIEW_SIZE_Y * PREVIEW_SCALE_Y, #pygame.display.get_window_size()[1] - checkbox_height - 6,
-            PREVIEW_SIZE_X * PREVIEW_SCALE_X,
-            36,
+            0,
+            PREVIEW_SIZE_Y * PREVIEW_SCALE_Y,
+            PREVIEW_SIZE_X * PREVIEW_SCALE_X + 2,
+            pygame.display.get_window_size()[1] - (PREVIEW_SIZE_Y * PREVIEW_SCALE_Y),
             manager,
             parent_container
         )
@@ -1697,6 +1701,7 @@ class PreviewManagementPanel(ControlResizingPanel):
             process_event=True,
             update_y_offset=False
         )
+        self.panel.set_dimensions((self.rect.width, self.rect.height))
         self.export_menu_code_window = None
         self.code_view_panel = None
         self._create_panel = create_panel

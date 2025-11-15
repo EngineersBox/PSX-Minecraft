@@ -62,6 +62,34 @@ class PreviewBackground(PreviewElement):
         self._bundle_name = bundle_name
         self._tile_image()
 
+    def _repeated_tile(self, ref: pygame.Rect, source: pygame.Surface) -> pygame.Surface:
+        repeated_x = max(1, math.ceil((ref.x + ref.width) / source.width))
+        repeated_y = max(1, math.ceil((ref.y + ref.height) / source.height))
+        repeated_surface = pygame.Surface((
+            repeated_x * source.width,
+            repeated_y * source.height
+        ))
+        for x in range(repeated_x):
+            for y in range(repeated_y):
+                repeated_surface.blit(
+                    source,
+                    (
+                        x * source.width,
+                        y * source.height
+                    )
+                )
+        return repeated_surface.subsurface(ref)
+
+    def _clamped_rect(self, ref: pygame.Rect, source: tuple[int, int]) -> pygame.Rect:
+        max_width = min(ref.width, source[0] - ref.x)
+        max_height = min(ref.height, source[1] - ref.y)
+        return pygame.Rect(
+            ref.x,
+            ref.y,
+            max_width,
+            max_height
+        )
+
     def _tile_image(self):
         if self._direct_blit:
             self.surface = pygame.Surface((
@@ -83,12 +111,21 @@ class PreviewBackground(PreviewElement):
         tile_y = self._tile_y * PREVIEW_SCALE_Y
         # BUG: There are cases where this rectangle is outside the source
         #      image. Need to address those.
-        tile = self.source_image.subsurface(pygame.Rect(
-            self._pos_u,
-            self._pos_v,
-            min(self._tile_x, self.source_image.width),
-            min(self._tile_y, self.source_image.height)
-        ))
+        tile = self._repeated_tile(
+            pygame.Rect(
+                self._pos_u,
+                self._pos_v,
+                self._tile_x,
+                self._tile_y
+            ),
+            self.source_image
+        )
+        # tile = self.source_image.subsurface(pygame.Rect(
+        #     self._pos_u,
+        #     self._pos_v,
+        #     min(self._tile_x, self.source_image.width),
+        #     min(self._tile_y, self.source_image.height)
+        # ))
         tile = self._surface_to_cv2_mat(pygame.transform.scale(
             tile,
             (tile_x, tile_y)
