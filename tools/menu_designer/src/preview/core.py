@@ -75,11 +75,11 @@ class Preview:
         if (event.type == pygame.MOUSEBUTTONDOWN):
             self.held_element = self._get_intersected_button(pygame.mouse.get_pos())
             if self.held_element is not None:
-                self.held_element.draw_outline = True
+                self.held_element._draw_outline = True
             self.mouse_pos = pygame.mouse.get_pos()
         elif (event.type == pygame.MOUSEBUTTONUP):
             if self.held_element is not None:
-                self.held_element.draw_outline = False
+                self.held_element._draw_outline = False
             self.held_element = None
         elif (event.type == pygame.MOUSEMOTION
             and self.held_element is not None):

@@ -11,9 +11,10 @@ class PreviewElement(ABC):
 
     _width: int
     _height: int
-    draw_outline: bool
-    outline_offset_x: int
-    outline_offset_y: int
+    _draw_outline: bool
+    _outline_offset_x: int
+    _outline_offset_y: int
+    _render_index: int
 
     def __init__(
         self,
@@ -40,11 +41,12 @@ class PreviewElement(ABC):
             manager=manager,
             container=preview_container
         )
+        self._render_index = self.image.starting_height
         self._width = width
         self._height = height
-        self.draw_outline = False
-        self.outline_offset_x = outline_offset_x
-        self.outline_offset_y = outline_offset_y
+        self._draw_outline = False
+        self._outline_offset_x = outline_offset_x
+        self._outline_offset_y = outline_offset_y
 
     def get_render_index(self) -> int:
         return self.image.starting_height
@@ -52,6 +54,7 @@ class PreviewElement(ABC):
     def set_render_index(self, height: int):
         self.image.starting_height = height
         self.image.change_layer(height)
+        self._render_index = height
 
     def update(self, time_delta: float):
         self.image.update(time_delta)
@@ -100,25 +103,25 @@ class PreviewElement(ABC):
         ))
 
     def draw(self, surface: pygame.Surface):
-        if not self.draw_outline:
+        if not self._draw_outline:
             return
         pos = self.image.get_abs_rect()
         points = [
             (
-                pos.x - self.outline_offset_x,
-                pos.y - self.outline_offset_y
+                pos.x - self._outline_offset_x,
+                pos.y - self._outline_offset_y
             ),
             (
-                pos.x + pos.width + self.outline_offset_x,
-                pos.y - self.outline_offset_y
+                pos.x + pos.width + self._outline_offset_x,
+                pos.y - self._outline_offset_y
             ),
             (
-                pos.x + pos.width + self.outline_offset_x,
-                pos.y + pos.height + self.outline_offset_y
+                pos.x + pos.width + self._outline_offset_x,
+                pos.y + pos.height + self._outline_offset_y
             ),
             (
-                pos.x - self.outline_offset_x,
-                pos.y + pos.height + self.outline_offset_y
+                pos.x - self._outline_offset_x,
+                pos.y + pos.height + self._outline_offset_y
             )
         ]
         pygame.draw.lines(

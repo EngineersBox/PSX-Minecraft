@@ -494,7 +494,6 @@ class ElementsPanel(ControlResizingPanel):
                 200,
                 [],
                 self._selected_element,
-                self._dropped_element,
                 manager,
                 container
             ),
@@ -715,7 +714,10 @@ class ElementsPanel(ControlResizingPanel):
             index += 1
         return -1
 
-    def _selected_element(self, id: tuple[str, str]):
+    def _selected_element(self, id: Optional[tuple[str, str]]):
+        self.reset_controls()
+        if id == None:
+            return
         self.enable()
         self.show()
         selected = self._preview.get_element(id[1])
@@ -764,28 +766,6 @@ class ElementsPanel(ControlResizingPanel):
         elif index < list_len - 1:
             self.move_down_button.enable()
 
-    def _exchange_properties(self, a: dict[str, Any], b: dict[str, Any]):
-        a_text = a["text"]
-        a_button = a["button_element"]
-        a_selected = a["selected"]
-        a_object_id = a["object_id"]
-        a_height = a["height"]
-        b_text = a["text"]
-        b_button = a["button_element"]
-        b_selected = a["selected"]
-        b_object_id = a["object_id"]
-        b_height = a["height"]
-        a["text"] = b_text
-        a["button_element"] = b_button
-        a["selected"] = b_selected
-        a["object_id"] = b_object_id
-        a["height"] = b_height
-        b["text"] = a_text
-        b["button_element"] = a_button
-        b["selected"] = a_selected
-        b["object_id"] = a_object_id
-        b["height"] = a_height
-
     def _move_element_up(self):
         index = self._index_selected()
         if index <= 0:
@@ -809,6 +789,10 @@ class ElementsPanel(ControlResizingPanel):
         item_list[index - 1] = raw_current
         item_list[index] = raw_above
         self.elements_list.selection_list.set_item_list(item_list)
+        self.elements_list.selection_list._default_selection = raw_current
+        self.elements_list.selection_list._set_default_selection()
+        self._selected_element(cast(tuple[str, str], raw_current))
+        self.elements_list.selection_list._default_selection = None
 
     def _move_element_down(self):
         index = self._index_selected()
@@ -835,9 +819,10 @@ class ElementsPanel(ControlResizingPanel):
         item_list[index + 1] = raw_current
         item_list[index] = raw_below
         self.elements_list.selection_list.set_item_list(item_list)
-
-    def _dropped_element(self):
-        self.reset_controls()
+        self.elements_list.selection_list._default_selection = raw_current
+        self.elements_list.selection_list._set_default_selection()
+        self._selected_element(cast(tuple[str, str], raw_current))
+        self.elements_list.selection_list._default_selection = None
 
     def _remove_element(self):
         selected = self.elements_list.selection_list.get_single_selection(include_object_id=True)

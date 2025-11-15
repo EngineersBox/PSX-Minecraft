@@ -1,14 +1,14 @@
-from typing import cast, Callable
+from typing import cast, Callable, Optional
 import pygame, pygame_gui
 from src.control.base import ControlBase
 
-type ControlSelectionListSelectedCommand = Callable[[tuple[str, str]], None]
-type ControlSelectionListDroppedCommand = Callable[[], None]
+type ControlSelectionListSelectedCommand = Callable[[Optional[tuple[str, str]]], None]
 
 class ControlSelectionList(ControlBase):
     selection_list: pygame_gui.elements.UISelectionList
     _selected_command: ControlSelectionListSelectedCommand
-    _dropped_command: ControlSelectionListDroppedCommand
+
+    _current_selection: Optional[tuple[str, str]]
 
     def __init__(
         self,
@@ -18,7 +18,6 @@ class ControlSelectionList(ControlBase):
         height: int,
         item_list: list[tuple[str, str]],
         selected_command: ControlSelectionListSelectedCommand,
-        dropped_command: ControlSelectionListDroppedCommand,
         manager: pygame_gui.UIManager,
         control_container: pygame_gui.core.IContainerLikeInterface
     ):
@@ -31,21 +30,24 @@ class ControlSelectionList(ControlBase):
             container=control_container
         )
         self._selected_command = selected_command
-        self._dropped_command = dropped_command
+        self._current_selection = None
 
     def get_single_selection(self, include_object_id: bool = False) -> str | tuple[str, str] | None:
         return self.selection_list.get_single_selection(include_object_id)
+        
 
     def process_event(self, event: pygame.Event):
         if (event.type == pygame_gui.UI_SELECTION_LIST_NEW_SELECTION
             and event.ui_element == self.selection_list):
             selected = self.get_single_selection(True)
-            if selected != None and type(selected) == tuple:
+            if selected == None or type(selected) == tuple:
+                self._current_selection = selected
                 self._selected_command(selected)
             return
         elif (event.type == pygame_gui.UI_SELECTION_LIST_DROPPED_SELECTION
-            and event.ui_element == self.selection_list):
-            self._dropped_command()
+              and event.ui_element == self.selection_list):
+            if self._selected_command == None or self.get_single_selection() == None:
+                self._selected_command(None)
             return
 
     def disable(self):
