@@ -63,6 +63,7 @@ def gen_background_code(background: PreviewBackground) -> str:
     render_parameters = {
         "name_snake_lower": caseconverter.snakecase(background.get_name()),
         "texture": background.get_tim_name(),
+        "non_static_texture_name": caseconverter.snakecase(background.get_tim_name()) + "_texture",
         "texture_is_static": background.get_bundle_name() == "ASSET_BUNDLE__STATIC",
         "x": background.get_pos()[0],
         "y": background.get_pos()[1],
@@ -83,6 +84,7 @@ def gen_background_html_code(background: PreviewBackground, font: str) -> str:
     render_parameters = {
         "name_snake_lower": caseconverter.snakecase(background.get_name()),
         "texture": background.get_tim_name(),
+        "non_static_texture_name": caseconverter.snakecase(background.get_tim_name()) + "_texture",
         "texture_is_static": background.get_bundle_name() == "ASSET_BUNDLE__STATIC",
         "x": background.get_pos()[0],
         "y": background.get_pos()[1],
@@ -134,50 +136,54 @@ def gen_menu_header_html_code(name: str, font: str) -> str:
     return env.get_template("menu.h_html.j2").render(render_parameters)
 
 def gen_menu_source_code(name: str, elements: list[PreviewElement]) -> str:
-    static_textures: list[tuple[str, str, str]] = []
+    static_textures: dict[str, tuple[str, str, str]] = {}
     for element in elements:
         if type(element) != PreviewBackground:
             continue
         background = cast(PreviewBackground, element)
         if background.get_bundle_name() == "ASSET_BUNDLE__STATIC":
             continue
-        snake_case_name = caseconverter.snakecase(background.get_name())
-        static_textures.append((
+        non_static_texture_name = caseconverter.snakecase(background.get_tim_name()) + "_texture"
+        if non_static_texture_name in static_textures:
+            continue
+        static_textures[non_static_texture_name] = (
             background.get_bundle_name(),
             background.get_tim_name(),
-            f"{snake_case_name}_background_texture"
-        ))
+            non_static_texture_name
+        )
     render_parameters = {
         "name_snake_case": caseconverter.snakecase(name),
         "name_upper_snake_case": caseconverter.macrocase(name),
         "name_camel_case": caseconverter.camelcase(name),
         "name_pascal_case": caseconverter.pascalcase(name),
         "components_init_code": "    " + "\n".join(map(gen_code, elements)).replace("\n", "\n    "),
-        "static_textures": static_textures
+        "static_textures": list(static_textures.values())
     }
     return env.get_template("menu.c.j2").render(render_parameters)
 
 def gen_menu_source_html_code(name: str, elements: list[PreviewElement], font: str) -> str:
-    static_textures: list[tuple[str, str, str]] = []
+    static_textures: dict[str, tuple[str, str, str]] = {}
     for element in elements:
         if type(element) != PreviewBackground:
             continue
         background = cast(PreviewBackground, element)
         if background.get_bundle_name() == "ASSET_BUNDLE__STATIC":
             continue
-        snake_case_name = caseconverter.snakecase(background.get_name())
-        static_textures.append((
+        non_static_texture_name = caseconverter.snakecase(background.get_tim_name()) + "_texture"
+        if non_static_texture_name in static_textures:
+            continue
+        static_textures[non_static_texture_name] = (
             background.get_bundle_name(),
             background.get_tim_name(),
-            f"{snake_case_name}_background_texture"
-        ))
+            non_static_texture_name
+        )
     render_parameters = {
         "name_snake_case": caseconverter.snakecase(name),
         "name_upper_snake_case": caseconverter.macrocase(name),
         "name_camel_case": caseconverter.camelcase(name),
         "name_pascal_case": caseconverter.pascalcase(name),
         "components_init_code": "    " + "\n".join(map(gen_html_code, elements)).replace("\n", "\n    "),
-        "static_textures": static_textures,
+        "static_textures": list(static_textures.values()),
         "font": font
     }
     return env.get_template("menu.c_html.j2").render(render_parameters)

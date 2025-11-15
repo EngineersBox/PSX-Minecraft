@@ -3,7 +3,7 @@ UIBackground* {{ name_snake_lower }}_background = uiBackgroundNew(
 {% if texture_is_static %}
     &textures[{{ texture }}],
 {% else %}
-    &{{ name_snake_lower }}_background_texture,
+    &{{ non_static_texture_name }},
 {% endif %}
     vec2_i16({{ x }}, {{ y }}),
     vec2_i16({{ width }}, {{ height }}),
