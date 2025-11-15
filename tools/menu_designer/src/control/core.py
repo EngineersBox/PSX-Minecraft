@@ -1630,6 +1630,9 @@ class ExportMenuCodeWindow(ControlWindow):
         self.closed_command()
 
 class PreviewManagementPanel(ControlResizingPanel):
+    # TODO: Add saving and loading to and from a file.
+    #       This should serialise all the PreviewElements
+    #       and deserialise them on load
     show_grid_checkbox: ControlCheckbox
     view_menu_code_button: ControlButton
     export_menu_code_button: ControlButton
