@@ -109,8 +109,6 @@ class PreviewBackground(PreviewElement):
             return
         tile_x = self._tile_x * PREVIEW_SCALE_X
         tile_y = self._tile_y * PREVIEW_SCALE_Y
-        # BUG: There are cases where this rectangle is outside the source
-        #      image. Need to address those.
         tile = self._repeated_tile(
             pygame.Rect(
                 self._pos_u,
@@ -120,12 +118,6 @@ class PreviewBackground(PreviewElement):
             ),
             self.source_image
         )
-        # tile = self.source_image.subsurface(pygame.Rect(
-        #     self._pos_u,
-        #     self._pos_v,
-        #     min(self._tile_x, self.source_image.width),
-        #     min(self._tile_y, self.source_image.height)
-        # ))
         tile = self._surface_to_cv2_mat(pygame.transform.scale(
             tile,
             (tile_x, tile_y)
