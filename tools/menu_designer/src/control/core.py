@@ -1506,7 +1506,8 @@ class ExportMenuCodeWindow(ControlWindow):
             window_height,
             "Export Menu Code",
             closed_command,
-            manager
+            manager,
+            draggable=True
         )
         input_width = 200
         input_height = 30
@@ -1533,7 +1534,7 @@ class ExportMenuCodeWindow(ControlWindow):
                 "Export",
                 manager,
                 self.window,
-                self._export_code
+                self._check_export_code
             ),
             process_event=True
         )
@@ -1583,7 +1584,7 @@ class ExportMenuCodeWindow(ControlWindow):
             dialog_height,
             "Confirm Overwrite",
             f"Header and/or source already exists. Overwrite it?",
-            self._confirm_export_code,
+            self._export_code,
             self._cancel_export_code,
             self._manager
         )
@@ -1762,7 +1763,6 @@ class PreviewManagementPanel(ControlResizingPanel):
         self.export_menu_code_window.enable()
         self._elements_panel.disable()
         self._create_panel.disable()
-        self._preview.hide()
         self._preview.disable()
         self.disable()
 
@@ -1774,9 +1774,9 @@ class PreviewManagementPanel(ControlResizingPanel):
         self.export_menu_code_window.kill()
         self.export_menu_code_window = None
         self._elements_panel.enable()
+        self._elements_panel.reset_controls()
         self._create_panel.enable()
         self._preview.enable()
-        self._preview.show()
         self.enable()
 
 class Control:

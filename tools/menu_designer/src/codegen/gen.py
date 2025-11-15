@@ -1,5 +1,4 @@
 from typing import Optional, cast
-from caseconverter.snake import snakecase
 import pygame, caseconverter
 from src.preview.background import PreviewBackground
 from src.preview.element import PreviewElement
