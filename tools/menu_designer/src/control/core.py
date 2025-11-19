@@ -277,18 +277,10 @@ class BackgroundModifiersPanel(ControlResizingPanel):
             f"{background.get_tile_y()}",
             f"{background.get_tile_y()}"
         )
-        selected_option = (
+        self.texture_dropdown.set_selected((
             self._textures.mappings[background.get_tim_name()][1],
             background.get_tim_name()
-        )
-        self.texture_dropdown.drop_down.selected_option = selected_option
-        state = self.texture_dropdown.drop_down.menu_states["expanded"]
-        state.selected_option = selected_option
-        state = self.texture_dropdown.drop_down.menu_states["closed"]
-        state.selected_option = selected_option
-        button = state.selected_option_button
-        if button != None:
-            button.set_text(selected_option[0])
+        ))
 
     def _texture_selected(self, texture: tuple[str, str]):
         element = self._get_selected_element()

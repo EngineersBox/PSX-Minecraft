@@ -56,3 +56,13 @@ class ControlDropDown(ControlBase):
 
     def kill(self):
         self.drop_down.kill()
+
+    def set_selected(self, selected_option: Tuple[str, str]):
+        self.drop_down.selected_option = selected_option
+        state = self.drop_down.menu_states["expanded"]
+        state.selected_option = selected_option
+        state = self.drop_down.menu_states["closed"]
+        state.selected_option = selected_option
+        button = state.selected_option_button
+        if button != None:
+            button.set_text(selected_option[0])
