@@ -39,9 +39,9 @@ class ButtonModifiersPanel(ControlResizingPanel):
         parent_container: Optional[pygame_gui.core.IContainerLikeInterface] = None
     ):
         super().__init__(
-            PREVIEW_SIZE_X * PREVIEW_SCALE_X,
+            PREVIEW_SIZE_X * PREVIEW_SCALE_X + 3,
             y,
-            pygame.display.get_window_size()[0] - (PREVIEW_SIZE_X * PREVIEW_SCALE_X),
+            pygame.display.get_window_size()[0] - (PREVIEW_SIZE_X * PREVIEW_SCALE_X) - 3,
             0,
             manager,
             parent_container
@@ -104,9 +104,9 @@ class BackgroundModifiersPanel(ControlResizingPanel):
         parent_container: Optional[pygame_gui.core.IContainerLikeInterface] = None
     ):
         super().__init__(
-            PREVIEW_SIZE_X * PREVIEW_SCALE_X,
+            PREVIEW_SIZE_X * PREVIEW_SCALE_X + 3,
             y,
-            pygame.display.get_window_size()[0] - (PREVIEW_SIZE_X * PREVIEW_SCALE_X),
+            pygame.display.get_window_size()[0] - (PREVIEW_SIZE_X * PREVIEW_SCALE_X) - 3,
             0,
             manager,
             parent_container
@@ -277,10 +277,18 @@ class BackgroundModifiersPanel(ControlResizingPanel):
             f"{background.get_tile_y()}",
             f"{background.get_tile_y()}"
         )
-        self.texture_dropdown.drop_down.selected_option = (
+        selected_option = (
             self._textures.mappings[background.get_tim_name()][1],
             background.get_tim_name()
         )
+        self.texture_dropdown.drop_down.selected_option = selected_option
+        state = self.texture_dropdown.drop_down.menu_states["expanded"]
+        state.selected_option = selected_option
+        state = self.texture_dropdown.drop_down.menu_states["closed"]
+        state.selected_option = selected_option
+        button = state.selected_option_button
+        if button != None:
+            button.set_text(selected_option[0])
 
     def _texture_selected(self, texture: tuple[str, str]):
         element = self._get_selected_element()
@@ -485,9 +493,9 @@ class ElementsPanel(ControlResizingPanel):
         parent_container: Optional[pygame_gui.core.IContainerLikeInterface] = None
     ):
         super().__init__(
-            PREVIEW_SIZE_X * PREVIEW_SCALE_X,
+            PREVIEW_SIZE_X * PREVIEW_SCALE_X + 3,
             y,
-            pygame.display.get_window_size()[0] - (PREVIEW_SIZE_X * PREVIEW_SCALE_X),
+            pygame.display.get_window_size()[0] - (PREVIEW_SIZE_X * PREVIEW_SCALE_X) - 3,
             0,
             manager,
             parent_container
@@ -1308,9 +1316,9 @@ class CreatePanel(ControlResizingPanel):
         parent_container: Optional[pygame_gui.core.IContainerLikeInterface] = None,
     ):
         super().__init__(
-            PREVIEW_SIZE_X * PREVIEW_SCALE_X,
+            PREVIEW_SIZE_X * PREVIEW_SCALE_X + 3,
             0,
-            pygame.display.get_window_size()[0] - (PREVIEW_SIZE_X * PREVIEW_SCALE_X),
+            pygame.display.get_window_size()[0] - (PREVIEW_SIZE_X * PREVIEW_SCALE_X) - 3,
             0,
             manager,
             parent_container
@@ -1691,8 +1699,8 @@ class PreviewManagementPanel(ControlResizingPanel):
         checkbox_height = 30
         super().__init__(
             0,
-            PREVIEW_SIZE_Y * PREVIEW_SCALE_Y,
-            PREVIEW_SIZE_X * PREVIEW_SCALE_X + 6,
+            PREVIEW_SIZE_Y * PREVIEW_SCALE_Y + 3,
+            PREVIEW_SIZE_X * PREVIEW_SCALE_X + 3,
             pygame.display.get_window_size()[1] - (PREVIEW_SIZE_Y * PREVIEW_SCALE_Y),
             manager,
             parent_container

@@ -6,7 +6,7 @@ def main():
     pygame.init()
     pygame.font.init()
     pygame.display.set_caption("Menu Designer")
-    dims = (1200, 850)
+    dims = (1250, 900)
     window_surface = pygame.display.set_mode(size=dims)
 
     background = pygame.Surface(dims)

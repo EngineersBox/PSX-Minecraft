@@ -38,10 +38,13 @@ class Preview:
         self.rect = pygame.Rect(
             0,
             0,
+            PREVIEW_SIZE_X * PREVIEW_SCALE_X + 6,
+            PREVIEW_SIZE_Y * PREVIEW_SCALE_Y + 6
+        )
+        self.surface = pygame.Surface((
             PREVIEW_SIZE_X * PREVIEW_SCALE_X,
             PREVIEW_SIZE_Y * PREVIEW_SCALE_Y
-        )
-        self.surface = pygame.Surface((self.rect.width, self.rect.height))
+        ))
         self.bg_image = None
         self.container = pygame_gui.elements.UIPanel(
             relative_rect=self.rect,
@@ -91,7 +94,12 @@ class Preview:
             if (abs(next_mouse_pos[1] - self.mouse_pos[1]) >= PREVIEW_SCALE_Y):
                 move_y = ((next_mouse_pos[1] - self.mouse_pos[1]) // PREVIEW_SCALE_Y) * PREVIEW_SCALE_Y
                 self.mouse_pos = (self.mouse_pos[0], next_mouse_pos[1])
-            self.held_element.move((move_x, move_y), self.container.get_relative_rect())
+            self.held_element.move((move_x, move_y), pygame.Rect(
+                0,
+                0,
+                PREVIEW_SIZE_X * PREVIEW_SCALE_X,
+                PREVIEW_SIZE_Y * PREVIEW_SCALE_Y
+            ))
         for button in self.game_elements.values():
             button.process_event(event)
 
@@ -167,7 +175,7 @@ class Preview:
     def set_background_image(self, image: pygame.Surface):
         self.bg_image = pygame.transform.smoothscale(
             image,
-            (self.rect.width, self.rect.height)
+            (PREVIEW_SIZE_Y * PREVIEW_SCALE_X, PREVIEW_SIZE_Y * PREVIEW_SCALE_Y)
         )
         if (self.grid_hidden):
             self.hide_grid()
@@ -181,9 +189,9 @@ class Preview:
             True,
             [
                 (0, 0),
-                (self.rect.width, 0),
-                (self.rect.width, self.rect.height),
-                (0, self.rect.height)
+                (self.rect.width + 6, 0),
+                (self.rect.width + 6, self.rect.height + 6),
+                (0, self.rect.height + 6)
             ]
         )
 
@@ -195,8 +203,8 @@ class Preview:
                 pygame.Rect(
                     0,
                     0,
-                    self.rect.width,
-                    self.rect.height
+                    PREVIEW_SIZE_Y * PREVIEW_SCALE_X,
+                    PREVIEW_SIZE_Y * PREVIEW_SCALE_Y
                 )
             )
         self.container.set_image(self.surface)
@@ -210,15 +218,15 @@ class Preview:
                 pygame.Rect(
                     0,
                     0,
-                    self.rect.width,
-                    self.rect.height
+                    PREVIEW_SIZE_Y * PREVIEW_SCALE_X,
+                    PREVIEW_SIZE_Y * PREVIEW_SCALE_Y
                 )
             )
         for x in range(PREVIEW_SCALE_X, PREVIEW_SIZE_X * PREVIEW_SCALE_X, PREVIEW_SCALE_X):
             pygame.draw.line(
                 self.surface,
                 pygame.color.Color(PREVIEW_GRID_COLOUR),
-                (x, 0),
+                (x, PREVIEW_SCALE_Y),
                 (x, PREVIEW_SIZE_Y * PREVIEW_SCALE_Y),
                 1
             )
@@ -226,7 +234,7 @@ class Preview:
             pygame.draw.line(
                 self.surface,
                 pygame.color.Color(PREVIEW_GRID_COLOUR),
-                (0, y),
+                (PREVIEW_SCALE_X, y),
                 (PREVIEW_SIZE_X * PREVIEW_SCALE_X, y),
                 1
             )
