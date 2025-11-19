@@ -1692,7 +1692,7 @@ class PreviewManagementPanel(ControlResizingPanel):
         super().__init__(
             0,
             PREVIEW_SIZE_Y * PREVIEW_SCALE_Y,
-            PREVIEW_SIZE_X * PREVIEW_SCALE_X + 2,
+            PREVIEW_SIZE_X * PREVIEW_SCALE_X + 6,
             pygame.display.get_window_size()[1] - (PREVIEW_SIZE_Y * PREVIEW_SCALE_Y),
             manager,
             parent_container
