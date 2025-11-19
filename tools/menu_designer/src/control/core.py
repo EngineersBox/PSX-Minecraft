@@ -731,6 +731,14 @@ class ElementsPanel(ControlResizingPanel):
             return None
         return self._preview.get_element(selected[1])
 
+    def get_ordered_elements(self) -> list[PreviewElement]:
+        ordered_elements = []
+        for element in self.elements_list.selection_list.item_list:
+            preview_element = self._preview.get_element(element["object_id"])
+            if (preview_element != None):
+                ordered_elements.append(preview_element)
+        return ordered_elements
+
     def _index_selected(self) -> int:
         selected = self.elements_list.selection_list.get_single_selection(include_object_id=True)
         if selected == None:
@@ -1764,7 +1772,7 @@ class PreviewManagementPanel(ControlResizingPanel):
         self.hide()
         self.disable()
         self.code_view_panel = MenuCodePanel(
-            self._preview.get_all_elements(),
+            self._elements_panel.get_ordered_elements(),
             self._close_menu_code_view,
             self._manager
         )
