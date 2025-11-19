@@ -8,6 +8,7 @@ class PreviewElement(ABC):
     rect: pygame.Rect
     surface: pygame.Surface
     image: pygame_gui.elements.UIImage
+    name: str
 
     _width: int
     _height: int
@@ -22,6 +23,7 @@ class PreviewElement(ABC):
         y: int,
         width: int,
         height: int,
+        name: str,
         surface: pygame.Surface,
         manager: pygame_gui.UIManager,
         preview_container: pygame_gui.elements.UIPanel,
@@ -34,6 +36,7 @@ class PreviewElement(ABC):
             width,
             height
         )
+        self.name = name
         self.surface = surface
         self.image = pygame_gui.elements.UIImage(
             relative_rect=self.rect,
@@ -47,6 +50,12 @@ class PreviewElement(ABC):
         self._draw_outline = False
         self._outline_offset_x = outline_offset_x
         self._outline_offset_y = outline_offset_y
+
+    def get_name(self) -> str:
+        return self.name
+
+    def set_name(self, name: str):
+        self.name = name
 
     def get_render_index(self) -> int:
         return self.image.starting_height

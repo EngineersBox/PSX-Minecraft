@@ -51,15 +51,16 @@ class ControlTextInput(ControlBase):
         if (event.type == pygame_gui.UI_TEXT_ENTRY_CHANGED
             and event.ui_element == self.input):
             text = self.input.get_text()
-            if len(text) == 0:
+            if (len(text) == 0 or self._validator_command(text[-1:])):
                 return
-            if self._validator_command(text[-1:]):
-                return
-            text = text[:-1]
-            self.input.set_text(text)
+            self.input.set_text(text[:-1])
 
     def kill(self):
         self.input.kill()
+
+    def set_text(self, text: str):
+        self.input.text = text
+        self.input.set_text(text)
 
     def get_text(self) -> str:
         return self.input.get_text()

@@ -12,7 +12,6 @@ def normalised_dual_unit(value: float) -> float:
 class PreviewBackground(PreviewElement):
     source_image: pygame.Surface
 
-    _name: str
     _tim_name: str
     _pos_u: int
     _pos_v: int
@@ -42,7 +41,6 @@ class PreviewBackground(PreviewElement):
             width * PREVIEW_SCALE_X,
             height * PREVIEW_SCALE_Y
         ))
-        self._name = name
         self._tim_name = tim_name
         self._tint = pygame.Color("#808080")
         super().__init__(
@@ -50,6 +48,7 @@ class PreviewBackground(PreviewElement):
             y,
             width,
             height,
+            name,
             render_surface,
             manager,
             preview_container
@@ -173,9 +172,6 @@ class PreviewBackground(PreviewElement):
 
     def get_bundle_name(self) -> str:
         return self._bundle_name
-
-    def get_name(self) -> str:
-        return self._name
 
     def set_direct_blit(self, state: bool):
         self._direct_blit = state

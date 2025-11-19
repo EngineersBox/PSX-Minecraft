@@ -32,6 +32,7 @@ class PreviewButton(PreviewElement):
             y,
             width * PREVIEW_SCALE_X,
             20 * PREVIEW_SCALE_Y,
+            text,
             pygame.transform.scale(
                 normal_image,
                 (
@@ -50,6 +51,10 @@ class PreviewButton(PreviewElement):
         )
         self.label.starting_height = self.image.starting_height
         self.disabled = False
+
+    def set_name(self, name: str):
+        super().set_name(name)
+        self.label.set_text(name)
 
     def set_render_index(self, height: int):
         super().set_render_index(height)

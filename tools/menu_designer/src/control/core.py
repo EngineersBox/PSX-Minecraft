@@ -1,4 +1,4 @@
-from typing import Any, Callable, Optional, cast
+from typing import Callable, Optional, cast
 from pathlib import Path
 import pygame, pygame_gui
 from src.codegen.gen import gen_html_code, gen_menu_header_code, gen_menu_header_html_code, gen_menu_source_code, gen_menu_source_html_code
@@ -452,6 +452,7 @@ class CodePanel(ControlPanel):
 class ElementsPanel(ControlResizingPanel):
     elements_list: ControlSelectionList
 
+    name_input: ControlTextInput
     move_up_button: ControlButton
     move_down_button: ControlButton
 
@@ -501,6 +502,18 @@ class ElementsPanel(ControlResizingPanel):
                 self._selected_element,
                 manager,
                 container
+            ),
+            process_event=True
+        )
+        self.name_input = self.add_element_offset(
+            lambda width, y, container: ControlTextInput(
+                0,
+                y,
+                width,
+                30,
+                manager,
+                container,
+                placeholder_text="Element Name..."
             ),
             process_event=True
         )
@@ -678,6 +691,15 @@ class ElementsPanel(ControlResizingPanel):
             return
         pos = selected.get_pos()
         self.pos_x_label.set_text(f"X: {pos[0]} Y: {pos[1]}")
+        if (event.type == pygame_gui.UI_TEXT_ENTRY_CHANGED
+            and event.ui_element == self.name_input.input):
+            name = self.name_input.get_text()
+            selected.set_name(name)
+            index = self._index_selected()
+            self.elements_list.selection_list.item_list[index]["text"] = name
+            button = cast(Optional[pygame_gui.elements.UIButton], self.elements_list.selection_list.item_list[index]["button_element"])
+            if button != None:
+                button.set_text(name)
 
     def reset_controls(self):
         self.remove_element_button.disable()
@@ -701,6 +723,7 @@ class ElementsPanel(ControlResizingPanel):
         self.background_modifiers_panel.hide()
         self.move_up_button.disable()
         self.move_down_button.disable()
+        self.name_input.disable()
 
     def get_selected_element(self) -> Optional[PreviewElement]:
         selected = self.elements_list.selection_list.get_single_selection(include_object_id=True)
@@ -722,6 +745,8 @@ class ElementsPanel(ControlResizingPanel):
     def _selected_element(self, id: Optional[tuple[str, str]]):
         self.reset_controls()
         if id == None:
+            self.name_input.disable()
+            self.name_input.set_text("")
             return
         self.enable()
         self.show()
@@ -756,6 +781,8 @@ class ElementsPanel(ControlResizingPanel):
             self.width_slider.slider.value_range = (0, PREVIEW_SIZE_Y)
             self.button_modifiers_panel.disable()
             self.button_modifiers_panel.hide()
+        self.name_input.enable()
+        self.name_input.set_text(selected.get_name())
         index = self._index_selected()
         list_len = len(self.elements_list.selection_list.item_list)
         if list_len <= 1:
