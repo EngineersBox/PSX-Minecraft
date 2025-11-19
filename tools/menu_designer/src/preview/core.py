@@ -1,3 +1,4 @@
+from collections import namedtuple
 from typing import Optional
 import pygame, pygame_gui, uuid
 from src.preview.background import PreviewBackground
@@ -7,7 +8,8 @@ from src.preview.button import PreviewButton
 
 PREVIEW_BG_COLOUR = pygame.color.Color("#211F1E")
 PREVIEW_BORDER_COLOUR = pygame.color.Color("#EFEFEF")
-PREVIEW_GRID_COLOUR = pygame.color.Color("#7F7F7F")
+
+GridLineStates = namedtuple("GridLineStates", ["x1", "x8", "x16"])
 
 class Preview:
     manager: pygame_gui.UIManager
@@ -26,6 +28,7 @@ class Preview:
     hidden: bool
     disabled: bool
     grid_hidden: bool
+    grid_line_states: GridLineStates
 
     _render_index: int
 
@@ -57,6 +60,7 @@ class Preview:
         self.grid_hidden = True
         self.hide_grid()
         self._render_index = 1
+        self.grid_line_states = GridLineStates(x1=True, x8=False, x16=False)
 
     def update(self, time_delta: float):
         for button in self.game_elements.values():
@@ -210,6 +214,20 @@ class Preview:
         self.container.set_image(self.surface)
         self.grid_hidden = True
 
+    def _pos_grid_colour(self, pos: int) -> pygame.Color:
+        if (pos % 16 == 0 and self.grid_line_states.x16):
+            return pygame.Color("#7f2222")
+        elif (pos % 8 == 0 and self.grid_line_states.x8):
+            return pygame.color.Color("#337F7F")
+        return pygame.color.Color("#7F7F7F")
+
+    def _is_grid_line_shown(self, pos: int) -> bool:
+        if (pos % 16 == 0 and self.grid_line_states.x16):
+            return True
+        elif (pos % 8 == 0 and self.grid_line_states.x8):
+            return True
+        return self.grid_line_states.x1
+
     def show_grid(self):
         self.surface.fill(PREVIEW_BG_COLOUR)
         if self.bg_image is not None:
@@ -223,20 +241,32 @@ class Preview:
                 )
             )
         for x in range(PREVIEW_SCALE_X, PREVIEW_SIZE_X * PREVIEW_SCALE_X, PREVIEW_SCALE_X):
+            if (not self._is_grid_line_shown(x)):
+                continue
             pygame.draw.line(
                 self.surface,
-                pygame.color.Color(PREVIEW_GRID_COLOUR),
+                self._pos_grid_colour(x),
                 (x, PREVIEW_SCALE_Y),
                 (x, PREVIEW_SIZE_Y * PREVIEW_SCALE_Y),
                 1
             )
         for y in range(PREVIEW_SCALE_Y, PREVIEW_SIZE_Y * PREVIEW_SCALE_Y, PREVIEW_SCALE_Y):
+            if (not self._is_grid_line_shown(y)):
+                continue
             pygame.draw.line(
                 self.surface,
-                pygame.color.Color(PREVIEW_GRID_COLOUR),
+                self._pos_grid_colour(y),
                 (PREVIEW_SCALE_X, y),
                 (PREVIEW_SIZE_X * PREVIEW_SCALE_X, y),
                 1
             )
         self.container.set_image(self.surface)
         self.grid_hidden = False
+
+    def get_grid_line_states(self) -> GridLineStates:
+        return self.grid_line_states
+
+    def set_grid_line_states(self, states: GridLineStates):
+        self.grid_line_states = states
+        if (not self.grid_hidden):
+            self.show_grid()

@@ -18,7 +18,7 @@ from src.control.textures import Textures
 from src.control.text_box import ControlTextBox
 from src.control.text_input import ControlTextInput, number_only_validator
 from src.control.window import ControlWindow, ControlWindowClosedCommand
-from src.preview.core import Preview
+from src.preview.core import GridLineStates, Preview
 from src.preview.const import PREVIEW_SCALE_Y, PREVIEW_SIZE_X, PREVIEW_SIZE_Y, PREVIEW_SCALE_X
 from src.preview.background import PreviewBackground
 from src.preview.button import PreviewButton
@@ -269,14 +269,14 @@ class BackgroundModifiersPanel(ControlResizingPanel):
         self.pos_v_label.set_text(f"V: {background.get_pos_v()}")
         self.pos_v_slider.slider.value_range = (0, background.source_image.height - 1)
         self.pos_v_slider.set_value(background.get_pos_v())
-        self.tile_x_drop_down.drop_down.selected_option = (
+        self.tile_x_drop_down.set_selected((
             f"{background.get_tile_x()}",
             f"{background.get_tile_x()}"
-        )
-        self.tile_y_drop_down.drop_down.selected_option = (
+        ))
+        self.tile_y_drop_down.set_selected((
             f"{background.get_tile_y()}",
             f"{background.get_tile_y()}"
-        )
+        ))
         self.texture_dropdown.set_selected((
             self._textures.mappings[background.get_tim_name()][1],
             background.get_tim_name()
@@ -1669,6 +1669,9 @@ class PreviewManagementPanel(ControlResizingPanel):
     #       This should serialise all the PreviewElements
     #       and deserialise them on load
     show_grid_checkbox: ControlCheckbox
+    show_1x_gridlines_checkbox: ControlCheckbox
+    show_8x_gridlines_checkbox: ControlCheckbox
+    show_16x_gridlines_checkbox: ControlCheckbox
     view_menu_code_button: ControlButton
     export_menu_code_button: ControlButton
 
@@ -1711,23 +1714,9 @@ class PreviewManagementPanel(ControlResizingPanel):
             process_event=True,
             update_y_offset=False
         )
-        self.view_menu_code_button = self.add_element_offset(
-            lambda _, y, container: ControlButton(
-                113,
-                y,
-                150,
-                30,
-                "View Menu Code",
-                manager,
-                container,
-                self._open_menu_code_view
-            ),
-            process_event=True,
-            update_y_offset=False
-        )
         self.export_menu_code_button = self.add_element_offset(
             lambda _, y, container: ControlButton(
-                self.view_menu_code_button.rect.x + self.view_menu_code_button.rect.width + 3,
+                self.rect.width - 150 - 7,
                 y,
                 150,
                 30,
@@ -1739,6 +1728,64 @@ class PreviewManagementPanel(ControlResizingPanel):
             process_event=True,
             update_y_offset=False
         )
+        self.view_menu_code_button = self.add_element_offset(
+            lambda _, y, container: ControlButton(
+                self.export_menu_code_button.rect.x - 150,
+                y,
+                150,
+                30,
+                "View Menu Code",
+                manager,
+                container,
+                self._open_menu_code_view
+            ),
+            process_event=True,
+            update_y_offset=False
+        )
+        self.y_offset += 33
+        self.show_1x_gridlines_checkbox = self.add_element_offset(
+            lambda _, y, container: ControlCheckbox(
+                0,
+                y,
+                30,
+                30,
+                "1x Grid Lines",
+                manager,
+                container,
+                self._show_1x_gridlines
+            ),
+            process_event=True
+        )
+        self.show_1x_gridlines_checkbox.set_state(True)
+        self.show_1x_gridlines_checkbox.disable()
+        self.show_8x_gridlines_checkbox = self.add_element_offset(
+            lambda _, y, container: ControlCheckbox(
+                0,
+                y,
+                30,
+                30,
+                "8x Grid Lines",
+                manager,
+                container,
+                self._show_8x_gridlines
+            ),
+            process_event=True
+        )
+        self.show_8x_gridlines_checkbox.disable()
+        self.show_16x_gridlines_checkbox = self.add_element_offset(
+            lambda _, y, container: ControlCheckbox(
+                0,
+                y,
+                30,
+                30,
+                "16x Grid Lines",
+                manager,
+                container,
+                self._show_16x_gridlines
+            ),
+            process_event=True
+        )
+        self.show_16x_gridlines_checkbox.disable()
         self.panel.set_dimensions((self.rect.width, self.rect.height))
         self.export_menu_code_window = None
         self.code_view_panel = None
@@ -1757,8 +1804,38 @@ class PreviewManagementPanel(ControlResizingPanel):
     def _show_preview_grid(self, state: bool):
         if state:
             self._preview.show_grid()
+            self.show_1x_gridlines_checkbox.enable()
+            self.show_8x_gridlines_checkbox.enable()
+            self.show_16x_gridlines_checkbox.enable()
         else:
             self._preview.hide_grid()
+            self.show_1x_gridlines_checkbox.disable()
+            self.show_8x_gridlines_checkbox.disable()
+            self.show_16x_gridlines_checkbox.disable()
+
+    def _show_1x_gridlines(self, state: bool):
+        states = self._preview.get_grid_line_states()
+        self._preview.set_grid_line_states(GridLineStates(
+            x1=state,
+            x8=states.x8,
+            x16=states.x16
+        ))
+
+    def _show_8x_gridlines(self, state: bool):
+        states = self._preview.get_grid_line_states()
+        self._preview.set_grid_line_states(GridLineStates(
+            x1=states.x1,
+            x8=state,
+            x16=states.x16
+        ))
+
+    def _show_16x_gridlines(self, state: bool):
+        states = self._preview.get_grid_line_states()
+        self._preview.set_grid_line_states(GridLineStates(
+            x1=states.x1,
+            x8=states.x8,
+            x16=state
+        ))
 
     def _open_menu_code_view(self):
         if self.code_view_panel != None:
