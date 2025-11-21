@@ -66,16 +66,18 @@ class ButtonModifiersPanel(ControlResizingPanel):
         self._get_selected_element = get_selected_element
 
     def _set_button_state(self, state: tuple[str, str]):
+        print("Button state:", state)
         selected = self._get_selected_element()
         if selected == None or type(selected) != PreviewButton:
             return
-        selected.set_state(state)
+        button = cast(PreviewButton, selected)
+        button.set_state(state)
 
     def reset_controls(self):
         self.button_state_dropdown.disable()
 
     def update_from_element(self, button: PreviewButton):
-        self.button_state_dropdown.drop_down.selected_option = button._state
+        self.button_state_dropdown.set_selected(button._state)
 
 class BackgroundModifiersPanel(ControlResizingPanel):
     direct_blit_checkbox: ControlCheckbox

@@ -10,6 +10,8 @@
 #include "../world/world_structure.h"
 #include "../recipe/crafting.h"
 
+static Texture crafting_table_texture = {0};
+
 FWD_DECL Chunk* worldGetChunk(const World* world, const VECTOR* position);
 FWD_DECL void worldDropItemStack(World* world, IItem* item, const u8 count);
 
@@ -237,10 +239,11 @@ bool CraftingTableBlock_useAction(VSelf) {
     assetLoadTextureDirect(
         ASSET_BUNDLE__GUI,
         ASSET_TEXTURE__GUI__CRAFTING,
-        &block_render_ui_context.background.texture
+        &crafting_table_texture
     );
+    block_render_ui_context.background.texture = &crafting_table_texture;
     block_render_ui_context.background.texture_coords = vec2_i16(0);
-    block_render_ui_context.background.texture_width = vec2_i16(
+    block_render_ui_context.background.texture_dimensions = vec2_i16(
         CRAFTING_TABLE_TEXTURE_WIDTH,
         CRAFTING_TABLE_TEXTURE_HEIGHT
     );

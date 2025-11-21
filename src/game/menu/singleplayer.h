@@ -7,23 +7,23 @@
 
 #include "../../ui/ui.h"
 
-DEFN_UI(Singleplayer);
+DEFN_UI(SingleplayerMenu);
 
-ALLOC_CALL(singleplayerDestroy, 1) IUI* singleplayerNew();
-void singleplayerDestroy(IUI* menu);
+ALLOC_CALL(singleplayerMenuDestroy, 1) IUI* singleplayerMenuNew();
+void singleplayerMenuDestroy(IUI* menu);
 
-#define Singleplayer_open_CUSTOM ()
-void singleplayerOpen(VSelf);
-void Singleplayer_open(VSelf);
+#define SingleplayerMenu_open_CUSTOM ()
+void singleplayerMenuOpen(VSelf);
+void SingleplayerMenu_open(VSelf);
 
-void singleplayerRegisterInputHandler(VSelf, Input* input, void* ctx);
-void Singleplayer_registerInputHandler(VSelf, Input* input, void* ctx);
+void singleplayerMenuRegisterInputHandler(VSelf, Input* input, void* ctx);
+void SingleplayerMenu_registerInputHandler(VSelf, Input* input, void* ctx);
 
-#define Singleplayer_render_CUSTOM ()
-void singleplayerRender(VSelf, RenderContext* ctx, Transforms* transforms);
-void Singleplayer_render(VSelf, RenderContext* ctx, Transforms* transforms);
+#define SingleplayerMenu_render_CUSTOM ()
+void singleplayerMenuRender(VSelf, RenderContext* ctx, Transforms* transforms);
+void SingleplayerMenu_render(VSelf, RenderContext* ctx, Transforms* transforms);
 
-impl(IInputHandler, Singleplayer);
-impl(IUI, Singleplayer);
+impl(IInputHandler, SingleplayerMenu);
+impl(IUI, SingleplayerMenu);
 
 #endif // _GAME_MENU__SINGLEPLAYER_H_

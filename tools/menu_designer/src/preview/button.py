@@ -118,7 +118,7 @@ class PreviewButton(PreviewElement):
         self._update_image()
 
     def set_state(self, state: tuple[str, str]):
-        if state not in self._images.keys():
+        if state[1] not in self._images.keys():
             return
         self._state = state
 

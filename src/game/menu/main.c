@@ -135,21 +135,20 @@ void MainMenu_open(VSelf) {
     self->ui.active = true;
 }
 
-static bool isButtonPressed(const UI* ui, MainMenuButton index) {
-    const IUIComponent* component = &ui->components[index];
-    const UIButton* button = VCAST_PTR(UIButton*, component);
-    return button->state == BUTTON_PRESSED;
-}
-
 static InputHandlerState mainMenuInputHandler(UNUSED const Input* input, void* ctx) {
+    MainMenu* main_menu = (MainMenu*) ctx;
+    UI* ui = &main_menu->ui;
+    const PADTYPE* pad = input->pad;
     VCALL(cursor_component, update);
-    const MainMenu* main_menu = (MainMenu*) ctx;
-    const UI* ui = &main_menu->ui;
     IUIComponent* component;
     cvector_for_each_in(component, ui->components) {
         VCALL(*component, update);
     }
-    if (isButtonPressed(ui, MAIN_MENU_SINGLEPLAYER)) {
+    if (!debounce(&menu_debounce, MENU_DEBOUNCE_MS)) {
+        return INPUT_HANDLER_RETAIN;
+    } else if (!isPressed(pad, BINDING_CURSOR_CLICK)) {
+        return INPUT_HANDLER_RETAIN;
+    } else if (isButtonPressed(ui, MAIN_MENU_SINGLEPLAYER)) {
         menuOpen(MENUID_SINGLEPLAYER);
         return INPUT_HANDLER_RELINQUISH;
     } else if (isButtonPressed(ui, MAIN_MENU_OPTIONS)) {

@@ -1,10 +1,17 @@
 #include "menu.h"
 
+#include <interface99.h>
+
 #include "menus.h"
 #include "../../core/input/input.h"
 #include "../../logging/logging.h"
+#include "../../math/math_utils.h"
+#include "../../ui/components/button.h"
+#include "../../ui/components/cursor.h"
+#include "../../util/interface99_extensions.h"
 
 IUI* current_menu = NULL;
+Timestamp menu_debounce = 0;
 
 void menuOpen(const EMenuID menu_id) {
     const MenuConstructor ctor = menu_constructors[menu_id];
@@ -40,4 +47,20 @@ INLINE void menuRender(RenderContext* ctx, Transforms* transforms) {
         return;
     }
     VCALL(*current_menu, render, ctx, transforms);
+}
+
+bool isButtonPressed(UI* ui, size_t index) {
+    IUIComponent* component = &ui->components[index];
+    UIButton* button = VCAST_PTR(UIButton*, component);
+    if (button->state == BUTTON_DISABLED) {
+        return false;
+    }
+    button->state = quadIntersectLiteral(
+        &cursor.component.position,
+        button->component.position.vx,
+        button->component.position.vy,
+        button->component.dimensions.vx,
+        button->component.dimensions.vy
+    );
+    return button->state == BUTTON_PRESSED;
 }

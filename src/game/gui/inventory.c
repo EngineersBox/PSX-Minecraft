@@ -16,6 +16,8 @@
 #include "../../util/memory.h"
 #include "../../debug/pcsx.h"
 
+static Texture inventory_bg = {0};
+
 FWD_DECL void worldDropItemStack(World* world, IItem* item, const u8 count);
 
 /*const char* INVENTORY_STORE_RESULT_NAMES[] = {*/
@@ -32,26 +34,19 @@ INLINE Inventory* inventoryNew() {
 void inventoryInit(Inventory* inventory, Hotbar* hotbar) {
     uiInit(&inventory->ui);
     IUIComponent* component = uiAddComponent(&inventory->ui);
-    UIBackground* background = UIBackgroundNew();
-    background->component.position = (DVECTOR) {
-        .vx = CENTRE_X - (INVENTORY_WIDTH >> 1),
-        .vy = CENTRE_Y - (INVENTORY_HEIGHT >> 1)
-    };
-    background->component.dimensions = (DVECTOR) {
-        .vx = INVENTORY_WIDTH,
-        .vy = INVENTORY_HEIGHT
-    };
-    background->texture_coords = (DVECTOR) {
-        .vx = 0,
-        .vy = 0
-    };
-    background->texture_width = (DVECTOR) {
-        .vx = INVENTORY_WIDTH,
-        .vy = INVENTORY_HEIGHT
-    };
-    background->texture = (Texture) {0};
+    UIBackground* background = uiBackgroundNew(
+        &inventory_bg,
+        vec2_i16(
+            CENTRE_X - (INVENTORY_WIDTH >> 1),
+            CENTRE_Y - (INVENTORY_HEIGHT >> 1)
+        ),
+        vec2_i16(INVENTORY_WIDTH, INVENTORY_HEIGHT),
+        vec2_i16(0, 0),
+        vec2_i16(INVENTORY_WIDTH, INVENTORY_HEIGHT),
+        vec3_rgb(0x7F, 0x7F, 0x7F),
+        1
+    );
     DYN_PTR(component, UIBackground, IUIComponent, background);
-    background->tint = vec3_rgb(0x7F, 0x7F, 0x7F);
     inventory->hotbar = hotbar;
     for (u8 y = 0; y < slotGroupDim(INVENTORY_ARMOUR, Y); y++) {
         for (u8 x = 0; x < slotGroupDim(INVENTORY_ARMOUR, X); x++) {
@@ -314,11 +309,10 @@ void Inventory_open(VSelf) {
         return;
     }
     self->ui.active = true;
-    UIBackground* background = VCAST(UIBackground*, self->ui.components[0]);
     assetLoadTextureDirect(
         ASSET_BUNDLE__GUI,
         ASSET_TEXTURE__GUI__INVENTORY,
-        &background->texture
+        &inventory_bg
     );
     recipe_has_changed = false;
 }
@@ -330,8 +324,6 @@ void Inventory_close(VSelf) {
         return;
     }
     self->ui.active = false;
-    UIBackground* background = VCAST(UIBackground*, self->ui.components[0]);
-    background->texture = (Texture) {0};
 }
 
 InputHandlerState inventoryInputHandler(const Input* input, void* ctx) {

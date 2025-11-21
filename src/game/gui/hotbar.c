@@ -26,25 +26,18 @@ void hotbarInit(Hotbar* hotbar) {
         slot->data.item = NULL;
     }
     IUIComponent* component = uiAddComponent(&hotbar->ui);
-    UIBackground* background = UIBackgroundNew();
-    background->component.position = (DVECTOR) {
-        .vx = CENTRE_X - (HOTBAR_WIDTH / 2),
-        .vy = SCREEN_YRES - HOTBAR_HEIGHT - 1
-    };
-    background->component.dimensions = (DVECTOR) {
-        .vx = HOTBAR_WIDTH,
-        .vy = HOTBAR_HEIGHT
-    };
-    background->texture_coords = (DVECTOR) {
-        .vx = (16 * 16),
-        .vy = 0
-    };
-    background->texture_width = (DVECTOR) {
-        .vx = HOTBAR_WIDTH,
-        .vy = HOTBAR_HEIGHT
-    };
-    background->texture = textures[ASSET_TEXTURE__STATIC__GUI_PART];
-    background->tint = vec3_rgb(0x7F, 0x7F, 0x7F);
+    UIBackground* background = uiBackgroundNew(
+        &textures[ASSET_TEXTURE__STATIC__GUI_PART],
+        vec2_i16(
+            CENTRE_X - (HOTBAR_WIDTH >> 1),
+            SCREEN_YRES - HOTBAR_HEIGHT - 1
+        ),
+        vec2_i16(HOTBAR_WIDTH, HOTBAR_HEIGHT),
+        vec2_i16(16 * 16, 0),
+        vec2_i16(HOTBAR_WIDTH, HOTBAR_HEIGHT),
+        vec3_rgb(0x7f, 0x7f, 0x7f),
+        1
+    );
     DYN_PTR(component, UIBackground, IUIComponent, background);
 }
 

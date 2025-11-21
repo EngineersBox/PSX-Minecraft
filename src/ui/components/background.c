@@ -4,6 +4,7 @@
 
 #include "../../structure/primitive/primitive.h"
 #include "../../util/preprocessor.h"
+#include "../../logging/logging.h"
 
 UIBackground* uiBackgroundNew(const Texture* texture,
                               const DVECTOR position,
@@ -39,8 +40,8 @@ void UIBackground_render(VSelf, RenderContext* ctx, UNUSED Transforms* transform
         pol4,
         self->texture_coords.vx,
         self->texture_coords.vy,
-        self->texture_dimensions.vx,
-        self->texture_dimensions.vy
+        self->component.dimensions.vx,
+        self->component.dimensions.vy
     );
     // Mid point grey as mask for additive texturing
     setRGB0(
@@ -52,5 +53,39 @@ void UIBackground_render(VSelf, RenderContext* ctx, UNUSED Transforms* transform
     pol4->tpage = self->texture->tpage;
     pol4->clut = self->texture->clut;
     polyFT4Render(pol4, self->ot_entry_index, ctx);
+    u8 mask_x = 0;
+    switch (self->texture_dimensions.vx) {
+        case 8: mask_x = TEXTURE_WINDOW_MASK_8; break;
+        case 16: mask_x = TEXTURE_WINDOW_MASK_16; break;
+        case 32: mask_x = TEXTURE_WINDOW_MASK_32; break;
+        case 64: mask_x = TEXTURE_WINDOW_MASK_64; break;
+        case 128: mask_x = TEXTURE_WINDOW_MASK_128; break;
+        case 256: mask_x = TEXTURE_WINDOW_MASK_256; break;
+        default:
+            errorAbort("Unknown texture window mask size: %d\n", self->texture_dimensions.vx);
+            break;
+    }
+    u8 mask_y = 0;
+    switch (self->texture_dimensions.vx) {
+        case 8: mask_y = TEXTURE_WINDOW_MASK_8; break;
+        case 16: mask_y = TEXTURE_WINDOW_MASK_16; break;
+        case 32: mask_y = TEXTURE_WINDOW_MASK_32; break;
+        case 64: mask_y = TEXTURE_WINDOW_MASK_64; break;
+        case 128: mask_y = TEXTURE_WINDOW_MASK_128; break;
+        case 256: mask_y = TEXTURE_WINDOW_MASK_256; break;
+        default:
+            errorAbort("Unknown texture window mask size: %d\n", self->texture_dimensions.vx);
+            break;
+    }
+    const TextureWindow tex_window = textureWindowCreateDirect(
+        mask_x,
+        mask_y,
+        self->texture_coords.vx,
+        self->texture_coords.vy
+    );
+    DR_TWIN* ptwin = (DR_TWIN*) allocatePrimitive(ctx, sizeof(DR_TWIN));
+    setTexWindow(ptwin, &tex_window);
+    u32* ot_object = allocateOrderingTable(ctx, self->ot_entry_index);
+    addPrim(ot_object, ptwin);
     renderClearConstraintsIndex(ctx, self->ot_entry_index);
 }

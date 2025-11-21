@@ -18,12 +18,12 @@ void drawBackgroundHalf(RenderContext* ctx,
     POLY_FT4* pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
     setPolyFT4(pol4);
     // Set full screen vertex positions
-    setXY4(
+    setXYWH(
         pol4,
-        x, 0,
-        CENTRE_X + x, 0,
-        x, SCREEN_YRES,
-        CENTRE_X + x, SCREEN_YRES
+        x,
+        0,
+        CENTRE_X,
+        SCREEN_YRES
     );
     // Mid point grey as mask for additive texturing
     setRGB0(pol4, 0x28, 0x28, 0x28);

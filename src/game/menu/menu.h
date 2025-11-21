@@ -3,11 +3,17 @@
 #ifndef _GAME_MENU__MENU_H_
 #define _GAME_MENU__MENU_H_
 
+#include <stdint.h>
+
 #include "menu_id.h"
+#include "../../hardware/counters.h"
 #include "../../ui/ui.h"
 #include "../../render/render_context.h"
 
 extern IUI* current_menu;
+extern Timestamp menu_debounce;
+
+#define MENU_DEBOUNCE_MS 50
 
 #define menuIsOpen() (current_menu != NULL)
 
@@ -17,5 +23,7 @@ void menuRender(RenderContext* ctx, Transforms* transforms);
 
 typedef IUI* (*MenuConstructor)();
 typedef void (*MenuDestructor)(IUI* menu);
+
+bool isButtonPressed(UI* ui, size_t index);
 
 #endif // _GAME_MENU__MENU_H_
