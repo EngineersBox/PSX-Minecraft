@@ -64,14 +64,21 @@
 }
 
 <font color="#EA6962">static</font> <font color="#D8A657">InputHandlerState</font> <font color="#A9B665">{{ name_camel_case }}InputHandler</font>(<font color="#D3869B">UNUSED</font> <font color="#EA6962">const</font> <font color="#D8A657">Input</font><font color="#EA6962">*</font> input, <font color="#EA6962">void*</font> ctx) {
+    <font color="#D8A657">{{ name_pascal_case }}</font><font color="#EA6962">*</font> menu <font color="#EA6962">=</font> (<font color="#D8A657">{{ name_pascal_case }}</font><font color="#EA6962">*</font>) ctx;
+    <font color="#D8A657">UI</font><font color="#EA6962">*</font> ui <font color="#EA6962">= &</font>input<font color="#EA6962">-></font><font color="#7DAEA3">ui</font>;
+    <font color="#EA6962">const</font> <font color="#D8A657">PADTYPE</font><font color="#EA6962">*</font> pad <font color="#EA6962">=</font> input<font color="#EA6962">-></font><font color="#7DAEA3">pad</font>;
     <font color="#D3869B">VCALL</font>(cursor_component, <font color="#7DAEA3">update</font>);
-    <font color="#EA6962">const</font> <font color="#D8A657">{{ name_pascal_case }}</font><font color="#EA6962">*</font> menu <font color="#EA6962">=</font> (<font color="#D8A657">{{ name_pascal_case }}</font><font color="#EA6962">*</font>) ctx;
-    <font color="#EA6962">const</font> <font color="#D8A657">UI</font><font color="#EA6962">*</font> ui = <font color="#EA6962">&</font>menu<font color="#EA6962">-></font><font color="#7DAEA3">ui</font>;
     <font color="#D8A657">IUIComponent</font><font color="#EA6962">*</font> component;
     <font color="#D3869B">cvector_for_each_in</font>(component, ui<font color="#EA6962">-></font><font color="#7DAEA3">components</font>) {
         <font color="#D3869B">VCALL</font>(<font color="#EA6962">*</font>component, <font color="#7DAEA3">update</font>);
     }
+    <font color="#EA6962">if</font> (<font color="#EA6962">!</font><font color="#A9B665">debounce</font>(<font color="#EA6962">&</font>menu_debounce, <font color="#7DAEA3">MENU_DEBOUNCE_MS</font>)) {
+        <font color="#EA6962">return</font> <font color="#7DAEA3">INPUT_HANDLER_RETAIN</font>;
+    } <font color="#EA6962">else if</font> (<font color="#EA6962">!</font><font color="#A9B665">isPressed</font>(pad, <font color="#7DAEA3">BINDING_CURSOR_CLICK</font>)) {
+        <font color="#EA6962">return</font> <font color="#7DAEA3">INPUT_HANDLER_RETAIN</font>;
+    }
     <font color="#D3869B">TODO</font>(<font color="#89B482">"Finish implementing logic for components being interacted with"</font>);
+    <font color="#EA6962">return</font> <font color="#7DAEA3">INPUT_HANDLER_RETAIN</font>;
 }
 
 <font color="#EA6962">void</font> <font color="#A9B665">{{ name_camel_case }}RegisterInputHandler</font>(<font color="#D3869B">VSelf</font>, <font color="#D8A657">Input</font><font color="#EA6962">*</font> input, <font color="#EA6962">void*</font> ctx) <font color="#D3869B">ALIAS</font>(<font color="#89B482">"{{ name_pascal_case}}_registerInputHandler"</font>);
@@ -87,8 +94,8 @@
     );
 }
 
-<font color="#EA6962">void</font> <font color="#A9B665">{{ name_camel_case }}Render</font>(VSelf, <font color="#D8A657">RenderContext</font><font color="#EA6962">*</font> ctx, <font color="#D8A657">Transforms</font><font color="#EA6962">*</font> transforms) <font color="#D3869B">ALIAS</font>(<font color="#89B482">"{{ name_pascal_case }}_render"</font>);
-<font color="#EA6962">void</font> <font color="#A9B665">{{ name_pascal_case }}_render</font>(VSelf, <font color="#D8A657">RenderContext</font><font color="#EA6962">*</font> ctx, <font color="#D8A657">Transforms</font><font color="#EA6962">*</font> transforms) {
+<font color="#EA6962">void</font> <font color="#A9B665">{{ name_camel_case }}Render</font>(<font color="#D3869B">VSelf</font>, <font color="#D8A657">RenderContext</font><font color="#EA6962">*</font> ctx, <font color="#D8A657">Transforms</font><font color="#EA6962">*</font> transforms) <font color="#D3869B">ALIAS</font>(<font color="#89B482">"{{ name_pascal_case }}_render"</font>);
+<font color="#EA6962">void</font> <font color="#A9B665">{{ name_pascal_case }}_render</font>(<font color="#D3869B">VSelf</font>, <font color="#D8A657">RenderContext</font><font color="#EA6962">*</font> ctx, <font color="#D8A657">Transforms</font><font color="#EA6962">*</font> transforms) {
     <font color="#D3869B">VSELF</font>(<font color="#D8A657">{{ name_pascal_case }}</font>);
     <font color="#A9B665">uiRender</font>(<font color="#EA6962">&</font>self<font color="#EA6962">-></font>ui, ctx, transforms);
     <font color="#A9B665">renderClearConstraintsIndex</font>(ctx, <font color="#E78A4E">1</font>);
