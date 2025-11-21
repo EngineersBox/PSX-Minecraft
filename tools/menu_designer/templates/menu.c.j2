@@ -35,7 +35,7 @@ IUI* {{ name_camel_case }}New() {
 }
 
 void {{ name_camel_case }}Destroy(IUI* menu) {
-    {{ name_pascal_case }}* self = VCAST_PTR({{ name_pascal_case }}*, self);
+    {{ name_pascal_case }}* self = VCAST_PTR({{ name_pascal_case }}*, menu);
     IUIComponent* component;
     cvector_for_each_in(component, self->ui.components) {
         void* component_instance = VCAST_PTR(void*, component);
@@ -60,7 +60,7 @@ void {{ name_pascal_case }}_open(VSelf) {
 
 static InputHandlerState {{ name_camel_case }}InputHandler(UNUSED const Input* input, void* ctx) {
     VCALL(cursor_component, update);
-    const {{ name_camel_case }}* menu = ({{ name_camel_case }}*) ctx;
+    const {{ name_pascal_case }}* menu = ({{ name_pascal_case }}*) ctx;
     const UI* ui = &menu->ui;
     IUIComponent* component;
     cvector_for_each_in(component, ui->components) {

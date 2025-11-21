@@ -5,7 +5,7 @@
 #include "../../structure/primitive/primitive.h"
 #include "../../util/preprocessor.h"
 
-UIBackground* UIBackgroundNew(const Texture* texture,
+UIBackground* uiBackgroundNew(const Texture* texture,
                               const DVECTOR position,
                               const DVECTOR dimensions,
                               const DVECTOR texture_coords,

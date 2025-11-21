@@ -19,7 +19,7 @@ DEFN_UI_COMPONENT(
     u8 ot_entry_index;
 );
 
-UIBackground* UIBackgroundNew(const Texture* texture,
+UIBackground* uiBackgroundNew(const Texture* texture,
                               const DVECTOR position,
                               const DVECTOR dimensions,
                               const DVECTOR texture_coords,

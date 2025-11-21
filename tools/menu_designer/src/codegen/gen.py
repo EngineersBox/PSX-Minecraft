@@ -77,7 +77,7 @@ def gen_background_code(background: PreviewBackground) -> str:
         "tint_g": tint.g,
         "tint_b": tint.b
     }
-    return env.get_template("background_html.j2").render(render_parameters)
+    return env.get_template("background.j2").render(render_parameters)
 
 def gen_background_html_code(background: PreviewBackground, font: str) -> str:
     tint = background.get_tint()
