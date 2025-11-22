@@ -151,12 +151,6 @@ void singleplayerMenuDestroy(IUI* menu) {
     free(menu);
 }
 
-void singleplayerMenuOpen(VSelf) ALIAS("SingleplayerMenu_open");
-void SingleplayerMenu_open(VSelf) {
-    VSELF(SingleplayerMenu);
-    self->ui.active = true;
-}
-
 static InputHandlerState singleplayerMenuInputHandler(UNUSED const Input* input, void* ctx) {
     VCALL(cursor_component, update);
     SingleplayerMenu* menu = (SingleplayerMenu*) ctx;
@@ -166,8 +160,8 @@ static InputHandlerState singleplayerMenuInputHandler(UNUSED const Input* input,
         VCALL(*component, update);
     }
     if (isButtonPressed(ui, SINGLEPLAYER_MENU_PLAY)) {
-        // TODO: Select world
-        return INPUT_HANDLER_RETAIN;
+        // TODO: Load world
+        return INPUT_HANDLER_RELINQUISH;
     } else if (isButtonPressed(ui, SINGLEPLAYER_MENU_RENAME)) {
         menuOpen(MENUID_WORLD_RENAME);
         return INPUT_HANDLER_RELINQUISH;

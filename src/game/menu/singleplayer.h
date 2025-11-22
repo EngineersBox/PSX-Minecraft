@@ -12,10 +12,6 @@ DEFN_UI(SingleplayerMenu);
 ALLOC_CALL(singleplayerMenuDestroy, 1) IUI* singleplayerMenuNew();
 void singleplayerMenuDestroy(IUI* menu);
 
-#define SingleplayerMenu_open_CUSTOM ()
-void singleplayerMenuOpen(VSelf);
-void SingleplayerMenu_open(VSelf);
-
 void singleplayerMenuRegisterInputHandler(VSelf, Input* input, void* ctx);
 void SingleplayerMenu_registerInputHandler(VSelf, Input* input, void* ctx);
 

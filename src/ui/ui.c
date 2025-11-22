@@ -12,12 +12,14 @@ void uiInit(UI* ui) {
 
 void iuiOpen(VSelf) ALIAS("IUI_open");
 void IUI_open(UNUSED VSelf) {
-    // Do nothing
+    VSELF(UI);
+    self->active = true;
 }
 
 void iuiClose(VSelf) ALIAS("IUI_close");
 void IUI_close(UNUSED VSelf) {
-    // Do nothing
+    VSELF(UI);
+    self->active = false;
 }
 
 void uiRender(const UI* ui, RenderContext* ctx, Transforms* transforms) {
