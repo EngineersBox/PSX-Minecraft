@@ -11,16 +11,17 @@
 #include "../../util/interface99_extensions.h"
 
 IUI* current_menu = NULL;
+EMenuID current_menu_id = 0;
 Timestamp menu_debounce = 0;
 
 void menuOpen(const EMenuID menu_id) {
     const MenuConstructor ctor = menu_constructors[menu_id];
     IUI* next_menu = ctor();
     assert(next_menu != NULL);
-    menuSetCurrent(next_menu);
+    menuSetCurrent(next_menu, menu_id);
 }
 
-void menuSetCurrent(IUI *menu) {
+void menuSetCurrent(IUI *menu, const EMenuID menu_id) {
     if (menuIsOpen()) {
         // Menus act as a single element stack, so
         // the last input handler will alawys be
@@ -31,14 +32,19 @@ void menuSetCurrent(IUI *menu) {
         VCALL(*current_menu, close);
         DEBUG_LOG("[MENU] Removing last handler\n");
         inputRemoveLastHandler(&input);
+        DEBUG_LOG("[MENU] Destroying current menu\n");
+        const MenuDestructor dtor = menu_destructors[current_menu_id];
+        dtor(current_menu);
     }
     DEBUG_LOG("[MENU] Setting current menu to new menu\n");
     current_menu = menu;
+    current_menu_id = menu_id;
     if (menuIsOpen()) {
         DEBUG_LOG("[MENU] Registering new menu input handler\n");
         VCALL_SUPER(*menu, IInputHandler, registerInputHandler, &input, NULL);
         DEBUG_LOG("[MENU] Opening new menu\n");
         VCALL(*menu, open);
+        DEBUG_LOG("[MENU] Opened menu\n");
     }
 }
 

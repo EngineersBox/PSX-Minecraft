@@ -51,10 +51,8 @@ void inputUpdate(Input* input) {
         // so we can try all other handlers.
         input->in_focus = NULL;
         if (state == INPUT_HANDLER_RELINQUISH) {
-            DEBUG_LOG("Reset with delay\n");
             debounceResetDelay(input->aquire_debounce);
         } else {
-            DEBUG_LOG("Reset no delay\n");
             debounceResetNoDelay(input->aquire_debounce);
         }
     }

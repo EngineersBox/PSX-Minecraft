@@ -5,6 +5,7 @@
 #include "menu.h"
 #include "menu_id.h"
 #include "../blocks/block.h"
+#include "../../logging/logging.h"
 #include "../../render/render_context.h"
 #include "../../render/font.h"
 #include "../../resources/assets.h"
@@ -200,13 +201,16 @@ void singleplayerMenuRender(VSelf, RenderContext* ctx, Transforms* transforms) A
 void SingleplayerMenu_render(VSelf, RenderContext* ctx, Transforms* transforms) {
     VSELF(SingleplayerMenu);
     u32* background_ot_object = allocateOrderingTable(ctx, 2);
+    DEBUG_LOG("[SINGLEPLAYER] Draw BG\n");
     backgroundDraw(
         ctx,
         background_ot_object,
         2 * BLOCK_TEXTURE_SIZE,
         0 * BLOCK_TEXTURE_SIZE
     );
+    DEBUG_LOG("[SINGLEPLAYER] Render UI\n");
     uiRender(&self->ui, ctx, transforms);
+    DEBUG_LOG("[SINGLEPLAYER] Render font\n");
     fontPrintCentreOffset(
         ctx,
         SCREEN_XRES >> 1,
@@ -215,10 +219,13 @@ void SingleplayerMenu_render(VSelf, RenderContext* ctx, Transforms* transforms) 
         1,
         "Select World"
     );
+    DEBUG_LOG("[SINGLEPLAYER] Clear constraints\n");
     renderClearConstraintsIndex(ctx, 1);
+    DEBUG_LOG("[SINGLEPLAYER] Render cursor\n");
     uiCursorRender(
         &cursor,
         ctx,
         transforms
     );
+    DEBUG_LOG("[SINGLEPLAYER] End\n");
 }

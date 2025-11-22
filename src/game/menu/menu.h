@@ -11,6 +11,7 @@
 #include "../../render/render_context.h"
 
 extern IUI* current_menu;
+extern EMenuID current_menu_id;
 extern Timestamp menu_debounce;
 
 #define MENU_DEBOUNCE_MS 50
@@ -18,7 +19,7 @@ extern Timestamp menu_debounce;
 #define menuIsOpen() (current_menu != NULL)
 
 void menuOpen(const EMenuID menu_id);
-void menuSetCurrent(IUI* menu);
+void menuSetCurrent(IUI* menu, const EMenuID menu_id);
 void menuRender(RenderContext* ctx, Transforms* transforms);
 
 typedef IUI* (*MenuConstructor)();
