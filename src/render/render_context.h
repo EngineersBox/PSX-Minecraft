@@ -33,18 +33,18 @@ extern MATRIX lighting_colour;
 extern MATRIX lighting_direction;
 
 // Double buffer structure
-typedef struct {
+typedef struct Framebuffer {
     DISPENV display_env;
     DRAWENV draw_env;
-    uint32_t ordering_table[ORDERING_TABLE_LENGTH];
+    u32 ordering_table[ORDERING_TABLE_LENGTH];
     char packet_buffer[PACKET_BUFFER_LENGTH];
 } Framebuffer;
 
-typedef struct {
+typedef struct RenderContext {
     char* primitive;
     RECT screen_clip;
     Framebuffer db[2];
-    uint8_t active;
+    u8 active;
     Camera* camera;
 } RenderContext;
 
@@ -52,19 +52,22 @@ void initRenderContext(RenderContext* ctx);
 
 void swapBuffers(RenderContext* ctx);
 
-void renderClearConstraintsIndex(RenderContext* ctx, uint32_t index);
- void renderClearConstraints(RenderContext* ctx);
+void renderClearConstraintsEntry(RenderContext *ctx, u32* ot_object);
+#define renderClearConstraintsIndex(ctx, index) renderClearConstraintsEntry(\
+    ctx, \
+    allocateOrderingTable(ctx, index) \
+)
+#define renderClearConstraints(ctx) renderClearConstraintsIndex(ctx, 0)
 
 void renderCtxBindMatrix(RenderContext* ctx,
                          Transforms* transforms,
                          const SVECTOR* rotation,
                          const VECTOR* translation);
-INLINE void renderCtxUnbindMatrix() {
-    PopMatrix();
-}
+
+#define renderCtxUnbindMatrix PopMatrix
 
 char* allocatePrimitive(RenderContext* ctx, size_t size);
 void freePrimitive(RenderContext* ctx, size_t size);
-uint32_t* allocateOrderingTable(RenderContext* ctx, size_t depth);
+u32* allocateOrderingTable(RenderContext* ctx, size_t depth);
 
 #endif // PSXMC_RENDER_CONTEXT_H

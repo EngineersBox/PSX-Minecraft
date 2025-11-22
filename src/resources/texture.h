@@ -96,8 +96,8 @@ typedef RECT TextureWindow ;
 #define textureWindowCreate(tile_x, tile_y, u, v) textureWindowCreateDirect( \
     TEXTURE_WINDOW_MASK_##tile_x, \
     TEXTURE_WINDOW_MASK_##tile_y, \
-    textureWindowOffset(u), \
-    textureWindowOffset(v) \
+    u, \
+    v \
 )
 
 #endif // PSXMC_TEXTURE_H

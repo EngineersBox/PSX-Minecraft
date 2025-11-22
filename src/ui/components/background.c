@@ -28,7 +28,9 @@ UIBackground* uiBackgroundNew(const Texture* texture,
 void uiBackgroundRender(VSelf, RenderContext* ctx, Transforms* transforms) ALIAS("UIBackground_render");
 void UIBackground_render(VSelf, RenderContext* ctx, UNUSED Transforms* transforms) {
     VSELF(UIBackground);
+    u32* ot_object = allocateOrderingTable(ctx, self->ot_entry_index);
     POLY_FT4* pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
+    setPolyFT4(pol4);
     setXYWH(
         pol4,
         self->component.position.vx,
@@ -43,7 +45,6 @@ void UIBackground_render(VSelf, RenderContext* ctx, UNUSED Transforms* transform
         self->component.dimensions.vx,
         self->component.dimensions.vy
     );
-    // Mid point grey as mask for additive texturing
     setRGB0(
         pol4,
         self->tint.r,
@@ -52,7 +53,7 @@ void UIBackground_render(VSelf, RenderContext* ctx, UNUSED Transforms* transform
     );
     pol4->tpage = self->texture->tpage;
     pol4->clut = self->texture->clut;
-    polyFT4Render(pol4, self->ot_entry_index, ctx);
+    addPrim(ot_object, pol4);
     u8 mask_x = 0;
     switch (self->texture_dimensions.vx) {
         case 8: mask_x = TEXTURE_WINDOW_MASK_8; break;
@@ -85,7 +86,6 @@ void UIBackground_render(VSelf, RenderContext* ctx, UNUSED Transforms* transform
     );
     DR_TWIN* ptwin = (DR_TWIN*) allocatePrimitive(ctx, sizeof(DR_TWIN));
     setTexWindow(ptwin, &tex_window);
-    u32* ot_object = allocateOrderingTable(ctx, self->ot_entry_index);
     addPrim(ot_object, ptwin);
-    renderClearConstraintsIndex(ctx, self->ot_entry_index);
+    renderClearConstraintsEntry(ctx, ot_object);
 }

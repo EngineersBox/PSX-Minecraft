@@ -96,7 +96,7 @@ static void displayProgress(RenderContext* ctx,
         msg,
         x, y, z
     );
-    const u32* background_ot_object = allocateOrderingTable(ctx, 2);
+    u32* background_ot_object = allocateOrderingTable(ctx, 2);
     backgroundDraw(
         ctx,
         background_ot_object,

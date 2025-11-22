@@ -199,14 +199,13 @@ void SingleplayerMenu_registerInputHandler(VSelf, Input* input, UNUSED void* ctx
 void singleplayerMenuRender(VSelf, RenderContext* ctx, Transforms* transforms) ALIAS("SingleplayerMenu_render");
 void SingleplayerMenu_render(VSelf, RenderContext* ctx, Transforms* transforms) {
     VSELF(SingleplayerMenu);
-    const u32* background_ot_object = allocateOrderingTable(ctx, 2);
+    u32* background_ot_object = allocateOrderingTable(ctx, 2);
     backgroundDraw(
         ctx,
         background_ot_object,
         2 * BLOCK_TEXTURE_SIZE,
         0 * BLOCK_TEXTURE_SIZE
     );
-    renderClearConstraintsIndex(ctx, 2);
     uiRender(&self->ui, ctx, transforms);
     fontPrintCentreOffset(
         ctx,

@@ -151,7 +151,7 @@ void swapBuffers(RenderContext* ctx) {
     DrawOTag(ctx->db[1 - ctx->active].ordering_table + (ORDERING_TABLE_LENGTH - 1));
 }
 
-void renderClearConstraintsIndex(RenderContext* ctx, uint32_t index) {
+void renderClearConstraintsEntry(RenderContext* ctx, u32* ot_object) {
     DR_TWIN* ptwin = (DR_TWIN*) allocatePrimitive(ctx, sizeof(DR_TWIN));
     // Zeroed fields indicates clearing/reset any applied texture windows
     const RECT tex_window = {
@@ -161,12 +161,7 @@ void renderClearConstraintsIndex(RenderContext* ctx, uint32_t index) {
         .h = 0
     };
     setTexWindow(ptwin, &tex_window);
-    uint32_t* ot_object = allocateOrderingTable(ctx, index);
     addPrim(ot_object, ptwin);
-}
-
-void renderClearConstraints(RenderContext* ctx) {
-    renderClearConstraintsIndex(ctx, 0);
 }
 
 void renderCtxBindMatrix(UNUSED RenderContext* ctx,
@@ -217,7 +212,7 @@ void freePrimitive(RenderContext* ctx, const size_t size) {
     ctx->primitive -= size;
 }
 
-uint32_t* allocateOrderingTable(RenderContext* ctx, const size_t depth) {
+u32* allocateOrderingTable(RenderContext* ctx, const size_t depth) {
     if (depth >= ORDERING_TABLE_LENGTH) {
         errorAbort("[ERROR] Not enough space in ordering table: 0x%x >= 0x%x\n", depth, ORDERING_TABLE_LENGTH);
     }

@@ -228,14 +228,13 @@ void renderLogo(RenderContext* ctx) {
 void mainMenuRender(VSelf, RenderContext* ctx, Transforms* transforms) ALIAS("MainMenu_render");
 void MainMenu_render(VSelf, RenderContext* ctx, Transforms* transforms) {
     VSELF(MainMenu);
-    const u32* background_ot_object = allocateOrderingTable(ctx, 2);
+    u32* background_ot_object = allocateOrderingTable(ctx, 2);
     backgroundDraw(
         ctx,
         background_ot_object,
         2 * BLOCK_TEXTURE_SIZE,
         0 * BLOCK_TEXTURE_SIZE
     );
-    renderClearConstraintsIndex(ctx, 2);
     uiRender(&self->ui, ctx, transforms);
     renderLogo(ctx);
     fontPrintCentreOffset(
