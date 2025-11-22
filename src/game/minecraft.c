@@ -361,8 +361,8 @@ void Minecraft_render(VSelf, const Stats* stats) {
         SCREEN_YRES - HOTBAR_HEIGHT - 20
     );
 #endif
-minecraftRenderFinalise:;
     FntPrint(0, PSXMC_VERSION_STRING "\n");
+minecraftRenderFinalise:;
     // Flush font to screen
     FntFlush(0);
     // Swap buffers and draw the primitives
