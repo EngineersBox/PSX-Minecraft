@@ -209,7 +209,7 @@ void SingleplayerMenu_render(VSelf, RenderContext* ctx, Transforms* transforms) 
     uiRender(&self->ui, ctx, transforms);
     fontPrintCentreOffset(
         ctx,
-        (SCREEN_XRES >> 1) - ((12 * FONT_CHARACTER_SPRITE_WIDTH) >> 1),
+        SCREEN_XRES >> 1,
         BLOCK_TEXTURE_SIZE - FONT_CHARACTER_SPRITE_HEIGHT - 3,
         0,
         1,
