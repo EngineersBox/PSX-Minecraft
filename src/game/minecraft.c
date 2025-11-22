@@ -256,7 +256,7 @@ void Minecraft_update(VSelf, UNUSED const Stats* stats) {
     cameraUpdate(&self->camera);
 }
 
-static void frustumRenderNormals(const Frustum* frustum, RenderContext* ctx) {
+UNUSED static void frustumRenderNormals(const Frustum* frustum, RenderContext* ctx) {
     // Object and light matrix for object
     MATRIX omtx, olmtx;
     // Set object rotation and position
