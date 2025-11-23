@@ -70,6 +70,7 @@ static void displayProgress(RenderContext* ctx,
                             const i32 y,
                             const i32 z,
                             const char* msg) {
+    // FIXME: Text is not showing over background for some reason
     fontPrintCentreOffset(
         ctx,
         CENTRE_X,
@@ -395,7 +396,7 @@ INLINE bool worldIsOutsideBounds(const World* world, const ChunkBlockPosition* p
 
 DEFN_DURATION_COMPONENT(world_render);
 
-void worldRender(const World* world,
+void worldRenderOld(const World* world,
                  const Player* player,
                  RenderContext* ctx,
                  Transforms* transforms) {
@@ -609,7 +610,7 @@ void worldRender(const World* world,
     // pcsx_debugbreak();
 }
 
-void worldRenderOld(const World* world,
+void worldRender(const World* world,
                     const Player* player,
                     RenderContext* ctx,
                     Transforms* transforms) {

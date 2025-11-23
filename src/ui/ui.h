@@ -12,7 +12,6 @@
 #include "../render/render_context.h"
 #include "../render/transforms.h"
 #include "../resources/texture.h"
-#include "../core/input/input.h"
 
 #define IUIComponent_IFACE \
     vfunc(void, render, VSelf, RenderContext* ctx, Transforms* transforms) \

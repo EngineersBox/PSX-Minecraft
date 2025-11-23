@@ -4,7 +4,7 @@
 
 void uiInit(UI* ui) {
     ui->active = false;
-    ui->cursor = (DVECTOR) {0};
+    ui->cursor = vec2_i16(0);
     ui->texture = NULL;
     ui->components = NULL;
     cvector_init(ui->components, 0, NULL);

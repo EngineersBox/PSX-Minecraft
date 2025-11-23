@@ -1,6 +1,5 @@
 #include "logging.h"
 
-#include "../core/std/stdlib.h"
 #include <string.h>
 
 __attribute__((
@@ -9,6 +8,7 @@ __attribute__((
 ))
 inline void errorAbort(const char* fmt, ...) {
     char* str = calloc(strlen(fmt), sizeof(char));
+    assert(str != NULL);
     va_list(args);
     va_start(args, fmt);
     vsprintf(str, fmt, args);

@@ -67,7 +67,8 @@ void UICursor_update(VSelf) {
     }
     if (!debounce(&cursor_debounce, CURSOR_DEBOUNCE_MS)) {
         return;
-    } else if (isPressed(input.pad, BINDING_CURSOR_CLICK)) {
+    } else if (isPressed(input.pad, BINDING_CURSOR_CLICK)
+            || isPressed(input.pad, BINDING_SPLIT_OR_STORE_ONE)) {
         self->state = CURSOR_PRESSED;
     }
 }

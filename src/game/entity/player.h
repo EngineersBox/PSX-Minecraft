@@ -28,7 +28,7 @@ extern const PhysicsObjectUpdateHandlers player_physics_object_update_handlers;
 // ONE_BLOCK * 1.7
 #define PLAYER_CAMERA_OFFSET 487424
 
-typedef struct {
+typedef struct Player {
     Entity entity;
     Camera* camera;
     IUI inventory;
@@ -42,7 +42,7 @@ extern Player* player;
 // Forward declaration
 typedef struct World World;
 
-typedef struct {
+typedef struct PlayerInputHandlerContext {
     Player* player;
     World* world;
 } PlayerInputHandlerContext;

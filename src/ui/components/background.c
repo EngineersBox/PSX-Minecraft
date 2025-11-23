@@ -2,9 +2,7 @@
 
 #include <psxgpu.h>
 
-#include "../../structure/primitive/primitive.h"
 #include "../../util/preprocessor.h"
-#include "../../logging/logging.h"
 
 UIBackground* uiBackgroundNew(const Texture* texture,
                               const DVECTOR position,
@@ -61,22 +59,16 @@ void UIBackground_render(VSelf, RenderContext* ctx, UNUSED Transforms* transform
         case 32: mask_x = TEXTURE_WINDOW_MASK_32; break;
         case 64: mask_x = TEXTURE_WINDOW_MASK_64; break;
         case 128: mask_x = TEXTURE_WINDOW_MASK_128; break;
-        case 256: mask_x = TEXTURE_WINDOW_MASK_256; break;
-        default:
-            errorAbort("Unknown texture window mask size: %d\n", self->texture_dimensions.vx);
-            break;
+        default: mask_x = TEXTURE_WINDOW_MASK_256; break;
     }
     u8 mask_y = 0;
-    switch (self->texture_dimensions.vx) {
+    switch (self->texture_dimensions.vy) {
         case 8: mask_y = TEXTURE_WINDOW_MASK_8; break;
         case 16: mask_y = TEXTURE_WINDOW_MASK_16; break;
         case 32: mask_y = TEXTURE_WINDOW_MASK_32; break;
         case 64: mask_y = TEXTURE_WINDOW_MASK_64; break;
         case 128: mask_y = TEXTURE_WINDOW_MASK_128; break;
-        case 256: mask_y = TEXTURE_WINDOW_MASK_256; break;
-        default:
-            errorAbort("Unknown texture window mask size: %d\n", self->texture_dimensions.vx);
-            break;
+        default: mask_y = TEXTURE_WINDOW_MASK_256; break;
     }
     const TextureWindow tex_window = textureWindowCreateDirect(
         mask_x,
@@ -87,5 +79,5 @@ void UIBackground_render(VSelf, RenderContext* ctx, UNUSED Transforms* transform
     DR_TWIN* ptwin = (DR_TWIN*) allocatePrimitive(ctx, sizeof(DR_TWIN));
     setTexWindow(ptwin, &tex_window);
     addPrim(ot_object, ptwin);
-    renderClearConstraintsEntry(ctx, ot_object);
+    // renderClearConstraintsEntry(ctx, ot_object);
 }

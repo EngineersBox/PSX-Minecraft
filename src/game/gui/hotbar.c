@@ -35,7 +35,7 @@ void hotbarInit(Hotbar* hotbar) {
         vec2_i16(HOTBAR_WIDTH, HOTBAR_HEIGHT),
         vec2_i16(16 * 16, 0),
         vec2_i16(HOTBAR_WIDTH, HOTBAR_HEIGHT),
-        vec3_rgb(0x7f, 0x7f, 0x7f),
+        vec3_rgb(0x7F, 0x7F, 0x7F),
         1
     );
     DYN_PTR(component, UIBackground, IUIComponent, background);
@@ -65,8 +65,8 @@ void hotbarRenderSlots(const Hotbar* hotbar,  RenderContext* ctx, Transforms* tr
     );
     setUVWH(
         pol4,
-        HOTBAR_WIDTH,
-        0,
+        HOTBAR_SELECTOR_U,
+        HOTBAR_SELECTOR_V,
         HOTBAR_SELECTOR_WIDTH,
         HOTBAR_SELECTOR_HEIGHT
     );
