@@ -123,8 +123,8 @@ void Minecraft_init(VSelf, UNUSED void* ctx) {
     blocksInitialiseBuiltin();
     itemsInitialiseBuiltin();
 
-    // menuOpen(MENUID_MAIN);
-    // return;
+    menuOpen(MENUID_MAIN);
+    return;
 
 
     // Initialise world
