@@ -4,7 +4,6 @@
 #define PSXMC_HOTBAR_H
 
 #include "../../ui/ui.h"
-#include "../../structure/cvector.h"
 #include "../../render/render_context.h"
 #include "../../render/transforms.h"
 #include "../../core/input/input.h"

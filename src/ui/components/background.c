@@ -79,5 +79,5 @@ void UIBackground_render(VSelf, RenderContext* ctx, UNUSED Transforms* transform
     DR_TWIN* ptwin = (DR_TWIN*) allocatePrimitive(ctx, sizeof(DR_TWIN));
     setTexWindow(ptwin, &tex_window);
     addPrim(ot_object, ptwin);
-    // renderClearConstraintsEntry(ctx, ot_object);
+    renderClearConstraintsEntry(ctx, ot_object);
 }
