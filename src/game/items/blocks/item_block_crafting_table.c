@@ -54,10 +54,7 @@ void craftingTableItemBlockInit(VSelf) ALIAS("CraftingTableItemBlock_init");
 void CraftingTableItemBlock_init(VSelf) {
     VSELF(CraftingTableItemBlock);
     self->item_block = (ItemBlock) {
-        .item = declareSimpleItem(
-            ITEMID_CRAFTING_TABLE,
-            0
-        ),
+        .item = declareItem(ITEMID_CRAFTING_TABLE),
         .face_attributes = { declareTintedFaceAttributes(
             4, NO_TINT,
             43, NO_TINT,

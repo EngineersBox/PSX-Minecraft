@@ -1,11 +1,6 @@
-# Notes
+# Slot Groups
 
-* Rework IUI + UI system to allow for groups of slots as a fixed sized array of dimension `(N,M)`
-  where `N` and `M` are used along with slot dimenions `(W,H)` and spacing between slots
-
-## Slot Groups
-
-* Rework IUI + UI system to allow for groups of slots.
+* IUI + UI system to allow for groups of slots.
 * Compile time data:
     * Dimensions of group on screen in pixels, i.e. how many slots in X and Y
       directions for rectangle group
@@ -17,7 +12,7 @@
 * The `Slot` struct then has everything except the data or ref union and index
   removed from it
 
-### Definitions
+## Definitions
 
 ```c
 typedef struct Slot {
@@ -41,7 +36,7 @@ typedef Slot SlotGroup;
 
 ```
 
-### Usage
+## Usage
 
 ```c
 // Armour slots

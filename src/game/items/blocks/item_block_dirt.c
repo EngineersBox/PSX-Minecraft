@@ -58,10 +58,7 @@ void dirtItemBlockInit(VSelf) ALIAS("DirtItemBlock_init");
 void DirtItemBlock_init(VSelf) {
     VSELF(DirtItemBlock);
     self->item_block = (ItemBlock) {
-        .item = declareSimpleItem(
-            ITEMID_DIRT,
-            0
-        ),
+        .item = declareItem(ITEMID_DIRT),
         .face_attributes = { defaultFaceAttributes(2) }
     };
 }

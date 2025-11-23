@@ -146,34 +146,16 @@ typedef IBlock* (*BlockConstructor)(IItem* from_item, MAYBE_UNUSED u8 metadata_i
 }
 #define DEFN_BLOCK_CONSTRUCTOR_IMPL_STATEFUL(name) DEFN_BLOCK_CONSTRUCTOR(name)
 
-// Declare a Block instance
-#define declareBlock(_id, _metadata_id, _light_level, _orientation) ((Block) {\
-    .id = (BlockID) _id,\
-    .metadata_id = _metadata_id,\
-    .light_level = _light_level, \
-    .orientation = (FaceDirection) _orientation \
+// Declare a block instance, using
+// designated initialisers for all
+// optional fields (i.e. not 'id')
+#define declareBlock(_id, ...) ((Block) {\
+    .id = (BlockID) _id, \
+    .metadata_id = 0, \
+    .light_level = 0, \
+    .orientation = (FaceDirection) FACE_DIR_RIGHT, \
+    __VA_ARGS__ \
 })
-// Declare a Block
-#define declareSimpleBlock(_id) declareBlock( \
-    _id, \
-    0, \
-    0, \
-    FACE_DIR_RIGHT \
-)
-// Declare a Block with a light level
-#define declareLightBlock(_id, _light_level) declareBlock( \
-    _id, \
-    0, \
-    _light_level, \
-    FACE_DIR_RIGHT \
-)
-// Declare a Block with a metadata ID
-#define declareSimpleBlockMeta(_id, _metadata_id) declareBlock( \
-    _id, \
-    _metadata_id, \
-    0, \
-    FACE_DIR_RIGHT \
-)
 
 // External data that blocks need when they need invoke
 // a handler when a player interacts with it in some way

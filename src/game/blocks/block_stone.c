@@ -11,7 +11,7 @@ void stoneBlockInit(VSelf) ALIAS("StoneBlock_init");
 void StoneBlock_init(VSelf) {
     // TODO: Can make this VSELF(Block) since StoneBlock composes Block as the first struct element
     VSELF(StoneBlock);
-    self->block = declareSimpleBlock(BLOCKID_STONE);
+    self->block = declareBlock(BLOCKID_STONE);
 }
 
 IItem* stoneBlockDestroy(VSelf, bool drop_item) ALIAS("StoneBlock_destroy");

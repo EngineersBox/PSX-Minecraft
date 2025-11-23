@@ -160,26 +160,21 @@ typedef void (*ItemDestructor)();
 #define itemConstructor(name) name##ItemConstructor
 #define DEFN_ITEM_CONSTRUCTOR(name) IItem* itemConstructor(name)(MAYBE_UNUSED u8 metadata_id)
 
-#define declareItem(_id, _metadata_id, _durability, _stack_size, _in_world, _position, _rotation) ((Item) { \
+// Declare an item instance, using
+// designated initialisers for all
+// optional fields (i.e. not 'id')
+#define declareItem(_id, ...) ((Item) {\
     .id = (_id), \
-    .metadata_id = (_metadata_id), \
-    .durability = (_durability), \
-    .stack_size = (_stack_size), \
+    .metadata_id = 0, \
+    .durability = 0, \
+    .stack_size = 64, \
     .bob_offset = 0, \
     .bob_direction = 0, \
-    .in_world = (_in_world), \
-    .position = (_position), \
-    .rotation = (_rotation) \
+    .in_world = false, \
+    .position = vec3_i32(0), \
+    .rotation = vec3_i16(0), \
+    .world_entity = NULL, \
+    __VA_ARGS__ \
 })
-#define declareSimpleItemMeta(_id, _metadata_id, _durability) declareItem( \
-    _id, \
-    _metadata_id, \
-    _durability, \
-    0, \
-    false, \
-    vec3_i32(0), \
-    vec3_i16(0) \
-)
-#define declareSimpleItem(_id, _durability) declareSimpleItemMeta(_id, 0, _durability)
 
 #endif // PSXMC_ITEM_H

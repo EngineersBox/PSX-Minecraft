@@ -339,18 +339,19 @@ static void chunkVisibilityDfsWalkScan(Chunk* chunk,
             // DEBUG_LOG("Pos: " VEC_PATTERN "\n", VEC_LAYOUT(pos));
             cvector_pop_back(queue);
             total_blocks_processed++;
+            const IBlock* iblock = chunkGetBlockVec(chunk, &pos);
             // Update masks for BGM
             addVoxelToFaceColumns(
                 faces_cols,
                 faces_cols_opaque,
-                chunkGetBlockVec(chunk, &pos),
+                iblock,
                 pos.vx + 1,
                 pos.vy + 1,
                 pos.vz + 1
             );
             // We assume that when the block position was pushed into the queue,
             // it had already been validated, thus no block properties check here.
-            const Block* block = VCAST_PTR(Block*, chunkGetBlock(chunk, pos.vx, pos.vy, pos.vz));
+            const Block* block = VCAST_PTR(Block*, iblock);
             #define _visitBlock(condition, direction, normal) \
                 if (condition) { \
                     visible_sides |= 0b1 << direction; \

@@ -10,7 +10,7 @@ DEFN_BLOCK_CONSTRUCTOR_IMPL_STATELESS(grass, GRASS)
 void grassBlockInit(VSelf) ALIAS("GrassBlock_init");
 void GrassBlock_init(VSelf) {
     VSELF(GrassBlock);
-    self->block = declareSimpleBlock(BLOCKID_GRASS);
+    self->block = declareBlock(BLOCKID_GRASS);
 }
 
 IItem* grassBlockDestroy(VSelf, bool drop_item) ALIAS("GrassBlock_destroy");

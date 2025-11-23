@@ -69,10 +69,7 @@ void plankItemBlockInit(VSelf) ALIAS("PlankItemBlock_init");
 void PlankItemBlock_init(VSelf) {
     VSELF(PlankItemBlock);
     self->item_block = (ItemBlock) {
-        .item = declareSimpleItem(
-            ITEMID_PLANK,
-            0
-        ),
+        .item = declareItem(ITEMID_PLANK),
         .face_attributes = { defaultFaceAttributes(4) },
     };
 }

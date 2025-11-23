@@ -11,7 +11,7 @@ void dirtBlockInit(VSelf) ALIAS("DirtBlock_init");
 void DirtBlock_init(VSelf) {
     // TODO: Can make this VSELF(Block) since DirtBlock composes Block as the first struct element
     VSELF(DirtBlock);
-    self->block = declareSimpleBlock(BLOCKID_DIRT);
+    self->block = declareBlock(BLOCKID_DIRT);
 }
 
 IItem* dirtBlockDestroy(VSelf, bool drop_item) ALIAS("DirtBlock_destroy");

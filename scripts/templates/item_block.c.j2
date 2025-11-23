@@ -69,10 +69,7 @@ void {{ name_lower }}ItemBlockInit(VSelf) ALIAS("{{ name_capital }}ItemBlock_ini
 void {{ name_capital }}ItemBlock_init(VSelf) {
     VSELF({{ name_capital }}ItemBlock);
     self->item_block = (ItemBlock) {
-        .item = declareSimpleItem(
-            ITEMID_{{ name_snake_upper }},
-            0
-        ),
+        .item = declareItem(ITEMID_{{ name_snake_upper }}),
 {%- if face_attributes != None %}
         .face_attributes = { defaultFaceAttributes({{ face_attributes }}) },
 {%- elif tinted_face_attributes != None %}

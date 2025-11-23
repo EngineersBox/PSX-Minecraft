@@ -10,7 +10,7 @@ DEFN_BLOCK_CONSTRUCTOR_IMPL_STATELESS(cobblestone, COBBLESTONE)
 void cobblestoneBlockInit(VSelf) ALIAS("CobblestoneBlock_init");
 void CobblestoneBlock_init(VSelf) {
     VSELF(CobblestoneBlock);
-    self->block = declareSimpleBlock(BLOCKID_COBBLESTONE);
+    self->block = declareBlock(BLOCKID_COBBLESTONE);
 }
 
 IItem* cobblestoneBlockDestroy(VSelf, bool drop_item) ALIAS("CobblestoneBlock_destroy");

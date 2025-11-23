@@ -9,7 +9,7 @@ DEFN_BLOCK_CONSTRUCTOR_IMPL_STATELESS(plank, PLANK)
 void plankBlockInit(VSelf) ALIAS("PlankBlock_init");
 void PlankBlock_init(VSelf) {
     VSELF(PlankBlock);
-    self->block = declareSimpleBlock(BLOCKID_PLANK);
+    self->block = declareBlock(BLOCKID_PLANK);
 }
 
 IItem* plankBlockDestroy(VSelf, bool drop_item) ALIAS("PlankBlock_destroy");
