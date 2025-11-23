@@ -56,6 +56,7 @@ void fontPrintCentreOffset(RenderContext* ctx,
         true,
         buf
     );
+    free(buf);
 }
 
 // Referenced implementations are from Lameguy64 and spicyjpeg

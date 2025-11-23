@@ -225,7 +225,7 @@ InputHandlerState craftingTableBlockInputHandler(const Input* input, UNUSED void
             VCALL(*((IItem*) output_slot->data.item), destroy);
             output_slot->data.item = NULL;
         }
-        return INPUT_HANDLER_RELINQUISH;
+        return INPUT_HANDLER_RELEASE;
     }
     return INPUT_HANDLER_RETAIN;
 }

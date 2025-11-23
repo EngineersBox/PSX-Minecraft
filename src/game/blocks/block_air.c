@@ -10,12 +10,7 @@ DEFN_BLOCK_CONSTRUCTOR_IMPL_STATELESS(air, AIR)
 void airBlockInit(VSelf) ALIAS("AirBlock_init");
 void AirBlock_init(VSelf) {
     VSELF(AirBlock);
-    self->block = declareBlock(
-        BLOCKID_AIR,
-        0,
-        0,
-        FACE_DIR_RIGHT
-    );
+    self->block = declareBlock(BLOCKID_AIR);
 }
 
 IItem* airBlockDestroy(VSelf, bool drop_item) ALIAS("AirBlock_destroy");

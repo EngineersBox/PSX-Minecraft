@@ -332,7 +332,7 @@ InputHandlerState inventoryInputHandler(const Input* input, void* ctx) {
         && debounce(&inventory->debounce, INVENTORY_DEBOUNCE_MS)) {
         if (inventory->ui.active) {
             inventoryClose(inventory);
-            return INPUT_HANDLER_RELINQUISH;
+            return INPUT_HANDLER_RELEASE;
         }
         inventoryOpen(inventory);
         return INPUT_HANDLER_RETAIN;
@@ -343,7 +343,7 @@ InputHandlerState inventoryInputHandler(const Input* input, void* ctx) {
             input
         );
     }
-    return inventory->ui.active ? INPUT_HANDLER_RETAIN : INPUT_HANDLER_RELINQUISH;
+    return inventory->ui.active ? INPUT_HANDLER_RETAIN : INPUT_HANDLER_RELEASE;
 }
 
 void inventoryRegisterInputHandler(VSelf, Input* input, void* ctx) ALIAS("Inventory_registerInputHandler");

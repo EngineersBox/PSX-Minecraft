@@ -277,7 +277,7 @@ void hotbarRenderAttributes(u8 health,
 InputHandlerState hotbarInputHandler(const Input* input, void* ctx) {
     const PADTYPE* pad = input->pad;
     if (pad->stat != 0) {
-        return INPUT_HANDLER_RELINQUISH_NO_DEBOUNCE;
+        return INPUT_HANDLER_RELEASE_NO_DEBOUNCE;
     }
     Hotbar* hotbar = (Hotbar*) ctx;
     if (isPressed(pad, BINDING_PREVIOUS)
@@ -287,7 +287,7 @@ InputHandlerState hotbarInputHandler(const Input* input, void* ctx) {
         && debounce(&hotbar->debounce, HOTBAR_DEBOUNCE_MS)) {
         hotbar->selected_slot = positiveModulo(((i8) hotbar->selected_slot) + 1, 9);
     }
-    return INPUT_HANDLER_RELINQUISH_NO_DEBOUNCE;
+    return INPUT_HANDLER_RELEASE_NO_DEBOUNCE;
 }
 
 void hotbarRegisterInputHandler(VSelf, Input* input, void* ctx) ALIAS("Hotbar_registerInputHandler");

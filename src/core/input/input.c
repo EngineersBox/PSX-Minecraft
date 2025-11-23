@@ -4,7 +4,6 @@
 
 #include "../../util/inttypes.h"
 #include "../../structure/cvector_utils.h"
-#include "../../logging/logging.h"
 
 Input input = (Input) {0};
 
@@ -30,7 +29,6 @@ void inputInit(Input *input) {
 void inputUpdate(Input* input) {
     if (input->in_focus == NULL
         && debounceIsExpired(input->aquire_debounce, INPUT_AQUIRE_DEBOUNCE_MS)) {
-        /*&& debounce(&input->aquire_debounce, INPUT_AQUIRE_DEBOUNCE_MS)) {*/
         InputHandlerVTable* handler = NULL;
         cvector_for_each_in(handler, input->handlers) {
             if (handler->input_handler(input, handler->ctx) == INPUT_HANDLER_RETAIN) {
@@ -50,7 +48,7 @@ void inputUpdate(Input* input) {
         // we reset the focused handler to avoid re-attempting an invocation
         // so we can try all other handlers.
         input->in_focus = NULL;
-        if (state == INPUT_HANDLER_RELINQUISH) {
+        if (state == INPUT_HANDLER_RELEASE) {
             debounceResetDelay(input->aquire_debounce);
         } else {
             debounceResetNoDelay(input->aquire_debounce);

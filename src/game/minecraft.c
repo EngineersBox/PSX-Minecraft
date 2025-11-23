@@ -123,8 +123,8 @@ void Minecraft_init(VSelf, UNUSED void* ctx) {
     blocksInitialiseBuiltin();
     itemsInitialiseBuiltin();
 
-    menuOpen(MENUID_MAIN);
-    return;
+    // menuOpen(MENUID_MAIN);
+    // return;
 
 
     // Initialise world
@@ -236,7 +236,6 @@ void Minecraft_input(VSelf, UNUSED const Stats* stats) {
     self->camera.mode = CAMERA_MODE_FIRST_PERSON;
     // NOTE: If a menu is open, this will handle the input handlers for it
     inputUpdate(&input);
-    DEBUG_LOG("[MINECRAFT] Input updated\n");
 }
 
 void minecraftUpdate(VSelf, const Stats* stats) ALIAS("Minecraft_update");
@@ -245,7 +244,6 @@ void Minecraft_update(VSelf, UNUSED const Stats* stats) {
     if (menuIsOpen()) {
         return;
     }
-    DEBUG_LOG("[MINECRAFT] Update call\n");
     worldUpdate(
         world,
         player,

@@ -6,6 +6,7 @@
 #include <interface99.h>
 
 #include "../ui.h"
+#include "../../hardware/counters.h"
 
 #define CURSOR_MOVE_PIXELS_DELTA 4
 #define CURSOR_SPRITE_WIDTH 16
@@ -14,6 +15,7 @@
 #define CURSOR_SPRITE_POS_Y 106
 
 #define CURSOR_DEBOUNCE_MS 200
+extern Timestamp cursor_debounce;
 
 typedef enum CursorState {
     CURSOR_NONE = 0,

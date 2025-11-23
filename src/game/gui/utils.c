@@ -6,12 +6,10 @@
 #include "../../ui/components/cursor.h"
 #include "slot.h"
 
-static Timestamp cursor_debounce = 0;
-
 void cursorSplitOrStoreOne(Slot* slot,
                            SlotItemGetter getter,
                            SlotItemSetter setter) {
-    if (!debounce(&cursor_debounce, CURSOR_DEBOUNCE_MS)) {
+    if (cursor.state != CURSOR_PRESSED) {
         return;
     }
     IItem* held_iitem = (IItem*) cursor.held_data;
@@ -87,7 +85,7 @@ void cursorSplitOrStoreOne(Slot* slot,
 void cursorInteractSlot(Slot* slot,
                         SlotItemGetter getter,
                         SlotItemSetter setter) {
-    if (!debounce(&cursor_debounce, CURSOR_DEBOUNCE_MS)) {
+    if (cursor.state != CURSOR_PRESSED) {
         return;
     }
     IItem* held_iitem = (IItem*) cursor.held_data;

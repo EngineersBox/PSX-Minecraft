@@ -435,7 +435,7 @@ INLINE static InputHandlerState playerInputHandlerMovement(const Input* input, c
     }
     if (input->pad->stat != 0) {
         // No input, don't bother updating from pads
-        return INPUT_HANDLER_RELINQUISH_NO_DEBOUNCE;
+        return INPUT_HANDLER_RELEASE_NO_DEBOUNCE;
     }
     if (isPressed(pad, BINDING_LOOK_UP)) {
         physics_object->rotation.pitch = positiveModulo(
@@ -485,7 +485,7 @@ INLINE static InputHandlerState playerInputHandlerMovement(const Input* input, c
     } else if (isPressed(pad, BINDING_MOVE_RIGHT)) {
         physics_object->move.strafe += move_amount;
     }
-    return INPUT_HANDLER_RELINQUISH_NO_DEBOUNCE;
+    return INPUT_HANDLER_RELEASE_NO_DEBOUNCE;
 }
 
 InputHandlerState playerInputHandler(const Input* input, void* ctx) {

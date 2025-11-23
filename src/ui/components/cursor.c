@@ -10,6 +10,8 @@
 #include "../../game/items/item.h"
 #include "../../util/interface99_extensions.h"
 
+Timestamp cursor_debounce = 0;
+
 UICursor cursor = {
     .component = {
         .position = vec2_i16(
@@ -49,12 +51,25 @@ void UICursor_update(VSelf) {
         SCREEN_YRES,
         self->component.position.vy + delta_y
     ));
-    if (self->held_data == NULL) {
-        return;
+    if (self->held_data != NULL) {
+        Item* item = VCAST_PTR(Item*, (IItem*) self->held_data);
+        item->position.vx = self->component.position.vx;
+        item->position.vy = self->component.position.vy;
     }
-    Item* item = VCAST_PTR(Item*, (IItem*) self->held_data);
-    item->position.vx = self->component.position.vx;
-    item->position.vy = self->component.position.vy;
+    switch (self->state) {
+        case CURSOR_NONE: FALLTHROUGH;
+        case CURSOR_RELEASED:
+            self->state = CURSOR_NONE;
+            break;
+        case CURSOR_PRESSED:
+            self->state = CURSOR_RELEASED;
+            break;
+    }
+    if (!debounce(&cursor_debounce, CURSOR_DEBOUNCE_MS)) {
+        return;
+    } else if (isPressed(input.pad, BINDING_CURSOR_CLICK)) {
+        self->state = CURSOR_PRESSED;
+    }
 }
 
 void uiCursorRender(VSelf, RenderContext* ctx, Transforms* transforms) ALIAS("UICursor_render");

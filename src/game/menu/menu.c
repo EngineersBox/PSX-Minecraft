@@ -5,14 +5,12 @@
 #include "menus.h"
 #include "../../core/input/input.h"
 #include "../../logging/logging.h"
-#include "../../math/math_utils.h"
 #include "../../ui/components/button.h"
 #include "../../ui/components/cursor.h"
 #include "../../util/interface99_extensions.h"
 
 IUI* current_menu = NULL;
 EMenuID current_menu_id = 0;
-Timestamp menu_debounce = 0;
 
 void menuOpen(const EMenuID menu_id) {
     const MenuConstructor ctor = menu_constructors[menu_id];
@@ -31,7 +29,8 @@ void menuSetCurrent(IUI *menu, const EMenuID menu_id) {
         DEBUG_LOG("[MENU] Closing current menu\n");
         VCALL(*current_menu, close);
         DEBUG_LOG("[MENU] Removing last handler\n");
-        inputRemoveLastHandler(&input);
+        inputPopHandler(&input);
+        inputSetFocusedHandler(&input, NULL);
         DEBUG_LOG("[MENU] Destroying current menu\n");
         const MenuDestructor dtor = menu_destructors[current_menu_id];
         dtor(current_menu);
@@ -58,15 +57,5 @@ INLINE void menuRender(RenderContext* ctx, Transforms* transforms) {
 bool isButtonPressed(UI* ui, size_t index) {
     IUIComponent* component = &ui->components[index];
     UIButton* button = VCAST_PTR(UIButton*, component);
-    if (button->state == BUTTON_DISABLED) {
-        return false;
-    }
-    button->state = quadIntersectLiteral(
-        &cursor.component.position,
-        button->component.position.vx,
-        button->component.position.vy,
-        button->component.dimensions.vx,
-        button->component.dimensions.vy
-    );
     return button->state == BUTTON_PRESSED;
 }

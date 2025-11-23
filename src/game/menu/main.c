@@ -138,25 +138,20 @@ void MainMenu_open(VSelf) {
 static InputHandlerState mainMenuInputHandler(UNUSED const Input* input, void* ctx) {
     MainMenu* main_menu = (MainMenu*) ctx;
     UI* ui = &main_menu->ui;
-    const PADTYPE* pad = input->pad;
     VCALL(cursor_component, update);
     IUIComponent* component;
     cvector_for_each_in(component, ui->components) {
         VCALL(*component, update);
     }
-    if (!debounce(&menu_debounce, MENU_DEBOUNCE_MS)) {
-        return INPUT_HANDLER_RETAIN;
-    } else if (!isPressed(pad, BINDING_CURSOR_CLICK)) {
-        return INPUT_HANDLER_RETAIN;
-    } else if (isButtonPressed(ui, MAIN_MENU_SINGLEPLAYER)) {
+    if (isButtonPressed(ui, MAIN_MENU_SINGLEPLAYER)) {
         menuOpen(MENUID_SINGLEPLAYER);
-        return INPUT_HANDLER_RELINQUISH;
+        return INPUT_HANDLER_RELEASE;
     } else if (isButtonPressed(ui, MAIN_MENU_OPTIONS)) {
         menuOpen(MENUID_OPTIONS);
-        return INPUT_HANDLER_RELINQUISH;
+        return INPUT_HANDLER_RELEASE;
     } else if (isButtonPressed(ui, MAIN_MENU_QUIT)) {
         abort();
-        return INPUT_HANDLER_RELINQUISH;
+        return INPUT_HANDLER_RELEASE;
     }
     return INPUT_HANDLER_RETAIN;
 }

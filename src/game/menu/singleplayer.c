@@ -161,19 +161,19 @@ static InputHandlerState singleplayerMenuInputHandler(UNUSED const Input* input,
     }
     if (isButtonPressed(ui, SINGLEPLAYER_MENU_PLAY)) {
         // TODO: Load world
-        return INPUT_HANDLER_RELINQUISH;
+        return INPUT_HANDLER_RELEASE;
     } else if (isButtonPressed(ui, SINGLEPLAYER_MENU_RENAME)) {
         menuOpen(MENUID_WORLD_RENAME);
-        return INPUT_HANDLER_RELINQUISH;
+        return INPUT_HANDLER_RELEASE;
     } else if (isButtonPressed(ui, SINGLEPLAYER_MENU_DELETE)) {
         menuOpen(MENUID_WORLD_DELETE);
-        return INPUT_HANDLER_RELINQUISH;
+        return INPUT_HANDLER_RELEASE;
     } else if (isButtonPressed(ui, SINGLEPLAYER_MENU_CREATE)) {
         menuOpen(MENUID_WORLD_CREATE);
-        return INPUT_HANDLER_RELINQUISH;
+        return INPUT_HANDLER_RELEASE;
     } else if (isButtonPressed(ui, SINGLEPLAYER_MENU_CANCEL)) {
         menuOpen(MENUID_MAIN);
-        return INPUT_HANDLER_RELINQUISH;
+        return INPUT_HANDLER_RELEASE;
     }
     return INPUT_HANDLER_RETAIN;
 }
@@ -195,16 +195,13 @@ void singleplayerMenuRender(VSelf, RenderContext* ctx, Transforms* transforms) A
 void SingleplayerMenu_render(VSelf, RenderContext* ctx, Transforms* transforms) {
     VSELF(SingleplayerMenu);
     u32* background_ot_object = allocateOrderingTable(ctx, 2);
-    DEBUG_LOG("[SINGLEPLAYER] Draw BG\n");
     backgroundDraw(
         ctx,
         background_ot_object,
         2 * BLOCK_TEXTURE_SIZE,
         0 * BLOCK_TEXTURE_SIZE
     );
-    DEBUG_LOG("[SINGLEPLAYER] Render UI\n");
     uiRender(&self->ui, ctx, transforms);
-    DEBUG_LOG("[SINGLEPLAYER] Render font\n");
     fontPrintCentreOffset(
         ctx,
         SCREEN_XRES >> 1,
@@ -213,13 +210,10 @@ void SingleplayerMenu_render(VSelf, RenderContext* ctx, Transforms* transforms) 
         1,
         "Select World"
     );
-    DEBUG_LOG("[SINGLEPLAYER] Clear constraints\n");
     renderClearConstraintsIndex(ctx, 1);
-    DEBUG_LOG("[SINGLEPLAYER] Render cursor\n");
     uiCursorRender(
         &cursor,
         ctx,
         transforms
     );
-    DEBUG_LOG("[SINGLEPLAYER] End\n");
 }

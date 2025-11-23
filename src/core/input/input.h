@@ -14,9 +14,20 @@
 #define PAD_SECTION_SIZE 34
 
 typedef enum InputHandlerState {
+    /* Keep the handler focused
+     */
     INPUT_HANDLER_RETAIN = 0,
-    INPUT_HANDLER_RELINQUISH = 1,
-    INPUT_HANDLER_RELINQUISH_NO_DEBOUNCE = 2,
+    /* Release focus on the handler
+     * and update debounce for next
+     * handler to be triggered
+     */
+    INPUT_HANDLER_RELEASE = 1,
+    /**
+     * Release focus on the handler
+     * and don't update debounce for
+     * next handler to be triggered
+     */
+    INPUT_HANDLER_RELEASE_NO_DEBOUNCE = 2,
 } InputHandlerState;
 
 #define INPUT_AQUIRE_DEBOUNCE_MS 200
@@ -48,7 +59,7 @@ void inputInit(Input* input);
 void inputUpdate(Input* input);
 
 #define inputAddHandler(input, handler) cvector_push_back((input)->handlers, (InputHandlerVTable)(handler))
-#define inputRemoveLastHandler(input) cvector_pop_back((input)->handlers)
+#define inputPopHandler(input) cvector_pop_back((input)->handlers)
 #define isPressed(input_pad, pad_button) (!((input_pad)->btn & (pad_button)))
 #define inputSetFocusedHandler(input, handler) (input)->in_focus = (InputHandlerVTable*)(handler)
 

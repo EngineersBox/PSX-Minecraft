@@ -6,15 +6,11 @@
 #include <stdint.h>
 
 #include "menu_id.h"
-#include "../../hardware/counters.h"
 #include "../../ui/ui.h"
 #include "../../render/render_context.h"
 
 extern IUI* current_menu;
 extern EMenuID current_menu_id;
-extern Timestamp menu_debounce;
-
-#define MENU_DEBOUNCE_MS 50
 
 #define menuIsOpen() (current_menu != NULL)
 

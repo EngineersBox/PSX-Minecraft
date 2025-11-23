@@ -67,11 +67,6 @@ static InputHandlerState {{ name_camel_case }}InputHandler(UNUSED const Input* i
     cvector_for_each_in(component, ui->components) {
         VCALL(*component, update);
     }
-    if (!debounce(&menu_debounce, MENU_DEBOUNCE_MS)) {
-        return INPUT_HANDLER_RETAIN;
-    } else if (!isPressed(pad, BINDING_CURSOR_CLICK)) {
-        return INPUT_HANDLER_RETAIN;
-    }
     TODO("Finish implementing logic for components being interacted with");
     return INPUT_HANDLER_RETAIN;
 }
