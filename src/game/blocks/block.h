@@ -148,7 +148,10 @@ typedef IBlock* (*BlockConstructor)(IItem* from_item, MAYBE_UNUSED u8 metadata_i
 
 // Declare a block instance, using
 // designated initialisers for all
-// optional fields (i.e. not 'id')
+// optional fields (i.e. not 'id').
+//
+// For example:
+// declareBlock(BLOCKID_EXAMPLE, .light_level = 5)
 #define declareBlock(_id, ...) ((Block) {\
     .id = (BlockID) _id, \
     .metadata_id = 0, \

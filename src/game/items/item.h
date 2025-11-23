@@ -163,6 +163,9 @@ typedef void (*ItemDestructor)();
 // Declare an item instance, using
 // designated initialisers for all
 // optional fields (i.e. not 'id')
+//
+// For example:
+// declareItem(ITEMID_EXAMPLE, .stack_size = 16)
 #define declareItem(_id, ...) ((Item) {\
     .id = (_id), \
     .metadata_id = 0, \
