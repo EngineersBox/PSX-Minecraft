@@ -36,9 +36,6 @@
 #include "menu/menu.h"
 
 World* world;
-IInputHandler player_handler;
-IEntity player_entity;
-Player* player;
 
 /*int helpHandler(const Console* console, char* tokens[CONSOLE_MAX_TOKENS]) {*/
 /*    DEBUG_LOG("[CONSOLE] Invoked help handler: %s\n", tokens[0]);*/
@@ -123,8 +120,8 @@ void Minecraft_init(VSelf, UNUSED void* ctx) {
     blocksInitialiseBuiltin();
     itemsInitialiseBuiltin();
 
-    menuOpen(MENUID_MAIN);
-    return;
+    // menuOpen(MENUID_MAIN);
+    // return;
 
 
     // Initialise world
@@ -138,10 +135,8 @@ void Minecraft_init(VSelf, UNUSED void* ctx) {
     worldInit(world, &self->ctx);
     // Initialise player
     player = playerNew();
-    DYN_PTR(&player_entity, Player, IEntity, player);
-    playerInit(player);
-    block_input_handler_context.inventory = &player->inventory;
-    player->camera = &self->camera;
+    playerInit(player, world, &self->camera);
+
     // TODO: Algorithmically find player spawn position
     const VECTOR player_positon = vec3_i32(
         0,
@@ -149,17 +144,12 @@ void Minecraft_init(VSelf, UNUSED void* ctx) {
         0
     );
     iPhysicsObjectSetPosition(&player->entity.physics_object, &player_positon);
-#if isDebugTagEnabled(PLAYER_NOCLIP)
+#if isDebugFlagEnabled(PLAYER_NOCLIP)
     player->entity.physics_object.flags.no_clip = true;
 #else
     player->entity.physics_object.flags.no_clip = false;
 #endif
-    player_handler = DYN(Player, IInputHandler, player);
-    VCALL(player_handler, registerInputHandler, &input, world);
-    // Register handlers
-    VCALL_SUPER(player->inventory, IInputHandler, registerInputHandler, &input, NULL);
-    VCALL_SUPER(player->hotbar, IInputHandler, registerInputHandler, &input, NULL);
-    // Initialise camera
+    // Initialise camera with new player position
     playerUpdateCamera(player);
     cameraUpdate(&self->camera);
 
@@ -302,7 +292,7 @@ DEFN_DURATION_COMPONENT(render);
 void minecraftRender(VSelf, const Stats* stats) ALIAS("Minecraft_render");
 void Minecraft_render(VSelf, const Stats* stats) {
     VSELF(Minecraft);
-#if isDebugTagEnabled(OVERLAY_DURATION_TREE)
+#if isDebugFlagEnabled(OVERLAY_DURATION_TREE)
     durationTreeMakeCurrent(&render_duration_tree);
     if (!render_duration.init) {
         render_duration = durationTreeAddComponent("render");

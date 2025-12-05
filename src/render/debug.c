@@ -85,10 +85,10 @@ void debugDrawPacketBufferUsageGraph(RenderContext* ctx, const u16 base_screen_x
 }
 
 void drawLeftDebugText(const Stats* stats, const Camera* camera, MAYBE_UNUSED const World* world) {
-#if isDebugTagEnabled(OVERLAY_FPS)
+#if isDebugFlagEnabled(OVERLAY_FPS)
     FntPrint(0, "FT=%dms FPS=%d TPS=%d\n", stats->frame_diff_ms, stats->fps, stats->tps);
 #endif
-#if isDebugTagEnabled(OVERLAY_POS)
+#if isDebugFlagEnabled(OVERLAY_POS)
     const i32 x = camera->position.vx / BLOCK_SIZE;
     const i32 y_down = camera->position.vy / BLOCK_SIZE;
     const i32 y_up = -camera->position.vy / BLOCK_SIZE;
@@ -108,10 +108,10 @@ void drawLeftDebugText(const Stats* stats, const Camera* camera, MAYBE_UNUSED co
     );
     #undef fracToFloat
 #endif
-#if (isDebugTagEnabled(OVERLAY_DIR) || isDebugTagEnabled(OVERLAY_FACING))
+#if (isDebugFlagEnabled(OVERLAY_DIR) || isDebugFlagEnabled(OVERLAY_FACING))
     const VECTOR direction = rotationToDirection(&camera->rotation);
 #endif
-#if isDebugTagEnabled(OVERLAY_DIR)
+#if isDebugFlagEnabled(OVERLAY_DIR)
     FntPrint(
         0,
         "RX=%d RY=%d\n",
@@ -124,7 +124,7 @@ void drawLeftDebugText(const Stats* stats, const Camera* camera, MAYBE_UNUSED co
         VEC_LAYOUT(direction)
     );
 #endif
-#if isDebugTagEnabled(OVERLAY_FACING)
+#if isDebugFlagEnabled(OVERLAY_FACING)
     char facing;
     switch (faceDirectionClosestNormal(direction)) {
         // NOTE: Up and down are swapping since the above function
@@ -144,7 +144,7 @@ void drawLeftDebugText(const Stats* stats, const Camera* camera, MAYBE_UNUSED co
         facing
     );
 #endif
-#if isDebugTagEnabled(OVERLAY_WORLD)
+#if isDebugFlagEnabled(OVERLAY_WORLD)
     char* weather;
     if (world->weather.storming) {
         weather = "storming";
@@ -164,7 +164,7 @@ void drawLeftDebugText(const Stats* stats, const Camera* camera, MAYBE_UNUSED co
 }
 
 void drawRightDebugText(MAYBE_UNUSED const Stats* stats) {
-#if isDebugTagEnabled(OVERLAY_MEM)
+#if isDebugFlagEnabled(OVERLAY_MEM)
     HeapUsage* usage = {0};
     GetHeapUsage(usage);
     char* suffix;

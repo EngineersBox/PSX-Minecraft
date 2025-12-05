@@ -36,6 +36,7 @@ typedef struct Player {
     BreakingState breaking;
 } Player;
 
+extern IInputHandler player_handler;
 extern IEntity player_entity;
 extern Player* player;
 
@@ -48,7 +49,7 @@ typedef struct PlayerInputHandlerContext {
 } PlayerInputHandlerContext;
 
 Player* playerNew();
-void playerInit(Player* player);
+void playerInit(Player* player, World* world, Camera* camera);
 void playerDestroy(const Player* player);
 void playerUpdate(Player* player, World* world);
 void playerUpdateCamera(const Player* player);

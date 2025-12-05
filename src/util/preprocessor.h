@@ -37,7 +37,7 @@
 // ==== MARKERS ====
 
 #define __ALLOC_CALL(...) __attribute__((malloc, ##__VA_ARGS__))
-#if isDebugTagEnabled(PCSX_ASAN)
+#if isDebugFlagEnabled(PCSX_ASAN)
     #define ALLOC_CALL(destructor, idx)
 #elif GNU_VERSION >=100000
     #define ALLOC_CALL(destructor, idx) __ALLOC_CALL(malloc(destructor,idx))

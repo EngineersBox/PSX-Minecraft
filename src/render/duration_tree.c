@@ -8,7 +8,7 @@
 #include "../math/math_utils.h"
 #include "../structure/cvector_utils.h"
 
-#if isDebugTagEnabled(OVERLAY_DURATION_TREE)
+#if isDebugFlagEnabled(OVERLAY_DURATION_TREE)
 #include "../logging/logging.h"
 
 DurationComponent render_duration_tree = (DurationComponent) {

@@ -6,7 +6,7 @@
 #include "../../debug/debug_defines.h"
 #include <stdlib.h>
 
-#if isDebugTagEnabled(PCSX_ASAN)
+#if isDebugFlagEnabled(PCSX_ASAN)
 #include "../../debug/pcsx.h"
 #define malloc pcsx_msanAlloc
 #define calloc pcsx_msanCalloc

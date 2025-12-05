@@ -37,7 +37,7 @@
 
 // ==== UTILS ====
 
-#if isDebugTagEnabled(PCSX_UTILS)
+#if isDebugFlagEnabled(PCSX_UTILS)
 // Print ASCII character with code c to console/stdout.
 void pcsx_putc(int c);
 // Break execution (Pause emulation).
@@ -53,7 +53,7 @@ void pcsx_message(const char* msg);
 
 // ==== KERNEL CHECKING ====
 
-#if isDebugTagEnabled(PCSX_KERNEL_CHECKER)
+#if isDebugFlagEnabled(PCSX_KERNEL_CHECKER)
 // Enable or disable kernel checking.
 void pcsx_checkKernel(int enable);
 // Returns truthy if kernel checking is enabled.
@@ -64,7 +64,7 @@ int pcsx_present();
 
 // === MEMORY SANITISER ====
 
-#if isDebugTagEnabled(PCSX_ASAN)
+#if isDebugFlagEnabled(PCSX_ASAN)
 // Initialize memory sanitizer system.
 void pcsx_initMsan();
 // Reset memory sanitizer system.

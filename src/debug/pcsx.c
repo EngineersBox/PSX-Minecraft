@@ -2,7 +2,7 @@
 
 // ==== UTILS ====
 
-#if isDebugTagEnabled(PCSX_UTILS)
+#if isDebugFlagEnabled(PCSX_UTILS)
 // Print ASCII character with code c to console/stdout.
 void pcsx_putc(int c) { *((volatile char* const)0x1f802080) = c; }
 // Break execution (Pause emulation).
@@ -30,7 +30,7 @@ void pcsx_message(const char* msg) { *((volatile char** const)0x1f802084) = msg;
 
 // ==== KERNEL CHECKING ====
 
-#if isDebugTagEnabled(PCSX_KERNEL_CHECKER)
+#if isDebugFlagEnabled(PCSX_KERNEL_CHECKER)
 // Enable or disable kernel checking.
 void pcsx_checkKernel(int enable) { *((volatile char*)0x1f802088) = enable; }
 // Returns truthy if kernel checking is enabled.
@@ -41,7 +41,7 @@ int pcsx_present() { return *((volatile uint32_t* const)0x1f802080) == 0x5853435
 
 // === MEMORY SANITISER ====
 
-#if isDebugTagEnabled(PCSX_ASAN)
+#if isDebugFlagEnabled(PCSX_ASAN)
 #pragma GCC diagnostic push
 // Ignore register ASM vars being ignored
 #pragma GCC diagnostic ignored "-Wunused-variable"

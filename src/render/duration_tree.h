@@ -29,7 +29,7 @@ typedef struct DurationComponentIndex {
     size_t index: SIZE_WIDTH - 1;
 } DurationComponentIndex;
 
-#if isDebugTagEnabled(OVERLAY_DURATION_TREE)
+#if isDebugFlagEnabled(OVERLAY_DURATION_TREE)
 extern DurationComponent render_duration_tree;
 extern DurationComponent update_duration_tree;
 extern u8 duration_stack_next_index;

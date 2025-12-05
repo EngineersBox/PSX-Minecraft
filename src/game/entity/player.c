@@ -11,6 +11,10 @@
 #include "../world/chunk/chunk_structure.h"
 #include "../world/world_raycast.h"
 
+IInputHandler player_handler;
+IEntity player_entity;
+Player* player;
+
 // Forward declaration
 FWD_DECL IBlock* worldModifyVoxelConstructed(const World* world,
                                              const VECTOR* position,
@@ -58,11 +62,13 @@ INLINE Player* playerNew() {
     return player;
 }
 
-void playerInit(Player* player) {
+void playerInit(Player* player, World* world, Camera* camera) {
+    DYN_PTR(&player_entity, Player, IEntity, player);
     entityInit(&player->entity);
     player->entity.health = PLAYER_MAX_HEALTH;
     player->entity.armour = 0;
     player->entity.air = PLAYER_MAX_AIR;
+    player->camera = camera;
     breakingStateReset(player->breaking);
     Inventory* inventory = inventoryNew();
     Hotbar* hotbar = hotbarNew();
@@ -70,11 +76,11 @@ void playerInit(Player* player) {
     inventoryInit(inventory, hotbar);
     DYN_PTR(&player->hotbar, Hotbar, IUI, &hotbar->ui);
     DYN_PTR(&player->inventory, Inventory, IUI, &inventory->ui);
-    iPhysicsObjectInit(
-        &player->entity.physics_object,
-        &player_physics_object_config,
-        &player_physics_object_update_handlers
-    );
+    block_input_handler_context.inventory = &player->inventory;
+    player_handler = DYN(Player, IInputHandler, player);
+    VCALL(player_handler, registerInputHandler, &input, world);
+    VCALL_SUPER(player->inventory, IInputHandler, registerInputHandler, &input, NULL);
+    VCALL_SUPER(player->hotbar, IInputHandler, registerInputHandler, &input, NULL);
 }
 
 void playerDestroy(const Player* player) {
