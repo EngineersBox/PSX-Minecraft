@@ -29,6 +29,8 @@
 #include "position.h"
 #include "world_defines.h"
 
+World* world = NULL;
+
 const LightUpdateLimits world_chunk_init_limits = (LightUpdateLimits) {
     .add_block = 0,
     .add_sky = 0,

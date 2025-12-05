@@ -35,8 +35,6 @@
 #include "../structure/primitive/primitive.h"
 #include "menu/menu.h"
 
-World* world;
-
 /*int helpHandler(const Console* console, char* tokens[CONSOLE_MAX_TOKENS]) {*/
 /*    DEBUG_LOG("[CONSOLE] Invoked help handler: %s\n", tokens[0]);*/
 /*    return 0;*/
@@ -119,10 +117,12 @@ void Minecraft_init(VSelf, UNUSED void* ctx) {
     // Initialise game elements
     blocksInitialiseBuiltin();
     itemsInitialiseBuiltin();
-
+    // Show main menu
     // menuOpen(MENUID_MAIN);
+    // DEBUG_LOG("[Minecraft] Finished init\n");
     // return;
 
+    /* ==== TESTING: [START] Load directly into world ====*/
 
     // Initialise world
     world = worldNew();
@@ -153,7 +153,6 @@ void Minecraft_init(VSelf, UNUSED void* ctx) {
     playerUpdateCamera(player);
     cameraUpdate(&self->camera);
 
-    // ==== TESTING: Hotbar ====
     Inventory* inventory = VCAST(Inventory*, player->inventory);
     /*Slot* slot = inventoryFindFreeSlot(inventory, 0);*/
     /*IItem* item = itemCreate();*/
@@ -163,7 +162,7 @@ void Minecraft_init(VSelf, UNUSED void* ctx) {
     /*grass_item_block->item_block.item.stack_size = 26;*/
     /*inventorySlotSetItem(slot, item);*/
     /*VCALL_SUPER(*item, Renderable, applyInventoryRenderAttributes);*/
-    // ==== TESTING: Inventory ====
+
     /*slot = &inventory->slots[slotGroupIndexOffset(INVENTORY_MAIN) + 2];*/
     /*item = itemCreate();*/
     /*grass_item_block = grassItemBlockCreate();*/
@@ -186,6 +185,9 @@ void Minecraft_init(VSelf, UNUSED void* ctx) {
     slot = inventoryFindFreeSlot(inventory, slotGroupIndexOffset(INVENTORY_MAIN));
     inventorySlotSetItem(slot, item);
     VCALL_SUPER(*item, Renderable, applyInventoryRenderAttributes);
+
+    /* ==== TESTING: [END] Load directly into world ====*/
+
     DEBUG_LOG("[Minecraft] Finished init\n");
 }
 

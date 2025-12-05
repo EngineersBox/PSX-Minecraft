@@ -11,9 +11,9 @@
 #include "../world/chunk/chunk_structure.h"
 #include "../world/world_raycast.h"
 
-IInputHandler player_handler;
-IEntity player_entity;
-Player* player;
+IInputHandler player_handler = {0};
+IEntity player_entity = {0};
+Player* player = NULL;
 
 // Forward declaration
 FWD_DECL IBlock* worldModifyVoxelConstructed(const World* world,
@@ -42,7 +42,7 @@ const PhysicsObjectConfig player_physics_object_config = (PhysicsObjectConfig) {
     // ONE_BLOCK * 0.2 = 57344
     .radius = 57344, // Width: 0.6 => Radius: ONE_BLOCK * 0.3 = 86016
     .height = 516096, // ONE_BLOCK * 1.8 = 516096
-    .step_height = 0, // TODO: Implement this
+    .step_height = 172032, // ONE_BLOCK * 0.6 = 172032
     .gravity = 22937, // ONE_BLOCK * 0.08 = 22937
     .collision_intervals = {
         .height_count = HEIGHT_INTERVALS,
