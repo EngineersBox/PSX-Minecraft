@@ -1,15 +1,13 @@
 #include "progress_bar.h"
 
-#include <math_utils.h>
-#include <stdio.h>
-
+#include "../math/fixed_point.h"
 #include "../structure/primitive/primitive.h"
 
 void progressBarRender(const ProgressBar* bar, const int ot_entry, RenderContext* ctx) {
     // NOTE: Progress bar created in reverse order in ordering table
     //       since OT works in reverse
     // Progress bar marker
-    int32_t progress = (bar->dimensions.width << FIXED_POINT_SHIFT) / bar->maximum;
+    i32 progress = (bar->dimensions.width << FIXED_POINT_SHIFT) / bar->maximum;
     progress *= bar->value;
     progress >>= FIXED_POINT_SHIFT;
     POLY_F4* poly_f4 = (POLY_F4*) allocatePrimitive(ctx, sizeof(POLY_F4));
@@ -28,7 +26,7 @@ void progressBarRender(const ProgressBar* bar, const int ot_entry, RenderContext
         poly_f4,
         bar->position.x, bar->position.y,
         bar->position.x + bar->dimensions.width, bar->position.y,
-        bar->position.x , bar->position.y + bar->dimensions.height,
+        bar->position.x, bar->position.y + bar->dimensions.height,
         bar->position.x + bar->dimensions.width, bar->position.y + bar->dimensions.height
     );
     setRGB0(poly_f4, 0x77, 0x77, 0x77);

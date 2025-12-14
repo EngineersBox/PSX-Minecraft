@@ -99,15 +99,15 @@ static void displayProgress(RenderContext* ctx,
         msg,
         x, y, z
     );
-    u32* background_ot_object = allocateOrderingTable(ctx, 2);
+    u32* background_ot_object = allocateOrderingTable(ctx, 0);
+    progress_bar->value++;
+    progressBarRender(progress_bar, 0, ctx);
     backgroundDraw(
         ctx,
         background_ot_object,
         2 * BLOCK_TEXTURE_SIZE,
         0 * BLOCK_TEXTURE_SIZE
     );
-    progress_bar->value++;
-    progressBarRender(progress_bar, 1, ctx);
     swapBuffers(ctx);
 }
 
@@ -398,7 +398,7 @@ INLINE bool worldIsOutsideBounds(const World* world, const ChunkBlockPosition* p
 
 DEFN_DURATION_COMPONENT(world_render);
 
-void worldRenderOld(const World* world,
+void worldRender(const World* world,
                  const Player* player,
                  RenderContext* ctx,
                  Transforms* transforms) {
@@ -478,7 +478,7 @@ void worldRenderOld(const World* world,
             // );
         }
         if (visibility == 0) {
-            // Can't see anyting, don't bother
+            // Can't see anything, don't bother
             continue;
         }
         DEBUG_LOG("Chunk vis: " INT16_BIN_PATTERN "\n", INT16_BIN_LAYOUT(visibility));
@@ -612,7 +612,7 @@ void worldRenderOld(const World* world,
     // pcsx_debugbreak();
 }
 
-void worldRender(const World* world,
+void worldRenderOld(const World* world,
                     const Player* player,
                     RenderContext* ctx,
                     Transforms* transforms) {
