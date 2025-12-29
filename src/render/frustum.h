@@ -4,26 +4,25 @@
 #define _PSXMC__RENDER__FRUSTUM_H_
 
 #include "../physics/aabb.h"
-#include "../structure/primitive/plane.h"
-#include "transforms.h"
+#include "../core/camera.h"
 #include "../util/preprocessor.h"
 
-#define FRUSTUM_PLANES_LIST(f) \
-    f(ENUM_ENTRY(FRUSTUM_PLANE_NEAR)) \
-    f(ENUM_ENTRY(FRUSTUM_PLANE_FAR)) \
-    f(ENUM_ENTRY(FRUSTUM_PLANE_LEFT)) \
-    f(ENUM_ENTRY(FRUSTUM_PLANE_RIGHT)) \
-    f(ENUM_ENTRY(FRUSTUM_PLANE_TOP)) \
-    f(ENUM_ENTRY(FRUSTUM_PLANE_BOTTOM))
-
-typedef enum {
-    FRUSTUM_PLANES_LIST(enumConstruct)
-} FrustumPlanes;
-
-typedef struct {
-    Plane planes[6];
-} Frustum;
-
+// #define FRUSTUM_PLANES_LIST(f) \
+//     f(ENUM_ENTRY(FRUSTUM_PLANE_NEAR)) \
+//     f(ENUM_ENTRY(FRUSTUM_PLANE_FAR)) \
+//     f(ENUM_ENTRY(FRUSTUM_PLANE_LEFT)) \
+//     f(ENUM_ENTRY(FRUSTUM_PLANE_RIGHT)) \
+//     f(ENUM_ENTRY(FRUSTUM_PLANE_TOP)) \
+//     f(ENUM_ENTRY(FRUSTUM_PLANE_BOTTOM))
+//
+// typedef enum {
+//     FRUSTUM_PLANES_LIST(enumConstruct)
+// } FrustumPlanes;
+//
+// typedef struct {
+//     Plane planes[6];
+// } Frustum;
+//
 // Ordinal values are important as this allows us
 // to treat the query result as a regular C bool,
 // where 0 is false and anything else is true
@@ -36,11 +35,15 @@ typedef enum {
     FRUSTUM_QUERY_RESULT_LIST(enumConstruct)
 } FrustumQueryResult;
 
-Frustum frustumCreate();
+// Frustum frustumCreate();
+//
+// void frustumTransform(Frustum* frustum, Transforms* transforms);
+// void frustumRestore(Frustum* frustum);
+//
+// FrustumQueryResult frustumContainsAABB(const Frustum* frustum, const AABB* aabb);
 
-void frustumTransform(Frustum* frustum, Transforms* transforms);
-void frustumRestore(Frustum* frustum);
-
-FrustumQueryResult frustumContainsAABB(const Frustum* frustum, const AABB* aabb);
+FrustumQueryResult conicFrustumContainsAABB(const Camera* camera,
+                                            const VECTOR* aabbCentre,
+                                            const i16 aabbRadius);
 
 #endif // _PSXMC__RENDER__FRUSTUM_H_

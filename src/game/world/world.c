@@ -41,6 +41,7 @@ const LightUpdateLimits world_chunk_init_limits = (LightUpdateLimits) {
 typedef struct ChunkVisit {
     VECTOR position;
     FaceDirection visited_from: FACE_DIRECTION_COUNT_BITS;
+    bool is_first: 1;
     // Allows us to use the same logic even if the
     // camera is outside the world height limit.
     /*bool outside_world: 1;*/
@@ -429,7 +430,8 @@ void worldRender(const World* world,
         render_queue,
         ((ChunkVisit) {
             .position = player_pos.chunk,
-            .visited_from = faceDirectionOpposing(player_camera_direction)
+            .visited_from = faceDirectionOpposing(player_camera_direction),
+            .is_first = true,
         })
     );
     u8 chunk_bitset[AXIS_CHUNKS * WORLD_CHUNKS_HEIGHT] = {0};
@@ -484,6 +486,7 @@ void worldRender(const World* world,
         DEBUG_LOG("Chunk vis: " INT16_BIN_PATTERN "\n", INT16_BIN_LAYOUT(visibility));
         for (FaceDirection face_dir = FACE_DIR_DOWN; face_dir <= FACE_DIR_FRONT; face_dir++) {
             if (face_dir == visit.visited_from
+                || !visit.is_first
                 || chunkVisibilityGetBit(
                     visibility,
                     face_dir,
@@ -523,7 +526,7 @@ void worldRender(const World* world,
             // BUG: Need to prevent traversal outside the world from looping
             //      infinitely as nothing prevents 
             const i32 dot_result = dot_i32(
-                vec3_const_mul(face_normal, ONE),
+                vec3_const_lshift(face_normal, FIXED_POINT_SHIFT),
                 vec3_i32_normalize(vec3_const_lshift(vec3_sub(next_chunk, player_pos.chunk), FIXED_POINT_SHIFT))
             );
             DEBUG_LOG(
@@ -567,7 +570,8 @@ void worldRender(const World* world,
                 render_queue,
                 ((ChunkVisit) {
                     .position = next_chunk,
-                    .visited_from = faceDirectionOpposing(face_dir)
+                    .visited_from = faceDirectionOpposing(face_dir),
+                    .is_first = false
                 })
             );
         }

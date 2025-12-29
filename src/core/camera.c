@@ -10,7 +10,6 @@
 Camera cameraCreate(Transforms* transforms) {
     return (Camera) {
         .transforms = transforms,
-        .frustum = frustumCreate(),
         .position = vec3_i32(0),
         .rotation = vec3_i32(0),
         .mode = CAMERA_MODE_FIRST_PERSON
@@ -54,11 +53,11 @@ void cameraUpdate(Camera* camera) {
         camera->rotation.vy >> FIXED_POINT_SHIFT,
         camera->rotation.vz >> FIXED_POINT_SHIFT
     );
-    transforms->negative_translation_rotation = vec3_i16(
-        camera->rotation.vx >> FIXED_POINT_SHIFT,
-        camera->rotation.vy >> FIXED_POINT_SHIFT,
-        camera->rotation.vz >> FIXED_POINT_SHIFT
-    );
+    // transforms->negative_translation_rotation = vec3_i16(
+    //     camera->rotation.vx >> FIXED_POINT_SHIFT,
+    //     camera->rotation.vy >> FIXED_POINT_SHIFT,
+    //     camera->rotation.vz >> FIXED_POINT_SHIFT
+    // );
     /*DEBUG_LOG(*/
     /*    "[CAMERA] Rot: " VEC_PATTERN " InvRot: " VEC_PATTERN "\n",*/
     /*    VEC_LAYOUT(transforms->translation_rotation),*/
@@ -68,7 +67,7 @@ void cameraUpdate(Camera* camera) {
     if (camera->mode == CAMERA_MODE_FIRST_PERSON) {
         // Set rotation to the matrix
         RotMatrix(&transforms->translation_rotation, &transforms->geometry_mtx);
-        InvRotMatrix(&transforms->negative_translation_rotation, &transforms->frustum_mtx);
+        // InvRotMatrix(&transforms->negative_translation_rotation, &transforms->frustum_mtx);
         // Divide out the fractions of camera coordinates and invert
         // the sign, so camera coordinates will line up to world
         // (or geometry) coordinates
@@ -77,11 +76,11 @@ void cameraUpdate(Camera* camera) {
             -camera->position.vy >> FIXED_POINT_SHIFT,
             -camera->position.vz >> FIXED_POINT_SHIFT
         );
-        transforms->negative_translation_position = vec3_i32(
-            camera->position.vx >> FIXED_POINT_SHIFT,
-            camera->position.vy >> FIXED_POINT_SHIFT,
-            camera->position.vz >> FIXED_POINT_SHIFT
-        );
+        // transforms->negative_translation_position = vec3_i32(
+        //     camera->position.vx >> FIXED_POINT_SHIFT,
+        //     camera->position.vy >> FIXED_POINT_SHIFT,
+        //     camera->position.vz >> FIXED_POINT_SHIFT
+        // );
         /*DEBUG_LOG(*/
         /*    "[CAMERA] Pos: " VEC_PATTERN " InvPos: " VEC_PATTERN "\n",*/
         /*    VEC_LAYOUT(transforms->translation_position),*/
@@ -94,14 +93,14 @@ void cameraUpdate(Camera* camera) {
             &transforms->translation_position,
             &transforms->translation_position
         );
-        ApplyMatrixLV(
-            &transforms->frustum_mtx,
-            &transforms->negative_translation_position,
-            &transforms->negative_translation_position
-        );
+        // ApplyMatrixLV(
+        //     &transforms->frustum_mtx,
+        //     &transforms->negative_translation_position,
+        //     &transforms->negative_translation_position
+        // );
         // Set translation matrix
         TransMatrix(&transforms->geometry_mtx,&transforms->translation_position);
-        TransMatrix(&transforms->frustum_mtx,&transforms->negative_translation_position);
+        // TransMatrix(&transforms->frustum_mtx,&transforms->negative_translation_position);
         /*DEBUG_LOG("[CAMERA] Geometry Matrix: \n" MAT_PATTERN, MAT_LAYOUT(transforms->geometry_mtx));*/
         /*DEBUG_LOG("[CAMERA] Frustum Matrix: \n" MAT_PATTERN, MAT_LAYOUT(transforms->frustum_mtx));*/
     }
