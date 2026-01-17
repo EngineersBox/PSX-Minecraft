@@ -34,6 +34,8 @@ i32 len(const VECTOR v) {
 }
 
 // Assumes comparison to vector of (1,0)
+// Source: https://stackoverflow.com/a/14675998/11001270
+// Source: https://www.freesteel.co.uk/wpblog/2009/06/05/encoding-2d-angles-without-trigonometry/
 i32 diamondAngle(const i32 x, const i32 y) {
     if (y >= 0)
         return (x >= 0 ? fixedDiv(y, (x+y)) : fixedDiv((1 << FIXED_POINT_SHIFT)-x, (-x+y))); 
