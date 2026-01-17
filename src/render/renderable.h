@@ -7,6 +7,7 @@
 
 #include "render_context.h"
 #include "transforms.h"
+#include "../util/preprocessor.h"
 
 FWD_DECL typedef struct Chunk Chunk;
 
