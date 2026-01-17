@@ -83,4 +83,11 @@ MATRIX *InvRotMatrix(const SVECTOR *r, MATRIX *m) {
 // 4096 / ((((a & 0xffff) << 12) / (b & 0xffff)) >> 12)
 // ((a & 0xffff) * (b & 0xffff)) >> 12
 
+fixedi32 tcabAngleBetween(const VECTOR* v, const VECTOR* u) {
+    if (y >= 0)
+        return (x >= 0 ? y/(x+y) : 1-x/(-x+y)); 
+    else
+        return (x < 0 ? 2-y/(-x-y) : 3+x/(x-y)); 
+}
+
 // 0.7 * 0.2 = 0.14

@@ -369,6 +369,8 @@ VECTOR vec3_i32_normalize(const VECTOR v);
 VECTOR rotationToDirection(const VECTOR* rotation);
 VECTOR rotationToDirection5o(const VECTOR* rotation);
 
+fixedi32 tcabAngleBetween(const VECTOR* v, const VECTOR* u);
+
 // ==== COMMON DEFINITIONS ====
 
 extern const VECTOR VEC3_I32_ZERO;
