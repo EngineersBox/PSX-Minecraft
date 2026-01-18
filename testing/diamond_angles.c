@@ -62,6 +62,10 @@ int main() {
     // sides, then the chunk is within the frustum. The question is how
     // to transform the chunk location to be relative to (1,0,0) facing
     // camera.
+    //
+    // We can resolve this issue simply by using diamongAngle(...) with
+    // the camera angle initially, then checking if the chunk angle is
+    // within some angle difference (i.e. within +-60deg as t-rads).
     printf("Angle XY: %f\n", diamondAngle(v.vx, v.vy) / 4096.0);
     printf("Angle XZ: %f\n", diamondAngle(v.vx, v.vz) / 4096.0);
     return 0;
