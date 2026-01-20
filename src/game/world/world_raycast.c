@@ -72,7 +72,7 @@ RayCastResult worldRayCastIntersection(const World* world,
         [1]=((double) -camera->position.vy) / ((double) ONE_BLOCK),
         [2]=((double) camera->position.vz) / ((double) ONE_BLOCK)
     };
-    const VECTOR _step = rotationToDirection5o(&camera->rotation);
+    const VECTOR _step = camera->direction;
     const double direction[3] = {
         [0]=((double) _step.vx) / ((double) ONE),
         [1]=((double) _step.vy) / ((double) ONE),

@@ -424,7 +424,9 @@ void worldRender(const World* world,
     //       if there are still bits that are missing traverse to next chunks in the direction
     //       the player is facing and render them. Stop drawing if screen is full and/or there
     //       are no more loaded chunks to traverse to.
-    const VECTOR direction = rotationToDirection(&player->camera->rotation);
+    const VECTOR direction = player->camera->direction;
+    const fixedi32 playerTRadXY = tcabAngle(direction.vx, direction.vy);
+    const fixedi32 playerTRadXZ = tcabAngle(direction.vx, direction.vz);
     const FaceDirection player_camera_direction = faceDirectionClosestNormal(direction);
     cvector_push_back(
         render_queue,
@@ -538,7 +540,7 @@ void worldRender(const World* world,
             // NOTE: Must be LT and not LEQ because we want to avoid
             //       perpedicular traversal as some other direction
             //       taken should take care of it if it is visible.
-            if (dot_result < 0) {
+            if (dot_result <= 0) {
                 // Don't traverse to chunks through faces that go back
                 // towards the camera
                 DEBUG_LOG("[WORLD] Negative dot product\n");
@@ -556,6 +558,9 @@ void worldRender(const World* world,
                 DEBUG_LOG("[WORLD] Exceeded render limit\n");
                 continue;
             }
+            const VECTOR chunk_direction = vec3_const_add(next_chunk, FIXED_1_2);
+            const fixedi32 chunkTRadXY = tcabAngle(chunk_direction.vx, chunk_direction.vy);
+            const fixedi32 chunkTRadXZ = tcabAngle(chunk_direction.vx, chunk_direction.vz);
             const VECTOR min = vec3_const_mul(next_chunk, CHUNK_BLOCK_SIZE * ONE);
             const AABB aabb = (AABB) {
                 .min = min,

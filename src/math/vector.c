@@ -1,10 +1,7 @@
 #include "vector.h"
 
-#include <stdio.h>
-
 #include "fixed_point.h"
-#include "../logging/logging.h"
-#include "../util/preprocessor.h"
+#include "math_utils.h"
 
 const VECTOR VEC3_I32_ZERO = vec3_i32(0);
 const SVECTOR VEC3_I16_ZERO = vec3_i16(0);
@@ -83,11 +80,26 @@ MATRIX *InvRotMatrix(const SVECTOR *r, MATRIX *m) {
 // 4096 / ((((a & 0xffff) << 12) / (b & 0xffff)) >> 12)
 // ((a & 0xffff) * (b & 0xffff)) >> 12
 
-fixedi32 tcabAngleBetween(const VECTOR* v, const VECTOR* u) {
-    if (y >= 0)
-        return (x >= 0 ? y/(x+y) : 1-x/(-x+y)); 
-    else
-        return (x < 0 ? 2-y/(-x-y) : 3+x/(x-y)); 
+TRad tcabAngle(const fixedi32 x, const fixedi32 y) {
+    if (y >= 0) {
+        return x >= 0
+            ? fixedFixedDiv(y, x + y)
+            : fixedFixedDiv((1 << FIXED_POINT_SHIFT) - x, -x + y); 
+    }
+    return x < 0
+        ? fixedFixedDiv((2 << FIXED_POINT_SHIFT) - y, -x - y)
+        : fixedFixedDiv((3 << FIXED_POINT_SHIFT) + x, x - y); 
+}
+
+bool tcabAngleInRange(const TRad ref,
+                      const TRad query,
+                      const TRad angle) {
+    TRad min_angle = positiveModulo(ref - angle, TRAD_MAX); 
+    TRad max_angle = positiveModulo(ref + angle, TRAD_MAX); 
+    if (min_angle >= max_angle) {
+        max_angle += TRAD_MAX;
+    }
+    return query >= min_angle && query <= max_angle;
 }
 
 // 0.7 * 0.2 = 0.14

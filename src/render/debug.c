@@ -108,9 +108,6 @@ void drawLeftDebugText(const Stats* stats, const Camera* camera, MAYBE_UNUSED co
     );
     #undef fracToFloat
 #endif
-#if (isDebugFlagEnabled(OVERLAY_DIR) || isDebugFlagEnabled(OVERLAY_FACING))
-    const VECTOR direction = rotationToDirection(&camera->rotation);
-#endif
 #if isDebugFlagEnabled(OVERLAY_DIR)
     FntPrint(
         0,
@@ -121,12 +118,12 @@ void drawLeftDebugText(const Stats* stats, const Camera* camera, MAYBE_UNUSED co
     FntPrint(
         0,
         "DX=%d DY=%d DZ=%d\n",
-        VEC_LAYOUT(direction)
+        VEC_LAYOUT(camera->direction)
     );
 #endif
 #if isDebugFlagEnabled(OVERLAY_FACING)
     char facing;
-    switch (faceDirectionClosestNormal(direction)) {
+    switch (faceDirectionClosestNormal(camera->direction)) {
         // NOTE: Up and down are swapping since the above function
         //       returns a value based world position, not camera
         //       position. So Y is inverted.
@@ -136,7 +133,7 @@ void drawLeftDebugText(const Stats* stats, const Camera* camera, MAYBE_UNUSED co
         case FACE_DIR_RIGHT: facing = 'R'; break;
         case FACE_DIR_BACK: facing = 'B'; break;
         case FACE_DIR_FRONT: facing = 'F'; break;
-        default: errorAbort("Unhandled facing directio: %d", direction); return;
+        default: errorAbort("Unhandled facing direction"); return;
     }
     FntPrint(
         0,

@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <stdio.h>
+#include <stdbool.h>
 
 typedef int32_t i32;
 typedef int64_t i64;
@@ -43,6 +44,46 @@ i32 diamondAngle(const i32 x, const i32 y) {
         return (x < 0 ? fixedDiv((2 << FIXED_POINT_SHIFT)-y, (-x-y)) : fixedDiv((3 << FIXED_POINT_SHIFT)+x, (x-y))); 
 }
 
+/**
+ * Q12 fixed point taxicab radians
+ * Range: 0 - 16384 (4 << FIXED_POINT_SHIFT)
+ */
+typedef int32_t TRad;
+
+#define TRAD_MIN 0
+#define TRAD_MAX (4 << FIXED_POINT_SHIFT)
+
+// (2-(2/(1+tan(45deg)))) * 4096 = 4096
+#define TRAD_45_DEG 4096
+// (2-(2/(1+tan(50deg)))) * 4096 = 4454.35356...
+#define TRAD_50_DEG 4454
+// (2-(2/(1+tan(60deg)))) * 4096 = 5193.51989...
+#define TRAD_60_DEG 5194
+// (2-(2/(1+tan(70deg)))) * 4096 = 6005.99616...
+#define TRAD_70_DEG 6006
+// (2-(2/(1+tan(80deg)))) * 4096 = 6964.05007
+#define TRAD_80_DEG 6964
+// Note: tan(90) is undefined, so we take the limit
+// lim x->90 (2-(2/(1+tan(x deg)))) * 4096 = 8192
+#define TRAD_90_DEG 8192
+
+#define positiveModulo(i, n) ({ \
+    __typeof__(n) _n = (n); \
+    i32 m = (i) % _n; \
+    m + ((m >> 31) & _n); \
+})
+
+bool tcabAngleInRange(const TRad ref,
+                      const TRad angle,
+                      const TRad query) {
+    TRad a = positiveModulo(ref - angle, TRAD_MAX); 
+    TRad b = positiveModulo(ref + angle, TRAD_MAX); 
+    printf("Min angle: %d\n", a);
+    printf("Max angle: %d\n", b);
+    const bool result = query >= a && query <= b;
+    return a < b ? result : !result;
+}
+
 int main() {
     // const VECTOR v0 = (VECTOR) {
     //     .vx = 0,
@@ -68,5 +109,17 @@ int main() {
     // within some angle difference (i.e. within +-60deg as t-rads).
     printf("Angle XY: %f\n", diamondAngle(v.vx, v.vy) / 4096.0);
     printf("Angle XZ: %f\n", diamondAngle(v.vx, v.vz) / 4096.0);
+    const TRad ref = 4688; // 20 deg
+    const TRad angle = TRAD_60_DEG;
+    // const TRad query = TRAD_50_DEG;
+    // const TRad query = 14198; // 340
+    const TRad query = 9420; // 280
+    printf(
+        "Ref: %d Angle: %d Query: %d Result: %s\n",
+        ref,
+        angle,
+        query,
+        tcabAngleInRange(ref, angle, query) ? "true" : "false"
+    );
     return 0;
 }

@@ -12,6 +12,7 @@ Camera cameraCreate(Transforms* transforms) {
         .transforms = transforms,
         .position = vec3_i32(0),
         .rotation = vec3_i32(0),
+        .direction = vec3_i32(0),
         .mode = CAMERA_MODE_FIRST_PERSON
     };
 }

@@ -98,6 +98,7 @@ void playerUpdateCamera(const Player* player) {
     camera->position.vx = physics_object->position.vx;
     camera->position.vy = -physics_object->aabb.min.vy - PLAYER_CAMERA_OFFSET;
     camera->position.vz = physics_object->position.vz;
+    camera->direction = rotationToDirection5o(&camera->rotation);
 }
 
 void playerUpdate(Player* player, World* world) {
@@ -357,11 +358,10 @@ INLINE static void playerInputHandlerUse(const PlayerInputHandlerContext* ctx) {
             // is facing, noting only the horizontal (x/z) axis since
             // no blocks can be placed upwards or downwards in orientation.
             // i.e. no buttons on the ceiling or anything like that.
-            const VECTOR rotation = rotationToDirection5o(&player->camera->rotation);
             block->orientation = faceDirectionClosestNormal(vec3_i32(
-                rotation.vx,
+                player->camera->position.vx,
                 0, /* No Y axis since block orientation is always horizontal */
-                rotation.vz
+                player->camera->position.vz
             ));
             // Compute the opposing direction to the camera dominant normal
             // which gives us the orientation the block should face in the

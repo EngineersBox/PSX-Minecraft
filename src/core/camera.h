@@ -20,7 +20,12 @@ typedef enum CameraMode {
 typedef struct {
     Transforms* transforms;
     VECTOR position;
+    // Facing direction
     VECTOR rotation;
+    // READ ONLY
+    // Equivalent vector direction
+    // for rotation
+    VECTOR direction;
     CameraMode mode;
 } Camera;
 
