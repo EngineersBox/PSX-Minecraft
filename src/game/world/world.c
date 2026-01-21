@@ -14,6 +14,7 @@
 #include "../../render/duration_tree.h"
 #include "../../render/font.h"
 #include "../../math/math_utils.h"
+#include "../../math/taxicab.h"
 #include "../../math/vector.h"
 #include "../../ui/progress_bar.h"
 #include "../../ui/background.h"
@@ -559,18 +560,23 @@ void worldRender(const World* world,
                 continue;
             }
             const VECTOR chunk_direction = vec3_const_add(next_chunk, FIXED_1_2);
-            const fixedi32 chunkTRadXY = tcabAngle(chunk_direction.vx, chunk_direction.vy);
-            const fixedi32 chunkTRadXZ = tcabAngle(chunk_direction.vx, chunk_direction.vz);
-            const VECTOR min = vec3_const_mul(next_chunk, CHUNK_BLOCK_SIZE * ONE);
-            const AABB aabb = (AABB) {
-                .min = min,
-                .max = vec3_const_add(min, CHUNK_BLOCK_SIZE * ONE)
-            };
-            // BUG: Culling has improved but still seems flakey
-            if (frustumContainsAABB(&player->camera->frustum, &aabb) == FRUSTUM_OUTSIDE) {
+            const TRad chunkTRadXY = tcabAngle(chunk_direction.vx, chunk_direction.vy);
+            const TRad chunkTRadXZ = tcabAngle(chunk_direction.vx, chunk_direction.vz);
+            if (!tcabAngleInRange(playerTRadXY, chunkTRadXY, TRAD_70_DEG)
+                || !tcabAngleInRange(playerTRadXZ, chunkTRadXZ, TRAD_70_DEG)) {
                 DEBUG_LOG("[WORLD] Culled\n");
                 continue;
             }
+            // const VECTOR min = vec3_const_mul(next_chunk, CHUNK_BLOCK_SIZE * ONE);
+            // const AABB aabb = (AABB) {
+            //     .min = min,
+            //     .max = vec3_const_add(min, CHUNK_BLOCK_SIZE * ONE)
+            // };
+            // // BUG: Culling has improved but still seems flakey
+            // if (frustumContainsAABB(&player->camera->frustum, &aabb) == FRUSTUM_OUTSIDE) {
+            //     DEBUG_LOG("[WORLD] Culled\n");
+            //     continue;
+            // }
             cvector_push_back(
                 render_queue,
                 ((ChunkVisit) {

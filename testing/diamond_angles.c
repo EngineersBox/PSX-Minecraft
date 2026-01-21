@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <assert.h>
 
 typedef int32_t i32;
 typedef int64_t i64;
@@ -76,12 +77,17 @@ typedef int32_t TRad;
 bool tcabAngleInRange(const TRad ref,
                       const TRad angle,
                       const TRad query) {
-    TRad a = positiveModulo(ref - angle, TRAD_MAX); 
-    TRad b = positiveModulo(ref + angle, TRAD_MAX); 
-    printf("Min angle: %d\n", a);
-    printf("Max angle: %d\n", b);
-    const bool result = query >= a && query <= b;
-    return a < b ? result : !result;
+    assert(query >= 0 && query < TRAD_MAX);
+    assert(ref >= 0 && ref < TRAD_MAX);
+    assert(angle >= 0 && angle < TRAD_MAX);
+    const TRad a = positiveModulo(ref + angle, TRAD_MAX); 
+    const TRad b = positiveModulo(ref - angle, TRAD_MAX); 
+    printf("Min angle: %f\n", a / 4096.0);
+    printf("Max angle: %f\n", b / 4096.0);
+    printf("Query: %f\n", query / 4096.0);
+    return a < b
+        ? query <= a || query >= b
+        : query <= a && query >= b;
 }
 
 int main() {
@@ -109,8 +115,9 @@ int main() {
     // within some angle difference (i.e. within +-60deg as t-rads).
     printf("Angle XY: %f\n", diamondAngle(v.vx, v.vy) / 4096.0);
     printf("Angle XZ: %f\n", diamondAngle(v.vx, v.vz) / 4096.0);
-    const TRad ref = 4688; // 20 deg
-    const TRad angle = TRAD_60_DEG;
+    const TRad ref = 2186; // 20 deg
+    const TRad angle= TRAD_60_DEG;
+    // const TRad query = ref;
     // const TRad query = TRAD_50_DEG;
     // const TRad query = 14198; // 340
     const TRad query = 9420; // 280

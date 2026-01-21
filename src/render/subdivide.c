@@ -3,6 +3,7 @@
 #include <psxgpu.h>
 
 #include "render_context.h"
+#include "../util/preprocessor.h"
 
 typedef struct DivsionLayout {
     u32 x_top;
