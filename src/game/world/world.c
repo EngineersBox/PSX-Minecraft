@@ -425,10 +425,10 @@ void worldRender(const World* world,
     //       if there are still bits that are missing traverse to next chunks in the direction
     //       the player is facing and render them. Stop drawing if screen is full and/or there
     //       are no more loaded chunks to traverse to.
-    const VECTOR direction = player->camera->direction;
-    const fixedi32 playerTRadXY = tcabAngle(direction.vx, direction.vy);
-    const fixedi32 playerTRadXZ = tcabAngle(direction.vx, direction.vz);
-    const FaceDirection player_camera_direction = faceDirectionClosestNormal(direction);
+    const VECTOR* direction = &player->camera->direction;
+    const TRad playerTRadXY = tcabAngle(direction->vx, direction->vy);
+    const TRad playerTRadXZ = tcabAngle(direction->vx, direction->vz);
+    const FaceDirection player_camera_direction = faceDirectionClosestNormal(*direction);
     cvector_push_back(
         render_queue,
         ((ChunkVisit) {
@@ -559,7 +559,7 @@ void worldRender(const World* world,
                 DEBUG_LOG("[WORLD] Exceeded render limit\n");
                 continue;
             }
-            const VECTOR chunk_direction = vec3_const_add(next_chunk, FIXED_1_2);
+            const VECTOR chunk_direction = vec3_const_add(vec3_sub(next_chunk, player_pos.chunk), FIXED_1_2);
             const TRad chunkTRadXY = tcabAngle(chunk_direction.vx, chunk_direction.vy);
             const TRad chunkTRadXZ = tcabAngle(chunk_direction.vx, chunk_direction.vz);
             if (!tcabAngleInRange(playerTRadXY, chunkTRadXY, TRAD_70_DEG)
