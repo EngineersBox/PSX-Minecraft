@@ -105,6 +105,8 @@
 * [X] Items despawn after 5 minutes
 * [X] Menuing system, allowing traversal via some function invocation to move to target menu (i.e. on button press)
 * [X] Main menu
+* [X] Conic frustum
+* [X] Compute angle between conic frustum direction and vector to chunk centre for culling when outside conic angle (i.e `70deg`)
 * [ ] World management menu
 * [ ] Create world menu
 * [ ] Options menu
@@ -127,8 +129,6 @@
 * [ ] Polygon subdivision (polygons of minimum size, i.e. block size) for the mesh of the chunk that the player resides within
 * [ ] Change lighting direction for both in-world blocks and in-inventory blocks to match actual MC directional lighting
 * [ ] Add stack sizes to recipe ingredients in schema and support field generation in script
-* [X] Conic frustum
-* [X] Compute angle between conic frustum direction and vector to chunk centre for culling when outside conic angle (i.e `70deg`)
 * [ ] Write a blog post on conical frustum culling, taxicab/Manhattan geometry, etc.
 
 ## Refactor
