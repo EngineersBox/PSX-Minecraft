@@ -565,8 +565,8 @@ void worldRender(const World* world,
             const VECTOR chunk_direction = vec3_const_add(vec3_sub(next_chunk, player_pos.chunk), FIXED_1_2);
             const TRad chunkTRadXY = tcabAngle(chunk_direction.vx, chunk_direction.vy);
             const TRad chunkTRadXZ = tcabAngle(chunk_direction.vx, chunk_direction.vz);
-            if (!tcabAngleInRange(playerTRadXY, chunkTRadXY, TRAD_70_DEG)
-                || !tcabAngleInRange(playerTRadXZ, chunkTRadXZ, TRAD_70_DEG)) {
+            if (!tcabAngleInRange(playerTRadXY, chunkTRadXY, TRAD_70_DEG >> 2)
+                || !tcabAngleInRange(playerTRadXZ, chunkTRadXZ, TRAD_70_DEG >> 2)) {
                 DEBUG_LOG("[WORLD] Frustum culled\n");
                 continue;
             }
