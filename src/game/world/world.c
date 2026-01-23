@@ -541,9 +541,6 @@ void worldRender(const World* world,
                 vec3_i32_normalize(vec3_const_lshift(vec3_sub(next_chunk, player_pos.chunk), FIXED_POINT_SHIFT)),
                 dot_result
             );
-            // NOTE: Must be LT and not LEQ because we want to avoid
-            //       perpedicular traversal as some other direction
-            //       taken should take care of it if it is visible.
             if (dot_result <= 0) {
                 // Don't traverse to chunks through faces that go back
                 // towards the camera
@@ -565,8 +562,8 @@ void worldRender(const World* world,
             const VECTOR chunk_direction = vec3_const_add(vec3_sub(next_chunk, player_pos.chunk), FIXED_1_2);
             const TRad chunkTRadXY = tcabAngle(chunk_direction.vx, chunk_direction.vy);
             const TRad chunkTRadXZ = tcabAngle(chunk_direction.vx, chunk_direction.vz);
-            if (!tcabAngleInRange(playerTRadXY, chunkTRadXY, TRAD_70_DEG >> 2)
-                || !tcabAngleInRange(playerTRadXZ, chunkTRadXZ, TRAD_70_DEG >> 2)) {
+            if (!tcabAngleInRange(playerTRadXY, chunkTRadXY, FOV_HALF_TRAD)
+                || !tcabAngleInRange(playerTRadXZ, chunkTRadXZ, FOV_HALF_TRAD)) {
                 DEBUG_LOG("[WORLD] Frustum culled\n");
                 continue;
             }

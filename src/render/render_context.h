@@ -8,6 +8,7 @@
 
 #include "../core/camera.h"
 #include "transforms.h"
+#include "../math/taxicab.h"
 
 // Framebuffer struct array sizes
 #define ORDERING_TABLE_LENGTH (1 << 13)
@@ -25,6 +26,7 @@
 #define CENTRE_Y (SCREEN_YRES >> 1)
 
 #define FOV (SCREEN_XRES >> 1)
+#define FOV_HALF_TRAD (TRAD_70_DEG >> 1)
 
 extern CVECTOR clear_colour;
 extern CVECTOR back_colour;
