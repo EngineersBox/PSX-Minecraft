@@ -425,10 +425,13 @@ void worldRender(const World* world,
     //       if there are still bits that are missing traverse to next chunks in the direction
     //       the player is facing and render them. Stop drawing if screen is full and/or there
     //       are no more loaded chunks to traverse to.
-    const VECTOR* direction = &player->camera->direction;
-    const TRad playerTRadXY = tcabAngle(direction->vx, direction->vy);
-    const TRad playerTRadXZ = tcabAngle(direction->vx, direction->vz);
-    const FaceDirection player_camera_direction = faceDirectionClosestNormal(*direction);
+    const VECTOR direction = vec3_i32_normalize(player->camera->direction);
+    printf("Direction: " VEC_PATTERN "\n", VEC_LAYOUT(direction));
+    const TRad playerTRadXY = tcabAngle(direction.vx, direction.vy);
+    const TRad playerTRadXZ = tcabAngle(direction.vx, direction.vz);
+    printf("Player XY t-rad: %d\n", playerTRadXY);
+    printf("Player XZ t-rad: %d\n", playerTRadXZ);
+    const FaceDirection player_camera_direction = faceDirectionClosestNormal(direction);
     cvector_push_back(
         render_queue,
         ((ChunkVisit) {
@@ -564,7 +567,7 @@ void worldRender(const World* world,
             const TRad chunkTRadXZ = tcabAngle(chunk_direction.vx, chunk_direction.vz);
             if (!tcabAngleInRange(playerTRadXY, chunkTRadXY, TRAD_70_DEG)
                 || !tcabAngleInRange(playerTRadXZ, chunkTRadXZ, TRAD_70_DEG)) {
-                DEBUG_LOG("[WORLD] Culled\n");
+                DEBUG_LOG("[WORLD] Frustum culled\n");
                 continue;
             }
             // const VECTOR min = vec3_const_mul(next_chunk, CHUNK_BLOCK_SIZE * ONE);

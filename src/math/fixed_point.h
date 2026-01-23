@@ -54,7 +54,7 @@ i32 cos5o(i16 i);
  * @param y Divisor (number performing division)
  * @return Result of division x / y
  */
-#define fixedFixedDiv(x, y) ((((fixedi64) x) << FIXED_POINT_SHIFT) / ((fixedi32) y))
+#define fixedFixedDiv(x, y) ((((fixedi64) (x)) << FIXED_POINT_SHIFT) / ((fixedi32) (y)))
 
 /**
  * @brief Multiply two fixed point numbers as x_w.x_f * y_w.w_f:

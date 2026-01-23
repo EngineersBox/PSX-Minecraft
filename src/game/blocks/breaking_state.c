@@ -64,7 +64,7 @@ void breakingStateCalculateTicks(BreakingState* state,
     if (!on_ground) {
         speed_multiplier /= 5;
     }
-    fixedi32 damage = fixedFixedDiv(speed_multiplier, (fixedi32) blockGetHardness(block->id));
+    fixedi32 damage = fixedDiv(speed_multiplier, (fixedi32) blockGetHardness(block->id));
     if (tool_can_harvest_block) {
         damage /= 30;
     } else {

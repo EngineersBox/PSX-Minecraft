@@ -82,12 +82,6 @@ void renderLoadingScreen(RenderContext* ctx) {
 void minecraftInit(VSelf, void* ctx) ALIAS("Minecraft_init");
 void Minecraft_init(VSelf, UNUSED void* ctx) {
     VSELF(Minecraft);
-    self->ctx = (RenderContext) {
-        .active = 0,
-        .db = {},
-        .primitive = NULL,
-        .camera = NULL,
-    };
     self->transforms = (Transforms) {
         .translation_rotation = vec3_i16(0),
         // .negative_translation_rotation = vec3_i16(0),
@@ -97,8 +91,13 @@ void Minecraft_init(VSelf, UNUSED void* ctx) {
         // .frustum_mtx = mat4_i16_i32(0),
         .lighting_mtx = lighting_direction
     };
-    self->camera = cameraCreate(&self->transforms),
-    self->ctx.camera = &self->camera;
+    self->camera = cameraCreate(&self->transforms);
+    self->ctx = (RenderContext) {
+        .active = 0,
+        .db = {},
+        .primitive = NULL,
+        .camera = &self->camera,
+    };
     initRenderContext(&self->ctx);
     // Input initialisation needs to be before block init
     // since some blocks need to register handlers
