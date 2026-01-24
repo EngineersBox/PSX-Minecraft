@@ -11,12 +11,12 @@
 TRad tcabAngle(const fixedi32 x, const fixedi32 y) {
     if (y >= 0) {
         return x >= 0
-            ? fixedDiv(y, ensureNonZero(x + y))
-            : fixedDiv((1 << FIXED_POINT_SHIFT) - x, ensureNonZero(-x + y)); 
+            ? fixedFixedDiv(y, ensureNonZero(x + y))
+            : fixedFixedDiv((1 << FIXED_POINT_SHIFT) - x, ensureNonZero(-x + y)); 
     }
     return x < 0
-        ? fixedDiv((2 << FIXED_POINT_SHIFT) - y, ensureNonZero(-x - y))
-        : fixedDiv((3 << FIXED_POINT_SHIFT) + x, ensureNonZero(x - y)); 
+        ? fixedFixedDiv((2 << FIXED_POINT_SHIFT) - y, ensureNonZero(-x - y))
+        : fixedFixedDiv((3 << FIXED_POINT_SHIFT) + x, ensureNonZero(x - y)); 
 }
 
 bool tcabAngleInRange(const TRad ref,
