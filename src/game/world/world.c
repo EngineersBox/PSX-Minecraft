@@ -425,13 +425,14 @@ void worldRender(const World* world,
     //       if there are still bits that are missing traverse to next chunks in the direction
     //       the player is facing and render them. Stop drawing if screen is full and/or there
     //       are no more loaded chunks to traverse to.
-    const VECTOR direction = player->camera->direction;
-    DEBUG_LOG("Direction: " VEC_PATTERN "\n", VEC_LAYOUT(direction));
-    const TRad playerTRadXY = tcabAngle(direction.vx, direction.vy) % TRAD_MAX;
-    const TRad playerTRadXZ = tcabAngle(direction.vx, direction.vz) % TRAD_MAX;
-    DEBUG_LOG("Player XY t-rad: %d\n", playerTRadXY);
+    DEBUG_LOG("Rotation: " VEC_PATTERN "\n", VEC_LAYOUT(player->camera->rotation));
+    // tcabAngle(direction.vx, direction.vy) % TRAD_MAX; // Yaw
+    const TRad playerTRadXZ = player->camera->rotation.vx >> FIXED_POINT_SHIFT >> 1; // (FIXED_PI * 2) / TRAD_MAX == 2 => div by 2 => rshift 1
+    // tcabAngle(direction.vx, direction.vz) % TRAD_MAX; // Pitch
+    const TRad playerTRadYZ = player->camera->rotation.vy >> FIXED_POINT_SHIFT >> 1;
+    DEBUG_LOG("Player YZ t-rad: %d\n", playerTRadYZ);
     DEBUG_LOG("Player XZ t-rad: %d\n", playerTRadXZ);
-    const FaceDirection player_camera_direction = faceDirectionClosestNormal(direction);
+    const FaceDirection player_camera_direction = faceDirectionClosestNormal(player->camera->direction);
     cvector_push_back_safe(
         &render_queue,
         ((ChunkVisit) {
@@ -566,11 +567,11 @@ void worldRender(const World* world,
                 ),
                 FIXED_1_2
             );
-            const TRad chunkTRadXY = tcabAngle(chunk_direction.vx, chunk_direction.vy);
+            const TRad chunkTRadYZ = tcabAngle(chunk_direction.vy, chunk_direction.vz);
             const TRad chunkTRadXZ = tcabAngle(chunk_direction.vx, chunk_direction.vz);
-            DEBUG_LOG("Chunk XY t-rad: %d\n", chunkTRadXY);
+            DEBUG_LOG("Chunk YZ t-rad: %d\n", chunkTRadYZ);
             DEBUG_LOG("Chunk XZ t-rad: %d\n", chunkTRadXZ);
-            if (!tcabAngleInRange(playerTRadXY, chunkTRadXY, FOV_HALF_TRAD)
+            if (!tcabAngleInRange(playerTRadYZ, chunkTRadYZ, FOV_HALF_TRAD)
                 || !tcabAngleInRange(playerTRadXZ, chunkTRadXZ, FOV_HALF_TRAD)) {
                 // DEBUG_LOG("[WORLD] Frustum culled\n");
                 continue;

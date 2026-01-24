@@ -13,7 +13,7 @@ TODO: Write this doc and a blog bost
 * Instead we can use taxicab/Manhattan geometry to avoid trig functions (acos, arctan2, etc), this essentially means the unit circle is now a unit diamond.
 * This allows us to work with taxicab trigonometry which are simple operations (i.e. division for projection)
 * Angles in this space are measured in t-rads which are the units of arc lengths subtentended by an angle, essentially radians become t-radians.
-* Thus, we can convert the camera facing drection vector into two t-rad angles for X-Y (pitch) and X-Z (yaw)
+* Thus, we can convert the camera rotation vector (yaw, pitch, roll) into t-rad angles for X-Y (pitch) and X-Z (yaw) simply by dividing by `((FIXED_PI * 2) / TRAD_MAX) = 2`
 * Then calculate the relative direction vector from  thev player to queried chunk (in units of chunks and not blocks to keep the values small in Q12 fixed point) and compute t-rad angle for X-Y, X-Z
 * Now we can determine if the chunk angles are within FOV / 2 of the camera facing angles for culling queries
 * If either of queried chunk angles are outside of this range, then it can be culled.
