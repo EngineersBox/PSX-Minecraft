@@ -5,3 +5,4 @@
 * Physics engine
 * Lighting engine
 * Weather
+* Conical frustum culling, taxicab/Manhattan geometry, etc.
