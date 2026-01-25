@@ -308,8 +308,9 @@ static u8 visitBlock(ChunkBitmap bitmap,
 static void chunkVisibilityDfsWalkScan(Chunk* chunk,
                                        FacesColumns faces_cols,
                                        FacesColumns faces_cols_opaque) {
-    // FIXME: This function to still be producind incorrrect visibility
-    //        bitsets for chunks.
+    // FIXME: This function seems to still be producing incorrrect visibility
+    //        bitsets for chunks. It also sometimes only processes exactly half
+    //        of the blocks in a chunk (256/512).
     ChunkBitmap bitmap = {0};
     VECTOR root = vec3_i32(0);
     if (!chunkBitmapFindRoot(
