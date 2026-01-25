@@ -43,6 +43,6 @@ extern ItemAttributes item_attributes[ITEM_COUNT];
 #define itemHasDurability(id) (itemGetMaxDurability(id) > 0)
 #define itemGetConstructor(id) item_constructors[(id)]
 
-void itemsInitialiseBuiltin();
+// void itemsInitialiseBuiltin();
 
 #endif // _PSXMC__GAME_ITEMS__ITEMS_H_

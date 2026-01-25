@@ -115,7 +115,7 @@ void Minecraft_init(VSelf, UNUSED void* ctx) {
     durationTreesInit();
     // Initialise game elements
     blocksInitialiseBuiltin();
-    itemsInitialiseBuiltin();
+    // itemsInitialiseBuiltin();
     // Show main menu
     // menuOpen(MENUID_MAIN);
     // DEBUG_LOG("[Minecraft] Finished init\n");
