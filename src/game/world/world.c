@@ -404,7 +404,7 @@ void worldRender(const World* world,
                  const Player* player,
                  RenderContext* ctx,
                  Transforms* transforms) {
-    DEBUG_LOG("==== START WORLD RENDER ====\n");
+    // DEBUG_LOG("==== START WORLD RENDER ====\n");
     durationComponentInitOnce(world_render, "worldRender");
     durationComponentStart(&world_render_duration);
     const VECTOR player_world_pos = vec3_const_div(
@@ -420,18 +420,16 @@ void worldRender(const World* world,
         &player_world_pos,
         CHUNK_SIZE
     );
-    DEBUG_LOG("[WORLD] Player chunk pos: " VEC_PATTERN "\n", VEC_LAYOUT(player_pos.chunk));
+    // DEBUG_LOG("[WORLD] Player chunk pos: " VEC_PATTERN "\n", VEC_LAYOUT(player_pos.chunk));
     // TODO: Render current chunk and track how much of the screen has been drawn (somehow?)
     //       if there are still bits that are missing traverse to next chunks in the direction
     //       the player is facing and render them. Stop drawing if screen is full and/or there
     //       are no more loaded chunks to traverse to.
-    DEBUG_LOG("Rotation: " VEC_PATTERN "\n", VEC_LAYOUT(player->camera->rotation));
-    // tcabAngle(direction.vx, direction.vy) % TRAD_MAX; // Yaw
-    const TRad playerTRadXZ = player->camera->rotation.vx >> FIXED_POINT_SHIFT >> 1; // (FIXED_PI * 2) / TRAD_MAX == 2 => div by 2 => rshift 1
-    // tcabAngle(direction.vx, direction.vz) % TRAD_MAX; // Pitch
-    const TRad playerTRadYZ = player->camera->rotation.vy >> FIXED_POINT_SHIFT >> 1;
-    DEBUG_LOG("Player YZ t-rad: %d\n", playerTRadYZ);
-    DEBUG_LOG("Player XZ t-rad: %d\n", playerTRadXZ);
+    // DEBUG_LOG("Rotation: " VEC_PATTERN "\n", VEC_LAYOUT(player->camera->rotation));
+    const TRad playerTRadPitch = player->camera->rotation.vx >> FIXED_POINT_SHIFT >> 1;
+    const TRad playerTRadYaw = player->camera->rotation.vy >> FIXED_POINT_SHIFT >> 1;
+    // DEBUG_LOG("Player pitch t-rad: %d\n", playerTRadPitch);
+    // DEBUG_LOG("Player yaw t-rad: %d\n", playerTRadYaw);
     const FaceDirection player_camera_direction = faceDirectionClosestNormal(player->camera->direction);
     cvector_push_back_safe(
         &render_queue,
@@ -458,13 +456,13 @@ void worldRender(const World* world,
     while (cvector_size(render_queue) > 0) {
         const ChunkVisit visit = render_queue[cvector_size(render_queue) - 1];
         cvector_pop_back(render_queue);
-        DEBUG_LOG(
-            "[WORLD] Visit chunk " VEC_PATTERN " @ " VEC_PATTERN "\n", 
-            VEC_LAYOUT(visit.position),
-            arrayCoord(world, vx, visit.position.vx),
-            visit.position.vy,
-            arrayCoord(world, vz, visit.position.vz)
-        );
+        // DEBUG_LOG(
+        //     "[WORLD] Visit chunk " VEC_PATTERN " @ " VEC_PATTERN "\n", 
+        //     VEC_LAYOUT(visit.position),
+        //     arrayCoord(world, vx, visit.position.vx),
+        //     visit.position.vy,
+        //     arrayCoord(world, vz, visit.position.vz)
+        // );
         ChunkBlockPosition chunk_pos = (ChunkBlockPosition) {
             .chunk = visit.position,
             .block = vec3_i32(0)
@@ -478,29 +476,30 @@ void worldRender(const World* world,
         } else {
             visibility = chunk->visibility;
             // TODO: Uncomment after all rendering issues resolved
-            // chunkRender(
-            //     chunk,
-            //     vec3_equal(chunk_pos.chunk, visit.position),
-            //     true,
-            //     ctx,
-            //     transforms
-            // );
+            chunkRender(
+                chunk,
+                vec3_equal(chunk_pos.chunk, visit.position),
+                true,
+                ctx,
+                transforms
+            );
         }
-        DEBUG_LOG("Chunk vis: " INT16_BIN_PATTERN "\n", INT16_BIN_LAYOUT(visibility));
+        // DEBUG_LOG("Chunk vis: " INT16_BIN_PATTERN "\n", INT16_BIN_LAYOUT(visibility));
         if (visibility == 0) {
             // Can't see anything, don't bother
             continue;
         }
         for (FaceDirection face_dir = FACE_DIR_DOWN; face_dir <= FACE_DIR_FRONT; face_dir++) {
-            if (face_dir == visit.visited_from
-                || !visit.is_first
-                || chunkVisibilityGetBit(
+            if (face_dir == visit.visited_from) {
+                // DEBUG_LOG("[WORLD] Same direction as visited from %d == %d\n", face_dir, visit.visited_from);
+                continue;
+            } else if (!visit.is_first && chunkVisibilityGetBit(
                     visibility,
                     face_dir,
                     visit.visited_from
                 ) == 0) {
                 // Cannot exit chunk in this direction from the entered face
-                // DEBUG_LOG("[WORLD] Face dir equal or no visibility\n");
+                // DEBUG_LOG("[WORLD] No visibility from face %d to %d\n", visit.visited_from, face_dir);
                 continue;
             }
             const VECTOR face_normal = vec3_as(VECTOR, FACE_DIRECTION_NORMALS[face_dir]);
@@ -532,14 +531,15 @@ void worldRender(const World* world,
             // }
             // BUG: Need to prevent traversal outside the world from looping
             //      infinitely as nothing prevents 
+            const VECTOR chunk_relative_pos = vec3_sub(next_chunk, player_pos.chunk);
             const i32 dot_result = dot_i32(
                 vec3_const_lshift(face_normal, FIXED_POINT_SHIFT),
-                vec3_i32_normalize(vec3_const_lshift(vec3_sub(next_chunk, player_pos.chunk), FIXED_POINT_SHIFT))
+                vec3_i32_normalize(vec3_const_lshift(chunk_relative_pos, FIXED_POINT_SHIFT))
             );
             // DEBUG_LOG(
             //     "Normal: " VEC_PATTERN " Direction: " VEC_PATTERN " Dot: %d\n",
             //     VEC_LAYOUT(vec3_const_mul(face_normal, ONE)),
-            //     vec3_i32_normalize(vec3_const_lshift(vec3_sub(next_chunk, player_pos.chunk), FIXED_POINT_SHIFT)),
+            //     vec3_i32_normalize(vec3_const_lshift(chunk_relative_pos, FIXED_POINT_SHIFT)),
             //     dot_result
             // );
             if (dot_result < 0) {
@@ -567,12 +567,17 @@ void worldRender(const World* world,
                 ),
                 FIXED_1_2
             );
-            const TRad chunkTRadYZ = tcabAngle(chunk_direction.vy, chunk_direction.vz);
-            const TRad chunkTRadXZ = tcabAngle(chunk_direction.vx, chunk_direction.vz);
-            DEBUG_LOG("Chunk YZ t-rad: %d\n", chunkTRadYZ);
-            DEBUG_LOG("Chunk XZ t-rad: %d\n", chunkTRadXZ);
-            if (!tcabAngleInRange(playerTRadYZ, chunkTRadYZ, FOV_HALF_TRAD)
-                || !tcabAngleInRange(playerTRadXZ, chunkTRadXZ, FOV_HALF_TRAD)) {
+            const TRad chunkTRadZY = tcabAngle(chunk_direction.vz, chunk_direction.vy);
+            const TRad chunkTRadZX = tcabAngle(chunk_direction.vz, chunk_direction.vx);
+            // DEBUG_LOG("Chunk ZY t-rad: %d\n", chunkTRadZY);
+            // DEBUG_LOG("Chunk ZX t-rad: %d\n", chunkTRadZX);
+            // NOTE: We compare the angle of the horizontal axes (ZX) against the camera pitch (ZY)
+            //       and vertial axes (ZY) against pitch (ZX). It seems counterintuitive, but the
+            //       rationale is the rotation direction of the camera is what matters, not the
+            //       axes themselves. Thus the chunk angle calculated relative to the Z (forward)
+            //       axis is used to compare the matching camera direction.
+            if (!tcabAngleInRange(playerTRadYaw, chunkTRadZX, FOV_HALF_TRAD)
+                || !tcabAngleInRange(playerTRadPitch, chunkTRadZY, FOV_HALF_TRAD)) {
                 // DEBUG_LOG("[WORLD] Frustum culled\n");
                 continue;
             }
@@ -586,8 +591,6 @@ void worldRender(const World* world,
             //     DEBUG_LOG("[WORLD] Culled\n");
             //     continue;
             // }
-            DEBUG_LOG("Added " VEC_PATTERN "\n", VEC_LAYOUT(next_chunk));
-            DEBUG_LOG("Vec size before: %d\n", cvector_size(render_queue));
             cvector_push_back_safe(
                 &render_queue,
                 ((ChunkVisit) {
@@ -596,37 +599,36 @@ void worldRender(const World* world,
                     .is_first = false
                 })
             );
-            DEBUG_LOG("Vec size after: %d\n", cvector_size(render_queue));
         }
     }
-    const i32 x_start = world->centre.vx - LOADED_CHUNKS_RADIUS;
-    const i32 x_end = world->centre.vx + LOADED_CHUNKS_RADIUS;
-    const i32 z_start = world->centre.vz - LOADED_CHUNKS_RADIUS;
-    const i32 z_end = world->centre.vz + LOADED_CHUNKS_RADIUS;
-    for (i32 x = x_start; x <= x_end; x++) {
-        for (i32 z = z_start; z <= z_end; z++) {
-            for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
-                Chunk* chunk = world->chunks[arrayCoord(world, vz, z)]
-                                            [arrayCoord(world, vx, x)]
-                                            [y];
-                const bool should_render = isChunkMarked(
-                    arrayCoord(world, vx, x),
-                    y,
-                    arrayCoord(world, vz, z)
-                );
-                // DEBUG_LOG("[CHUNK] " VEC_PATTERN " Render: %s\n", x, y, z, should_render ? "true" : "false");
-                chunkRender(
-                    chunk,
-                    player_pos.chunk.vx == x
-                        && player_pos.chunk.vz == z
-                        && player_pos.chunk.vy == y,
-                    should_render,
-                    ctx,
-                    transforms
-                );
-            }
-        }
-    }
+    // const i32 x_start = world->centre.vx - LOADED_CHUNKS_RADIUS;
+    // const i32 x_end = world->centre.vx + LOADED_CHUNKS_RADIUS;
+    // const i32 z_start = world->centre.vz - LOADED_CHUNKS_RADIUS;
+    // const i32 z_end = world->centre.vz + LOADED_CHUNKS_RADIUS;
+    // for (i32 x = x_start; x <= x_end; x++) {
+    //     for (i32 z = z_start; z <= z_end; z++) {
+    //         for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
+    //             Chunk* chunk = world->chunks[arrayCoord(world, vz, z)]
+    //                                         [arrayCoord(world, vx, x)]
+    //                                         [y];
+    //             const bool should_render = isChunkMarked(
+    //                 arrayCoord(world, vx, x),
+    //                 y,
+    //                 arrayCoord(world, vz, z)
+    //             );
+    //             // DEBUG_LOG("[CHUNK] " VEC_PATTERN " Render: %s\n", x, y, z, should_render ? "true" : "false");
+    //             chunkRender(
+    //                 chunk,
+    //                 player_pos.chunk.vx == x
+    //                     && player_pos.chunk.vz == z
+    //                     && player_pos.chunk.vy == y,
+    //                 should_render,
+    //                 ctx,
+    //                 transforms
+    //             );
+    //         }
+    //     }
+    // }
     #undef markChunk
     #undef isChunkMarked
     durationComponentEnd();
@@ -635,7 +637,7 @@ void worldRender(const World* world,
         ctx,
         transforms
     );
-    DEBUG_LOG("==== END WORLD RENDER ====\n");
+    // DEBUG_LOG("==== END WORLD RENDER ====\n");
     // pcsx_debugbreak();
 }
 

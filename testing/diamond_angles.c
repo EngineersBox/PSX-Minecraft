@@ -90,6 +90,27 @@ bool tcabAngleInRange(const TRad ref,
         : query <= a && query >= b;
 }
 
+typedef int32_t fixedi32;
+typedef int64_t fixedi64;
+
+#define fixedFixedDiv(x, y) ((((fixedi64) (x)) << FIXED_POINT_SHIFT) / ((fixedi32) (y)))
+
+#define ensureNonZero(value) ({\
+    __typeof__(value) _v = (value); \
+    (_v) == 0 ? 1 : (_v); \
+})
+
+TRad tcabAngle(const fixedi32 x, const fixedi32 y) {
+    if (y >= 0) {
+        return x >= 0
+            ? fixedFixedDiv(y, ensureNonZero(x + y))
+            : fixedFixedDiv((1 << FIXED_POINT_SHIFT) - x, ensureNonZero(-x + y)); 
+    }
+    return x < 0
+        ? fixedFixedDiv((2 << FIXED_POINT_SHIFT) - y, ensureNonZero(-x - y))
+        : fixedFixedDiv((3 << FIXED_POINT_SHIFT) + x, ensureNonZero(x - y)); 
+}
+
 int main() {
     // const VECTOR v0 = (VECTOR) {
     //     .vx = 0,
@@ -97,30 +118,18 @@ int main() {
     //     .vz = 0
     // };
     const VECTOR v = (VECTOR) {
-        .vx = 1 << FIXED_POINT_SHIFT,
-        .vy = -(3 << FIXED_POINT_SHIFT),
-        .vz = 2 << FIXED_POINT_SHIFT,
+        .vx = -(1 << FIXED_POINT_SHIFT),
+        .vy = 0,
+        .vz = 1 << FIXED_POINT_SHIFT,
     };
-    // NOTE: If camera is treated as if pointing towards (1,0,0), then
-    // we can transform the query point (chunk pos) to be relative to that.
-    // Then we can compute the diamondAngle for X,Y and X,Z for the two
-    // angles that define the point relative to the camera. If both of
-    // these exceed the FOV angle (in t-rads) for positive and negative
-    // sides, then the chunk is within the frustum. The question is how
-    // to transform the chunk location to be relative to (1,0,0) facing
-    // camera.
-    //
-    // We can resolve this issue simply by using diamongAngle(...) with
-    // the camera angle initially, then checking if the chunk angle is
-    // within some angle difference (i.e. within +-60deg as t-rads).
     printf("Angle XY: %f\n", diamondAngle(v.vx, v.vy) / 4096.0);
     printf("Angle XZ: %f\n", diamondAngle(v.vx, v.vz) / 4096.0);
-    const TRad ref = 2186; // 20 deg
-    const TRad angle= TRAD_60_DEG;
+    const TRad ref = 0;
+    const TRad angle = TRAD_60_DEG >> 1;
     // const TRad query = ref;
     // const TRad query = TRAD_50_DEG;
     // const TRad query = 14198; // 340
-    const TRad query = 9420; // 280
+    const TRad query = tcabAngle(v.vz, v.vz);
     printf(
         "Ref: %d Angle: %d Query: %d Result: %s\n",
         ref,
