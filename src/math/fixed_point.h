@@ -63,7 +63,7 @@ i32 cos5o(i16 i);
  * @param y fractional number
  * @return Result of multiplication
  */
-#define fixedMul(x, y) (((x) * (y)) >> FIXED_POINT_SHIFT)
+#define fixedMul(x, y) ((fixedi32)(((fixedi64)(x) * (fixedi64)(y)) >> FIXED_POINT_SHIFT))
 
 #define FIXED_1_2 (fixedDiv(ONE, 2))
 #define FIXED_1_4 (fixedDiv(ONE, 4))

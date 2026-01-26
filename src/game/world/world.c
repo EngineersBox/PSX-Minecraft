@@ -475,7 +475,6 @@ void worldRender(const World* world,
             visibility = UINT16_MAX;
         } else {
             visibility = chunk->visibility;
-            // TODO: Uncomment after all rendering issues resolved
             chunkRender(
                 chunk,
                 vec3_equal(chunk_pos.chunk, visit.position),
@@ -532,10 +531,20 @@ void worldRender(const World* world,
             // BUG: Need to prevent traversal outside the world from looping
             //      infinitely as nothing prevents 
             const VECTOR chunk_relative_pos = vec3_sub(next_chunk, player_pos.chunk);
-            const i32 dot_result = dot_i32(
-                vec3_const_lshift(face_normal, FIXED_POINT_SHIFT),
-                vec3_i32_normalize(vec3_const_lshift(chunk_relative_pos, FIXED_POINT_SHIFT))
+            // const i32 dot_result = dot_i32(
+            //     vec3_const_lshift(face_normal, FIXED_POINT_SHIFT),
+            //     vec3_i32_normalize(vec3_const_lshift(chunk_relative_pos, FIXED_POINT_SHIFT))
+            // );
+            const VECTOR norm_relative_pos = vec3_const_rshift(
+                vec3_i32_normalize(vec3_const_lshift(
+                    chunk_relative_pos,
+                    FIXED_POINT_SHIFT
+                )),
+                FIXED_POINT_SHIFT
             );
+            const i32 dot_result = (face_normal.vx * norm_relative_pos.vx)
+                + (face_normal.vy * norm_relative_pos.vy)
+                + (face_normal.vz * norm_relative_pos.vz);
             // DEBUG_LOG(
             //     "Normal: " VEC_PATTERN " Direction: " VEC_PATTERN " Dot: %d\n",
             //     VEC_LAYOUT(vec3_const_mul(face_normal, ONE)),
@@ -554,25 +563,24 @@ void worldRender(const World* world,
             if (chunk != NULL && next_outside_world) {
                 // DEBUG_LOG("[WORLD] Outside world\n");
                 continue;
-            }
-            if (squareDistance(&player_pos.chunk, &next_chunk) >= WORLD_RENDER_DISTANCE_SQUARED) {
+            } else if (squareDistance(&player_pos.chunk, &next_chunk) >= WORLD_RENDER_DISTANCE_SQUARED) {
                 // Max render distance
                 // DEBUG_LOG("[WORLD] Exceeded render limit\n");
                 continue;
             }
-            const VECTOR chunk_direction = vec3_const_add(
+            const VECTOR chunk_centre = vec3_const_add(
                 vec3_const_lshift(
-                    vec3_sub(next_chunk, player_pos.chunk),
+                    chunk_relative_pos,
                     FIXED_POINT_SHIFT
                 ),
                 FIXED_1_2
             );
-            const TRad chunkTRadZY = tcabAngle(chunk_direction.vz, chunk_direction.vy);
-            const TRad chunkTRadZX = tcabAngle(chunk_direction.vz, chunk_direction.vx);
+            const TRad chunkTRadZY = tcabAngle(chunk_centre.vz, chunk_centre.vy);
+            const TRad chunkTRadZX = tcabAngle(chunk_centre.vz, chunk_centre.vx);
             // DEBUG_LOG("Chunk ZY t-rad: %d\n", chunkTRadZY);
             // DEBUG_LOG("Chunk ZX t-rad: %d\n", chunkTRadZX);
             // NOTE: We compare the angle of the horizontal axes (ZX) against the camera pitch (ZY)
-            //       and vertial axes (ZY) against pitch (ZX). It seems counterintuitive, but the
+            //       and vertial axes (ZY) against yaw (ZX). It seems counterintuitive, but the
             //       rationale is the rotation direction of the camera is what matters, not the
             //       axes themselves. Thus the chunk angle calculated relative to the Z (forward)
             //       axis is used to compare the matching camera direction.
