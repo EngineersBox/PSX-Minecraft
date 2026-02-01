@@ -106,7 +106,7 @@
 * [X] Menuing system, allowing traversal via some function invocation to move to target menu (i.e. on button press)
 * [X] Main menu
 * [X] Conic frustum
-* [X] Compute angle between conic frustum direction and vector to chunk centre for culling when outside conic angle (i.e `70deg`)
+* [X] Compute dual angle difference between frustum direction and vector to chunk centre for culling when outside FOV X/Y axis angles (i.e `70deg`)
 * [ ] World management menu
 * [ ] Create world menu
 * [ ] Options menu
@@ -114,7 +114,7 @@
 * [ ] Camera far plane cutoff with fog relative to chunk render distance
 * [ ] Frustum and culling
 * [ ] Depth-first search culling through chunks
-* [ ] Thread scheduler using hardware timers for IRQ interleaved execution
+* [ ] Thread scheduler using hardware timers for IRQ interleaved execution (Might be enough to do yield-based context switching and well-designed decomposible operations)
 * [ ] Update queue for operations on the world
 * [ ] TooManyItems-like overlay in inventory GUI
 * [ ] Retrieve face attributes based on block orientation during meshing
@@ -129,7 +129,8 @@
 * [ ] Polygon subdivision (polygons of minimum size, i.e. block size) for the mesh of the chunk that the player resides within
 * [ ] Change lighting direction for both in-world blocks and in-inventory blocks to match actual MC directional lighting
 * [ ] Add stack sizes to recipe ingredients in schema and support field generation in script
-* [ ] Write a blog post on conical frustum culling, taxicab/Manhattan geometry, etc.
+* [ ] Write a blog post on dual-angle frustum culling, taxicab/Manhattan geometry, etc.
+* [ ] Explore shadow casting for 3D FOV culling (look at other roguelike FOV culling impls for more candidates)
 
 ## Refactor
 
