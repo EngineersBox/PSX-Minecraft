@@ -453,6 +453,7 @@ void worldRender(const World* world,
             arrayCoord(world, vz, player_pos.chunk.vz)
         );
     }
+    size_t render_count = 0;
     while (cvector_size(render_queue) > 0) {
         const ChunkVisit visit = render_queue[cvector_size(render_queue) - 1];
         cvector_pop_back(render_queue);
@@ -482,6 +483,7 @@ void worldRender(const World* world,
                 ctx,
                 transforms
             );
+            render_count++;
         }
         // DEBUG_LOG("Chunk vis: " INT16_BIN_PATTERN "\n", INT16_BIN_LAYOUT(visibility));
         if (visibility == 0) {
@@ -584,8 +586,8 @@ void worldRender(const World* world,
             //       rationale is the rotation direction of the camera is what matters, not the
             //       axes themselves. Thus the chunk angle calculated relative to the Z (forward)
             //       axis is used to compare the matching camera direction.
-            if (!tcabAngleInRange(playerTRadYaw, chunkTRadZX, FOV_HALF_TRAD)
-                || !tcabAngleInRange(playerTRadPitch, chunkTRadZY, FOV_HALF_TRAD)) {
+            if (!tcabAngleInRange(playerTRadYaw, FOV_HALF_TRAD, chunkTRadZX)
+                || !tcabAngleInRange(playerTRadPitch, FOV_HALF_TRAD, chunkTRadZY)) {
                 // DEBUG_LOG("[WORLD] Frustum culled\n");
                 continue;
             }
@@ -609,6 +611,7 @@ void worldRender(const World* world,
             );
         }
     }
+    DEBUG_LOG("[WORLD] Chunks rendered: %d\n", render_count);
     // const i32 x_start = world->centre.vx - LOADED_CHUNKS_RADIUS;
     // const i32 x_end = world->centre.vx + LOADED_CHUNKS_RADIUS;
     // const i32 z_start = world->centre.vz - LOADED_CHUNKS_RADIUS;
