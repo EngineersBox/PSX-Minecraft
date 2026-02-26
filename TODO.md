@@ -130,7 +130,7 @@
 * [ ] Change lighting direction for both in-world blocks and in-inventory blocks to match actual MC directional lighting
 * [ ] Add stack sizes to recipe ingredients in schema and support field generation in script
 * [ ] Write a blog post on dual-angle frustum culling, taxicab/Manhattan geometry, etc.
-* [ ] Explore shadow casting for 3D FOV culling (look at other roguelike FOV culling impls for more candidates)
+* [ ] Explore shadow casting for 3D FOV culling (look at other roguelike FOV culling impls for more candidates). Might end up dropping this idea if it is too expensive compared to current implementation.
 
 ## Refactor
 
