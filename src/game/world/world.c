@@ -533,6 +533,9 @@ void worldRender(const World* world,
             // BUG: Need to prevent traversal outside the world from looping
             //      infinitely as nothing prevents 
             const VECTOR chunk_relative_pos = vec3_sub(next_chunk, player_pos.chunk);
+            if (vec3_equal(chunk_relative_pos, VEC3_I32_ZERO)) {
+                continue;
+            }
             // const i32 dot_result = dot_i32(
             //     vec3_const_lshift(face_normal, FIXED_POINT_SHIFT),
             //     vec3_i32_normalize(vec3_const_lshift(chunk_relative_pos, FIXED_POINT_SHIFT))
