@@ -536,26 +536,13 @@ void worldRender(const World* world,
             if (vec3_equal(chunk_relative_pos, VEC3_I32_ZERO)) {
                 continue;
             }
-            // const i32 dot_result = dot_i32(
-            //     vec3_const_lshift(face_normal, FIXED_POINT_SHIFT),
-            //     vec3_i32_normalize(vec3_const_lshift(chunk_relative_pos, FIXED_POINT_SHIFT))
-            // );
-            const VECTOR norm_relative_pos = vec3_const_rshift(
-                vec3_i32_normalize(vec3_const_lshift(
-                    chunk_relative_pos,
+            const fixedi32 dot_result = dot_i32(
+                vec3_const_mul(face_normal, ONE),
+                vec3_i32_normalize( vec3_const_lshift(
+                    vec3_sub(next_chunk, visit.position),
                     FIXED_POINT_SHIFT
-                )),
-                FIXED_POINT_SHIFT
+                ))
             );
-            const i32 dot_result = (face_normal.vx * norm_relative_pos.vx)
-                + (face_normal.vy * norm_relative_pos.vy)
-                + (face_normal.vz * norm_relative_pos.vz);
-            // DEBUG_LOG(
-            //     "Normal: " VEC_PATTERN " Direction: " VEC_PATTERN " Dot: %d\n",
-            //     VEC_LAYOUT(vec3_const_mul(face_normal, ONE)),
-            //     vec3_i32_normalize(vec3_const_lshift(chunk_relative_pos, FIXED_POINT_SHIFT)),
-            //     dot_result
-            // );
             if (dot_result < 0) {
                 // Don't traverse to chunks through faces that go back
                 // towards the camera
@@ -615,34 +602,6 @@ void worldRender(const World* world,
         }
     }
     DEBUG_LOG("[WORLD] Chunks rendered: %d\n", render_count);
-    // const i32 x_start = world->centre.vx - LOADED_CHUNKS_RADIUS;
-    // const i32 x_end = world->centre.vx + LOADED_CHUNKS_RADIUS;
-    // const i32 z_start = world->centre.vz - LOADED_CHUNKS_RADIUS;
-    // const i32 z_end = world->centre.vz + LOADED_CHUNKS_RADIUS;
-    // for (i32 x = x_start; x <= x_end; x++) {
-    //     for (i32 z = z_start; z <= z_end; z++) {
-    //         for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
-    //             Chunk* chunk = world->chunks[arrayCoord(world, vz, z)]
-    //                                         [arrayCoord(world, vx, x)]
-    //                                         [y];
-    //             const bool should_render = isChunkMarked(
-    //                 arrayCoord(world, vx, x),
-    //                 y,
-    //                 arrayCoord(world, vz, z)
-    //             );
-    //             // DEBUG_LOG("[CHUNK] " VEC_PATTERN " Render: %s\n", x, y, z, should_render ? "true" : "false");
-    //             chunkRender(
-    //                 chunk,
-    //                 player_pos.chunk.vx == x
-    //                     && player_pos.chunk.vz == z
-    //                     && player_pos.chunk.vy == y,
-    //                 should_render,
-    //                 ctx,
-    //                 transforms
-    //             );
-    //         }
-    //     }
-    // }
     #undef markChunk
     #undef isChunkMarked
     durationComponentEnd();
