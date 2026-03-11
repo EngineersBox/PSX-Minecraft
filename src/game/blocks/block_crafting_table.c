@@ -257,6 +257,8 @@ bool CraftingTableBlock_useAction(VSelf) {
             CRAFTING_TABLE_TEXTURE_HEIGHT
         )
     };
+    block_render_ui_context.background.tint = vec3_rgb(0x80, 0x80, 0x80);
+    block_render_ui_context.background.ot_entry_index = 1;
     recipe_has_changed = false;
     return BLOCK_USE_ACTION_CONSUMED;
 }
