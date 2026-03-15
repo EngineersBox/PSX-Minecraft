@@ -17,18 +17,18 @@ typedef fixedi32 TRad;
 #define TRAD_MAX (4 << FIXED_POINT_SHIFT)
 
 // (2-(2/(1+tan(45deg)))) * 4096 = 4096
-#define TRAD_45_DEG 4096
+#define TRAD_45_DEG (4096 >> 1)
 // (2-(2/(1+tan(50deg)))) * 4096 = 4454.35356...
-#define TRAD_50_DEG 4454
+#define TRAD_50_DEG (4454 >> 1)
 // (2-(2/(1+tan(60deg)))) * 4096 = 5193.51989...
-#define TRAD_60_DEG 5194
+#define TRAD_60_DEG (5194 >> 1)
 // (2-(2/(1+tan(70deg)))) * 4096 = 6005.99616...
-#define TRAD_70_DEG 6006
+#define TRAD_70_DEG (6006 >> 1)
 // (2-(2/(1+tan(80deg)))) * 4096 = 6964.05007
-#define TRAD_80_DEG 6964
+#define TRAD_80_DEG (6964 >> 1)
 // Note: tan(90) is undefined, so we take the limit
 // lim x->90 (2-(2/(1+tan(x deg)))) * 4096 = 8192
-#define TRAD_90_DEG 8192
+#define TRAD_90_DEG (8192 >> 1)
 
 TRad tcabAngle(const fixedi32 x, const fixedi32 y);
 

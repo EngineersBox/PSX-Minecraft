@@ -118,18 +118,19 @@ int main() {
     //     .vz = 0
     // };
     const VECTOR v = (VECTOR) {
-        .vx = -(1 << FIXED_POINT_SHIFT),
-        .vy = 0,
-        .vz = 1 << FIXED_POINT_SHIFT,
+        .vx = 0,
+        .vy = -(1 << FIXED_POINT_SHIFT) + 2048,
+        .vz = (1 << FIXED_POINT_SHIFT) + 2048,
     };
-    printf("Angle XY: %f\n", diamondAngle(v.vx, v.vy) / 4096.0);
-    printf("Angle XZ: %f\n", diamondAngle(v.vx, v.vz) / 4096.0);
-    const TRad ref = 0;
-    const TRad angle = TRAD_60_DEG >> 1;
+    printf("Angle XY: %f\n", diamondAngle(v.vz, v.vx) / 4096.0);
+    printf("Angle XZ: %f\n", diamondAngle(v.vz, v.vx) / 4096.0);
+    const TRad ref = 16324;
+    const TRad angle = TRAD_80_DEG >> 1;
     // const TRad query = ref;
     // const TRad query = TRAD_50_DEG;
     // const TRad query = 14198; // 340
-    const TRad query = tcabAngle(v.vz, v.vz);
+    // const TRad query = tcabAngle(v.vz, v.vx);
+    const TRad query = 1024;
     printf(
         "Ref: %d Angle: %d Query: %d Result: %s\n",
         ref,

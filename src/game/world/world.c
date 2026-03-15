@@ -426,8 +426,9 @@ void worldRender(const World* world,
     //       the player is facing and render them. Stop drawing if screen is full and/or there
     //       are no more loaded chunks to traverse to.
     // DEBUG_LOG("Rotation: " VEC_PATTERN "\n", VEC_LAYOUT(player->camera->rotation));
-    const TRad playerTRadPitch = player->camera->rotation.vx >> FIXED_POINT_SHIFT >> 1;
-    const TRad playerTRadYaw = player->camera->rotation.vy >> FIXED_POINT_SHIFT >> 1;
+    // const TRad playerTRadPitch = (ONE - (player->camera->rotation.vx >> FIXED_POINT_SHIFT)) >> 1;
+    const TRad playerTRadPitch = player->camera->rotation.vx >> 10;
+    const TRad playerTRadYaw = player->camera->rotation.vy >>  10;
     // DEBUG_LOG("Player pitch t-rad: %d\n", playerTRadPitch);
     // DEBUG_LOG("Player yaw t-rad: %d\n", playerTRadYaw);
     const FaceDirection player_camera_direction = faceDirectionClosestNormal(player->camera->direction);
@@ -453,7 +454,7 @@ void worldRender(const World* world,
             arrayCoord(world, vz, player_pos.chunk.vz)
         );
     }
-    size_t render_count = 0;
+    // size_t render_count = 0;
     while (cvector_size(render_queue) > 0) {
         const ChunkVisit visit = render_queue[cvector_size(render_queue) - 1];
         cvector_pop_back(render_queue);
@@ -483,7 +484,7 @@ void worldRender(const World* world,
                 ctx,
                 transforms
             );
-            render_count++;
+            // render_count++;
         }
         // DEBUG_LOG("Chunk vis: " INT16_BIN_PATTERN "\n", INT16_BIN_LAYOUT(visibility));
         if (visibility == 0) {
@@ -536,6 +537,7 @@ void worldRender(const World* world,
             if (vec3_equal(chunk_relative_pos, VEC3_I32_ZERO)) {
                 continue;
             }
+            DEBUG_LOG("Chunk relative pos: " VEC_PATTERN "\n", VEC_LAYOUT(chunk_relative_pos));
             const fixedi32 dot_result = dot_i32(
                 vec3_const_mul(face_normal, ONE),
                 vec3_i32_normalize( vec3_const_lshift(
@@ -567,17 +569,13 @@ void worldRender(const World* world,
                 ),
                 FIXED_1_2
             );
-            const TRad chunkTRadZY = tcabAngle(chunk_centre.vz, chunk_centre.vy);
             const TRad chunkTRadZX = tcabAngle(chunk_centre.vz, chunk_centre.vx);
-            // DEBUG_LOG("Chunk ZY t-rad: %d\n", chunkTRadZY);
-            // DEBUG_LOG("Chunk ZX t-rad: %d\n", chunkTRadZX);
-            // NOTE: We compare the angle of the horizontal axes (ZX) against the camera pitch (ZY)
-            //       and vertial axes (ZY) against yaw (ZX). It seems counterintuitive, but the
-            //       rationale is the rotation direction of the camera is what matters, not the
-            //       axes themselves. Thus the chunk angle calculated relative to the Z (forward)
-            //       axis is used to compare the matching camera direction.
-            if (!tcabAngleInRange(playerTRadYaw, FOV_HALF_TRAD, chunkTRadZX)
-                || !tcabAngleInRange(playerTRadPitch, FOV_HALF_TRAD, chunkTRadZY)) {
+            const TRad chunkTRadZY = tcabAngle(chunk_centre.vz, chunk_centre.vy);
+            const bool pitch_in_range = tcabAngleInRange(playerTRadPitch, FOV_HALF_TRAD, chunkTRadZX);
+            const bool yaw_in_range = tcabAngleInRange(playerTRadYaw, FOV_HALF_TRAD, chunkTRadZY);
+            DEBUG_LOG("Chunk ZX t-rad: %d Player pitch t-rad: %d In range: %d\n", chunkTRadZX, playerTRadPitch, pitch_in_range);
+            DEBUG_LOG("Chunk ZY t-rad: %d Player yaw t-rad: %d In range: %d\n", chunkTRadZY, playerTRadYaw, yaw_in_range);
+            if (!yaw_in_range || !pitch_in_range) {
                 // DEBUG_LOG("[WORLD] Frustum culled\n");
                 continue;
             }
@@ -601,7 +599,7 @@ void worldRender(const World* world,
             );
         }
     }
-    DEBUG_LOG("[WORLD] Chunks rendered: %d\n", render_count);
+    // DEBUG_LOG("[WORLD] Chunks rendered: %d\n", render_count);
     #undef markChunk
     #undef isChunkMarked
     durationComponentEnd();

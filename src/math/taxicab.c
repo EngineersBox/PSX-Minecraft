@@ -19,9 +19,10 @@ TRad tcabAngle(const fixedi32 x, const fixedi32 y) {
         : fixedFixedDiv((3 << FIXED_POINT_SHIFT) + x, ensureNonZero(x - y)); 
 }
 
-bool tcabAngleInRange(const TRad ref,
+bool tcabAngleInRange(TRad ref,
                       const TRad angle,
                       const TRad query) {
+    ref = ensureNonZero(ref);
     assert(ref >= 0 && ref < TRAD_MAX);
     assert(angle >= 0 && angle < TRAD_MAX);
     assert(query >= 0 && query < TRAD_MAX);
