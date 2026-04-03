@@ -158,9 +158,6 @@ RecipeProcessResult recipeProcess(const RecipeNode* root,
     IItem* item_results[output_slot_count];
     memset(item_results, 0, output_slot_count * sizeof(IItem*));
     query_result.results = item_results;
-    // query_result.results = calloc(output_slot_count, sizeof(IItem*));
-    // assert(query_result.results != NULL);
-
     query_result.result_count = output_slot_count;
     // Put existing output in the result array
     // to use when determining if the stack should
