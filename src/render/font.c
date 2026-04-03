@@ -1,7 +1,6 @@
 #include "font.h"
 
 #include <string.h>
-#include "../core/std/stdlib.h"
 #include <stdarg.h>
 #include <stdio.h>
 
@@ -37,7 +36,7 @@ void fontPrintCentreOffset(RenderContext* ctx,
                            const size_t ot_entry_index,
                            const char* fmt, ...) {
     const u32 raw_length = strlen(fmt) + 1;
-    char* buf = (char*) calloc(raw_length + fmt_add_bytes, sizeof(*buf));
+    char buf[raw_length + fmt_add_bytes];
     memset(buf, 0, raw_length + fmt_add_bytes);
     va_list ap;
     va_start(ap, fmt);
@@ -56,7 +55,6 @@ void fontPrintCentreOffset(RenderContext* ctx,
         true,
         buf
     );
-    free(buf);
 }
 
 // Referenced implementations are from Lameguy64 and spicyjpeg
