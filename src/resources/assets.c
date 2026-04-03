@@ -65,8 +65,9 @@ u8* _lz_resources = NULL;
 static void* _loadTextures(const void* ctx) {
     const int lzp_index = (int) ctx;
     TIM_IMAGE tim = {0};
-    QLP_HEAD* tex_buff = malloc(lzpFileSize(lz_resources, lzp_index));
-    zeroed(tex_buff);
+    const size_t text_buf_size = lzpFileSize(lz_resources, lzp_index);
+    QLP_HEAD tex_buff[text_buf_size];
+    memset(tex_buff, 0, text_buf_size * sizeof(QLP_HEAD));
     lzpUnpackFile(tex_buff, lz_resources, lzp_index);
     const int file_count = qlpFileCount(tex_buff);
     DEBUG_LOG("[TEXTURE] Loading %d texture(s)\n", file_count);
@@ -92,7 +93,6 @@ static void* _loadTextures(const void* ctx) {
             );
         }
     }
-    free(tex_buff);
     return NULL;
 }
 
