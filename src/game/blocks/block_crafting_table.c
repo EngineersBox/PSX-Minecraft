@@ -176,7 +176,6 @@ static void cursorHandler(bool split_or_store_one) {
 
 InputHandlerState craftingTableBlockInputHandler(const Input* input, UNUSED void* ctx) {
     processCraftingRecipe();
-    VCALL(cursor_component, update);
     inventoryCursorHandler(
         VCAST_PTR(Inventory*, block_input_handler_context.inventory),
         INVENTORY_SLOT_GROUP_MAIN | INVENTORY_SLOT_GROUP_HOTBAR,

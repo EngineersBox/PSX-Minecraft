@@ -9,6 +9,7 @@
 #include "../../resources/assets.h"
 #include "../../game/items/item.h"
 #include "../../util/interface99_extensions.h"
+#include "../../logging/logging.h"
 
 Timestamp cursor_debounce = 0;
 

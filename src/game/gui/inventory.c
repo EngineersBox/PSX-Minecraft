@@ -479,7 +479,8 @@ static void cursorHandler(Inventory* inventory,
             INVENTORY_ARMOUR,
             &cursor.component.position
         )];
-    } else if (groups & INVENTORY_SLOT_GROUP_CRAFTING && slotGroupIntersect(
+    } 
+    if (groups & INVENTORY_SLOT_GROUP_CRAFTING && slotGroupIntersect(
         INVENTORY_CRAFTING,
         &cursor.component.position
     )) {
@@ -489,7 +490,8 @@ static void cursorHandler(Inventory* inventory,
         )];
         recipe_has_changed = true;
     
-    } else if (groups & INVENTORY_SLOT_GROUP_MAIN && slotGroupIntersect(
+    }
+    if (groups & INVENTORY_SLOT_GROUP_MAIN && slotGroupIntersect(
         INVENTORY_MAIN,
         &cursor.component.position
     )) {
@@ -497,7 +499,8 @@ static void cursorHandler(Inventory* inventory,
             INVENTORY_MAIN,
             &cursor.component.position
         )];
-    } else if (groups & INVENTORY_SLOT_GROUP_HOTBAR && slotGroupIntersect(
+    }
+    if (groups & INVENTORY_SLOT_GROUP_HOTBAR && slotGroupIntersect(
         INVENTORY_HOTBAR,
         &cursor.component.position
     )) {
@@ -505,7 +508,8 @@ static void cursorHandler(Inventory* inventory,
             INVENTORY_HOTBAR,
             &cursor.component.position
         )];
-    } else {
+    }
+    if (slot == NULL) {
         return;
     }
     if (split_or_store_one) {
@@ -531,7 +535,9 @@ void inventoryCursorHandler(Inventory* inventory,
     const PADTYPE* pad = input->pad;
     if (!debounce(&inventory->debounce, INVENTORY_DEBOUNCE_MS)) {
         return;
-    } else if (isPressed(pad, BINDING_CURSOR_CLICK)) {
+    }
+
+    if (isPressed(pad, BINDING_CURSOR_CLICK)) {
         cursorHandler(inventory, groups, false);
     } else if (isPressed(pad, BINDING_DROP_ITEM) && cursor.held_data != NULL) {
         worldDropItemStack(

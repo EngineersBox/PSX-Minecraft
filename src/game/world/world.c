@@ -537,7 +537,7 @@ void worldRender(const World* world,
             if (vec3_equal(chunk_relative_pos, VEC3_I32_ZERO)) {
                 continue;
             }
-            DEBUG_LOG("Chunk relative pos: " VEC_PATTERN "\n", VEC_LAYOUT(chunk_relative_pos));
+           // DEBUG_LOG("Chunk relative pos: " VEC_PATTERN "\n", VEC_LAYOUT(chunk_relative_pos));
             const fixedi32 dot_result = dot_i32(
                 vec3_const_mul(face_normal, ONE),
                 vec3_i32_normalize( vec3_const_lshift(
@@ -573,8 +573,8 @@ void worldRender(const World* world,
             const TRad chunkTRadZY = tcabAngle(chunk_centre.vz, chunk_centre.vy);
             const bool pitch_in_range = tcabAngleInRange(playerTRadPitch, FOV_HALF_TRAD, chunkTRadZX);
             const bool yaw_in_range = tcabAngleInRange(playerTRadYaw, FOV_HALF_TRAD, chunkTRadZY);
-            DEBUG_LOG("Chunk ZX t-rad: %d Player pitch t-rad: %d In range: %d\n", chunkTRadZX, playerTRadPitch, pitch_in_range);
-            DEBUG_LOG("Chunk ZY t-rad: %d Player yaw t-rad: %d In range: %d\n", chunkTRadZY, playerTRadYaw, yaw_in_range);
+           // DEBUG_LOG("Chunk ZX t-rad: %d Player pitch t-rad: %d In range: %d\n", chunkTRadZX, playerTRadPitch, pitch_in_range);
+           // DEBUG_LOG("Chunk ZY t-rad: %d Player yaw t-rad: %d In range: %d\n", chunkTRadZY, playerTRadYaw, yaw_in_range);
             if (!yaw_in_range || !pitch_in_range) {
                 // DEBUG_LOG("[WORLD] Frustum culled\n");
                 continue;
@@ -586,7 +586,7 @@ void worldRender(const World* world,
             // };
             // // BUG: Culling has improved but still seems flakey
             // if (frustumContainsAABB(&player->camera->frustum, &aabb) == FRUSTUM_OUTSIDE) {
-            //     DEBUG_LOG("[WORLD] Culled\n");
+            //    // DEBUG_LOG("[WORLD] Culled\n");
             //     continue;
             // }
             cvector_push_back_safe(
