@@ -192,26 +192,25 @@ RecipeProcessResult recipeProcess(const RecipeNode* root,
         if (output_slot->data.item == NULL) {
             // Output slot was empty, just move the result
             // into it
-            goto free_result_and_move_to_slot;
+            goto move_item_to_output;
         }
         Item* output_item = VCAST_PTR(Item*, output_slot->data.item);
         const Item* result_item = VCAST_PTR(Item*, query_result.results[i]);
         if (itemEquals(output_item, result_item)) {
-            // Items were the same, stack size was adjusted
-            // we have nothing left to do
-            if (!merge_output) {
-                goto free_result;
+            if (merge_output) {
+                // Items were the same, stack size was adjusted
+                // we have nothing left to do
+                output_item->stack_size += result_item->stack_size;
             }
-            output_item->stack_size += result_item->stack_size;
-            goto free_result;
+            free(query_result.results[i]);
+            continue;
         }
         // IDs between existing output slot item
         // and new result were different, 
         VCALL((IItem) *output_slot->data.item, destroy);
-    free_result_and_move_to_slot:;
+    move_item_to_output:;
         output_slot->data.item = query_result.results[i];
-    free_result:;
-        free(query_result.results[i]);
+        query_result.results[i] = NULL;
     }
     return RECIPE_PROCESSING_SUCCEEDED;
 }
