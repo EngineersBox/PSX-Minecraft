@@ -14,6 +14,7 @@
 #include "../util/preprocessor.h"
 #include "../util/memory.h"
 #include "asset_indices.h"
+#include "texture.h"
 
 typedef void* (*AssetLoad)(const void* ctx);
 typedef void (*AssetFree)(void* ctx);
@@ -65,21 +66,21 @@ u8* _lz_resources = NULL;
 static void* _loadTextures(const void* ctx) {
     const int lzp_index = (int) ctx;
     TIM_IMAGE tim = {0};
-    const size_t text_buf_size = lzpFileSize(lz_resources, lzp_index);
-    QLP_HEAD tex_buff[text_buf_size];
-    memset(tex_buff, 0, text_buf_size * sizeof(QLP_HEAD));
-    lzpUnpackFile(tex_buff, lz_resources, lzp_index);
-    const int file_count = qlpFileCount(tex_buff);
+    const size_t tex_buf_size = lzpFileSize(lz_resources, lzp_index);
+    QLP_HEAD tex_buf[tex_buf_size];
+    memset(tex_buf, 0, tex_buf_size * sizeof(QLP_HEAD));
+    lzpUnpackFile(tex_buf, lz_resources, lzp_index);
+    const int file_count = qlpFileCount(tex_buf);
     DEBUG_LOG("[TEXTURE] Loading %d texture(s)\n", file_count);
     if (file_count > 0) {
         textures = calloc(file_count, sizeof(Texture));
-        zeroed(textures);
+        memset(textures, 0, file_count * sizeof(Texture));
     }
     for (int i = 0; i < file_count; i++) {
 #if isDebugEnabled()
-        const QLP_FILE* file = qlpFileEntry(i, tex_buff);
+        const QLP_FILE* file = qlpFileEntry(i, tex_buf);
 #endif
-        if (!GetTimInfo((uint32_t*) qlpFileAddr(i, tex_buff), &tim)) {
+        if (!GetTimInfo((uint32_t*) qlpFileAddr(i, tex_buf), &tim)) {
             assetLoadImage(&tim, &textures[i]);
             DEBUG_LOG(
                 "[TEXTURE] Loading: [Name: %s] [Position: (%d,%d)] [Addr: %p] [Mode: 0x%x] [TPage: %d] [CLUT: %d]\n",
@@ -159,11 +160,12 @@ void assetLoadTextureDirect(const size_t bundle, const int file_index, Texture* 
         errorAbort("[ERROR] Asset bundle not found: %s\n", asset_bundle->name);
         return;
     }
-    QLP_HEAD* tex_buff = malloc(lzpFileSize(archive, lzp_index));
-    zeroed(tex_buff);
-    lzpUnpackFile(tex_buff, archive, lzp_index);
+    const size_t tex_buf_size = lzpFileSize(archive, lzp_index);
+    QLP_HEAD tex_buf[tex_buf_size];
+    memset(tex_buf, 0, tex_buf_size * sizeof(QLP_HEAD));
+    lzpUnpackFile(tex_buf, archive, lzp_index);
     TIM_IMAGE tim = {0};
-    if (file_index >= qlpFileCount(tex_buff)) {
+    if (file_index >= qlpFileCount(tex_buf)) {
         errorAbort(
             "[ERROR] No such file index %d in asset bundle %d\n",
             file_index,
@@ -171,7 +173,7 @@ void assetLoadTextureDirect(const size_t bundle, const int file_index, Texture* 
         );
         return;
     }
-    const QLP_FILE* file = qlpFileEntry(file_index, tex_buff);
+    const QLP_FILE* file = qlpFileEntry(file_index, tex_buf);
     if (file == NULL) {
         errorAbort(
             "[ERROR] No such file index %d in asset bundle %s\n",
@@ -180,12 +182,11 @@ void assetLoadTextureDirect(const size_t bundle, const int file_index, Texture* 
         );
         return;
     }
-    if (GetTimInfo((uint32_t*) qlpFileAddr(file_index, tex_buff), &tim)) {
+    if (GetTimInfo((uint32_t*) qlpFileAddr(file_index, tex_buf), &tim)) {
         errorAbort("[ERROR] Failed to retrieve TIM info for file %s\n", file->name);
         return;
     }
     assetLoadImage(&tim, texture);
     asset_bundle->free(archive);
-    free(tex_buff);
     DEBUG_LOG("Loaded asset bundle: %s\n", asset_bundle->name);
 }
