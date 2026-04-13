@@ -429,6 +429,7 @@ static void applyItemWorldState(const Chunk* chunk,
     // Mark the item as in world and create physics object +
     // entity structures
     itemSetWorldState(item, true);
+    DEBUG_LOG("[ITEM] Block position " VEC_PATTERN "\n", VEC_LAYOUT(*block_position));
     const VECTOR item_position = vec3_const_lshift(
         vec3_i32(
             (chunk_origin_x + block_position->vx) * BLOCK_SIZE + HALF_BLOCK_SIZE,
@@ -437,6 +438,7 @@ static void applyItemWorldState(const Chunk* chunk,
         ),
         FIXED_POINT_SHIFT
     );
+    DEBUG_LOG("[ITEM] Setting position " VEC_PATTERN "\n", VEC_LAYOUT(item_position));
     iPhysicsObjectSetPosition(
         &item->world_entity->physics_object,
         &item_position
@@ -542,6 +544,7 @@ static int modifyVoxel0(Chunk* chunk,
             LIGHT_TYPE_SKY
         );
     }
+    DEBUG_LOG("[CHUNK] Dropping item: %d\n", drop_item);
     IItem* iitem = VCALL(*old_iblock, destroy, drop_item);
     if (iitem != NULL && iitem->self != NULL) {
         cvector_push_back(

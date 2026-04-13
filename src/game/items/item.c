@@ -50,7 +50,9 @@ void itemSetWorldState(Item* item, const bool in_world) {
         return;
     }
     // In inventory
-    free(item->world_entity);
+    if (item->world_entity != NULL) {
+        free(item->world_entity);
+    }
     item->position = vec3_i32(0);
 }
 
