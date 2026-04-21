@@ -1,6 +1,5 @@
 #include "position.h"
 
-#include "../../logging/logging.h"
 #include "../../math/vector.h"
 #include "../../math/math_utils.h"
 

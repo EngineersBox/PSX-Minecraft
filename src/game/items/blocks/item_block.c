@@ -92,6 +92,7 @@ void renderItemBlock(ItemBlock* item,
                      const u16 light_level_colour_scalar,
                      RenderContext* ctx,
                      const VECTOR* position_offset) {
+    DEBUG_LOG("[ITEM BLOCK] Rendering %p Pos: " VEC_PATTERN "\n", item, VEC_LAYOUT(item->item.position));
     int p;
     TextureAttributes* face_attribute;
     const Texture* texture = &textures[ASSET_TEXTURE__STATIC__TERRAIN];
@@ -238,6 +239,10 @@ void itemBlockRenderWorld(ItemBlock* item,
         &item->item.rotation,
         &position
     );
+    // FIXME: Not sure if this is that efficient or not.
+    //        Might be better to just have a swtich statement
+    //        pick the stack offsets and use it in a single
+    //        for loop.
     if (item->item.stack_size <= 1) {
         renderItemBlock(
             item,

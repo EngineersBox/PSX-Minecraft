@@ -429,7 +429,6 @@ static void applyItemWorldState(const Chunk* chunk,
     // Mark the item as in world and create physics object +
     // entity structures
     itemSetWorldState(item, true);
-    DEBUG_LOG("[ITEM] Block position " VEC_PATTERN "\n", VEC_LAYOUT(*block_position));
     const VECTOR item_position = vec3_const_lshift(
         vec3_i32(
             (chunk_origin_x + block_position->vx) * BLOCK_SIZE + HALF_BLOCK_SIZE,
@@ -438,7 +437,6 @@ static void applyItemWorldState(const Chunk* chunk,
         ),
         FIXED_POINT_SHIFT
     );
-    DEBUG_LOG("[ITEM] Setting position " VEC_PATTERN "\n", VEC_LAYOUT(item_position));
     iPhysicsObjectSetPosition(
         &item->world_entity->physics_object,
         &item_position
@@ -544,7 +542,6 @@ static int modifyVoxel0(Chunk* chunk,
             LIGHT_TYPE_SKY
         );
     }
-    DEBUG_LOG("[CHUNK] Dropping item: %d\n", drop_item);
     IItem* iitem = VCALL(*old_iblock, destroy, drop_item);
     if (iitem != NULL && iitem->self != NULL) {
         cvector_push_back(
@@ -554,7 +551,7 @@ static int modifyVoxel0(Chunk* chunk,
                 .lifetime = time_ms + ITEM_DROPPED_LIFETIME_MS
             })
         );
-        Item* item = VCAST(Item*, *iitem);
+        Item* item = VCAST_PTR(Item*, iitem);
         applyItemWorldState(chunk, item, position);
         if (item_result != NULL) {
             *item_result = iitem;
@@ -742,7 +739,7 @@ void chunkUpdate(Chunk* chunk, const Player* player, BreakingState* breaking_sta
         if (dropped->iitem == NULL) {
             i++;
             continue;
-        } else if (time_ms - dropped->lifetime >= ITEM_DROPPED_LIFETIME_MS) {
+        } else if (time_ms >= dropped->lifetime) {
             VCALL(*dropped->iitem, destroy);
             itemDestroy(dropped->iitem);
             cvector_erase(chunk->dropped_items, i);
