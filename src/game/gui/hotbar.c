@@ -1,11 +1,12 @@
 #include "hotbar.h"
 
+#include <psxgpu.h>
+
 #include "../../util/interface99_extensions.h"
 #include "../../util/memory.h"
 #include "../../util/debounce.h"
 #include "../../ui/components/background.h"
 #include "../../structure/primitive/primitive.h"
-#include "psxgpu.h"
 #include "slot.h"
 
 INLINE Hotbar* hotbarNew() {

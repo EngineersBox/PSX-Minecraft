@@ -171,6 +171,10 @@ or burn it to a CD and put it in an actual PS1 console.
 See the `src/core/input/bindings.c` file for the bindings, and customise them as you see fit (i'll 
 make this easier via debug flags at some point and eventually in-game), recompiling afterwards.
 
+> [!NOTE]
+> You will need to setup controller emulation to use analog layouts, as
+> digital and keyboard layouts don't support L3/R3 mappings, amongst others.
+
 ## Development
 
 The `main` branch contains active development, which is unstable and potentially doesn't compile.
