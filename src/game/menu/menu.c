@@ -6,7 +6,6 @@
 #include "../../core/input/input.h"
 #include "../../logging/logging.h"
 #include "../../ui/components/button.h"
-#include "../../ui/components/cursor.h"
 #include "../../util/interface99_extensions.h"
 
 IUI* current_menu = NULL;
