@@ -575,28 +575,19 @@ void worldRender(const World* world,
             const bool yaw_in_range = tcabAngleInRange(playerTRadYaw, FOV_HALF_TRAD, chunkTRadZY);
            // DEBUG_LOG("Chunk ZX t-rad: %d Player pitch t-rad: %d In range: %d\n", chunkTRadZX, playerTRadPitch, pitch_in_range);
            // DEBUG_LOG("Chunk ZY t-rad: %d Player yaw t-rad: %d In range: %d\n", chunkTRadZY, playerTRadYaw, yaw_in_range);
-            if (!yaw_in_range || !pitch_in_range) {
-                // DEBUG_LOG("[WORLD] Frustum culled\n");
-                continue;
+            if (yaw_in_range && pitch_in_range) {
+                DEBUG_LOG("[WORLD] In-frustum\n");
+                cvector_push_back_safe(
+                    &render_queue,
+                    ((ChunkVisit) {
+                        .position = next_chunk,
+                        .visited_from = faceDirectionOpposing(face_dir),
+                        .is_first = false
+                    })
+                );
+            } else {
+                DEBUG_LOG("[WORLD] Frustum culled\n");
             }
-            // const VECTOR min = vec3_const_mul(next_chunk, CHUNK_BLOCK_SIZE * ONE);
-            // const AABB aabb = (AABB) {
-            //     .min = min,
-            //     .max = vec3_const_add(min, CHUNK_BLOCK_SIZE * ONE)
-            // };
-            // // BUG: Culling has improved but still seems flakey
-            // if (frustumContainsAABB(&player->camera->frustum, &aabb) == FRUSTUM_OUTSIDE) {
-            //    // DEBUG_LOG("[WORLD] Culled\n");
-            //     continue;
-            // }
-            cvector_push_back_safe(
-                &render_queue,
-                ((ChunkVisit) {
-                    .position = next_chunk,
-                    .visited_from = faceDirectionOpposing(face_dir),
-                    .is_first = false
-                })
-            );
         }
     }
     // DEBUG_LOG("[WORLD] Chunks rendered: %d\n", render_count);
