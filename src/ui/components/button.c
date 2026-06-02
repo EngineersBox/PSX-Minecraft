@@ -3,7 +3,6 @@
 #include <psxgpu.h>
 
 #include "cursor.h"
-#include "../../logging/logging.h"
 #include "../../math/math_utils.h"
 #include "../../render/font.h"
 #include "../../resources/asset_indices.h"

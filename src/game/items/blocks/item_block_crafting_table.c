@@ -1,12 +1,10 @@
 #include "item_block_crafting_table.h"
 
-#include "../../../core/std/stdlib.h"
 #include <interface99.h>
 
 #include "../../../util/interface99_extensions.h"
 #include "../../../util/memory.h"
 #include "../../../util/preprocessor.h"
-#include "../../../math/vector.h"
 #include "../item_id.h"
 #include "item_block.h"
 

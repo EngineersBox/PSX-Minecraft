@@ -19,11 +19,13 @@
 
 typedef enum SingleplayerMenuButton {
     // Values are indices into UI components array
+    SINGLEPLAYER_MENU_BG_1 = 0,
+    SINGLEPLAYER_MENU_BG_2 = 1,
     SINGLEPLAYER_MENU_PLAY = 2,
     SINGLEPLAYER_MENU_RENAME = 3,
     SINGLEPLAYER_MENU_DELETE = 4,
     SINGLEPLAYER_MENU_CREATE = 5,
-    SINGLEPLAYER_MENU_CANCEL = 7
+    SINGLEPLAYER_MENU_CANCEL = 6
 } SingleplayerMenuButton;
 
 IUI* singleplayerMenuNew() {

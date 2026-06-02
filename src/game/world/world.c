@@ -458,13 +458,13 @@ void worldRender(const World* world,
     while (cvector_size(render_queue) > 0) {
         const ChunkVisit visit = render_queue[cvector_size(render_queue) - 1];
         cvector_pop_back(render_queue);
-        // DEBUG_LOG(
-        //     "[WORLD] Visit chunk " VEC_PATTERN " @ " VEC_PATTERN "\n", 
-        //     VEC_LAYOUT(visit.position),
-        //     arrayCoord(world, vx, visit.position.vx),
-        //     visit.position.vy,
-        //     arrayCoord(world, vz, visit.position.vz)
-        // );
+        DEBUG_LOG(
+            "[WORLD] Visit chunk " VEC_PATTERN " @ " VEC_PATTERN "\n", 
+            VEC_LAYOUT(visit.position),
+            arrayCoord(world, vx, visit.position.vx),
+            visit.position.vy,
+            arrayCoord(world, vz, visit.position.vz)
+        );
         ChunkBlockPosition chunk_pos = (ChunkBlockPosition) {
             .chunk = visit.position,
             .block = vec3_i32(0)
@@ -486,14 +486,15 @@ void worldRender(const World* world,
             );
             // render_count++;
         }
-        // DEBUG_LOG("Chunk vis: " INT16_BIN_PATTERN "\n", INT16_BIN_LAYOUT(visibility));
+        DEBUG_LOG("Chunk vis: " INT16_BIN_PATTERN "\n", INT16_BIN_LAYOUT(visibility));
         if (visibility == 0) {
             // Can't see anything, don't bother
+            DEBUG_LOG("[WORLD] No visibility\n");
             continue;
         }
         for (FaceDirection face_dir = FACE_DIR_DOWN; face_dir <= FACE_DIR_FRONT; face_dir++) {
             if (face_dir == visit.visited_from) {
-                // DEBUG_LOG("[WORLD] Same direction as visited from %d == %d\n", face_dir, visit.visited_from);
+                DEBUG_LOG("[WORLD] Same direction as visited from %d == %d\n", face_dir, visit.visited_from);
                 continue;
             } else if (!visit.is_first && chunkVisibilityGetBit(
                     visibility,
@@ -501,7 +502,7 @@ void worldRender(const World* world,
                     visit.visited_from
                 ) == 0) {
                 // Cannot exit chunk in this direction from the entered face
-                // DEBUG_LOG("[WORLD] No visibility from face %d to %d\n", visit.visited_from, face_dir);
+                DEBUG_LOG("[WORLD] No visibility from face %d to %d\n", visit.visited_from, face_dir);
                 continue;
             }
             const VECTOR face_normal = vec3_as(VECTOR, FACE_DIRECTION_NORMALS[face_dir]);
@@ -522,7 +523,7 @@ void worldRender(const World* world,
                 // DEBUG_LOG("[WORLD] Mark pos: " VEC_PATTERN "\n", VEC_LAYOUT(mark_pos));
                 if (isChunkMarked(mark_pos.vx, mark_pos.vy, mark_pos.vz)) {
                     // Within the world and already visited, skip it
-                    // DEBUG_LOG("[WORLD] Already visited\n");
+                    DEBUG_LOG("[WORLD] Already visited\n");
                     continue;
                 }
                 markChunk(mark_pos.vx, mark_pos.vy, mark_pos.vz);
