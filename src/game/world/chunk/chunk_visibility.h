@@ -4,9 +4,6 @@
 #define _PSXMC__GAME_WORLD_CHUNK__CHUNK_VISIBILITY_H_
 
 #include "../../../util/inttypes.h"
-#include "../../../util/preprocessor.h"
-#include "../../../math/math_utils.h"
-#include "chunk_defines.h"
 
 // Direction bitmask
 // LRFBUD   Val   Idx <- AKA log2(Val)
