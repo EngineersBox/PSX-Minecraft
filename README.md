@@ -75,9 +75,7 @@ Remake of Minecraft for PS1 with PSn00bSDK
 ### Current Goals 
 
  * World rendering rework 
- * Frustum culling
- * Ordered directional sub-mesh culling
- * Menu system
+ * Polygon subdivision in chunk rendering
 
 ### Screenshots
 
