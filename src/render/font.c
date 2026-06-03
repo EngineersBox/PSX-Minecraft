@@ -7,6 +7,7 @@
 #include "../logging/logging.h"
 #include "../resources/assets.h"
 #include "../resources/asset_indices.h"
+#include "psxgpu.h"
 
 typedef struct {
 	char* txtbuff;
@@ -266,5 +267,10 @@ void* fontSort(u32* ordering_table,
 	// texture_page->code[0] |= 32;
 	addPrim(ordering_table, primitive);
 	primitive += sizeof(DR_TPAGE);
+    DR_TWIN* ptwin = (DR_TWIN*) primitive;
+    const RECT tex_window = (RECT) {0};
+    setTexWindow(ptwin, &tex_window);
+    addPrim(ordering_table, ptwin);
+    primitive += sizeof(DR_TWIN);
 	return (void *) primitive;
 }

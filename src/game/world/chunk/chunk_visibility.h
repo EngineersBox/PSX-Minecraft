@@ -53,7 +53,10 @@
 
 typedef u16 ChunkVisibility;
 
-u8 chunkVisibilityGetBit(const ChunkVisibility vis, const u8 a, const u8 b);
-void chunkVisibilitySetBit(ChunkVisibility* vis, const u8 a, const u8 b);
+u8 chunkVisibilityCalculateOffset(const u8 a, const u8 b);
+
+#define chunkVisibilityGetBit(vis, a, b) ((vis >> chunkVisibilityCalculateOffset(a, b)) & 0b1)
+#define chunkVisibilitySetBit(vis, a, b) (*vis |= 0b1 << chunkVisibilityCalculateOffset(a, b))
+#define chunkVisibilityClearBit(vis, a, b) (*vis &= ~(0b1 << chunkVisibilityCalculateOffset(a, b)))
 
 #endif // _PSXMC__GAME_WORLD_CHUNK__CHUNK_VISIBILITY_H_

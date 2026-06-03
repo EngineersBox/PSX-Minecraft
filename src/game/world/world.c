@@ -38,6 +38,12 @@ const LightUpdateLimits world_chunk_init_limits = (LightUpdateLimits) {
     .remove_sky = 0
 };
 
+typedef struct ChunkRenderState {
+    ChunkVisibility visibility;
+    bool visited: 1;
+    u8 _pad: 7;
+} ChunkRenderState;
+
 typedef struct ChunkVisit {
     VECTOR position;
     FaceDirection visited_from: FACE_DIRECTION_COUNT_BITS;
@@ -435,20 +441,13 @@ void worldRender(const World* world,
             .traversal_depth = 0,
         })
     );
-    u8 chunk_bitset[AXIS_CHUNKS * WORLD_CHUNKS_HEIGHT] = {0};
-    #define markChunk(x, y, z) chunk_bitset[((y) * AXIS_LOADED_CHUNKS) + (z)] |= 1 << (x)
-    #define isChunkMarked(x, y, z) ((chunk_bitset[((y) * AXIS_LOADED_CHUNKS) + (z)] >> (x) & 0b1) == 1)
-    // Only mark chunk if we are within world bounds. Note that 
-    // X and Z coords are always valid based on invariant of
-    // player being placed within world at beginning and loaded
-    // chunks changing with player position.
-    if (player_world_pos.vy > 0 && player_world_pos.vy < WORLD_CHUNKS_HEIGHT) {
-        markChunk(
-            arrayCoord(world, vx, player_pos.chunk.vx),
-            player_pos.chunk.vy,
-            arrayCoord(world, vz, player_pos.chunk.vz)
-        );
-    }
+    ChunkRenderState chunk_render_states[AXIS_CHUNKS * WORLD_CHUNKS_HEIGHT] = {0};
+    #define getChunkRenderState(x, y, z) (chunk_render_states[((y) * AXIS_LOADED_CHUNKS) + (z)])
+    #define visitChunk(x, y, z, vis) ({ \
+        ChunkRenderState* _crs = &getChunkRenderState(x, y, z); \
+        _crs->visibility = (vis); \
+        _crs->visited = true; \
+    })
     // size_t render_count = 0;
     while (cvector_size(render_queue) > 0) {
         const ChunkVisit visit = render_queue[cvector_size(render_queue) - 1];
@@ -467,11 +466,18 @@ void worldRender(const World* world,
         Chunk* chunk = worldGetChunkFromChunkBlock(world, &chunk_pos);
         // NOTE: If chunk is NULL, then always traverse to next chunks, ignoring
         //       visibility, since it's always visible.
-        ChunkVisibility visibility;
-        if (chunk == NULL) {
-            visibility = UINT16_MAX;
-        } else {
-            visibility = chunk->visibility;
+        ChunkRenderState allVisCrs = (ChunkRenderState) {
+            .visibility = UINT16_MAX,
+            .visited = true
+        };
+        ChunkRenderState* crs = chunk == NULL ? &allVisCrs : &getChunkRenderState(
+            chunk_pos.chunk.vx,
+            chunk_pos.chunk.vy,
+            chunk_pos.chunk.vz
+        );
+        if (crs->visibility == 0 && !crs->visited) {
+            crs->visibility = chunk->visibility;
+            crs->visited = true;
             chunkRender(
                 chunk,
                 vec3_equal(chunk_pos.chunk, visit.position),
@@ -479,10 +485,10 @@ void worldRender(const World* world,
                 ctx,
                 transforms
             );
-            // render_count++;
         }
-        DEBUG_LOG("Chunk vis: " INT16_BIN_PATTERN "\n", INT16_BIN_LAYOUT(visibility));
-        if (visibility == 0) {
+            // render_count++;
+        DEBUG_LOG("Chunk vis: " INT16_BIN_PATTERN "\n", INT16_BIN_LAYOUT(crs->visibility));
+        if (crs->visibility == 0) {
             // Can't see anything, don't bother
             DEBUG_LOG("[WORLD] No visibility\n");
             continue;
@@ -493,9 +499,10 @@ void worldRender(const World* world,
         for (FaceDirection face_dir = FACE_DIR_DOWN; face_dir <= FACE_DIR_FRONT; face_dir++) {
             if (face_dir == visit.visited_from) {
                 DEBUG_LOG("[WORLD] Same direction as visited from %d == %d\n", face_dir, visit.visited_from);
+                chunkVisibilityClearBit(&crs->visibility, face_dir, visit.visited_from);
                 continue;
             } else if (visit.traversal_depth != 0 && chunkVisibilityGetBit(
-                    visibility,
+                    crs->visibility,
                     face_dir,
                     visit.visited_from
                 ) == 0) {
@@ -503,6 +510,7 @@ void worldRender(const World* world,
                 DEBUG_LOG("[WORLD] No visibility from face %d to %d\n", visit.visited_from, face_dir);
                 continue;
             }
+            chunkVisibilityClearBit(&crs->visibility, face_dir, visit.visited_from);
             DEBUG_LOG("[WORLD] Visible from face %d to %d\n", visit.visited_from, face_dir);
             const VECTOR face_normal = vec3_as(VECTOR, FACE_DIRECTION_NORMALS[face_dir]);
             const VECTOR next_chunk = vec3_add(visit.position, face_normal);
@@ -511,61 +519,21 @@ void worldRender(const World* world,
                 .chunk = next_chunk,
                 .block = vec3_i32(0)
             };
-            const bool next_outside_world = worldIsOutsideBounds(world, &next_cb_pos);
-            if (!next_outside_world) {
-                // Transform world position to world chunk array indices
-                const VECTOR mark_pos = vec3_i32(
-                    arrayCoord(world, vx, next_chunk.vx),
-                    next_chunk.vy,
-                    arrayCoord(world, vz, next_chunk.vz)
-                );
-                // DEBUG_LOG("[WORLD] Mark pos: " VEC_PATTERN "\n", VEC_LAYOUT(mark_pos));
-                if (isChunkMarked(mark_pos.vx, mark_pos.vy, mark_pos.vz)) {
-                    // Within the world and already visited, skip it
-                    DEBUG_LOG("[WORLD] Already visited\n");
-                    continue;
-                }
-                markChunk(mark_pos.vx, mark_pos.vy, mark_pos.vz);
-            }
             // If current position is within world bounds and next
             // position is out of bounds, ignore the next position
             // as it will just lead to pointless iterations.
-            if (chunk != NULL && next_outside_world) {
+            if (chunk != NULL && worldIsOutsideBounds(world, &next_cb_pos)) {
                 // DEBUG_LOG("[WORLD] Outside world\n");
                 continue;
             }
             // BUG: Need to prevent traversal outside the world from looping
-            //      indefinitely
+            //      indefinitely (i.e. when flying outside of world chunks)
             const VECTOR chunk_relative_pos = vec3_sub(next_chunk, player_pos.chunk);
             if (vec3_equal(chunk_relative_pos, VEC3_I32_ZERO)) {
                 continue;
             }
-           DEBUG_LOG("Chunk relative pos: " VEC_PATTERN "\n", VEC_LAYOUT(chunk_relative_pos));
-            // const fixedi32 dot_result = dot_i32(
-            //     vec3_const_mul(face_normal, ONE),
-            //     vec3_i32_normalize( vec3_const_lshift(
-            //         vec3_sub(next_chunk, visit.position),
-            //         FIXED_POINT_SHIFT
-            //     ))
-            // );
-            // if (dot_result < 0) {
-            //     // Don't traverse to chunks through faces that go back
-            //     // towards the camera
-            //     // DEBUG_LOG("[WORLD] Negative dot product\n");
-            //     continue;
-            // } else if (squareDistance(&player_pos.chunk, &next_chunk) >= WORLD_RENDER_DISTANCE_SQUARED) {
-            //     // Max render distance
-            //     // DEBUG_LOG("[WORLD] Exceeded render limit\n");
-            //     continue;
-            // }
-            // const VECTOR chunk_centre = vec3_const_add(
-            //     vec3_const_lshift(
-            //         chunk_relative_pos,
-            //         FIXED_POINT_SHIFT
-            //     ),
-            //     FIXED_1_2
-            // );
-            VECTOR chunk_closest_vertex = vec3_const_lshift(
+            DEBUG_LOG("Chunk relative pos: " VEC_PATTERN "\n", VEC_LAYOUT(chunk_relative_pos));
+            const VECTOR chunk_closest_vertex = vec3_const_lshift(
                 vec3_i32(
                     (chunk_relative_pos.vx < 0) + chunk_relative_pos.vx,
                     (chunk_relative_pos.vy < 0) + chunk_relative_pos.vy,
@@ -596,8 +564,8 @@ void worldRender(const World* world,
         }
     }
     // DEBUG_LOG("[WORLD] Chunks rendered: %d\n", render_count);
-    #undef markChunk
-    #undef isChunkMarked
+    #undef getChunkRenderState
+    #undef visitChunk
     durationComponentEnd();
     durationTreeRender(
         durationComponentCurrentAtIndex(world_render_duration.index),
