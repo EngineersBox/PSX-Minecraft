@@ -565,7 +565,7 @@ void worldRender(const World* world,
             //     ),
             //     FIXED_1_2
             // );
-            const VECTOR chunk_closest_vertex = vec3_const_lshift(
+            VECTOR chunk_closest_vertex = vec3_const_lshift(
                 vec3_i32(
                     (chunk_relative_pos.vx < 0) + chunk_relative_pos.vx,
                     (chunk_relative_pos.vy < 0) + chunk_relative_pos.vy,

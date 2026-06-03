@@ -29,12 +29,11 @@ typedef struct Pos {
 int main() {
     for (int32_t x = -1; x <= 2; x++) {
         for (int32_t y = -1; y <= 2; y++) {
-            const Pos pos = (Pos) { .x = x, .y = y };
             const Pos closest_vertex = (Pos) {
-                .x = (pos.x < 0) + x,
-                .y = (pos.y < 0) + y
+                .x = (x < 0) + x,
+                .y = (y < 0) + y
             };
-            printf("Pos x: %d y: %d => Vertex x: %d y: %d\n", pos.x, pos.y, closest_vertex.x, closest_vertex.y);
+            printf("Pos x: %d y: %d => Vertex x: %d y: %d\n", x, y, closest_vertex.x, closest_vertex.y);
         }
     }
     return 0;
