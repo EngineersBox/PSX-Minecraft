@@ -20,9 +20,9 @@ target_compile_definitions(PSXMC PUBLIC -DPSXMC_DEBUG_OVERLAY_POS=1)
 target_compile_definitions(PSXMC PUBLIC -DPSXMC_DEBUG_OVERLAY_DIR=1)
 # Facing direction
 target_compile_definitions(PSXMC PUBLIC -DPSXMC_DEBUG_OVERLAY_FACING=1)
-# Memory usage
-target_compile_definitions(PSXMC PUBLIC -DPSXMC_DEBUG_OVERLAY_WORLD=0)
 # World data like day count, time of day and weather 
+target_compile_definitions(PSXMC PUBLIC -DPSXMC_DEBUG_OVERLAY_WORLD=0)
+# Memory usage
 target_compile_definitions(PSXMC PUBLIC -DPSXMC_DEBUG_OVERLAY_MEM=0)
 # Critical path duration tree
 target_compile_definitions(PSXMC PUBLIC -DPSXMC_DEBUG_OVERLAY_DURATION_TREE=1)
