@@ -11,11 +11,11 @@
 #define FACE_DIRECTION_COUNT_BITS 3
 typedef enum FaceDirection {
     FACE_DIR_DOWN = 0,
-    FACE_DIR_UP,
-    FACE_DIR_LEFT,
-    FACE_DIR_RIGHT,
-    FACE_DIR_BACK,
-    FACE_DIR_FRONT
+    FACE_DIR_UP = 1,
+    FACE_DIR_LEFT = 2,
+    FACE_DIR_RIGHT = 3,
+    FACE_DIR_BACK = 4,
+    FACE_DIR_FRONT = 5
 } FaceDirection;
 
 extern const SVECTOR FACE_DIRECTION_NORMALS[FACE_DIRECTION_COUNT];

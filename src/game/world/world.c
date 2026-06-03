@@ -21,7 +21,6 @@
 #include "../../logging/logging.h"
 #include "../items/items.h"
 #include "chunk/chunk.h"
-#include "chunk/chunk_defines.h"
 #include "chunk/chunk_mesh.h"
 #include "chunk/chunk_structure.h"
 #include "chunk/chunk_visibility.h"
@@ -42,11 +41,7 @@ const LightUpdateLimits world_chunk_init_limits = (LightUpdateLimits) {
 typedef struct ChunkVisit {
     VECTOR position;
     FaceDirection visited_from: FACE_DIRECTION_COUNT_BITS;
-    bool is_first: 1;
-    // Allows us to use the same logic even if the
-    // camera is outside the world height limit.
-    /*bool outside_world: 1;*/
-    u8 _pad: 4;
+    u8 traversal_depth: 5;
 } ChunkVisit;
 static cvector(ChunkVisit) render_queue = NULL;
 
@@ -404,7 +399,7 @@ void worldRender(const World* world,
                  const Player* player,
                  RenderContext* ctx,
                  Transforms* transforms) {
-    // DEBUG_LOG("==== START WORLD RENDER ====\n");
+    DEBUG_LOG("==== START WORLD RENDER ====\n");
     durationComponentInitOnce(world_render, "worldRender");
     durationComponentStart(&world_render_duration);
     const VECTOR player_world_pos = vec3_const_div(
@@ -437,7 +432,7 @@ void worldRender(const World* world,
         ((ChunkVisit) {
             .position = player_pos.chunk,
             .visited_from = faceDirectionOpposing(player_camera_direction),
-            .is_first = true,
+            .traversal_depth = 0,
         })
     );
     u8 chunk_bitset[AXIS_CHUNKS * WORLD_CHUNKS_HEIGHT] = {0};
@@ -491,12 +486,15 @@ void worldRender(const World* world,
             // Can't see anything, don't bother
             DEBUG_LOG("[WORLD] No visibility\n");
             continue;
+        } else if (visit.traversal_depth >= WORLD_RENDER_DISTANCE) {
+            DEBUG_LOG("[WORLD] Exceeded max render distance\n");
+            continue;
         }
         for (FaceDirection face_dir = FACE_DIR_DOWN; face_dir <= FACE_DIR_FRONT; face_dir++) {
             if (face_dir == visit.visited_from) {
                 DEBUG_LOG("[WORLD] Same direction as visited from %d == %d\n", face_dir, visit.visited_from);
                 continue;
-            } else if (!visit.is_first && chunkVisibilityGetBit(
+            } else if (visit.traversal_depth != 0 && chunkVisibilityGetBit(
                     visibility,
                     face_dir,
                     visit.visited_from
@@ -505,9 +503,10 @@ void worldRender(const World* world,
                 DEBUG_LOG("[WORLD] No visibility from face %d to %d\n", visit.visited_from, face_dir);
                 continue;
             }
+            DEBUG_LOG("[WORLD] Visible from face %d to %d\n", visit.visited_from, face_dir);
             const VECTOR face_normal = vec3_as(VECTOR, FACE_DIRECTION_NORMALS[face_dir]);
             const VECTOR next_chunk = vec3_add(visit.position, face_normal);
-            // DEBUG_LOG("[WORLD] Next chunk: " VEC_PATTERN "\n", VEC_LAYOUT(next_chunk));
+            DEBUG_LOG("[WORLD] Next chunk: " VEC_PATTERN "\n", VEC_LAYOUT(next_chunk));
             const ChunkBlockPosition next_cb_pos = (ChunkBlockPosition) {
                 .chunk = next_chunk,
                 .block = vec3_i32(0)
@@ -528,54 +527,59 @@ void worldRender(const World* world,
                 }
                 markChunk(mark_pos.vx, mark_pos.vy, mark_pos.vz);
             }
-            // if (vec3_equal(player_pos.chunk, next_chunk)) {
-            //     // Original chunk, ignore it.
-            //     continue;
-            // }
-            // BUG: Need to prevent traversal outside the world from looping
-            //      infinitely as nothing prevents 
-            const VECTOR chunk_relative_pos = vec3_sub(next_chunk, player_pos.chunk);
-            if (vec3_equal(chunk_relative_pos, VEC3_I32_ZERO)) {
-                continue;
-            }
-           // DEBUG_LOG("Chunk relative pos: " VEC_PATTERN "\n", VEC_LAYOUT(chunk_relative_pos));
-            const fixedi32 dot_result = dot_i32(
-                vec3_const_mul(face_normal, ONE),
-                vec3_i32_normalize( vec3_const_lshift(
-                    vec3_sub(next_chunk, visit.position),
-                    FIXED_POINT_SHIFT
-                ))
-            );
-            if (dot_result < 0) {
-                // Don't traverse to chunks through faces that go back
-                // towards the camera
-                // DEBUG_LOG("[WORLD] Negative dot product\n");
-                continue;
-            }
             // If current position is within world bounds and next
             // position is out of bounds, ignore the next position
             // as it will just lead to pointless iterations.
             if (chunk != NULL && next_outside_world) {
                 // DEBUG_LOG("[WORLD] Outside world\n");
                 continue;
-            } else if (squareDistance(&player_pos.chunk, &next_chunk) >= WORLD_RENDER_DISTANCE_SQUARED) {
-                // Max render distance
-                // DEBUG_LOG("[WORLD] Exceeded render limit\n");
+            }
+            // BUG: Need to prevent traversal outside the world from looping
+            //      indefinitely
+            const VECTOR chunk_relative_pos = vec3_sub(next_chunk, player_pos.chunk);
+            if (vec3_equal(chunk_relative_pos, VEC3_I32_ZERO)) {
                 continue;
             }
-            const VECTOR chunk_centre = vec3_const_add(
-                vec3_const_lshift(
-                    chunk_relative_pos,
-                    FIXED_POINT_SHIFT
+           DEBUG_LOG("Chunk relative pos: " VEC_PATTERN "\n", VEC_LAYOUT(chunk_relative_pos));
+            // const fixedi32 dot_result = dot_i32(
+            //     vec3_const_mul(face_normal, ONE),
+            //     vec3_i32_normalize( vec3_const_lshift(
+            //         vec3_sub(next_chunk, visit.position),
+            //         FIXED_POINT_SHIFT
+            //     ))
+            // );
+            // if (dot_result < 0) {
+            //     // Don't traverse to chunks through faces that go back
+            //     // towards the camera
+            //     // DEBUG_LOG("[WORLD] Negative dot product\n");
+            //     continue;
+            // } else if (squareDistance(&player_pos.chunk, &next_chunk) >= WORLD_RENDER_DISTANCE_SQUARED) {
+            //     // Max render distance
+            //     // DEBUG_LOG("[WORLD] Exceeded render limit\n");
+            //     continue;
+            // }
+            // const VECTOR chunk_centre = vec3_const_add(
+            //     vec3_const_lshift(
+            //         chunk_relative_pos,
+            //         FIXED_POINT_SHIFT
+            //     ),
+            //     FIXED_1_2
+            // );
+            const VECTOR chunk_closest_vertex = vec3_const_lshift(
+                vec3_i32(
+                    (chunk_relative_pos.vx < 0) + chunk_relative_pos.vx,
+                    (chunk_relative_pos.vy < 0) + chunk_relative_pos.vy,
+                    (chunk_relative_pos.vz < 0) + chunk_relative_pos.vz
                 ),
-                FIXED_1_2
+                FIXED_POINT_SHIFT
             );
-            const TRad chunkTRadZX = tcabAngle(chunk_centre.vz, chunk_centre.vx);
-            const TRad chunkTRadZY = tcabAngle(chunk_centre.vz, chunk_centre.vy);
+            DEBUG_LOG("[WORLD] Closest vertex " VEC_PATTERN "\n", VEC_LAYOUT(chunk_closest_vertex));
+            const TRad chunkTRadZX = tcabAngle(chunk_closest_vertex.vz, chunk_closest_vertex.vx);
+            const TRad chunkTRadZY = tcabAngle(chunk_closest_vertex.vz, chunk_closest_vertex.vy);
             const bool pitch_in_range = tcabAngleInRange(playerTRadPitch, FOV_HALF_TRAD, chunkTRadZX);
             const bool yaw_in_range = tcabAngleInRange(playerTRadYaw, FOV_HALF_TRAD, chunkTRadZY);
-           // DEBUG_LOG("Chunk ZX t-rad: %d Player pitch t-rad: %d In range: %d\n", chunkTRadZX, playerTRadPitch, pitch_in_range);
-           // DEBUG_LOG("Chunk ZY t-rad: %d Player yaw t-rad: %d In range: %d\n", chunkTRadZY, playerTRadYaw, yaw_in_range);
+            DEBUG_LOG("Chunk ZX t-rad: %d Player pitch t-rad: %d In range: %d\n", chunkTRadZX, playerTRadPitch, pitch_in_range);
+            DEBUG_LOG("Chunk ZY t-rad: %d Player yaw t-rad: %d In range: %d\n", chunkTRadZY, playerTRadYaw, yaw_in_range);
             if (yaw_in_range && pitch_in_range) {
                 DEBUG_LOG("[WORLD] In-frustum\n");
                 cvector_push_back_safe(
@@ -583,7 +587,7 @@ void worldRender(const World* world,
                     ((ChunkVisit) {
                         .position = next_chunk,
                         .visited_from = faceDirectionOpposing(face_dir),
-                        .is_first = false
+                        .traversal_depth = visit.traversal_depth + 1
                     })
                 );
             } else {
@@ -600,7 +604,7 @@ void worldRender(const World* world,
         ctx,
         transforms
     );
-    // DEBUG_LOG("==== END WORLD RENDER ====\n");
+    DEBUG_LOG("==== END WORLD RENDER ====\n");
     // pcsx_debugbreak();
 }
 
