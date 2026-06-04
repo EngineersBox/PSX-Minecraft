@@ -465,14 +465,14 @@ void worldRender(const World* world,
             .visibility = UINT16_MAX,
             .visited = true
         };
-        ChunkRenderState* crs = chunk == NULL ? &allVisCrs : &getChunkRenderState(
+        ChunkRenderState* chunk_render_state = chunk == NULL ? &allVisCrs : &getChunkRenderState(
             chunk_pos.chunk.vx,
             chunk_pos.chunk.vy,
             chunk_pos.chunk.vz
         );
-        if (crs->visibility == 0 && !crs->visited) {
-            crs->visibility = chunk->visibility;
-            crs->visited = true;
+        if (chunk_render_state->visibility == 0 && !chunk_render_state->visited) {
+            chunk_render_state->visibility = chunk->visibility;
+            chunk_render_state->visited = true;
             chunkRender(
                 chunk,
                 vec3_equal(chunk_pos.chunk, visit.position),
@@ -482,8 +482,8 @@ void worldRender(const World* world,
             );
         }
             // render_count++;
-        DEBUG_LOG("Chunk vis: " INT16_BIN_PATTERN "\n", INT16_BIN_LAYOUT(crs->visibility));
-        if (crs->visibility == 0) {
+        DEBUG_LOG("Chunk vis: " INT16_BIN_PATTERN "\n", INT16_BIN_LAYOUT(chunk_render_state->visibility));
+        if (chunk_render_state->visibility == 0) {
             // Can't see anything, don't bother
             DEBUG_LOG("[WORLD] No visibility\n");
             continue;
@@ -494,10 +494,10 @@ void worldRender(const World* world,
         for (FaceDirection face_dir = FACE_DIR_DOWN; face_dir <= FACE_DIR_FRONT; face_dir++) {
             if (face_dir == visit.visited_from) {
                 DEBUG_LOG("[WORLD] Same direction as visited from %d == %d\n", face_dir, visit.visited_from);
-                chunkVisibilityClearBit(&crs->visibility, face_dir, visit.visited_from);
+                chunkVisibilityClearBit(&chunk_render_state->visibility, face_dir, visit.visited_from);
                 continue;
             } else if (visit.traversal_depth != 0 && chunkVisibilityGetBit(
-                    crs->visibility,
+                    chunk_render_state->visibility,
                     face_dir,
                     visit.visited_from
                 ) == 0) {
@@ -505,7 +505,7 @@ void worldRender(const World* world,
                 DEBUG_LOG("[WORLD] No visibility from face %d to %d\n", visit.visited_from, face_dir);
                 continue;
             }
-            chunkVisibilityClearBit(&crs->visibility, face_dir, visit.visited_from);
+            chunkVisibilityClearBit(&chunk_render_state->visibility, face_dir, visit.visited_from);
             DEBUG_LOG("[WORLD] Visible from face %d to %d\n", visit.visited_from, face_dir);
             const VECTOR face_normal = vec3_as(VECTOR, FACE_DIRECTION_NORMALS[face_dir]);
             const VECTOR next_chunk = vec3_add(visit.position, face_normal);
