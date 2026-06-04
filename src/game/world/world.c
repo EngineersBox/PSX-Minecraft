@@ -443,11 +443,6 @@ void worldRender(const World* world,
     );
     ChunkRenderState chunk_render_states[AXIS_CHUNKS * WORLD_CHUNKS_HEIGHT] = {0};
     #define getChunkRenderState(x, y, z) (chunk_render_states[((y) * AXIS_LOADED_CHUNKS) + (z)])
-    #define visitChunk(x, y, z, vis) ({ \
-        ChunkRenderState* _crs = &getChunkRenderState(x, y, z); \
-        _crs->visibility = (vis); \
-        _crs->visited = true; \
-    })
     // size_t render_count = 0;
     while (cvector_size(render_queue) > 0) {
         const ChunkVisit visit = render_queue[cvector_size(render_queue) - 1];
@@ -565,7 +560,6 @@ void worldRender(const World* world,
     }
     // DEBUG_LOG("[WORLD] Chunks rendered: %d\n", render_count);
     #undef getChunkRenderState
-    #undef visitChunk
     durationComponentEnd();
     durationTreeRender(
         durationComponentCurrentAtIndex(world_render_duration.index),
