@@ -433,8 +433,8 @@ void worldRender(const World* world,
     // DEBUG_LOG("Player pitch t-rad: %d\n", playerTRadPitch);
     // DEBUG_LOG("Player yaw t-rad: %d\n", playerTRadYaw);
     const FaceDirection player_camera_direction = faceDirectionClosestNormal(player->camera->direction);
-    cvector_push_back_safe(
-        &render_queue,
+    cvector_push_back(
+        render_queue,
         ((ChunkVisit) {
             .position = player_pos.chunk,
             .visited_from = faceDirectionOpposing(player_camera_direction),
@@ -543,19 +543,16 @@ void worldRender(const World* world,
             const bool yaw_in_range = tcabAngleInRange(playerTRadYaw, FOV_HALF_TRAD, chunkTRadZY);
             DEBUG_LOG("Chunk ZX t-rad: %d Player pitch t-rad: %d In range: %d\n", chunkTRadZX, playerTRadPitch, pitch_in_range);
             DEBUG_LOG("Chunk ZY t-rad: %d Player yaw t-rad: %d In range: %d\n", chunkTRadZY, playerTRadYaw, yaw_in_range);
-            if (yaw_in_range && pitch_in_range) {
-                DEBUG_LOG("[WORLD] In-frustum\n");
-                cvector_push_back_safe(
-                    &render_queue,
-                    ((ChunkVisit) {
-                        .position = next_chunk,
-                        .visited_from = faceDirectionOpposing(face_dir),
-                        .traversal_depth = visit.traversal_depth + 1
-                    })
-                );
-            } else {
-                DEBUG_LOG("[WORLD] Frustum culled\n");
-            }
+            if (!yaw_in_range || !pitch_in_range) continue;
+            DEBUG_LOG("[WORLD] In-frustum\n");
+            cvector_push_back(
+                render_queue,
+                ((ChunkVisit) {
+                    .position = next_chunk,
+                    .visited_from = faceDirectionOpposing(face_dir),
+                    .traversal_depth = visit.traversal_depth + 1
+                })
+            );
         }
     }
     // DEBUG_LOG("[WORLD] Chunks rendered: %d\n", render_count);
