@@ -10,15 +10,14 @@ extern PadButton BINDING_MOVE_FORWARD;
 extern PadButton BINDING_MOVE_BACKWARD;
 extern PadButton BINDING_MOVE_LEFT;
 extern PadButton BINDING_MOVE_RIGHT;
+extern PadButton BINDING_JUMP;
+extern PadButton BINDING_CROUCH;
 
 // Look
 extern PadButton BINDING_LOOK_UP;
 extern PadButton BINDING_LOOK_DOWN;
 extern PadButton BINDING_LOOK_LEFT;
 extern PadButton BINDING_LOOK_RIGHT;
-
-extern PadButton BINDING_JUMP;
-extern PadButton BINDING_SNEAK;
 
 // Utilise held item
 extern PadButton BINDING_ATTACK;

@@ -58,7 +58,7 @@ typedef struct PhysicsObjectFlags {
     bool collided_vertical: 1;
     bool collided: 1;
     bool jumping: 1;
-    bool sneaking: 1;
+    bool crouching: 1;
     bool no_clip: 1;
     u16 _pad: 5;
 } PhysicsObjectFlags;

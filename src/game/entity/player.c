@@ -279,7 +279,7 @@ INLINE static void playerInputHandlerUse(const PlayerInputHandlerContext* ctx) {
         PLAYER_REACH_DISTANCE
     );
     // Interaction order:
-    // 1. If the raycast hit a block and we are not sneaking
+    // 1. If the raycast hit a block and we are not crouching
     //   a. Invoke the block use handler (returns bool)
     //     i. If true we consumed the input, exit
     //     ii. Otherwise continue
@@ -300,13 +300,13 @@ INLINE static void playerInputHandlerUse(const PlayerInputHandlerContext* ctx) {
     //       2. Exit
     //     iii. Else if state equals USED then exit
     //     iv. Otherwise continue
-    // 4. If we are sneaking
+    // 4. If we are crouching
     //   a. Invoke the block update handler (returns bool)
-    const bool sneaking  = physics_object->flags.sneaking;
+    const bool crouching  = physics_object->flags.crouching;
     Hotbar* hotbar = VCAST_PTR(Hotbar*, &player->hotbar);
     Slot* slot = &hotbarGetSelectSlot(hotbar);
     IItem* iitem = slot->data.item;
-    if (result.block != NULL && !sneaking && VCALL(*result.block, useAction)) {
+    if (result.block != NULL && !crouching && VCALL(*result.block, useAction)) {
         return;
     }
     if (iitem == NULL) {
@@ -396,7 +396,7 @@ INLINE static void playerInputHandlerUse(const PlayerInputHandlerContext* ctx) {
             break;
     }
 block_update:
-    if (sneaking) {
+    if (crouching) {
         // Event is consumed so we don't try to invoke the tool usage
         // on this block
         VCALL(*result.block, useAction);
@@ -435,7 +435,7 @@ INLINE static InputHandlerState playerInputHandlerMovement(const Input* input, c
     physics_object->move.forward = 0;
     physics_object->move.strafe = 0;
     physics_object->flags.jumping = false;
-    physics_object->flags.sneaking = false;
+    physics_object->flags.crouching = false;
     if (physics_object->flags.no_clip) {
         physics_object->velocity = vec3_i32(0, 0, 0);
     }
@@ -473,12 +473,12 @@ INLINE static InputHandlerState playerInputHandlerMovement(const Input* input, c
             physics_object->flags.jumping = true;
         }
     }
-    if (isPressed(pad, BINDING_SNEAK)) {
+    if (isPressed(pad, BINDING_CROUCH)) {
         move_amount = SNEAK_MOVE_AMOUNT;
         if (physics_object->flags.no_clip) {
             physics_object->velocity.vy = -move_amount;
         } else {
-            physics_object->flags.sneaking = true;
+            physics_object->flags.crouching = true;
         }
     }
     if (isPressed(pad, BINDING_MOVE_FORWARD)) {

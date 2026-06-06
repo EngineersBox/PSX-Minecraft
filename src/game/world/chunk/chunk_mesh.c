@@ -268,6 +268,8 @@ void chunkMeshRender(const ChunkMesh* mesh,
                      RenderContext* ctx,
                      Transforms* transforms) {
     const VECTOR position = vec3_const_div(ctx->camera->position, ONE);
+    DEBUG_LOG("[CHUNK MESH] Pos " VEC_PATTERN "\n", VEC_LAYOUT(position));
+    DEBUG_LOG("[CHUNK MESH] AABB Min " VEC_PATTERN " Max " VEC_PATTERN "\n", VEC_LAYOUT(chunk_aabb->min), VEC_LAYOUT(chunk_aabb->max));
     #define posState(axis) \
         position.v##axis < chunk_aabb->min.v##axis \
             ? POS_DECREASED \
@@ -284,9 +286,9 @@ void chunkMeshRender(const ChunkMesh* mesh,
         &position
     );
     bool skip_check[6] = {false, false, false, false, false, false};
-    for (int i = 0; i < FACE_DIRECTION_COUNT; i++) {
-        if (skip_check[i] || faceDirectionHidden(
-            i,
+    for (FaceDirection face_dir = FACE_DIR_DOWN; face_dir <= FACE_DIR_FRONT; face_dir++) {
+        if (skip_check[face_dir] || faceDirectionHidden(
+            face_dir,
             &aabb_closest_vertex,
             pos_state_x,
             pos_state_y,
@@ -297,7 +299,7 @@ void chunkMeshRender(const ChunkMesh* mesh,
         }
         // If we have determined that a face is visible, then the
         // opposite face direction is necesserily not visible
-        switch (i) {
+        switch (face_dir) {
             case FACE_DIR_DOWN: skip_check[1] = (bool) pos_state_y; break;
             case FACE_DIR_UP: skip_check[0] = (bool) pos_state_y; break;
             case FACE_DIR_LEFT: skip_check[3] = (bool) pos_state_x; break;
@@ -306,7 +308,7 @@ void chunkMeshRender(const ChunkMesh* mesh,
             case FACE_DIR_FRONT: skip_check[4] = (bool) pos_state_z; break;
         }
         chunkMeshRenderFaceDirection(
-            &mesh->face_meshes[i],
+            &mesh->face_meshes[face_dir],
             internal_light_level,
             subdivide,
             should_render,

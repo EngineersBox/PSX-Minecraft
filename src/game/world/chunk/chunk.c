@@ -460,9 +460,10 @@ static LightLevel inferSunlightValueFromNeighbours(const Chunk* chunk,
             *position,
             WORLD_FACE_DIRECTION_NORMALS[face_dir]
         );
-        const LightLevel neighbour_light_level = worldGetLightTypeChunkBlock(
+        const VECTOR world_pos = chunkBlockToWorldPosition(&cb_pos, CHUNK_SIZE);
+        const LightLevel neighbour_light_level = worldGetLightType(
             chunk->world,
-            &cb_pos,
+            &world_pos,
             LIGHT_TYPE_SKY
         );
         if (face_dir == FACE_DIR_UP && neighbour_light_level == 15) {
@@ -928,10 +929,10 @@ void chunkUpdateAddLight(Chunk* chunk, const LightUpdateLimits limits) {
                 CHUNK_SIZE
             )
         );
-        for (FaceDirection i = FACE_DIR_DOWN; i <= FACE_DIR_FRONT; i++) {
+        for (FaceDirection face_dir = FACE_DIR_DOWN; face_dir <= FACE_DIR_FRONT; face_dir++) {
             const VECTOR query_pos = vec3_add(
                 world_pos,
-                WORLD_FACE_DIRECTION_NORMALS[i]
+                WORLD_FACE_DIRECTION_NORMALS[face_dir]
             );
             const IBlock* iblock = worldGetBlock(
                 current_chunk->world,
@@ -944,7 +945,7 @@ void chunkUpdateAddLight(Chunk* chunk, const LightUpdateLimits limits) {
             // Skip propogating light if we are facing a solid block
             // and the face in that direction is opaque
             if (!blockCanPropagateBlocklight(block->id)
-                || blockIsFaceOpaque(block, faceDirectionOpposing(i))) {
+                || blockIsFaceOpaque(block, faceDirectionOpposing(face_dir))) {
                 continue;
             }
             const LightLevel neighbour_light_level = worldGetLightType(
@@ -984,10 +985,10 @@ void chunkUpdateAddLight(Chunk* chunk, const LightUpdateLimits limits) {
                 CHUNK_SIZE
             )
         );
-        for (FaceDirection i = FACE_DIR_DOWN; i <= FACE_DIR_UP; i++) {
+        for (FaceDirection face_dir = FACE_DIR_DOWN; face_dir <= FACE_DIR_UP; face_dir++) {
             const VECTOR query_pos = vec3_add(
                 world_pos,
-                WORLD_FACE_DIRECTION_NORMALS[i]
+                WORLD_FACE_DIRECTION_NORMALS[face_dir]
             );
             const IBlock* iblock = worldGetBlock(
                 current_chunk->world,
@@ -1000,7 +1001,7 @@ void chunkUpdateAddLight(Chunk* chunk, const LightUpdateLimits limits) {
             // Skip propogating light if we are facing a solid block
             // and the face in that direction is opaque
             if (!blockCanPropagateSunlight(block->id)
-                || blockIsFaceOpaque(block, faceDirectionOpposing(i))) {
+                || blockIsFaceOpaque(block, faceDirectionOpposing(face_dir))) {
                 continue;
             }
             const LightLevel neighbour_light_level = worldGetLightType(
@@ -1024,10 +1025,10 @@ void chunkUpdateAddLight(Chunk* chunk, const LightUpdateLimits limits) {
                 );
             }
         }
-        for (FaceDirection i = FACE_DIR_LEFT; i <= FACE_DIR_FRONT; i++) {
+        for (FaceDirection face_dir = FACE_DIR_LEFT; face_dir <= FACE_DIR_FRONT; face_dir++) {
             const VECTOR query_pos = vec3_add(
                 world_pos,
-                WORLD_FACE_DIRECTION_NORMALS[i]
+                WORLD_FACE_DIRECTION_NORMALS[face_dir]
             );
             const IBlock* iblock = worldGetBlock(
                 current_chunk->world,
@@ -1040,7 +1041,7 @@ void chunkUpdateAddLight(Chunk* chunk, const LightUpdateLimits limits) {
             // Skip propogating light if we are facing a solid block
             // and the face in that direction is opaque
             if (!blockCanPropagateSunlight(block->id)
-                || blockIsFaceOpaque(block, faceDirectionOpposing(i))) {
+                || blockIsFaceOpaque(block, faceDirectionOpposing(face_dir))) {
                 continue;
             }
             const LightLevel neighbour_light_level = worldGetLightType(

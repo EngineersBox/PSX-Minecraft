@@ -428,10 +428,18 @@ void worldRender(const World* world,
     //       are no more loaded chunks to traverse to.
     // DEBUG_LOG("Rotation: " VEC_PATTERN "\n", VEC_LAYOUT(player->camera->rotation));
     // const TRad playerTRadPitch = (ONE - (player->camera->rotation.vx >> FIXED_POINT_SHIFT)) >> 1;
+    
+    // TODO: Need to figure out if this is correct. Not sure if rotation is calculated relative
+    //       to forward Z vector like taxicab angles are for chunks. These must be the same for
+    //       culling to work correcty.
     const TRad playerTRadPitch = player->camera->rotation.vx >> 10;
     const TRad playerTRadYaw = player->camera->rotation.vy >>  10;
-    // DEBUG_LOG("Player pitch t-rad: %d\n", playerTRadPitch);
-    // DEBUG_LOG("Player yaw t-rad: %d\n", playerTRadYaw);
+    DEBUG_LOG("Player pitch t-rad: %d\n", playerTRadPitch);
+    DEBUG_LOG("Player yaw t-rad: %d\n", playerTRadYaw);
+    // const TRad playerTRadPitch = tcabAngle(player->camera->direction.vz, player->camera->direction.vx);
+    // const TRad playerTRadYaw = tcabAngle(player->camera->direction.vz, player->camera->direction.vy);
+    // DEBUG_LOG("Player calc pitch t-rad: %d\n", tcabAngle(player->camera->direction.vz, player->camera->direction.vx));
+    DEBUG_LOG("Player calc yaw t-rad: %d\n", tcabAngle(player->camera->direction.vz, player->camera->direction.vy));
     const FaceDirection player_camera_direction = faceDirectionClosestNormal(player->camera->direction);
     cvector_push_back(
         render_queue,
