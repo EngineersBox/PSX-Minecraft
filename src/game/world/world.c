@@ -441,7 +441,7 @@ void worldRender(const World* world,
     const TRad playerTRadYaw = tcabAngle(player->camera->direction.vz, player->camera->direction.vy);
     DEBUG_LOG("Player calc pitch t-rad: %d\n", playerTRadPitch);
     DEBUG_LOG("Player calc yaw t-rad: %d\n", playerTRadYaw);
-    const VECTOR closest_block = vec3_const_lshift(player_pos.block, FIXED_POINT_SHIFT);
+    // const VECTOR closest_block = vec3_const_lshift(player_pos.block, FIXED_POINT_SHIFT);
     const FaceDirection player_camera_direction = faceDirectionClosestNormal(player->camera->direction);
     cvector_push_back(
         render_queue,

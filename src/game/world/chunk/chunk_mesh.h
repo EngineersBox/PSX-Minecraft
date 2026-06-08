@@ -8,7 +8,6 @@
 #include "../../../render/render_context.h"
 #include "../../../render/transforms.h"
 #include "../../../structure/primitive/direction.h"
-#include "../../../math/vector.h"
 #include "../../../lighting/lightmap.h"
 #include "../../../physics/aabb.h"
 
