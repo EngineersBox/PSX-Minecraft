@@ -21,6 +21,7 @@
 #include "../../logging/logging.h"
 #include "../items/items.h"
 #include "chunk/chunk.h"
+#include "chunk/chunk_defines.h"
 #include "chunk/chunk_mesh.h"
 #include "chunk/chunk_structure.h"
 #include "chunk/chunk_visibility.h"
@@ -432,14 +433,15 @@ void worldRender(const World* world,
     // TODO: Need to figure out if this is correct. Not sure if rotation is calculated relative
     //       to forward Z vector like taxicab angles are for chunks. These must be the same for
     //       culling to work correcty.
-    const TRad playerTRadPitch = player->camera->rotation.vx >> 10;
-    const TRad playerTRadYaw = player->camera->rotation.vy >>  10;
-    DEBUG_LOG("Player pitch t-rad: %d\n", playerTRadPitch);
-    DEBUG_LOG("Player yaw t-rad: %d\n", playerTRadYaw);
-    // const TRad playerTRadPitch = tcabAngle(player->camera->direction.vz, player->camera->direction.vx);
-    // const TRad playerTRadYaw = tcabAngle(player->camera->direction.vz, player->camera->direction.vy);
-    // DEBUG_LOG("Player calc pitch t-rad: %d\n", tcabAngle(player->camera->direction.vz, player->camera->direction.vx));
-    DEBUG_LOG("Player calc yaw t-rad: %d\n", tcabAngle(player->camera->direction.vz, player->camera->direction.vy));
+    // const TRad playerTRadPitch = player->camera->rotation.vx >> 10;
+    // const TRad playerTRadYaw = player->camera->rotation.vy >>  10;
+    // DEBUG_LOG("Player pitch t-rad: %d\n", playerTRadPitch);
+    // DEBUG_LOG("Player yaw t-rad: %d\n", playerTRadYaw);
+    const TRad playerTRadPitch = tcabAngle(player->camera->direction.vz, player->camera->direction.vx);
+    const TRad playerTRadYaw = tcabAngle(player->camera->direction.vz, player->camera->direction.vy);
+    DEBUG_LOG("Player calc pitch t-rad: %d\n", playerTRadPitch);
+    DEBUG_LOG("Player calc yaw t-rad: %d\n", playerTRadYaw);
+    const VECTOR closest_block = vec3_const_lshift(player_pos.block, FIXED_POINT_SHIFT);
     const FaceDirection player_camera_direction = faceDirectionClosestNormal(player->camera->direction);
     cvector_push_back(
         render_queue,
@@ -515,8 +517,7 @@ void worldRender(const World* world,
             }
             chunkVisibilityClearBit(&chunk_render_state->visibility, face_dir, visit.visited_from);
             DEBUG_LOG("[WORLD] Visible from face %d to %d\n", visit.visited_from, face_dir);
-            const VECTOR face_normal = vec3_as(VECTOR, FACE_DIRECTION_NORMALS[face_dir]);
-            const VECTOR next_chunk = vec3_add(visit.position, face_normal);
+            const VECTOR next_chunk = vec3_add(visit.position, FACE_DIRECTION_NORMALS[face_dir]);
             DEBUG_LOG("[WORLD] Next chunk: " VEC_PATTERN "\n", VEC_LAYOUT(next_chunk));
             const ChunkBlockPosition next_cb_pos = (ChunkBlockPosition) {
                 .chunk = next_chunk,
@@ -536,22 +537,43 @@ void worldRender(const World* world,
                 continue;
             }
             DEBUG_LOG("Chunk relative pos: " VEC_PATTERN "\n", VEC_LAYOUT(chunk_relative_pos));
-            const VECTOR chunk_closest_vertex = vec3_const_lshift(
-                vec3_i32(
-                    (chunk_relative_pos.vx < 0) + chunk_relative_pos.vx,
-                    (chunk_relative_pos.vy < 0) + chunk_relative_pos.vy,
-                    (chunk_relative_pos.vz < 0) + chunk_relative_pos.vz
-                ),
-                FIXED_POINT_SHIFT
-            );
-            DEBUG_LOG("[WORLD] Closest vertex " VEC_PATTERN "\n", VEC_LAYOUT(chunk_closest_vertex));
-            const TRad chunkTRadZX = tcabAngle(chunk_closest_vertex.vz, chunk_closest_vertex.vx);
-            const TRad chunkTRadZY = tcabAngle(chunk_closest_vertex.vz, chunk_closest_vertex.vy);
+            // const VECTOR chunk_closest_vertex = vec3_const_lshift(
+            //     vec3_i32(
+            //         (chunk_relative_pos.vx < 0) + chunk_relative_pos.vx,
+            //         (chunk_relative_pos.vy < 0) + chunk_relative_pos.vy,
+            //         (chunk_relative_pos.vz < 0) + chunk_relative_pos.vz
+            //     ),
+            //     FIXED_POINT_SHIFT
+            // );
+            // const AABB chunk_aabb = (AABB) {
+            //     .min = vec3_const_mul(chunk_relative_pos, CHUNK_SIZE << FIXED_POINT_SHIFT),
+            //     .max = vec3_const_mul(vec3_const_add(chunk_relative_pos, 1), CHUNK_SIZE << FIXED_POINT_SHIFT)
+            // };
+            // const VECTOR chunk_closest_vertex = vec3_const_div(aabbVertexClosestToPoint(&chunk_aabb, &closest_block), CHUNK_SIZE);
+            // DEBUG_LOG("[WORLD] Closest vertex " VEC_PATTERN "\n", VEC_LAYOUT(chunk_closest_vertex));
+            const VECTOR chunk_relative_centre = vec3_const_add(vec3_const_mul(chunk_relative_pos, FIXED_POINT_SHIFT), FIXED_1_2);
+            // const TRad chunkTRadZX = tcabAngle(chunk_closest_vertex.vz, chunk_closest_vertex.vx);
+            const TRad chunkTRadZX = tcabAngle(chunk_relative_centre.vz, chunk_relative_centre.vx);
             const bool pitch_in_range = tcabAngleInRange(playerTRadPitch, FOV_HALF_TRAD, chunkTRadZX);
-            const bool yaw_in_range = tcabAngleInRange(playerTRadYaw, FOV_HALF_TRAD, chunkTRadZY);
             DEBUG_LOG("Chunk ZX t-rad: %d Player pitch t-rad: %d In range: %d\n", chunkTRadZX, playerTRadPitch, pitch_in_range);
+            if (!pitch_in_range) continue;
+            // const TRad chunkTRadZY = tcabAngle(chunk_closest_vertex.vz, chunk_closest_vertex.vy);
+            const TRad chunkTRadZY = tcabAngle(chunk_relative_centre.vz, chunk_relative_centre.vy);
+            const bool yaw_in_range = tcabAngleInRange(playerTRadYaw, FOV_HALF_TRAD, chunkTRadZY);
             DEBUG_LOG("Chunk ZY t-rad: %d Player yaw t-rad: %d In range: %d\n", chunkTRadZY, playerTRadYaw, yaw_in_range);
-            if (!yaw_in_range || !pitch_in_range) continue;
+            if (!yaw_in_range) continue;
+            /* Chunk render logic:
+             * 1. Compute relative chunk centre point
+             * 2. Test if chunk centre is in frustum (dual angle check), render if visible
+             * 3. Otherwise, compute nearest vertex of chunk to direction ray of camera
+             * 4. Test if vertex is in frustum (dual angle check), render if visible
+             * 5. Otherwise skip chunk
+             *
+             * NOTE: No test for chunk behind camera, because traversal between chunks
+             *       never goes backward toward the camera.
+             *       Test for chunk centre is necessary in the case that nearest vertices
+             *       to direction ray are outside of frustum, but chunk is still visible.
+             */
             DEBUG_LOG("[WORLD] In-frustum\n");
             cvector_push_back(
                 render_queue,
