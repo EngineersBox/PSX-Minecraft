@@ -132,6 +132,7 @@
 * [ ] Add stack sizes to recipe ingredients in schema and support field generation in script
 * [ ] Write a blog post on dual-angle frustum culling, taxicab/Manhattan geometry, etc.
 * [ ] Explore shadow casting for 3D FOV culling (look at other roguelike FOV culling impls for more candidates). Might end up dropping this idea if it is too expensive compared to current implementation.
+* [ ] Add a furnace block, storing the index of the front face into the chunk's array of meshes for that face direction.
 
 ## Refactor
 
