@@ -954,7 +954,7 @@ bool isPlayerInEdgeChunks(const World* world, const ChunkBlockPosition* player_p
     return result;
 }
 
-fixedi32 calculateCelestialAngle(u16 time_ticks) {
+static fixedi32 calculateCelestialAngle(u16 time_ticks) {
     fixedi32 scaled = (((time_ticks + 1) << FIXED_POINT_SHIFT) / WORLD_TIME_CYCLE) - FIXED_1_4;
     if (scaled < 0) {
         scaled += ONE;
