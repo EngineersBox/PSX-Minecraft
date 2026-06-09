@@ -1071,6 +1071,7 @@ void worldUpdateInternalLightLevelOld(World* world) {
             setLevel(15);
             break;
     }
+    #undef setLevel
     world->internal_light_level = internal_light_level;
 }
 
@@ -1535,10 +1536,6 @@ void worldDropItemStack(World* world,
         4096
     );
     item->world_entity->physics_object.velocity = vec3_i32(0);
-    // TODO: Add a timestamp marker into the item fields
-    //       as the minimum time that it should be considered
-    //       when testing for items to pick up around the
-    //       player (in chunk.c)
     item->world_entity->physics_object.position = vec3_add(
         player->entity.physics_object.position,
         velocity
