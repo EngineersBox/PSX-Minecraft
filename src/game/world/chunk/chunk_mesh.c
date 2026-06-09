@@ -268,8 +268,8 @@ void chunkMeshRender(const ChunkMesh* mesh,
                      RenderContext* ctx,
                      Transforms* transforms) {
     const VECTOR position = vec3_const_div(ctx->camera->position, ONE);
-    DEBUG_LOG("[CHUNK MESH] Pos " VEC_PATTERN "\n", VEC_LAYOUT(position));
-    DEBUG_LOG("[CHUNK MESH] AABB Min " VEC_PATTERN " Max " VEC_PATTERN "\n", VEC_LAYOUT(chunk_aabb->min), VEC_LAYOUT(chunk_aabb->max));
+    // DEBUG_LOG("[CHUNK MESH] Pos " VEC_PATTERN "\n", VEC_LAYOUT(position));
+    // DEBUG_LOG("[CHUNK MESH] AABB Min " VEC_PATTERN " Max " VEC_PATTERN "\n", VEC_LAYOUT(chunk_aabb->min), VEC_LAYOUT(chunk_aabb->max));
     #define posState(axis) \
         position.v##axis < chunk_aabb->min.v##axis \
             ? POS_DECREASED \

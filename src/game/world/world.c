@@ -486,12 +486,14 @@ void worldRender(const World* world,
     // TODO: Need to figure out if this is correct. Not sure if rotation is calculated relative
     //       to forward Z vector like taxicab angles are for chunks. These must be the same for
     //       culling to work correcty.
-    // const TRad playerTRadPitch = player->camera->rotation.vx >> 10;
-    // const TRad playerTRadYaw = player->camera->rotation.vy >>  10;
+    // Pich = up and down
+    const TRad playerTRadPitch = player->camera->rotation.vx >> 10;
+    // Yaw = left and right
+    const TRad playerTRadYaw = player->camera->rotation.vy >> 10;
     // DEBUG_LOG("Player pitch t-rad: %d\n", playerTRadPitch);
     // DEBUG_LOG("Player yaw t-rad: %d\n", playerTRadYaw);
-    const TRad playerTRadPitch = tcabAngle(player->camera->direction.vz, player->camera->direction.vx);
-    const TRad playerTRadYaw = tcabAngle(player->camera->direction.vz, player->camera->direction.vy);
+    // const TRad playerTRadPitch = tcabAngle(player->camera->direction.vz, player->camera->direction.vy);
+    // const TRad playerTRadYaw = tcabAngle(player->camera->direction.vz, player->camera->direction.vx);
     DEBUG_LOG("Player calc pitch t-rad: %d\n", playerTRadPitch);
     DEBUG_LOG("Player calc yaw t-rad: %d\n", playerTRadYaw);
     // const VECTOR closest_block = vec3_const_lshift(player_pos.block, FIXED_POINT_SHIFT);
@@ -568,7 +570,6 @@ void worldRender(const World* world,
                 DEBUG_LOG("[WORLD] No visibility from face %d to %d\n", visit.visited_from, face_dir);
                 continue;
             }
-            // TODO: Check if traversal direction is back towards camera. Skip if so.
             chunkVisibilityClearBit(&chunk_render_state->visibility, face_dir, visit.visited_from);
             DEBUG_LOG("[WORLD] Visible from face %d to %d\n", visit.visited_from, face_dir);
             const VECTOR next_chunk = vec3_add(visit.position, FACE_DIRECTION_NORMALS[face_dir]);
@@ -577,6 +578,10 @@ void worldRender(const World* world,
                 .chunk = next_chunk,
                 .block = vec3_i32(0)
             };
+                // Check if traversal direction is back towards camera. Skip if so.
+            if (dot_i32(next_chunk, player_pos.chunk) < 0) {
+                continue;
+            }
             // If current position is within world bounds and next
             // position is out of bounds, ignore the next position
             // as it will just lead to pointless iterations.
@@ -591,48 +596,54 @@ void worldRender(const World* world,
                 continue;
             }
             DEBUG_LOG("Chunk relative pos: " VEC_PATTERN "\n", VEC_LAYOUT(chunk_relative_pos));
+            const VECTOR chunk_relative_pos_blocks = vec3_const_mul(chunk_relative_pos, CHUNK_SIZE << FIXED_POINT_SHIFT);
+            DEBUG_LOG("Chunk relative pos blocks: " VEC_PATTERN "\n", VEC_LAYOUT(chunk_relative_pos_blocks));
+            const VECTOR chunk_relative_centre_blocks = vec3_i32_normalize(vec3_const_add(chunk_relative_pos_blocks, FIXED_1_2));
+            DEBUG_LOG("Chunk relative centre blocks: " VEC_PATTERN "\n", VEC_LAYOUT(chunk_relative_centre_blocks));
             /* Chunk render logic:
              * 1. Compute relative chunk centre point
-             * 2. Test if chunk centre is in frustum (dual angle check), render if visible
+             * 2. Test if chunk centre is in frustum (dual angle check), skip if not visibile
              * 3. Otherwise, get quadrant closest vertices of chunk
-             * 4. Test if verticies are in frustum (dual angle check), render if visible
-             * 5. Otherwise skip chunk
+             * 4. Test if verticies are in frustum (dual angle check), skip if not visible
+             * 5. Render chunk
              *
-             * NOTE: No test for chunk behind camera, because traversal between chunks
-             *       never goes backward toward the camera.
-             *       Test for chunk centre is necessary in the case that nearest vertices
+             * NOTE: Test for chunk centre is necessary in the case that nearest vertices
              *       to direction ray are outside of frustum, but chunk is still visible.
              */
             // 1. Centre check
-            const VECTOR chunk_relative_centre = vec3_const_add(vec3_const_mul(chunk_relative_pos, FIXED_POINT_SHIFT), FIXED_1_2);
-            const TRad chunkTRadZX = tcabAngle(chunk_relative_centre.vz, chunk_relative_centre.vx);
-            const bool pitch_in_range = tcabAngleInRange(playerTRadPitch, FOV_HALF_TRAD, chunkTRadZX);
-            DEBUG_LOG("Chunk ZX t-rad: %d Player pitch t-rad: %d In range: %d\n", chunkTRadZX, playerTRadPitch, pitch_in_range);
-            if (!pitch_in_range) continue;
-            const TRad chunkTRadZY = tcabAngle(chunk_relative_centre.vz, chunk_relative_centre.vy);
-            const bool yaw_in_range = tcabAngleInRange(playerTRadYaw, FOV_HALF_TRAD, chunkTRadZY);
-            DEBUG_LOG("Chunk ZY t-rad: %d Player yaw t-rad: %d In range: %d\n", chunkTRadZY, playerTRadYaw, yaw_in_range);
-            if (!yaw_in_range) continue;
+            // const VECTOR chunk_relative_centre = vec3_const_add(vec3_const_mul(chunk_relative_pos, FIXED_POINT_SHIFT), FIXED_1_2);
+            const TRad chunkTRadPitch = tcabAngle(chunk_relative_centre_blocks.vz, chunk_relative_centre_blocks.vy);
+            const bool pitch_in_range = tcabAngleInRange(playerTRadPitch, FOV_HALF_TRAD, chunkTRadPitch);
+            DEBUG_LOG("Chunk pitch t-rad: %d Player pitch t-rad: %d In range: %d\n", chunkTRadPitch, playerTRadPitch, pitch_in_range);
+            const TRad chunkTRadYaw = tcabAngle(chunk_relative_centre_blocks.vz, chunk_relative_centre_blocks.vz);
+            const bool yaw_in_range = tcabAngleInRange(playerTRadYaw, FOV_HALF_TRAD, chunkTRadYaw);
+            DEBUG_LOG("Chunk yaw t-rad: %d Player yaw t-rad: %d In range: %d\n", chunkTRadYaw, playerTRadYaw, yaw_in_range);
+            if (pitch_in_range && yaw_in_range) {
+                goto push_chunk_to_render_queue;
+            }
             // 2, Quadrant verticies check
             if (!verticiesVisible(
                 next_cb_pos.chunk.vz,
-				next_cb_pos.chunk.vx,
-				chunk_relative_pos.vz,
-				chunk_relative_pos.vx,
+				next_cb_pos.chunk.vy,
+				chunk_relative_pos_blocks.vz,
+				chunk_relative_pos_blocks.vy,
 				playerTRadPitch,
 				FOV_HALF_TRAD
             )) {
+                DEBUG_LOG("Chunk ZY/pitch vertices not visible\n");
                 continue;
             } else if (!verticiesVisible(
                 next_cb_pos.chunk.vz,
-				next_cb_pos.chunk.vy,
-				chunk_relative_pos.vz,
-				chunk_relative_pos.vy,
+				next_cb_pos.chunk.vx,
+				chunk_relative_pos_blocks.vz,
+				chunk_relative_pos_blocks.vx,
 				playerTRadYaw,
 				FOV_HALF_TRAD
             )) {
+                DEBUG_LOG("Chunk ZX/yaw vertices not visible\n");
                 continue;
             }
+push_chunk_to_render_queue:;
             DEBUG_LOG("[WORLD] In-frustum\n");
             cvector_push_back(
                 render_queue,
