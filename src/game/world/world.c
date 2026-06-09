@@ -485,27 +485,10 @@ void worldRender(const World* world,
         CHUNK_SIZE
     );
     // DEBUG_LOG("[WORLD] Player chunk pos: " VEC_PATTERN "\n", VEC_LAYOUT(player_pos.chunk));
-    // TODO: Render current chunk and track how much of the screen has been drawn (somehow?)
-    //       if there are still bits that are missing traverse to next chunks in the direction
-    //       the player is facing and render them. Stop drawing if screen is full and/or there
-    //       are no more loaded chunks to traverse to.
-    // DEBUG_LOG("Rotation: " VEC_PATTERN "\n", VEC_LAYOUT(player->camera->rotation));
-    // const TRad playerTRadPitch = (ONE - (player->camera->rotation.vx >> FIXED_POINT_SHIFT)) >> 1;
-    
-    // TODO: Need to figure out if this is correct. Not sure if rotation is calculated relative
-    //       to forward Z vector like taxicab angles are for chunks. These must be the same for
-    //       culling to work correcty.
     // Pich = up and down
     const TRad playerTRadPitch = player->camera->rotation.vx >> 10;
     // Yaw = left and right
     const TRad playerTRadYaw = player->camera->rotation.vy >> 10;
-    // DEBUG_LOG("Player pitch t-rad: %d\n", playerTRadPitch);
-    // DEBUG_LOG("Player yaw t-rad: %d\n", playerTRadYaw);
-    // const TRad playerTRadPitch = tcabAngle(player->camera->direction.vz, player->camera->direction.vy);
-    // const TRad playerTRadYaw = tcabAngle(player->camera->direction.vz, player->camera->direction.vx);
-    DEBUG_LOG("Player calc pitch t-rad: %d\n", playerTRadPitch);
-    DEBUG_LOG("Player calc yaw t-rad: %d\n", playerTRadYaw);
-    // const VECTOR closest_block = vec3_const_lshift(player_pos.block, FIXED_POINT_SHIFT);
     const FaceDirection player_camera_direction = faceDirectionClosestNormal(player->camera->direction);
     cvector_push_back(
         render_queue,
