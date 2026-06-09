@@ -5,6 +5,10 @@
 #include "../../util/interface99_extensions.h"
 #include "../../logging/logging.h"
 
+// TODO: Add citation for below implementation.
+//       Can this be converted into fixed point
+//       instead of doubles?
+
 // Forward declaration
 IBlock* worldGetBlock(const World* world, const VECTOR* position);
 
