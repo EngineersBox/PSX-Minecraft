@@ -400,6 +400,13 @@ INLINE bool worldIsOutsideBounds(const World* world, const ChunkBlockPosition* p
     return false;
 }
 
+/**
+ * TODO: Explain this with doc:
+ *       1. Three verts visible to direction vector quadrant
+ *       2. Naievly encoded as array of vertex offsets from chunk base coord
+ *       3. Compressed into u8 for each set of offets per-quadrant
+ *       4. Compressed into single u32, shifted with quadrant index
+ */
 static const u32 quadrant_verts = 0b00000000100111110001001110011000;
 
 // static const u8 quadrant_verts[4] = {
