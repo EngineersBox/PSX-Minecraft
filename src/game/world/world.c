@@ -615,12 +615,14 @@ void worldRender(const World* world,
             const TRad chunkTRadPitch = tcabAngle(chunk_relative_centre_blocks.vz, chunk_relative_centre_blocks.vy);
             const bool pitch_in_range = tcabAngleInRange(playerTRadPitch, FOV_HALF_TRAD, chunkTRadPitch);
             DEBUG_LOG("Chunk pitch t-rad: %d Player pitch t-rad: %d In range: %d\n", chunkTRadPitch, playerTRadPitch, pitch_in_range);
+            if (!pitch_in_range) goto check_chunk_vertex_visibility;
             const TRad chunkTRadYaw = tcabAngle(chunk_relative_centre_blocks.vz, chunk_relative_centre_blocks.vz);
             const bool yaw_in_range = tcabAngleInRange(playerTRadYaw, FOV_HALF_TRAD, chunkTRadYaw);
             DEBUG_LOG("Chunk yaw t-rad: %d Player yaw t-rad: %d In range: %d\n", chunkTRadYaw, playerTRadYaw, yaw_in_range);
-            if (pitch_in_range && yaw_in_range) {
+            if (yaw_in_range) {
                 goto push_chunk_to_render_queue;
             }
+check_chunk_vertex_visibility:;
             // 2, Quadrant verticies check
             if (!verticiesVisible(
                 next_cb_pos.chunk.vz,
@@ -643,8 +645,8 @@ void worldRender(const World* world,
                 DEBUG_LOG("Chunk ZX/yaw vertices not visible\n");
                 continue;
             }
-push_chunk_to_render_queue:;
             DEBUG_LOG("[WORLD] In-frustum\n");
+push_chunk_to_render_queue:;
             cvector_push_back(
                 render_queue,
                 ((ChunkVisit) {
