@@ -561,7 +561,7 @@ void worldRender(const World* world,
             // Can't see anything, don't bother
             DEBUG_LOG("[WORLD] No visibility\n");
             continue;
-        } else if (visit.traversal_depth >= WORLD_RENDER_DISTANCE) {
+        } else if (visit.traversal_depth > WORLD_RENDER_DISTANCE) {
             DEBUG_LOG("[WORLD] Exceeded max render distance\n");
             continue;
         }
