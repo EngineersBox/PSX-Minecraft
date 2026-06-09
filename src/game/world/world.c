@@ -400,32 +400,34 @@ INLINE bool worldIsOutsideBounds(const World* world, const ChunkBlockPosition* p
     return false;
 }
 
-static const u8 quadrant_verts[4] = {
-    [0]=0b00011000,
-    [1]=0b00001110,
-    [2]=0b00110001,
-    [3]=0b00100111,
-    // [0]={
-    //     [0]=vec3_i32(0,0,0),
-    //     [1]=vec3_i32(1,0,0),
-    //     [2]=vec3_i32(0,1,0),
-    // },
-    // [1]={
-    //     [0]=vec3_i32(1,0,0),
-    //     [1]=vec3_i32(1,1,0),
-    //     [2]=vec3_i32(0,0,0),
-    // },
-    // [2]={
-    //     [0]=vec3_i32(0,1,0),
-    //     [1]=vec3_i32(0,0,0),
-    //     [2]=vec3_i32(1,1,0),
-    // },
-    // [3]={
-    //     [0]=vec3_i32(1,1,0),
-    //     [1]=vec3_i32(0,1,0),
-    //     [2]=vec3_i32(1,0,0),
-    // },
-};
+static const u32 quadrant_verts = 0b00000000100111110001001110011000;
+
+// static const u8 quadrant_verts[4] = {
+//     [0]=0b00011000,
+//     [1]=0b00001110,
+//     [2]=0b00110001,
+//     [3]=0b00100111,
+//     // [0]={
+//     //     [0]=vec3_i32(0,0,0),
+//     //     [1]=vec3_i32(1,0,0),
+//     //     [2]=vec3_i32(0,1,0),
+//     // },
+//     // [1]={
+//     //     [0]=vec3_i32(1,0,0),
+//     //     [1]=vec3_i32(1,1,0),
+//     //     [2]=vec3_i32(0,0,0),
+//     // },
+//     // [2]={
+//     //     [0]=vec3_i32(0,1,0),
+//     //     [1]=vec3_i32(0,0,0),
+//     //     [2]=vec3_i32(1,1,0),
+//     // },
+//     // [3]={
+//     //     [0]=vec3_i32(1,1,0),
+//     //     [1]=vec3_i32(0,1,0),
+//     //     [2]=vec3_i32(1,0,0),
+//     // },
+// };
 
 static bool verticiesVisible(const i32 z,
                              const i32 q,
@@ -435,7 +437,7 @@ static bool verticiesVisible(const i32 z,
                              const i32 angle) {
     // const size_t quadrant = (y > 0 ? 0 : 2) + (x > 0 ? 0 : 1);
     const size_t quadrant = ((z <= 0) * 2) + (q <= 0);
-    u8 quadrant_vert = quadrant_verts[quadrant];
+    u8 quadrant_vert = quadrant_verts >> (quadrant * 6);
     #pragma GCC unroll(3)
     for (size_t i = 0; i < 3; i++) {
         const i32 qv_z = quadrant_vert & 0b1;
