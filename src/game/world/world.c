@@ -964,7 +964,7 @@ static fixedi32 calculateCelestialAngle(u16 time_ticks) {
     }
     fixedi32 cached_scaled = scaled;
     scaled = ONE - ((cos5o(fixedMul(scaled, FIXED_PI)) + ONE) >> 1);
-    // NOTE:: Using (ONE * 1/3) = 1365.3... approximation
+    // NOTE: Using (ONE * 1/3) = 1365.3... approximation
     //       to do (scaled - cached_scaled) * 1365 instead
     //       of div by 3. Accuracy isn't that important here
     // scaled = cached_scaled + ((scaled - cached_scaled) / 3);
