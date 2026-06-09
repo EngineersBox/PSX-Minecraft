@@ -400,6 +400,59 @@ INLINE bool worldIsOutsideBounds(const World* world, const ChunkBlockPosition* p
     return false;
 }
 
+static const u8 quadrant_verts[4] = {
+    [0]=0b00011000,
+    [1]=0b00001110,
+    [2]=0b00110001,
+    [3]=0b00100111,
+    // [0]={
+    //     [0]=vec3_i32(0,0,0),
+    //     [1]=vec3_i32(1,0,0),
+    //     [2]=vec3_i32(0,1,0),
+    // },
+    // [1]={
+    //     [0]=vec3_i32(1,0,0),
+    //     [1]=vec3_i32(1,1,0),
+    //     [2]=vec3_i32(0,0,0),
+    // },
+    // [2]={
+    //     [0]=vec3_i32(0,1,0),
+    //     [1]=vec3_i32(0,0,0),
+    //     [2]=vec3_i32(1,1,0),
+    // },
+    // [3]={
+    //     [0]=vec3_i32(1,1,0),
+    //     [1]=vec3_i32(0,1,0),
+    //     [2]=vec3_i32(1,0,0),
+    // },
+};
+
+static bool verticiesVisible(const i32 z,
+                             const i32 q,
+                             const i32 chunk_rel_z,
+                             const i32 chunk_rel_q,
+                             const i32 angle_ref,
+                             const i32 angle) {
+    // const size_t quadrant = (y > 0 ? 0 : 2) + (x > 0 ? 0 : 1);
+    const size_t quadrant = ((z <= 0) * 2) + (q <= 0);
+    u8 quadrant_vert = quadrant_verts[quadrant];
+    #pragma GCC unroll(3)
+    for (size_t i = 0; i < 3; i++) {
+        const i32 qv_z = quadrant_vert & 0b1;
+        quadrant_vert >>= 1;
+        const i32 qv_q = quadrant_vert & 0b1;
+        quadrant_vert >>= 1;
+        const TRad query = tcabAngle(
+            chunk_rel_z + (qv_z * (CHUNK_SIZE << FIXED_POINT_SHIFT)),
+            chunk_rel_q + (qv_q * (CHUNK_SIZE << FIXED_POINT_SHIFT))
+        );
+        if (tcabAngleInRange(angle_ref, angle, query)) {
+            return true;
+        }
+    }
+    return false;
+}
+
 DEFN_DURATION_COMPONENT(world_render);
 
 void worldRender(const World* world,
@@ -515,6 +568,7 @@ void worldRender(const World* world,
                 DEBUG_LOG("[WORLD] No visibility from face %d to %d\n", visit.visited_from, face_dir);
                 continue;
             }
+            // TODO: Check if traversal direction is back towards camera. Skip if so.
             chunkVisibilityClearBit(&chunk_render_state->visibility, face_dir, visit.visited_from);
             DEBUG_LOG("[WORLD] Visible from face %d to %d\n", visit.visited_from, face_dir);
             const VECTOR next_chunk = vec3_add(visit.position, FACE_DIRECTION_NORMALS[face_dir]);
@@ -537,36 +591,11 @@ void worldRender(const World* world,
                 continue;
             }
             DEBUG_LOG("Chunk relative pos: " VEC_PATTERN "\n", VEC_LAYOUT(chunk_relative_pos));
-            // const VECTOR chunk_closest_vertex = vec3_const_lshift(
-            //     vec3_i32(
-            //         (chunk_relative_pos.vx < 0) + chunk_relative_pos.vx,
-            //         (chunk_relative_pos.vy < 0) + chunk_relative_pos.vy,
-            //         (chunk_relative_pos.vz < 0) + chunk_relative_pos.vz
-            //     ),
-            //     FIXED_POINT_SHIFT
-            // );
-            // const AABB chunk_aabb = (AABB) {
-            //     .min = vec3_const_mul(chunk_relative_pos, CHUNK_SIZE << FIXED_POINT_SHIFT),
-            //     .max = vec3_const_mul(vec3_const_add(chunk_relative_pos, 1), CHUNK_SIZE << FIXED_POINT_SHIFT)
-            // };
-            // const VECTOR chunk_closest_vertex = vec3_const_div(aabbVertexClosestToPoint(&chunk_aabb, &closest_block), CHUNK_SIZE);
-            // DEBUG_LOG("[WORLD] Closest vertex " VEC_PATTERN "\n", VEC_LAYOUT(chunk_closest_vertex));
-            const VECTOR chunk_relative_centre = vec3_const_add(vec3_const_mul(chunk_relative_pos, FIXED_POINT_SHIFT), FIXED_1_2);
-            // const TRad chunkTRadZX = tcabAngle(chunk_closest_vertex.vz, chunk_closest_vertex.vx);
-            const TRad chunkTRadZX = tcabAngle(chunk_relative_centre.vz, chunk_relative_centre.vx);
-            const bool pitch_in_range = tcabAngleInRange(playerTRadPitch, FOV_HALF_TRAD, chunkTRadZX);
-            DEBUG_LOG("Chunk ZX t-rad: %d Player pitch t-rad: %d In range: %d\n", chunkTRadZX, playerTRadPitch, pitch_in_range);
-            if (!pitch_in_range) continue;
-            // const TRad chunkTRadZY = tcabAngle(chunk_closest_vertex.vz, chunk_closest_vertex.vy);
-            const TRad chunkTRadZY = tcabAngle(chunk_relative_centre.vz, chunk_relative_centre.vy);
-            const bool yaw_in_range = tcabAngleInRange(playerTRadYaw, FOV_HALF_TRAD, chunkTRadZY);
-            DEBUG_LOG("Chunk ZY t-rad: %d Player yaw t-rad: %d In range: %d\n", chunkTRadZY, playerTRadYaw, yaw_in_range);
-            if (!yaw_in_range) continue;
             /* Chunk render logic:
              * 1. Compute relative chunk centre point
              * 2. Test if chunk centre is in frustum (dual angle check), render if visible
-             * 3. Otherwise, compute nearest vertex of chunk to direction ray of camera
-             * 4. Test if vertex is in frustum (dual angle check), render if visible
+             * 3. Otherwise, get quadrant closest vertices of chunk
+             * 4. Test if verticies are in frustum (dual angle check), render if visible
              * 5. Otherwise skip chunk
              *
              * NOTE: No test for chunk behind camera, because traversal between chunks
@@ -574,6 +603,36 @@ void worldRender(const World* world,
              *       Test for chunk centre is necessary in the case that nearest vertices
              *       to direction ray are outside of frustum, but chunk is still visible.
              */
+            // 1. Centre check
+            const VECTOR chunk_relative_centre = vec3_const_add(vec3_const_mul(chunk_relative_pos, FIXED_POINT_SHIFT), FIXED_1_2);
+            const TRad chunkTRadZX = tcabAngle(chunk_relative_centre.vz, chunk_relative_centre.vx);
+            const bool pitch_in_range = tcabAngleInRange(playerTRadPitch, FOV_HALF_TRAD, chunkTRadZX);
+            DEBUG_LOG("Chunk ZX t-rad: %d Player pitch t-rad: %d In range: %d\n", chunkTRadZX, playerTRadPitch, pitch_in_range);
+            if (!pitch_in_range) continue;
+            const TRad chunkTRadZY = tcabAngle(chunk_relative_centre.vz, chunk_relative_centre.vy);
+            const bool yaw_in_range = tcabAngleInRange(playerTRadYaw, FOV_HALF_TRAD, chunkTRadZY);
+            DEBUG_LOG("Chunk ZY t-rad: %d Player yaw t-rad: %d In range: %d\n", chunkTRadZY, playerTRadYaw, yaw_in_range);
+            if (!yaw_in_range) continue;
+            // 2, Quadrant verticies check
+            if (!verticiesVisible(
+                next_cb_pos.chunk.vz,
+				next_cb_pos.chunk.vx,
+				chunk_relative_pos.vz,
+				chunk_relative_pos.vx,
+				playerTRadPitch,
+				FOV_HALF_TRAD
+            )) {
+                continue;
+            } else if (!verticiesVisible(
+                next_cb_pos.chunk.vz,
+				next_cb_pos.chunk.vy,
+				chunk_relative_pos.vz,
+				chunk_relative_pos.vy,
+				playerTRadYaw,
+				FOV_HALF_TRAD
+            )) {
+                continue;
+            }
             DEBUG_LOG("[WORLD] In-frustum\n");
             cvector_push_back(
                 render_queue,

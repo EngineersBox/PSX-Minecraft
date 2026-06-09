@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <stddef.h>
 
+typedef int32_t i32;
+
 /**
  * @brief Compare two numbers and return an integer indicating larger value
  * @param a - first number
@@ -26,14 +28,46 @@ typedef struct Pos {
     int32_t y;
 } Pos;
 
+static const Pos quadrant_verts[4][3] = {
+    [0]={
+        [0]=(Pos) { .x = 0, .y = 0 },
+        [1]=(Pos) { .x = 1, .y = 0 },
+        [2]=(Pos) { .x = 0, .y = 1 },
+    },
+    [1]={
+        [0]=(Pos) { .x = 1, .y = 0 },
+        [1]=(Pos) { .x = 1, .y = 1 },
+        [2]=(Pos) { .x = 0, .y = 0 },
+    },
+    [2]={
+        [0]=(Pos) { .x = 0, .y = 1 },
+        [1]=(Pos) { .x = 0, .y = 0 },
+        [2]=(Pos) { .x = 1, .y = 1 },
+    },
+    [3]={
+        [0]=(Pos) { .x = 1, .y = 1 },
+        [1]=(Pos) { .x = 0, .y = 1 },
+        [2]=(Pos) { .x = 1, .y = 0 },
+    },
+};
+
 int main() {
-    for (int32_t x = -1; x <= 2; x++) {
-        for (int32_t y = -1; y <= 2; y++) {
-            const Pos closest_vertex = (Pos) {
-                .x = (x < 0) + x,
-                .y = (y < 0) + y
-            };
-            printf("Pos x: %d y: %d => Vertex x: %d y: %d\n", x, y, closest_vertex.x, closest_vertex.y);
+    for (int32_t x = -1; x <= 1; x++) {
+        for (int32_t y = -1; y <= 1; y++) {
+            if (x == 0 || y == 0) {
+                printf("[%d,%d] Covered by centre check\n", x, y);
+                continue;
+            }
+            const size_t quadrant = (y > 0 ? 0 : 2) + (x > 0 ? 0 : 1);
+            printf("Quadrant: %d\n", quadrant);
+            const Pos* quadrant_vert = quadrant_verts[quadrant];
+            for (size_t i = 0; i < 3; i++) {
+                const Pos pos = (Pos) {
+                    .x = (8 * x) + (8 * quadrant_vert[i].x),
+                    .y = (8 * y) + (8 * quadrant_vert[i].y)
+                };
+                printf("[%d,%d] Check (%d,%d)\n", x, y, pos.x, pos.y);
+            }
         }
     }
     return 0;
