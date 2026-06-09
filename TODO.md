@@ -49,6 +49,7 @@
 * [ ] Weather texture does not scroll correctly, some planes are static and only in some places does it work correctly. Potentially an issue with texture windowing and UV positions.
 * [ ] The DFS chunk scan either correctly considers all blocks (512) in a chunk (each once), or exactly half of all blocks (256). There must be some missing direction consideration or missing condition for an edge case.
 * [ ] Bottom of blocks are not rendered
+* [ ] Chunks with negative relative position to player seem to almost always be culled, even though they should be visible.
 
 ## Implement
 
