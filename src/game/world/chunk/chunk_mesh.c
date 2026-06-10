@@ -237,17 +237,14 @@ void chunkMeshRenderFaceDirection(const Mesh* mesh,
 #define POS_DECREASED 2
 
 static bool faceDirectionHidden(FaceDirection face_dir,
-                                UNUSED const VECTOR* aabb_closest_vertex,
                                 u8 pos_state_x,
                                 u8 pos_state_y,
-                                u8 pos_state_z,
-                                UNUSED RenderContext* ctx) {
-    /*const SVECTOR* normal = &FACE_DIRECTION_NORMALS[face_dir];*/
+                                u8 pos_state_z) {
     switch (face_dir) {
         case FACE_DIR_DOWN:
-            return pos_state_y == POS_DECREASED;
-        case FACE_DIR_UP:
             return pos_state_y == POS_INCREASED;
+        case FACE_DIR_UP:
+            return pos_state_y == POS_DECREASED;
         case FACE_DIR_LEFT:
             return pos_state_x == POS_INCREASED;
         case FACE_DIR_RIGHT:
@@ -267,7 +264,11 @@ void chunkMeshRender(const ChunkMesh* mesh,
                      bool should_render,
                      RenderContext* ctx,
                      Transforms* transforms) {
-    const VECTOR position = vec3_const_div(ctx->camera->position, ONE);
+    const VECTOR position = vec3_i32(
+        ctx->camera->position.vx / ONE,
+        -(ctx->camera->position.vy / ONE),
+        ctx->camera->position.vz / ONE
+    );
     // DEBUG_LOG("Pos " VEC_PATTERN "\n", VEC_LAYOUT(position));
     // DEBUG_LOG("AABB Min " VEC_PATTERN " Max " VEC_PATTERN "\n", VEC_LAYOUT(chunk_aabb->min), VEC_LAYOUT(chunk_aabb->max));
     #define posState(axis) \
@@ -280,20 +281,15 @@ void chunkMeshRender(const ChunkMesh* mesh,
     const u8 pos_state_x = posState(x);
     const u8 pos_state_y = posState(y);
     const u8 pos_state_z = posState(z);
+    // DEBUG_LOG("Pos state X: %d Y: %d Z: %d\n", pos_state_x, pos_state_y, pos_state_z);
     #undef posState
-    const VECTOR aabb_closest_vertex = aabbVertexClosestToPoint(
-        chunk_aabb,
-        &position
-    );
     bool skip_check[6] = {false, false, false, false, false, false};
     for (FaceDirection face_dir = FACE_DIR_DOWN; face_dir <= FACE_DIR_FRONT; face_dir++) {
         if (skip_check[face_dir] || faceDirectionHidden(
             face_dir,
-            &aabb_closest_vertex,
             pos_state_x,
             pos_state_y,
-            pos_state_z,
-            ctx
+            pos_state_z
         )) {
             continue;
         }

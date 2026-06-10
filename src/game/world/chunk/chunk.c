@@ -361,16 +361,8 @@ void chunkRender(Chunk* chunk,
 #endif
 #undef shiftChunkPos
     const AABB aabb = (AABB) {
-        .min = vec3_i32(
-            (chunk->position.vx * CHUNK_BLOCK_SIZE),// << FIXED_POINT_SHIFT,
-            (-chunk->position.vy * CHUNK_BLOCK_SIZE),// << FIXED_POINT_SHIFT,
-            (chunk->position.vz * CHUNK_BLOCK_SIZE)// << FIXED_POINT_SHIFT
-        ),
-        .max = vec3_i32(
-            ((chunk->position.vx + 1) * CHUNK_BLOCK_SIZE),// << FIXED_POINT_SHIFT,
-            (-(chunk->position.vy + 1) * CHUNK_BLOCK_SIZE),// << FIXED_POINT_SHIFT,
-            ((chunk->position.vz + 1) * CHUNK_BLOCK_SIZE)// << FIXED_POINT_SHIFT
-        )
+        .min = vec3_const_mul(chunk->position, CHUNK_BLOCK_SIZE),
+        .max = vec3_const_mul(vec3_const_add(chunk->position, 1), CHUNK_BLOCK_SIZE)
     };
     /*if (frustumContainsAABB(&ctx->camera->frustum, &aabb) == FRUSTUM_OUTSIDE) {*/
         /*DEBUG_LOG("Not visible\n", VEC_LAYOUT(chunk->position));*/
