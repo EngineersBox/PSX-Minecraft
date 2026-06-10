@@ -590,7 +590,7 @@ void worldRender(const World* world,
             DEBUG_LOG("Chunk relative pos: " VEC_PATTERN "\n", VEC_LAYOUT(chunk_relative_pos));
             const VECTOR chunk_relative_pos_blocks = vec3_const_mul(chunk_relative_pos, CHUNK_SIZE << FIXED_POINT_SHIFT);
             DEBUG_LOG("Chunk relative pos blocks: " VEC_PATTERN "\n", VEC_LAYOUT(chunk_relative_pos_blocks));
-            const VECTOR chunk_relative_centre_blocks = vec3_i32_normalize(vec3_const_add(chunk_relative_pos_blocks, FIXED_1_2));
+            const VECTOR chunk_relative_centre_blocks = vec3_const_add(chunk_relative_pos_blocks, ((CHUNK_SIZE >> 1) << FIXED_POINT_SHIFT));
             DEBUG_LOG("Chunk relative centre blocks: " VEC_PATTERN "\n", VEC_LAYOUT(chunk_relative_centre_blocks));
             /* Chunk render logic:
              * 1. Compute relative chunk centre point
@@ -603,7 +603,6 @@ void worldRender(const World* world,
              *       to direction ray are outside of frustum, but chunk is still visible.
              */
             // 1. Centre check
-            // const VECTOR chunk_relative_centre = vec3_const_add(vec3_const_mul(chunk_relative_pos, FIXED_POINT_SHIFT), FIXED_1_2);
             const TRad chunkTRadPitch = tcabAngle(chunk_relative_centre_blocks.vz, chunk_relative_centre_blocks.vy);
             const bool pitch_in_range = tcabAngleInRange(playerTRadPitch, FOV_HALF_TRAD, chunkTRadPitch);
             DEBUG_LOG("Chunk pitch t-rad: %d Player pitch t-rad: %d In range: %d\n", chunkTRadPitch, playerTRadPitch, pitch_in_range);
@@ -637,8 +636,8 @@ check_chunk_vertex_visibility:;
                 DEBUG_LOG("Chunk ZX/yaw vertices not visible\n");
                 continue;
             }
-            DEBUG_LOG("[WORLD] In-frustum\n");
 push_chunk_to_render_queue:;
+            DEBUG_LOG("[WORLD] In-frustum\n");
             cvector_push_back(
                 render_queue,
                 ((ChunkVisit) {
