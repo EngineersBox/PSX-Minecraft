@@ -254,7 +254,7 @@ static bool faceDirectionHidden(FaceDirection face_dir,
         case FACE_DIR_FRONT:
             return pos_state_z == POS_DECREASED;
     }
-    return false;
+    errorAbort("Invalid FaceDirection value: %d\n", face_dir);
 }
 
 void chunkMeshRender(const ChunkMesh* mesh,
