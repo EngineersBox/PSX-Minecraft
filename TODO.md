@@ -41,6 +41,7 @@
 * [X] SDK builds are failing due to compress defines not being set correctly. Possibly some weird CMake issue with defining `PSN00BSDK=1`. (See: <https://github.com/Lameguy64/PSn00bSDK/issues/95>).
 * [X] In world rendering, if current position is within world bounds and next position is out of bounds, ignore the next position as it will just lead to pointless iterations.
 * [X] Out-of-bounds read occurs when loading chunks (i.e. moving to last block in loaded chunks boundary)
+* [X] Bottom of blocks are not rendered
 * [ ] Cull faces on chunk edges that face outward on the render limit
 * [ ] Mesh vertices z-depth is inconsistent leading to faces drawn in wrong order and thus culling fails
 * [ ] Vertices are distorted (in their location) when very close to the camera
@@ -48,7 +49,6 @@
 * [ ] Lighting on dropped items is pure black sometimes despite being in light (possibly bad world position when retrieving light value). The physics object position for items isn't properly aligned to the bounding box since the position (which should be the centre of the AABB) isn't aligned properly and thus when converting to world position and querying the light level, it can query the next block over (in the direction that the item moved when it was dropped) and thus can get a light level of 0 and the item is rendered as black in the world.
 * [ ] Weather texture does not scroll correctly, some planes are static and only in some places does it work correctly. Potentially an issue with texture windowing and UV positions.
 * [ ] The DFS chunk scan either correctly considers all blocks (512) in a chunk (each once), or exactly half of all blocks (256). There must be some missing direction consideration or missing condition for an edge case.
-* [X] Bottom of blocks are not rendered
 * [ ] Chunks with negative relative position to player seem to almost always be culled, even though they should be visible.
 * [ ] Crafting table recipe causes exception only when placing items in table in a certain order. I.e. Bottom right four squares, placed in order of top-left, top-right, bottom-left and bottom-right, exception on last placement. This isn't the only case that triggers it, there are other cases where it will work and then putting another item in the table will cause an exception. Very likely an out-of-bounds write with a value rather than an address, considering that it causes a BIOS reload most times.
 
