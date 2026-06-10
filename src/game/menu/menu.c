@@ -25,24 +25,24 @@ void menuSetCurrent(IUI *menu, const EMenuID menu_id) {
         // registered to the currently opened menu.
         // This cirumstance occurs between menu
         // transitions
-        // DEBUG_LOG("[MENU] Closing current menu\n");
+        // DEBUG_LOG("Closing current menu\n");
         VCALL(*current_menu, close);
-        // DEBUG_LOG("[MENU] Removing last handler\n");
+        // DEBUG_LOG("Removing last handler\n");
         inputPopHandler(&input);
         inputSetFocusedHandler(&input, NULL);
-        // DEBUG_LOG("[MENU] Destroying current menu\n");
+        // DEBUG_LOG("Destroying current menu\n");
         const MenuDestructor dtor = menu_destructors[current_menu_id];
         dtor(current_menu);
     }
-    // DEBUG_LOG("[MENU] Setting current menu to new menu\n");
+    // DEBUG_LOG("Setting current menu to new menu\n");
     current_menu = menu;
     current_menu_id = menu_id;
     if (menuIsOpen()) {
-        // DEBUG_LOG("[MENU] Registering new menu input handler\n");
+        // DEBUG_LOG("Registering new menu input handler\n");
         VCALL_SUPER(*menu, IInputHandler, registerInputHandler, &input, NULL);
-        // DEBUG_LOG("[MENU] Opening new menu\n");
+        // DEBUG_LOG("Opening new menu\n");
         VCALL(*menu, open);
-        // DEBUG_LOG("[MENU] Opened menu\n");
+        // DEBUG_LOG("Opened menu\n");
     }
 }
 

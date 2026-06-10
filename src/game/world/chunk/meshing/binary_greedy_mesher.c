@@ -442,7 +442,7 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk, const BreakingState* breaking_sta
         faces_cols,
         faces_cols_opaque
     );
-    DEBUG_LOG("[Chunk] Visibility: " INT16_BIN_PATTERN "\n", INT16_BIN_LAYOUT(chunk->visibility));
+    DEBUG_LOG("Visibility: " INT16_BIN_PATTERN "\n", INT16_BIN_LAYOUT(chunk->visibility));
     // Inner chunk blocks
     /*for (u32 z = 0; z < CHUNK_SIZE; z++) {*/
     /*    for (u32 x = 0; x < CHUNK_SIZE; x++) {*/

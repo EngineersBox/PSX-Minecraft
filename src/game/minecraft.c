@@ -118,7 +118,7 @@ void Minecraft_init(VSelf, UNUSED void* ctx) {
     // itemsInitialiseBuiltin();
     // Show main menu
     // menuOpen(MENUID_MAIN);
-    // DEBUG_LOG("[Minecraft] Finished init\n");
+    // DEBUG_LOG("Finished init\n");
     // return;
 
     /* ==== TESTING: [START] Load directly into world ====*/
@@ -187,7 +187,7 @@ void Minecraft_init(VSelf, UNUSED void* ctx) {
 
     /* ==== TESTING: [END] Load directly into world ====*/
 
-    DEBUG_LOG("[Minecraft] Finished init\n");
+    DEBUG_LOG("Finished init\n");
 }
 
 void minecraftCleanup(VSelf) ALIAS("Minecraft_cleanup");
@@ -227,6 +227,7 @@ void Minecraft_input(VSelf, UNUSED const Stats* stats) {
     self->camera.mode = CAMERA_MODE_FIRST_PERSON;
     // NOTE: If a menu is open, this will handle the input handlers for it
     inputUpdate(&input);
+    DEBUG_LOG("Input update finished\n");
 }
 
 void minecraftUpdate(VSelf, const Stats* stats) ALIAS("Minecraft_update");
@@ -243,6 +244,7 @@ void Minecraft_update(VSelf, UNUSED const Stats* stats) {
     );
     playerUpdate(player, world);
     cameraUpdate(&self->camera);
+    DEBUG_LOG("Update finished\n");
 }
 
 // UNUSED static void frustumRenderNormals(const Frustum* frustum, RenderContext* ctx) {

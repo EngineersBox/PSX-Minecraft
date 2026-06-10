@@ -50,6 +50,7 @@
 * [ ] The DFS chunk scan either correctly considers all blocks (512) in a chunk (each once), or exactly half of all blocks (256). There must be some missing direction consideration or missing condition for an edge case.
 * [ ] Bottom of blocks are not rendered
 * [ ] Chunks with negative relative position to player seem to almost always be culled, even though they should be visible.
+* [ ] Crafting table recipe causes exception only when placing items in table in a certain order. I.e. Bottom right four squares, placed in order of top-left, top-right, bottom-left and bottom-right, exception on last placement. This isn't the only case that triggers it, there are other cases where it will work and then putting another item in the table will cause an exception. Very likely an out-of-bounds write with a value rather than an address, considering that it causes a BIOS reload most times.
 
 ## Implement
 

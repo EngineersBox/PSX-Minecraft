@@ -63,6 +63,7 @@ assemble_new_item:;
         item->bob_offset = 1;
         item->stack_size = result->stack_size;
         query_result->results[i] = iitem;
+        DEBUG_LOG("Finished assembling result\n");
     }
 }
 
@@ -187,11 +188,13 @@ RecipeProcessResult recipeProcess(const RecipeNode* root,
         }
         return RECIPE_PROCESSING_INSUFFICIENT_SPACE;
     }
+    DEBUG_LOG("Move item to output slot\n");
     for (u8 i = 0; i < output_slot_count; i++) {
         Slot* output_slot = output_slots[i];
         if (output_slot->data.item == NULL) {
             // Output slot was empty, just move the result
             // into it
+            DEBUG_LOG("Empty output slot\n");
             goto move_item_to_output;
         }
         Item* output_item = VCAST_PTR(Item*, output_slot->data.item);
@@ -211,7 +214,9 @@ RecipeProcessResult recipeProcess(const RecipeNode* root,
     move_item_to_output:;
         output_slot->data.item = query_result.results[i];
         query_result.results[i] = NULL;
+        DEBUG_LOG("Moved item\n");
     }
+    DEBUG_LOG("Recipe processing finished\n");
     return RECIPE_PROCESSING_SUCCEEDED;
 }
 

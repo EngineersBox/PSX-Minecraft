@@ -58,12 +58,12 @@ IItem* CraftingTableBlock_provideItem(VSelf) {
 
 static bool recipe_has_changed = false;
 static u8 ingredient_consume_sizes[slotGroupSize(CRAFTING_TABLE)] = {0};
+static RECIPE_PATTERN(pattern, slotGroupSize(CRAFTING_TABLE)) = {0};
 
 static void processCraftingRecipe() {
     if (!recipe_has_changed) {
         return;
     }
-    RECIPE_PATTERN(pattern, slotGroupSize(CRAFTING_TABLE)) = {0};
     memset(ingredient_consume_sizes, '\0', sizeof(u8) * slotGroupSize(CRAFTING_TABLE));
     for (int i = 0; i < slotGroupIndexOffset(CRAFTING_TABLE_RESULT); i++) {
         const Slot* slot = &crafting_table_slots[i];
@@ -176,11 +176,13 @@ static void cursorHandler(bool split_or_store_one) {
 
 InputHandlerState craftingTableBlockInputHandler(const Input* input, UNUSED void* ctx) {
     processCraftingRecipe();
+    DEBUG_LOG("Before cusor handler\n");
     inventoryCursorHandler(
         VCAST_PTR(Inventory*, block_input_handler_context.inventory),
         INVENTORY_SLOT_GROUP_MAIN | INVENTORY_SLOT_GROUP_HOTBAR,
         input
     );
+    DEBUG_LOG("After cusor handler\n");
     const PADTYPE* pad = input->pad;
     // TODO Determime the button layout on xbox/playstation/switch
     //      MC releases and match it here for interacting with items
@@ -226,6 +228,7 @@ InputHandlerState craftingTableBlockInputHandler(const Input* input, UNUSED void
         }
         return INPUT_HANDLER_RELEASE;
     }
+    DEBUG_LOG("End of input handler\n");
     return INPUT_HANDLER_RETAIN;
 }
 

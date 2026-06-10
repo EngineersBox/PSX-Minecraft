@@ -1,3 +1,4 @@
+#define DEBUG_LOG_DISABLE 1
 #include "world.h"
 
 #include <assert.h>
@@ -178,7 +179,7 @@ void worldInit(World* world, RenderContext* ctx) {
             * WORLD_CHUNKS_HEIGHT
             * WORLD_LOADING_STAGES_COUNT
     };
-    DEBUG_LOG("[WORLD] Loading chunks\n");
+    DEBUG_LOG("Loading chunks\n");
     for (i32 x = x_start; x <= x_end; x++) {
         for (i32 z = z_start; z <= z_end; z++) {
             for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
@@ -193,11 +194,11 @@ void worldInit(World* world, RenderContext* ctx) {
             }
         }
     }
-    DEBUG_LOG("[WORLD] Generating Lightmaps\n");
+    DEBUG_LOG("Generating Lightmaps\n");
     for (i32 x = x_start; x <= x_end; x++) {
         for (i32 z = z_start; z <= z_end; z++) {
             for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
-                DEBUG_LOG("[CHUNK: %d,%d,%d] Generating Lightmap\n", x, 0, z);
+                DEBUG_LOG("Generating Lightmap\n", x, 0, z);
                 const u16 array_x = arrayCoord(world, vx, x);
                 const u16 array_z = arrayCoord(world, vz, z);
                 Chunk* chunk = world->chunks[array_z][array_x][y];
@@ -206,11 +207,11 @@ void worldInit(World* world, RenderContext* ctx) {
             }
         }
     }
-    DEBUG_LOG("[WORLD] Propagating Light\n");
+    DEBUG_LOG("Propagating Light\n");
     for (i32 x = x_start; x <= x_end; x++) {
         for (i32 z = z_start; z <= z_end; z++) {
             for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
-                DEBUG_LOG("[CHUNK: %d,%d,%d] Propagating Light\n", x, 0, z);
+                DEBUG_LOG("Propagating Light\n", x, 0, z);
                 const u16 array_x = arrayCoord(world, vx, x);
                 const u16 array_z = arrayCoord(world, vz, z);
                 Chunk* chunk = world->chunks[array_z][array_x][y];
@@ -219,11 +220,11 @@ void worldInit(World* world, RenderContext* ctx) {
             }
         }
     }
-    DEBUG_LOG("[WORLD] Processing Light Updates\n");
+    DEBUG_LOG("Processing Light Updates\n");
     for (i32 x = x_start; x <= x_end; x++) {
         for (i32 z = z_start; z <= z_end; z++) {
             for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
-                DEBUG_LOG("[CHUNK: %d,%d,%d] Processing Light Updates\n", x, 0, z);
+                DEBUG_LOG("Processing Light Updates\n", x, 0, z);
            Chunk* chunk = world->chunks[arrayCoord(world, vz, z)]
                                        [arrayCoord(world, vx, x)]
                                        [y];
@@ -232,11 +233,11 @@ void worldInit(World* world, RenderContext* ctx) {
             }
         }
     }
-    DEBUG_LOG("[WORLD] Building chunk meshes\n");
+    DEBUG_LOG("Building chunk meshes\n");
     for (i32 x = x_start; x <= x_end; x++) {
         for (i32 z = z_start; z <= z_end; z++) {
             for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
-                DEBUG_LOG("[CHUNK: %d,%d,%d] Generating mesh\n", x, 0, z);
+                DEBUG_LOG("Generating mesh\n", x, 0, z);
                 Chunk* chunk = world->chunks[arrayCoord(world, vz, z)]
                                             [arrayCoord(world, vx, x)]
                                             [y];
@@ -269,7 +270,7 @@ void worldInit(World* world, RenderContext* ctx) {
     }
 #undef WORLD_LOADING_STAGES_COUNT
 #undef displayProgress
-    DEBUG_LOG("[WORLD] Finished loading\n");
+    DEBUG_LOG("Finished loading\n");
     // abort();
 }
 
@@ -484,7 +485,7 @@ void worldRender(const World* world,
         &player_world_pos,
         CHUNK_SIZE
     );
-    // DEBUG_LOG("[WORLD] Player chunk pos: " VEC_PATTERN "\n", VEC_LAYOUT(player_pos.chunk));
+    // DEBUG_LOG("Player chunk pos: " VEC_PATTERN "\n", VEC_LAYOUT(player_pos.chunk));
     // Pich = up and down
     const TRad playerTRadPitch = player->camera->rotation.vx >> 10;
     // Yaw = left and right
@@ -505,7 +506,7 @@ void worldRender(const World* world,
         const ChunkVisit visit = render_queue[cvector_size(render_queue) - 1];
         cvector_pop_back(render_queue);
         DEBUG_LOG(
-            "[WORLD] Visit chunk " VEC_PATTERN " @ " VEC_PATTERN "\n", 
+            "Visit chunk " VEC_PATTERN " @ " VEC_PATTERN "\n", 
             VEC_LAYOUT(visit.position),
             arrayCoord(world, vx, visit.position.vx),
             visit.position.vy,
@@ -542,15 +543,15 @@ void worldRender(const World* world,
         DEBUG_LOG("Chunk vis: " INT16_BIN_PATTERN "\n", INT16_BIN_LAYOUT(chunk_render_state->visibility));
         if (chunk_render_state->visibility == 0) {
             // Can't see anything, don't bother
-            DEBUG_LOG("[WORLD] No visibility\n");
+            DEBUG_LOG("No visibility\n");
             continue;
         } else if (visit.traversal_depth > WORLD_RENDER_DISTANCE) {
-            DEBUG_LOG("[WORLD] Exceeded max render distance\n");
+            DEBUG_LOG("Exceeded max render distance\n");
             continue;
         }
         for (FaceDirection face_dir = FACE_DIR_DOWN; face_dir <= FACE_DIR_FRONT; face_dir++) {
             if (face_dir == visit.visited_from) {
-                DEBUG_LOG("[WORLD] Same direction as visited from %d == %d\n", face_dir, visit.visited_from);
+                DEBUG_LOG("Same direction as visited from %d == %d\n", face_dir, visit.visited_from);
                 chunkVisibilityClearBit(&chunk_render_state->visibility, face_dir, visit.visited_from);
                 continue;
             } else if (visit.traversal_depth != 0 && chunkVisibilityGetBit(
@@ -559,13 +560,13 @@ void worldRender(const World* world,
                     visit.visited_from
                 ) == 0) {
                 // Cannot exit chunk in this direction from the entered face
-                DEBUG_LOG("[WORLD] No visibility from face %d to %d\n", visit.visited_from, face_dir);
+                DEBUG_LOG("No visibility from face %d to %d\n", visit.visited_from, face_dir);
                 continue;
             }
             chunkVisibilityClearBit(&chunk_render_state->visibility, face_dir, visit.visited_from);
-            DEBUG_LOG("[WORLD] Visible from face %d to %d\n", visit.visited_from, face_dir);
+            DEBUG_LOG("Visible from face %d to %d\n", visit.visited_from, face_dir);
             const VECTOR next_chunk = vec3_add(visit.position, FACE_DIRECTION_NORMALS[face_dir]);
-            DEBUG_LOG("[WORLD] Next chunk: " VEC_PATTERN "\n", VEC_LAYOUT(next_chunk));
+            DEBUG_LOG("Next chunk: " VEC_PATTERN "\n", VEC_LAYOUT(next_chunk));
             const ChunkBlockPosition next_cb_pos = (ChunkBlockPosition) {
                 .chunk = next_chunk,
                 .block = vec3_i32(0)
@@ -578,7 +579,7 @@ void worldRender(const World* world,
             // position is out of bounds, ignore the next position
             // as it will just lead to pointless iterations.
             if (chunk != NULL && worldIsOutsideBounds(world, &next_cb_pos)) {
-                // DEBUG_LOG("[WORLD] Outside world\n");
+                // DEBUG_LOG("Outside world\n");
                 continue;
             }
             // BUG: Need to prevent traversal outside the world from looping
@@ -637,7 +638,7 @@ check_chunk_vertex_visibility:;
                 continue;
             }
 push_chunk_to_render_queue:;
-            DEBUG_LOG("[WORLD] In-frustum\n");
+            DEBUG_LOG("In-frustum\n");
             cvector_push_back(
                 render_queue,
                 ((ChunkVisit) {
@@ -648,7 +649,7 @@ push_chunk_to_render_queue:;
             );
         }
     }
-    // DEBUG_LOG("[WORLD] Chunks rendered: %d\n", render_count);
+    // DEBUG_LOG("Chunks rendered: %d\n", render_count);
     #undef getChunkRenderState
     durationComponentEnd();
     durationTreeRender(
@@ -1128,7 +1129,7 @@ void worldUpdate(World* world,
         // DEBUG_LOG("Player chunk pos: " VEC_PATTERN "\n", VEC_LAYOUT(player_pos.chunk));
         worldLoadChunks(world, &player_pos.chunk);
         // DEBUG_LOG(
-        //     "[WORLD] Head { x: %d, z: %d } Centre { x: %d, z: %d}\n",
+        //     "Head { x: %d, z: %d } Centre { x: %d, z: %d}\n",
         //     world->head.vx, world->head.vz,
         //     world->centre.vx, world->centre.vz
         // );
@@ -1162,7 +1163,7 @@ void worldUpdate(World* world,
                 }
             }
         }
-        // DEBUG_LOG("[WORLD] End world update (no breaking state)\n");
+        // DEBUG_LOG("End world update (no breaking state)\n");
         return;
     }
     u8 coords_check = 0b000; // XYZ
@@ -1190,7 +1191,7 @@ void worldUpdate(World* world,
         }
     }
     #undef updateCoordBit
-    // DEBUG_LOG("[WORLD] End world update (with breaking state)\n");
+    // DEBUG_LOG("End world update (with breaking state)\n");
 }
 
 INLINE Chunk* worldGetChunkFromChunkBlock(const World* world, const ChunkBlockPosition* position) {

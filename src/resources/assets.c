@@ -71,7 +71,7 @@ static void* _loadTextures(const void* ctx) {
     memset(tex_buf, 0, tex_buf_size * sizeof(QLP_HEAD));
     lzpUnpackFile(tex_buf, lz_resources, lzp_index);
     const int file_count = qlpFileCount(tex_buf);
-    DEBUG_LOG("[TEXTURE] Loading %d texture(s)\n", file_count);
+    DEBUG_LOG("Loading %d texture(s)\n", file_count);
     if (file_count > 0) {
         textures = calloc(file_count, sizeof(Texture));
         memset(textures, 0, file_count * sizeof(Texture));

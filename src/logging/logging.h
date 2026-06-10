@@ -8,8 +8,16 @@
 #include "../debug/debug_defines.h"
 #include "../util/preprocessor.h"
 
-#if isDebugEnabled()
-#define DEBUG_LOG(s, ...) printf(s, ##__VA_ARGS__)
+#ifndef DEBUG_LOG_PREFIX
+#define DEBUG_LOG_PREFIX __FILE_NAME__
+#endif
+
+#ifndef DEBUG_LOG_DISABLE
+#define DEBUG_LOG_DISABLE 0
+#endif
+
+#if isDebugEnabled() && DEBUG_LOG_DISABLE == 0
+#define DEBUG_LOG(s, ...) printf("[" DEBUG_LOG_PREFIX "] " s, ##__VA_ARGS__)
 #else
 #define DEBUG_LOG(x, ...) ({})
 #endif
