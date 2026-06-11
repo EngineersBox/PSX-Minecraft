@@ -605,11 +605,11 @@ void worldRender(const World* world,
              */
             // 1. Centre check
             const TRad chunkTRadPitch = tcabAngle(chunk_relative_centre_blocks.vz, chunk_relative_centre_blocks.vy);
-            const bool pitch_in_range = tcabAngleInRange(playerTRadPitch, FOV_HALF_TRAD, chunkTRadPitch);
+            const bool pitch_in_range = tcabAngleInRange(playerTRadPitch, FOV_Y_HALF_TRAD, chunkTRadPitch);
             DEBUG_LOG("Chunk pitch t-rad: %d Player pitch t-rad: %d In range: %d\n", chunkTRadPitch, playerTRadPitch, pitch_in_range);
             if (!pitch_in_range) goto check_chunk_vertex_visibility;
-            const TRad chunkTRadYaw = tcabAngle(chunk_relative_centre_blocks.vz, chunk_relative_centre_blocks.vz);
-            const bool yaw_in_range = tcabAngleInRange(playerTRadYaw, FOV_HALF_TRAD, chunkTRadYaw);
+            const TRad chunkTRadYaw = tcabAngle(chunk_relative_centre_blocks.vz, chunk_relative_centre_blocks.vx);
+            const bool yaw_in_range = tcabAngleInRange(playerTRadYaw, FOV_X_HALF_TRAD, chunkTRadYaw);
             DEBUG_LOG("Chunk yaw t-rad: %d Player yaw t-rad: %d In range: %d\n", chunkTRadYaw, playerTRadYaw, yaw_in_range);
             if (yaw_in_range) {
                 goto push_chunk_to_render_queue;
@@ -622,7 +622,7 @@ check_chunk_vertex_visibility:;
 				chunk_relative_pos_blocks.vz,
 				chunk_relative_pos_blocks.vy,
 				playerTRadPitch,
-				FOV_HALF_TRAD
+				FOV_Y_HALF_TRAD
             )) {
                 DEBUG_LOG("Chunk ZY/pitch vertices not visible\n");
                 continue;
@@ -632,7 +632,7 @@ check_chunk_vertex_visibility:;
 				chunk_relative_pos_blocks.vz,
 				chunk_relative_pos_blocks.vx,
 				playerTRadYaw,
-				FOV_HALF_TRAD
+				FOV_X_HALF_TRAD
             )) {
                 DEBUG_LOG("Chunk ZX/yaw vertices not visible\n");
                 continue;
