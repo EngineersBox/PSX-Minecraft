@@ -302,14 +302,14 @@ void worldDestroy(World* world) {
     free(world->chunk_provider.self);
 }
 
-#define SUN_DISTANCE 1000
-#define SUN_SIZE 10
+#define SUN_DISTANCE 0
+#define SUN_SIZE 200
 
 static const VECTOR sun_vertices[4] = {
-    [0]=vec3_i32(SUN_DISTANCE, -SUN_SIZE, -SUN_SIZE),
-    [1]=vec3_i32(SUN_DISTANCE, -SUN_SIZE, SUN_SIZE),
-    [2]=vec3_i32(SUN_DISTANCE, SUN_SIZE, -SUN_SIZE),
-    [3]=vec3_i32(SUN_DISTANCE, SUN_SIZE, SUN_SIZE)
+    [0]=vec3_i32(SUN_SIZE, SUN_SIZE, SUN_DISTANCE),
+    [1]=vec3_i32(SUN_SIZE, -SUN_SIZE, SUN_DISTANCE),
+    [2]=vec3_i32(-SUN_SIZE, SUN_SIZE, SUN_DISTANCE),
+    [3]=vec3_i32(-SUN_SIZE, -SUN_SIZE, SUN_DISTANCE)
 };
 
 void worldRenderSkybox(const World* world,
@@ -317,16 +317,28 @@ void worldRenderSkybox(const World* world,
                        RenderContext* ctx,
                        Transforms* transforms) {
     renderClearConstraintsIndex(ctx, ORDERING_TABLE_LENGTH - 1);
-    const SVECTOR rotation = vec3_i16(0, 0, world->celestial_angle);
+    const SVECTOR rotation = vec3_i16(
+        0,
+        // positiveModulo(FIXED_1_2 - world->celestial_angle, ONE),
+        FIXED_1_4,
+        0
+    );
+    // TODO: Get the polygon to move with the player, i.e. their
+    //       positions are always linked together.
+    const VECTOR position = vec3_i32(
+        player_world_pos->vx,
+        -player_world_pos->vy - 1000,
+        player_world_pos->vz
+    );
     renderCtxBindMatrix(
         ctx,
         transforms,
         &rotation,
-        player_world_pos
+        &position
     );
-    POLY_FT4* sun = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
-    const u32* ot_object = allocateOrderingTable(ctx, ORDERING_TABLE_LENGTH - 1);
-    setPolyFT4(sun);
+    POLY_F4* sun = (POLY_F4*) allocatePrimitive(ctx, sizeof(POLY_F4));
+    const u32* ot_object = allocateOrderingTable(ctx, 0);//ORDERING_TABLE_LENGTH - 1);
+    setPolyF4(sun);
     gte_ldv3(
         &sun_vertices[0],
         &sun_vertices[1],
@@ -344,7 +356,7 @@ void worldRenderSkybox(const World* world,
         goto render_moon;
     }
     // Initialize a textured quad primitive
-    setPolyFT4(sun);
+    setPolyF4(sun);
     // Set the projected vertices to the primitive
     gte_stsxy0(&sun->x0);
     gte_stsxy1(&sun->x1);
@@ -362,8 +374,8 @@ void worldRenderSkybox(const World* world,
         (DVECTOR*) &sun->x3)) {
         goto render_moon;
     }
-    setRGB0(sun, 0xFF, 0xFF, 0xFF);
-    setUVWH(sun, 0, 0, 32, 32);
+    setRGB0(sun, 0xFF, 0x00, 0x00);
+    // setUVWH(sun, 0, 0, 32, 32);
     // TODO: Include sun texture in assets
     /*const Texture* texture = &textures[ASSET_TEXTURE__STATIC__SUN];*/
     /*sun->tpage = texture->tpage;*/
@@ -373,7 +385,7 @@ void worldRenderSkybox(const World* world,
     return;
 render_moon:;
     // TODO: Render moon
-    freePrimitive(ctx, sizeof(POLY_FT4));
+    freePrimitive(ctx, sizeof(POLY_F4));
     renderCtxUnbindMatrix();
 }
 
