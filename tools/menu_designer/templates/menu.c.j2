@@ -22,13 +22,11 @@
 static Texture {{ texture_params[2] }} = {0};
 {% endfor %}
 
-IUI* {{ name_camel_case }}New() {
-    IUI* iui = (IUI*) malloc(sizeof(IUI));
-    assert(iui != NULL);
+IUI {{ name_camel_case }}New() {
     {{ name_pascal_case }}* menu = ({{ name_pascal_case }}*) malloc(sizeof({{ name_pascal_case }}));
     assert(menu != NULL);
     uiInit(&menu->ui);
-    DYN_PTR(iui, {{ name_pascal_case }}, IUI, menu);
+    const IUI iui = DYN({{ name_pascal_case }}, IUI, menu);
     UI* ui = &menu->ui;
 {{ components_init_code }}
     return iui;

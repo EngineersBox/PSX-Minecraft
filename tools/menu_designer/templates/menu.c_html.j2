@@ -22,14 +22,11 @@
 <font color="#EA6962">static</font> <font color="#D8A657">Texture</font> {{ texture_params[2] }} <font color="#EA6962">=</font> {<font color="#E78A4E">0</font>};
 {% endfor %}
 
-<font color="#D8A657">IUI</font><font color="#EA6962">*</font><font color="#A9B665">{{ name_camel_case }}New</font>() {
-    <font color="#D8A657">IUI</font><font color="#EA6962">*</font> iui <font color="#EA6962">=</font> (<font color="#D8A657">IUI</font><font color="#EA6962">*</font>) <font color="#A9B665">malloc</font>(<font color="#EA6962">sizeof</font>(<font color="#D8A657">IUI</font>));
-    <font color="#EA6962">assert</font>(iui <font color="#EA6962">!=</font> <font color="#D3869B">NULL</font>);
+<font color="#D8A657">IUI</font> <font color="#A9B665">{{ name_camel_case }}New</font>() {
     <font color="#D8A657">{{ name_pascal_case }}</font><font color="#EA6962">*</font> menu <font color="#EA6962">=</font> (<font color="#D8A657">{{ name_pascal_case }}</font><font color="#EA6962">*</font>) <font color="#A9B665">malloc</font>(<font color="#EA6962">sizeof</font>(<font color="#D8A657">{{ name_pascal_case }}</font>));
     <font color="#EA6962">assert</font>(menu <font color="#EA6962">!=</font> <font color="#D3869B">NULL</font>);
     <font color="#A9B665">uiInit</font>(<font color="#EA6962">&</font>menu<font color="#EA6962">-></font><font color="#7DAEA3">ui</font>);
-    <font color="#D3869B">DYN_PTR</font>(
-        iui,
+    <font color="#EA6962">const</font> <font color="#D8A657">IUI</font> iui <font color="#EA6962">=</font> <font color="#D3869B">DYN</font>(
         <font color="#D8A657">{{ name_pascal_case }}</font>,
         <font color="#D8A657">IUI</font>,
         menu
