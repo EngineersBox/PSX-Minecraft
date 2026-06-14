@@ -786,7 +786,7 @@ void worldRender(const World* world,
             // DEBUG_LOG("Chunk relative centre blocks: " VEC_PATTERN "\n", VEC_LAYOUT(chunk_relative_centre_blocks));
             /* Chunk render logic:
              * 1. Compute relative chunk centre point
-             * 2. Test if chunk centre is in frustum (dual angle check), skip if not visibile
+             * 2. Test if chunk centre is in frustum (dual angle check), skip if not visible
              * 3. Otherwise, get quadrant closest vertices of chunk
              * 4. Test if verticies are in frustum (dual angle check), skip if not visible
              * 5. Render chunk
