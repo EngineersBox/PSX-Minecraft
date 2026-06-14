@@ -130,6 +130,7 @@
 
 // Convert degrees to unit range accepted by trig functions
 // E.g. degToUnitRange(45) = 512
-#define degToUnitRange(deg) (((deg) << 12) / 360)
+#define degToUnitRange(deg) (((deg) << FIXED_POINT_SHIFT) / 360)
+#define unitRangeToDeg(unit) (((unit) * 360) >> FIXED_POINT_SHIFT)
 
 #endif //MATH_UTILS_H

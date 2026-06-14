@@ -7,12 +7,10 @@
 
 typedef struct {
     VECTOR translation_position;
-    // VECTOR negative_translation_position;
     SVECTOR	translation_rotation;
-    // SVECTOR negative_translation_rotation;
     MATRIX geometry_mtx;
-    // MATRIX frustum_mtx;
     MATRIX lighting_mtx;
+    MATRIX skybox_mtx;
 } Transforms;
 
 #endif //TRANSFORMS_H

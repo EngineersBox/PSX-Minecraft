@@ -110,6 +110,7 @@
 * [X] Main menu
 * [X] Conic frustum
 * [X] Compute dual angle difference between frustum direction and vector to chunk centre for culling when outside FOV X/Y axis angles (i.e `70deg`)
+* [X] Rendering sun and moon with rotation matching current celestial angle
 * [ ] World management menu
 * [ ] Create world menu
 * [ ] Options menu

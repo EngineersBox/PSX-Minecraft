@@ -1,4 +1,4 @@
-#define DEBUG_LOG_DISABLE 1
+// #define DEBUG_LOG_DISABLE 1
 #include "world.h"
 
 #include <assert.h>
@@ -302,47 +302,173 @@ void worldDestroy(World* world) {
     free(world->chunk_provider.self);
 }
 
-#define SUN_DISTANCE 0
+#define SUN_DISTANCE 400
 #define SUN_SIZE 200
 
-static const VECTOR sun_vertices[4] = {
-    [0]=vec3_i32(SUN_SIZE, SUN_SIZE, SUN_DISTANCE),
-    [1]=vec3_i32(SUN_SIZE, -SUN_SIZE, SUN_DISTANCE),
-    [2]=vec3_i32(-SUN_SIZE, SUN_SIZE, SUN_DISTANCE),
-    [3]=vec3_i32(-SUN_SIZE, -SUN_SIZE, SUN_DISTANCE)
+static const VECTOR SUN_MOON_VERTICES[4] = {
+    [0]=vec3_i32( SUN_SIZE, SUN_SIZE, 0),
+    [1]=vec3_i32( SUN_SIZE, -SUN_SIZE, 0),
+    [2]=vec3_i32(-SUN_SIZE, SUN_SIZE, 0),
+    [3]=vec3_i32(-SUN_SIZE, -SUN_SIZE, 0)
+};
+
+static const DVECTOR ANGLE_POS[90] = {
+    [0]=(DVECTOR){ .vx=ONE, .vy=0 },
+    [1]=(DVECTOR){ .vx=4095, .vy=71 },
+    [2]=(DVECTOR){ .vx=4093, .vy=142 },
+    [3]=(DVECTOR){ .vx=4090, .vy=214 },
+    [4]=(DVECTOR){ .vx=4086, .vy=285 },
+    [5]=(DVECTOR){ .vx=4080, .vy=356 },
+    [6]=(DVECTOR){ .vx=4073, .vy=428 },
+    [7]=(DVECTOR){ .vx=4065, .vy=499 },
+    [8]=(DVECTOR){ .vx=4056, .vy=570 },
+    [9]=(DVECTOR){ .vx=4045, .vy=640 },
+    [10]=(DVECTOR){ .vx=4033, .vy=711 },
+    [11]=(DVECTOR){ .vx=4020, .vy=781 },
+    [12]=(DVECTOR){ .vx=4006, .vy=851 },
+    [13]=(DVECTOR){ .vx=3991, .vy=921 },
+    [14]=(DVECTOR){ .vx=3974, .vy=990 },
+    [15]=(DVECTOR){ .vx=3956, .vy=1060 },
+    [16]=(DVECTOR){ .vx=3937, .vy=1129 },
+    [17]=(DVECTOR){ .vx=3917, .vy=1197 },
+    [18]=(DVECTOR){ .vx=3895, .vy=1265 },
+    [19]=(DVECTOR){ .vx=3872, .vy=1333 },
+    [20]=(DVECTOR){ .vx=3848, .vy=1400 },
+    [21]=(DVECTOR){ .vx=3823, .vy=1467 },
+    [22]=(DVECTOR){ .vx=3797, .vy=1534 },
+    [23]=(DVECTOR){ .vx=3770, .vy=1600 },
+    [24]=(DVECTOR){ .vx=3741, .vy=1665 },
+    [25]=(DVECTOR){ .vx=3712, .vy=1731 },
+    [26]=(DVECTOR){ .vx=3681, .vy=1795 },
+    [27]=(DVECTOR){ .vx=3649, .vy=1859 },
+    [28]=(DVECTOR){ .vx=3616, .vy=1922 },
+    [29]=(DVECTOR){ .vx=3582, .vy=1985 },
+    [30]=(DVECTOR){ .vx=3547, .vy=2047 },
+    [31]=(DVECTOR){ .vx=3510, .vy=2109 },
+    [32]=(DVECTOR){ .vx=3473, .vy=2170 },
+    [33]=(DVECTOR){ .vx=3435, .vy=2230 },
+    [34]=(DVECTOR){ .vx=3395, .vy=2290 },
+    [35]=(DVECTOR){ .vx=3355, .vy=2349 },
+    [36]=(DVECTOR){ .vx=3313, .vy=2407 },
+    [37]=(DVECTOR){ .vx=3271, .vy=2465 },
+    [38]=(DVECTOR){ .vx=3227, .vy=2521 },
+    [39]=(DVECTOR){ .vx=3183, .vy=2577 },
+    [40]=(DVECTOR){ .vx=3137, .vy=2632 },
+    [41]=(DVECTOR){ .vx=3091, .vy=2687 },
+    [42]=(DVECTOR){ .vx=3043, .vy=2740 },
+    [43]=(DVECTOR){ .vx=2995, .vy=2793 },
+    [44]=(DVECTOR){ .vx=2946, .vy=2845 },
+    [45]=(DVECTOR){ .vx=2896, .vy=2896 },
+    [46]=(DVECTOR){ .vx=2845, .vy=2946 },
+    [47]=(DVECTOR){ .vx=2793, .vy=2995 },
+    [48]=(DVECTOR){ .vx=2740, .vy=3043 },
+    [49]=(DVECTOR){ .vx=2687, .vy=3091 },
+    [50]=(DVECTOR){ .vx=2632, .vy=3137 },
+    [51]=(DVECTOR){ .vx=2577, .vy=3183 },
+    [52]=(DVECTOR){ .vx=2521, .vy=3227 },
+    [53]=(DVECTOR){ .vx=2465, .vy=3271 },
+    [54]=(DVECTOR){ .vx=2407, .vy=3313 },
+    [55]=(DVECTOR){ .vx=2349, .vy=3355 },
+    [56]=(DVECTOR){ .vx=2290, .vy=3395 },
+    [57]=(DVECTOR){ .vx=2230, .vy=3435 },
+    [58]=(DVECTOR){ .vx=2170, .vy=3473 },
+    [59]=(DVECTOR){ .vx=2109, .vy=3510 },
+    [60]=(DVECTOR){ .vx=2048, .vy=3547 },
+    [61]=(DVECTOR){ .vx=1985, .vy=3582 },
+    [62]=(DVECTOR){ .vx=1922, .vy=3616 },
+    [63]=(DVECTOR){ .vx=1859, .vy=3649 },
+    [64]=(DVECTOR){ .vx=1795, .vy=3681 },
+    [65]=(DVECTOR){ .vx=1731, .vy=3712 },
+    [66]=(DVECTOR){ .vx=1665, .vy=3741 },
+    [67]=(DVECTOR){ .vx=1600, .vy=3770 },
+    [68]=(DVECTOR){ .vx=1534, .vy=3797 },
+    [69]=(DVECTOR){ .vx=1467, .vy=3823 },
+    [70]=(DVECTOR){ .vx=1400, .vy=3848 },
+    [71]=(DVECTOR){ .vx=1333, .vy=3872 },
+    [72]=(DVECTOR){ .vx=1265, .vy=3895 },
+    [73]=(DVECTOR){ .vx=1197, .vy=3917 },
+    [74]=(DVECTOR){ .vx=1129, .vy=3937 },
+    [75]=(DVECTOR){ .vx=1060, .vy=3956 },
+    [76]=(DVECTOR){ .vx=990, .vy=3974 },
+    [77]=(DVECTOR){ .vx=921, .vy=3991 },
+    [78]=(DVECTOR){ .vx=851, .vy=4006 },
+    [79]=(DVECTOR){ .vx=781, .vy=4020 },
+    [80]=(DVECTOR){ .vx=711, .vy=4033 },
+    [81]=(DVECTOR){ .vx=640, .vy=4045 },
+    [82]=(DVECTOR){ .vx=570, .vy=4056 },
+    [83]=(DVECTOR){ .vx=499, .vy=4065 },
+    [84]=(DVECTOR){ .vx=428, .vy=4073 },
+    [85]=(DVECTOR){ .vx=356, .vy=4080 },
+    [86]=(DVECTOR){ .vx=285, .vy=4086 },
+    [87]=(DVECTOR){ .vx=214, .vy=4090 },
+    [88]=(DVECTOR){ .vx=142, .vy=4093 },
+    [89]=(DVECTOR){ .vx=71, .vy=4095 }
 };
 
 void worldRenderSkybox(const World* world,
-                       const VECTOR* player_world_pos,
                        RenderContext* ctx,
                        Transforms* transforms) {
-    renderClearConstraintsIndex(ctx, ORDERING_TABLE_LENGTH - 1);
-    const SVECTOR rotation = vec3_i16(
+    const fixedi32 angle = fixedFixedDiv(world->time_ticks + 1, WORLD_TIME_CYCLE);
+    SVECTOR rotation = vec3_i16(
+        positiveModulo(-angle - FIXED_1_4, ONE),
         0,
-        // positiveModulo(FIXED_1_2 - world->celestial_angle, ONE),
-        FIXED_1_4,
         0
     );
-    // TODO: Get the polygon to move with the player, i.e. their
-    //       positions are always linked together.
-    const VECTOR position = vec3_i32(
-        player_world_pos->vx,
-        -player_world_pos->vy - 1000,
-        player_world_pos->vz
+    i32 sun_z = 0;
+    i32 sun_y = 0;
+    const i32 deg = unitRangeToDeg(angle);
+    // DEBUG_LOG("Angle: %d Deg: %d\n", angle, deg);
+    const DVECTOR* pos = NULL;
+    switch (deg) {
+        case 0 ... 89:
+            pos = &ANGLE_POS[deg];
+            sun_z = fixedMul(pos->vx, -SUN_DISTANCE);
+            sun_y = fixedMul(pos->vy, -SUN_DISTANCE);
+            break;
+        case 90 ... 179:
+            pos = &ANGLE_POS[89 - (deg % 90)];
+            sun_z = fixedMul(pos->vx, SUN_DISTANCE);
+            sun_y = fixedMul(pos->vy, -SUN_DISTANCE);
+            break;
+        case 180 ... 269:
+            pos = &ANGLE_POS[deg % 90];
+            sun_z = fixedMul(pos->vx, SUN_DISTANCE);
+            sun_y = fixedMul(pos->vy, SUN_DISTANCE);
+            break;
+        case 270 ... 360:
+            pos = &ANGLE_POS[89 - (deg % 90)];
+            sun_z = fixedMul(pos->vx, -SUN_DISTANCE);
+            sun_y = fixedMul(pos->vy, SUN_DISTANCE);
+            break;
+    }
+    VECTOR position = vec3_i32(
+        0,
+        sun_y,
+        sun_z
     );
-    renderCtxBindMatrix(
-        ctx,
-        transforms,
-        &rotation,
-        &position
-    );
-    POLY_F4* sun = (POLY_F4*) allocatePrimitive(ctx, sizeof(POLY_F4));
-    const u32* ot_object = allocateOrderingTable(ctx, 0);//ORDERING_TABLE_LENGTH - 1);
-    setPolyF4(sun);
+    // DEBUG_LOG("Pos: " VEC_PATTERN "\n", VEC_LAYOUT(position));
+    // Object and light matrix for object
+    MATRIX omtx = {0};
+    // Set object rotation and position
+    RotMatrix(&rotation, &omtx);
+    TransMatrix(&omtx, &position);
+    // Composite coordinate matrix transform, so object will be rotated and
+    // positioned relative to camera matrix (mtx), so it'll appear as
+    // world-space relative.
+    CompMatrixLV(&transforms->skybox_mtx, &omtx, &omtx);
+    // Save matrix
+    PushMatrix();
+    // Set matrices
+    gte_SetRotMatrix(&omtx);
+    gte_SetTransMatrix(&omtx);
+    POLY_FT4* pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
+    const u32* ot_object = allocateOrderingTable(ctx, ORDERING_TABLE_LENGTH - 1);
+    setPolyFT4(pol4);
+    setRGB0(pol4, 0x80, 0x80, 0x80);
     gte_ldv3(
-        &sun_vertices[0],
-        &sun_vertices[1],
-        &sun_vertices[2]
+        &SUN_MOON_VERTICES[0],
+        &SUN_MOON_VERTICES[1],
+        &SUN_MOON_VERTICES[2]
     );
     // Rotation, Translation and Perspective Triple
     gte_rtpt();
@@ -355,37 +481,90 @@ void worldRenderSkybox(const World* world,
     if (p < 0) {
         goto render_moon;
     }
-    // Initialize a textured quad primitive
-    setPolyF4(sun);
     // Set the projected vertices to the primitive
-    gte_stsxy0(&sun->x0);
-    gte_stsxy1(&sun->x1);
-    gte_stsxy2(&sun->x2);
+    gte_stsxy0(&pol4->x0);
+    gte_stsxy1(&pol4->x1);
+    gte_stsxy2(&pol4->x2);
     // Compute the last vertex and set the result
-    gte_ldv0(&sun_vertices[3]);
+    gte_ldv0(&SUN_MOON_VERTICES[3]);
     gte_rtps();
-    gte_stsxy(&sun->x3);
+    gte_stsxy(&pol4->x3);
     // Test if quad is off-screen, discard if so
     if (quadClip(
         &ctx->screen_clip,
-        (DVECTOR*) &sun->x0,
-        (DVECTOR*) &sun->x1,
-        (DVECTOR*) &sun->x2,
-        (DVECTOR*) &sun->x3)) {
+        (DVECTOR*) &pol4->x0,
+        (DVECTOR*) &pol4->x1,
+        (DVECTOR*) &pol4->x2,
+        (DVECTOR*) &pol4->x3)) {
         goto render_moon;
     }
-    setRGB0(sun, 0xFF, 0x00, 0x00);
-    // setUVWH(sun, 0, 0, 32, 32);
-    // TODO: Include sun texture in assets
-    /*const Texture* texture = &textures[ASSET_TEXTURE__STATIC__SUN];*/
-    /*sun->tpage = texture->tpage;*/
-    /*sun->clut = texture->clut;*/
-    addPrim(ot_object, sun);
+    setUVWH(pol4, 0, 160, 32, 32);
+    const Texture* sun_texture = &textures[ASSET_TEXTURE__STATIC__SUN];
+    pol4->tpage = sun_texture->tpage;
+    pol4->clut = sun_texture->clut;
+    addPrim(ot_object, pol4);
+    renderClearConstraintsEntry(ctx, (u32*) ot_object);
     renderCtxUnbindMatrix();
     return;
 render_moon:;
-    // TODO: Render moon
-    freePrimitive(ctx, sizeof(POLY_F4));
+    rotation.vx = positiveModulo(rotation.vx + FIXED_1_2, ONE);
+    position.vy *= -1;
+    position.vz *= -1;
+    omtx = (MATRIX) {0};
+    // Set object rotation and position
+    RotMatrix(&rotation, &omtx);
+    TransMatrix(&omtx, &position);
+    // Composite coordinate matrix transform, so object will be rotated and
+    // positioned relative to camera matrix (mtx), so it'll appear as
+    // world-space relative.
+    CompMatrixLV(&transforms->skybox_mtx, &omtx, &omtx);
+    // Save matrix
+    PushMatrix();
+    // Set matrices
+    gte_SetRotMatrix(&omtx);
+    gte_SetTransMatrix(&omtx);
+    gte_ldv3(
+        &SUN_MOON_VERTICES[0],
+        &SUN_MOON_VERTICES[1],
+        &SUN_MOON_VERTICES[2]
+    );
+    // Rotation, Translation and Perspective Triple
+    gte_rtpt();
+    gte_nclip();
+    gte_stopz(&p);
+    // gte_stdp(&dp);
+    // Avoid negative depth (behind camera) and zero
+    // for constraint clearing primitive in OT
+    if (p < 0) {
+        goto no_sun_or_moon;
+    }
+    // Set the projected vertices to the primitive
+    gte_stsxy0(&pol4->x0);
+    gte_stsxy1(&pol4->x1);
+    gte_stsxy2(&pol4->x2);
+    // Compute the last vertex and set the result
+    gte_ldv0(&SUN_MOON_VERTICES[3]);
+    gte_rtps();
+    gte_stsxy(&pol4->x3);
+    // Test if quad is off-screen, discard if so
+    if (quadClip(
+        &ctx->screen_clip,
+        (DVECTOR*) &pol4->x0,
+        (DVECTOR*) &pol4->x1,
+        (DVECTOR*) &pol4->x2,
+        (DVECTOR*) &pol4->x3)) {
+        goto no_sun_or_moon;
+    }
+    setUVWH(pol4, 32, 160, 32, 32);
+    const Texture* moon_texture = &textures[ASSET_TEXTURE__STATIC__MOON];
+    pol4->tpage = moon_texture->tpage;
+    pol4->clut = moon_texture->clut;
+    addPrim(ot_object, pol4);
+    renderClearConstraintsEntry(ctx, (u32*) ot_object);
+    renderCtxUnbindMatrix();
+    return;
+no_sun_or_moon:;
+    freePrimitive(ctx, sizeof(POLY_FT4));
     renderCtxUnbindMatrix();
 }
 
@@ -492,7 +671,7 @@ void worldRender(const World* world,
         ),
         ONE_BLOCK
     );
-    worldRenderSkybox(world, &player_world_pos, ctx, transforms);
+    worldRenderSkybox(world, ctx, transforms);
     const ChunkBlockPosition player_pos = worldToChunkBlockPosition(
         &player_world_pos,
         CHUNK_SIZE
@@ -517,13 +696,13 @@ void worldRender(const World* world,
     while (cvector_size(render_queue) > 0) {
         const ChunkVisit visit = render_queue[cvector_size(render_queue) - 1];
         cvector_pop_back(render_queue);
-        DEBUG_LOG(
-            "Visit chunk " VEC_PATTERN " @ " VEC_PATTERN "\n", 
-            VEC_LAYOUT(visit.position),
-            arrayCoord(world, vx, visit.position.vx),
-            visit.position.vy,
-            arrayCoord(world, vz, visit.position.vz)
-        );
+        // DEBUG_LOG(
+        //     "Visit chunk " VEC_PATTERN " @ " VEC_PATTERN "\n", 
+        //     VEC_LAYOUT(visit.position),
+        //     arrayCoord(world, vx, visit.position.vx),
+        //     visit.position.vy,
+        //     arrayCoord(world, vz, visit.position.vz)
+        // );
         ChunkBlockPosition chunk_pos = (ChunkBlockPosition) {
             .chunk = visit.position,
             .block = vec3_i32(0)
@@ -552,18 +731,18 @@ void worldRender(const World* world,
             );
         }
             // render_count++;
-        DEBUG_LOG("Chunk vis: " INT16_BIN_PATTERN "\n", INT16_BIN_LAYOUT(chunk_render_state->visibility));
+        // DEBUG_LOG("Chunk vis: " INT16_BIN_PATTERN "\n", INT16_BIN_LAYOUT(chunk_render_state->visibility));
         if (chunk_render_state->visibility == 0) {
             // Can't see anything, don't bother
-            DEBUG_LOG("No visibility\n");
+            // DEBUG_LOG("No visibility\n");
             continue;
         } else if (visit.traversal_depth > WORLD_RENDER_DISTANCE) {
-            DEBUG_LOG("Exceeded max render distance\n");
+            // DEBUG_LOG("Exceeded max render distance\n");
             continue;
         }
         for (FaceDirection face_dir = FACE_DIR_DOWN; face_dir <= FACE_DIR_FRONT; face_dir++) {
             if (face_dir == visit.visited_from) {
-                DEBUG_LOG("Same direction as visited from %d == %d\n", face_dir, visit.visited_from);
+                // DEBUG_LOG("Same direction as visited from %d == %d\n", face_dir, visit.visited_from);
                 chunkVisibilityClearBit(&chunk_render_state->visibility, face_dir, visit.visited_from);
                 continue;
             } else if (visit.traversal_depth != 0 && chunkVisibilityGetBit(
@@ -572,13 +751,13 @@ void worldRender(const World* world,
                     visit.visited_from
                 ) == 0) {
                 // Cannot exit chunk in this direction from the entered face
-                DEBUG_LOG("No visibility from face %d to %d\n", visit.visited_from, face_dir);
+                // DEBUG_LOG("No visibility from face %d to %d\n", visit.visited_from, face_dir);
                 continue;
             }
             chunkVisibilityClearBit(&chunk_render_state->visibility, face_dir, visit.visited_from);
-            DEBUG_LOG("Visible from face %d to %d\n", visit.visited_from, face_dir);
+            // DEBUG_LOG("Visible from face %d to %d\n", visit.visited_from, face_dir);
             const VECTOR next_chunk = vec3_add(visit.position, FACE_DIRECTION_NORMALS[face_dir]);
-            DEBUG_LOG("Next chunk: " VEC_PATTERN "\n", VEC_LAYOUT(next_chunk));
+            // DEBUG_LOG("Next chunk: " VEC_PATTERN "\n", VEC_LAYOUT(next_chunk));
             const ChunkBlockPosition next_cb_pos = (ChunkBlockPosition) {
                 .chunk = next_chunk,
                 .block = vec3_i32(0)
@@ -600,11 +779,11 @@ void worldRender(const World* world,
             if (vec3_equal(chunk_relative_pos, VEC3_I32_ZERO)) {
                 continue;
             }
-            DEBUG_LOG("Chunk relative pos: " VEC_PATTERN "\n", VEC_LAYOUT(chunk_relative_pos));
+            // DEBUG_LOG("Chunk relative pos: " VEC_PATTERN "\n", VEC_LAYOUT(chunk_relative_pos));
             const VECTOR chunk_relative_pos_blocks = vec3_const_mul(chunk_relative_pos, CHUNK_SIZE << FIXED_POINT_SHIFT);
-            DEBUG_LOG("Chunk relative pos blocks: " VEC_PATTERN "\n", VEC_LAYOUT(chunk_relative_pos_blocks));
+            // DEBUG_LOG("Chunk relative pos blocks: " VEC_PATTERN "\n", VEC_LAYOUT(chunk_relative_pos_blocks));
             const VECTOR chunk_relative_centre_blocks = vec3_const_add(chunk_relative_pos_blocks, ((CHUNK_SIZE >> 1) << FIXED_POINT_SHIFT));
-            DEBUG_LOG("Chunk relative centre blocks: " VEC_PATTERN "\n", VEC_LAYOUT(chunk_relative_centre_blocks));
+            // DEBUG_LOG("Chunk relative centre blocks: " VEC_PATTERN "\n", VEC_LAYOUT(chunk_relative_centre_blocks));
             /* Chunk render logic:
              * 1. Compute relative chunk centre point
              * 2. Test if chunk centre is in frustum (dual angle check), skip if not visibile
@@ -618,11 +797,11 @@ void worldRender(const World* world,
             // 1. Centre check
             const TRad chunkTRadPitch = tcabAngle(chunk_relative_centre_blocks.vz, chunk_relative_centre_blocks.vy);
             const bool pitch_in_range = tcabAngleInRange(playerTRadPitch, FOV_Y_HALF_TRAD, chunkTRadPitch);
-            DEBUG_LOG("Chunk pitch t-rad: %d Player pitch t-rad: %d In range: %d\n", chunkTRadPitch, playerTRadPitch, pitch_in_range);
+            // DEBUG_LOG("Chunk pitch t-rad: %d Player pitch t-rad: %d In range: %d\n", chunkTRadPitch, playerTRadPitch, pitch_in_range);
             if (!pitch_in_range) goto check_chunk_vertex_visibility;
             const TRad chunkTRadYaw = tcabAngle(chunk_relative_centre_blocks.vz, chunk_relative_centre_blocks.vx);
             const bool yaw_in_range = tcabAngleInRange(playerTRadYaw, FOV_X_HALF_TRAD, chunkTRadYaw);
-            DEBUG_LOG("Chunk yaw t-rad: %d Player yaw t-rad: %d In range: %d\n", chunkTRadYaw, playerTRadYaw, yaw_in_range);
+            // DEBUG_LOG("Chunk yaw t-rad: %d Player yaw t-rad: %d In range: %d\n", chunkTRadYaw, playerTRadYaw, yaw_in_range);
             if (yaw_in_range) {
                 goto push_chunk_to_render_queue;
             }
@@ -636,7 +815,7 @@ check_chunk_vertex_visibility:;
 				playerTRadPitch,
 				FOV_Y_HALF_TRAD
             )) {
-                DEBUG_LOG("Chunk ZY/pitch vertices not visible\n");
+                // DEBUG_LOG("Chunk ZY/pitch vertices not visible\n");
                 continue;
             } else if (!verticiesVisible(
                 next_cb_pos.chunk.vz,
@@ -646,11 +825,11 @@ check_chunk_vertex_visibility:;
 				playerTRadYaw,
 				FOV_X_HALF_TRAD
             )) {
-                DEBUG_LOG("Chunk ZX/yaw vertices not visible\n");
+                // DEBUG_LOG("Chunk ZX/yaw vertices not visible\n");
                 continue;
             }
 push_chunk_to_render_queue:;
-            DEBUG_LOG("In-frustum\n");
+            // DEBUG_LOG("In-frustum\n");
             cvector_push_back(
                 render_queue,
                 ((ChunkVisit) {
@@ -684,7 +863,7 @@ void worldRenderOld(const World* world,
         fixedFloor(player->entity.physics_object.position.vy, ONE_BLOCK) / ONE_BLOCK,
         fixedFloor(player->entity.physics_object.position.vz, ONE_BLOCK) / ONE_BLOCK
     );
-    worldRenderSkybox(world, &player_world_pos, ctx, transforms);
+    worldRenderSkybox(world, ctx, transforms);
     const ChunkBlockPosition cb_pos = worldToChunkBlockPosition(
         &player_world_pos,
         CHUNK_SIZE
@@ -967,7 +1146,7 @@ bool isPlayerInEdgeChunks(const World* world, const ChunkBlockPosition* player_p
 }
 
 static fixedi32 calculateCelestialAngle(u16 time_ticks) {
-    fixedi32 scaled = (((time_ticks + 1) << FIXED_POINT_SHIFT) / WORLD_TIME_CYCLE) - FIXED_1_4;
+    fixedi32 scaled = fixedFixedDiv(time_ticks + 1, WORLD_TIME_CYCLE) - FIXED_1_4;
     if (scaled < 0) {
         scaled += ONE;
     }
