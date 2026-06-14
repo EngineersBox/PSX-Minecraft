@@ -30,6 +30,8 @@ Remake of Minecraft for PS1 with PSn00bSDK
       * [Weather Raining](#weather-raining)
       * [Crafting with Cursor](#crafting-with-cursor)
       * [Hotbar Attributes](#hotbar-attributes)
+      * [Sun](#sun)
+      * [Moon](#moon)
   * [Playing](#playing)
   * [Development](#development)
     * [Branches](#branches)
@@ -155,6 +157,20 @@ Remake of Minecraft for PS1 with PSn00bSDK
 <summary><h4>Hotbar Attributes</h4></summary>
 
 ![Hotbar Attributes](./docs/hotbar_attributes.png)
+
+</details>
+
+<details>
+<summary><h4>Sun</h4></summary>
+
+![Sun](./docs/sun.png)
+
+</details>
+
+<details>
+<summary><h4>Moon</h4></summary>
+
+![Moon](./docs/moon.png)
 
 </details>
 
