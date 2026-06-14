@@ -22,7 +22,6 @@
 #include "../../logging/logging.h"
 #include "../items/items.h"
 #include "chunk/chunk.h"
-#include "chunk/chunk_defines.h"
 #include "chunk/chunk_mesh.h"
 #include "chunk/chunk_structure.h"
 #include "chunk/chunk_visibility.h"
@@ -121,7 +120,6 @@ void worldInit(World* world, RenderContext* ctx) {
     world->internal_light_level = createLightLevel(0, 15);
     world->time_ticks = WORLD_TIME_DAWN;
     world->day_count = 0;
-    world->celestial_angle = 0;
     world->centre = vec3_i32(0);
     world->centre_next = vec3_i32(0);
     world->head.vx = 0;
@@ -302,17 +300,14 @@ void worldDestroy(World* world) {
     free(world->chunk_provider.self);
 }
 
-#define SUN_DISTANCE 400
-#define SUN_SIZE 200
-
 static const VECTOR SUN_MOON_VERTICES[4] = {
-    [0]=vec3_i32( SUN_SIZE, SUN_SIZE, 0),
-    [1]=vec3_i32( SUN_SIZE, -SUN_SIZE, 0),
-    [2]=vec3_i32(-SUN_SIZE, SUN_SIZE, 0),
-    [3]=vec3_i32(-SUN_SIZE, -SUN_SIZE, 0)
+    [0]=vec3_i32( SUN_RADIUS,  SUN_RADIUS, 0),
+    [1]=vec3_i32( SUN_RADIUS, -SUN_RADIUS, 0),
+    [2]=vec3_i32(-SUN_RADIUS,  SUN_RADIUS, 0),
+    [3]=vec3_i32(-SUN_RADIUS, -SUN_RADIUS, 0)
 };
 
-static const DVECTOR ANGLE_POS[90] = {
+static const DVECTOR UNIT_ANGLE_POS_LUT[90] = {
     [0]=(DVECTOR){ .vx=ONE, .vy=0 },
     [1]=(DVECTOR){ .vx=4095, .vy=71 },
     [2]=(DVECTOR){ .vx=4093, .vy=142 },
@@ -408,44 +403,40 @@ static const DVECTOR ANGLE_POS[90] = {
 void worldRenderSkybox(const World* world,
                        RenderContext* ctx,
                        Transforms* transforms) {
-    const fixedi32 angle = fixedFixedDiv(world->time_ticks + 1, WORLD_TIME_CYCLE);
+    const fixedi32 angle = fixedFixedDiv(world->time_ticks, WORLD_TIME_CYCLE);
     SVECTOR rotation = vec3_i16(
         positiveModulo(-angle - FIXED_1_4, ONE),
         0,
         0
     );
-    i32 sun_z = 0;
-    i32 sun_y = 0;
+    i32 z = 0;
+    i32 y = 0;
     const i32 deg = unitRangeToDeg(angle);
     // DEBUG_LOG("Angle: %d Deg: %d\n", angle, deg);
     const DVECTOR* pos = NULL;
     switch (deg) {
         case 0 ... 89:
-            pos = &ANGLE_POS[deg];
-            sun_z = fixedMul(pos->vx, -SUN_DISTANCE);
-            sun_y = fixedMul(pos->vy, -SUN_DISTANCE);
+            pos = &UNIT_ANGLE_POS_LUT[deg];
+            z = fixedMul(pos->vx, -SUN_DISTANCE);
+            y = fixedMul(pos->vy, -SUN_DISTANCE);
             break;
         case 90 ... 179:
-            pos = &ANGLE_POS[89 - (deg % 90)];
-            sun_z = fixedMul(pos->vx, SUN_DISTANCE);
-            sun_y = fixedMul(pos->vy, -SUN_DISTANCE);
+            pos = &UNIT_ANGLE_POS_LUT[89 - (deg % 90)];
+            z = fixedMul(pos->vx, SUN_DISTANCE);
+            y = fixedMul(pos->vy, -SUN_DISTANCE);
             break;
         case 180 ... 269:
-            pos = &ANGLE_POS[deg % 90];
-            sun_z = fixedMul(pos->vx, SUN_DISTANCE);
-            sun_y = fixedMul(pos->vy, SUN_DISTANCE);
+            pos = &UNIT_ANGLE_POS_LUT[deg % 90];
+            z = fixedMul(pos->vx, SUN_DISTANCE);
+            y = fixedMul(pos->vy, SUN_DISTANCE);
             break;
         case 270 ... 360:
-            pos = &ANGLE_POS[89 - (deg % 90)];
-            sun_z = fixedMul(pos->vx, -SUN_DISTANCE);
-            sun_y = fixedMul(pos->vy, SUN_DISTANCE);
+            pos = &UNIT_ANGLE_POS_LUT[89 - (deg % 90)];
+            z = fixedMul(pos->vx, -SUN_DISTANCE);
+            y = fixedMul(pos->vy, SUN_DISTANCE);
             break;
     }
-    VECTOR position = vec3_i32(
-        0,
-        sun_y,
-        sun_z
-    );
+    VECTOR position = vec3_i32(0, y, z);
     // DEBUG_LOG("Pos: " VEC_PATTERN "\n", VEC_LAYOUT(position));
     // Object and light matrix for object
     MATRIX omtx = {0};
@@ -599,7 +590,8 @@ INLINE bool worldIsOutsideBounds(const World* world, const ChunkBlockPosition* p
  *       3. Compressed into u8 for each set of offets per-quadrant
  *       4. Compressed into single u32, shifted with quadrant index
  */
-static const u32 quadrant_verts = 0b00000000100111110001001110011000;
+//                                          +-Q4-++-Q3-++-Q2-++-Q1-+
+static const u32 QUADRANT_VERTS = 0b00000000100111110001001110011000;
 
 // static const u8 quadrant_verts[4] = {
 //     [0]=0b00011000,
@@ -636,7 +628,7 @@ static bool verticiesVisible(const i32 z,
                              const i32 angle) {
     // const size_t quadrant = (y > 0 ? 0 : 2) + (x > 0 ? 0 : 1);
     const size_t quadrant = ((z <= 0) * 2) + (q <= 0);
-    u8 quadrant_vert = quadrant_verts >> (quadrant * 6);
+    u8 quadrant_vert = QUADRANT_VERTS >> (quadrant * 6);
     #pragma GCC unroll(3)
     for (size_t i = 0; i < 3; i++) {
         const i32 qv_z = quadrant_vert & 0b1;
@@ -872,10 +864,6 @@ void worldRenderOld(const World* world,
     const i32 x_end = world->centre.vx + LOADED_CHUNKS_RADIUS;
     const i32 z_start = world->centre.vz - LOADED_CHUNKS_RADIUS;
     const i32 z_end = world->centre.vz + LOADED_CHUNKS_RADIUS;
-    // TODO: Render current chunk and track how much of the screen has been drawn (somehow?)
-    //       if there are still bits that are missing traverse to next chunks in the direction
-    //       the player is facing and render them. Stop drawing if screen is full and/or there
-    //       are no more loaded chunks to traverse to.
     for (i32 x = x_start; x <= x_end; x++) {
         for (i32 z = z_start; z <= z_end; z++) {
             for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
@@ -1145,7 +1133,7 @@ bool isPlayerInEdgeChunks(const World* world, const ChunkBlockPosition* player_p
     return result;
 }
 
-static fixedi32 calculateCelestialAngle(u16 time_ticks) {
+static fixedi32 calculateCelestialAngle(const u16 time_ticks) {
     fixedi32 scaled = fixedFixedDiv(time_ticks + 1, WORLD_TIME_CYCLE) - FIXED_1_4;
     if (scaled < 0) {
         scaled += ONE;
@@ -1174,7 +1162,6 @@ void worldUpdateInternalLightLevel(World* world, RenderContext* ctx) {
     scaled = ONE - scaled;
     previous_light_level = world->internal_light_level;
     world->internal_light_level = createLightLevel(0, 15 - ((scaled * 11) >> FIXED_POINT_SHIFT));
-    world->celestial_angle = celestial_angle;
     if (previous_light_level == world->internal_light_level) {
         return;
     }

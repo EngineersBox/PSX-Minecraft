@@ -58,19 +58,15 @@ INLINE static UIButton* addButton(UI* ui,
     return button;
 }
 
-IUI* mainMenuNew() {
-    // NOTE: Maybe its better to malloc sizeof(IUI) + sizeof(MainMenu)
-    //       together and use the offset address for the MainMenu
-    //       instance like we do for inhertiance-esque objects
-    IUI* iui = (IUI*) malloc(sizeof(IUI));
-    assert(iui != NULL);
+IUI mainMenuNew() {
     MainMenu* main_menu = (MainMenu*) malloc(sizeof(MainMenu));
     assert(main_menu != NULL);
     uiInit(&main_menu->ui);
-    DYN_PTR(iui, MainMenu, IUI, main_menu);
+    const IUI iui = DYN(MainMenu, IUI, main_menu);
+    UI* ui = &main_menu->ui;
     // Singleplayer
     addButton(
-        &main_menu->ui, 
+        ui, 
         "Singleplayer",
         BUTTONS_POS_X,
         BUTTONS_START_POS_Y + (BUTTONS_OFFSET_POS_Y * 0),
@@ -78,7 +74,7 @@ IUI* mainMenuNew() {
     );
     // Multiplayer
     UIButton* multiplayer_button = addButton(
-        &main_menu->ui,
+        ui,
         "Multiplayer",
         BUTTONS_POS_X,
         BUTTONS_START_POS_Y + (BUTTONS_OFFSET_POS_Y * 1),
@@ -87,7 +83,7 @@ IUI* mainMenuNew() {
     multiplayer_button->state = BUTTON_DISABLED;
     // Mods & texture packs
     UIButton* mods_tp_button = addButton(
-        &main_menu->ui,
+        ui,
         "Mods and Texture Packs",
         BUTTONS_POS_X,
         BUTTONS_START_POS_Y + (BUTTONS_OFFSET_POS_Y * 2),
@@ -96,7 +92,7 @@ IUI* mainMenuNew() {
     mods_tp_button->state = BUTTON_DISABLED;
     // Options
     addButton(
-        &main_menu->ui, 
+        ui, 
         "Options...",
         BUTTONS_POS_X,
         BUTTONS_START_POS_Y + (BUTTONS_OFFSET_POS_Y * 3) + 12,
@@ -104,7 +100,7 @@ IUI* mainMenuNew() {
     );
     // Quit
     addButton(
-        &main_menu->ui, 
+        ui, 
         "Quit Game",
         (SCREEN_XRES >> 1) + 2,
         BUTTONS_START_POS_Y + (BUTTONS_OFFSET_POS_Y * 3) + 12,
@@ -121,7 +117,6 @@ void mainMenuDestroy(IUI* menu) {
         free(button);
     }
     free(main_menu);
-    free(menu);
 }
 
 void mainMenuOpen(VSelf) ALIAS("MainMenu_open");

@@ -9,16 +9,16 @@
 #include "../../ui/ui.h"
 #include "../../render/render_context.h"
 
-extern IUI* current_menu;
+extern IUI current_menu;
 extern EMenuID current_menu_id;
 
-#define menuIsOpen() (current_menu != NULL)
+#define menuIsOpen() (current_menu.self != NULL)
 
 void menuOpen(const EMenuID menu_id);
-void menuSetCurrent(IUI* menu, const EMenuID menu_id);
+void menuClose();
 void menuRender(RenderContext* ctx, Transforms* transforms);
 
-typedef IUI* (*MenuConstructor)();
+typedef IUI (*MenuConstructor)();
 typedef void (*MenuDestructor)(IUI* menu);
 
 bool isButtonPressed(UI* ui, size_t index);

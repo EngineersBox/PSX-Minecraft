@@ -28,13 +28,11 @@ typedef enum SingleplayerMenuButton {
     SINGLEPLAYER_MENU_CANCEL = 6
 } SingleplayerMenuButton;
 
-IUI* singleplayerMenuNew() {
-    IUI* iui = (IUI*) malloc(sizeof(IUI));
-    assert(iui != NULL);
+IUI singleplayerMenuNew() {
     SingleplayerMenu* menu = (SingleplayerMenu*) malloc(sizeof(SingleplayerMenu));
     assert(menu != NULL);
     uiInit(&menu->ui);
-    DYN_PTR(iui, SingleplayerMenu, IUI, menu);
+    const IUI iui = DYN(SingleplayerMenu, IUI, menu);
     UI* ui = &menu->ui;
     IUIComponent* middle_bg_1_background_component = uiAddComponent(ui);
     UIBackground* middle_bg_1_background = uiBackgroundNew(
@@ -147,7 +145,6 @@ void singleplayerMenuDestroy(IUI* menu) {
         free(component_instance);
     }
     free(self);
-    free(menu);
 }
 
 static InputHandlerState singleplayerMenuInputHandler(UNUSED const Input* input, void* ctx) {
@@ -159,6 +156,7 @@ static InputHandlerState singleplayerMenuInputHandler(UNUSED const Input* input,
         VCALL(*component, update);
     }
     if (isButtonPressed(ui, SINGLEPLAYER_MENU_PLAY)) {
+        menuClose();
         // TODO: Load world
         return INPUT_HANDLER_RELEASE;
     } else if (isButtonPressed(ui, SINGLEPLAYER_MENU_RENAME)) {

@@ -34,7 +34,6 @@ typedef struct World {
     LightLevel internal_light_level;
     u16 time_ticks;
     u32 day_count;
-    fixedi32 celestial_angle;
     Weather weather;
     IChunkProvider chunk_provider;
     Heightmap heightmap;

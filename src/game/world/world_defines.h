@@ -46,4 +46,7 @@
 #error WORLD_RENDER_DISTANCE must be less than AXIS_LOADED_CHUNKS
 #endif
 
+#define SUN_DISTANCE 400
+#define SUN_RADIUS 200
+
 #endif // _PSXMC__GAME_WORLD__WORLD_DEFINES_H_
