@@ -117,9 +117,9 @@ void Minecraft_init(VSelf, UNUSED void* ctx) {
     blocksInitialiseBuiltin();
     // itemsInitialiseBuiltin();
     // Show main menu
-    menuOpen(MENUID_MAIN);
-    DEBUG_LOG("Finished init\n");
-    return;
+    // menuOpen(MENUID_MAIN);
+    // DEBUG_LOG("Finished init\n");
+    // return;
 
     /* ==== TESTING: [START] Load directly into world ====*/
 
