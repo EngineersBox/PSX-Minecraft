@@ -346,8 +346,11 @@ local function file_exists(name)
    local f=io.open(name,"r")
    if f ~= nil then io.close(f) return true else return false end
 end
--- Might be cleaner to try to expose this as a pattern from `lspconfig.util`, as
--- really it is just stolen from part of the `clangd` config
+local path_separator = "/"
+local is_windows = vim.fn.has("win32") == 1 or vim.fn.has("win32unix") == 1
+if is_windows == true then
+  path_separator = "\\"
+end
 local function format_clangd_command()
     -- Turn the name of the current file into the name of an expected container, assuming that
     -- the container running/building this file is named the same as the basename of the project
@@ -358,11 +361,14 @@ local function format_clangd_command()
     -- Project root
     local project_root = vim.loop.cwd()
     -- Turned into a filename
-    local filename = lspconfig.util.path.is_absolute(bufname) and bufname or lspconfig.util.path.join(project_root, bufname)
-    -- Then the directory of the project
-    local project_dirname = root_pattern(filename) or lspconfig.util.path.dirname(filename)
-    -- And finally perform what is essentially a `basename` on this directory
-    local basename = vim.fn.fnamemodify(lspconfig.util.find_git_ancestor(project_dirname), ':t')
+	local filename = vim.startswith(bufname, "/") and bufname or table.concat({project_root, bufname}, path_separator)
+	-- Then the directory of the project
+	local project_dirname = root_pattern2(filename) or vim.fs.dirname(filename)
+	-- And finally perform what is essentially a `basename` on this directory
+	local basename = vim.fn.fnamemodify(
+        vim.fs.dirname(vim.fs.find('.git', { path = project_dirname, upward = true })[1]),
+        ":t"
+    )
     if (basename == nil) then
         return nil
     end
@@ -377,10 +383,8 @@ local function format_clangd_command()
         return { "/usr/local/bin/cclangd", name, project_root }
     end
 end
-lspconfig["clangd"].setup({
-    on_attach = on_attach,
-    cmd = format_clangd_command(),
-})
+vim.lsp.setup("clangd", { cmd = format_clangd_command() })
+vim.lsp.enable("clangd")
 ```
 
 There are some changes here to determine if the repo has a custom `cclangd` script, which allows us to create custom LSP configurations per-repo but also maintain a global behaviour with the script expected to be at `/usr/local/bin/cclangd`.
