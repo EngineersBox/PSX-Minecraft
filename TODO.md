@@ -114,7 +114,7 @@
 * [ ] World management menu
 * [ ] Create world menu
 * [ ] Options menu
-* [ ] Culling of direction sub-meshes in chunk meshes to avoid any clipping tests in that direction
+* [X] Culling of direction sub-meshes in chunk meshes to avoid any clipping tests in that direction
 * [ ] Camera far plane cutoff with fog relative to chunk render distance
 * [ ] Frustum and culling
 * [ ] Depth-first search culling through chunks
