@@ -330,8 +330,10 @@ CMake within the Docker context attached to CLion. To the following to set this 
 #### Neovim Clangd
 
 > [!NOTE]
-> This assumes you are using the `clangd` LSP using `nvim-lspconfig`, as it takes advantage
+> This assumes you are using the `clangd` LSP using Neovim 0.12 native LSPs, as it takes advantage
 > of being able to customise the LSP instantiation command.
+> This also uses a utility function from `nvim-lspconfig` for finding the root of git repositories,
+> which can be replaced with a standalone method if you prefer.
 
 We will be modifying a standard configuration for customising the cmd provided by the
 `nvim-lspconfig` repo for running [LSPs in containers](https://github.com/neovim/nvim-lspconfig/wiki/Running-language-servers-in-containers).
