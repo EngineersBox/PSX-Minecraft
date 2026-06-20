@@ -674,19 +674,17 @@ void worldRender(const World* world,
     // Yaw = left and right
     const TRad playerTRadYaw = player->camera->rotation.vy >> 10;
     const FaceDirection player_camera_direction = faceDirectionClosestNormal(player->camera->direction);
-    cvector_push_back(
-        render_queue,
-        ((ChunkVisit) {
-            .position = player_pos.chunk,
-            .visited_from = faceDirectionOpposing(player_camera_direction),
-            .traversal_depth = 0,
-        })
-    );
+    ChunkVisit visit = (ChunkVisit) {
+        .position = player_pos.chunk,
+        .visited_from = faceDirectionOpposing(player_camera_direction),
+        .traversal_depth = 0
+    };
+    cvector_push_back(render_queue, visit);
     ChunkRenderState chunk_render_states[AXIS_CHUNKS * WORLD_CHUNKS_HEIGHT] = {0};
     #define getChunkRenderState(x, y, z) (chunk_render_states[((y) * AXIS_LOADED_CHUNKS) + (z)])
     // size_t render_count = 0;
     while (cvector_size(render_queue) > 0) {
-        const ChunkVisit visit = render_queue[cvector_size(render_queue) - 1];
+        visit = render_queue[cvector_size(render_queue) - 1];
         cvector_pop_back(render_queue);
         // DEBUG_LOG(
         //     "Visit chunk " VEC_PATTERN " @ " VEC_PATTERN "\n", 
@@ -822,14 +820,12 @@ check_chunk_vertex_visibility:;
             }
 push_chunk_to_render_queue:;
             // DEBUG_LOG("In-frustum\n");
-            cvector_push_back(
-                render_queue,
-                ((ChunkVisit) {
-                    .position = next_chunk,
-                    .visited_from = faceDirectionOpposing(face_dir),
-                    .traversal_depth = visit.traversal_depth + 1
-                })
-            );
+            const ChunkVisit next_visit = (ChunkVisit) {
+                .position = next_chunk,
+                .visited_from = faceDirectionOpposing(face_dir),
+                .traversal_depth = visit.traversal_depth + 1
+            };
+            cvector_push_back(render_queue, next_visit);
         }
     }
     // DEBUG_LOG("Chunks rendered: %d\n", render_count);
