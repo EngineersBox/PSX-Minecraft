@@ -21,10 +21,10 @@ RUN apt-get update \
         gcc \
         g++ \
         gdb \
-        clang-18 \
-        clangd-18 \
-        llvm-18-dev \
-        libclang-18-dev \
+        clang-22 \
+        clangd-22 \
+        llvm-22-dev \
+        libclang-22-dev \
         make \
         ninja-build \
         autoconf \
@@ -47,10 +47,10 @@ RUN apt-get update \
     && apt-get clean
 
 # Create clang(d) symlinks to avoid versioned binaries
-RUN ln -s /usr/bin/clangd-18 /usr/bin/clangd \
-    && ln -s /usr/bin/clang-cpp-18 /usr/bin/clang-cpp \
-    && ln -s /usr/bin/clang-18 /usr/bin/clang \
-    && ln -s /usr/bin/clang++-18 /usr/bin/clang++
+RUN ln -s /usr/bin/clangd-22 /usr/bin/clangd \
+    && ln -s /usr/bin/clang-cpp-22 /usr/bin/clang-cpp \
+    && ln -s /usr/bin/clang-22 /usr/bin/clang \
+    && ln -s /usr/bin/clang++-22 /usr/bin/clang++
 
 # Ensure we don't have an existing CMake installation
 RUN apt-get --yes purge --auto-remove cmake
@@ -85,11 +85,11 @@ ADD cclangd /usr/local/bin/cclangd
 # Install include-what-you-use
 WORKDIR /
 RUN git clone https://github.com/include-what-you-use/include-what-you-use.git
-RUN cd include-what-you-use && git checkout clang_18 && cd ..
+RUN cd include-what-you-use && git checkout clang_22 && cd ..
 RUN mkdir iwyu_build
 
 WORKDIR /iwyu_build
-RUN cmake -G "Unix Makefiles" -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DCMAKE_PREFIX_PATH=/usr/lib/llvm-7 ../include-what-you-use
+RUN cmake -G "Unix Makefiles" -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DCMAKE_PREFIX_PATH=/usr/lib/llvm-22 ../include-what-you-use
 RUN make
 ENV PATH="$PATH:/iwyu_build/bin"
 

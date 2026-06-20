@@ -82,7 +82,8 @@ while true; do
     esac
 done
 
-docker build "$image" \
+docker build \
+    --tag "$image" \
     --build-arg="REPO_TARGET=$repo" \
     --build-arg="REPO_COMMIT_ISH=$commit" \
     --build-arg="PSN00BSDK_LIBC_ALLOCATOR=$allocator" \
