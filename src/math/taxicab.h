@@ -32,8 +32,13 @@ typedef fixedi32 TRad;
 
 TRad tcabAngle(const fixedi32 x, const fixedi32 y);
 
-bool tcabAngleInRange(const TRad ref,
+bool tcabAngleInRange(TRad ref,
                       const TRad angle,
-                      const TRad query);
+                      TRad query);
+
+bool tcabAngleRangeOverlap(TRad ref_a,
+                           const TRad angle_a,
+                           TRad ref_b,
+                           const TRad angle_b);
 
 #endif // _MATH__TAXICAB_H_

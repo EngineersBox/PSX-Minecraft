@@ -20,7 +20,6 @@ int main() {
     engineRun(&engine);
     return 0;
 }
-// #include <assert.h>
 // #include <stdint.h>
 // #include <stddef.h>
 // #include <stdio.h>
@@ -48,38 +47,38 @@ int main() {
 //         :
 //         : "r" (byte_value), "r" (array));
 //     printf("SWL suceeded\n");
-//     register volatile int32_t result = 0;
+//     register volatile int32_t result = 0xAABBCCDD;
 //     // Should fail
-//     asm ("lwr %0, 0(%1)"
-//         : "+r"(result)
-//         : "r"(array));
-//     printf("LWR 0: 0x%x\n", result);
-//     result = 0;
+//     // asm ("lwr %0, 0(%1)"
+//     //     : "+r"(result)
+//     //     : "r"(array));
+//     // printf("LWR 0: 0x%x\n", result);
+//     // result = 0;
 //     // Should fail
-//     asm ("lwr %0, 1(%1)"
-//         : "+r"(result)
-//         : "r"(array));
-//     printf("LWR 1: 0x%x\n", result);
-//     result = 0;
+//     // asm ("lwr %0, 1(%1)"
+//     //     : "+r"(result)
+//     //     : "r"(array));
+//     // printf("LWR 1: 0x%x\n", result);
+//     // result = 0;
 //     // Should succeed
-//     asm ("lwr %0, 2(%1)"
-//         : "+r"(result)
-//         : "r"(array));
-//     printf("LWR 2: 0x%x\n", result);
-//     result = 0;
+//     // asm ("lwr %0, 2(%1)"
+//     //     : "+r"(result)
+//     //     : "r"(array));
+//     // printf("LWR 2: 0x%x\n", result);
+//     // result = 0;
 //     // Should succeed
-//     asm ("lwr %0, 3(%1)"
-//         : "+r"(result)
-//         : "r"(array));
-//     printf("LWR 3: 0x%x\n", result);
-//     result = 0;
-//     // Should succeed
+//     // asm ("lwr %0, 3(%1)"
+//     //     : "+r"(result)
+//     //     : "r"(array));
+//     // printf("LWR 3: 0x%x\n", result);
+//     // result = 0;
+//     // Should succeed => 0x22BBCCDD
 //     asm ("lwl %0, 0(%1)"
 //         : "+r"(result)
 //         : "r"(array));
 //     printf("LWL 0: 0x%x\n", result);
-//     result = 0;
-//     // Should succeed
+//     result = 0xAABBCCDD;
+//     // Should succeed => 0x1122CCDD
 //     asm ("lwl %0, 1(%1)"
 //         : "+r"(result)
 //         : "r"(array));

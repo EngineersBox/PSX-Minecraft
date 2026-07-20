@@ -76,7 +76,6 @@ static void displayProgress(RenderContext* ctx,
                             const i32 y,
                             const i32 z,
                             const char* msg) {
-    // FIXME: Text is not showing over background for some reason
     fontPrintCentreOffset(
         ctx,
         CENTRE_X,
@@ -144,6 +143,7 @@ void worldInit(World* world, RenderContext* ctx) {
     //        As such it invokes call(read32Wrapper) which ends up
     //        hitting PCSX::Memory::read32, then msanGetStatus and
     //        thus the error message + breakpoint.
+    //        PCSX-Redux GitHub issue: https://github.com/grumpycoders/pcsx-redux/issues/1928
     memset(
         world->heightmap,
         '\0',
@@ -590,8 +590,8 @@ INLINE bool worldIsOutsideBounds(const World* world, const ChunkBlockPosition* p
  *       3. Compressed into u8 for each set of offets per-quadrant
  *       4. Compressed into single u32, shifted with quadrant index
  */
-//                                          +-Q4-++-Q3-++-Q2-++-Q1-+
-static const u32 QUADRANT_VERTS = 0b00000000100111110001001110011000;
+//                                  +-Q4-++-Q3-++-Q2-++-Q1-+
+static const u32 QUADRANT_VERTS = 0b100111110001001110011000;
 
 // static const u8 quadrant_verts[4] = {
 //     [0]=0b00011000,
@@ -763,8 +763,6 @@ void worldRender(const World* world,
                 // DEBUG_LOG("Outside world\n");
                 continue;
             }
-            // BUG: Need to prevent traversal outside the world from looping
-            //      indefinitely (i.e. when flying outside of world chunks)
             const VECTOR chunk_relative_pos = vec3_sub(next_chunk, player_pos.chunk);
             if (vec3_equal(chunk_relative_pos, VEC3_I32_ZERO)) {
                 continue;
