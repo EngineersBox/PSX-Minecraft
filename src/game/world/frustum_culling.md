@@ -13,6 +13,12 @@ TODO: Write this doc and a blog bost
 * This allows us to work with taxicab trigonometry which are simple operations (i.e. division for projection)
 * Angles in this space are measured in t-rads which are the units of arc lengths subtentended by an angle, essentially radians become t-radians.
 * Thus, we can convert the camera rotation vector (yaw & pitch) into t-rad angles for X-Z (pitch) and X-Y (yaw) simply by shifting right by 10.
-* Then calculate the relative direction vector from  thev player to queried chunk (in units of chunks and not blocks to keep the values small in Q12 fixed point) and compute t-rad angle for X-Y, X-Z
+* Then calculate the relative direction vector from  thev player to queried chunk (in units of chunks and not blocks to keep the values small in Q12 fixed point) and compute t-rad angle for Z-Y, Z-X
 * Now we can determine if the chunk angles are within FOV / 2 of the camera facing angles for culling queries
 * If either of queried chunk angles are outside of this range, then it can be culled.
+
+* This has some problems, such as if both the centre and vertices of a chunk are not visible to the frustum, but a subsetion of it is.
+* We need a range query approach that can consider the entire angle span a chunk occupies relative to the player.
+* By choosing verticies that are in opposing corners (i.e. (0,0) and (1,1)) based on the quadrant relative to the player position, we can compute a range span with two t-rad angles for each vertex.
+* Using these, we compute the range overlap with the frustum t-rad angles to determine visibility.
+* Due to the independence of the Z-Y, Z-X planes this ensures two tests can fully determine frustum overlap.

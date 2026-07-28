@@ -620,6 +620,43 @@ static const u32 QUADRANT_VERTS = 0b100111110001001110011000;
 //     // },
 // };
 
+//                                       +Q3++Q2++Q1++Q0+
+static const u32 QUADRANT_SPAN_VERTS = 0b1100011000111001;
+// static const u32 QUADRANT_SPAN_VERTS = 0b1100100100110110;
+
+static bool vertexSpanOverlapsFrustum(const i32 z,
+                                      const i32 q,
+                                      const i32 chunk_rel_z,
+                                      const i32 chunk_rel_q,
+                                      const TRad angle_ref,
+                                      const TRad angle) {
+    // const size_t quadrant = (y > 0 ? 0 : 2) + (x > 0 ? 0 : 1);
+    const size_t quadrant = ((z <= 0) * 2) + (q <= 0);
+    u8 quadrant_vert = QUADRANT_SPAN_VERTS >> (quadrant * 4);
+    const i32 qv_q_start = quadrant_vert & 0b1;
+    quadrant_vert >>= 1;
+    const i32 qv_z_start = quadrant_vert & 0b1;
+    quadrant_vert >>=1;
+    const i32 qv_q_end = quadrant_vert & 0b1;
+    quadrant_vert >>= 1;
+    const i32 qv_z_end = quadrant_vert & 0b1;
+    const TRad start = tcabAngle(
+        chunk_rel_z + (qv_z_start * (CHUNK_SIZE << FIXED_POINT_SHIFT)),
+        chunk_rel_q + (qv_q_start * (CHUNK_SIZE << FIXED_POINT_SHIFT))
+    );
+    const TRad end = tcabAngle(
+        chunk_rel_z + (qv_z_end * (CHUNK_SIZE << FIXED_POINT_SHIFT)),
+        chunk_rel_q + (qv_q_end * (CHUNK_SIZE << FIXED_POINT_SHIFT))
+    );
+    DEBUG_LOG("View range: [%d,%d] Vertices range: [%d,%d]\n", angle_ref - angle, angle_ref + angle, start, end);
+    return tcabAngleRangeOverlap(
+        angle_ref,
+        angle,
+        min(start, end),
+        max(start, end)
+    );
+}
+
 static bool verticiesVisible(const i32 z,
                              const i32 q,
                              const i32 chunk_rel_z,
@@ -767,35 +804,17 @@ void worldRender(const World* world,
             if (vec3_equal(chunk_relative_pos, VEC3_I32_ZERO)) {
                 continue;
             }
-            // DEBUG_LOG("Chunk relative pos: " VEC_PATTERN "\n", VEC_LAYOUT(chunk_relative_pos));
+            DEBUG_LOG("Chunk relative pos: " VEC_PATTERN "\n", VEC_LAYOUT(chunk_relative_pos));
             const VECTOR chunk_relative_pos_blocks = vec3_const_mul(chunk_relative_pos, CHUNK_SIZE << FIXED_POINT_SHIFT);
             // DEBUG_LOG("Chunk relative pos blocks: " VEC_PATTERN "\n", VEC_LAYOUT(chunk_relative_pos_blocks));
-            const VECTOR chunk_relative_centre_blocks = vec3_const_add(chunk_relative_pos_blocks, ((CHUNK_SIZE >> 1) << FIXED_POINT_SHIFT));
-            // DEBUG_LOG("Chunk relative centre blocks: " VEC_PATTERN "\n", VEC_LAYOUT(chunk_relative_centre_blocks));
             /* Chunk render logic:
-             * 1. Compute relative chunk centre point
-             * 2. Test if chunk centre is in frustum (dual angle check), skip if not visible
-             * 3. Otherwise, get quadrant closest vertices of chunk
-             * 4. Test if verticies are in frustum (dual angle check), skip if not visible
+             * 1. Compute vertices spanning widest point on ZY chunk plane
+             * 2. Test if range overlaps frustum range, skip render if not
+             * 3. Compute verticies spanning widest point on ZX chunk plne
+             * 4. Test if range overlaps frustum range, skip render if not
              * 5. Render chunk
-             *
-             * NOTE: Test for chunk centre is necessary in the case that nearest vertices
-             *       to direction ray are outside of frustum, but chunk is still visible.
              */
-            // 1. Centre check
-            const TRad chunkTRadPitch = tcabAngle(chunk_relative_centre_blocks.vz, chunk_relative_centre_blocks.vy);
-            const bool pitch_in_range = tcabAngleInRange(playerTRadPitch, FOV_Y_HALF_TRAD, chunkTRadPitch);
-            // DEBUG_LOG("Chunk pitch t-rad: %d Player pitch t-rad: %d In range: %d\n", chunkTRadPitch, playerTRadPitch, pitch_in_range);
-            if (!pitch_in_range) goto check_chunk_vertex_visibility;
-            const TRad chunkTRadYaw = tcabAngle(chunk_relative_centre_blocks.vz, chunk_relative_centre_blocks.vx);
-            const bool yaw_in_range = tcabAngleInRange(playerTRadYaw, FOV_X_HALF_TRAD, chunkTRadYaw);
-            // DEBUG_LOG("Chunk yaw t-rad: %d Player yaw t-rad: %d In range: %d\n", chunkTRadYaw, playerTRadYaw, yaw_in_range);
-            if (yaw_in_range) {
-                goto push_chunk_to_render_queue;
-            }
-check_chunk_vertex_visibility:;
-            // 2, Quadrant verticies check
-            if (!verticiesVisible(
+            if (!vertexSpanOverlapsFrustum(
                 next_cb_pos.chunk.vz,
 				next_cb_pos.chunk.vy,
 				chunk_relative_pos_blocks.vz,
@@ -803,9 +822,9 @@ check_chunk_vertex_visibility:;
 				playerTRadPitch,
 				FOV_Y_HALF_TRAD
             )) {
-                // DEBUG_LOG("Chunk ZY/pitch vertices not visible\n");
+                DEBUG_LOG("Chunk ZY/pitch vertices not visible\n");
                 continue;
-            } else if (!verticiesVisible(
+            } else if (!vertexSpanOverlapsFrustum(
                 next_cb_pos.chunk.vz,
 				next_cb_pos.chunk.vx,
 				chunk_relative_pos_blocks.vz,
@@ -813,11 +832,10 @@ check_chunk_vertex_visibility:;
 				playerTRadYaw,
 				FOV_X_HALF_TRAD
             )) {
-                // DEBUG_LOG("Chunk ZX/yaw vertices not visible\n");
+                DEBUG_LOG("Chunk ZX/yaw vertices not visible\n");
                 continue;
             }
-push_chunk_to_render_queue:;
-            // DEBUG_LOG("In-frustum\n");
+            DEBUG_LOG("In-frustum\n");
             const ChunkVisit next_visit = (ChunkVisit) {
                 .position = next_chunk,
                 .visited_from = faceDirectionOpposing(face_dir),

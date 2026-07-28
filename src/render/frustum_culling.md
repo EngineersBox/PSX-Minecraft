@@ -1,5 +1,10 @@
 # Frustum Culling
 
+> ![NOTE] This contains old information about the most basic
+>  approach to defining and using a frustum. It is the starting
+> point on which all improvements and simplifications are made
+> for this game. This is not what is actually used.
+
 TODO: Explain frustum creation and how queries work with dot product
 
 * Pre-calculate frustum planes for a given Y-FOV, aspect ratio and near/far distances

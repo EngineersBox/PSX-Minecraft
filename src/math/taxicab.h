@@ -36,9 +36,9 @@ bool tcabAngleInRange(TRad ref,
                       const TRad angle,
                       TRad query);
 
-bool tcabAngleRangeOverlap(TRad ref_a,
-                           const TRad angle_a,
-                           TRad ref_b,
-                           const TRad angle_b);
+bool tcabAngleRangeOverlap(TRad ref,
+                           const TRad angle,
+                           TRad range_start,
+                           TRad range_end);
 
 #endif // _MATH__TAXICAB_H_
