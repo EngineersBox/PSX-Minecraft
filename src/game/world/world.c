@@ -22,6 +22,7 @@
 #include "../../logging/logging.h"
 #include "../items/items.h"
 #include "chunk/chunk.h"
+#include "chunk/chunk_defines.h"
 #include "chunk/chunk_mesh.h"
 #include "chunk/chunk_structure.h"
 #include "chunk/chunk_visibility.h"
@@ -585,45 +586,13 @@ INLINE bool worldIsOutsideBounds(const World* world, const ChunkBlockPosition* p
 
 /**
  * TODO: Explain this with doc:
- *       1. Three verts visible to direction vector quadrant
+ *       1. Two opposing verts cover visible range to direction vector quadrant
  *       2. Naievly encoded as array of vertex offsets from chunk base coord
  *       3. Compressed into u8 for each set of offets per-quadrant
- *       4. Compressed into single u32, shifted with quadrant index
+ *       4. Compressed into single u16, shifted with quadrant index
  */
-//                                  +-Q4-++-Q3-++-Q2-++-Q1-+
-static const u32 QUADRANT_VERTS = 0b100111110001001110011000;
-
-// static const u8 quadrant_verts[4] = {
-//     [0]=0b00011000,
-//     [1]=0b00001110,
-//     [2]=0b00110001,
-//     [3]=0b00100111,
-//     // [0]={
-//     //     [0]=vec3_i32(0,0,0),
-//     //     [1]=vec3_i32(1,0,0),
-//     //     [2]=vec3_i32(0,1,0),
-//     // },
-//     // [1]={
-//     //     [0]=vec3_i32(1,0,0),
-//     //     [1]=vec3_i32(1,1,0),
-//     //     [2]=vec3_i32(0,0,0),
-//     // },
-//     // [2]={
-//     //     [0]=vec3_i32(0,1,0),
-//     //     [1]=vec3_i32(0,0,0),
-//     //     [2]=vec3_i32(1,1,0),
-//     // },
-//     // [3]={
-//     //     [0]=vec3_i32(1,1,0),
-//     //     [1]=vec3_i32(0,1,0),
-//     //     [2]=vec3_i32(1,0,0),
-//     // },
-// };
-
 //                                       +Q3++Q2++Q1++Q0+
-static const u32 QUADRANT_SPAN_VERTS = 0b01101100001110001;
-// static const u32 QUADRANT_SPAN_VERTS = 0b1100011000111001;
-// static const u32 QUADRANT_SPAN_VERTS = 0b1100100100110110;
+static const u16 QUADRANT_SPAN_VERTS = 0b0110110000111001;
 
 static bool vertexSpanOverlapsFrustum(const i32 z,
                                       const i32 q,
@@ -658,32 +627,6 @@ static bool vertexSpanOverlapsFrustum(const i32 z,
     );
 }
 
-static bool verticiesVisible(const i32 z,
-                             const i32 q,
-                             const i32 chunk_rel_z,
-                             const i32 chunk_rel_q,
-                             const i32 angle_ref,
-                             const i32 angle) {
-    // const size_t quadrant = (y > 0 ? 0 : 2) + (x > 0 ? 0 : 1);
-    const size_t quadrant = ((z <= 0) * 2) + (q <= 0);
-    u8 quadrant_vert = QUADRANT_VERTS >> (quadrant * 6);
-    #pragma GCC unroll(3)
-    for (size_t i = 0; i < 3; i++) {
-        const i32 qv_z = quadrant_vert & 0b1;
-        quadrant_vert >>= 1;
-        const i32 qv_q = quadrant_vert & 0b1;
-        quadrant_vert >>= 1;
-        const TRad query = tcabAngle(
-            chunk_rel_z + (qv_z * (CHUNK_SIZE << FIXED_POINT_SHIFT)),
-            chunk_rel_q + (qv_q * (CHUNK_SIZE << FIXED_POINT_SHIFT))
-        );
-        if (tcabAngleInRange(angle_ref, angle, query)) {
-            return true;
-        }
-    }
-    return false;
-}
-
 DEFN_DURATION_COMPONENT(world_render);
 
 void worldRender(const World* world,
@@ -701,6 +644,7 @@ void worldRender(const World* world,
         ),
         ONE_BLOCK
     );
+    DEBUG_LOG("[WORLD] Player world pos " VEC_PATTERN "\n", VEC_LAYOUT(player_world_pos));
     worldRenderSkybox(world, ctx, transforms);
     const ChunkBlockPosition player_pos = worldToChunkBlockPosition(
         &player_world_pos,
@@ -708,9 +652,9 @@ void worldRender(const World* world,
     );
     // DEBUG_LOG("Player chunk pos: " VEC_PATTERN "\n", VEC_LAYOUT(player_pos.chunk));
     // Pich = up and down
-    const TRad playerTRadPitch = (player->camera->rotation.vx >> 10);
+    const TRad playerTRadPitch = player->camera->rotation.vx >> 10;
     // Yaw = left and right
-    const TRad playerTRadYaw = (player->camera->rotation.vy >> 10);
+    const TRad playerTRadYaw = player->camera->rotation.vy >> 10;
     DEBUG_LOG("[WORLD] Player pitch: %d yaw: %d\n", playerTRadPitch, playerTRadYaw);
     const FaceDirection player_camera_direction = faceDirectionClosestNormal(player->camera->direction);
     ChunkVisit visit = (ChunkVisit) {
@@ -802,17 +746,21 @@ void worldRender(const World* world,
                 // DEBUG_LOG("Outside world\n");
                 continue;
             }
-            const VECTOR chunk_relative_pos = vec3_sub(next_chunk, player_pos.chunk);
-            if (vec3_equal(chunk_relative_pos, VEC3_I32_ZERO)) {
-                continue;
-            }
-            DEBUG_LOG("Chunk relative pos: " VEC_PATTERN "\n", VEC_LAYOUT(chunk_relative_pos));
-            const VECTOR chunk_relative_pos_blocks = vec3_const_mul(chunk_relative_pos, CHUNK_SIZE << FIXED_POINT_SHIFT);
-            // DEBUG_LOG("Chunk relative pos blocks: " VEC_PATTERN "\n", VEC_LAYOUT(chunk_relative_pos_blocks));
+            // const VECTOR chunk_relative_pos = vec3_sub(next_chunk, player_pos.chunk);
+            // if (vec3_equal(chunk_relative_pos, VEC3_I32_ZERO)) {
+            //     continue;
+            // }
+            const VECTOR chunk_relative_pos_blocks = vec3_const_lshift(vec3_sub(
+                vec3_const_mul(next_chunk, CHUNK_SIZE),
+                player_world_pos
+            ), FIXED_POINT_SHIFT);
+            // DEBUG_LOG("Chunk relative pos: " VEC_PATTERN "\n", VEC_LAYOUT(chunk_relative_pos));
+            // const VECTOR chunk_relative_pos_blocks = vec3_const_mul(chunk_relative_pos, CHUNK_SIZE << FIXED_POINT_SHIFT);
+            DEBUG_LOG("Chunk relative pos blocks: " VEC_PATTERN "\n", VEC_LAYOUT(chunk_relative_pos_blocks));
             /* Chunk render logic:
              * 1. Compute vertices spanning widest point on ZY chunk plane
              * 2. Test if range overlaps frustum range, skip render if not
-             * 3. Compute verticies spanning widest point on ZX chunk plne
+             * 3. Compute verticies spanning widest point on ZX chunk plane
              * 4. Test if range overlaps frustum range, skip render if not
              * 5. Render chunk
              */

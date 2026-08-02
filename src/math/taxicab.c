@@ -4,14 +4,14 @@
 #include <psxgte.h>
 #include "fixed_point.h"
 #include "math_utils.h"
-#include "../logging/logging.h"
+#include "../util/preprocessor.h"
 
 #define ensureNonZero(value) ({\
     __typeof__(value) _v = (value); \
     (_v) == 0 ? 1 : (_v); \
 })
 
-TRad _tcabAngle2(const fixedi32 x, const fixedi32 y) {
+TRad _tcabAngleOld(const fixedi32 x, const fixedi32 y) {
     if (y >= 0) {
         return x >= 0
             ? fixedFixedDiv(y, ensureNonZero(x + y))
@@ -55,10 +55,10 @@ bool tcabAngleInRange(TRad ref,
 #define rangeOverlap(ref_start, ref_end, query_start, query_end) \
     ((query_start) <= (ref_end) && (ref_start) <= query_end)
 
-bool tcabAngleRangeOverlap(TRad ref,
+bool tcabAngleRangeOverlap(const TRad ref,
                            const TRad angle,
-                           TRad range_start,
-                           TRad range_end) {
+                           const TRad range_start,
+                           const TRad range_end) {
     assert(ref >= 0 && ref < TRAD_MAX);
     assert(angle >= 0 && angle < TRAD_MAX);
     assert(range_start >= 0 && range_start < TRAD_MAX);
