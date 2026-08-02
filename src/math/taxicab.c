@@ -67,19 +67,8 @@ bool tcabAngleRangeOverlap(TRad ref,
     const TRad ref_end = positiveModulo(ref + angle, TRAD_MAX);
     const bool ref_split = isRangeSplit(ref_start, ref_end);
     const bool query_split = isRangeSplit(range_start, range_end);
-    if (ref_split && query_split) {
-        const TRad query_left_start = 0;
-        const TRad query_left_end = range_end;
-        const TRad query_right_start = range_start;
-        const TRad query_right_end = TRAD_MAX - 1;
-        const TRad ref_left_start = 0;
-        const TRad ref_left_end = ref_end;
-        const TRad ref_right_start = ref_start;
-        const TRad ref_right_end = TRAD_MAX - 1;
-        return rangeOverlap(ref_left_start, ref_left_end, query_left_start, query_left_end)
-            || rangeOverlap(ref_left_start, ref_left_end, query_right_start, query_right_end)
-            || rangeOverlap(ref_right_start, ref_right_end, query_left_start, query_left_end)
-            || rangeOverlap(ref_right_start, ref_right_end, query_right_start, query_right_end);
+    if (!ref_split && !query_split) {
+        return rangeOverlap(ref_start, ref_end, range_start, range_end);
     } else if (!ref_split && query_split) {
         const TRad query_left_start = 0;
         const TRad query_left_end = range_end;
@@ -95,5 +84,16 @@ bool tcabAngleRangeOverlap(TRad ref,
         return rangeOverlap(ref_left_start, ref_left_end, range_start, range_end)
             || rangeOverlap(ref_right_start, ref_right_end, range_start, range_end);
     }
-    return rangeOverlap(ref_start, ref_end, range_start, range_end);
+    const TRad query_left_start = 0;
+    const TRad query_left_end = range_end;
+    const TRad query_right_start = range_start;
+    const TRad query_right_end = TRAD_MAX - 1;
+    const TRad ref_left_start = 0;
+    const TRad ref_left_end = ref_end;
+    const TRad ref_right_start = ref_start;
+    const TRad ref_right_end = TRAD_MAX - 1;
+    return rangeOverlap(ref_left_start, ref_left_end, query_left_start, query_left_end)
+        || rangeOverlap(ref_left_start, ref_left_end, query_right_start, query_right_end)
+        || rangeOverlap(ref_right_start, ref_right_end, query_left_start, query_left_end)
+        || rangeOverlap(ref_right_start, ref_right_end, query_right_start, query_right_end);
 }
