@@ -621,7 +621,8 @@ static const u32 QUADRANT_VERTS = 0b100111110001001110011000;
 // };
 
 //                                       +Q3++Q2++Q1++Q0+
-static const u32 QUADRANT_SPAN_VERTS = 0b1100011000111001;
+static const u32 QUADRANT_SPAN_VERTS = 0b01101100001110001;
+// static const u32 QUADRANT_SPAN_VERTS = 0b1100011000111001;
 // static const u32 QUADRANT_SPAN_VERTS = 0b1100100100110110;
 
 static bool vertexSpanOverlapsFrustum(const i32 z,
@@ -630,8 +631,8 @@ static bool vertexSpanOverlapsFrustum(const i32 z,
                                       const i32 chunk_rel_q,
                                       const TRad angle_ref,
                                       const TRad angle) {
-    // const size_t quadrant = (y > 0 ? 0 : 2) + (x > 0 ? 0 : 1);
-    const size_t quadrant = ((z <= 0) * 2) + (q <= 0);
+    // const size_t quadrant = (z >= 0 ? 0 : 2) + (q >= 0 ? 0 : 1);
+    const size_t quadrant = ((z < 0) * 2) + (q < 0);
     u8 quadrant_vert = QUADRANT_SPAN_VERTS >> (quadrant * 4);
     const i32 qv_q_start = quadrant_vert & 0b1;
     quadrant_vert >>= 1;
@@ -652,8 +653,8 @@ static bool vertexSpanOverlapsFrustum(const i32 z,
     return tcabAngleRangeOverlap(
         angle_ref,
         angle,
-        min(start, end),
-        max(start, end)
+        start,
+        end
     );
 }
 
@@ -707,9 +708,10 @@ void worldRender(const World* world,
     );
     // DEBUG_LOG("Player chunk pos: " VEC_PATTERN "\n", VEC_LAYOUT(player_pos.chunk));
     // Pich = up and down
-    const TRad playerTRadPitch = player->camera->rotation.vx >> 10;
+    const TRad playerTRadPitch = (player->camera->rotation.vx >> 10);
     // Yaw = left and right
-    const TRad playerTRadYaw = player->camera->rotation.vy >> 10;
+    const TRad playerTRadYaw = (player->camera->rotation.vy >> 10);
+    DEBUG_LOG("[WORLD] Player pitch: %d yaw: %d\n", playerTRadPitch, playerTRadYaw);
     const FaceDirection player_camera_direction = faceDirectionClosestNormal(player->camera->direction);
     ChunkVisit visit = (ChunkVisit) {
         .position = player_pos.chunk,

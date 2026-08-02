@@ -27,8 +27,8 @@
 
 #define FOV (SCREEN_XRES >> 1)
 // #define FOV_HALF_TRAD 3072
-#define FOV_X_HALF_TRAD TRAD_70_DEG
-#define FOV_Y_HALF_TRAD TRAD_70_DEG
+#define FOV_X_HALF_TRAD TRAD_45_DEG
+#define FOV_Y_HALF_TRAD TRAD_45_DEG
 
 extern CVECTOR clear_colour;
 extern CVECTOR back_colour;
