@@ -737,6 +737,7 @@ void worldRender(const World* world,
             };
                 // Check if traversal direction is back towards camera. Skip if so.
             if (dot_i32(next_chunk, player_pos.chunk) < 0) {
+                // TODO: Determine if this is necessary, if so whether there is a more performant approach
                 continue;
             }
             // If current position is within world bounds and next
@@ -746,16 +747,13 @@ void worldRender(const World* world,
                 // DEBUG_LOG("Outside world\n");
                 continue;
             }
-            // const VECTOR chunk_relative_pos = vec3_sub(next_chunk, player_pos.chunk);
-            // if (vec3_equal(chunk_relative_pos, VEC3_I32_ZERO)) {
-            //     continue;
-            // }
-            const VECTOR chunk_relative_pos_blocks = vec3_const_lshift(vec3_sub(
-                vec3_const_mul(next_chunk, CHUNK_SIZE),
-                player_world_pos
-            ), FIXED_POINT_SHIFT);
-            // DEBUG_LOG("Chunk relative pos: " VEC_PATTERN "\n", VEC_LAYOUT(chunk_relative_pos));
-            // const VECTOR chunk_relative_pos_blocks = vec3_const_mul(chunk_relative_pos, CHUNK_SIZE << FIXED_POINT_SHIFT);
+            const VECTOR chunk_relative_pos_blocks = vec3_const_lshift(
+                vec3_sub(
+                    vec3_const_mul(next_chunk, CHUNK_SIZE),
+                    player_world_pos
+                ),
+                FIXED_POINT_SHIFT
+            );
             DEBUG_LOG("Chunk relative pos blocks: " VEC_PATTERN "\n", VEC_LAYOUT(chunk_relative_pos_blocks));
             /* Chunk render logic:
              * 1. Compute vertices spanning widest point on ZY chunk plane

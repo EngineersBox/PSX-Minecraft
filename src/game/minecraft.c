@@ -28,6 +28,7 @@
 #include "items/items.h"
 #include "menu/menu.h"
 #include "menu/menu_id.h"
+#include "world/level/overworld_flatland.h"
 #include "world/level/overworld_perlin.h"
 #include "weather/weather.h"
 // #include "../core/console.h"
@@ -127,9 +128,9 @@ void Minecraft_init(VSelf, UNUSED void* ctx) {
     world = worldNew();
     DYN_PTR(
         &world->chunk_provider,
-        OverworldPerlinChunkProvider,
+        OverworldFlatlandChunkProvider,
         IChunkProvider,
-        malloc(sizeof(OverworldPerlinChunkProvider))
+        malloc(sizeof(OverworldFlatlandChunkProvider))
     );
     worldInit(world, &self->ctx);
     // Initialise player
