@@ -803,52 +803,6 @@ void worldRender(const World* world,
     // pcsx_debugbreak();
 }
 
-void worldRenderOld(const World* world,
-                    const Player* player,
-                    RenderContext* ctx,
-                    Transforms* transforms) {
-    durationComponentInitOnce(world_render, "worldRender");
-    durationComponentStart(&world_render_duration);
-    const VECTOR player_world_pos = vec3_i32(
-        fixedFloor(player->entity.physics_object.position.vx, ONE_BLOCK) / ONE_BLOCK,
-        fixedFloor(player->entity.physics_object.position.vy, ONE_BLOCK) / ONE_BLOCK,
-        fixedFloor(player->entity.physics_object.position.vz, ONE_BLOCK) / ONE_BLOCK
-    );
-    worldRenderSkybox(world, ctx, transforms);
-    const ChunkBlockPosition cb_pos = worldToChunkBlockPosition(
-        &player_world_pos,
-        CHUNK_SIZE
-    );
-    const i32 x_start = world->centre.vx - LOADED_CHUNKS_RADIUS;
-    const i32 x_end = world->centre.vx + LOADED_CHUNKS_RADIUS;
-    const i32 z_start = world->centre.vz - LOADED_CHUNKS_RADIUS;
-    const i32 z_end = world->centre.vz + LOADED_CHUNKS_RADIUS;
-    for (i32 x = x_start; x <= x_end; x++) {
-        for (i32 z = z_start; z <= z_end; z++) {
-            for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
-                Chunk* chunk = world->chunks[arrayCoord(world, vz, z)]
-                                 [arrayCoord(world, vx, x)]
-                                 [y];
-                chunkRender(
-                    chunk,
-                    cb_pos.chunk.vx == x
-                        && cb_pos.chunk.vz == z
-                        && cb_pos.chunk.vy == y,
-                    false,
-                    ctx,
-                    transforms
-                );
-            }
-        }
-    }
-    durationComponentEnd();
-    durationTreeRender(
-        durationComponentCurrentAtIndex(world_render_duration.index),
-        ctx,
-        transforms
-    );
-}
-
 // NOTE: Should this just take i32 x,y,z params instead of a
 //       a VECTOR struct to avoid creating needless stack objects?
 Chunk* worldLoadChunk(World* world, const VECTOR chunk_position) {

@@ -128,9 +128,9 @@ void Minecraft_init(VSelf, UNUSED void* ctx) {
     world = worldNew();
     DYN_PTR(
         &world->chunk_provider,
-        OverworldFlatlandChunkProvider,
+        OverworldPerlinChunkProvider,
         IChunkProvider,
-        malloc(sizeof(OverworldFlatlandChunkProvider))
+        malloc(sizeof(OverworldPerlinChunkProvider))
     );
     worldInit(world, &self->ctx);
     // Initialise player
