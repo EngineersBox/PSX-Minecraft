@@ -682,7 +682,7 @@ void worldRender(const World* world,
         };
         Chunk* chunk = worldGetChunkFromChunkBlock(world, &chunk_pos);
         // NOTE: If chunk is NULL, then always traverse to next chunks, ignoring
-        //       visibility, since it's always visible.
+        // visibility, since it's always visible.
         ChunkRenderState allVisCrs = (ChunkRenderState) {
             .visibility = UINT16_MAX,
             .visited = true
@@ -768,6 +768,7 @@ void worldRender(const World* world,
 				playerTRadPitch,
 				FOV_Y_HALF_TRAD
             )) {
+                // FIXME: The vertex offets for pitch might be different than yaw. Check this.
                 DEBUG_LOG("Chunk ZY/pitch vertices not visible\n");
                 continue;
             } else if (!vertexSpanOverlapsFrustum(
