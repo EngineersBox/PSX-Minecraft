@@ -611,12 +611,12 @@ static bool vertexSpanOverlapsFrustum(const i32 z,
     quadrant_vert >>= 1;
     const i32 qv_z_end = quadrant_vert & 0b1;
     const TRad start = tcabAngle(
-        chunk_rel_z + (qv_z_start * (CHUNK_SIZE << FIXED_POINT_SHIFT)),
-        chunk_rel_q + (qv_q_start * (CHUNK_SIZE << FIXED_POINT_SHIFT))
+        chunk_rel_z + (qv_z_start * (CHUNK_SIZE)),
+        chunk_rel_q + (qv_q_start * (CHUNK_SIZE))
     );
     const TRad end = tcabAngle(
-        chunk_rel_z + (qv_z_end * (CHUNK_SIZE << FIXED_POINT_SHIFT)),
-        chunk_rel_q + (qv_q_end * (CHUNK_SIZE << FIXED_POINT_SHIFT))
+        chunk_rel_z + (qv_z_end * (CHUNK_SIZE)),
+        chunk_rel_q + (qv_q_end * (CHUNK_SIZE))
     );
     DEBUG_LOG("View range: [%d,%d] Vertices range: [%d,%d]\n", angle_ref - angle, angle_ref + angle, start, end);
     return tcabAngleRangeOverlap(
@@ -663,19 +663,19 @@ void worldRender(const World* world,
         .traversal_depth = 0
     };
     cvector_push_back(render_queue, visit);
-    ChunkRenderState chunk_render_states[AXIS_CHUNKS * WORLD_CHUNKS_HEIGHT] = {0};
-    #define getChunkRenderState(x, y, z) (chunk_render_states[((y) * AXIS_LOADED_CHUNKS) + (z)])
+    ChunkRenderState chunk_render_states[arraySize3dTo1d(AXIS_CHUNKS, AXIS_CHUNKS, WORLD_CHUNKS_HEIGHT)] = {0};
+    #define getChunkRenderState(x, y, z) (chunk_render_states[arrayIndex3dTo1d(x, z, y, AXIS_CHUNKS, AXIS_CHUNKS)])
     // size_t render_count = 0;
     while (cvector_size(render_queue) > 0) {
         visit = render_queue[cvector_size(render_queue) - 1];
         cvector_pop_back(render_queue);
-        // DEBUG_LOG(
-        //     "Visit chunk " VEC_PATTERN " @ " VEC_PATTERN "\n", 
-        //     VEC_LAYOUT(visit.position),
-        //     arrayCoord(world, vx, visit.position.vx),
-        //     visit.position.vy,
-        //     arrayCoord(world, vz, visit.position.vz)
-        // );
+        DEBUG_LOG(
+            "Visit chunk " VEC_PATTERN " @ " VEC_PATTERN "\n", 
+            VEC_LAYOUT(visit.position),
+            arrayCoord(world, vx, visit.position.vx),
+            visit.position.vy,
+            arrayCoord(world, vz, visit.position.vz)
+        );
         ChunkBlockPosition chunk_pos = (ChunkBlockPosition) {
             .chunk = visit.position,
             .block = vec3_i32(0)
@@ -702,15 +702,16 @@ void worldRender(const World* world,
                 ctx,
                 transforms
             );
+            DEBUG_LOG("Rendered\n");
         }
             // render_count++;
-        // DEBUG_LOG("Chunk vis: " INT16_BIN_PATTERN "\n", INT16_BIN_LAYOUT(chunk_render_state->visibility));
+        DEBUG_LOG("Chunk vis: " INT16_BIN_PATTERN "\n", INT16_BIN_LAYOUT(chunk_render_state->visibility));
         if (chunk_render_state->visibility == 0) {
             // Can't see anything, don't bother
-            // DEBUG_LOG("No visibility\n");
+            DEBUG_LOG("No visibility\n");
             continue;
         } else if (visit.traversal_depth > WORLD_RENDER_DISTANCE) {
-            // DEBUG_LOG("Exceeded max render distance\n");
+            DEBUG_LOG("Exceeded max render distance\n");
             continue;
         }
         for (FaceDirection face_dir = FACE_DIR_DOWN; face_dir <= FACE_DIR_FRONT; face_dir++) {
@@ -730,14 +731,13 @@ void worldRender(const World* world,
             chunkVisibilityClearBit(&chunk_render_state->visibility, face_dir, visit.visited_from);
             // DEBUG_LOG("Visible from face %d to %d\n", visit.visited_from, face_dir);
             const VECTOR next_chunk = vec3_add(visit.position, FACE_DIRECTION_NORMALS[face_dir]);
-            // DEBUG_LOG("Next chunk: " VEC_PATTERN "\n", VEC_LAYOUT(next_chunk));
+            DEBUG_LOG("Next chunk: " VEC_PATTERN "\n", VEC_LAYOUT(next_chunk));
             const ChunkBlockPosition next_cb_pos = (ChunkBlockPosition) {
                 .chunk = next_chunk,
                 .block = vec3_i32(0)
             };
                 // Check if traversal direction is back towards camera. Skip if so.
             if (dot_i32(next_chunk, player_pos.chunk) < 0) {
-                // TODO: Determine if this is necessary, if so whether there is a more performant approach
                 continue;
             }
             // If current position is within world bounds and next
@@ -747,15 +747,13 @@ void worldRender(const World* world,
                 // DEBUG_LOG("Outside world\n");
                 continue;
             }
-            const VECTOR chunk_relative_pos_blocks = vec3_const_lshift(
+            const VECTOR chunk_relative_pos_blocks = 
                 vec3_sub(
                     vec3_const_mul(next_chunk, CHUNK_SIZE),
                     player_world_pos
-                ),
-                FIXED_POINT_SHIFT
-            );
+                );
             DEBUG_LOG("Chunk relative pos blocks: " VEC_PATTERN "\n", VEC_LAYOUT(chunk_relative_pos_blocks));
-            /* Chunk render logic:
+            /* NOTE: Chunk render logic:
              * 1. Compute vertices spanning widest point on ZY chunk plane
              * 2. Test if range overlaps frustum range, skip render if not
              * 3. Compute verticies spanning widest point on ZX chunk plane

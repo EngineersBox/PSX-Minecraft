@@ -7,6 +7,8 @@
 
 #define memberSize(type, member) sizeof(((type *)0)->member)
 #define zeroed(ptr) (*(ptr) = (__typeof__(*ptr)){0})
+#define arraySize3dTo1d(height, width, depth) ((height) * (width) * (depth))
+#define arrayIndex3dTo1d(x, y, z, height, width) ((x) + ((height) * ((y) + ((width) * (z)))))
 
 void humanSize(u64 bytes, char** suffix, u32* whole, u32 *frac);
 
