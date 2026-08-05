@@ -112,6 +112,7 @@
 * [X] Compute dual angle difference between frustum direction and vector to chunk centre for culling when outside FOV X/Y axis angles (i.e `70deg`)
 * [X] Rendering sun and moon with rotation matching current celestial angle
 * [X] Culling of direction sub-meshes in chunk meshes to avoid any clipping tests in that direction
+* [X] ~~Explore shadow casting for 3D FOV culling (look at other roguelike FOV culling impls for more candidates). Might end up dropping this idea if it is too expensive compared to current implementation.~~
 * [ ] World management menu
 * [ ] Create world menu
 * [ ] Options menu
@@ -134,7 +135,6 @@
 * [ ] Change lighting direction for both in-world blocks and in-inventory blocks to match actual MC directional lighting
 * [ ] Add stack sizes to recipe ingredients in schema and support field generation in script
 * [ ] Write a blog post on dual-angle frustum culling, taxicab/Manhattan geometry, etc.
-* [X] ~~Explore shadow casting for 3D FOV culling (look at other roguelike FOV culling impls for more candidates). Might end up dropping this idea if it is too expensive compared to current implementation.~~
 
 ## Refactor
 
