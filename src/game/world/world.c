@@ -731,19 +731,17 @@ void worldRender(const World* world,
             }
             chunkVisibilityClearBit(&chunk_render_state->visibility, face_dir, visit.visited_from);
             // DEBUG_LOG("Visible from face %d to %d\n", visit.visited_from, face_dir);
-            const VECTOR next_chunk = vec3_add(visit.position, FACE_DIRECTION_NORMALS[face_dir]);
+            const SVECTOR face_dir_normal = FACE_DIRECTION_NORMALS[face_dir];
+            const VECTOR next_chunk = vec3_add(visit.position, face_dir_normal);
             DEBUG_LOG("Next chunk: " VEC_PATTERN "\n", VEC_LAYOUT(next_chunk));
             const ChunkBlockPosition next_cb_pos = (ChunkBlockPosition) {
                 .chunk = next_chunk,
                 .block = vec3_i32(0)
             };
                 // Check if traversal direction is back towards camera. Skip if so.
-            if (dot_i32(next_chunk, player_pos.chunk) < 0) {
-                // FIXME: This is wrong, since it calculates dot product between
-                // vectors centred at the origin poiting to the player chunk and
-                // next chunk. Instead it should be the player facing vector and
-                // the direction vector of traversing between chunks relative to
-                // the world.
+            if (dot_i32(player->camera->direction, face_dir_normal) < 0) {
+                // TODO: Check if face_dir_normals needs to be FACE_DIRECTION_NORMALS
+                // or WORLD_FACE_DIRECTION_NORMALS
                 continue;
             }
             // If current position is within world bounds and next
