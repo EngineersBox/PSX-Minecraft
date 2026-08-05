@@ -751,11 +751,10 @@ void worldRender(const World* world,
                 // DEBUG_LOG("Outside world\n");
                 continue;
             }
-            const VECTOR chunk_relative_pos_blocks = 
-                vec3_sub(
-                    vec3_const_mul(next_chunk, CHUNK_SIZE),
-                    player_world_pos
-                );
+            const VECTOR chunk_relative_pos_blocks = vec3_sub(
+                vec3_const_mul(next_chunk, CHUNK_SIZE),
+                player_world_pos
+            );
             DEBUG_LOG("Chunk relative pos blocks: " VEC_PATTERN "\n", VEC_LAYOUT(chunk_relative_pos_blocks));
             /* NOTE: Chunk render logic:
              * 1. Compute vertices spanning widest point on ZY chunk plane
