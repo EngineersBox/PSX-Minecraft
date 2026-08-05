@@ -191,6 +191,8 @@ make this easier via debug flags at some point and eventually in-game), recompil
 
 ## Development
 
+### Branches
+
 The `main` branch contains active development, which is unstable and potentially doesn't compile.
 Generally, you'll want to use the tagged commits or releases if any exist.
 
