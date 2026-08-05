@@ -593,6 +593,7 @@ INLINE bool worldIsOutsideBounds(const World* world, const ChunkBlockPosition* p
  */
 //                                       +Q3++Q2++Q1++Q0+
 static const u16 QUADRANT_SPAN_VERTS = 0b0110110000111001;
+// static const u16 QUADRANT_SPAN_VERTS = 0b1001001100111001;
 
 static bool vertexSpanOverlapsFrustum(const i32 z,
                                       const i32 q,
@@ -644,7 +645,7 @@ void worldRender(const World* world,
         ),
         ONE_BLOCK
     );
-    DEBUG_LOG("[WORLD] Player world pos " VEC_PATTERN "\n", VEC_LAYOUT(player_world_pos));
+    // DEBUG_LOG("[WORLD] Player world pos " VEC_PATTERN "\n", VEC_LAYOUT(player_world_pos));
     worldRenderSkybox(world, ctx, transforms);
     const ChunkBlockPosition player_pos = worldToChunkBlockPosition(
         &player_world_pos,
@@ -669,13 +670,13 @@ void worldRender(const World* world,
     while (cvector_size(render_queue) > 0) {
         visit = render_queue[cvector_size(render_queue) - 1];
         cvector_pop_back(render_queue);
-        DEBUG_LOG(
-            "Visit chunk " VEC_PATTERN " @ " VEC_PATTERN "\n", 
-            VEC_LAYOUT(visit.position),
-            arrayCoord(world, vx, visit.position.vx),
-            visit.position.vy,
-            arrayCoord(world, vz, visit.position.vz)
-        );
+        // DEBUG_LOG(
+        //     "Visit chunk " VEC_PATTERN " @ " VEC_PATTERN "\n", 
+        //     VEC_LAYOUT(visit.position),
+        //     arrayCoord(world, vx, visit.position.vx),
+        //     visit.position.vy,
+        //     arrayCoord(world, vz, visit.position.vz)
+        // );
         ChunkBlockPosition chunk_pos = (ChunkBlockPosition) {
             .chunk = visit.position,
             .block = vec3_i32(0)
@@ -702,16 +703,16 @@ void worldRender(const World* world,
                 ctx,
                 transforms
             );
-            DEBUG_LOG("Rendered\n");
+            // DEBUG_LOG("Rendered\n");
         }
             // render_count++;
         DEBUG_LOG("Chunk vis: " INT16_BIN_PATTERN "\n", INT16_BIN_LAYOUT(chunk_render_state->visibility));
         if (chunk_render_state->visibility == 0) {
             // Can't see anything, don't bother
-            DEBUG_LOG("No visibility\n");
+            // DEBUG_LOG("No visibility\n");
             continue;
         } else if (visit.traversal_depth > WORLD_RENDER_DISTANCE) {
-            DEBUG_LOG("Exceeded max render distance\n");
+            // DEBUG_LOG("Exceeded max render distance\n");
             continue;
         }
         for (FaceDirection face_dir = FACE_DIR_DOWN; face_dir <= FACE_DIR_FRONT; face_dir++) {
@@ -738,6 +739,11 @@ void worldRender(const World* world,
             };
                 // Check if traversal direction is back towards camera. Skip if so.
             if (dot_i32(next_chunk, player_pos.chunk) < 0) {
+                // FIXME: This is wrong, since it calculates dot product between
+                // vectors centred at the origin poiting to the player chunk and
+                // next chunk. Instead it should be the player facing vector and
+                // the direction vector of traversing between chunks relative to
+                // the world.
                 continue;
             }
             // If current position is within world bounds and next
