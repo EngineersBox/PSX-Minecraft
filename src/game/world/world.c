@@ -602,7 +602,8 @@ static bool vertexSpanOverlapsFrustum(const i32 z,
                                       const TRad angle_ref,
                                       const TRad angle) {
     // const size_t quadrant = (z >= 0 ? 0 : 2) + (q >= 0 ? 0 : 1);
-    const size_t quadrant = ((z < 0) * 2) + (q < 0);
+    const size_t quadrant = ((z < 0) << 1) & (q < 0);
+    DEBUG_LOG("Quadrant: %d\n", quadrant);
     u8 quadrant_vert = QUADRANT_SPAN_VERTS >> (quadrant * 4);
     const i32 qv_q_start = quadrant_vert & 0b1;
     quadrant_vert >>= 1;
@@ -717,7 +718,7 @@ void worldRender(const World* world,
         }
         for (FaceDirection face_dir = FACE_DIR_DOWN; face_dir <= FACE_DIR_FRONT; face_dir++) {
             if (face_dir == visit.visited_from) {
-                // DEBUG_LOG("Same direction as visited from %d == %d\n", face_dir, visit.visited_from);
+                DEBUG_LOG("Same direction as visited from %d == %d\n", face_dir, visit.visited_from);
                 chunkVisibilityClearBit(&chunk_render_state->visibility, face_dir, visit.visited_from);
                 continue;
             } else if (visit.traversal_depth != 0 && chunkVisibilityGetBit(
@@ -726,16 +727,17 @@ void worldRender(const World* world,
                     visit.visited_from
                 ) == 0) {
                 // Cannot exit chunk in this direction from the entered face
-                // DEBUG_LOG("No visibility from face %d to %d\n", visit.visited_from, face_dir);
+                DEBUG_LOG("No visibility from face %d to %d\n", visit.visited_from, face_dir);
                 continue;
             }
             chunkVisibilityClearBit(&chunk_render_state->visibility, face_dir, visit.visited_from);
-            // DEBUG_LOG("Visible from face %d to %d\n", visit.visited_from, face_dir);
+            DEBUG_LOG("Visible from face %d to %d\n", visit.visited_from, face_dir);
             const SVECTOR face_dir_normal = FACE_DIRECTION_NORMALS[face_dir];
             // Check if traversal direction is back towards camera. Skip if so.
             if (dot_i32(player->camera->direction, face_dir_normal) < 0) {
                 // TODO: Check if face_dir_normals needs to be FACE_DIRECTION_NORMALS
                 // or WORLD_FACE_DIRECTION_NORMALS
+                DEBUG_LOG("Facing torward camera, skipping\n");
                 continue;
             }
             const VECTOR next_chunk = vec3_add(visit.position, face_dir_normal);
@@ -755,6 +757,10 @@ void worldRender(const World* world,
                 vec3_const_mul(next_chunk, CHUNK_SIZE),
                 player_world_pos
             );
+            const VECTOR chunk_relative_pos = vec3_const_rshift(
+                chunk_relative_pos_blocks,
+                3
+            );
             DEBUG_LOG("Chunk relative pos blocks: " VEC_PATTERN "\n", VEC_LAYOUT(chunk_relative_pos_blocks));
             /* NOTE: Chunk render logic:
              * 1. Compute vertices spanning widest point on ZY chunk plane
@@ -764,19 +770,18 @@ void worldRender(const World* world,
              * 5. Render chunk
              */
             if (!vertexSpanOverlapsFrustum(
-                next_cb_pos.chunk.vz,
-				next_cb_pos.chunk.vy,
+                chunk_relative_pos.vz,
+				chunk_relative_pos.vy,
 				chunk_relative_pos_blocks.vz,
 				chunk_relative_pos_blocks.vy,
 				playerTRadPitch,
 				FOV_Y_HALF_TRAD
             )) {
-                // FIXME: The vertex offets for pitch might be different than yaw. Check this.
                 DEBUG_LOG("Chunk ZY/pitch vertices not visible\n");
                 continue;
             } else if (!vertexSpanOverlapsFrustum(
-                next_cb_pos.chunk.vz,
-				next_cb_pos.chunk.vx,
+                chunk_relative_pos.vz,
+				chunk_relative_pos.vx,
 				chunk_relative_pos_blocks.vz,
 				chunk_relative_pos_blocks.vx,
 				playerTRadYaw,

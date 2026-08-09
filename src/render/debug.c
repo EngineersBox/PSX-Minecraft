@@ -122,24 +122,33 @@ void drawLeftDebugText(const Stats* stats, const Camera* camera, MAYBE_UNUSED co
     );
 #endif
 #if isDebugFlagEnabled(OVERLAY_FACING)
-    char facing;
+    char facing[7];
+#define setFacing(dir, sign, axis) \
+    facing[0] = (dir); \
+    facing[1] = ' '; \
+    facing[2] = '('; \
+    facing[3] = (sign); \
+    facing[4] = (axis); \
+    facing[5] = ')'; \
+    facing[6] = 0
     switch (faceDirectionClosestNormal(camera->direction)) {
         // NOTE: Up and down are swapping since the above function
         //       returns a value based world position, not camera
         //       position. So Y is inverted.
-        case FACE_DIR_DOWN: facing = 'U'; break;
-        case FACE_DIR_UP: facing = 'D'; break;
-        case FACE_DIR_LEFT: facing = 'L'; break;
-        case FACE_DIR_RIGHT: facing = 'R'; break;
-        case FACE_DIR_BACK: facing = 'B'; break;
-        case FACE_DIR_FRONT: facing = 'F'; break;
+        case FACE_DIR_DOWN: setFacing('U', '+', 'Y'); break;
+        case FACE_DIR_UP: setFacing('D', '-', 'Y'); break;
+        case FACE_DIR_LEFT: setFacing('L', '-', 'X'); break;
+        case FACE_DIR_RIGHT: setFacing('R', '+', 'X'); break;
+        case FACE_DIR_BACK: setFacing('B', '+', 'Z'); break;
+        case FACE_DIR_FRONT: setFacing('F', '-', 'Z'); break;
         default: errorAbort("Unhandled facing direction"); return;
     }
     FntPrint(
         0,
-        "FACING=%c\n",
+        "FACING=%s\n",
         facing
     );
+#undef setFacing
 #endif
 #if isDebugFlagEnabled(OVERLAY_WORLD)
     char* weather;
