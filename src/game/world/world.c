@@ -683,12 +683,12 @@ void worldRender(const World* world,
             .block = vec3_i32(0)
         };
         Chunk* chunk = worldGetChunkFromChunkBlock(world, &chunk_pos);
-        // NOTE: If chunk is NULL, then always traverse to next chunks, ignoring
-        // visibility, since it's always visible.
         ChunkRenderState allVisCrs = (ChunkRenderState) {
             .visibility = UINT16_MAX,
             .visited = true
         };
+        // NOTE: If chunk is NULL, then always traverse to next chunks, ignoring
+        // visibility, since it's always visible.
         ChunkRenderState* chunk_render_state = chunk == NULL ? &allVisCrs : &getChunkRenderState(
             chunk_pos.chunk.vx,
             chunk_pos.chunk.vy,
