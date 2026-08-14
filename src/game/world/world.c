@@ -671,13 +671,13 @@ void worldRender(const World* world,
     while (cvector_size(render_queue) > 0) {
         visit = render_queue[cvector_size(render_queue) - 1];
         cvector_pop_back(render_queue);
-        // DEBUG_LOG(
-        //     "Visit chunk " VEC_PATTERN " @ " VEC_PATTERN "\n", 
-        //     VEC_LAYOUT(visit.position),
-        //     arrayCoord(world, vx, visit.position.vx),
-        //     visit.position.vy,
-        //     arrayCoord(world, vz, visit.position.vz)
-        // );
+        DEBUG_LOG(
+            "Visit chunk " VEC_PATTERN " @ " VEC_PATTERN "\n", 
+            VEC_LAYOUT(visit.position),
+            arrayCoord(world, vx, visit.position.vx),
+            visit.position.vy,
+            arrayCoord(world, vz, visit.position.vz)
+        );
         ChunkBlockPosition chunk_pos = (ChunkBlockPosition) {
             .chunk = visit.position,
             .block = vec3_i32(0)
@@ -732,16 +732,17 @@ void worldRender(const World* world,
             }
             chunkVisibilityClearBit(&chunk_render_state->visibility, face_dir, visit.visited_from);
             DEBUG_LOG("Visible from face %d to %d\n", visit.visited_from, face_dir);
-            const SVECTOR face_dir_normal = FACE_DIRECTION_NORMALS[face_dir];
+            const SVECTOR face_dir_normal = WORLD_FACE_DIRECTION_NORMALS[face_dir];
+            const VECTOR next_chunk = vec3_add(visit.position, face_dir_normal);
+            DEBUG_LOG("Next chunk: " VEC_PATTERN "\n", VEC_LAYOUT(next_chunk));
             // Check if traversal direction is back towards camera. Skip if so.
-            if (dot_i32(player->camera->direction, face_dir_normal) < 0) {
-                // TODO: Check if face_dir_normals needs to be FACE_DIRECTION_NORMALS
-                // or WORLD_FACE_DIRECTION_NORMALS
+            const VECTOR fixed_face_dir_normal = vec3_const_mul(vec3_as(VECTOR, face_dir_normal), ONE);
+            const fixedi32 dot_result = dot_i32(player->camera->direction, fixed_face_dir_normal);
+            DEBUG_LOG("Dir: " VEC_PATTERN " Norm: " VEC_PATTERN " Dot: %d\n", VEC_LAYOUT(player->camera->direction), fixed_face_dir_normal, dot_result);
+            if (dot_result < 0) {
                 DEBUG_LOG("Facing torward camera, skipping\n");
                 continue;
             }
-            const VECTOR next_chunk = vec3_add(visit.position, face_dir_normal);
-            DEBUG_LOG("Next chunk: " VEC_PATTERN "\n", VEC_LAYOUT(next_chunk));
             const ChunkBlockPosition next_cb_pos = (ChunkBlockPosition) {
                 .chunk = next_chunk,
                 .block = vec3_i32(0)

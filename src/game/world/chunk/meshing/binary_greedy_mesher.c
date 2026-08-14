@@ -201,7 +201,7 @@ static bool chunkBitmapFindRoot(ChunkBitmap bitmap,
     return false;
 }
 
-static u8 chunkBitmapFillSolid(ChunkBitmap bitmap,
+static u16 chunkBitmapFillSolid(ChunkBitmap bitmap,
                                const Chunk* chunk,
                                VECTOR starting_pos,
                                FacesColumns faces_cols,
@@ -210,7 +210,7 @@ static u8 chunkBitmapFillSolid(ChunkBitmap bitmap,
     cvector_init(queue, 0, NULL);
     cvector_push_back(queue, starting_pos);
     chunkBitmapSetBit(bitmap, &starting_pos);
-    u8 processed = 0;
+    u16 processed = 0;
     while (cvector_size(queue) > 0) {
         const VECTOR pos = queue[cvector_size(queue) - 1];
         cvector_pop_back(queue);
@@ -228,9 +228,9 @@ static u8 chunkBitmapFillSolid(ChunkBitmap bitmap,
         const Block* block = VCAST_PTR(Block*, iblock);
         for (FaceDirection face_direction = FACE_DIR_DOWN; face_direction <= FACE_DIR_FRONT; face_direction++) {
             const VECTOR normal = vec3_i32(
-                FACE_DIRECTION_NORMALS[face_direction].vx,
-                FACE_DIRECTION_NORMALS[face_direction].vy,
-                FACE_DIRECTION_NORMALS[face_direction].vz
+                WORLD_FACE_DIRECTION_NORMALS[face_direction].vx,
+                WORLD_FACE_DIRECTION_NORMALS[face_direction].vy,
+                WORLD_FACE_DIRECTION_NORMALS[face_direction].vz
             );
             const VECTOR next_pos = vec3_add(pos, normal);
             if (chunkBlockIndexOOB(next_pos.vx, next_pos.vy, next_pos.vz)
@@ -260,7 +260,7 @@ static u8 chunkBitmapFillSolid(ChunkBitmap bitmap,
     return processed;
 }
 
-static u8 visitBlock(ChunkBitmap bitmap,
+static u16 visitBlock(ChunkBitmap bitmap,
                      const Chunk* chunk,
                      const Block* current_block,
                      // Current position, already marked in bitmap
@@ -355,32 +355,32 @@ static void chunkVisibilityDfsWalkScan(Chunk* chunk,
             // We assume that when the block position was pushed into the queue,
             // it had already been validated, thus no block properties check here.
             const Block* block = VCAST_PTR(Block*, iblock);
-            #define _visitBlock(condition, direction, normal) \
+            #define _visitBlock(condition, direction) \
                 if (condition) { \
-                    visible_sides |= 0b1 << direction; \
+                    visible_sides |= 0b1 << (direction); \
                 } \
                 total_blocks_processed += visitBlock( \
                     bitmap, \
                     chunk, \
                     block, \
                     pos, \
-                    normal, \
+                    vec3_as(VECTOR, WORLD_FACE_DIRECTION_NORMALS[(direction)]), \
                     &queue, \
                     faces_cols, \
                     faces_cols_opaque \
                 )
             // Left
-            _visitBlock(pos.vx == 0, FACE_DIR_LEFT, vec3_i32(-1, 0, 0));
+            _visitBlock(pos.vx == 0, FACE_DIR_LEFT);
             // Right
-            _visitBlock(pos.vx == CHUNK_SIZE - 1, FACE_DIR_RIGHT, vec3_i32(1, 0, 0));
+            _visitBlock(pos.vx == CHUNK_SIZE - 1, FACE_DIR_RIGHT);
             // Front
-            _visitBlock(pos.vz == 0, FACE_DIR_FRONT, vec3_i32(0, 0, -1));
+            _visitBlock(pos.vz == 0, FACE_DIR_FRONT);
             // Back
-            _visitBlock(pos.vz == CHUNK_SIZE - 1, FACE_DIR_BACK, vec3_i32(0, 0, 1));
+            _visitBlock(pos.vz == CHUNK_SIZE - 1, FACE_DIR_BACK);
             // Down
-            _visitBlock(pos.vy == 0, FACE_DIR_DOWN, vec3_i32(0, -1, 0));
+            _visitBlock(pos.vy == 0, FACE_DIR_DOWN);
             // Up
-            _visitBlock(pos.vy == CHUNK_SIZE - 1, FACE_DIR_UP, vec3_i32(0, 1, 0));
+            _visitBlock(pos.vy == CHUNK_SIZE - 1, FACE_DIR_UP);
             #undef _visitBlock
         }
         if (!isPowerOf2(visible_sides)) {
