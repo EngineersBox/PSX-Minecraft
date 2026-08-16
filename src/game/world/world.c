@@ -1,4 +1,4 @@
-// #define DEBUG_LOG_DISABLE 1
+#define DEBUG_LOG_DISABLE 1
 #include "world.h"
 
 #include <assert.h>
@@ -694,7 +694,7 @@ void worldRender(const World* world,
             chunk_pos.chunk.vy,
             chunk_pos.chunk.vz
         );
-        if (chunk_render_state->visibility == 0 && !chunk_render_state->visited) {
+        if (chunk_render_state->visibility == 0 || !chunk_render_state->visited) {
             chunk_render_state->visibility = chunk->visibility;
             chunk_render_state->visited = true;
             chunkRender(
@@ -704,7 +704,7 @@ void worldRender(const World* world,
                 ctx,
                 transforms
             );
-            // DEBUG_LOG("Rendered\n");
+            DEBUG_LOG("Rendered\n");
         }
             // render_count++;
         DEBUG_LOG("Chunk vis: " INT16_BIN_PATTERN "\n", INT16_BIN_LAYOUT(chunk_render_state->visibility));
@@ -717,6 +717,7 @@ void worldRender(const World* world,
             continue;
         }
         for (FaceDirection face_dir = FACE_DIR_DOWN; face_dir <= FACE_DIR_FRONT; face_dir++) {
+#define DEBUG_LOG_PREFIX "world.c :: faces"
             if (face_dir == visit.visited_from) {
                 DEBUG_LOG("Same direction as visited from %d == %d\n", face_dir, visit.visited_from);
                 chunkVisibilityClearBit(&chunk_render_state->visibility, face_dir, visit.visited_from);
@@ -798,6 +799,7 @@ void worldRender(const World* world,
                 .traversal_depth = visit.traversal_depth + 1
             };
             cvector_push_back(render_queue, next_visit);
+#define DEBUG_LOG_PREFIX __FILE_NAME__
         }
     }
     // DEBUG_LOG("Chunks rendered: %d\n", render_count);
