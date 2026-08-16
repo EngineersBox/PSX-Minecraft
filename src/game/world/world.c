@@ -1,4 +1,4 @@
-#define DEBUG_LOG_DISABLE 1
+// #define DEBUG_LOG_DISABLE 1
 #include "world.h"
 
 #include <assert.h>
@@ -592,7 +592,6 @@ INLINE bool worldIsOutsideBounds(const World* world, const ChunkBlockPosition* p
  */
 //                                       +Q3++Q2++Q1++Q0+
 static const u16 QUADRANT_SPAN_VERTS = 0b0110110000111001;
-// static const u16 QUADRANT_SPAN_VERTS = 0b1001001100111001;
 
 static bool vertexSpanOverlapsFrustum(const i32 z,
                                       const i32 q,
@@ -665,7 +664,13 @@ void worldRender(const World* world,
     };
     cvector_push_back(render_queue, visit);
     ChunkRenderState chunk_render_states[arraySize3dTo1d(AXIS_CHUNKS, AXIS_CHUNKS, WORLD_CHUNKS_HEIGHT)] = {0};
-    #define getChunkRenderState(x, y, z) (chunk_render_states[arrayIndex3dTo1d(x, z, y, AXIS_CHUNKS, AXIS_CHUNKS)])
+    #define getChunkRenderState(pos) (chunk_render_states[arrayIndex3dTo1d( \
+        arrayCoord(world, vx, (pos).vx), \
+        arrayCoord(world, vz, (pos).vz), \
+        visit.position.vy, \
+        AXIS_CHUNKS, \
+        AXIS_CHUNKS \
+    )])
     // size_t render_count = 0;
     while (cvector_size(render_queue) > 0) {
         visit = render_queue[cvector_size(render_queue) - 1];
@@ -688,12 +693,13 @@ void worldRender(const World* world,
         };
         // NOTE: If chunk is NULL, then always traverse to next chunks, ignoring
         // visibility, since it's always visible.
-        ChunkRenderState* chunk_render_state = chunk == NULL ? &allVisCrs : &getChunkRenderState(
-            chunk_pos.chunk.vx,
-            chunk_pos.chunk.vy,
-            chunk_pos.chunk.vz
-        );
-        if (chunk_render_state->visibility == 0 || !chunk_render_state->visited) {
+        DEBUG_LOG("Render state index: %d\n", arrayIndex3dTo1d(chunk_pos.chunk.vx, chunk_pos.chunk.vz, chunk_pos.chunk.vy, AXIS_CHUNKS, AXIS_CHUNKS));
+        ChunkRenderState* chunk_render_state = chunk == NULL ? &allVisCrs : &getChunkRenderState(chunk_pos.chunk);
+        // NOTE: Condition is AND since first time initialisation and rendering is only
+        // done when the render state entry has not been touched (no vis) and the chunk
+        // has not been visited yet. If this were OR, chunks with no visibility would be
+        // rendered multiple times.
+        if (chunk_render_state->visibility == 0 && !chunk_render_state->visited) {
             chunk_render_state->visibility = chunk->visibility;
             chunk_render_state->visited = true;
             chunkRender(
@@ -731,14 +737,14 @@ void worldRender(const World* world,
                 continue;
             }
             chunkVisibilityClearBit(&chunk_render_state->visibility, face_dir, visit.visited_from);
-            DEBUG_LOG("Visible from face %d to %d\n", visit.visited_from, face_dir);
+            // DEBUG_LOG("Visible from face %d to %d\n", visit.visited_from, face_dir);
             const SVECTOR face_dir_normal = WORLD_FACE_DIRECTION_NORMALS[face_dir];
             const VECTOR next_chunk = vec3_add(visit.position, face_dir_normal);
             DEBUG_LOG("Next chunk: " VEC_PATTERN "\n", VEC_LAYOUT(next_chunk));
             // Check if traversal direction is back towards camera. Skip if so.
             const VECTOR fixed_face_dir_normal = vec3_const_mul(vec3_as(VECTOR, face_dir_normal), ONE);
             const fixedi32 dot_result = dot_i32(player->camera->direction, fixed_face_dir_normal);
-            DEBUG_LOG("Dir: " VEC_PATTERN " Norm: " VEC_PATTERN " Dot: %d\n", VEC_LAYOUT(player->camera->direction), fixed_face_dir_normal, dot_result);
+            // DEBUG_LOG("Dir: " VEC_PATTERN " Norm: " VEC_PATTERN " Dot: %d\n", VEC_LAYOUT(player->camera->direction), fixed_face_dir_normal, dot_result);
             if (dot_result < 0) {
                 DEBUG_LOG("Facing torward camera, skipping\n");
                 continue;
