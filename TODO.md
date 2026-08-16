@@ -52,7 +52,8 @@
 * [ ] Weather texture does not scroll correctly, some planes are static and only in some places does it work correctly. Potentially an issue with texture windowing and UV positions.
 * [ ] Chunks with negative relative position to player are culled below player sometimes
 * [ ] Crafting table recipe causes exception only when placing items in table in a certain order. I.e. Bottom right four squares, placed in order of top-left, top-right, bottom-left and bottom-right, exception on last placement. This isn't the only case that triggers it, there are other cases where it will work and then putting another item in the table will cause an exception. Very likely an out-of-bounds write with a value rather than an address, considering that it causes a BIOS reload most times.
-* [ ] Chunk rendering flickers in some places (i.e. 0,0,0 and 0,1,0) and has weird edge cases where nothing renders out in the open sometimes (i.e. in 2,1,2 ish facing toward 0,1,0 or 0,1,1 ish).
+* [X] Chunk rendering flickers in some places (i.e. 0,0,0 and 0,1,0) and has weird edge cases where nothing renders out in the open sometimes (i.e. in 2,1,2 ish facing toward 0,1,0 or 0,1,1 ish).
+* [ ] Frustum culling seems to be skewed in pitch. Lower chunks get culled quickly and upper chunks stay around. Maybe because cullking is calculated from player pos (feet) instead of head, so direction vector is off?
 
 ## Implement
 

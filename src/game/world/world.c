@@ -1,4 +1,4 @@
-// #define DEBUG_LOG_DISABLE 1
+#define DEBUG_LOG_DISABLE 1
 #include "world.h"
 
 #include <assert.h>
