@@ -490,7 +490,7 @@ void worldRenderSkybox(const World* world,
         goto render_moon;
     }
     setUVWH(pol4, 0, 160, 32, 32);
-    const Texture* sun_texture = &textures[ASSET_TEXTURE__STATIC__SUN];
+    const Texture* sun_texture = &textures[ASSET_TEXTURE__STATIC__SUN_MOON];
     pol4->tpage = sun_texture->tpage;
     pol4->clut = sun_texture->clut;
     addPrim(ot_object, pol4);
@@ -546,8 +546,8 @@ render_moon:;
         (DVECTOR*) &pol4->x3)) {
         goto no_sun_or_moon;
     }
-    setUVWH(pol4, 32, 160, 32, 32);
-    const Texture* moon_texture = &textures[ASSET_TEXTURE__STATIC__MOON];
+    setUVWH(pol4, 0, 192, 32, 32);
+    const Texture* moon_texture = &textures[ASSET_TEXTURE__STATIC__SUN_MOON];
     pol4->tpage = moon_texture->tpage;
     pol4->clut = moon_texture->clut;
     addPrim(ot_object, pol4);
