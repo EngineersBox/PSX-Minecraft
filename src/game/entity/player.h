@@ -9,8 +9,6 @@
 #include "../../core/camera.h"
 #include "../../core/input/input.h"
 #include "../blocks/breaking_state.h"
-#include "../gui/inventory.h"
-#include "../gui/hotbar.h"
 #include "entity.h"
 
 extern const i32 player_collision_intervals_height[];

@@ -3,12 +3,12 @@
 #ifndef PSXMC__GAME__BLOCKS_H
 #define PSXMC__GAME__BLOCKS_H
 
-#include "../../util/inttypes.h"
 #include "block_id.h"
 #include "block.h"
 #include "../items/tools/tool_type.h"
 // Used in macro
 #include "../logging/logging.h"
+#include "../../util/inttypes.h"
 // These includes allow for only including blocks.h
 // and getting access to all blocks instantly
 #include "block_air.h"

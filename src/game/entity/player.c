@@ -7,6 +7,8 @@
 #include "../../util/interface99_extensions.h"
 #include "../../util/memory.h"
 #include "../blocks/blocks.h"
+#include "../gui/inventory.h"
+#include "../gui/hotbar.h"
 #include "../items/items.h"
 #include "../world/chunk/chunk_structure.h"
 #include "../world/world_raycast.h"

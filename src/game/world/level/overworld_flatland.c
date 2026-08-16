@@ -1,10 +1,11 @@
 #include "overworld_flatland.h"
 
-#include <debug.h>
-#include <interface99_extensions.h>
 #include "../../../core/std/stdlib.h"
 
 #include "../chunk/chunk_structure.h"
+#include "../../blocks/blocks.h"
+#include "../../../util/interface99_extensions.h"
+#include "../../../util/preprocessor.h"
 
 // ==== GENERATOR ====
 

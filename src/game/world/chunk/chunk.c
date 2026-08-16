@@ -18,6 +18,7 @@
 #include "../../../util/interface99_extensions.h"
 #include "../../../util/memory.h"
 #include "../../blocks/blocks.h"
+#include "../../gui/inventory.h"
 #include "../../items/items.h"
 #include "../generation/noise.h"
 #include "../position.h"

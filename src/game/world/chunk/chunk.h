@@ -11,7 +11,6 @@
 #include "../../../render/transforms.h"
 #include "../../entity/player.h"
 #include "../../../lighting/lightmap.h"
-#include "../../blocks/blocks.h"
 #include "../../items/item.h"
 #include "../../blocks/breaking_state.h"
 

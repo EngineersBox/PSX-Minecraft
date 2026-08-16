@@ -1,14 +1,16 @@
 #include "block_crafting_table.h"
 
-#include "../../util/interface99_extensions.h"
 #include "block.h"
 #include "block_id.h"
 #include "../items/blocks/item_block_crafting_table.h"
+#include "../items/items.h"
+#include "../gui/inventory.h"
+#include "../gui/utils.h"
+#include "../recipe/crafting.h"
+#include "../world/world_structure.h"
 #include "../../logging/logging.h"
 #include "../../ui/components/cursor.h"
-#include "../items/items.h"
-#include "../world/world_structure.h"
-#include "../recipe/crafting.h"
+#include "../../util/interface99_extensions.h"
 
 static Texture crafting_table_texture = {0};
 
