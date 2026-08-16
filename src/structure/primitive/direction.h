@@ -18,7 +18,9 @@ typedef enum FaceDirection {
     FACE_DIR_FRONT = 5
 } FaceDirection;
 
+// Negative Y up
 extern const SVECTOR FACE_DIRECTION_NORMALS[FACE_DIRECTION_COUNT];
+// Positive Y up
 extern const SVECTOR WORLD_FACE_DIRECTION_NORMALS[FACE_DIRECTION_COUNT];
 
 /**
