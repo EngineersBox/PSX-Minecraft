@@ -665,8 +665,8 @@ void worldRender(const World* world,
     cvector_push_back(render_queue, visit);
     ChunkRenderState chunk_render_states[arraySize3dTo1d(AXIS_CHUNKS, AXIS_CHUNKS, WORLD_CHUNKS_HEIGHT)] = {0};
     #define getChunkRenderState(pos) (chunk_render_states[arrayIndex3dTo1d( \
-        arrayCoord(world, vx, (pos).vx), \
-        arrayCoord(world, vz, (pos).vz), \
+        arrayCoord(world, vz, (pos).vx), \
+        arrayCoord(world, vx, (pos).vz), \
         visit.position.vy, \
         AXIS_CHUNKS, \
         AXIS_CHUNKS \
@@ -693,7 +693,6 @@ void worldRender(const World* world,
         };
         // NOTE: If chunk is NULL, then always traverse to next chunks, ignoring
         // visibility, since it's always visible.
-        DEBUG_LOG("Render state index: %d\n", arrayIndex3dTo1d(chunk_pos.chunk.vx, chunk_pos.chunk.vz, chunk_pos.chunk.vy, AXIS_CHUNKS, AXIS_CHUNKS));
         ChunkRenderState* chunk_render_state = chunk == NULL ? &allVisCrs : &getChunkRenderState(chunk_pos.chunk);
         // NOTE: Condition is AND since first time initialisation and rendering is only
         // done when the render state entry has not been touched (no vis) and the chunk
