@@ -1,5 +1,6 @@
 #include "font.h"
 
+#include <iso646.h>
 #include <string.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -8,6 +9,7 @@
 #include "../resources/assets.h"
 #include "../resources/asset_indices.h"
 #include "psxgpu.h"
+#include "psxgte.h"
 
 typedef struct {
 	char* txtbuff;
@@ -54,6 +56,7 @@ void fontPrintCentreOffset(RenderContext* ctx,
         x_offset - (fontStringWidth(buf) >> 1),
         y,
         true,
+        NULL,
         buf
     );
 }
@@ -221,6 +224,7 @@ void* fontSort(u32* ordering_table,
 			   const int x,
 			   const int y,
 			   const bool shadow,
+               const CVECTOR* bg,
 			   const char *text) {
 	_sdk_validate_args(ordering_table && primitive, 0);
 	const Texture* tex_ref = font_current;
@@ -272,5 +276,14 @@ void* fontSort(u32* ordering_table,
     setTexWindow(ptwin, &tex_window);
     addPrim(ordering_table, ptwin);
     primitive += sizeof(DR_TWIN);
+    if (bg != NULL) {
+        TILE* tile = (TILE*) primitive;
+        setTile(tile);
+        setXY0(tile, x, y);
+        setWH(tile, stream_x - x, stream_y - y);
+        setRGB0(tile, bg->r, bg->g, bg->b);
+        addPrim(ordering_table, tile);
+        primitive += sizeof(TILE);
+    }
 	return (void *) primitive;
 }

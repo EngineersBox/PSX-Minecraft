@@ -1,5 +1,6 @@
 #pragma once
 
+#include "psxgte.h"
 #ifndef PSXMC_FONT_H
 #define PSXMC_FONT_H
 
@@ -27,7 +28,7 @@ void fontPrintCentreOffset(RenderContext* ctx,
 
 void fontLoad();
 FontID fontOpen(int x, int y, int w, int h, bool isbg, bool shadow, int n);
-void* fontSort(u32* ordering_table, void* primitive, int x, int y, bool shadow, const char* text);
+void* fontSort(u32* ordering_table, void* primitive, int x, int y, bool shadow, const CVECTOR* bg, const char* text);
 int fontPrint(FontID id, const char* fmt, ...);
 void* fontFlush(FontID id);
 

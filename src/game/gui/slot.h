@@ -142,7 +142,7 @@ Slot* slotFromScreenPosition0(const SVECTOR* screen_position,
     slotGroupSlotDim(name, X), \
     slotGroupSlotDim(name, Y), \
     slotGroupSlotSpacing(name, X), \
-    slotGroupSlotSpacing(name, Y), \
+    slotGroupSlotSpacing(name, Y) \
 )
 
 IItem* slotDirectItemGetter(Slot* slot);

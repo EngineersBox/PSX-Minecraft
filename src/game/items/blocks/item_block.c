@@ -417,6 +417,7 @@ void renderItemBlockInventory(ItemBlock* item,
         screen_position->vx - 7,
         screen_position->vy, // -1 Offset accounts for shadow on text
         true,
+        NULL,
         stack_count_text
     );
     renderClearConstraints(ctx);

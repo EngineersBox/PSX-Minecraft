@@ -24,7 +24,7 @@ typedef struct IBVECTOR {
     i8 pad;
 } IBVECTOR;
 
-typedef struct DVECTOR {
+typedef struct BDVECTOR {
     u8 u;
     u8 v;
 } BDVECTOR;

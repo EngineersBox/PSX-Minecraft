@@ -5,6 +5,7 @@
 #include "../items/blocks/item_block_crafting_table.h"
 #include "../items/items.h"
 #include "../gui/inventory.h"
+#include "../gui/tooltip.h"
 #include "../gui/utils.h"
 #include "../recipe/crafting.h"
 #include "../world/world_structure.h"
@@ -293,12 +294,29 @@ void craftingTableBlockRenderUI(RenderContext* ctx, Transforms* transforms) {
             VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
         }
     }
-    const Slot* slot = &crafting_table_slots[slotGroupIndexOffset(CRAFTING_TABLE_RESULT)];
+    const SVECTOR cursor_pos = vec3_i16(
+        cursor.component.position.vx,
+        cursor.component.position.vy,
+        0
+    );
+    Slot* slot = slotFromScreenPosition(
+        CRAFTING_TABLE,
+        &cursor_pos,
+        (Slot*) crafting_table_slots
+    );
+    if (slot->data.item != NULL) {
+        Item* item = VCAST_PTR(Item*, slot->data.item);
+        toolTipRender(ctx, itemGetAttribute(item->id, name));
+    }
+    slot = &crafting_table_slots[slotGroupIndexOffset(CRAFTING_TABLE_RESULT)];
     if (slot->data.item != NULL) {
         Item* item = VCAST_PTR(Item*, slot->data.item);
         item->position.vx = slotGroupScreenPosition(CRAFTING_TABLE_RESULT, X, 0);
         item->position.vy = slotGroupScreenPosition(CRAFTING_TABLE_RESULT, Y, 0);
         VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
+        if (cursorPositionOverlap(item->position.vx, item->position.vy)) {
+            toolTipRender(ctx, itemGetAttribute(item->id, name));
+        }
     }
     uiBackgroundRender(
         &block_render_ui_context.background,

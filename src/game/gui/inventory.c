@@ -3,18 +3,19 @@
 #include <interface99.h>
 #include <psxpad.h>
 
-#include "../../logging/logging.h"
-#include "../items/items.h"
-#include "../../ui/components/background.h"
-#include "../../util/interface99_extensions.h"
 #include "slot.h"
-#include "../../ui/components/cursor.h"
-#include "../world/world_structure.h"
+#include "tooltip.h"
 #include "utils.h"
-#include "../../util/debounce.h"
+#include "../items/items.h"
 #include "../recipe/crafting.h"
-#include "../../util/memory.h"
+#include "../world/world_structure.h"
 #include "../../debug/pcsx.h"
+#include "../../logging/logging.h"
+#include "../../ui/components/background.h"
+#include "../../ui/components/cursor.h"
+#include "../../util/debounce.h"
+#include "../../util/interface99_extensions.h"
+#include "../../util/memory.h"
 
 static Texture inventory_bg = {0};
 
@@ -86,6 +87,11 @@ void inventoryRenderSlots(const Inventory* inventory,
     if (groups == INVENTORY_SLOT_GROUP_NONE) {
         return;
     }
+    const SVECTOR cursor_pos = vec3_i16(
+        cursor.component.position.vx,
+        cursor.component.position.vy,
+        0
+    );
     if (groups & INVENTORY_SLOT_GROUP_ARMOUR) {
         for (u8 y = 0; y < slotGroupDim(INVENTORY_ARMOUR, Y); y++) {
             const u8 y_offset = slotGroupDim(INVENTORY_ARMOUR, X) * y;
@@ -95,11 +101,20 @@ void inventoryRenderSlots(const Inventory* inventory,
                 if (slot->data.item == NULL) {
                     continue;
                 }
-                Item* item = VCAST_PTR(Item*,slot->data.item);
+                Item* item = VCAST_PTR(Item*, slot->data.item);
                 item->position.vx = slotGroupScreenPosition(INVENTORY_ARMOUR, X, x);
                 item->position.vy = slotGroupScreenPosition(INVENTORY_ARMOUR, Y, y);
                 VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
             }
+        }
+        const Slot* slot = slotFromScreenPosition(
+            INVENTORY_ARMOUR,
+            &cursor_pos,
+            (Slot*) inventory->slots
+        );
+        if (slot->data.item != NULL) {
+            Item* item = VCAST_PTR(Item*, slot->data.item);
+            toolTipRender(ctx, itemGetAttribute(item->id, name));
         }
     }
     if (groups & INVENTORY_SLOT_GROUP_CRAFTING) {
@@ -117,6 +132,15 @@ void inventoryRenderSlots(const Inventory* inventory,
                 VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
             }
         }
+        const Slot* slot = slotFromScreenPosition(
+            INVENTORY_CRAFTING,
+            &cursor_pos,
+            (Slot*) inventory->slots
+        );
+        if (slot->data.item != NULL) {
+            Item* item = VCAST_PTR(Item*, slot->data.item);
+            toolTipRender(ctx, itemGetAttribute(item->id, name));
+        }
     }
     if (groups & INVENTORY_SLOT_GROUP_CRAFTING_RESULT) {
         const u8 i = slotGroupIndexOffset(INVENTORY_CRAFTING_RESULT);
@@ -126,6 +150,9 @@ void inventoryRenderSlots(const Inventory* inventory,
             item->position.vx = slotGroupScreenPosition(INVENTORY_CRAFTING_RESULT, X, 0);
             item->position.vy = slotGroupScreenPosition(INVENTORY_CRAFTING_RESULT, Y, 0);
             VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
+            if (cursorPositionOverlap(item->position.vx, item->position.vy)) {
+                toolTipRender(ctx, itemGetAttribute(item->id, name));
+            }
         }
     }
     if (groups & INVENTORY_SLOT_GROUP_MAIN) {
@@ -142,6 +169,15 @@ void inventoryRenderSlots(const Inventory* inventory,
                 item->position.vy = slotGroupScreenPosition(INVENTORY_MAIN, Y, y);
                 VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
             }
+        }
+        const Slot* slot = slotFromScreenPosition(
+            INVENTORY_MAIN,
+            &cursor_pos,
+            (Slot*) inventory->slots
+        );
+        if (slot->data.item != NULL) {
+            Item* item = VCAST_PTR(Item*, slot->data.item);
+            toolTipRender(ctx, itemGetAttribute(item->id, name));
         }
     }
     if (groups & INVENTORY_SLOT_GROUP_HOTBAR) {
@@ -160,6 +196,15 @@ void inventoryRenderSlots(const Inventory* inventory,
                 VCALL_SUPER(*slot->data.ref->data.item, Renderable, renderInventory, ctx, transforms);
                 item->position = prev_position;
             }
+        }
+        const Slot* slot = slotFromScreenPosition(
+            INVENTORY_HOTBAR,
+            &cursor_pos,
+            (Slot*) inventory->slots
+        );
+        if (slot->data.ref != NULL && slot->data.ref->data.item != NULL) {
+            Item* item = VCAST_PTR(Item*, slot->data.item);
+            toolTipRender(ctx, itemGetAttribute(item->id, name));
         }
     }
 }

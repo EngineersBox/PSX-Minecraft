@@ -43,4 +43,11 @@ impl(IUIComponent, UICursor);
 extern UICursor cursor;
 extern IUIComponent cursor_component;
 
+#define cursorPositionOverlap(x, y) (\
+    x >= cursor.component.position.vx \
+    && y >= cursor.component.position.vy \
+    && x < cursor.component.position.vx + CURSOR_SPRITE_WIDTH \
+    && y < cursor.component.position.vy + CURSOR_SPRITE_HEIGHT \
+)
+
 #endif // PSXMC_CURSOR_H
