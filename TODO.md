@@ -45,6 +45,7 @@
 * [X] Chunks with negative relative position to player seem to almost always be culled, even though they should be visible.
 * [X] The DFS chunk scan either correctly considers all blocks (512) in a chunk (each once), or exactly half of all blocks (256). There must be some missing direction consideration or missing condition for an edge case.
 * [X] Chunk rendering flickers in some places (i.e. 0,0,0 and 0,1,0) and has weird edge cases where nothing renders out in the open sometimes (i.e. in 2,1,2 ish facing toward 0,1,0 or 0,1,1 ish).
+* [X] Render inventory tooltips on top of contents.
 * [ ] Cull faces on chunk edges that face outward on the render limit
 * [ ] Mesh vertices z-depth is inconsistent leading to faces drawn in wrong order and thus culling fails
 * [ ] Vertices are distorted (in their location) when very close to the camera
