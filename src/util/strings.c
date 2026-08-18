@@ -5,12 +5,12 @@
 #include "../math/math_utils.h"
 
 void stringToReadable(const char* src,
-                      size_t src_len,
+                      const size_t src_len,
                       char* dst,
                       const size_t dst_len) {
     bool capitalise_next = true;
     for (size_t i = 0; i < min(src_len, dst_len); i++) {
-        char c = src[i];
+        const char c = src[i];
         if (c == '_') {
             capitalise_next = true;
             dst[i] = ' ';
