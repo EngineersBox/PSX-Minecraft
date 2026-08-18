@@ -87,11 +87,6 @@ void inventoryRenderSlots(const Inventory* inventory,
     if (groups == INVENTORY_SLOT_GROUP_NONE) {
         return;
     }
-    const SVECTOR cursor_pos = vec3_i16(
-        cursor.component.position.vx,
-        cursor.component.position.vy,
-        0
-    );
     if (groups & INVENTORY_SLOT_GROUP_ARMOUR) {
         for (u8 y = 0; y < slotGroupDim(INVENTORY_ARMOUR, Y); y++) {
             const u8 y_offset = slotGroupDim(INVENTORY_ARMOUR, X) * y;
@@ -107,14 +102,16 @@ void inventoryRenderSlots(const Inventory* inventory,
                 VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
             }
         }
-        const Slot* slot = slotFromScreenPosition(
-            INVENTORY_ARMOUR,
-            &cursor_pos,
-            (Slot*) inventory->slots
-        );
+        const Slot* slot = NULL;
+        if (slotGroupIntersect(INVENTORY_ARMOUR, &cursor.component.position)) {
+            slot = &inventory->slots[slotGroupCursorSlot(
+                INVENTORY_ARMOUR,
+                &cursor.component.position
+            )];
+        } 
         if (slot->data.item != NULL) {
             Item* item = VCAST_PTR(Item*, slot->data.item);
-            toolTipRender(ctx, itemGetAttribute(item->id, name));
+            toolTipRender(ctx, itemGetName(item->id));
         }
     }
     if (groups & INVENTORY_SLOT_GROUP_CRAFTING) {
@@ -132,14 +129,16 @@ void inventoryRenderSlots(const Inventory* inventory,
                 VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
             }
         }
-        const Slot* slot = slotFromScreenPosition(
-            INVENTORY_CRAFTING,
-            &cursor_pos,
-            (Slot*) inventory->slots
-        );
+        const Slot* slot = NULL;
+        if (slotGroupIntersect(INVENTORY_CRAFTING, &cursor.component.position)) {
+            slot = &inventory->slots[slotGroupCursorSlot(
+                INVENTORY_CRAFTING,
+                &cursor.component.position
+            )];
+        } 
         if (slot->data.item != NULL) {
             Item* item = VCAST_PTR(Item*, slot->data.item);
-            toolTipRender(ctx, itemGetAttribute(item->id, name));
+            toolTipRender(ctx, itemGetName(item->id));
         }
     }
     if (groups & INVENTORY_SLOT_GROUP_CRAFTING_RESULT) {
@@ -150,8 +149,8 @@ void inventoryRenderSlots(const Inventory* inventory,
             item->position.vx = slotGroupScreenPosition(INVENTORY_CRAFTING_RESULT, X, 0);
             item->position.vy = slotGroupScreenPosition(INVENTORY_CRAFTING_RESULT, Y, 0);
             VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
-            if (cursorPositionOverlap(item->position.vx, item->position.vy)) {
-                toolTipRender(ctx, itemGetAttribute(item->id, name));
+            if (slotGroupIntersect(INVENTORY_CRAFTING_RESULT, &cursor.component.position)) {
+                toolTipRender(ctx, itemGetName(item->id));
             }
         }
     }
@@ -170,14 +169,16 @@ void inventoryRenderSlots(const Inventory* inventory,
                 VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
             }
         }
-        const Slot* slot = slotFromScreenPosition(
-            INVENTORY_MAIN,
-            &cursor_pos,
-            (Slot*) inventory->slots
-        );
+        const Slot* slot = NULL;
+        if (slotGroupIntersect(INVENTORY_MAIN, &cursor.component.position)) {
+            slot = &inventory->slots[slotGroupCursorSlot(
+                INVENTORY_MAIN,
+                &cursor.component.position
+            )];
+        } 
         if (slot->data.item != NULL) {
             Item* item = VCAST_PTR(Item*, slot->data.item);
-            toolTipRender(ctx, itemGetAttribute(item->id, name));
+            toolTipRender(ctx, itemGetName(item->id));
         }
     }
     if (groups & INVENTORY_SLOT_GROUP_HOTBAR) {
@@ -197,15 +198,19 @@ void inventoryRenderSlots(const Inventory* inventory,
                 item->position = prev_position;
             }
         }
-        const Slot* slot = slotFromScreenPosition(
-            INVENTORY_HOTBAR,
-            &cursor_pos,
-            (Slot*) inventory->slots
-        );
+        const Slot* slot = NULL;
+        if (slotGroupIntersect(INVENTORY_HOTBAR, &cursor.component.position)) {
+            slot = &inventory->slots[slotGroupCursorSlot(
+                INVENTORY_HOTBAR,
+                &cursor.component.position
+            )];
+        } 
         if (slot->data.ref != NULL && slot->data.ref->data.item != NULL) {
-            Item* item = VCAST_PTR(Item*, slot->data.item);
-            toolTipRender(ctx, itemGetAttribute(item->id, name));
+            Item* item = VCAST_PTR(Item*, slot->data.ref->data.item);
+            toolTipRender(ctx, itemGetName(item->id));
         }
+        // TODO: Render tool tips before any slots, i.e. put all tooltip render
+        // logic at the top of this function.
     }
 }
 
@@ -469,7 +474,8 @@ static void cursorHandler(Inventory* inventory,
         uiCursorSetHeldData(&cursor, NULL);
         return;
     }
-    if (!split_or_store_one && groups & INVENTORY_SLOT_GROUP_CRAFTING_RESULT
+    if (!split_or_store_one
+        && (groups & INVENTORY_SLOT_GROUP_CRAFTING_RESULT)
         && slotGroupIntersect(
         INVENTORY_CRAFTING_RESULT,
         &cursor.component.position
@@ -516,7 +522,7 @@ static void cursorHandler(Inventory* inventory,
         return;
     }
     Slot* slot = NULL;
-    if (groups & INVENTORY_SLOT_GROUP_ARMOUR && slotGroupIntersect(
+    if ((groups & INVENTORY_SLOT_GROUP_ARMOUR) && slotGroupIntersect(
         INVENTORY_ARMOUR,
         &cursor.component.position
     )) {
@@ -525,7 +531,7 @@ static void cursorHandler(Inventory* inventory,
             &cursor.component.position
         )];
     } 
-    if (groups & INVENTORY_SLOT_GROUP_CRAFTING && slotGroupIntersect(
+    if ((groups & INVENTORY_SLOT_GROUP_CRAFTING) && slotGroupIntersect(
         INVENTORY_CRAFTING,
         &cursor.component.position
     )) {
@@ -534,9 +540,8 @@ static void cursorHandler(Inventory* inventory,
             &cursor.component.position
         )];
         recipe_has_changed = true;
-    
     }
-    if (groups & INVENTORY_SLOT_GROUP_MAIN && slotGroupIntersect(
+    if ((groups & INVENTORY_SLOT_GROUP_MAIN) && slotGroupIntersect(
         INVENTORY_MAIN,
         &cursor.component.position
     )) {

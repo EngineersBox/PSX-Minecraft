@@ -4,12 +4,13 @@
 #include <string.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <psxgpu.h>
+#include <psxgte.h>
 
 #include "../logging/logging.h"
+#include "../math/math_utils.h"
 #include "../resources/assets.h"
 #include "../resources/asset_indices.h"
-#include "psxgpu.h"
-#include "psxgte.h"
 
 typedef struct {
 	char* txtbuff;
@@ -33,8 +34,8 @@ INLINE u32 fontStringWidth(const char* string) {
 }
 
 void fontPrintCentreOffset(RenderContext* ctx,
-                           const i32 x_offset,
-                           const i32 y,
+                           const i16 x_offset,
+                           const u16 y,
                            const u32 fmt_add_bytes,
                            const size_t ot_entry_index,
                            const char* fmt, ...) {
@@ -57,6 +58,8 @@ void fontPrintCentreOffset(RenderContext* ctx,
         y,
         true,
         NULL,
+        NULL,
+        0,
         buf
     );
 }
@@ -221,10 +224,12 @@ void* fontFlush(FontID id) {
 
 void* fontSort(u32* ordering_table,
 			   void* primitive,
-			   const int x,
-			   const int y,
+			   const u16 x,
+			   const u16 y,
 			   const bool shadow,
                const CVECTOR* bg,
+               const CVECTOR* border,
+               const u8 border_size,
 			   const char *text) {
 	_sdk_validate_args(ordering_table && primitive, 0);
 	const Texture* tex_ref = font_current;
@@ -280,8 +285,21 @@ void* fontSort(u32* ordering_table,
         TILE* tile = (TILE*) primitive;
         setTile(tile);
         setXY0(tile, x, y);
-        setWH(tile, stream_x - x, stream_y - y);
+        setWH(tile, (stream_x - x), max(stream_y - y, FONT_CHARACTER_SPRITE_HEIGHT));
         setRGB0(tile, bg->r, bg->g, bg->b);
+        addPrim(ordering_table, tile);
+        primitive += sizeof(TILE);
+    }
+    if (border != NULL && border_size > 0) {
+        TILE* tile = (TILE*) primitive;
+        setTile(tile);
+        setXY0(tile, x - border_size, y - border_size);
+        setWH(
+            tile,
+            (stream_x - x) + (border_size << 1),
+            max(stream_y - y, FONT_CHARACTER_SPRITE_HEIGHT) + (border_size << 1)
+        );
+        setRGB0(tile, border->r, border->g, border->b);
         addPrim(ordering_table, tile);
         primitive += sizeof(TILE);
     }

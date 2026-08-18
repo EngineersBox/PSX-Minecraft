@@ -20,15 +20,23 @@ typedef int FontID;
 u32 fontStringWidth(const char* string);
 
 void fontPrintCentreOffset(RenderContext* ctx,
-                           i32 x_offset,
-                           i32 y,
+                           i16 x_offset,
+                           u16 y,
                            u32 fmt_add_bytes,
                            const size_t ot_entry_index,
                            const char* fmt, ...);
 
 void fontLoad();
 FontID fontOpen(int x, int y, int w, int h, bool isbg, bool shadow, int n);
-void* fontSort(u32* ordering_table, void* primitive, int x, int y, bool shadow, const CVECTOR* bg, const char* text);
+void* fontSort(u32* ordering_table,
+               void* primitive,
+               const u16 x,
+               const u16 y,
+               const bool shadow,
+               const CVECTOR* bg,
+               const CVECTOR* border,
+               const u8 border_size,
+               const char* text);
 int fontPrint(FontID id, const char* fmt, ...);
 void* fontFlush(FontID id);
 

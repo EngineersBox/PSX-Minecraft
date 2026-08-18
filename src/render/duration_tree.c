@@ -243,6 +243,8 @@ void durationTreeRender0(const DurationComponent* tree,
         DURATION_TREE_STACK_GRAPH_Y_POS - (9 * 5),
         true,
         NULL,
+        NULL,
+        0,
         str
     );
 }

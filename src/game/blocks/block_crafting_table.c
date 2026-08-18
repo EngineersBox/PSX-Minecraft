@@ -306,7 +306,7 @@ void craftingTableBlockRenderUI(RenderContext* ctx, Transforms* transforms) {
     );
     if (slot->data.item != NULL) {
         Item* item = VCAST_PTR(Item*, slot->data.item);
-        toolTipRender(ctx, itemGetAttribute(item->id, name));
+        toolTipRender(ctx, itemGetName(item->id));
     }
     slot = &crafting_table_slots[slotGroupIndexOffset(CRAFTING_TABLE_RESULT)];
     if (slot->data.item != NULL) {
@@ -315,7 +315,7 @@ void craftingTableBlockRenderUI(RenderContext* ctx, Transforms* transforms) {
         item->position.vy = slotGroupScreenPosition(CRAFTING_TABLE_RESULT, Y, 0);
         VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
         if (cursorPositionOverlap(item->position.vx, item->position.vy)) {
-            toolTipRender(ctx, itemGetAttribute(item->id, name));
+            toolTipRender(ctx, itemGetName(item->id));
         }
     }
     uiBackgroundRender(

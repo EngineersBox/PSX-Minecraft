@@ -10,5 +10,10 @@ static const CVECTOR COLOUR_BLACK = (CVECTOR) {
     .g = 1,
     .b = 1
 };
+static const CVECTOR COLOUR_WHITE = (CVECTOR) {
+    .r = 255,
+    .g = 255,
+    .b = 255
+};
 
 #endif // _RENDER__COLOURS_H_
