@@ -55,6 +55,8 @@ typedef enum ItemMaterial {
     ITEMMATERIAL_DIAMOND
 } ItemMaterial;
 
+#define ITEM_NAME_MAX_LEN 255
+
 typedef struct ItemAttributes {
     u8 max_stack_size;
     // Value of 0 indicates no durability

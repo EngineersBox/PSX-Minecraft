@@ -92,7 +92,7 @@ static void inventoryRenderTooltip(const Inventory* inventory,
             )];
         } 
         if (slot != NULL && slot->data.item != NULL) {
-            Item* item = VCAST_PTR(Item*, slot->data.item);
+            const Item* item = VCAST_PTR(Item*, slot->data.item);
             toolTipRender(ctx, itemGetName(item->id));
             return;
         }
@@ -106,7 +106,7 @@ static void inventoryRenderTooltip(const Inventory* inventory,
             )];
         } 
         if (slot != NULL && slot->data.item != NULL) {
-            Item* item = VCAST_PTR(Item*, slot->data.item);
+            const Item* item = VCAST_PTR(Item*, slot->data.item);
             toolTipRender(ctx, itemGetName(item->id));
             return;
         }
@@ -114,13 +114,10 @@ static void inventoryRenderTooltip(const Inventory* inventory,
     if (groups & INVENTORY_SLOT_GROUP_CRAFTING_RESULT) {
         const Slot* slot = NULL;
         if (slotGroupIntersect(INVENTORY_CRAFTING_RESULT, &cursor.component.position)) {
-            slot = &inventory->slots[slotGroupCursorSlot(
-                INVENTORY_CRAFTING_RESULT,
-                &cursor.component.position
-            )];
+            slot = &inventory->slots[slotGroupIndexOffset(INVENTORY_CRAFTING_RESULT)];
         } 
         if (slot != NULL && slot->data.item != NULL) {
-            Item* item = VCAST_PTR(Item*, slot->data.item);
+            const Item* item = VCAST_PTR(Item*, slot->data.item);
             toolTipRender(ctx, itemGetName(item->id));
             return;
         }
@@ -134,7 +131,7 @@ static void inventoryRenderTooltip(const Inventory* inventory,
             )];
         } 
         if (slot != NULL && slot->data.item != NULL) {
-            Item* item = VCAST_PTR(Item*, slot->data.item);
+            const Item* item = VCAST_PTR(Item*, slot->data.item);
             toolTipRender(ctx, itemGetName(item->id));
             return;
         }
@@ -150,7 +147,7 @@ static void inventoryRenderTooltip(const Inventory* inventory,
         if (slot != NULL
             && slot->data.ref != NULL
             && slot->data.ref->data.item != NULL) {
-            Item* item = VCAST_PTR(Item*, slot->data.ref->data.item);
+            const Item* item = VCAST_PTR(Item*, slot->data.ref->data.item);
             toolTipRender(ctx, itemGetName(item->id));
         }
     }

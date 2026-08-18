@@ -268,6 +268,27 @@ bool CraftingTableBlock_useAction(VSelf) {
     return BLOCK_USE_ACTION_CONSUMED;
 }
 
+static void craftingTableRenderTooltip(RenderContext* ctx) {
+    if (slotGroupIntersect(CRAFTING_TABLE, &cursor.component.position)) {
+        const Slot* slot = &crafting_table_slots[slotGroupCursorSlot(
+            CRAFTING_TABLE,
+            &cursor.component.position
+        )];
+        if (slot->data.item != NULL) {
+            const Item* item = VCAST_PTR(Item*, slot->data.item);
+            toolTipRender(ctx, itemGetName(item->id));
+            return;
+        }
+    }
+    if (slotGroupIntersect(CRAFTING_TABLE_RESULT, &cursor.component.position)) {
+        const Slot* slot = &crafting_table_slots[slotGroupIndexOffset(CRAFTING_TABLE_RESULT)];
+        if (slot->data.item != NULL) {
+            const Item* item = VCAST_PTR(Item*, slot->data.item);
+            toolTipRender(ctx, itemGetName(item->id));
+        }
+    }
+}
+
 void craftingTableBlockRenderUI(RenderContext* ctx, Transforms* transforms) {
     // Render main storage slots and hotbar
     uiCursorRender(
@@ -275,6 +296,15 @@ void craftingTableBlockRenderUI(RenderContext* ctx, Transforms* transforms) {
         ctx,
         transforms
     );
+    if (quadIntersectLiteral(
+        &cursor.component.position,
+        CENTRE_X - (CRAFTING_TABLE_TEXTURE_WIDTH>> 1),
+        CENTRE_Y - (CRAFTING_TABLE_TEXTURE_HEIGHT >> 1),
+        CRAFTING_TABLE_TEXTURE_WIDTH,
+        CRAFTING_TABLE_TEXTURE_HEIGHT
+    )) {
+        craftingTableRenderTooltip(ctx);
+    }
     inventoryRenderSlots(
         VCAST_PTR(const Inventory*, block_input_handler_context.inventory),
         INVENTORY_SLOT_GROUP_MAIN | INVENTORY_SLOT_GROUP_HOTBAR,
@@ -294,29 +324,12 @@ void craftingTableBlockRenderUI(RenderContext* ctx, Transforms* transforms) {
             VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
         }
     }
-    const SVECTOR cursor_pos = vec3_i16(
-        cursor.component.position.vx,
-        cursor.component.position.vy,
-        0
-    );
-    Slot* slot = slotFromScreenPosition(
-        CRAFTING_TABLE,
-        &cursor_pos,
-        (Slot*) crafting_table_slots
-    );
-    if (slot->data.item != NULL) {
-        Item* item = VCAST_PTR(Item*, slot->data.item);
-        toolTipRender(ctx, itemGetName(item->id));
-    }
-    slot = &crafting_table_slots[slotGroupIndexOffset(CRAFTING_TABLE_RESULT)];
+    const Slot* slot = &crafting_table_slots[slotGroupIndexOffset(CRAFTING_TABLE_RESULT)];
     if (slot->data.item != NULL) {
         Item* item = VCAST_PTR(Item*, slot->data.item);
         item->position.vx = slotGroupScreenPosition(CRAFTING_TABLE_RESULT, X, 0);
         item->position.vy = slotGroupScreenPosition(CRAFTING_TABLE_RESULT, Y, 0);
         VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
-        if (cursorPositionOverlap(item->position.vx, item->position.vy)) {
-            toolTipRender(ctx, itemGetName(item->id));
-        }
     }
     uiBackgroundRender(
         &block_render_ui_context.background,

@@ -55,7 +55,7 @@
 * [ ] Chunks with negative relative position to player are culled below player sometimes
 * [ ] Crafting table recipe causes exception only when placing items in table in a certain order. I.e. Bottom right four squares, placed in order of top-left, top-right, bottom-left and bottom-right, exception on last placement. This isn't the only case that triggers it, there are other cases where it will work and then putting another item in the table will cause an exception. Very likely an out-of-bounds write with a value rather than an address, considering that it causes a BIOS reload most times.
 * [ ] Frustum culling seems to be skewed in pitch. Lower chunks get culled quickly and upper chunks stay around. The direction vector that culling is relative to doesn't seem to be in the centre of the screen.
-* [ ] Make tooltips render normal name instead of snake-case.
+* [X] Make tooltips render normal name instead of snake-case.
 
 ## Implement
 
