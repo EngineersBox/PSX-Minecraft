@@ -816,8 +816,6 @@ void worldRender(const World* world,
     // pcsx_debugbreak();
 }
 
-// NOTE: Should this just take i32 x,y,z params instead of a
-//       a VECTOR struct to avoid creating needless stack objects?
 Chunk* worldLoadChunk(World* world, const VECTOR chunk_position) {
     Chunk* chunk = VCALL(
         world->chunk_provider,
