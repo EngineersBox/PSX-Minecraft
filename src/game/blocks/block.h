@@ -1,6 +1,6 @@
 
-#ifndef PSXMC_BLOCK_H
-#define PSXMC_BLOCK_H
+#ifndef _PSXMC__GAME_BLOCKS__BLOCK_H_ 
+#define _PSXMC__GAME_BLOCKS__BLOCK_H_
 
 #include <stdbool.h>
 #include <interface99.h>
@@ -178,4 +178,10 @@ typedef struct BlockRenderUIContext {
 
 extern BlockRenderUIContext block_render_ui_context;
 
-#endif // PSXMC_BLOCK_H
+#define resetBlockRenderUIContext() ({\
+    block_render_ui_context.function = NULL; \
+    block_render_ui_context.block = NULL; \
+    block_render_ui_context.background = (UIBackground) {0}; \
+})
+
+#endif // _PSXMC__GAME_BLOCKS__BLOCK_H_ 

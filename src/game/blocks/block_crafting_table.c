@@ -18,10 +18,10 @@ static Texture crafting_table_texture = {0};
 FWD_DECL Chunk* worldGetChunk(const World* world, const VECTOR* position);
 FWD_DECL void worldDropItemStack(World* world, IItem* item, const u8 count);
 
-Slot crafting_table_slots[(slotGroupSize(CRAFTING_TABLE) + slotGroupSize(CRAFTING_TABLE_RESULT))] = {
+Slot crafting_table_slots[slotGroupSize(CRAFTING_TABLE) + slotGroupSize(CRAFTING_TABLE_RESULT)] = {
     createSlotInline(CRAFTING_TABLE, 0, 0), createSlotInline(CRAFTING_TABLE, 1, 0), createSlotInline(CRAFTING_TABLE, 2, 0),
-    createSlotInline(CRAFTING_TABLE, 0, 1), createSlotInline(CRAFTING_TABLE, 1, 0), createSlotInline(CRAFTING_TABLE, 2, 1),
-    createSlotInline(CRAFTING_TABLE, 0, 2), createSlotInline(CRAFTING_TABLE, 1, 0), createSlotInline(CRAFTING_TABLE, 2, 2),
+    createSlotInline(CRAFTING_TABLE, 0, 1), createSlotInline(CRAFTING_TABLE, 1, 1), createSlotInline(CRAFTING_TABLE, 2, 1),
+    createSlotInline(CRAFTING_TABLE, 0, 2), createSlotInline(CRAFTING_TABLE, 1, 2), createSlotInline(CRAFTING_TABLE, 2, 2),
     createSlotInline(CRAFTING_TABLE_RESULT, 0, 0)
 };
 
@@ -179,13 +179,13 @@ static void cursorHandler(bool split_or_store_one) {
 
 InputHandlerState craftingTableBlockInputHandler(const Input* input, UNUSED void* ctx) {
     processCraftingRecipe();
-    DEBUG_LOG("Before cusor handler\n");
+    // DEBUG_LOG("Before cusor handler\n");
     inventoryCursorHandler(
         VCAST_PTR(Inventory*, block_input_handler_context.inventory),
         INVENTORY_SLOT_GROUP_MAIN | INVENTORY_SLOT_GROUP_HOTBAR,
         input
     );
-    DEBUG_LOG("After cusor handler\n");
+    // DEBUG_LOG("After cusor handler\n");
     const PADTYPE* pad = input->pad;
     // TODO Determime the button layout on xbox/playstation/switch
     //      MC releases and match it here for interacting with items
@@ -206,9 +206,7 @@ InputHandlerState craftingTableBlockInputHandler(const Input* input, UNUSED void
     if (isPressed(pad, BINDING_OPEN_INVENTORY)) {
         // Block inventory is closed, reset the render handlers
         // to stop rendering the overlay
-        block_render_ui_context.function = NULL;
-        block_render_ui_context.block = NULL;
-        block_render_ui_context.background = (UIBackground) {0};
+        resetBlockRenderUIContext();
         // Drop all ingredients into the world and
         // destroy the output slot item
         for (int i = slotGroupIndexOffset(CRAFTING_TABLE);
@@ -219,7 +217,7 @@ InputHandlerState craftingTableBlockInputHandler(const Input* input, UNUSED void
             }
             worldDropItemStack(
                 world,
-                (IItem*)  slot->data.item,
+                (IItem*) slot->data.item,
                 0
             );
             slot->data.item = NULL;
@@ -231,7 +229,7 @@ InputHandlerState craftingTableBlockInputHandler(const Input* input, UNUSED void
         }
         return INPUT_HANDLER_RELEASE;
     }
-    DEBUG_LOG("End of input handler\n");
+    // DEBUG_LOG("End of input handler\n");
     return INPUT_HANDLER_RETAIN;
 }
 
@@ -298,7 +296,7 @@ void craftingTableBlockRenderUI(RenderContext* ctx, Transforms* transforms) {
     );
     if (quadIntersectLiteral(
         &cursor.component.position,
-        CENTRE_X - (CRAFTING_TABLE_TEXTURE_WIDTH>> 1),
+        CENTRE_X - (CRAFTING_TABLE_TEXTURE_WIDTH >> 1),
         CENTRE_Y - (CRAFTING_TABLE_TEXTURE_HEIGHT >> 1),
         CRAFTING_TABLE_TEXTURE_WIDTH,
         CRAFTING_TABLE_TEXTURE_HEIGHT

@@ -57,7 +57,7 @@ slotGroupCheck(CRAFTING_TABLE);
 #define CRAFTING_TABLE_RESULT_SLOT_GROUP_INDEX_OFFSET 9
 slotGroupCheck(CRAFTING_TABLE_RESULT);
 
-extern Slot crafting_table_slots[(slotGroupSize(CRAFTING_TABLE) + slotGroupSize(CRAFTING_TABLE_RESULT))];
+extern Slot crafting_table_slots[slotGroupSize(CRAFTING_TABLE) + slotGroupSize(CRAFTING_TABLE_RESULT)];
     
 void craftingTableBlockInit(VSelf);
 void CraftingTableBlock_init(VSelf);

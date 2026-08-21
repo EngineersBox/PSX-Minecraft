@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef PSXMC_SLOT_H
-#define PSXMC_SLOT_H
+#ifndef _PSXMC__GAME_GUI__SLOT_H_
+#define _PSXMC__GAME_GUI__SLOT_H_
 
 #include <stdbool.h>
 #include <psxgte.h>
@@ -61,6 +61,10 @@ typedef void (*SlotItemSetter)(Slot* slot, IItem* item);
     (slotGroupDim(name, X) * (slotGroupSlotDim(name, X) + slotGroupSlotSpacing(name, X))), \
     (slotGroupDim(name, Y) * (slotGroupSlotDim(name, Y) + slotGroupSlotSpacing(name, Y))) \
 )
+/**
+ * Assumes slotGroupIntersect was used to verify
+ * cursor is within the slot group .
+ */
 #define slotGroupCursorSlot(name, pos) (\
     slotGroupIndexOffset(name) \
     + ((((pos)->vx) - slotGroupOrigin(name, X)) / (slotGroupSlotDim(name, X) + slotGroupSlotSpacing(name, X))) \
@@ -151,4 +155,4 @@ void slotDirectItemSetter(Slot* slot, IItem* item);
 IItem* slotRefItemGetter(Slot* slot);
 void slotRefItemSetter(Slot* slot, IItem* item);
 
-#endif // PSXMC_SLOT_H
+#endif // _PSXMC__GAME_GUI__SLOT_H_

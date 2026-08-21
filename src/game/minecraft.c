@@ -332,6 +332,12 @@ void Minecraft_render(VSelf, const Stats* stats) {
     }
     // Clear window constraints
     renderClearConstraints(&self->ctx);
+    /*crosshairDraw(&self->ctx);*/
+    axisDraw(
+        &self->ctx,
+        &self->transforms
+    );
+    renderClearConstraints(&self->ctx);
     // Render UI
     playerRender(player, &self->ctx, &self->transforms);
     // Block UI overlays
@@ -341,11 +347,6 @@ void Minecraft_render(VSelf, const Stats* stats) {
             &self->transforms
         );
     }
-    /*crosshairDraw(&self->ctx);*/
-    axisDraw(
-        &self->ctx,
-        &self->transforms
-    );
     renderClearConstraints(&self->ctx);
     drawDebugText(stats, &self->camera, world);
 #if isDebugEnabled()

@@ -41,8 +41,8 @@
 #define quadIntersectLiteral(cursor, base_x, base_y, dim_x, dim_y) ( \
     (cursor)->vx >= (base_x) \
     && (cursor)->vy >= (base_y) \
-    && (cursor)->vx <= (base_x) + (dim_x) \
-    && (cursor)->vy <= (base_y) + (dim_y) \
+    && (cursor)->vx < (base_x) + (dim_x) \
+    && (cursor)->vy < (base_y) + (dim_y) \
 )
 #define quadIntersect(cursor, base, dim) quadIntersectLiteral( \
     cursor, \
