@@ -34,9 +34,9 @@ ItemAttributes item_attributes[ITEM_COUNT] = {
     [ITEMID_CRAFTING_TABLE]=craftingTableItemBlockAttributes(),
 };
 
-// #define initItem(id, constructor, attributes) ({ \
-//     item_constructors[(id)] = constructor; \
-//     item_attributes[(id)] = attributes; \
+// #define initItem(id, constructor, attributes) ({
+//     item_constructors[(id)] = constructor;
+//     item_attributes[(id)] = attributes;
 // })
 
 // void itemsInitialiseBuiltin() {

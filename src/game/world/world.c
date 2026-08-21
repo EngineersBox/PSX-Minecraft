@@ -1,4 +1,4 @@
-#define DEBUG_LOG_DISABLE 1
+// #define DEBUG_LOG_DISABLE 1
 #include "world.h"
 
 #include <assert.h>
@@ -618,7 +618,7 @@ static bool vertexSpanOverlapsFrustum(const i32 z,
         chunk_rel_z + (qv_z_end * (CHUNK_SIZE)),
         chunk_rel_q + (qv_q_end * (CHUNK_SIZE))
     );
-    DEBUG_LOG("View range: [%d,%d] Vertices range: [%d,%d]\n", angle_ref - angle, angle_ref + angle, start, end);
+    // DEBUG_LOG("View range: [%d,%d] Vertices range: [%d,%d]\n", angle_ref - angle, angle_ref + angle, start, end);
     return tcabAngleRangeOverlap(
         angle_ref,
         angle,
@@ -633,7 +633,7 @@ void worldRender(const World* world,
                  const Player* player,
                  RenderContext* ctx,
                  Transforms* transforms) {
-    DEBUG_LOG("==== START WORLD RENDER ====\n");
+    // DEBUG_LOG("==== START WORLD RENDER ====\n");
     durationComponentInitOnce(world_render, "worldRender");
     durationComponentStart(&world_render_duration);
     const VECTOR player_world_pos = vec3_const_div(
@@ -655,7 +655,7 @@ void worldRender(const World* world,
     const TRad playerTRadPitch = player->camera->rotation.vx >> 10;
     // Yaw = left and right
     const TRad playerTRadYaw = player->camera->rotation.vy >> 10;
-    DEBUG_LOG("[WORLD] Player pitch: %d yaw: %d\n", playerTRadPitch, playerTRadYaw);
+    // DEBUG_LOG("[WORLD] Player pitch: %d yaw: %d\n", playerTRadPitch, playerTRadYaw);
     const FaceDirection player_camera_direction = faceDirectionClosestNormal(player->camera->direction);
     ChunkVisit visit = (ChunkVisit) {
         .position = player_pos.chunk,
@@ -675,13 +675,13 @@ void worldRender(const World* world,
     while (cvector_size(render_queue) > 0) {
         visit = render_queue[cvector_size(render_queue) - 1];
         cvector_pop_back(render_queue);
-        DEBUG_LOG(
-            "Visit chunk " VEC_PATTERN " @ " VEC_PATTERN "\n", 
-            VEC_LAYOUT(visit.position),
-            arrayCoord(world, vx, visit.position.vx),
-            visit.position.vy,
-            arrayCoord(world, vz, visit.position.vz)
-        );
+        // DEBUG_LOG(
+        //     "Visit chunk " VEC_PATTERN " @ " VEC_PATTERN "\n", 
+        //     VEC_LAYOUT(visit.position),
+        //     arrayCoord(world, vx, visit.position.vx),
+        //     visit.position.vy,
+        //     arrayCoord(world, vz, visit.position.vz)
+        // );
         ChunkBlockPosition chunk_pos = (ChunkBlockPosition) {
             .chunk = visit.position,
             .block = vec3_i32(0)
@@ -708,10 +708,10 @@ void worldRender(const World* world,
                 ctx,
                 transforms
             );
-            DEBUG_LOG("Rendered\n");
+            // DEBUG_LOG("Rendered\n");
         }
             // render_count++;
-        DEBUG_LOG("Chunk vis: " INT16_BIN_PATTERN "\n", INT16_BIN_LAYOUT(chunk_render_state->visibility));
+        // DEBUG_LOG("Chunk vis: " INT16_BIN_PATTERN "\n", INT16_BIN_LAYOUT(chunk_render_state->visibility));
         if (chunk_render_state->visibility == 0) {
             // Can't see anything, don't bother
             // DEBUG_LOG("No visibility\n");
@@ -721,9 +721,8 @@ void worldRender(const World* world,
             continue;
         }
         for (FaceDirection face_dir = FACE_DIR_DOWN; face_dir <= FACE_DIR_FRONT; face_dir++) {
-#define DEBUG_LOG_PREFIX "world.c :: faces"
             if (face_dir == visit.visited_from) {
-                DEBUG_LOG("Same direction as visited from %d == %d\n", face_dir, visit.visited_from);
+                // DEBUG_LOG("Same direction as visited from %d == %d\n", face_dir, visit.visited_from);
                 chunkVisibilityClearBit(&chunk_render_state->visibility, face_dir, visit.visited_from);
                 continue;
             } else if (visit.traversal_depth != 0 && chunkVisibilityGetBit(
@@ -732,20 +731,20 @@ void worldRender(const World* world,
                     visit.visited_from
                 ) == 0) {
                 // Cannot exit chunk in this direction from the entered face
-                DEBUG_LOG("No visibility from face %d to %d\n", visit.visited_from, face_dir);
+                // DEBUG_LOG("No visibility from face %d to %d\n", visit.visited_from, face_dir);
                 continue;
             }
             chunkVisibilityClearBit(&chunk_render_state->visibility, face_dir, visit.visited_from);
             // DEBUG_LOG("Visible from face %d to %d\n", visit.visited_from, face_dir);
             const SVECTOR face_dir_normal = WORLD_FACE_DIRECTION_NORMALS[face_dir];
             const VECTOR next_chunk = vec3_add(visit.position, face_dir_normal);
-            DEBUG_LOG("Next chunk: " VEC_PATTERN "\n", VEC_LAYOUT(next_chunk));
+            // DEBUG_LOG("Next chunk: " VEC_PATTERN "\n", VEC_LAYOUT(next_chunk));
             // Check if traversal direction is back towards camera. Skip if so.
             const VECTOR fixed_face_dir_normal = vec3_const_mul(vec3_as(VECTOR, face_dir_normal), ONE);
             const fixedi32 dot_result = dot_i32(player->camera->direction, fixed_face_dir_normal);
             // DEBUG_LOG("Dir: " VEC_PATTERN " Norm: " VEC_PATTERN " Dot: %d\n", VEC_LAYOUT(player->camera->direction), fixed_face_dir_normal, dot_result);
             if (dot_result < 0) {
-                DEBUG_LOG("Facing torward camera, skipping\n");
+                // DEBUG_LOG("Facing torward camera, skipping\n");
                 continue;
             }
             const ChunkBlockPosition next_cb_pos = (ChunkBlockPosition) {
@@ -783,7 +782,7 @@ void worldRender(const World* world,
 				playerTRadPitch,
 				FOV_Y_HALF_TRAD
             )) {
-                DEBUG_LOG("Chunk ZY/pitch vertices not visible\n");
+                // DEBUG_LOG("Chunk ZY/pitch vertices not visible\n");
                 continue;
             } else if (!vertexSpanOverlapsFrustum(
                 chunk_relative_pos.vz,
@@ -793,17 +792,16 @@ void worldRender(const World* world,
 				playerTRadYaw,
 				FOV_X_HALF_TRAD
             )) {
-                DEBUG_LOG("Chunk ZX/yaw vertices not visible\n");
+                // DEBUG_LOG("Chunk ZX/yaw vertices not visible\n");
                 continue;
             }
-            DEBUG_LOG("In-frustum\n");
+            // DEBUG_LOG("In-frustum\n");
             const ChunkVisit next_visit = (ChunkVisit) {
                 .position = next_chunk,
                 .visited_from = faceDirectionOpposing(face_dir),
                 .traversal_depth = visit.traversal_depth + 1
             };
             cvector_push_back(render_queue, next_visit);
-#define DEBUG_LOG_PREFIX __FILE_NAME__
         }
     }
     // DEBUG_LOG("Chunks rendered: %d\n", render_count);
@@ -814,7 +812,7 @@ void worldRender(const World* world,
         ctx,
         transforms
     );
-    DEBUG_LOG("==== END WORLD RENDER ====\n");
+    // DEBUG_LOG("==== END WORLD RENDER ====\n");
     // pcsx_debugbreak();
 }
 

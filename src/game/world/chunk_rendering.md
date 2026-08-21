@@ -36,7 +36,7 @@ A slightly more formal way of approaching this is:
 
 > Given a finite cubic mesh divided in unit intervals on all 3 axes, where each cell
 > can be either filled or unfilled, let there be some subset of the cells filled. Let
-> a face of the mesh be the "outer walls" where every coordinate is $0$ or $\verb{cell_count}$.
+> a face of the mesh be the "outer walls" where every coordinate is $0$ or `cell_count`.
 > Construct an algorithm to determine the visibility of every face from every other
 > face in the mesh.
 
