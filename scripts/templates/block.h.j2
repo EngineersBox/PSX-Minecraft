@@ -7,7 +7,7 @@
 
 #include "block.h"
 {% if stateful -%}
-DEFN_BLOCK_STATEFUL({ name_capital }}Block);
+DEFN_BLOCK_STATEFUL({{ name_capital }}Block, {{ name_snake_upper }});
 {%- else -%}
 DEFN_BLOCK_STATELESS({{ name_capital }}Block, {{ name_snake_upper }});
 {%- endif %}
@@ -32,9 +32,9 @@ DEFN_BLOCK_CONSTRUCTOR({{ name_lower }});
 #define {{ name_lower }}BlockFaceAttributes() P99_PROTECT({\
 {% for attr in face_attributes -%}
     {% if attr.tinted -%}
-    defaultTintedFaceAttributes({{ attr.value }})
+    declareTintedFaceAttributes({{ attr.value }})
     {%- else -%}
-    defaultFaceAttributes({{ attr.value }})
+    declareFaceAttributes({{ attr.value }})
     {%- endif %}
     {%- if not loop.last -%} ,
     {%- endif %} \

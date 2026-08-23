@@ -18,6 +18,7 @@
 #include "block_cobblestone.h"
 #include "block_plank.h"
 #include "block_crafting_table.h"
+#include "block_furnace.h"
 
 #define DEBUG_BLOCK_ID_CHECK 1
 

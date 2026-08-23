@@ -3,6 +3,7 @@
 #include "blocks/item_block_cobblestone.h"
 #include "blocks/item_block_crafting_table.h"
 #include "blocks/item_block_dirt.h"
+#include "blocks/item_block_furnace.h"
 #include "blocks/item_block_grass.h"
 #include "blocks/item_block_plank.h"
 #include "blocks/item_block_stone.h"
@@ -23,6 +24,7 @@ ItemConstructor item_constructors[ITEM_COUNT] = {
     [ITEMID_COBBLESTONE]=itemConstructor(cobblestone),
     [ITEMID_PLANK]=itemConstructor(plank),
     [ITEMID_CRAFTING_TABLE]=itemConstructor(craftingTable),
+    [ITEMID_FURNACE]=itemConstructor(furnace),
 };
 ItemAttributes item_attributes[ITEM_COUNT] = {
     [ITEMID_AIR]={0},
@@ -32,6 +34,7 @@ ItemAttributes item_attributes[ITEM_COUNT] = {
     [ITEMID_COBBLESTONE]=cobblestoneItemBlockAttributes(),
     [ITEMID_PLANK]=plankItemBlockAttributes(),
     [ITEMID_CRAFTING_TABLE]=craftingTableItemBlockAttributes(),
+    [ITEMID_FURNACE]=furnaceItemBlockAttributes(),
 };
 
 // #define initItem(id, constructor, attributes) ({

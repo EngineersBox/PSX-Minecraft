@@ -13,6 +13,7 @@
 #include "blocks/item_block_cobblestone.h"
 #include "blocks/item_block_plank.h"
 #include "blocks/item_block_crafting_table.h"
+#include "blocks/item_block_furnace.h"
 
 #define DEBUG_ITEM_ID_CHECK 1
 

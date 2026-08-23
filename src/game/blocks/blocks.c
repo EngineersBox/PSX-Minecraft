@@ -3,6 +3,7 @@
 #include "../../util/interface99_extensions.h"
 #include "../../logging/logging.h"
 #include "block.h"
+#include "block_furnace.h"
 #include "block_plank.h"
 
 BlockAttributes block_attributes[BLOCK_COUNT] = {0};
@@ -68,17 +69,17 @@ u8 block_type_opacity_bitset[BLOCK_TYPE_COUNT][FACE_DIRECTION_COUNT] = {
 
 // ==== START WRAPPER MACROS ====
 
-#define DECL_STATELESS_METADATA_BLOCK(type, extern_name, metadata_id) \
+#define DECL_METADATA_BLOCK(type, extern_name, metadata_id) \
     type extern_name##_##metadata_id##_BLOCK_SINGLETON = {0}; \
     IBlock extern_name##_##metadata_id##_IBLOCK_SINGLETON = {0}
 
-#define DECL_STATELESS_BLOCK(type, extern_name, metadata_variant_count, face_attributes) \
-    DECL_STATELESS_METADATA_BLOCK(type, extern_name, 0); \
+#define DECL_BLOCK(type, extern_name, metadata_variant_count, face_attributes) \
+    DECL_METADATA_BLOCK(type, extern_name, 0); \
     TextureAttributes extern_name##_FACE_ATTRIBUTES[(metadata_variant_count) * FACE_DIRECTION_COUNT] = face_attributes
 
-#define initBlockStateful(id, attributes, constructor) ({ \
-    block_attributes[(id)] = attributes; \
-    block_constructors[(id)] = constructor; \
+#define initBlockStateful(extern_name, attributes, constructor) ({ \
+    block_attributes[BLOCKID_##extern_name] = attributes; \
+    block_constructors[BLOCKID_##extern_name] = constructor; \
 })
 
 #define initBlockMetadataSingleton(type, extern_name, metadata_id) ({ \
@@ -98,13 +99,14 @@ u8 block_type_opacity_bitset[BLOCK_TYPE_COUNT][FACE_DIRECTION_COUNT] = {
 
 // ==== END WRAPPER MACROS ====
 
-DECL_STATELESS_BLOCK(AirBlock, AIR, 1, airBlockFaceAttributes()); 
-DECL_STATELESS_BLOCK(StoneBlock, STONE, 1, stoneBlockFaceAttributes());
-DECL_STATELESS_BLOCK(GrassBlock, GRASS, 1, grassBlockFaceAttributes());
-DECL_STATELESS_BLOCK(DirtBlock, DIRT, 1, dirtBlockFaceAttributes());
-DECL_STATELESS_BLOCK(CobblestoneBlock, COBBLESTONE, 1, cobblestoneBlockFaceAttrbutes());
-DECL_STATELESS_BLOCK(PlankBlock, PLANK, 1, plankBlockFaceAttributes());
-DECL_STATELESS_BLOCK(CraftingTableBlock, CRAFTING_TABLE, 1, craftingTableBlockFaceAttributes());
+DECL_BLOCK(AirBlock, AIR, 1, airBlockFaceAttributes()); 
+DECL_BLOCK(StoneBlock, STONE, 1, stoneBlockFaceAttributes());
+DECL_BLOCK(GrassBlock, GRASS, 1, grassBlockFaceAttributes());
+DECL_BLOCK(DirtBlock, DIRT, 1, dirtBlockFaceAttributes());
+DECL_BLOCK(CobblestoneBlock, COBBLESTONE, 1, cobblestoneBlockFaceAttrbutes());
+DECL_BLOCK(PlankBlock, PLANK, 1, plankBlockFaceAttributes());
+DECL_BLOCK(CraftingTableBlock, CRAFTING_TABLE, 1, craftingTableBlockFaceAttributes());
+DECL_BLOCK(FurnaceBlock, FURNACE, 4, furnaceBlockFaceAttributes());
 
 void blocksInitialiseBuiltin() {
     initBlockSingleton(
@@ -135,6 +137,7 @@ void blocksInitialiseBuiltin() {
         CraftingTableBlock, CRAFTING_TABLE,
         craftingTableBlockCreateAttributes(), craftingTableBlockCreate
     );
+    initBlockStateful(FURNACE, furnaceBlockCreateAttributes(), furnaceBlockCreate);
 }
 
 bool blockCanHarvest(const ToolType block_tool_type,
