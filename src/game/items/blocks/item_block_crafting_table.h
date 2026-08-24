@@ -30,9 +30,7 @@ void craftingTableItemBlockRenderHand(VSelf, RenderContext* ctx, Transforms* tra
 void CraftingTableItemBlock_renderHand(VSelf, RenderContext* ctx, Transforms* transforms);
 
 void CraftingTableItemBlock_applyWorldRenderAttributes(VSelf) ASM_ALIAS("itemBlockApplyWorldRenderAttributes");
-
 void CraftingTableItemBlock_applyInventoryRenderAttributes(VSelf) ASM_ALIAS("itemBlockApplyInventoryRenderAttributes");
-
 void CraftingTableItemBlock_applyHandRenderAttributes(VSelf) ASM_ALIAS("itemBlockApplyHandRenderAttributes");
 
 impl(Renderable, CraftingTableItemBlock);

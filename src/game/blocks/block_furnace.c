@@ -1,9 +1,30 @@
 #include "block_furnace.h"
 
+#include "block.h"
 #include "block_id.h"
 #include "../items/blocks/item_block_furnace.h"
+#include "../../core/input/input.h"
 #include "../../logging/logging.h"
 #include "../../util/interface99_extensions.h"
+
+static Texture furnace_texture = {0};
+
+Slot furnace_slots[
+    slotGroupSize(FURNACE_INPUT)
+    + slotGroupSize(FURNACE_FUEL)
+    + slotGroupSize(FURNACE_OUTPUT)
+] = {
+    createSlotInline(FURNACE_INPUT, 0, 0),
+    createSlotInline(FURNACE_FUEL, 0, 0),
+    createSlotInline(FURNACE_OUTPUT, 0, 0)
+};
+
+InputHandlerState furnaceBlockInputHandler(const Input* input, void* ctx);
+static InputHandlerVTable furnaceBlockInputHandlerVTable = {
+    .ctx = &block_input_handler_context,
+    .input_handler = furnaceBlockInputHandler,
+    .input_handler_destroy = NULL
+};
 
 DEFN_BLOCK_CONSTRUCTOR_IMPL_STATEFUL(furnace) {
     TODO("Constructor for furnace block");
@@ -45,6 +66,24 @@ void FurnaceBlock_update(VSelf) {
 
 bool furnaceBlockUseAction(VSelf) ALIAS("FurnaceBlock_useAction");
 bool FurnaceBlock_useAction(VSelf) {
+    VSELF(IBlock);
+    inputSetFocusedHandler(&input, &furnaceBlockInputHandlerVTable);
+    block_render_ui_context.function = furnaceBlockRenderUI;
+    block_render_ui_context.block = self;
+    assetLoadTextureDirect(
+        ASSET_BUNDLE__GUI,
+        ASSET_TEXTURE__GUI__FURNACE,
+        &furnace_texture
+    );
+    block_render_ui_context.background.texture = &furnace_texture;
+    block_render_ui_context.background.texture_coords = vec2_i16(0);
+    block_render_ui_context.background.texture_dimensions = vec2_i16(
+        FURNACE_TEXTURE_WIDTH,
+        FURNACE_TEXTURE_HEIGHT
+    );
     UNIMPLEMENTED();
     return false;
+}
+
+void furnaceBlockRenderUI(RenderContext* ctx, Transforms* transforms) {
 }

@@ -29,14 +29,9 @@ void FurnaceItemBlock_renderInventory(VSelf, RenderContext* ctx, Transforms* tra
 void furnaceItemBlockRenderHand(VSelf, RenderContext* ctx, Transforms* transforms);
 void FurnaceItemBlock_renderHand(VSelf, RenderContext* ctx, Transforms* transforms);
 
-void furnaceItemBlockApplyWorldRenderAttributes(VSelf);
-void FurnaceItemBlock_applyWorldRenderAttributes(VSelf);
-
-void furnaceItemBlockApplyInventoryRenderAttributes(VSelf);
-void FurnaceItemBlock_applyInventoryRenderAttributes(VSelf);
-
-void furnaceItemBlockApplyHandRenderAttributes(VSelf);
-void FurnaceItemBlock_applyHandRenderAttributes(VSelf);
+void FurnaceItemBlock_applyWorldRenderAttributes(VSelf) ASM_ALIAS("itemBlockApplyWorldRenderAttributes");
+void FurnaceItemBlock_applyInventoryRenderAttributes(VSelf) ASM_ALIAS("itemBlockApplyInventoryRenderAttributes");
+void FurnaceItemBlock_applyHandRenderAttributes(VSelf) ASM_ALIAS("itemBlockApplyHandRenderAttributes");
 
 impl(Renderable, FurnaceItemBlock);
 

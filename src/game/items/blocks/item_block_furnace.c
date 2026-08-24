@@ -4,8 +4,6 @@
 #include <interface99_extensions.h>
 
 #include "../item_id.h"
-#include "../../../logging/logging.h"
-#include "../../../math/vector.h"
 #include "../../../util/preprocessor.h"
 #include "../../../util/memory.h"
 
@@ -47,22 +45,6 @@ void furnaceItemBlockRenderHand(VSelf, RenderContext* ctx, Transforms* transform
 void FurnaceItemBlock_renderHand(VSelf, RenderContext* ctx, Transforms* transforms) {
     VSELF(FurnaceItemBlock);
     itemBlockRenderHand(&self->item_block, ctx, transforms);
-}
-
-void furnaceItemBlockApplyWorldRenderAttributes(VSelf) ALIAS("FurnaceItemBlock_applyWorldRenderAttributes");
-void FurnaceItemBlock_applyWorldRenderAttributes(VSelf) {
-    UNIMPLEMENTED();
-}
-
-void furnaceItemBlockApplyInventoryRenderAttributes(VSelf) ALIAS("FurnaceItemBlock_applyInventoryRenderAttributes");
-void FurnaceItemBlock_applyInventoryRenderAttributes(VSelf) {
-    VSELF(FurnaceItemBlock);
-    itemBlockApplyInventoryRenderAttributes(&self->item_block);
-}
-
-void furnaceItemBlockApplyHandRenderAttributes(VSelf) ALIAS("FurnaceItemBlock_applyHandRenderAttributes");
-void FurnaceItemBlock_applyHandRenderAttributes(VSelf) {
-    UNIMPLEMENTED();
 }
 
 void furnaceItemBlockInit(VSelf) ALIAS("FurnaceItemBlock_init");
