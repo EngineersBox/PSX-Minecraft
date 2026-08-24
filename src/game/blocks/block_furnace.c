@@ -36,7 +36,15 @@ static u8 ingredient_consume_sizes[slotGroupSize(FURNACE_INPUT) + slotGroupSize(
 static RECIPE_PATTERN(pattern, slotGroupSize(FURNACE_INPUT) + slotGroupSize(FURNACE_FUEL)) = {0};
 
 DEFN_BLOCK_CONSTRUCTOR_IMPL_STATEFUL(furnace) {
-    TODO("Constructor for furnace block");
+    if (from_item != NULL) {
+        Item* item = VCAST_PTR(Item*, from_item);
+        item->stack_size--;
+    }
+    IBlock* iblock = iblockCreate();
+    FurnaceBlock* furnace_block = malloc(sizeof(FurnaceBlock));
+    DYN_PTR(iblock, FurnaceBlock, IBlock, furnace_block);
+    VCALL(*iblock, init);
+    return iblock;
 }
 
 void furnaceBlockInit(VSelf) ALIAS("FurnaceBlock_init");
@@ -48,6 +56,9 @@ void FurnaceBlock_init(VSelf) {
         .orientation = FACE_DIR_FRONT,
         ._pad = 0
     );
+    self->cook_ticks = 0;
+    self->fuel_burn_ticks = 0;
+    self->recipe = NULL;
 }
 
 IItem* furnaceBlockDestroy(VSelf, bool drop_item) ALIAS("FurnaceBlock_destroy");
@@ -72,6 +83,10 @@ void FurnaceBlock_update(VSelf) {
     UNIMPLEMENTED();
 }
 
+InputHandlerState furnaceBlockInputHandler(const Input* input, void* ctx) {
+    UNIMPLEMENTED();
+    return INPUT_HANDLER_RETAIN;
+}
 
 bool furnaceBlockUseAction(VSelf) ALIAS("FurnaceBlock_useAction");
 bool FurnaceBlock_useAction(VSelf) {

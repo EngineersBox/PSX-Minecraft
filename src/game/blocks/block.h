@@ -117,6 +117,9 @@ bool IBlock_canPlace(VSelf, const World* world, const VECTOR* position, const AA
 
 interface(IBlock);
 
+void iblockDestroy(IBlock* iblock);
+ALLOC_CALL(iblockDestroy, 1) IBlock* iblockCreate();
+
 typedef IBlock* (*BlockConstructor)(IItem* from_item, MAYBE_UNUSED u8 metadata_id);
 
 #define DEFN_BLOCK_FACE_ATTRIBUTES(extern_name) \

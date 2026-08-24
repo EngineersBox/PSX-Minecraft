@@ -7,8 +7,13 @@
 
 #include "block.h"
 #include "../gui/slot.h"
+#include "../recipe/recipe.h"
 
-DEFN_BLOCK_STATEFUL(FurnaceBlock, FURNACE);
+DEFN_BLOCK_STATEFUL(FurnaceBlock, FURNACE,
+    u16 fuel_burn_ticks;
+    u16 cook_ticks;
+    RecipeResult* recipe;
+);
 
 DEFN_BLOCK_CONSTRUCTOR(furnace);
 

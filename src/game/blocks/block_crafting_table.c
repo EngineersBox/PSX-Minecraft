@@ -32,6 +32,10 @@ static InputHandlerVTable craftingTableBlockInputHandlerVTable = {
     .input_handler_destroy = NULL
 };
 
+static bool recipe_has_changed = false;
+static u8 ingredient_consume_sizes[slotGroupSize(CRAFTING_TABLE)] = {0};
+static RECIPE_PATTERN(pattern, slotGroupSize(CRAFTING_TABLE)) = {0};
+
 DEFN_BLOCK_CONSTRUCTOR_IMPL_STATELESS(craftingTable, CRAFTING_TABLE)
 
 void craftingTableBlockInit(VSelf) ALIAS("CraftingTableBlock_init");
@@ -58,10 +62,6 @@ IItem* CraftingTableBlock_provideItem(VSelf) {
     item_block->item_block.item.bob_direction = 1;
     return item;
 }
-
-static bool recipe_has_changed = false;
-static u8 ingredient_consume_sizes[slotGroupSize(CRAFTING_TABLE)] = {0};
-static RECIPE_PATTERN(pattern, slotGroupSize(CRAFTING_TABLE)) = {0};
 
 static void processCraftingRecipe() {
     if (!recipe_has_changed) {

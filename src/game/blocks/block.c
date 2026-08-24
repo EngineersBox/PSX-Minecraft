@@ -1,5 +1,7 @@
 #include "block.h"
 
+#include "../../util/memory.h"
+
 BlockInputHandlerContext block_input_handler_context = {
     .inventory = NULL,
     .block = NULL
@@ -46,4 +48,14 @@ void IBlock_renderUI(UNUSED VSelf,
                      UNUSED RenderContext* ctx,
                      UNUSED Transforms* transforms) {
     // Do nothing
+}
+
+IBlock* iblockCreate() {
+    IBlock* iblock = malloc(sizeof(IBlock));
+    zeroed(iblock);
+    return iblock;
+}
+
+void iblockDestroy(IBlock* iblock) {
+    free(iblock);
 }
