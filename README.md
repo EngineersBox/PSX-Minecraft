@@ -79,7 +79,7 @@ Remake of Minecraft for PS1 with PSn00bSDK
  * Finishing touches on chunk culling
  * Polygon subdivision in chunk rendering
  * Implement furnace and chest
- * Design block update system for liquids and redstone components
+ * Design block update system for blocks, liquids and redstone components
 
 ### Screenshots
 
