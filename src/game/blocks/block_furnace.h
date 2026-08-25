@@ -9,35 +9,6 @@
 #include "../gui/slot.h"
 #include "../recipe/recipe.h"
 
-DEFN_BLOCK_STATEFUL(FurnaceBlock, FURNACE,
-    u16 fuel_burn_ticks;
-    u16 cook_ticks;
-    RecipeResult* recipe;
-);
-
-DEFN_BLOCK_CONSTRUCTOR(furnace);
-
-#define furnaceBlockCreateAttributes() ((BlockAttributes) { \
-    .slipperiness = BLOCK_DEFAULT_SLIPPERINESS, \
-    .hardness = BLOCK_DEFAULT_HARDNESS, \
-    .resistance = BLOCK_DEFAULT_RESISTANCE, \
-    .type = BLOCKTYPE_SOLID, \
-    .tool_type = TOOLTYPE_PICKAXE, \
-    .tool_material = ITEMMATERIAL_WOOD, \
-    .can_harvest = toolTypeBitset(0,1,0,0,0,0), \
-    .propagates_sunlight =  false , \
-    .propagates_blocklight =  false , \
-    .face_attributes = FURNACE_FACE_ATTRIBUTES, \
-    .name = "furnace" \
-})
-
-#define furnaceBlockFaceAttributes() P99_PROTECT({\
-    declareFaceAttributes(62,62,44,45,45,45), \
-    declareFaceAttributes(62,62,45,44,45,45), \
-    declareFaceAttributes(62,62,45,45,44,45), \
-    declareFaceAttributes(62,62,45,45,45,44) \
-})
-
 #define FURNACE_TEXTURE_WIDTH 176
 #define FURNACE_TEXTURE_HEIGHT 166
 
@@ -93,11 +64,40 @@ slotGroupCheck(FURNACE_FUEL);
 #define FURNACE_OUTPUT_SLOT_GROUP_INDEX_OFFSET 0
 slotGroupCheck(FURNACE_OUTPUT);
 
-extern Slot furnace_slots[
-    slotGroupSize(FURNACE_INPUT)
-    + slotGroupSize(FURNACE_FUEL)
-    + slotGroupSize(FURNACE_OUTPUT)
-];
+DEFN_BLOCK_STATEFUL(FurnaceBlock, FURNACE,
+    u16 fuel_burn_ticks;
+    u16 cook_ticks;
+    bool recipe_changed;
+    RecipeResult* recipe;
+    Slot furnace_slots[
+        slotGroupSize(FURNACE_INPUT)
+        + slotGroupSize(FURNACE_FUEL)
+        + slotGroupSize(FURNACE_OUTPUT)
+    ];
+);
+
+DEFN_BLOCK_CONSTRUCTOR(furnace);
+
+#define furnaceBlockCreateAttributes() ((BlockAttributes) { \
+    .slipperiness = BLOCK_DEFAULT_SLIPPERINESS, \
+    .hardness = BLOCK_DEFAULT_HARDNESS, \
+    .resistance = BLOCK_DEFAULT_RESISTANCE, \
+    .type = BLOCKTYPE_SOLID, \
+    .tool_type = TOOLTYPE_PICKAXE, \
+    .tool_material = ITEMMATERIAL_WOOD, \
+    .can_harvest = toolTypeBitset(0,1,0,0,0,0), \
+    .propagates_sunlight =  false , \
+    .propagates_blocklight =  false , \
+    .face_attributes = FURNACE_FACE_ATTRIBUTES, \
+    .name = "furnace" \
+})
+
+#define furnaceBlockFaceAttributes() P99_PROTECT({\
+    declareFaceAttributes(62,62,44,45,45,45), \
+    declareFaceAttributes(62,62,45,44,45,45), \
+    declareFaceAttributes(62,62,45,45,44,45), \
+    declareFaceAttributes(62,62,45,45,45,44) \
+})
 
 void furnaceBlockInit(VSelf);
 void FurnaceBlock_init(VSelf);

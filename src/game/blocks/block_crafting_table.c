@@ -15,15 +15,15 @@
 
 static Texture crafting_table_texture = {0};
 
-FWD_DECL Chunk* worldGetChunk(const World* world, const VECTOR* position);
-FWD_DECL void worldDropItemStack(World* world, IItem* item, const u8 count);
-
 Slot crafting_table_slots[slotGroupSize(CRAFTING_TABLE) + slotGroupSize(CRAFTING_TABLE_RESULT)] = {
     createSlotInline(CRAFTING_TABLE, 0, 0), createSlotInline(CRAFTING_TABLE, 1, 0), createSlotInline(CRAFTING_TABLE, 2, 0),
     createSlotInline(CRAFTING_TABLE, 0, 1), createSlotInline(CRAFTING_TABLE, 1, 1), createSlotInline(CRAFTING_TABLE, 2, 1),
     createSlotInline(CRAFTING_TABLE, 0, 2), createSlotInline(CRAFTING_TABLE, 1, 2), createSlotInline(CRAFTING_TABLE, 2, 2),
     createSlotInline(CRAFTING_TABLE_RESULT, 0, 0)
 };
+
+FWD_DECL Chunk* worldGetChunk(const World* world, const VECTOR* position);
+FWD_DECL void worldDropItemStack(World* world, IItem* item, const u8 count);
 
 InputHandlerState craftingTableBlockInputHandler(const Input* input, void* ctx);
 static InputHandlerVTable craftingTableBlockInputHandlerVTable = {

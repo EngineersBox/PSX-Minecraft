@@ -8,6 +8,7 @@
 #include "../gui/tooltip.h"
 #include "../gui/utils.h"
 #include "../recipe/crafting.h"
+#include "../world/world_structure.h"
 #include "../../core/input/input.h"
 #include "../../logging/logging.h"
 #include "../../ui/components/cursor.h"
@@ -24,6 +25,9 @@ Slot furnace_slots[
     createSlotInline(FURNACE_FUEL, 0, 0),
     createSlotInline(FURNACE_OUTPUT, 0, 0)
 };
+
+FWD_DECL Chunk* worldGetChunk(const World* world, const VECTOR* position);
+FWD_DECL void worldDropItemStack(World* world, IItem* item, const u8 count);
 
 InputHandlerState furnaceBlockInputHandler(const Input* input, void* ctx);
 static InputHandlerVTable furnaceBlockInputHandlerVTable = {
@@ -83,7 +87,124 @@ void FurnaceBlock_update(VSelf) {
     UNIMPLEMENTED();
 }
 
+static void processFurnaceRecipe(FurnaceBlock* furnace) {
+    if (!furnace->recipe_changed) {
+        return;
+    }
+}
+
+void cursorHandler(FurnaceBlock* furnace,
+                   const bool split_or_store_one) {
+    if (!quadIntersectLiteral(&cursor.component.position, CENTRE_X - (FURNACE_TEXTURE_WIDTH >> 1), CENTRE_Y - (FURNACE_TEXTURE_HEIGHT >> 1), FURNACE_TEXTURE_WIDTH, FURNACE_TEXTURE_HEIGHT)) {
+        worldDropItemStack(
+            world,
+            (IItem*) cursor.held_data,
+            0
+        );
+        uiCursorSetHeldData(&cursor, NULL);
+        return;
+    }
+    Slot* slot = NULL;
+    if (slotGroupIntersect(FURNACE_INPUT, &cursor.component.position)) {
+        slot = &furnace->furnace_slots[slotGroupIndexOffset(FURNACE_INPUT)];
+        if (split_or_store_one) {
+            cursorSplitOrStoreOne(
+                slot,
+                slotDirectItemGetter,
+                slotDirectItemSetter
+            );
+        } else {
+            cursorInteractSlot(
+                slot,
+                slotDirectItemGetter,
+                slotDirectItemSetter
+            );
+        }
+        furnace->recipe_changed = true;
+    } else if (slotGroupIntersect(FURNACE_FUEL, &cursor.component.position)) {
+        slot = &furnace->furnace_slots[slotGroupIndexOffset(FURNACE_FUEL)];
+        if (split_or_store_one) {
+            cursorSplitOrStoreOne(
+                slot,
+                slotDirectItemGetter,
+                slotDirectItemSetter
+            );
+        } else {
+            cursorInteractSlot(
+                slot,
+                slotDirectItemGetter,
+                slotDirectItemSetter
+            );
+        }
+        furnace->recipe_changed = false;
+    } else if (slotGroupIntersect(FURNACE_OUTPUT, &cursor.component.position) && !split_or_store_one) {
+        // NOTE: Don't bother with splitting stacks
+        //       since it's a pain the for output slot.
+        slot = &furnace->furnace_slots[slotGroupIndexOffset(FURNACE_OUTPUT)];
+        IItem* result_iitem = slot->data.item;
+        if (result_iitem == NULL) {
+            return;
+        }
+        Item* result_item = VCAST_PTR(Item*, result_iitem);
+        IItem* held_iitem = (IItem*) cursor.held_data;
+        if (held_iitem == NULL) {
+            recipeConsumeIngredients(
+                furnace->furnace_slots,
+                ingredient_consume_sizes,
+                slotGroupIndexOffset(FURNACE_INPUT),
+                slotGroupIndexOffset(FURNACE_FUEL)
+            );
+            uiCursorSetHeldData(&cursor, result_iitem);
+            slot->data.item = NULL;
+            furnace->recipe_changed = true;
+            return;
+        } 
+        Item* held_item = VCAST_PTR(Item*, held_iitem);
+        if (itemEquals(held_item, result_item)) {
+            // Held and result item ids mismatch
+            return;
+        }
+        held_item->stack_size += result_item->stack_size;
+        VCALL(*result_iitem, destroy);
+        slot->data.item = NULL;
+        recipeConsumeIngredients(
+            furnace->furnace_slots,
+            ingredient_consume_sizes,
+            slotGroupIndexOffset(FURNACE_INPUT),
+            slotGroupIndexOffset(FURNACE_FUEL)
+        );
+        furnace->recipe_changed = true;
+    }
+}
+
 InputHandlerState furnaceBlockInputHandler(const Input* input, void* ctx) {
+    IBlock* iblock = (IBlock*) ctx;
+    FurnaceBlock* furnace = VCAST_PTR(FurnaceBlock*, iblock);
+    processFurnaceRecipe(furnace);
+    inventoryCursorHandler(
+        VCAST_PTR(Inventory*, block_input_handler_context.inventory),
+        INVENTORY_SLOT_GROUP_MAIN | INVENTORY_SLOT_GROUP_HOTBAR,
+        input
+    );
+    const PADTYPE* pad = input->pad;
+    if (isPressed(pad, BINDING_CURSOR_CLICK)) {
+        cursorHandler(furnace, false);
+        return INPUT_HANDLER_RETAIN;
+    } else if (isPressed(pad, BINDING_DROP_ITEM) && cursor.held_data != NULL) {
+        worldDropItemStack(
+            world,
+            (IItem*) cursor.held_data,
+            0
+        );
+        uiCursorSetHeldData(&cursor, NULL);
+    } else if (isPressed(pad, BINDING_SPLIT_OR_STORE_ONE)) {
+        cursorHandler(furnace, true);
+    }
+    if (isPressed(pad, BINDING_OPEN_INVENTORY)) {
+        resetBlockRenderUIContext();
+        // Leave item in the furnace slots
+        return INPUT_HANDLER_RELEASE;
+    }
     UNIMPLEMENTED();
     return INPUT_HANDLER_RETAIN;
 }
@@ -91,6 +212,7 @@ InputHandlerState furnaceBlockInputHandler(const Input* input, void* ctx) {
 bool furnaceBlockUseAction(VSelf) ALIAS("FurnaceBlock_useAction");
 bool FurnaceBlock_useAction(VSelf) {
     VSELF(IBlock);
+    furnaceBlockInputHandlerVTable.ctx = self;
     inputSetFocusedHandler(&input, &furnaceBlockInputHandlerVTable);
     block_render_ui_context.function = furnaceBlockRenderUI;
     block_render_ui_context.block = self;
