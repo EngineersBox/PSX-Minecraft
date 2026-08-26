@@ -1,4 +1,12 @@
-case_converter==1.1.0
+attrs==26.1.0
+case-converter==1.1.0
 coloredlogs==15.0.1
+humanfriendly==10.0
 Jinja2==3.1.4
+jsonschema==4.26.0
+jsonschema-specifications==2025.9.1
+MarkupSafe==3.0.3
 numpy==2.0.0
+referencing==0.37.0
+rpds-py==2026.6.3
+typing_extensions==4.16.0

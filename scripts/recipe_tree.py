@@ -35,8 +35,14 @@ class RecipeNode:
     results: List[RecipeResults]
     nodes: List["RecipeNode"]
     metadata: int = 0
+    ignore_metadata: bool = False
+    stack_size: int = 1
 
-    def add(self, item: str, metadata: int) -> "RecipeNode":
+    def add(self,
+            item: str,
+            metadata: int = 0,
+            ignore_metadata: bool = False,
+            stack_size: int = 1) -> "RecipeNode":
         if self.nodes == None:
             self.nodes = []
         found = None
@@ -46,7 +52,7 @@ class RecipeNode:
                 break
         if found != None:
             return found
-        new_node = RecipeNode(item, [], [], metadata)
+        new_node = RecipeNode(item, [], [], metadata, ignore_metadata, stack_size)
         self.nodes.append(new_node)
         self.nodes.sort(key=lambda n: n.item)
         return new_node
@@ -65,7 +71,9 @@ def constructTree(recipes) -> RecipeNode:
             for item in row:
                 current = current.add(
                     item["item"],
-                    int(item["metadata"] or 0)
+                    int(item.get("metadata", 0)),
+                    bool(item.get("ignore_metadata", False)),
+                    int(item.get("stack_size", 1))
                 )
         if current.results == None:
             current.results = []
@@ -74,7 +82,7 @@ def constructTree(recipes) -> RecipeNode:
             results.append(RecipeResult(
                 result["item"],
                 result["stack_size"],
-                result["metadata"]
+                result.get("metadata", 0)
             ))
         current.results.append(RecipeResults(
             dimensions,
@@ -102,7 +110,7 @@ def serialiseTree(node: RecipeNode, indent = 0) -> str:
             j = 0
             for _result in result.results:
                 results += pad(indent + 4) + "RECIPE_RESULT_ITEM {\n"
-                results += pad(indent + 5) + f".item = RECIPE_COMPOSITE_ID({itemToEnumName(node.item)}, {node.metadata}),\n"
+                results += pad(indent + 5) + f".item = RECIPE_COMPOSITE_ID({itemToEnumName(_result.item)}, {node.metadata}),\n"
                 results += pad(indent + 5) + f".stack_size = {_result.stack_size},\n"
                 results += pad(indent + 4) + "}"
                 if j < len(result.results) - 1:
@@ -132,6 +140,8 @@ def serialiseTree(node: RecipeNode, indent = 0) -> str:
         nodes = "NULL"
     output = pad(indent) + "RECIPE_ITEM {\n"
     output += pad(indent + 1) + f".item = RECIPE_COMPOSITE_ID({itemToEnumName(node.item)}, {node.metadata}),\n"
+    output += pad(indent + 1) + f".stack_size = {node.stack_size},\n"
+    output += pad(indent + 1) + f".ignore_metadata = {"true" if node.ignore_metadata else "false"},\n"
     output += pad(indent + 1) + f".node_count = {len(node.nodes)},\n"
     output += pad(indent + 1) + f".result_count = {len(node.results)},\n"
     output += pad(indent + 1) + f".results = {results},\n"
@@ -143,10 +153,12 @@ def constructGuard(path: str) -> str:
     guard_path = path.lstrip("src/").replace("/", "_")
     return caseconverter.macrocase(guard_path)
 
-def generateTreeFiles(name: str, path: str, tree: str) -> None:
+def generateTreeFiles(variable_name: str, file_name: str, path: str, tree: str) -> None:
     render_parameters = {
-        "name_snake_upper": caseconverter.macrocase(name),
-        "name_snake_lower": caseconverter.snakecase(name),
+        "file_name_snake_upper": caseconverter.macrocase(file_name),
+        "file_name_snake_lower": caseconverter.snakecase(file_name),
+        "name_snake_upper": caseconverter.macrocase(variable_name),
+        "name_snake_lower": caseconverter.snakecase(variable_name),
         "recipe_header_include_path": os.path.relpath("src/game/recipe", path),
         "guard_snake_upper": constructGuard(path),
         "items_include_path": os.path.relpath("src/game/items", path),
@@ -158,7 +170,7 @@ def generateTreeFiles(name: str, path: str, tree: str) -> None:
     print("[INFO] Rendered source content")
     if not path.endswith("/"):
         path += "/"
-    filepath = path + caseconverter.snakecase(name)
+    filepath = path + caseconverter.snakecase(file_name)
     with open(f"{filepath}.h", "w") as f:
         f.write(header_content)
     print(f"[INFO] Written header to {filepath}.h")
@@ -198,8 +210,9 @@ def main() -> None:
         exit(1)
     parser = argparse.ArgumentParser(prog="recipe_tree")
     parser.add_argument("--recipes", type=str, required=True, help="Path to JSON specification of recipes")
-    parser.add_argument("--name", type=str, required=True, help="Variable name for the tree used when declaring header")
-    parser.add_argument("--output", type=str, required=True, help="Location to generate header with recipe tree")
+    parser.add_argument("--output", type=str, required=True, help="Location to generate header and source with recipe tree")
+    parser.add_argument("--variable_name", type=str, required=True, help="Variable name for the tree used when declaring header")
+    parser.add_argument("--file_name", type=str, required=True, help="File to use for generated header (<file_name>.h) and source (<file_name>.c)")
     parser.add_argument("--min_ingredients", type=IntRange(1), required=False, help="Minimum number of ingredients to allow in recipes")
     parser.add_argument("--max_ingredients", type=IntRange(1), required=False, help="Maxmimum number of ingredients to allow in recipes")
     parser.add_argument("--pattern_width", type=IntRange(1), required=False, help="Maximum width of the recipe patterns")
@@ -223,7 +236,7 @@ def main() -> None:
     print("[INFO] Constructed tree structure")
     tree = serialiseTree(root)
     print("[INFO] Serialised tree into string")
-    generateTreeFiles(args["name"], args["output"], tree)
+    generateTreeFiles(args["variable_name"], args["file_name"], args["output"], tree)
 
 if __name__ == "__main__":
     main()

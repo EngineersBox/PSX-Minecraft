@@ -1,7 +1,7 @@
 [
     {
         "pattern": [
-            [ { "item": "log", "metadata": 0 } ]
+            [ { "item": "log", "ignore_metadata": true } ]
         ],
         "results": [
             {

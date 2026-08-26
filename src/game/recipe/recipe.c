@@ -21,13 +21,17 @@ RecipeNode* recipeNodeGetNext(const RecipeNode* node, const RecipePatternEntry* 
     while (lower <= upper) {
         mid = (lower + upper) >> 1;
         RecipeNode* next_node = node->nodes[mid];
-        if (next_node->item.data == pattern->id.data) {
+        if (next_node->ignore_metadata
+            ? next_node->item.separated.id == pattern->id.separated.id
+            : next_node->item.data == pattern->id.data) {
             if (next_node->stack_size < pattern->stack_size) {
                 // Number of items in the slot is insufficient
                 return NULL;
             }
             return next_node;
-        } else if (next_node->item.data > pattern->id.data) {
+        } else if (next_node->ignore_metadata
+            ? next_node->item.separated.id > pattern->id.separated.id
+            : next_node->item.data > pattern->id.data) {
             upper = mid - 1;
         } else {
             lower = mid + 1;

@@ -71,7 +71,8 @@ typedef struct RecipeNode {
      */
     CompositeID item;
     u8 stack_size;
-    u8 _pad;
+    bool ignore_metadata: 1;
+    u8 _pad: 7;
     /**
      * @brief Number of elements in `nodes`
      */

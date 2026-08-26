@@ -1,0 +1,13 @@
+[
+    {
+        "pattern": [
+            [ { "item": "cobblestone" } ]
+        ],
+        "results": [
+            {
+                "item": "stone",
+                "stack_size": 1
+            }
+        ]
+    }
+]

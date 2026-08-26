@@ -53,10 +53,8 @@ IItem* CraftingTableBlock_destroy(VSelf, bool drop_item) {
 IItem* craftingTableBlockProvideItem(VSelf) ALIAS("CraftingTableBlock_provideItem");
 IItem* CraftingTableBlock_provideItem(VSelf) {
     VSELF(CraftingTableBlock);
-    IItem* item = itemCreate();
-    CraftingTableItemBlock* item_block = craftingTableItemBlockCreate();
-    DYN_PTR(item, CraftingTableItemBlock, IItem, item_block);
-    VCALL(*item, init);
+    IItem* item = itemConstructor(craftingTable)(0);
+    CraftingTableItemBlock* item_block = VCAST_PTR(CraftingTableItemBlock*, item);
     itemBlockReplicateFaceAttributes(item_block->item_block, self->block);
     item_block->item_block.item.stack_size = 1;
     item_block->item_block.item.bob_direction = 1;

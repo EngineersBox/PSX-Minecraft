@@ -7,7 +7,7 @@
 #include "../gui/inventory.h"
 #include "../gui/tooltip.h"
 #include "../gui/utils.h"
-#include "../recipe/crafting.h"
+#include "../recipe/furnace.h"
 #include "../world/world_structure.h"
 #include "../../core/input/input.h"
 #include "../../logging/logging.h"
@@ -84,6 +84,7 @@ IItem* FurnaceBlock_provideItem(VSelf) {
 
 void furnaceBlockUpdate(VSelf) ALIAS("FurnaceBlock_update");
 void FurnaceBlock_update(VSelf) {
+    // TODO: Handle fuel burn, cooking, recipe processing here.
     UNIMPLEMENTED();
 }
 
@@ -91,6 +92,38 @@ static void processFurnaceRecipe(FurnaceBlock* furnace) {
     if (!furnace->recipe_changed) {
         return;
     }
+    memset(ingredient_consume_sizes, '\0', sizeof(u8) * slotGroupSize(FURNACE_OUTPUT));
+    for (int i = 0; i < slotGroupIndexOffset(FURNACE_OUTPUT); i++) {
+        const Slot* slot = &furnace->furnace_slots[i];
+        const IItem* iitem = slot->data.item;
+        if (iitem != NULL) {
+            const Item* item = VCAST_PTR(Item*, iitem);
+            pattern[i] = (RecipePatternEntry) {
+                .id = RECIPE_COMPOSITE_ID(item->id, item->metadata_id),
+                .stack_size = item->stack_size,
+            };
+        } else {
+            pattern[i] = (RecipePatternEntry) {
+                .id = RECIPE_COMPOSITE_ID(0, ITEMID_AIR),
+                .stack_size = 0,
+            };
+        }
+    }
+    Slot* output_slot = &crafting_table_slots[slotGroupIndexOffset(FURNACE_OUTPUT)];
+    recipeProcess(
+        // TODO: Create furnace.json with recipes and serialise it to header + source 
+        furnace_recipes,
+        pattern,
+        (Dimension){
+            .width = slotGroupDim(FURNACE_INPUT, X),
+            .height = slotGroupDim(FURNACE_INPUT, Y)
+        },
+        &output_slot,
+        slotGroupSize(FURNACE_OUTPUT),
+        ingredient_consume_sizes,
+        false
+    );
+    furnace->recipe_changed = false;
 }
 
 void cursorHandler(FurnaceBlock* furnace,
@@ -121,6 +154,7 @@ void cursorHandler(FurnaceBlock* furnace,
             );
         }
         furnace->recipe_changed = true;
+        furnace->cook_ticks = 0;
     } else if (slotGroupIntersect(FURNACE_FUEL, &cursor.component.position)) {
         slot = &furnace->furnace_slots[slotGroupIndexOffset(FURNACE_FUEL)];
         if (split_or_store_one) {

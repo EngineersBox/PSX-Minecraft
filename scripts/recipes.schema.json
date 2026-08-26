@@ -21,6 +21,16 @@
                                 "default": 0,
                                 "minimum": 0,
                                 "maximum": 255
+                            },
+                            "stack_size": {
+                                "type": "integer",
+                                "default": 1,
+                                "minimum": 1,
+                                "maximum": 255
+                            },
+                            "ignore_metadata": {
+                                "type": "boolean",
+                                "default": false
                             }
                         },
                         "required": [
@@ -28,11 +38,9 @@
                         ],
                         "additionalProperties": false
                     },
-                    "minItems": 1,
-                    "maxItems": 3
+                    "minItems": 1
                 },
-                "minItems": 1,
-                "maxItems": 3
+                "minItems": 1
             },
             "results": {
                 "type": "array",
