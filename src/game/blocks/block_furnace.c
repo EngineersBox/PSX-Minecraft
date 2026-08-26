@@ -62,7 +62,10 @@ void FurnaceBlock_init(VSelf) {
     );
     self->cook_ticks = 0;
     self->fuel_burn_ticks = 0;
-    self->recipe = NULL;
+    self->recipe = (RecipeQueryResult) {
+        .result_count = 0,
+        .results = NULL
+    };
 }
 
 IItem* furnaceBlockDestroy(VSelf, bool drop_item) ALIAS("FurnaceBlock_destroy");
@@ -109,26 +112,37 @@ static void processFurnaceRecipe(FurnaceBlock* furnace) {
             };
         }
     }
-    Slot* output_slot = &crafting_table_slots[slotGroupIndexOffset(FURNACE_OUTPUT)];
-    recipeProcess(
-        // TODO: Create furnace.json with recipes and serialise it to header + source 
+    const RecipeQueryState result = recipeSearch(
         furnace_recipes,
         pattern,
         (Dimension){
             .width = slotGroupDim(FURNACE_INPUT, X),
             .height = slotGroupDim(FURNACE_INPUT, Y)
         },
-        &output_slot,
-        slotGroupSize(FURNACE_OUTPUT),
+        &furnace->recipe,
         ingredient_consume_sizes,
         false
     );
+    switch (result) {
+        case RECIPE_FOUND:
+            break;
+        case RECIPE_NOT_FOUND:
+            furnace->recipe.result_count = 0;
+            furnace->recipe.results = NULL;
+            break;
+    }
     furnace->recipe_changed = false;
 }
 
 void cursorHandler(FurnaceBlock* furnace,
                    const bool split_or_store_one) {
-    if (!quadIntersectLiteral(&cursor.component.position, CENTRE_X - (FURNACE_TEXTURE_WIDTH >> 1), CENTRE_Y - (FURNACE_TEXTURE_HEIGHT >> 1), FURNACE_TEXTURE_WIDTH, FURNACE_TEXTURE_HEIGHT)) {
+    if (!quadIntersectLiteral(
+        &cursor.component.position,
+        CENTRE_X - (FURNACE_TEXTURE_WIDTH >> 1),
+        CENTRE_Y - (FURNACE_TEXTURE_HEIGHT >> 1),
+        FURNACE_TEXTURE_WIDTH,
+        FURNACE_TEXTURE_HEIGHT
+    )) {
         worldDropItemStack(
             world,
             (IItem*) cursor.held_data,

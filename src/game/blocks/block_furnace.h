@@ -68,7 +68,7 @@ DEFN_BLOCK_STATEFUL(FurnaceBlock, FURNACE,
     u16 fuel_burn_ticks;
     u16 cook_ticks;
     bool recipe_changed;
-    RecipeResult* recipe;
+    RecipeQueryResult recipe;
     Slot furnace_slots[
         slotGroupSize(FURNACE_INPUT)
         + slotGroupSize(FURNACE_FUEL)
