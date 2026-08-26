@@ -131,6 +131,7 @@ static void processFurnaceRecipe(FurnaceBlock* furnace) {
             furnace->recipe.results = NULL;
             break;
     }
+    furnace->cook_ticks = 0;
     furnace->recipe_changed = false;
 }
 

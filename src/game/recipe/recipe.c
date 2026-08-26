@@ -40,10 +40,13 @@ RecipeNode* recipeNodeGetNext(const RecipeNode* node, const RecipePatternEntry* 
     return NULL;
 }
 
-static void assembleResult(const RecipeResults* results, RecipeQueryResult* query_result) {
+static void assembleResult(const RecipeResults* results,
+                           const u16 processing_ticks,
+                           RecipeQueryResult* query_result) {
     // Ensure that we have enough space to saturate the result
     assert(query_result->result_count == results->result_count);
     query_result->result_count = results->result_count;
+    query_result->processing_ticks = processing_ticks;
     for (u32 i = 0; i < results->result_count; i++) {
         const IItem* existing_iitem = query_result->results[i];
         const RecipeResult* result = results->results[i];
@@ -81,7 +84,11 @@ RecipeQueryState recipeNodeGetRecipeResult(const RecipeNode* node,
     for (u32 i = 0; i < node->result_count; i++) {
         RecipeResults* result = node->results[i];
         if (dimensionEquals(dimension, &result->dimension)) {
-            if (create_result_item) assembleResult(result, query_result);
+            if (create_result_item) assembleResult(
+                result,
+                node->processing_ticks,
+                query_result
+            );
             return RECIPE_FOUND;
         }
     }

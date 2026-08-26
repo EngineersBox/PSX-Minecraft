@@ -30,9 +30,14 @@ class RecipeResults:
     results: List[RecipeResult]
 
 @dataclass
+class RecipeOutput:
+    results: list[RecipeResults]
+    processing_ticks: int = 0 
+
+@dataclass
 class RecipeNode:
     item: str
-    results: List[RecipeResults]
+    output: RecipeOutput
     nodes: List["RecipeNode"]
     metadata: int = 0
     ignore_metadata: bool = False
@@ -52,7 +57,14 @@ class RecipeNode:
                 break
         if found != None:
             return found
-        new_node = RecipeNode(item, [], [], metadata, ignore_metadata, stack_size)
+        new_node = RecipeNode(
+            item,
+            RecipeOutput([]),
+            [],
+            metadata,
+            ignore_metadata,
+            stack_size
+        )
         self.nodes.append(new_node)
         self.nodes.sort(key=lambda n: n.item)
         return new_node
@@ -63,7 +75,7 @@ def determineDimensions(pattern: List[List[str]]) -> Dimension:
     return Dimension(width, height)
 
 def constructTree(recipes) -> RecipeNode:
-    root: RecipeNode = RecipeNode("air", [], [], 0)
+    root: RecipeNode = RecipeNode("air", RecipeOutput([]), [], 0)
     current: RecipeNode = root
     for recipe in recipes:
         dimensions = determineDimensions(recipe["pattern"])
@@ -75,20 +87,26 @@ def constructTree(recipes) -> RecipeNode:
                     bool(item.get("ignore_metadata", False)),
                     int(item.get("stack_size", 1))
                 )
-        if current.results == None:
-            current.results = []
         results = []
-        for result in recipe["results"]:
+        output = recipe["output"]
+        print(output)
+        for result in output["results"]:
             results.append(RecipeResult(
                 result["item"],
                 result["stack_size"],
                 result.get("metadata", 0)
             ))
-        current.results.append(RecipeResults(
+        result_count = len(output["results"])
+        current.output.results.append(RecipeResults(
             dimensions,
-            len(recipe["results"]),
+            result_count,
             results
         ))
+        print(output.get("processing_ticks") or 1)
+        if (result_count > 0):
+            current.output.processing_ticks = output.get("processing_ticks", 1)
+        else:
+            current.output.processing_ticks = 0
         current = root
     return root
 
@@ -100,9 +118,9 @@ def itemToEnumName(item: str) -> str:
 
 def serialiseTree(node: RecipeNode, indent = 0) -> str:
     results = "RECIPE_RESULTS_LIST {\n"
-    if len(node.results) > 0:
+    if len(node.output.results) > 0:
         i = 0
-        for result in node.results:
+        for result in node.output.results:
             results += pad(indent + 2) + "RECIPE_RESULTS_ITEM {\n"
             results += pad(indent + 3) + f".dimension = {{{result.dimension.width}, {result.dimension.height}}},\n"
             results += pad(indent + 3) + f".result_count = {result.result_count},\n"
@@ -119,7 +137,7 @@ def serialiseTree(node: RecipeNode, indent = 0) -> str:
                 j += 1
             results += pad(indent + 3) + "}\n"
             results += pad(indent + 2) + "}"
-            if i < len(node.results) - 1:
+            if i < len(node.output.results) - 1:
                 results += ","
             results += "\n"
             i += 1
@@ -143,7 +161,8 @@ def serialiseTree(node: RecipeNode, indent = 0) -> str:
     output += pad(indent + 1) + f".stack_size = {node.stack_size},\n"
     output += pad(indent + 1) + f".ignore_metadata = {"true" if node.ignore_metadata else "false"},\n"
     output += pad(indent + 1) + f".node_count = {len(node.nodes)},\n"
-    output += pad(indent + 1) + f".result_count = {len(node.results)},\n"
+    output += pad(indent + 1) + f".result_count = {len(node.output.results)},\n"
+    output += pad(indent + 1) + f".processing_ticks = {node.output.processing_ticks},\n"
     output += pad(indent + 1) + f".results = {results},\n"
     output += pad(indent + 1) + f".nodes = {nodes}\n"
     output += pad(indent) +  "}"

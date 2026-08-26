@@ -47,7 +47,7 @@ typedef struct RecipeResults {
      *        the pattern itself.
      */
     Dimension dimension;
-    u32 result_count;
+    u16 result_count;
     RecipeResult** results;
 } RecipeResults;
 
@@ -82,6 +82,10 @@ typedef struct RecipeNode {
      */
     u8 result_count;
     /**
+     * @brief Duration in ticks it takes to process this recipe
+     */
+    u16 processing_ticks;
+    /**
     * @brief Contains the result of the recipe taking the items in the
     *        the tree up until this node. This should be null when
     *        `result_count`is `NULL`endcode. Otherwise the number of
@@ -98,7 +102,14 @@ typedef struct RecipeNode {
 } RecipeNode;
 
 typedef struct RecipeQueryResult {
-    u32 result_count;
+    /**
+     * @brief Duration in ticks it takes to process this recipe
+     */
+    u16 processing_ticks;
+    /**
+     * @brief Number of entries in results array
+     */
+    u16 result_count;
     IItem** results;
 } RecipeQueryResult;
 

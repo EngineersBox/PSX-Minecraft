@@ -3,25 +3,30 @@
         "pattern": [
             [ { "item": "log", "ignore_metadata": true } ]
         ],
-        "results": [
-            {
-                "item": "grass",
-                "metadata": 0,
-                "stack_size": 4
-            }
-        ]
+        "output": {
+            "results": [
+                {
+                    "item": "grass",
+                    "metadata": 0,
+                    "stack_size": 4
+                }
+            ],
+            "processing_ticks": 20
+        }
     },
     {
         "pattern": [
             [ { "item": "cobblestone", "metadata": 0 }, { "item": "cobblestone", "metadata": 0 } ],
             [ { "item": "cobblestone", "metadata": 0 }, { "item": "cobblestone", "metadata": 0 } ]
         ],
-        "results": [
-            {
-                "item": "crafting_table",
-                "metadata": 0,
-                "stack_size": 4
-            }
-        ]
+        "output": {
+            "results": [
+                {
+                    "item": "crafting_table",
+                    "metadata": 0,
+                    "stack_size": 4
+                }
+            ]
+        }
     }
 ]

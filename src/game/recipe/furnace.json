@@ -3,11 +3,14 @@
         "pattern": [
             [ { "item": "cobblestone" } ]
         ],
-        "results": [
-            {
-                "item": "stone",
-                "stack_size": 1
-            }
-        ]
+        "output": {
+            "results": [
+                {
+                    "item": "stone",
+                    "stack_size": 1
+                }
+            ],
+            "processing_ticks": 200
+        }
     }
 ]

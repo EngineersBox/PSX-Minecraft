@@ -10,6 +10,7 @@ const RecipeNode* crafting_recipes = RECIPE_ITEM {
     .ignore_metadata = false,
     .node_count = 2,
     .result_count = 0,
+    .processing_ticks = 0,
     .results = NULL,
     .nodes = RECIPE_LIST {
         RECIPE_ITEM {
@@ -18,6 +19,7 @@ const RecipeNode* crafting_recipes = RECIPE_ITEM {
             .ignore_metadata = false,
             .node_count = 1,
             .result_count = 0,
+            .processing_ticks = 0,
             .results = NULL,
             .nodes = RECIPE_LIST {
                 RECIPE_ITEM {
@@ -26,6 +28,7 @@ const RecipeNode* crafting_recipes = RECIPE_ITEM {
                     .ignore_metadata = false,
                     .node_count = 1,
                     .result_count = 0,
+                    .processing_ticks = 0,
                     .results = NULL,
                     .nodes = RECIPE_LIST {
                         RECIPE_ITEM {
@@ -34,6 +37,7 @@ const RecipeNode* crafting_recipes = RECIPE_ITEM {
                             .ignore_metadata = false,
                             .node_count = 1,
                             .result_count = 0,
+                            .processing_ticks = 0,
                             .results = NULL,
                             .nodes = RECIPE_LIST {
                                 RECIPE_ITEM {
@@ -42,6 +46,7 @@ const RecipeNode* crafting_recipes = RECIPE_ITEM {
                                     .ignore_metadata = false,
                                     .node_count = 0,
                                     .result_count = 1,
+                                    .processing_ticks = 1,
                                     .results = RECIPE_RESULTS_LIST {
                                         RECIPE_RESULTS_ITEM {
                                             .dimension = {2, 2},
@@ -68,6 +73,7 @@ const RecipeNode* crafting_recipes = RECIPE_ITEM {
             .ignore_metadata = true,
             .node_count = 0,
             .result_count = 1,
+            .processing_ticks = 20,
             .results = RECIPE_RESULTS_LIST {
                 RECIPE_RESULTS_ITEM {
                     .dimension = {1, 1},
