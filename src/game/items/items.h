@@ -42,6 +42,7 @@ extern ItemAttributes item_attributes[ITEM_COUNT];
 #define itemGetMaterial(id) itemGetAttribute(id, material)
 #define itemGetMaxDurability(id) itemGetAttribute(id, max_durability)
 #define itemHasDurability(id) (itemGetMaxDurability(id) > 0)
+#define itemGetBurnableTicks(id) itemGetAttribute(id, burnable_ticks)
 #define itemGetConstructor(id) item_constructors[(id)]
 
 // void itemsInitialiseBuiltin();

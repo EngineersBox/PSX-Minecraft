@@ -9,15 +9,10 @@
 
 DEFN_ITEM_BLOCK(GrassItemBlock);
 
-#define grassItemBlockAttributes() ((ItemAttributes) { \
-    .max_stack_size = 64, \
-    .max_durability = 0, \
-    .type = ITEMTYPE_BLOCK, \
+#define grassItemBlockAttributes() declareItemAttributes("grass", \
     .tool_type = TOOLTYPE_SHOVEL, \
-    .armour_type = ARMOURTYPE_NONE, \
-    .material = ITEMMATERIAL_WOOD, \
-    .name = "grass" \
-})
+    .material = ITEMMATERIAL_WOOD \
+)
 
 void grassItemBlockRenderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms);
 void GrassItemBlock_renderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms);

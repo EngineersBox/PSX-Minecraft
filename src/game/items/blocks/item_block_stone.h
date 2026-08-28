@@ -10,15 +10,10 @@
 
 DEFN_ITEM_BLOCK(StoneItemBlock);
 
-#define stoneItemBlockAttributes() ((ItemAttributes) { \
-    .max_stack_size = 64, \
-    .max_durability = 0, \
-    .type = ITEMTYPE_BLOCK, \
+#define stoneItemBlockAttributes() declareItemAttributes("stone", \
     .tool_type = TOOLTYPE_PICKAXE, \
-    .armour_type = ARMOURTYPE_NONE, \
-    .material = ITEMMATERIAL_WOOD, \
-    .name = "stone" \
-})
+    .material = ITEMMATERIAL_WOOD \
+)
 
 void stoneItemBlockRenderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms);
 void StoneItemBlock_renderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms);

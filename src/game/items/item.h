@@ -66,8 +66,22 @@ typedef struct ItemAttributes {
     ArmourType armour_type: ARMOUR_TYPE_COUNT_BITS;
     ItemMaterial material: ITEM_MATERIAL_COUNT_BITS;
     u16 _pad: 5;
+    u16 burnable_ticks;
     char* name;
 } ItemAttributes;
+
+#define declareItemAttributes(_name, ...) (ItemAttributes) { \
+    .max_stack_size = 64, \
+    .max_durability = 0, \
+    .type = ITEMTYPE_BLOCK, \
+    .tool_type = TOOLTYPE_NONE, \
+    .armour_type = ARMOURTYPE_NONE, \
+    .material = ITEMMATERIAL_NONE, \
+    ._pad = 0, \
+    .burnable_ticks = 0, \
+    .name = (_name), \
+    __VA_ARGS__ \
+}
 
 #define ITEM_ACTION_STATE_COUNT 3
 #define ITEM_ACTION_STATE_COUNT_BITS 2

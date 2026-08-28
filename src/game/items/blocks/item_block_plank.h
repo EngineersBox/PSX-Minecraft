@@ -10,15 +10,10 @@
 
 DEFN_ITEM_BLOCK(PlankItemBlock);
 
-#define plankItemBlockAttributes() ((ItemAttributes) { \
-    .max_stack_size = 64, \
-    .max_durability = 0, \
-    .type = ITEMTYPE_BLOCK, \
-    .tool_type = TOOLTYPE_NONE, \
-    .armour_type = ARMOURTYPE_NONE, \
-    .material = ITEMMATERIAL_NONE, \
-    .name = "plank" \
-})
+#define plankItemBlockAttributes() declareItemAttributes("plank", \
+    .tool_type = TOOLTYPE_AXE, \
+    .burnable_ticks = 300 \
+)
 
 void plankItemBlockRenderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms);
 void PlankItemBlock_renderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms);

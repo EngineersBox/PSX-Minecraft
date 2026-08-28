@@ -10,15 +10,10 @@
 
 DEFN_ITEM_BLOCK(CraftingTableItemBlock);
 
-#define craftingTableItemBlockAttributes() ((ItemAttributes) { \
-    .max_stack_size = 64, \
-    .max_durability = 0, \
-    .type = ITEMTYPE_BLOCK, \
-    .tool_type = TOOLTYPE_NONE, \
-    .armour_type = ARMOURTYPE_NONE, \
-    .material = ITEMMATERIAL_NONE, \
-    .name = "crafting_table" \
-})
+#define craftingTableItemBlockAttributes() declareItemAttributes("crafting_table", \
+    .tool_type = TOOLTYPE_AXE, \
+    .burnable_ticks = 300 \
+)
 
 void craftingTableItemBlockRenderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms);
 void CraftingTableItemBlock_renderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms);

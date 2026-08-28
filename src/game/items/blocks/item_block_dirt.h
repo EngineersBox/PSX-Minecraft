@@ -10,15 +10,10 @@
 
 DEFN_ITEM_BLOCK(DirtItemBlock);
 
-#define dirtItemBlockAttributes() ((ItemAttributes) { \
-    .max_stack_size = 64, \
-    .max_durability = 0, \
-    .type = ITEMTYPE_BLOCK, \
+#define dirtItemBlockAttributes() declareItemAttributes("dirt", \
     .tool_type = TOOLTYPE_SHOVEL, \
-    .armour_type = ARMOURTYPE_NONE, \
-    .material = ITEMMATERIAL_WOOD, \
-    .name = "dirt" \
-})
+    .material = ITEMMATERIAL_WOOD \
+)
 
 void dirtItemBlockRenderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms);
 void DirtItemBlock_renderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms);

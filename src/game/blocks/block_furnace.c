@@ -85,10 +85,37 @@ IItem* FurnaceBlock_provideItem(VSelf) {
     return item;
 }
 
+INLINE static void handleFuelConsumption(FurnaceBlock* furnace) {
+    if (furnace->fuel_burn_ticks > 0) {
+        furnace->fuel_burn_ticks--;
+    }
+    if (furnace->fuel_burn_ticks > 0) return;
+    Slot* slot = &furnace->furnace_slots[slotGroupIndexOffset(FURNACE_FUEL)];
+    if (slot->data.item == NULL) return;
+    IItem* iitem = slot->data.item;
+    Item* item = VCAST_PTR(Item*, iitem);
+    const u16 item_burnable_ticks = itemGetBurnableTicks(item->id);
+    if (item_burnable_ticks == 0) return;
+    assert(item->stack_size > 0);
+    item->stack_size--;
+    furnace->fuel_burn_ticks = item_burnable_ticks;
+    if (item->stack_size == 0) {
+        VCALL(*iitem, destroy);
+        slot->data.item = NULL;
+    }
+}
+
+INLINE static void handleSmelting(FurnaceBlock* furnace) {
+    // TODO: Implement smelting, similar to crafting table
+    // conditional on cook ticks being 0
+    UNIMPLEMENTED();
+}
+
 void furnaceBlockUpdate(VSelf) ALIAS("FurnaceBlock_update");
 void FurnaceBlock_update(VSelf) {
-    // TODO: Handle fuel burn, cooking, recipe processing here.
-    UNIMPLEMENTED();
+    VSELF(FurnaceBlock);
+    handleFuelConsumption(self);
+    handleSmelting(self);
 }
 
 static void processFurnaceRecipe(FurnaceBlock* furnace) {

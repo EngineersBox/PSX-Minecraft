@@ -10,15 +10,10 @@
 
 DEFN_ITEM_BLOCK(FurnaceItemBlock);
 
-#define furnaceItemBlockAttributes() ((ItemAttributes) { \
-    .max_stack_size = 64, \
-    .max_durability = 0, \
-    .type = ITEMTYPE_BLOCK, \
-    .tool_type = TOOLTYPE_NONE, \
-    .armour_type = ARMOURTYPE_NONE, \
-    .material = ITEMMATERIAL_NONE, \
-    .name = "furnace" \
-})
+#define furnaceItemBlockAttributes() declareItemAttributes("furnace", \
+    .tool_type = TOOLTYPE_PICKAXE, \
+    .material = ITEMMATERIAL_WOOD \
+)
 
 void furnaceItemBlockRenderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms);
 void FurnaceItemBlock_renderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms);

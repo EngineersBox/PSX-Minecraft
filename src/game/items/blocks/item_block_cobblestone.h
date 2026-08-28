@@ -10,15 +10,10 @@
 
 DEFN_ITEM_BLOCK(CobblestoneItemBlock);
 
-#define cobblestoneItemBlockAttributes() ((ItemAttributes) { \
-    .max_stack_size = 64, \
-    .max_durability = 0, \
-    .type = ITEMTYPE_BLOCK, \
+#define cobblestoneItemBlockAttributes() declareItemAttributes("cobblestone", \
     .tool_type = TOOLTYPE_PICKAXE, \
-    .armour_type = ARMOURTYPE_NONE, \
-    .material = ITEMMATERIAL_WOOD, \
-    .name = "cobblestone" \
-})
+    .material = ITEMMATERIAL_WOOD \
+)
 
 void cobblestoneItemBlockRenderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms);
 void CobblestoneItemBlock_renderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms);
