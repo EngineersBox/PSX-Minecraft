@@ -88,6 +88,8 @@ IItem* FurnaceBlock_provideItem(VSelf) {
 }
 
 INLINE static void handleFuelConsumption(FurnaceBlock* furnace) {
+    // TODO: Update block metadata_id when fuel is burning and when
+    //       runs out, then mark chunk for re-meshing
     if (furnace->fuel_burn_ticks > 0) {
         furnace->fuel_burn_ticks--;
     }
@@ -130,6 +132,11 @@ INLINE static void handleSmelting(FurnaceBlock* furnace) {
 
 void furnaceBlockUpdate(VSelf) ALIAS("FurnaceBlock_update");
 void FurnaceBlock_update(VSelf) {
+    // TODO: Make update method take Chunk* as additional parameter,
+    //       add furnace block to a chunk's block update list when
+    //       placed, remove furnace block from a chunk's block update
+    //       list when destroyed and make chunk proccess registered
+    //       block updates each tick
     VSELF(FurnaceBlock);
     handleFuelConsumption(self);
     handleSmelting(self);
@@ -414,6 +421,7 @@ void furnaceBlockRenderUI(RenderContext* ctx, Transforms* transforms) {
         item->position.vy = slotGroupScreenPosition(FURNACE_OUTPUT, Y, 0);
         VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
     }
+    // TODO: Render the burn time left with fire texture and smelting progress
     uiBackgroundRender(
         &block_render_ui_context.background,
         ctx,
