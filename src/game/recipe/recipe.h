@@ -162,12 +162,17 @@ typedef enum RecipeProcessResult {
  *        if all output slots have room, otherwise no operation is performed.
  * @return Result state indicating what occured (See RecipeProcessResult)
  */
-RecipeProcessResult recipeProcess(const RecipeNode* root,
-                                  const RecipePattern pattern,
-                                  Dimension pattern_dimension,
+RecipeProcessResult recipeSearchAndProcess(const RecipeNode* root,
+                                           const RecipePattern pattern,
+                                           Dimension pattern_dimension,
+                                           Slot** output_slots,
+                                           u8 output_slot_count,
+                                           u8* ingredient_consume_sizes,
+                                           bool merge_output);
+
+RecipeProcessResult recipeProcess(RecipeQueryResult* query_result,
                                   Slot** output_slots,
                                   u8 output_slot_count,
-                                  u8* ingredient_consume_sizes,
                                   bool merge_output);
 
 void recipeConsumeIngredients(Slot* slots,

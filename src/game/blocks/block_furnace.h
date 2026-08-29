@@ -49,7 +49,7 @@ slotGroupCheck(FURNACE_INPUT);
 #define FURNACE_FUEL_SLOT_GROUP_SLOT_SPACING_Y 0
 #define FURNACE_FUEL_SLOT_GROUP_ORIGIN_X (CENTRE_X - (FURNACE_TEXTURE_WIDTH >> 1) + 56)
 #define FURNACE_FUEL_SLOT_GROUP_ORIGIN_Y (CENTRE_Y - (FURNACE_TEXTURE_HEIGHT >> 1) + 53)
-#define FURNACE_FUEL_SLOT_GROUP_INDEX_OFFSET 0
+#define FURNACE_FUEL_SLOT_GROUP_INDEX_OFFSET 1
 slotGroupCheck(FURNACE_FUEL);
 
 // Output slot
@@ -61,13 +61,15 @@ slotGroupCheck(FURNACE_FUEL);
 #define FURNACE_OUTPUT_SLOT_GROUP_SLOT_SPACING_Y 0
 #define FURNACE_OUTPUT_SLOT_GROUP_ORIGIN_X (CENTRE_X - (FURNACE_TEXTURE_WIDTH >> 1) + 116)
 #define FURNACE_OUTPUT_SLOT_GROUP_ORIGIN_Y (CENTRE_Y - (FURNACE_TEXTURE_HEIGHT >> 1) + 35)
-#define FURNACE_OUTPUT_SLOT_GROUP_INDEX_OFFSET 0
+#define FURNACE_OUTPUT_SLOT_GROUP_INDEX_OFFSET 2 
 slotGroupCheck(FURNACE_OUTPUT);
 
 DEFN_BLOCK_STATEFUL(FurnaceBlock, FURNACE,
     u16 fuel_burn_ticks;
     u16 cook_ticks;
-    bool recipe_changed;
+    bool recipe_changed: 1;
+    bool process_recipe: 1;
+    u16 _pad: 14;
     RecipeQueryResult recipe;
     Slot furnace_slots[
         slotGroupSize(FURNACE_INPUT)

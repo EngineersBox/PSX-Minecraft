@@ -83,7 +83,7 @@ static void processCraftingRecipe() {
         }
     }
     Slot* output_slot = &crafting_table_slots[slotGroupIndexOffset(CRAFTING_TABLE_RESULT)];
-    recipeProcess(
+    recipeSearchAndProcess(
         crafting_recipes,
         pattern,
         (Dimension){

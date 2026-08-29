@@ -159,13 +159,13 @@ bool sufficientSpaceInOutputSlots(const RecipeQueryResult* query_result,
     return true;
 }
 
-RecipeProcessResult recipeProcess(const RecipeNode* root,
-                                  const RecipePattern pattern,
-                                  Dimension pattern_dimension,
-                                  Slot** output_slots,
-                                  u8 output_slot_count,
-                                  u8* ingredient_consume_sizes,
-                                  bool merge_output) {
+RecipeProcessResult recipeSearchAndProcess(const RecipeNode* root,
+                                           const RecipePattern pattern,
+                                           Dimension pattern_dimension,
+                                           Slot** output_slots,
+                                           u8 output_slot_count,
+                                           u8* ingredient_consume_sizes,
+                                           bool merge_output) {
     RecipeQueryResult query_result = {0};
     IItem* item_results[output_slot_count];
     memset(item_results, 0, output_slot_count * sizeof(IItem*));
@@ -189,13 +189,25 @@ RecipeProcessResult recipeProcess(const RecipeNode* root,
         // No matching recipe
         return RECIPE_PROCESSING_NONE_MATCHING;
     }
-    if (!merge_output && !sufficientSpaceInOutputSlots(
+    return recipeProcess(
         &query_result,
+        output_slots,
+        output_slot_count,
+        merge_output
+    );
+}
+
+RecipeProcessResult recipeProcess(RecipeQueryResult* query_result,
+                                  Slot** output_slots,
+                                  u8 output_slot_count,
+                                  bool merge_output) {
+    if (!merge_output && !sufficientSpaceInOutputSlots(
+        query_result,
         output_slots,
         output_slot_count
     )) {
         for (u8 i = 0; i < output_slot_count; i++) {
-            free(query_result.results[i]);
+            free(query_result->results[i]);
         }
         return RECIPE_PROCESSING_INSUFFICIENT_SPACE;
     }
@@ -209,22 +221,22 @@ RecipeProcessResult recipeProcess(const RecipeNode* root,
             goto move_item_to_output;
         }
         Item* output_item = VCAST_PTR(Item*, output_slot->data.item);
-        const Item* result_item = VCAST_PTR(Item*, query_result.results[i]);
+        const Item* result_item = VCAST_PTR(Item*, query_result->results[i]);
         if (itemEquals(output_item, result_item)) {
             if (merge_output) {
                 // Items were the same, stack size was adjusted
                 // we have nothing left to do
                 output_item->stack_size += result_item->stack_size;
             }
-            free(query_result.results[i]);
+            free(query_result->results[i]);
             continue;
         }
         // IDs between existing output slot item
         // and new result were different, 
         VCALL((IItem) *output_slot->data.item, destroy);
     move_item_to_output:;
-        output_slot->data.item = query_result.results[i];
-        query_result.results[i] = NULL;
+        output_slot->data.item = query_result->results[i];
+        query_result->results[i] = NULL;
         DEBUG_LOG("Moved item\n");
     }
     DEBUG_LOG("Recipe processing finished\n");

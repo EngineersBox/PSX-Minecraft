@@ -66,6 +66,8 @@ void FurnaceBlock_init(VSelf) {
         .result_count = 0,
         .results = NULL
     };
+    self->recipe_changed = false;
+    self->process_recipe = false;
 }
 
 IItem* furnaceBlockDestroy(VSelf, bool drop_item) ALIAS("FurnaceBlock_destroy");
@@ -106,9 +108,24 @@ INLINE static void handleFuelConsumption(FurnaceBlock* furnace) {
 }
 
 INLINE static void handleSmelting(FurnaceBlock* furnace) {
-    // TODO: Implement smelting, similar to crafting table
-    // conditional on cook ticks being 0
-    UNIMPLEMENTED();
+    if (!furnace->process_recipe) return;
+    const u16 previous_cook_ticks = furnace->cook_ticks--;
+    if (previous_cook_ticks != 1 || furnace->recipe.result_count == 0) {
+        return;
+    }
+    Slot* slot = &furnace->furnace_slots[slotGroupIndexOffset(FURNACE_OUTPUT)];
+    // Ignore output as we are guaranteed to be in a valid state
+    // for this to succeed
+    recipeProcess(
+        &furnace->recipe,
+        &slot,
+        1,
+        true
+    );
+    const Item* item = VCAST_PTR(Item*, slot->data.item);
+    if (item->stack_size >= itemGetMaxStackSize(item->id)) {
+        furnace->process_recipe = false;
+    }
 }
 
 void furnaceBlockUpdate(VSelf) ALIAS("FurnaceBlock_update");
@@ -123,21 +140,19 @@ static void processFurnaceRecipe(FurnaceBlock* furnace) {
         return;
     }
     memset(ingredient_consume_sizes, '\0', sizeof(u8) * slotGroupSize(FURNACE_OUTPUT));
-    for (int i = 0; i < slotGroupIndexOffset(FURNACE_OUTPUT); i++) {
-        const Slot* slot = &furnace->furnace_slots[i];
-        const IItem* iitem = slot->data.item;
-        if (iitem != NULL) {
-            const Item* item = VCAST_PTR(Item*, iitem);
-            pattern[i] = (RecipePatternEntry) {
-                .id = RECIPE_COMPOSITE_ID(item->id, item->metadata_id),
-                .stack_size = item->stack_size,
-            };
-        } else {
-            pattern[i] = (RecipePatternEntry) {
-                .id = RECIPE_COMPOSITE_ID(0, ITEMID_AIR),
-                .stack_size = 0,
-            };
-        }
+    const Slot* slot = &furnace->furnace_slots[slotGroupIndexOffset(FURNACE_OUTPUT)];
+    const IItem* iitem = slot->data.item;
+    if (iitem != NULL) {
+        const Item* item = VCAST_PTR(Item*, iitem);
+        pattern[0] = (RecipePatternEntry) {
+            .id = RECIPE_COMPOSITE_ID(item->id, item->metadata_id),
+            .stack_size = item->stack_size,
+        };
+    } else {
+        pattern[0] = (RecipePatternEntry) {
+            .id = RECIPE_COMPOSITE_ID(0, ITEMID_AIR),
+            .stack_size = 0,
+        };
     }
     const RecipeQueryState result = recipeSearch(
         furnace_recipes,
@@ -152,10 +167,20 @@ static void processFurnaceRecipe(FurnaceBlock* furnace) {
     );
     switch (result) {
         case RECIPE_FOUND:
+            Slot* slot = &furnace->furnace_slots[slotGroupIndexOffset(FURNACE_OUTPUT)];
+            if (slot->data.item == NULL) {
+                furnace->process_recipe = true;
+                break;
+            }
+            const Item* item = VCAST_PTR(Item*, slot->data.item);
+            const Item* recipe_result = VCAST_PTR(Item*, furnace->recipe.results[0]);
+            furnace->process_recipe = itemEquals(item, recipe_result)
+                && item->stack_size < itemGetMaxStackSize(item->id);
             break;
         case RECIPE_NOT_FOUND:
             furnace->recipe.result_count = 0;
             furnace->recipe.results = NULL;
+            furnace->process_recipe = true;
             break;
     }
     furnace->cook_ticks = 0;
