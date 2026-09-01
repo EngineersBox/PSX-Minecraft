@@ -22,6 +22,7 @@ DEFN_BLOCK_CONSTRUCTOR(craftingTable);
     .can_harvest = toolTypeBitset(1,1,1,1,1,1), \
     .propagates_sunlight =  false , \
     .propagates_blocklight =  false , \
+    .stateful = false, \
     .face_attributes = CRAFTING_TABLE_FACE_ATTRIBUTES, \
     .name = "crafting_table" \
 })

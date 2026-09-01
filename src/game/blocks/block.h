@@ -76,7 +76,8 @@ typedef struct BlockAttributes {
     u8 can_harvest: TOOL_TYPE_COUNT;
     bool propagates_sunlight: 1;
     bool propagates_blocklight: 1;
-    u16 _pad: 13;
+    bool stateful: 1;
+    u16 _pad: 12;
     // This is a variable length array with length
     // a multiple of 6, where each 6 entries will
     // correspond to a metadata_id grouping of

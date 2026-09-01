@@ -457,19 +457,29 @@ static int modifyVoxel0(Chunk* chunk,
             LIGHT_TYPE_SKY
         );
     }
-    BlockUpdate block_update_key = (BlockUpdate) {0};
+    BlockUpdate block_update = (BlockUpdate) {0};
     block_update_key.position.chunk = chunk->position;
     block_update_key.position.block = *position;
     BlockUpdate* existing_updates = hashmap_get(
         chunk->block_updates,
-        &block_update_key
+        &block_update
     );
     if (existing_updates != NULL) {
+        block_update = *existing_updates;
+    }
+    if (blockIsStateful(new_block->id)) {
+        blockUpdateTypeBitmapSet(
+            existing_updates->type_bitmap,
+            BLOCK_UPDATE_TYPE_STATE
+        );
+    } else {
         blockUpdateTypeBitmapUnset(
             existing_updates->type_bitmap,
             BLOCK_UPDATE_TYPE_STATE
         );
     }
+    hashmap_set(chunk->block_updates, &block_update);
+    if (blockIsStateful(new_block->id))
     IItem* iitem = VCALL(*old_iblock, destroy, drop_item);
     if (iitem != NULL && iitem->self != NULL) {
         cvector_push_back(

@@ -18,8 +18,9 @@ DEFN_BLOCK_CONSTRUCTOR(plank);
     .tool_type = TOOLTYPE_AXE, \
     .tool_material = ITEMMATERIAL_WOOD, \
     .can_harvest = toolTypeBitset(1,1,1,1,1,1), \
-    .propagates_sunlight =  false , \
-    .propagates_blocklight =  false , \
+    .propagates_sunlight = false, \
+    .propagates_blocklight = false, \
+    .stateful = false, \
     .face_attributes = PLANK_FACE_ATTRIBUTES, \
     .name = "plank" \
 })

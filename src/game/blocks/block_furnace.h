@@ -88,8 +88,9 @@ DEFN_BLOCK_CONSTRUCTOR(furnace);
     .tool_type = TOOLTYPE_PICKAXE, \
     .tool_material = ITEMMATERIAL_WOOD, \
     .can_harvest = toolTypeBitset(0,1,0,0,0,0), \
-    .propagates_sunlight =  false , \
-    .propagates_blocklight =  false , \
+    .propagates_sunlight = false, \
+    .propagates_blocklight = false, \
+    .stateful = true, \
     .face_attributes = FURNACE_FACE_ATTRIBUTES, \
     .name = "furnace" \
 })
