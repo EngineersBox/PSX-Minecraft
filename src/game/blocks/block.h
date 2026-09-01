@@ -102,7 +102,7 @@ FWD_DECL typedef struct Chunk Chunk;
 typedef u8 BlockUpdateResultBitmap;
 
 #define BLOCK_UPDATE_RESULT_TYPE_COUNT 3
-#define BLOCK_UPDATE_RESULT_TYPE_BITS 2
+#define BLOCK_UPDATE_RESULT_TYPE_BITS 3
 typedef enum BlockUpdateResult {
     // Keep block in chunk's update map/queue
     BLOCK_UPDATE_RESULT_PERSIST = 0,
@@ -210,7 +210,7 @@ extern BlockRenderUIContext block_render_ui_context;
 typedef u8 BlockUpdateTypeBitmap;
 
 #define BLOCK_UPDATE_TYPE_COUNT 5
-#define BLOCK_UPDATE_TYPE_BITS 3
+#define BLOCK_UPDATE_TYPE_BITS 5
 typedef enum BlockUpdateType {
     BLOCK_UPDATE_TYPE_ADD_SKYLIGHT = 0,
     BLOCK_UPDATE_TYPE_REMOVE_SKYLIGHT = 1,

@@ -168,6 +168,7 @@ BlockUpdateResultBitmap FurnaceBlock_update(VSelf) {
     } else {
         self->block.metadata_id &= ~0b1;
     }
+    DEBUG_LOG("Current: " INT8_BIN_PATTERN " New: " INT8_BIN_PATTERN "\n", INT8_BIN_LAYOUT(current_metadata_id), INT8_BIN_LAYOUT(self->block.metadata_id));
     if (current_metadata_id != self->block.metadata_id) {
         bitmapSetBit(bitmap, BLOCK_UPDATE_RESULT_REMESH_CHUNK);
     }

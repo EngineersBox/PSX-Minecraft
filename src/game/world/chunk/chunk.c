@@ -481,10 +481,12 @@ static int modifyVoxel0(Chunk* chunk,
             BLOCK_UPDATE_TYPE_STATE
         );
     }
+    DEBUG_LOG("New bitmap: " INT8_BIN_PATTERN "\n", INT8_BIN_LAYOUT(block_update.type_bitmap));
     hashmap_set(chunk->block_updates, &block_update);
     if (hashmap_oom(chunk->block_updates)) {
         errorAbort("[CHUNK] Failed to enqueue block update, hashmap OOM\n");
     }
+    DEBUG_LOG("Enqueued block update\n");
     IItem* iitem = VCALL(*old_iblock, destroy, drop_item);
     if (iitem != NULL && iitem->self != NULL) {
         cvector_push_back(
@@ -1209,8 +1211,16 @@ void chunkProcessBlockUpdates(Chunk* chunk,
     void* item;
     while (processed_updates < update_limits
             && hashmap_iter(chunk->block_updates, &iter, &item)) {
-        BlockUpdate update = *(BlockUpdate*) item;
+        const BlockUpdate* current_update = item;
+        BlockUpdate update = (BlockUpdate) {
+            .position = current_update->position,
+            .old_block_light_value = current_update->old_block_light_value,
+            .old_skylight_value = current_update->old_skylight_value,
+            ._pad = 0,
+            .type_bitmap = current_update->type_bitmap
+        };
         hashmap_delete(chunk->block_updates, item);
+        DEBUG_LOG("Bitmap: " INT8_BIN_PATTERN "\n", INT8_BIN_LAYOUT(update.type_bitmap));
         if (bitmapGetBit(update.type_bitmap, BLOCK_UPDATE_TYPE_ADD_SKYLIGHT)) {
             chunkUpdateAddSkylight(chunk, &update);
             lightmap_updated = true;
@@ -1232,6 +1242,7 @@ void chunkProcessBlockUpdates(Chunk* chunk,
             bitmapUnsetBit(update.type_bitmap, BLOCK_UPDATE_TYPE_REMOVE_BLOCKLIGHT);
         }
         if (bitmapGetBit(update.type_bitmap, BLOCK_UPDATE_TYPE_STATE)) {
+            DEBUG_LOG("State update\n");
             chunkUpdateBlockState(chunk, &update);
             bitmapUnsetBit(update.type_bitmap, BLOCK_UPDATE_TYPE_STATE);
         }
