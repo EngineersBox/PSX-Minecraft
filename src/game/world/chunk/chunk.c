@@ -458,9 +458,9 @@ static int modifyVoxel0(Chunk* chunk,
         );
     }
     BlockUpdate block_update = (BlockUpdate) {0};
-    block_update_key.position.chunk = chunk->position;
-    block_update_key.position.block = *position;
-    BlockUpdate* existing_updates = hashmap_get(
+    block_update.position.chunk = chunk->position;
+    block_update.position.block = *position;
+    const BlockUpdate* existing_updates = hashmap_get(
         chunk->block_updates,
         &block_update
     );
@@ -469,17 +469,16 @@ static int modifyVoxel0(Chunk* chunk,
     }
     if (blockIsStateful(new_block->id)) {
         blockUpdateTypeBitmapSet(
-            existing_updates->type_bitmap,
+            block_update.type_bitmap,
             BLOCK_UPDATE_TYPE_STATE
         );
     } else {
         blockUpdateTypeBitmapUnset(
-            existing_updates->type_bitmap,
+            block_update.type_bitmap,
             BLOCK_UPDATE_TYPE_STATE
         );
     }
     hashmap_set(chunk->block_updates, &block_update);
-    if (blockIsStateful(new_block->id))
     IItem* iitem = VCALL(*old_iblock, destroy, drop_item);
     if (iitem != NULL && iitem->self != NULL) {
         cvector_push_back(
