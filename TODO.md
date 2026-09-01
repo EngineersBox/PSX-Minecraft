@@ -126,7 +126,7 @@
 * [ ] Frustum and culling
 * [ ] Depth-first search culling through chunks
 * [ ] Thread scheduler using hardware timers for IRQ interleaved execution (Might be enough to do yield-based context switching and well-designed decomposible operations)
-* [ ] Update queue for operations on the world
+* [ ] Generalised chunk block updates, including skylight, blocklight and block state updates
 * [ ] TooManyItems-like overlay in inventory GUI
 * [ ] Retrieve face attributes based on block orientation during meshing
 * [ ] Sub-block intersection tests for raycast to handling interacting with blocks like doors and piston heads
