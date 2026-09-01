@@ -1211,14 +1211,7 @@ void chunkProcessBlockUpdates(Chunk* chunk,
     void* item;
     while (processed_updates < update_limits
             && hashmap_iter(chunk->block_updates, &iter, &item)) {
-        const BlockUpdate* current_update = item;
-        BlockUpdate update = (BlockUpdate) {
-            .position = current_update->position,
-            .old_block_light_value = current_update->old_block_light_value,
-            .old_skylight_value = current_update->old_skylight_value,
-            ._pad = 0,
-            .type_bitmap = current_update->type_bitmap
-        };
+        BlockUpdate update = *((BlockUpdate*) item);
         hashmap_delete(chunk->block_updates, item);
         DEBUG_LOG("Bitmap: " INT8_BIN_PATTERN "\n", INT8_BIN_LAYOUT(update.type_bitmap));
         if (bitmapGetBit(update.type_bitmap, BLOCK_UPDATE_TYPE_ADD_SKYLIGHT)) {
