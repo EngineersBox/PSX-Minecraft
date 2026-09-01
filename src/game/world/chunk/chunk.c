@@ -479,6 +479,9 @@ static int modifyVoxel0(Chunk* chunk,
         );
     }
     hashmap_set(chunk->block_updates, &block_update);
+    if (hashmap_oom(chunk->block_updates)) {
+        errorAbort("[CHUNK] Failed to enqueue block update, hashmap OOM\n");
+    }
     IItem* iitem = VCALL(*old_iblock, destroy, drop_item);
     if (iitem != NULL && iitem->self != NULL) {
         cvector_push_back(
@@ -776,6 +779,8 @@ void chunkSetLightValue(Chunk* chunk,
         },
         .type_bitmap = 0,
         ._pad = 0,
+        .old_block_light_value = 0,
+        .old_skylight_value = 0
     };
     const BlockUpdate* current_block_update = hashmap_get(chunk->block_updates, &block_update);
     if (current_block_update != NULL) {
@@ -820,6 +825,8 @@ void chunkRemoveLightValue(Chunk* chunk,
         },
         .type_bitmap = 0,
         ._pad = 0,
+        .old_block_light_value = 0,
+        .old_skylight_value = 0
     };
     const BlockUpdate* current_block_update = hashmap_get(chunk->block_updates, &block_update);
     if (current_block_update != NULL) {
@@ -868,6 +875,9 @@ void chunkUpdateBlockState(Chunk* chunk,
             .old_block_light_value = 0
         };
         hashmap_set(chunk->block_updates, &new_block_update);
+        if (hashmap_oom(chunk->block_updates)) {
+            errorAbort("[CHUNK] Failed to enqueue light update, hashmap OOM\n");
+        }
     }
 }
 
