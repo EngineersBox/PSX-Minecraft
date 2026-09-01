@@ -69,6 +69,9 @@ void FurnaceBlock_init(VSelf) {
     };
     self->recipe_changed = false;
     self->process_recipe = false;
+    self->furnace_slots[0] = (Slot) {0};
+    self->furnace_slots[1] = (Slot) {0};
+    self->furnace_slots[2] = (Slot) {0};
 }
 
 IItem* furnaceBlockDestroy(VSelf, bool drop_item) ALIAS("FurnaceBlock_destroy");
