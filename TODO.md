@@ -119,14 +119,14 @@
 * [X] Culling of direction sub-meshes in chunk meshes to avoid any clipping tests in that direction
 * [X] ~~Explore shadow casting for 3D FOV culling (look at other roguelike FOV culling impls for more candidates). Might end up dropping this idea if it is too expensive compared to current implementation.~~
 * [X] Show tooltips on items in inventory when hovered.
+* [X] Frustum and culling
+* [X] Depth-first search culling through chunks
+* [X] Generalised chunk block updates, including skylight, blocklight and block state updates
 * [ ] World management menu
 * [ ] Create world menu
 * [ ] Options menu
 * [ ] Camera far plane cutoff with fog relative to chunk render distance
-* [ ] Frustum and culling
-* [ ] Depth-first search culling through chunks
 * [ ] Thread scheduler using hardware timers for IRQ interleaved execution (Might be enough to do yield-based context switching and well-designed decomposible operations)
-* [ ] Generalised chunk block updates, including skylight, blocklight and block state updates
 * [ ] TooManyItems-like overlay in inventory GUI
 * [ ] Retrieve face attributes based on block orientation during meshing
 * [ ] Sub-block intersection tests for raycast to handling interacting with blocks like doors and piston heads
