@@ -20,6 +20,9 @@ typedef struct LightUpdateLimits {
 } LightUpdateLimits;
 extern const LightUpdateLimits chunk_light_update_limits;
 
+// Number of updates each tick
+extern u16 chunk_update_limit;
+
 #define chunkBlockIndex(x, y, z) ((z) + ((y) * CHUNK_SIZE) + ((x) * CHUNK_SIZE * CHUNK_SIZE))
 #define chunkBlockIndexOOB(x, y, z) ((x) >= CHUNK_SIZE || (x) < 0 \
 	|| (y) >= CHUNK_SIZE || (y) < 0 \
@@ -46,7 +49,9 @@ typedef struct LightRemoveNode {
 
 // TODO: Since each block location is unique, this can
 //       be a cvector + bitmap for each type + action
-//       (i.e. sunglight + add).
+//       (i.e. sunglight + add). However, this adds a
+//       constant overhead in memory for each chunk. It
+//       might be better to just keep the maps.
 typedef struct ChunkUpdates {
     HashMap* sunlight_add_queue;
     HashMap* sunlight_remove_queue;
@@ -64,13 +69,14 @@ typedef struct Chunk {
     bool lightmap_updated: 1;
     bool mesh_updated: 1;
     u16 solid_block_count: 10;
-    u8 _pad: 3;
+    u16 _pad: 3;
     ChunkVisibility visibility;
     VECTOR position;
     ChunkMesh mesh;
     IBlock* blocks[CHUNK_DATA_SIZE];
     LightMap lightmap;
     ChunkUpdates updates;
+    HashMap* block_updates;
     cvector(DroppedIItem) dropped_items;
 } Chunk;
 

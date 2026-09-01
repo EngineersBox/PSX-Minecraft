@@ -5,14 +5,17 @@
 #include <stdbool.h>
 #include <interface99.h>
 
-#include "../../util/inttypes.h"
-#include "../../resources/texture.h"
-#include "../../util/preprocessor.h"
 #include "../items/item.h"
-#include "../../structure/primitive/direction.h"
+#include "../../lighting/lightmap.h"
 #include "../../physics/aabb.h"
+#include "../../resources/texture.h"
+#include "../../structure/primitive/direction.h"
 #include "../../ui/ui.h"
 #include "../../ui/components/background.h"
+#include "../../util/inttypes.h"
+#include "../../util/preprocessor.h"
+
+// ==== BLOCK STRUCTURE ====
 
 #define BLOCK_SIZE 70
 #define BLOCK_FACES 6
@@ -90,6 +93,7 @@ typedef struct Block {
 } Block;
 
 FWD_DECL typedef struct World World;
+FWD_DECL typedef struct Chunk Chunk;
 
 #define BLOCK_USE_ACTION_CONSUMED true
 #define BLOCK_USE_ACTION_NOT_CONSUMED false
@@ -186,5 +190,35 @@ extern BlockRenderUIContext block_render_ui_context;
     block_render_ui_context.block = NULL; \
     block_render_ui_context.background = (UIBackground) {0}; \
 })
+
+// ==== BLOCK UPDATES ====
+
+typedef u8 BlockUpdateTypeBitmap;
+
+#define blockUpdateTypeBitmapGet(bitmap, update_type) (((bitmap) >> (update_type)) & 0b1)
+#define blockUpdateTypeBitmapSet(bitmap, update_type) ((bitmap) |= 1 << (update_type))
+#define blockUpdateTypeBitmapUnset(bitmap, update_type) ((bitmap) &= ~(1 << (update_type)))
+
+#define BLOCK_UPDATE_TYPE_COUNT 3
+#define BLOCK_UPDATE_TYPE_BITS 2
+typedef enum BlockUpdateType {
+    BLOCK_UPDATE_TYPE_SUNLIGHT = 0,
+    BLOCK_UPDATE_TYPE_BLOCKLIGHT = 1,
+    BLOCK_UPDATE_TYPE_STATE = 2
+} BlockUpdateType;
+
+typedef struct BlockUpdate {
+    // Chunk-relative position
+    VECTOR position;
+    // Chunk that enqueued this update
+    Chunk* update_source_chunk;
+    BlockUpdateTypeBitmap type_bitmap: BLOCK_UPDATE_TYPE_BITS;
+    u8 _pad: 5;
+    LightLevel sunlight;
+    LightLevel block_light;
+} BlockUpdate;
+
+u64 blockUpdateHash(const void* item, u64 seed0, u64 seed1);
+int blockUpdateCompare(const void* a, const void* b, UNUSED void* ignored);
 
 #endif // _PSXMC__GAME_BLOCKS__BLOCK_H_ 

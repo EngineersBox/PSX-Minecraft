@@ -27,6 +27,7 @@
 #include "chunk_structure.h"
 #include "heightmap.h"
 #include "meshing/binary_greedy_mesher.h"
+#include "stdlib.h"
 
 const LightUpdateLimits chunk_light_update_limits = (LightUpdateLimits) {
     .add_block = CHUNK_LIGHT_ADD_BLOCK_UPDATES_PER_TICK,
@@ -34,6 +35,8 @@ const LightUpdateLimits chunk_light_update_limits = (LightUpdateLimits) {
     .remove_block = CHUNK_LIGHT_REMOVE_BLOCK_UPDATES_PER_TICK,
     .remove_sky = CHUNK_LIGHT_REMOVE_SKY_UPDATES_PER_TICK
 };
+
+u16 chunk_update_limit = 20;
 
 // Forward declaration
 FWD_DECL IBlock* worldGetBlock(const World* world, const VECTOR* position);
@@ -168,6 +171,16 @@ void chunkInit(Chunk* chunk) {
         NULL,
         NULL
     );
+    chunk->block_updates = hashmap_new(
+        sizeof(BlockUpdate),
+        1,
+        0,
+        0,
+        blockUpdateHash,
+        blockUpdateCompare,
+        NULL,
+        NULL
+    );
     memset(
         chunk->lightmap,
         0,
@@ -184,6 +197,7 @@ void chunkDestroy(const Chunk* chunk) {
     hashmap_free(chunk->updates.light_add_queue);
     hashmap_free(chunk->updates.sunlight_remove_queue);
     hashmap_free(chunk->updates.light_remove_queue);
+    hashmap_free(chunk->block_updates);
 }
 
 void chunkGenerate3DHeightMap(Chunk* chunk, const VECTOR* position) {
@@ -776,6 +790,7 @@ void chunkUpdate(Chunk* chunk, const Player* player, BreakingState* breaking_sta
         updateItemChunkOwnership(chunk, dropped, i);
         i++;
     }
+    chunkProcessBlockUpdates(chunk);
     chunkUpdateLight(chunk, chunk_light_update_limits);
     if (breaking_state != NULL) {
         if (breaking_state->chunk_remesh_trigger) {
@@ -884,6 +899,53 @@ void chunkRemoveLightValue(Chunk* chunk,
         0,
         light_type
     );
+}
+
+
+void chunkUpdateSunlight(Chunk* chunk,
+                         const BlockUpdate* update) {
+
+}
+
+void chunkUpdateBlockLight(Chunk* chunk,
+                           const BlockUpdate* update) {
+
+}
+
+void chunkUpdateBlockState(Chunk* chunk,
+                           const BlockUpdate* update) {
+
+}
+
+void chunkProcessBlockUpdates(Chunk* chunk) {
+    bool lightmap_updated = false; // TODO: Mark true if any updates touch lighting
+    size_t processed_updates = 0;
+    size_t iter = 0;
+    void* item;
+    while (processed_updates < chunk_update_limit
+            && hashmap_iter(chunk->block_updates, &iter, &item)) {
+        BlockUpdate* update = item;
+        if (blockUpdateTypeBitmapGet(update->type_bitmap, BLOCK_UPDATE_TYPE_SUNLIGHT)) {
+            chunkUpdateSunlight(chunk, update);
+            chunk->lightmap_updated = true;
+            blockUpdateTypeBitmapUnset(update->type_bitmap, BLOCK_UPDATE_TYPE_SUNLIGHT);
+        } else if (blockUpdateTypeBitmapGet(update->type_bitmap, BLOCK_UPDATE_TYPE_BLOCKLIGHT)) {
+            chunkUpdateBlockLight(chunk, update);
+            chunk->lightmap_updated = true;
+            blockUpdateTypeBitmapUnset(update->type_bitmap, BLOCK_UPDATE_TYPE_BLOCKLIGHT);
+        } else if (blockUpdateTypeBitmapGet(update->type_bitmap, BLOCK_UPDATE_TYPE_STATE)) {
+            chunkUpdateBlockState(chunk, update);
+            blockUpdateTypeBitmapUnset(update->type_bitmap, BLOCK_UPDATE_TYPE_STATE);
+        }
+        assert(update->type_bitmap == 0);
+        hashmap_delete(chunk->block_updates, item);
+        // Need to reset cursor as mandated by hashmap_iter docstring.
+        // Doesn't impact this loop since removing and element doesn't
+        // Change the rest of the items we need to process
+        iter = 0;
+        processed_updates++;
+    }
+    chunk->lightmap_updated = lightmap_updated;
 }
 
 void chunkUpdateLight(Chunk* chunk, const LightUpdateLimits limits) {

@@ -1,6 +1,9 @@
 #include "block.h"
 
+#include <psxgte.h>
+
 #include "../../util/memory.h"
+#include "../../structure/hashmap.h"
 
 BlockInputHandlerContext block_input_handler_context = {
     .inventory = NULL,
@@ -58,4 +61,23 @@ IBlock* iblockCreate() {
 
 void iblockDestroy(IBlock* iblock) {
     free(iblock);
+}
+
+u64 blockUpdateHash(const void* item, u64 seed0, u64 seed1) {
+    const BlockUpdate* block_update = item;
+    return hashmap_xxhash3(
+        &block_update->position,
+        sizeof(VECTOR),
+        seed0,
+        seed1
+    );
+}
+
+int blockUpdateCompare(const void* a, const void* b, UNUSED void* ignored) {
+    const BlockUpdate* block_update_a = a;
+    const BlockUpdate* block_update_b = b;
+    // Negation here since this compare function is like the
+    // cmp(..) function in the standard library, where a return
+    // value of 0 implies equivalence.
+    return !vec3_equal(block_update_a->position, block_update_b->position);
 }
