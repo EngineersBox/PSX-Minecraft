@@ -33,6 +33,7 @@ i16 chunk_update_limit = 20;
 
 // Forward declaration
 FWD_DECL IBlock* worldGetBlock(const World* world, const VECTOR* position);
+IBlock* worldGetChunkBlock(const World* world, const ChunkBlockPosition* position);
 FWD_DECL Chunk* worldGetChunk(const World* world, const VECTOR* position);
 FWD_DECL Chunk* worldGetChunkFromChunkBlock(const World* world, const ChunkBlockPosition* position);
 FWD_DECL LightLevel worldGetLightType(const World* world,
@@ -826,20 +827,26 @@ void chunkRemoveLightValue(Chunk* chunk,
     );
 }
 
-
-void chunkUpdateSunlight(Chunk* chunk,
-                         const BlockUpdate* update) {
-
-}
-
-void chunkUpdateBlockLight(Chunk* chunk,
-                           const BlockUpdate* update) {
-
-}
-
 void chunkUpdateBlockState(Chunk* chunk,
                            const BlockUpdate* update) {
-    // TODO: Implement this
+    const IBlock* block = worldGetChunkBlock(chunk->world, &update->position);
+    if (block == NULL) {
+        // Block has been removed or something.
+        // Skip processing and don't persist state
+        // update in chunk block_updates map.
+        return;
+    }
+    const BlockUpdateResult result = VCALL(*block, update);
+    if (result == BLOCK_UPDATE_RESULT_PERSIST) {
+        BlockUpdate new_block_update = (BlockUpdate) {
+            .position = update->position,
+            .type_bitmap = BLOCK_UPDATE_TYPE_STATE,
+            ._pad = 0,
+            .old_skylight_value = 0,
+            .old_block_light_value = 0
+        };
+        hashmap_set(chunk->block_updates, &new_block_update);
+    }
 }
 
 void chunkUpdateAddBlockLight(Chunk* chunk,
@@ -1164,33 +1171,33 @@ void chunkProcessBlockUpdates(Chunk* chunk,
     void* item;
     while (processed_updates < update_limits
             && hashmap_iter(chunk->block_updates, &iter, &item)) {
-        BlockUpdate* update = item;
-        if (blockUpdateTypeBitmapGet(update->type_bitmap, BLOCK_UPDATE_TYPE_ADD_SKYLIGHT)) {
-            chunkUpdateAddSkylight(chunk, update);
-            lightmap_updated = true;
-            blockUpdateTypeBitmapUnset(update->type_bitmap, BLOCK_UPDATE_TYPE_ADD_SKYLIGHT);
-        }
-        if (blockUpdateTypeBitmapGet(update->type_bitmap, BLOCK_UPDATE_TYPE_REMOVE_SKYLIGHT)) {
-            chunkUpdateRemoveSkylight(chunk, update);
-            lightmap_updated = true;
-            blockUpdateTypeBitmapUnset(update->type_bitmap, BLOCK_UPDATE_TYPE_REMOVE_SKYLIGHT);
-        }
-        if (blockUpdateTypeBitmapGet(update->type_bitmap, BLOCK_UPDATE_TYPE_ADD_BLOCKLIGHT)) {
-            chunkUpdateAddBlockLight(chunk, update);
-            lightmap_updated = true;
-            blockUpdateTypeBitmapUnset(update->type_bitmap, BLOCK_UPDATE_TYPE_ADD_BLOCKLIGHT);
-        }
-        if (blockUpdateTypeBitmapGet(update->type_bitmap, BLOCK_UPDATE_TYPE_REMOVE_BLOCKLIGHT)) {
-            chunkUpdateRemoveBlockLight(chunk, update);
-            lightmap_updated = true;
-            blockUpdateTypeBitmapUnset(update->type_bitmap, BLOCK_UPDATE_TYPE_REMOVE_BLOCKLIGHT);
-        }
-        if (blockUpdateTypeBitmapGet(update->type_bitmap, BLOCK_UPDATE_TYPE_STATE)) {
-            chunkUpdateBlockState(chunk, update);
-            blockUpdateTypeBitmapUnset(update->type_bitmap, BLOCK_UPDATE_TYPE_STATE);
-        }
-        assert(update->type_bitmap == 0);
+        BlockUpdate update = *(BlockUpdate*) item;
         hashmap_delete(chunk->block_updates, item);
+        if (blockUpdateTypeBitmapGet(update.type_bitmap, BLOCK_UPDATE_TYPE_ADD_SKYLIGHT)) {
+            chunkUpdateAddSkylight(chunk, &update);
+            lightmap_updated = true;
+            blockUpdateTypeBitmapUnset(update.type_bitmap, BLOCK_UPDATE_TYPE_ADD_SKYLIGHT);
+        }
+        if (blockUpdateTypeBitmapGet(update.type_bitmap, BLOCK_UPDATE_TYPE_REMOVE_SKYLIGHT)) {
+            chunkUpdateRemoveSkylight(chunk, &update);
+            lightmap_updated = true;
+            blockUpdateTypeBitmapUnset(update.type_bitmap, BLOCK_UPDATE_TYPE_REMOVE_SKYLIGHT);
+        }
+        if (blockUpdateTypeBitmapGet(update.type_bitmap, BLOCK_UPDATE_TYPE_ADD_BLOCKLIGHT)) {
+            chunkUpdateAddBlockLight(chunk, &update);
+            lightmap_updated = true;
+            blockUpdateTypeBitmapUnset(update.type_bitmap, BLOCK_UPDATE_TYPE_ADD_BLOCKLIGHT);
+        }
+        if (blockUpdateTypeBitmapGet(update.type_bitmap, BLOCK_UPDATE_TYPE_REMOVE_BLOCKLIGHT)) {
+            chunkUpdateRemoveBlockLight(chunk, &update);
+            lightmap_updated = true;
+            blockUpdateTypeBitmapUnset(update.type_bitmap, BLOCK_UPDATE_TYPE_REMOVE_BLOCKLIGHT);
+        }
+        if (blockUpdateTypeBitmapGet(update.type_bitmap, BLOCK_UPDATE_TYPE_STATE)) {
+            chunkUpdateBlockState(chunk, &update);
+            blockUpdateTypeBitmapUnset(update.type_bitmap, BLOCK_UPDATE_TYPE_STATE);
+        }
+        assert(update.type_bitmap == 0);
         // Need to reset cursor as mandated by hashmap_iter docstring.
         // Doesn't impact this loop since removing and element doesn't
         // Change the rest of the items we need to process

@@ -14,9 +14,9 @@ BlockRenderUIContext block_render_ui_context = {
     .block = NULL
 };
 
-void iblockUpdate(VSelf) ALIAS("IBlock_update");
-void IBlock_update(UNUSED VSelf) {
-    // Do nothing
+BlockUpdateResult iblockUpdate(VSelf) ALIAS("IBlock_update");
+BlockUpdateResult IBlock_update(UNUSED VSelf) {
+    return BLOCK_UPDATE_RESULT_RELEASE;
 }
 
 bool iBlockUseAction(VSelf) ALIAS("IBlock_useAction");

@@ -130,8 +130,8 @@ INLINE static void handleSmelting(FurnaceBlock* furnace) {
     }
 }
 
-void furnaceBlockUpdate(VSelf) ALIAS("FurnaceBlock_update");
-void FurnaceBlock_update(VSelf) {
+BlockUpdateResult furnaceBlockUpdate(VSelf) ALIAS("FurnaceBlock_update");
+BlockUpdateResult FurnaceBlock_update(VSelf) {
     // TODO: Make update method take Chunk* as additional parameter,
     //       add furnace block to a chunk's block update list when
     //       placed, remove furnace block from a chunk's block update
@@ -140,6 +140,7 @@ void FurnaceBlock_update(VSelf) {
     VSELF(FurnaceBlock);
     handleFuelConsumption(self);
     handleSmelting(self);
+    return BLOCK_UPDATE_RESULT_PERSIST;
 }
 
 static void processFurnaceRecipe(FurnaceBlock* furnace) {

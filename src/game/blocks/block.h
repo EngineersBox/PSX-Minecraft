@@ -99,11 +99,18 @@ FWD_DECL typedef struct Chunk Chunk;
 #define BLOCK_USE_ACTION_CONSUMED true
 #define BLOCK_USE_ACTION_NOT_CONSUMED false
 
+typedef enum BlockUpdateResult {
+    // Keep block in chunk's update map/queue
+    BLOCK_UPDATE_RESULT_PERSIST = 0,
+    // Remove block from chunk's update map/queue
+    BLOCK_UPDATE_RESULT_RELEASE = 1
+} BlockUpdateResult;
+
 #define IBlock_IFACE \
     vfunc(void, init, VSelf) \
     vfunc(IItem*, destroy, VSelf, bool drop_item) \
     /* Updates from world events like redstone */ \
-    vfuncDefault(void, update, VSelf) \
+    vfuncDefault(BlockUpdateResult, update, VSelf) \
     /* Player right clicking. True = action consumed, False = action not consumed */ \
     vfuncDefault(bool, useAction, VSelf) \
     /* Can block be placed */ \
@@ -111,8 +118,8 @@ FWD_DECL typedef struct Chunk Chunk;
     /* Provide an item instance corresponding to this block */ \
     vfunc(IItem*, provideItem, VSelf)
 
-void iblockUpdate(VSelf);
-void IBlock_update(VSelf);
+BlockUpdateResult iblockUpdate(VSelf);
+BlockUpdateResult IBlock_update(VSelf);
 
 bool iBlockUseAction(VSelf);
 bool IBlock_useAction(VSelf);

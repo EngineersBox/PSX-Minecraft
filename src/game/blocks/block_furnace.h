@@ -109,8 +109,8 @@ ALLOC_CALL(itemDestroy, 1) IItem* FurnaceBlock_destroy(VSelf, bool drop_item);
 
 ALLOC_CALL(itemDestroy, 1) IItem* furnaceBlockProvideItem(VSelf);
 ALLOC_CALL(itemDestroy, 1) IItem* FurnaceBlock_provideItem(VSelf);
-void furnaceBlockUpdate(VSelf);
-void FurnaceBlock_update(VSelf);
+BlockUpdateResult furnaceBlockUpdate(VSelf);
+BlockUpdateResult FurnaceBlock_update(VSelf);
 
 #define FurnaceBlock_useAction_CUSTOM ()
 bool furnaceBlockUseAction(VSelf);
