@@ -11,17 +11,8 @@
 #include "../../blocks/block.h"
 #include "../../../lighting/lightmap.h"
 
-// -1 = unlimited
-typedef struct LightUpdateLimits {
-    i16 add_block;
-    i16 add_sky;
-    i16 remove_block;
-    i16 remove_sky;
-} LightUpdateLimits;
-extern const LightUpdateLimits chunk_light_update_limits;
-
-// Number of updates each tick
-extern u16 chunk_update_limit;
+// Number of updates each tick, -1 == unlimited
+extern i16 chunk_update_limit;
 
 #define chunkBlockIndex(x, y, z) ((z) + ((y) * CHUNK_SIZE) + ((x) * CHUNK_SIZE * CHUNK_SIZE))
 #define chunkBlockIndexOOB(x, y, z) ((x) >= CHUNK_SIZE || (x) < 0 \
@@ -47,18 +38,6 @@ typedef struct LightRemoveNode {
     LightLevel light_value;
 } LightRemoveNode;
 
-// TODO: Since each block location is unique, this can
-//       be a cvector + bitmap for each type + action
-//       (i.e. sunglight + add). However, this adds a
-//       constant overhead in memory for each chunk. It
-//       might be better to just keep the maps.
-typedef struct ChunkUpdates {
-    HashMap* sunlight_add_queue;
-    HashMap* sunlight_remove_queue;
-    HashMap* light_add_queue;
-    HashMap* light_remove_queue;
-} ChunkUpdates;
-
 typedef struct ChunkGenerationContext {
     u8 sunlight_heightmap[CHUNK_SIZE * CHUNK_SIZE];
 } ChunkGenerationContext;
@@ -75,7 +54,6 @@ typedef struct Chunk {
     ChunkMesh mesh;
     IBlock* blocks[CHUNK_DATA_SIZE];
     LightMap lightmap;
-    ChunkUpdates updates;
     HashMap* block_updates;
     cvector(DroppedIItem) dropped_items;
 } Chunk;

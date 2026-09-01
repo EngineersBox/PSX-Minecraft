@@ -32,13 +32,6 @@
 
 World* world = NULL;
 
-const LightUpdateLimits world_chunk_init_limits = (LightUpdateLimits) {
-    .add_block = 0,
-    .add_sky = 0,
-    .remove_block = 0,
-    .remove_sky = 0
-};
-
 typedef struct ChunkRenderState {
     ChunkVisibility visibility;
     bool visited: 1;
@@ -218,16 +211,16 @@ void worldInit(World* world, RenderContext* ctx) {
             }
         }
     }
-    DEBUG_LOG("Processing Light Updates\n");
+    DEBUG_LOG("Processing Block/Light Updates\n");
     for (i32 x = x_start; x <= x_end; x++) {
         for (i32 z = z_start; z <= z_end; z++) {
             for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
-                DEBUG_LOG("Processing Light Updates\n", x, 0, z);
+                DEBUG_LOG("Processing Block/Light Updates\n", x, 0, z);
            Chunk* chunk = world->chunks[arrayCoord(world, vz, z)]
                                        [arrayCoord(world, vx, x)]
                                        [y];
-                chunkUpdateLight(chunk, world_chunk_init_limits);
-                displayProgress(ctx, &bar, x, y, z, "Processing Light Updates");
+                chunkProcessBlockUpdates(chunk, -1);
+                displayProgress(ctx, &bar, x, y, z, "Processing Block/Light Updates");
             }
         }
     }
@@ -601,7 +594,7 @@ static bool vertexSpanOverlapsFrustum(const i32 z,
                                       const TRad angle) {
     // const size_t quadrant = (z >= 0 ? 0 : 2) + (q >= 0 ? 0 : 1);
     const size_t quadrant = ((z < 0) << 1) & (q < 0);
-    DEBUG_LOG("Quadrant: %d\n", quadrant);
+    // DEBUG_LOG("Quadrant: %d\n", quadrant);
     u8 quadrant_vert = QUADRANT_SPAN_VERTS >> (quadrant * 4);
     const i32 qv_q_start = quadrant_vert & 0b1;
     quadrant_vert >>= 1;
@@ -766,7 +759,7 @@ void worldRender(const World* world,
                 chunk_relative_pos_blocks,
                 3
             );
-            DEBUG_LOG("Chunk relative pos blocks: " VEC_PATTERN "\n", VEC_LAYOUT(chunk_relative_pos_blocks));
+            // DEBUG_LOG("Chunk relative pos blocks: " VEC_PATTERN "\n", VEC_LAYOUT(chunk_relative_pos_blocks));
             /* NOTE: Chunk render logic:
              * 1. Compute vertices spanning widest point on ZY chunk plane
              * 2. Test if range overlaps frustum range, skip render if not

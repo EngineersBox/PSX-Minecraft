@@ -79,5 +79,13 @@ int blockUpdateCompare(const void* a, const void* b, UNUSED void* ignored) {
     // Negation here since this compare function is like the
     // cmp(..) function in the standard library, where a return
     // value of 0 implies equivalence.
-    return !vec3_equal(block_update_a->position, block_update_b->position);
+    const VECTOR world_pos_a = chunkBlockToWorldPosition(
+        &block_update_a->position,
+        CHUNK_SIZE
+    );
+    const VECTOR world_pos_b = chunkBlockToWorldPosition(
+        &block_update_b->position,
+        CHUNK_SIZE
+    );
+    return !vec3_equal(world_pos_a, world_pos_b);
 }

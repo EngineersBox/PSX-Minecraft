@@ -6,6 +6,7 @@
 #include <interface99.h>
 
 #include "../items/item.h"
+#include "../world/position.h"
 #include "../../lighting/lightmap.h"
 #include "../../physics/aabb.h"
 #include "../../resources/texture.h"
@@ -199,23 +200,22 @@ typedef u8 BlockUpdateTypeBitmap;
 #define blockUpdateTypeBitmapSet(bitmap, update_type) ((bitmap) |= 1 << (update_type))
 #define blockUpdateTypeBitmapUnset(bitmap, update_type) ((bitmap) &= ~(1 << (update_type)))
 
-#define BLOCK_UPDATE_TYPE_COUNT 3
-#define BLOCK_UPDATE_TYPE_BITS 2
+#define BLOCK_UPDATE_TYPE_COUNT 5
+#define BLOCK_UPDATE_TYPE_BITS 3
 typedef enum BlockUpdateType {
-    BLOCK_UPDATE_TYPE_SUNLIGHT = 0,
-    BLOCK_UPDATE_TYPE_BLOCKLIGHT = 1,
-    BLOCK_UPDATE_TYPE_STATE = 2
+    BLOCK_UPDATE_TYPE_ADD_SKYLIGHT = 0,
+    BLOCK_UPDATE_TYPE_REMOVE_SKYLIGHT = 1,
+    BLOCK_UPDATE_TYPE_ADD_BLOCKLIGHT = 2,
+    BLOCK_UPDATE_TYPE_REMOVE_BLOCKLIGHT = 3,
+    BLOCK_UPDATE_TYPE_STATE = 4
 } BlockUpdateType;
 
 typedef struct BlockUpdate {
-    // Chunk-relative position
-    VECTOR position;
-    // Chunk that enqueued this update
-    Chunk* update_source_chunk;
+    ChunkBlockPosition position;
     BlockUpdateTypeBitmap type_bitmap: BLOCK_UPDATE_TYPE_BITS;
-    u8 _pad: 5;
-    LightLevel sunlight;
-    LightLevel block_light;
+    u8 _pad: 8 - BLOCK_UPDATE_TYPE_BITS;
+    LightLevel old_skylight_value;
+    LightLevel old_block_light_value;
 } BlockUpdate;
 
 u64 blockUpdateHash(const void* item, u64 seed0, u64 seed1);

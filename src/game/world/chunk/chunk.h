@@ -84,8 +84,6 @@ void chunkRemoveLightValue(Chunk* chunk,
                            const VECTOR* position,
                            const LightType light_type);
 
-void chunkUpdateLight(Chunk* chunk, const LightUpdateLimits limits);
-void chunkUpdateAddLight(Chunk* chunk, const LightUpdateLimits limits);
-void chunkUpdateRemoveLight(Chunk* chunk, const LightUpdateLimits limits);
+void chunkProcessBlockUpdates(Chunk* chunk, const i16 update_limits);
 
 #endif // PSXMC_CHUNK_H
