@@ -12,6 +12,7 @@
 #include "../../core/input/input.h"
 #include "../../logging/logging.h"
 #include "../../ui/components/cursor.h"
+#include "../../util/bits.h"
 #include "../../util/interface99_extensions.h"
 
 static Texture furnace_texture = {0};
@@ -87,19 +88,25 @@ IItem* FurnaceBlock_provideItem(VSelf) {
     return item;
 }
 
-INLINE static void handleFuelConsumption(FurnaceBlock* furnace) {
-    // TODO: Update block metadata_id when fuel is burning and when
-    //       runs out, then mark chunk for re-meshing
+static bool handleFuelConsumption(FurnaceBlock* furnace) {
     if (furnace->fuel_burn_ticks > 0) {
         furnace->fuel_burn_ticks--;
     }
-    if (furnace->fuel_burn_ticks > 0) return;
+    if (furnace->fuel_burn_ticks > 0) return true;
     Slot* slot = &furnace->furnace_slots[slotGroupIndexOffset(FURNACE_FUEL)];
-    if (slot->data.item == NULL) return;
+    if (slot->data.item == NULL) {
+        furnace->cook_ticks = 0;
+        furnace->process_recipe = false;
+        return false;
+    }
     IItem* iitem = slot->data.item;
     Item* item = VCAST_PTR(Item*, iitem);
     const u16 item_burnable_ticks = itemGetBurnableTicks(item->id);
-    if (item_burnable_ticks == 0) return;
+    if (item_burnable_ticks == 0) {
+        furnace->cook_ticks = 0;
+        furnace->process_recipe = false;
+        return false;
+    }
     assert(item->stack_size > 0);
     item->stack_size--;
     furnace->fuel_burn_ticks = item_burnable_ticks;
@@ -107,13 +114,29 @@ INLINE static void handleFuelConsumption(FurnaceBlock* furnace) {
         VCALL(*iitem, destroy);
         slot->data.item = NULL;
     }
+    if (furnace->fuel_burn_ticks == 0) {
+        furnace->process_recipe = false;
+        furnace->cook_ticks = 0;
+    }
+    return furnace->fuel_burn_ticks > 0;
 }
 
-INLINE static void handleSmelting(FurnaceBlock* furnace) {
-    if (!furnace->process_recipe) return;
+static bool handleSmelting(FurnaceBlock* furnace) {
+    if (!furnace->process_recipe) return false;
+    if (furnace->cook_ticks == 0) {
+        Slot* slot = &furnace->furnace_slots[slotGroupIndexOffset(FURNACE_FUEL)];
+        if (slot->data.item == NULL) {
+            furnace->cook_ticks = 0;
+            furnace->process_recipe = false;
+            return false;
+        }
+        IItem* iitem = slot->data.item;
+        Item* item = VCAST_PTR(Item*, iitem);
+        furnace->cook_ticks = itemGetBurnableTicks(item->id);
+    }
     const u16 previous_cook_ticks = furnace->cook_ticks--;
     if (previous_cook_ticks != 1 || furnace->recipe.result_count == 0) {
-        return;
+        return false;
     }
     Slot* slot = &furnace->furnace_slots[slotGroupIndexOffset(FURNACE_OUTPUT)];
     // Ignore output as we are guaranteed to be in a valid state
@@ -128,19 +151,27 @@ INLINE static void handleSmelting(FurnaceBlock* furnace) {
     if (item->stack_size >= itemGetMaxStackSize(item->id)) {
         furnace->process_recipe = false;
     }
+    return true;
 }
 
-BlockUpdateResult furnaceBlockUpdate(VSelf) ALIAS("FurnaceBlock_update");
-BlockUpdateResult FurnaceBlock_update(VSelf) {
-    // TODO: Make update method take Chunk* as additional parameter,
-    //       add furnace block to a chunk's block update list when
-    //       placed, remove furnace block from a chunk's block update
-    //       list when destroyed and make chunk proccess registered
-    //       block updates each tick
+BlockUpdateResultBitmap furnaceBlockUpdate(VSelf) ALIAS("FurnaceBlock_update");
+BlockUpdateResultBitmap FurnaceBlock_update(VSelf) {
     VSELF(FurnaceBlock);
-    handleFuelConsumption(self);
-    handleSmelting(self);
-    return BLOCK_UPDATE_RESULT_PERSIST;
+    const bool burning_fuel = handleFuelConsumption(self);
+    const bool smelting = handleSmelting(self);
+    BlockUpdateResultBitmap bitmap = 0;
+    bitmapSetBit(bitmap, BLOCK_UPDATE_RESULT_PERSIST);
+    const u8 current_metadata_id = self->block.metadata_id;
+    self->block.metadata_id = (self->block.orientation - FACE_DIR_LEFT) * 2;
+    if (burning_fuel || smelting) {
+        self->block.metadata_id &= 0b1;
+    } else {
+        self->block.metadata_id &= ~0b1;
+    }
+    if (current_metadata_id != self->block.metadata_id) {
+        bitmapSetBit(bitmap, BLOCK_UPDATE_RESULT_REMESH_CHUNK);
+    }
+    return bitmap;
 }
 
 static void processFurnaceRecipe(FurnaceBlock* furnace) {
@@ -314,7 +345,6 @@ InputHandlerState furnaceBlockInputHandler(const Input* input, void* ctx) {
         // Leave item in the furnace slots
         return INPUT_HANDLER_RELEASE;
     }
-    UNIMPLEMENTED();
     return INPUT_HANDLER_RETAIN;
 }
 

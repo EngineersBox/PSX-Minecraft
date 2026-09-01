@@ -14,8 +14,8 @@ BlockRenderUIContext block_render_ui_context = {
     .block = NULL
 };
 
-BlockUpdateResult iblockUpdate(VSelf) ALIAS("IBlock_update");
-BlockUpdateResult IBlock_update(UNUSED VSelf) {
+BlockUpdateResultBitmap iblockUpdate(VSelf) ALIAS("IBlock_update");
+BlockUpdateResultBitmap IBlock_update(UNUSED VSelf) {
     return BLOCK_UPDATE_RESULT_RELEASE;
 }
 

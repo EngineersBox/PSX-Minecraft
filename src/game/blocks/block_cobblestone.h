@@ -21,7 +21,6 @@ DEFN_BLOCK_CONSTRUCTOR(cobblestone);
     .can_harvest = toolTypeBitset(0,1,0,0,0,0), \
     .propagates_sunlight = false, \
     .propagates_blocklight = false, \
-    .stateful = false, \
     .face_attributes = COBBLESTONE_FACE_ATTRIBUTES, \
     .name = "cobblestone" \
 })

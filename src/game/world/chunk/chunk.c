@@ -15,6 +15,7 @@
 #include "../../../structure/cvector.h"
 #include "../../../structure/cvector_utils.h"
 #include "../../../structure/primitive/direction.h"
+#include "../../../util/bits.h"
 #include "../../../util/interface99_extensions.h"
 #include "../../../util/memory.h"
 #include "../../blocks/blocks.h"
@@ -413,9 +414,10 @@ static u32 findClosestBlockBelow(Chunk* chunk,
 
 static int modifyVoxel0(Chunk* chunk,
                         const VECTOR* position,
-                        const Block* new_block,
+                        const IBlock* new_iblock,
                         const bool drop_item,
                         IItem** item_result) {
+    const Block* new_block = VCAST_PTR(Block*, new_iblock);
     const i32 x = position->vx;
     const i32 y = position->vy;
     const i32 z = position->vz;
@@ -467,13 +469,14 @@ static int modifyVoxel0(Chunk* chunk,
     if (existing_updates != NULL) {
         block_update = *existing_updates;
     }
-    if (blockIsStateful(new_block->id)) {
-        blockUpdateTypeBitmapSet(
+    if (blockHasCustomUpdateFunction(new_iblock)) {
+        DEBUG_LOG("Has custom update function %p != %p\n", new_iblock->vptr->update, IBlock_update);
+        bitmapSetBit(
             block_update.type_bitmap,
             BLOCK_UPDATE_TYPE_STATE
         );
     } else {
-        blockUpdateTypeBitmapUnset(
+        bitmapUnsetBit(
             block_update.type_bitmap,
             BLOCK_UPDATE_TYPE_STATE
         );
@@ -528,11 +531,10 @@ bool chunkModifyVoxel(Chunk* chunk,
                       IBlock* iblock,
                       const bool drop_item,
                       IItem** item_result) {
-    const Block* block = VCAST_PTR(Block*, iblock);
     const int result = modifyVoxel0(
         chunk,
         position,
-        block,
+        iblock,
         drop_item,
         item_result
     );
@@ -558,11 +560,10 @@ IBlock* chunkModifyVoxelConstructed(Chunk* chunk,
     // implies construction using the full item context and subsequently
     // the metadata id of the item as well
     IBlock* iblock = block_constructor(from_item, 0);
-    const Block* block = VCAST_PTR(Block*, iblock);
     const int result = modifyVoxel0(
         chunk,
         position,
-        block,
+        iblock,
         drop_item,
         item_result
     );
@@ -797,10 +798,10 @@ void chunkSetLightValue(Chunk* chunk,
         // NOTE: We don't set the old_*_light_value since it only
         //       applies during light removal, not adding.
         case LIGHT_TYPE_BLOCK:
-            blockUpdateTypeBitmapSet(block_update.type_bitmap, BLOCK_UPDATE_TYPE_ADD_BLOCKLIGHT);
+            bitmapSetBit(block_update.type_bitmap, BLOCK_UPDATE_TYPE_ADD_BLOCKLIGHT);
             break;
         case LIGHT_TYPE_SKY:
-            blockUpdateTypeBitmapSet(block_update.type_bitmap, BLOCK_UPDATE_TYPE_ADD_SKYLIGHT);
+            bitmapSetBit(block_update.type_bitmap, BLOCK_UPDATE_TYPE_ADD_SKYLIGHT);
             break;
     }
     hashmap_set(chunk->block_updates, &block_update);
@@ -836,11 +837,11 @@ void chunkRemoveLightValue(Chunk* chunk,
     }
     switch (light_type) {
         case LIGHT_TYPE_BLOCK:
-            blockUpdateTypeBitmapSet(block_update.type_bitmap, BLOCK_UPDATE_TYPE_REMOVE_BLOCKLIGHT);
+            bitmapSetBit(block_update.type_bitmap, BLOCK_UPDATE_TYPE_REMOVE_BLOCKLIGHT);
             block_update.old_block_light_value = light_value;
             break;
         case LIGHT_TYPE_SKY:
-            blockUpdateTypeBitmapSet(block_update.type_bitmap, BLOCK_UPDATE_TYPE_REMOVE_SKYLIGHT);
+            bitmapSetBit(block_update.type_bitmap, BLOCK_UPDATE_TYPE_REMOVE_SKYLIGHT);
             block_update.old_skylight_value = light_value;
             break;
     }
@@ -859,14 +860,15 @@ void chunkRemoveLightValue(Chunk* chunk,
 void chunkUpdateBlockState(Chunk* chunk,
                            const BlockUpdate* update) {
     const IBlock* block = worldGetChunkBlock(chunk->world, &update->position);
-    if (block == NULL) {
-        // Block has been removed or something.
-        // Skip processing and don't persist state
-        // update in chunk block_updates map.
-        return;
-    }
-    const BlockUpdateResult result = VCALL(*block, update);
-    if (result == BLOCK_UPDATE_RESULT_PERSIST) {
+    assert(block != NULL);
+    // if (block == NULL) {
+    //     // Block has been removed or something.
+    //     // Skip processing and don't persist state
+    //     // update in chunk block_updates map.
+    //     return;
+    // }
+    const BlockUpdateResultBitmap result = VCALL(*block, update);
+    if (bitmapGetBit(result, BLOCK_UPDATE_RESULT_PERSIST)) {
         BlockUpdate new_block_update = (BlockUpdate) {
             .position = update->position,
             .type_bitmap = BLOCK_UPDATE_TYPE_STATE,
@@ -878,6 +880,10 @@ void chunkUpdateBlockState(Chunk* chunk,
         if (hashmap_oom(chunk->block_updates)) {
             errorAbort("[CHUNK] Failed to enqueue light update, hashmap OOM\n");
         }
+    }
+    if (bitmapGetBit(result, BLOCK_UPDATE_RESULT_REMESH_CHUNK)) {
+        DEBUG_LOG("Update trigger remesh\n");
+        chunk->mesh_updated = true;
     }
 }
 
@@ -1205,29 +1211,29 @@ void chunkProcessBlockUpdates(Chunk* chunk,
             && hashmap_iter(chunk->block_updates, &iter, &item)) {
         BlockUpdate update = *(BlockUpdate*) item;
         hashmap_delete(chunk->block_updates, item);
-        if (blockUpdateTypeBitmapGet(update.type_bitmap, BLOCK_UPDATE_TYPE_ADD_SKYLIGHT)) {
+        if (bitmapGetBit(update.type_bitmap, BLOCK_UPDATE_TYPE_ADD_SKYLIGHT)) {
             chunkUpdateAddSkylight(chunk, &update);
             lightmap_updated = true;
-            blockUpdateTypeBitmapUnset(update.type_bitmap, BLOCK_UPDATE_TYPE_ADD_SKYLIGHT);
+            bitmapUnsetBit(update.type_bitmap, BLOCK_UPDATE_TYPE_ADD_SKYLIGHT);
         }
-        if (blockUpdateTypeBitmapGet(update.type_bitmap, BLOCK_UPDATE_TYPE_REMOVE_SKYLIGHT)) {
+        if (bitmapGetBit(update.type_bitmap, BLOCK_UPDATE_TYPE_REMOVE_SKYLIGHT)) {
             chunkUpdateRemoveSkylight(chunk, &update);
             lightmap_updated = true;
-            blockUpdateTypeBitmapUnset(update.type_bitmap, BLOCK_UPDATE_TYPE_REMOVE_SKYLIGHT);
+            bitmapUnsetBit(update.type_bitmap, BLOCK_UPDATE_TYPE_REMOVE_SKYLIGHT);
         }
-        if (blockUpdateTypeBitmapGet(update.type_bitmap, BLOCK_UPDATE_TYPE_ADD_BLOCKLIGHT)) {
+        if (bitmapGetBit(update.type_bitmap, BLOCK_UPDATE_TYPE_ADD_BLOCKLIGHT)) {
             chunkUpdateAddBlockLight(chunk, &update);
             lightmap_updated = true;
-            blockUpdateTypeBitmapUnset(update.type_bitmap, BLOCK_UPDATE_TYPE_ADD_BLOCKLIGHT);
+            bitmapUnsetBit(update.type_bitmap, BLOCK_UPDATE_TYPE_ADD_BLOCKLIGHT);
         }
-        if (blockUpdateTypeBitmapGet(update.type_bitmap, BLOCK_UPDATE_TYPE_REMOVE_BLOCKLIGHT)) {
+        if (bitmapGetBit(update.type_bitmap, BLOCK_UPDATE_TYPE_REMOVE_BLOCKLIGHT)) {
             chunkUpdateRemoveBlockLight(chunk, &update);
             lightmap_updated = true;
-            blockUpdateTypeBitmapUnset(update.type_bitmap, BLOCK_UPDATE_TYPE_REMOVE_BLOCKLIGHT);
+            bitmapUnsetBit(update.type_bitmap, BLOCK_UPDATE_TYPE_REMOVE_BLOCKLIGHT);
         }
-        if (blockUpdateTypeBitmapGet(update.type_bitmap, BLOCK_UPDATE_TYPE_STATE)) {
+        if (bitmapGetBit(update.type_bitmap, BLOCK_UPDATE_TYPE_STATE)) {
             chunkUpdateBlockState(chunk, &update);
-            blockUpdateTypeBitmapUnset(update.type_bitmap, BLOCK_UPDATE_TYPE_STATE);
+            bitmapUnsetBit(update.type_bitmap, BLOCK_UPDATE_TYPE_STATE);
         }
         assert(update.type_bitmap == 0);
         // Need to reset cursor as mandated by hashmap_iter docstring.

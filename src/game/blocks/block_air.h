@@ -22,7 +22,6 @@ DEFN_BLOCK_CONSTRUCTOR(air);
     .can_harvest = toolTypeBitset(0,0,0,0,0,0), \
     .propagates_sunlight = true, \
     .propagates_blocklight = true, \
-    .stateful = false, \
     .face_attributes = AIR_FACE_ATTRIBUTES, \
     .name = "air" \
 })

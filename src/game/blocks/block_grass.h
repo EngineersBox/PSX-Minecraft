@@ -22,7 +22,6 @@ DEFN_BLOCK_CONSTRUCTOR(grass);
     .can_harvest = toolTypeBitset(1,1,1,1,1,1), \
     .propagates_sunlight = false, \
     .propagates_blocklight = false, \
-    .stateful = false, \
     .face_attributes = GRASS_FACE_ATTRIBUTES, \
     .name = "grass" \
 })

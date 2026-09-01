@@ -172,17 +172,24 @@ void Minecraft_init(VSelf, UNUSED void* ctx) {
     /*inventorySlotSetItem(slot, item);*/
     /*VCALL_SUPER(*item, Renderable, applyInventoryRenderAttributes);*/
 
-    Slot* slot = inventoryFindFreeSlot(inventory, 1);
+    Slot* slot = inventoryFindFreeSlot(inventory, 0);
     IItem* item = itemGetConstructor(ITEMID_CRAFTING_TABLE)(0);
     ItemBlock* item_block = VCAST_PTR(ItemBlock*, item);
     item_block->item.stack_size = 26;
     inventorySlotSetItem(slot, item);
     VCALL_SUPER(*item, Renderable, applyInventoryRenderAttributes);
 
+    slot = inventoryFindFreeSlot(inventory, 1);
     item = itemGetConstructor(ITEMID_COBBLESTONE)(0);
     item_block = VCAST_PTR(ItemBlock*, item);
     item_block->item.stack_size = 10;
-    slot = inventoryFindFreeSlot(inventory, slotGroupIndexOffset(INVENTORY_MAIN));
+    inventorySlotSetItem(slot, item);
+    VCALL_SUPER(*item, Renderable, applyInventoryRenderAttributes);
+
+    slot = inventoryFindFreeSlot(inventory, 2);
+    item = itemGetConstructor(ITEMID_FURNACE)(0);
+    item_block = VCAST_PTR(ItemBlock*, item);
+    item_block->item.stack_size = 4;
     inventorySlotSetItem(slot, item);
     VCALL_SUPER(*item, Renderable, applyInventoryRenderAttributes);
 

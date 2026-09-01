@@ -52,8 +52,8 @@ ALLOC_CALL(itemDestroy, 1) IItem* {{ name_lower }}BlockProvideItem(VSelf);
 ALLOC_CALL(itemDestroy, 1) IItem* {{ name_capital }}Block_provideItem(VSelf);
 
 {%- if has_update %}
-void {{ name_lower }}BlockUpdate(VSelf);
-void {{ name_capital }}Block_update(VSelf);
+BlockUpdateResultBitmap {{ name_lower }}BlockUpdate(VSelf);
+BlockUpdateResultBitmap {{ name_capital }}Block_update(VSelf);
 {% endif -%}
 {%- if has_use_action %}
 #define {{ name_capital }}Block_useAction_CUSTOM ()

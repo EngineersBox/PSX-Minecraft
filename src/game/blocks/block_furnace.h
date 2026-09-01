@@ -90,16 +90,19 @@ DEFN_BLOCK_CONSTRUCTOR(furnace);
     .can_harvest = toolTypeBitset(0,1,0,0,0,0), \
     .propagates_sunlight = false, \
     .propagates_blocklight = false, \
-    .stateful = true, \
     .face_attributes = FURNACE_FACE_ATTRIBUTES, \
     .name = "furnace" \
 })
 
 #define furnaceBlockFaceAttributes() P99_PROTECT({\
-    declareFaceAttributes(62,62,44,45,45,45), \
-    declareFaceAttributes(62,62,45,44,45,45), \
-    declareFaceAttributes(62,62,45,45,44,45), \
-    declareFaceAttributes(62,62,45,45,45,44) \
+    declareFaceAttributes(62,62,44,45,45,45), /* Left unlit */ \
+    declareFaceAttributes(62,62,61,45,45,45), /* Left lit */ \
+    declareFaceAttributes(62,62,45,44,45,45), /* Right unlit */ \
+    declareFaceAttributes(62,62,45,61,45,45), /* Right lit */ \
+    declareFaceAttributes(62,62,45,45,44,45), /* Back unlit */ \
+    declareFaceAttributes(62,62,45,45,61,45), /* Back lit */ \
+    declareFaceAttributes(62,62,45,45,45,44), /* Front unlit */ \
+    declareFaceAttributes(62,62,45,45,45,61)  /* Front lit */ \
 })
 
 void furnaceBlockInit(VSelf);
@@ -110,8 +113,10 @@ ALLOC_CALL(itemDestroy, 1) IItem* FurnaceBlock_destroy(VSelf, bool drop_item);
 
 ALLOC_CALL(itemDestroy, 1) IItem* furnaceBlockProvideItem(VSelf);
 ALLOC_CALL(itemDestroy, 1) IItem* FurnaceBlock_provideItem(VSelf);
-BlockUpdateResult furnaceBlockUpdate(VSelf);
-BlockUpdateResult FurnaceBlock_update(VSelf);
+
+#define FurnaceBlock_update_CUSTOM ()
+BlockUpdateResultBitmap furnaceBlockUpdate(VSelf);
+BlockUpdateResultBitmap FurnaceBlock_update(VSelf);
 
 #define FurnaceBlock_useAction_CUSTOM ()
 bool furnaceBlockUseAction(VSelf);

@@ -54,7 +54,7 @@ void blocksInitialiseBuiltin();
 #define blockGetFaceAttributes(id, metadata_id) (&blockGetAttribute(id, face_attributes)[(metadata_id) * FACE_DIRECTION_COUNT])
 #define blockGetOpacityBitset(id, orientation) (block_type_opacity_bitset[blockGetType(id)][(orientation)])
 #define blockIsFaceOpaque(block, face) ((blockGetOpacityBitset((block)->id, (block)->orientation) >> (face)) & 0b1)
-#define blockIsStateful(id) blockGetAttribute(id, stateful)
+#define blockHasCustomUpdateFunction(iblock) ((iblock)->vptr->update != IBlock_update)
 
 #define opacityBitset(down, up, left, right, back, front) (\
       ((down) << FACE_DIR_DOWN) \

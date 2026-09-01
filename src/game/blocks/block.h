@@ -76,8 +76,7 @@ typedef struct BlockAttributes {
     u8 can_harvest: TOOL_TYPE_COUNT;
     bool propagates_sunlight: 1;
     bool propagates_blocklight: 1;
-    bool stateful: 1;
-    u16 _pad: 12;
+    u16 _pad: 13;
     // This is a variable length array with length
     // a multiple of 6, where each 6 entries will
     // correspond to a metadata_id grouping of
@@ -100,18 +99,24 @@ FWD_DECL typedef struct Chunk Chunk;
 #define BLOCK_USE_ACTION_CONSUMED true
 #define BLOCK_USE_ACTION_NOT_CONSUMED false
 
+typedef u8 BlockUpdateResultBitmap;
+
+#define BLOCK_UPDATE_RESULT_TYPE_COUNT 3
+#define BLOCK_UPDATE_RESULT_TYPE_BITS 2
 typedef enum BlockUpdateResult {
     // Keep block in chunk's update map/queue
     BLOCK_UPDATE_RESULT_PERSIST = 0,
     // Remove block from chunk's update map/queue
-    BLOCK_UPDATE_RESULT_RELEASE = 1
+    BLOCK_UPDATE_RESULT_RELEASE = 1,
+    // Triger chunk remeshing due to block texture updates
+    BLOCK_UPDATE_RESULT_REMESH_CHUNK = 2,
 } BlockUpdateResult;
 
 #define IBlock_IFACE \
     vfunc(void, init, VSelf) \
     vfunc(IItem*, destroy, VSelf, bool drop_item) \
     /* Updates from world events like redstone */ \
-    vfuncDefault(BlockUpdateResult, update, VSelf) \
+    vfuncDefault(BlockUpdateResultBitmap, update, VSelf) \
     /* Player right clicking. True = action consumed, False = action not consumed */ \
     vfuncDefault(bool, useAction, VSelf) \
     /* Can block be placed */ \
@@ -119,8 +124,8 @@ typedef enum BlockUpdateResult {
     /* Provide an item instance corresponding to this block */ \
     vfunc(IItem*, provideItem, VSelf)
 
-BlockUpdateResult iblockUpdate(VSelf);
-BlockUpdateResult IBlock_update(VSelf);
+BlockUpdateResultBitmap iblockUpdate(VSelf);
+BlockUpdateResultBitmap IBlock_update(VSelf);
 
 bool iBlockUseAction(VSelf);
 bool IBlock_useAction(VSelf);
@@ -203,10 +208,6 @@ extern BlockRenderUIContext block_render_ui_context;
 // ==== BLOCK UPDATES ====
 
 typedef u8 BlockUpdateTypeBitmap;
-
-#define blockUpdateTypeBitmapGet(bitmap, update_type) (((bitmap) >> (update_type)) & 0b1)
-#define blockUpdateTypeBitmapSet(bitmap, update_type) ((bitmap) |= 1 << (update_type))
-#define blockUpdateTypeBitmapUnset(bitmap, update_type) ((bitmap) &= ~(1 << (update_type)))
 
 #define BLOCK_UPDATE_TYPE_COUNT 5
 #define BLOCK_UPDATE_TYPE_BITS 3

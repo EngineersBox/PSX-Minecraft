@@ -44,8 +44,8 @@ IItem* {{ name_capital }}Block_provideItem(VSelf) {
 }
 {%- if has_update %}
 
-void {{ name_lower }}BlockUpdate(VSelf) ALIAS("{{ name_capital }}Block_update");
-void {{ name_capital }}Block_update(VSelf) {
+BlockUpdateResultBitmap {{ name_lower }}BlockUpdate(VSelf) ALIAS("{{ name_capital }}Block_update");
+BlockUpdateResultBitmap {{ name_capital }}Block_update(VSelf) {
     UNIMPLEMENTED();
 }
 {% endif %}

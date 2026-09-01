@@ -106,7 +106,7 @@ DECL_BLOCK(DirtBlock, DIRT, 1, dirtBlockFaceAttributes());
 DECL_BLOCK(CobblestoneBlock, COBBLESTONE, 1, cobblestoneBlockFaceAttrbutes());
 DECL_BLOCK(PlankBlock, PLANK, 1, plankBlockFaceAttributes());
 DECL_BLOCK(CraftingTableBlock, CRAFTING_TABLE, 1, craftingTableBlockFaceAttributes());
-DECL_BLOCK(FurnaceBlock, FURNACE, 4, furnaceBlockFaceAttributes());
+DECL_BLOCK(FurnaceBlock, FURNACE, 8, furnaceBlockFaceAttributes());
 
 void blocksInitialiseBuiltin() {
     initBlockSingleton(
