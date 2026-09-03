@@ -286,12 +286,7 @@ static void craftingTableRenderTooltip(RenderContext* ctx) {
 }
 
 void craftingTableBlockRenderUI(RenderContext* ctx, Transforms* transforms) {
-    // Render main storage slots and hotbar
-    uiCursorRender(
-        &cursor,
-        ctx,
-        transforms
-    );
+    uiCursorRender(&cursor, ctx, transforms);
     if (quadIntersectLiteral(
         &cursor.component.position,
         CENTRE_X - (CRAFTING_TABLE_TEXTURE_WIDTH >> 1),

@@ -81,17 +81,8 @@ static void* _loadTextures(const void* ctx) {
         const QLP_FILE* file = qlpFileEntry(i, tex_buf);
 #endif
         if (!GetTimInfo((uint32_t*) qlpFileAddr(i, tex_buf), &tim)) {
+            DEBUG_LOG("[TEXTURE] File name: %s\n", file->name);
             assetLoadImage(&tim, &textures[i]);
-            DEBUG_LOG(
-                "[TEXTURE] Loading: [Name: %s] [Position: (%d,%d)] [Addr: %p] [Mode: 0x%x] [TPage: %d] [CLUT: %d]\n",
-                file->name,
-                tim.prect->x,
-                tim.prect->y,
-                tim.caddr,
-                tim.mode,
-                textures[i].tpage,
-                textures[i].clut
-            );
         }
     }
     return NULL;
@@ -111,6 +102,17 @@ void assetLoadImage(const TIM_IMAGE* tim, Texture* texture) {
     texture->clut = getClut(
         tim->crect->x,
         tim->crect->y
+    );
+    DEBUG_LOG(
+        "[TEXTURE] Loaded: [Position: (%d,%d)] [Size: (%d,%d)] [Addr: %p] [Mode: 0x%x] [TPage: %d] [CLUT: %d]\n",
+        tim->prect->x,
+        tim->prect->y,
+        tim->prect->w,
+        tim->prect->h,
+        tim->caddr,
+        tim->mode,
+        textures->tpage,
+        textures->clut
     );
 }
 
@@ -186,6 +188,7 @@ void assetLoadTextureDirect(const size_t bundle, const int file_index, Texture* 
         errorAbort("[ERROR] Failed to retrieve TIM info for file %s\n", file->name);
         return;
     }
+    DEBUG_LOG("[TEXTURE] File name: %s\n", file->name);
     assetLoadImage(&tim, texture);
     asset_bundle->free(archive);
     DEBUG_LOG("Loaded asset bundle: %s\n", asset_bundle->name);

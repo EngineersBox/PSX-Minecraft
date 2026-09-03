@@ -126,17 +126,6 @@ static bool handleFuelConsumption(FurnaceBlock* furnace) {
 
 static bool handleSmelting(FurnaceBlock* furnace) {
     if (!furnace->process_recipe) return false;
-    if (furnace->cook_ticks == 0) {
-        Slot* slot = &furnace->furnace_slots[slotGroupIndexOffset(FURNACE_FUEL)];
-        if (slot->data.item == NULL) {
-            furnace->cook_ticks = 0;
-            furnace->process_recipe = false;
-            return false;
-        }
-        IItem* iitem = slot->data.item;
-        Item* item = VCAST_PTR(Item*, iitem);
-        furnace->cook_ticks = itemGetBurnableTicks(item->id);
-    }
     const u16 previous_cook_ticks = furnace->cook_ticks--;
     if (previous_cook_ticks != 1 || furnace->recipe.result_count == 0) {
         return false;
@@ -355,7 +344,6 @@ InputHandlerState furnaceBlockInputHandler(const Input* input, void* ctx) {
 bool furnaceBlockUseAction(VSelf) ALIAS("FurnaceBlock_useAction");
 bool FurnaceBlock_useAction(VSelf) {
     VSELF(IBlock);
-    furnaceBlockInputHandlerVTable.ctx = self;
     inputSetFocusedHandler(&input, &furnaceBlockInputHandlerVTable);
     block_render_ui_context.function = furnaceBlockRenderUI;
     block_render_ui_context.block = self;
