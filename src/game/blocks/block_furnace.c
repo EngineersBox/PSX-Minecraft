@@ -114,11 +114,11 @@ static bool handleFuelConsumption(FurnaceBlock* furnace) {
     return furnace->fuel_burn_ticks > 0;
 }
 
-static bool handleSmelting(FurnaceBlock* furnace) {
-    if (!furnace->process_recipe) return false;
+static void handleSmelting(FurnaceBlock* furnace) {
+    if (!furnace->process_recipe) return;
     const u16 previous_cook_ticks = furnace->cook_ticks--;
     if (previous_cook_ticks != 1 || furnace->recipe.result_count == 0) {
-        return false;
+        return;
     }
     Slot* slot = &furnace->slots[slotGroupIndexOffset(FURNACE_OUTPUT)];
     // Ignore output as we are guaranteed to be in a valid state
@@ -133,19 +133,18 @@ static bool handleSmelting(FurnaceBlock* furnace) {
     if (item->stack_size >= itemGetMaxStackSize(item->id)) {
         furnace->process_recipe = false;
     }
-    return true;
 }
 
 BlockUpdateResultBitmap furnaceBlockUpdate(VSelf) ALIAS("FurnaceBlock_update");
 BlockUpdateResultBitmap FurnaceBlock_update(VSelf) {
     VSELF(FurnaceBlock);
     const bool burning_fuel = handleFuelConsumption(self);
-    const bool smelting = handleSmelting(self);
+    handleSmelting(self);
     BlockUpdateResultBitmap bitmap = 0;
     bitmapSetBit(bitmap, BLOCK_UPDATE_RESULT_PERSIST);
     const u8 current_metadata_id = self->block.metadata_id;
     self->block.metadata_id = (self->block.orientation - FACE_DIR_LEFT) * 2;
-    if (burning_fuel || smelting) {
+    if (burning_fuel) {
         self->block.metadata_id &= 0b1;
     } else {
         self->block.metadata_id &= ~0b1;
@@ -161,9 +160,9 @@ static void processFurnaceRecipe(FurnaceBlock* furnace) {
     if (!furnace->recipe_changed) {
         return;
     }
-    memset(ingredient_consume_sizes, '\0', sizeof(u8) * slotGroupSize(FURNACE_OUTPUT));
-    const Slot* slot = &furnace->slots[slotGroupIndexOffset(FURNACE_OUTPUT)];
-    const IItem* iitem = slot->data.item;
+    memset(ingredient_consume_sizes, '\0', sizeof(u8) * slotGroupSize(FURNACE_INPUT));
+    const Slot* input_slot = &furnace->slots[slotGroupIndexOffset(FURNACE_INPUT)];
+    const IItem* iitem = input_slot->data.item;
     if (iitem != NULL) {
         const Item* item = VCAST_PTR(Item*, iitem);
         pattern[0] = (RecipePatternEntry) {
@@ -189,17 +188,20 @@ static void processFurnaceRecipe(FurnaceBlock* furnace) {
     );
     switch (result) {
         case RECIPE_FOUND:
-            Slot* slot = &furnace->slots[slotGroupIndexOffset(FURNACE_OUTPUT)];
-            if (slot->data.item == NULL) {
+            Slot* output_slot = &furnace->slots[slotGroupIndexOffset(FURNACE_OUTPUT)];
+            if (output_slot->data.item == NULL) {
+                DEBUG_LOG("Recipe found, output slot empty\n");
                 furnace->process_recipe = true;
                 break;
             }
-            const Item* item = VCAST_PTR(Item*, slot->data.item);
+            const Item* item = VCAST_PTR(Item*, output_slot->data.item);
             const Item* recipe_result = VCAST_PTR(Item*, furnace->recipe.results[0]);
             furnace->process_recipe = itemEquals(item, recipe_result)
                 && item->stack_size < itemGetMaxStackSize(item->id);
+            DEBUG_LOG("Recipe found, processing: \n", furnace->process_recipe ? "true" : "false");
             break;
         case RECIPE_NOT_FOUND:
+            DEBUG_LOG("Recipe not found\n");
             furnace->recipe.result_count = 0;
             furnace->recipe.results = NULL;
             furnace->process_recipe = true;
@@ -302,35 +304,27 @@ void cursorHandler(FurnaceBlock* furnace,
 
 InputHandlerState furnaceBlockInputHandler(const Input* input, UNUSED void* ctx) {
     FurnaceBlock* furnace = VCAST_PTR(FurnaceBlock*, block_input_handler_context.block);
-    DEBUG_LOG("Processing furnace recipe\n");
     processFurnaceRecipe(furnace);
-    DEBUG_LOG("Inventory cursor handler\n");
     inventoryCursorHandler(
         VCAST_PTR(Inventory*, block_input_handler_context.inventory),
         INVENTORY_SLOT_GROUP_MAIN | INVENTORY_SLOT_GROUP_HOTBAR,
         input
     );
-    DEBUG_LOG("Checks\n");
     const PADTYPE* pad = input->pad;
     if (isPressed(pad, BINDING_CURSOR_CLICK)) {
-        DEBUG_LOG("Cursor handler\n");
         cursorHandler(furnace, false);
         return INPUT_HANDLER_RETAIN;
     } else if (isPressed(pad, BINDING_DROP_ITEM) && cursor.held_data != NULL) {
-        DEBUG_LOG("Drop stack in world\n");
         worldDropItemStack(
             world,
             (IItem*) cursor.held_data,
             0
         );
-        DEBUG_LOG("Set held data\n");
         uiCursorSetHeldData(&cursor, NULL);
     } else if (isPressed(pad, BINDING_SPLIT_OR_STORE_ONE)) {
-        DEBUG_LOG("Cursor handler split\n");
         cursorHandler(furnace, true);
     }
     if (isPressed(pad, BINDING_OPEN_INVENTORY)) {
-        DEBUG_LOG("Close inv\n");
         resetBlockRenderUIContext();
         // Leave item in the furnace slots
         return INPUT_HANDLER_RELEASE;
