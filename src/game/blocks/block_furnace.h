@@ -71,7 +71,7 @@ DEFN_BLOCK_STATEFUL(FurnaceBlock, FURNACE,
     bool process_recipe: 1;
     u16 _pad: 14;
     RecipeQueryResult recipe;
-    Slot furnace_slots[
+    Slot slots[
         slotGroupSize(FURNACE_INPUT)
         + slotGroupSize(FURNACE_FUEL)
         + slotGroupSize(FURNACE_OUTPUT)

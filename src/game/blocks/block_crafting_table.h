@@ -18,7 +18,7 @@ DEFN_BLOCK_CONSTRUCTOR(craftingTable);
     .resistance = BLOCK_DEFAULT_RESISTANCE, \
     .type = BLOCKTYPE_SOLID, \
     .tool_type = TOOLTYPE_AXE, \
-    .tool_material = ITEMMATERIAL_NONE, \
+    .tool_material = ITEMMATERIAL_WOOD, \
     .can_harvest = toolTypeBitset(1,1,1,1,1,1), \
     .propagates_sunlight =  false , \
     .propagates_blocklight =  false , \

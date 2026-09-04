@@ -10,10 +10,7 @@
 
 DEFN_ITEM_BLOCK(CobblestoneItemBlock);
 
-#define cobblestoneItemBlockAttributes() declareItemAttributes("cobblestone", \
-    .tool_type = TOOLTYPE_PICKAXE, \
-    .material = ITEMMATERIAL_WOOD \
-)
+#define cobblestoneItemBlockAttributes() declareItemAttributes("cobblestone")
 
 void cobblestoneItemBlockRenderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms);
 void CobblestoneItemBlock_renderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms);

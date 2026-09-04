@@ -10,10 +10,7 @@
 
 DEFN_ITEM_BLOCK(FurnaceItemBlock);
 
-#define furnaceItemBlockAttributes() declareItemAttributes("furnace", \
-    .tool_type = TOOLTYPE_PICKAXE, \
-    .material = ITEMMATERIAL_WOOD \
-)
+#define furnaceItemBlockAttributes() declareItemAttributes("furnace")
 
 void furnaceItemBlockRenderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms);
 void FurnaceItemBlock_renderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms);

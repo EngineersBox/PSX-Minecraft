@@ -11,7 +11,6 @@
 DEFN_ITEM_BLOCK(PlankItemBlock);
 
 #define plankItemBlockAttributes() declareItemAttributes("plank", \
-    .tool_type = TOOLTYPE_AXE, \
     .burnable_ticks = 300 \
 )
 

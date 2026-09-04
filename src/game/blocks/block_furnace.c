@@ -17,16 +17,6 @@
 
 static Texture furnace_texture = {0};
 
-Slot furnace_slots[
-    slotGroupSize(FURNACE_INPUT)
-    + slotGroupSize(FURNACE_FUEL)
-    + slotGroupSize(FURNACE_OUTPUT)
-] = {
-    createSlotInline(FURNACE_INPUT, 0, 0),
-    createSlotInline(FURNACE_FUEL, 0, 0),
-    createSlotInline(FURNACE_OUTPUT, 0, 0)
-};
-
 FWD_DECL Chunk* worldGetChunk(const World* world, const VECTOR* position);
 FWD_DECL void worldDropItemStack(World* world, IItem* item, const u8 count);
 
@@ -69,9 +59,9 @@ void FurnaceBlock_init(VSelf) {
     };
     self->recipe_changed = false;
     self->process_recipe = false;
-    self->furnace_slots[0] = (Slot) {0};
-    self->furnace_slots[1] = (Slot) {0};
-    self->furnace_slots[2] = (Slot) {0};
+    self->slots[0] = (Slot) {0};
+    self->slots[1] = (Slot) {0};
+    self->slots[2] = (Slot) {0};
 }
 
 IItem* furnaceBlockDestroy(VSelf, bool drop_item) ALIAS("FurnaceBlock_destroy");
@@ -96,7 +86,7 @@ static bool handleFuelConsumption(FurnaceBlock* furnace) {
         furnace->fuel_burn_ticks--;
     }
     if (furnace->fuel_burn_ticks > 0) return true;
-    Slot* slot = &furnace->furnace_slots[slotGroupIndexOffset(FURNACE_FUEL)];
+    Slot* slot = &furnace->slots[slotGroupIndexOffset(FURNACE_FUEL)];
     if (slot->data.item == NULL) {
         furnace->cook_ticks = 0;
         furnace->process_recipe = false;
@@ -130,7 +120,7 @@ static bool handleSmelting(FurnaceBlock* furnace) {
     if (previous_cook_ticks != 1 || furnace->recipe.result_count == 0) {
         return false;
     }
-    Slot* slot = &furnace->furnace_slots[slotGroupIndexOffset(FURNACE_OUTPUT)];
+    Slot* slot = &furnace->slots[slotGroupIndexOffset(FURNACE_OUTPUT)];
     // Ignore output as we are guaranteed to be in a valid state
     // for this to succeed
     recipeProcess(
@@ -172,7 +162,7 @@ static void processFurnaceRecipe(FurnaceBlock* furnace) {
         return;
     }
     memset(ingredient_consume_sizes, '\0', sizeof(u8) * slotGroupSize(FURNACE_OUTPUT));
-    const Slot* slot = &furnace->furnace_slots[slotGroupIndexOffset(FURNACE_OUTPUT)];
+    const Slot* slot = &furnace->slots[slotGroupIndexOffset(FURNACE_OUTPUT)];
     const IItem* iitem = slot->data.item;
     if (iitem != NULL) {
         const Item* item = VCAST_PTR(Item*, iitem);
@@ -199,7 +189,7 @@ static void processFurnaceRecipe(FurnaceBlock* furnace) {
     );
     switch (result) {
         case RECIPE_FOUND:
-            Slot* slot = &furnace->furnace_slots[slotGroupIndexOffset(FURNACE_OUTPUT)];
+            Slot* slot = &furnace->slots[slotGroupIndexOffset(FURNACE_OUTPUT)];
             if (slot->data.item == NULL) {
                 furnace->process_recipe = true;
                 break;
@@ -238,7 +228,7 @@ void cursorHandler(FurnaceBlock* furnace,
     }
     Slot* slot = NULL;
     if (slotGroupIntersect(FURNACE_INPUT, &cursor.component.position)) {
-        slot = &furnace->furnace_slots[slotGroupIndexOffset(FURNACE_INPUT)];
+        slot = &furnace->slots[slotGroupIndexOffset(FURNACE_INPUT)];
         if (split_or_store_one) {
             cursorSplitOrStoreOne(
                 slot,
@@ -255,7 +245,7 @@ void cursorHandler(FurnaceBlock* furnace,
         furnace->recipe_changed = true;
         furnace->cook_ticks = 0;
     } else if (slotGroupIntersect(FURNACE_FUEL, &cursor.component.position)) {
-        slot = &furnace->furnace_slots[slotGroupIndexOffset(FURNACE_FUEL)];
+        slot = &furnace->slots[slotGroupIndexOffset(FURNACE_FUEL)];
         if (split_or_store_one) {
             cursorSplitOrStoreOne(
                 slot,
@@ -273,7 +263,7 @@ void cursorHandler(FurnaceBlock* furnace,
     } else if (slotGroupIntersect(FURNACE_OUTPUT, &cursor.component.position) && !split_or_store_one) {
         // NOTE: Don't bother with splitting stacks
         //       since it's a pain the for output slot.
-        slot = &furnace->furnace_slots[slotGroupIndexOffset(FURNACE_OUTPUT)];
+        slot = &furnace->slots[slotGroupIndexOffset(FURNACE_OUTPUT)];
         IItem* result_iitem = slot->data.item;
         if (result_iitem == NULL) {
             return;
@@ -282,7 +272,7 @@ void cursorHandler(FurnaceBlock* furnace,
         IItem* held_iitem = (IItem*) cursor.held_data;
         if (held_iitem == NULL) {
             recipeConsumeIngredients(
-                furnace->furnace_slots,
+                furnace->slots,
                 ingredient_consume_sizes,
                 slotGroupIndexOffset(FURNACE_INPUT),
                 slotGroupIndexOffset(FURNACE_FUEL)
@@ -301,7 +291,7 @@ void cursorHandler(FurnaceBlock* furnace,
         VCALL(*result_iitem, destroy);
         slot->data.item = NULL;
         recipeConsumeIngredients(
-            furnace->furnace_slots,
+            furnace->slots,
             ingredient_consume_sizes,
             slotGroupIndexOffset(FURNACE_INPUT),
             slotGroupIndexOffset(FURNACE_FUEL)
@@ -310,30 +300,37 @@ void cursorHandler(FurnaceBlock* furnace,
     }
 }
 
-InputHandlerState furnaceBlockInputHandler(const Input* input, void* ctx) {
-    IBlock* iblock = (IBlock*) ctx;
-    FurnaceBlock* furnace = VCAST_PTR(FurnaceBlock*, iblock);
+InputHandlerState furnaceBlockInputHandler(const Input* input, UNUSED void* ctx) {
+    FurnaceBlock* furnace = VCAST_PTR(FurnaceBlock*, block_input_handler_context.block);
+    DEBUG_LOG("Processing furnace recipe\n");
     processFurnaceRecipe(furnace);
+    DEBUG_LOG("Inventory cursor handler\n");
     inventoryCursorHandler(
         VCAST_PTR(Inventory*, block_input_handler_context.inventory),
         INVENTORY_SLOT_GROUP_MAIN | INVENTORY_SLOT_GROUP_HOTBAR,
         input
     );
+    DEBUG_LOG("Checks\n");
     const PADTYPE* pad = input->pad;
     if (isPressed(pad, BINDING_CURSOR_CLICK)) {
+        DEBUG_LOG("Cursor handler\n");
         cursorHandler(furnace, false);
         return INPUT_HANDLER_RETAIN;
     } else if (isPressed(pad, BINDING_DROP_ITEM) && cursor.held_data != NULL) {
+        DEBUG_LOG("Drop stack in world\n");
         worldDropItemStack(
             world,
             (IItem*) cursor.held_data,
             0
         );
+        DEBUG_LOG("Set held data\n");
         uiCursorSetHeldData(&cursor, NULL);
     } else if (isPressed(pad, BINDING_SPLIT_OR_STORE_ONE)) {
+        DEBUG_LOG("Cursor handler split\n");
         cursorHandler(furnace, true);
     }
     if (isPressed(pad, BINDING_OPEN_INVENTORY)) {
+        DEBUG_LOG("Close inv\n");
         resetBlockRenderUIContext();
         // Leave item in the furnace slots
         return INPUT_HANDLER_RELEASE;
@@ -344,6 +341,7 @@ InputHandlerState furnaceBlockInputHandler(const Input* input, void* ctx) {
 bool furnaceBlockUseAction(VSelf) ALIAS("FurnaceBlock_useAction");
 bool FurnaceBlock_useAction(VSelf) {
     VSELF(IBlock);
+    block_input_handler_context.block = self;
     inputSetFocusedHandler(&input, &furnaceBlockInputHandlerVTable);
     block_render_ui_context.function = furnaceBlockRenderUI;
     block_render_ui_context.block = self;
@@ -373,9 +371,9 @@ bool FurnaceBlock_useAction(VSelf) {
     return BLOCK_USE_ACTION_CONSUMED;
 }
 
-void furnaceRenderTooltip(RenderContext* ctx) {
+void furnaceRenderTooltip(const FurnaceBlock* furnace, RenderContext* ctx) {
     if (slotGroupIntersect(FURNACE_INPUT, &cursor.component.position)) {
-        const Slot* slot = &furnace_slots[slotGroupCursorSlot(
+        const Slot* slot = &furnace->slots[slotGroupCursorSlot(
             FURNACE_INPUT,
             &cursor.component.position
         )];
@@ -385,7 +383,7 @@ void furnaceRenderTooltip(RenderContext* ctx) {
         }
     }
     if (slotGroupIntersect(FURNACE_FUEL, &cursor.component.position)) {
-        const Slot* slot = &furnace_slots[slotGroupCursorSlot(
+        const Slot* slot = &furnace->slots[slotGroupCursorSlot(
             FURNACE_FUEL,
             &cursor.component.position
         )];
@@ -395,7 +393,7 @@ void furnaceRenderTooltip(RenderContext* ctx) {
         }
     }
     if (slotGroupIntersect(FURNACE_OUTPUT, &cursor.component.position)) {
-        const Slot* slot = &furnace_slots[slotGroupCursorSlot(
+        const Slot* slot = &furnace->slots[slotGroupCursorSlot(
             FURNACE_OUTPUT,
             &cursor.component.position
         )];
@@ -407,6 +405,7 @@ void furnaceRenderTooltip(RenderContext* ctx) {
 }
 
 void furnaceBlockRenderUI(RenderContext* ctx, Transforms* transforms) {
+    FurnaceBlock* furnace = VCAST_PTR(FurnaceBlock*, block_render_ui_context.block);
     uiCursorRender(&cursor, ctx, transforms);
     if (quadIntersectLiteral(
         &cursor.component.position,
@@ -415,7 +414,7 @@ void furnaceBlockRenderUI(RenderContext* ctx, Transforms* transforms) {
         FURNACE_TEXTURE_WIDTH,
         FURNACE_TEXTURE_HEIGHT
     )) {
-        furnaceRenderTooltip(ctx);
+        furnaceRenderTooltip(furnace, ctx);
     }
     inventoryRenderSlots(
         VCAST_PTR(const Inventory*, block_input_handler_context.inventory),
@@ -423,21 +422,21 @@ void furnaceBlockRenderUI(RenderContext* ctx, Transforms* transforms) {
         ctx,
         transforms
     );
-    const Slot* slot = &furnace_slots[slotGroupIndexOffset(FURNACE_INPUT)];
+    const Slot* slot = &furnace->slots[slotGroupIndexOffset(FURNACE_INPUT)];
     if (slot->data.item != NULL) {
         Item* item = VCAST_PTR(Item*, slot->data.item);
         item->position.vx = slotGroupScreenPosition(FURNACE_INPUT, X, 0);
         item->position.vy = slotGroupScreenPosition(FURNACE_INPUT, Y, 0);
         VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
     }
-    slot = &furnace_slots[slotGroupIndexOffset(FURNACE_FUEL)];
+    slot = &furnace->slots[slotGroupIndexOffset(FURNACE_FUEL)];
     if (slot->data.item != NULL) {
         Item* item = VCAST_PTR(Item*, slot->data.item);
         item->position.vx = slotGroupScreenPosition(FURNACE_FUEL, X, 0);
         item->position.vy = slotGroupScreenPosition(FURNACE_FUEL, Y, 0);
         VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
     }
-    slot = &furnace_slots[slotGroupIndexOffset(FURNACE_OUTPUT)];
+    slot = &furnace->slots[slotGroupIndexOffset(FURNACE_OUTPUT)];
     if (slot->data.item != NULL) {
         Item* item = VCAST_PTR(Item*, slot->data.item);
         item->position.vx = slotGroupScreenPosition(FURNACE_OUTPUT, X, 0);

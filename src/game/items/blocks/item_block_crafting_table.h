@@ -11,7 +11,6 @@
 DEFN_ITEM_BLOCK(CraftingTableItemBlock);
 
 #define craftingTableItemBlockAttributes() declareItemAttributes("crafting_table", \
-    .tool_type = TOOLTYPE_AXE, \
     .burnable_ticks = 300 \
 )
 

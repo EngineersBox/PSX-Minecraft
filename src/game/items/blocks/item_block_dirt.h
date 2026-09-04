@@ -10,10 +10,7 @@
 
 DEFN_ITEM_BLOCK(DirtItemBlock);
 
-#define dirtItemBlockAttributes() declareItemAttributes("dirt", \
-    .tool_type = TOOLTYPE_SHOVEL, \
-    .material = ITEMMATERIAL_WOOD \
-)
+#define dirtItemBlockAttributes() declareItemAttributes("dirt")
 
 void dirtItemBlockRenderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms);
 void DirtItemBlock_renderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms);

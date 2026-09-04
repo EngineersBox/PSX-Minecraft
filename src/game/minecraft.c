@@ -193,6 +193,13 @@ void Minecraft_init(VSelf, UNUSED void* ctx) {
     inventorySlotSetItem(slot, item);
     VCALL_SUPER(*item, Renderable, applyInventoryRenderAttributes);
 
+    slot = inventoryFindFreeSlot(inventory, 3);
+    item = itemGetConstructor(ITEMID_PLANK)(0);
+    item_block = VCAST_PTR(ItemBlock*, item);
+    item_block->item.stack_size = 32;
+    inventorySlotSetItem(slot, item);
+    VCALL_SUPER(*item, Renderable, applyInventoryRenderAttributes);
+
     /* ==== TESTING: [END] Load directly into world ====*/
 
     DEBUG_LOG("Finished init\n");
