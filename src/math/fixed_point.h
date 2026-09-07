@@ -46,7 +46,7 @@ i32 cos5o(i16 i);
  * @param y Divisor (integer number performing division)
  * @return Result of division x / y
  */
-#define fixedIntDiv(x, y) (((fixedi32) x) / ((i32) y))
+#define fixedIntDiv(x, y) (((fixedi32) (x)) / ((i32) (y)))
 
 /**
  * @brief Divides two fixed point numbers as x / y

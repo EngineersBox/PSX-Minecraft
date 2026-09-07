@@ -66,6 +66,7 @@ slotGroupCheck(FURNACE_OUTPUT);
 
 DEFN_BLOCK_STATEFUL(FurnaceBlock, FURNACE,
     u16 fuel_burn_ticks;
+    u16 fuel_burn_ticks_start;
     u16 cook_ticks;
     bool recipe_changed: 1;
     bool process_recipe: 1;

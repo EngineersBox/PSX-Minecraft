@@ -869,21 +869,29 @@ void chunkUpdateBlockState(Chunk* chunk,
     //     // update in chunk block_updates map.
     //     return;
     // }
+    // DEBUG_LOG("Updating block\n");
     const BlockUpdateResultBitmap result = VCALL(*block, update);
-    if (bitmapGetBit(result, BLOCK_UPDATE_RESULT_PERSIST)) {
+    if (bitmapGetBit(result, BLOCK_UPDATE_RESULT_PERSIST) == 1) {
         BlockUpdate new_block_update = (BlockUpdate) {
             .position = update->position,
-            .type_bitmap = BLOCK_UPDATE_TYPE_STATE,
+            .type_bitmap = 0,
             ._pad = 0,
             .old_skylight_value = 0,
             .old_block_light_value = 0
         };
+        bitmapSetBit(new_block_update.type_bitmap, BLOCK_UPDATE_TYPE_STATE);
+        // NOTE: This assumes that no other update processing has re-added
+        //       the updated to the map. If there is another one added that
+        //       does that, we should retrieve the update from the map first,
+        //       updating if it exists, otherwise creating a new entry if it
+        //       does not.
         hashmap_set(chunk->block_updates, &new_block_update);
         if (hashmap_oom(chunk->block_updates)) {
-            errorAbort("[CHUNK] Failed to enqueue light update, hashmap OOM\n");
+            errorAbort("[CHUNK] Failed to enqueue block update, hashmap OOM\n");
         }
+        // DEBUG_LOG("Persisted block update\n");
     }
-    if (bitmapGetBit(result, BLOCK_UPDATE_RESULT_REMESH_CHUNK)) {
+    if (bitmapGetBit(result, BLOCK_UPDATE_RESULT_REMESH_CHUNK) == 1) {
         DEBUG_LOG("Update trigger remesh\n");
         chunk->mesh_updated = true;
     }
@@ -1213,7 +1221,7 @@ void chunkProcessBlockUpdates(Chunk* chunk,
             && hashmap_iter(chunk->block_updates, &iter, &item)) {
         BlockUpdate update = *((BlockUpdate*) item);
         hashmap_delete(chunk->block_updates, item);
-        DEBUG_LOG("Bitmap: " INT8_BIN_PATTERN "\n", INT8_BIN_LAYOUT(update.type_bitmap));
+        // DEBUG_LOG("Bitmap: " INT8_BIN_PATTERN "\n", INT8_BIN_LAYOUT(update.type_bitmap));
         if (bitmapGetBit(update.type_bitmap, BLOCK_UPDATE_TYPE_ADD_SKYLIGHT)) {
             chunkUpdateAddSkylight(chunk, &update);
             lightmap_updated = true;
@@ -1235,7 +1243,7 @@ void chunkProcessBlockUpdates(Chunk* chunk,
             bitmapUnsetBit(update.type_bitmap, BLOCK_UPDATE_TYPE_REMOVE_BLOCKLIGHT);
         }
         if (bitmapGetBit(update.type_bitmap, BLOCK_UPDATE_TYPE_STATE)) {
-            DEBUG_LOG("State update\n");
+            // DEBUG_LOG("State update\n");
             chunkUpdateBlockState(chunk, &update);
             bitmapUnsetBit(update.type_bitmap, BLOCK_UPDATE_TYPE_STATE);
         }

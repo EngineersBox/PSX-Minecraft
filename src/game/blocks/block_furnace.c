@@ -1,5 +1,9 @@
 #include "block_furnace.h"
 
+#include <psxgpu.h>
+#include <psxgte.h>
+#include <stdlib.h>
+
 #include "block.h"
 #include "block_id.h"
 #include "../items/blocks/item_block_furnace.h"
@@ -14,6 +18,7 @@
 #include "../../ui/components/cursor.h"
 #include "../../util/bits.h"
 #include "../../util/interface99_extensions.h"
+#include "../../util/strings.h"
 
 static Texture furnace_texture = {0};
 
@@ -27,8 +32,8 @@ static InputHandlerVTable furnaceBlockInputHandlerVTable = {
     .input_handler_destroy = NULL
 };
 
-static u8 ingredient_consume_sizes[slotGroupSize(FURNACE_INPUT) + slotGroupSize(FURNACE_FUEL)] = {0};
-static RECIPE_PATTERN(pattern, slotGroupSize(FURNACE_INPUT) + slotGroupSize(FURNACE_FUEL)) = {0};
+static u8 ingredient_consume_sizes[slotGroupSize(FURNACE_INPUT)] = {0};
+static RECIPE_PATTERN(pattern, slotGroupSize(FURNACE_INPUT)) = {0};
 
 DEFN_BLOCK_CONSTRUCTOR_IMPL_STATEFUL(furnace) {
     if (from_item != NULL) {
@@ -53,15 +58,16 @@ void FurnaceBlock_init(VSelf) {
     );
     self->cook_ticks = 0;
     self->fuel_burn_ticks = 0;
+    self->fuel_burn_ticks_start = 0;
     self->recipe = (RecipeQueryResult) {
         .result_count = 0,
         .results = NULL
     };
     self->recipe_changed = false;
     self->process_recipe = false;
-    self->slots[0] = (Slot) {0};
-    self->slots[1] = (Slot) {0};
-    self->slots[2] = (Slot) {0};
+    self->slots[0] = createSlotInline(FURNACE_INPUT, 0, 0);
+    self->slots[1] = createSlotInline(FURNACE_FUEL, 0, 0);
+    self->slots[2] = createSlotInline(FURNACE_OUTPUT, 0, 0);
 }
 
 IItem* furnaceBlockDestroy(VSelf, bool drop_item) ALIAS("FurnaceBlock_destroy");
@@ -82,20 +88,28 @@ IItem* FurnaceBlock_provideItem(VSelf) {
 }
 
 static bool handleFuelConsumption(FurnaceBlock* furnace) {
+    DEBUG_LOG("Burn: %d\n", furnace->fuel_burn_ticks);
     if (furnace->fuel_burn_ticks > 0) {
+        furnace->process_recipe = true;
         furnace->fuel_burn_ticks--;
     }
     if (furnace->fuel_burn_ticks > 0) return true;
     Slot* slot = &furnace->slots[slotGroupIndexOffset(FURNACE_FUEL)];
-    if (slot->data.item == NULL) {
+    IItem* iitem = slot->data.item;
+    DEBUG_LOG("Fuel slot item: %p\n", iitem);
+    if (iitem == NULL) {
+        furnace->fuel_burn_ticks = 0;
+        furnace->fuel_burn_ticks_start = 0;
         furnace->cook_ticks = 0;
         furnace->process_recipe = false;
         return false;
     }
-    IItem* iitem = slot->data.item;
     Item* item = VCAST_PTR(Item*, iitem);
     const u16 item_burnable_ticks = itemGetBurnableTicks(item->id);
+    DEBUG_LOG("Item: %d Burnable ticks: %d\n", item->id, item_burnable_ticks);
     if (item_burnable_ticks == 0) {
+        furnace->fuel_burn_ticks = 0;
+        furnace->fuel_burn_ticks_start = 0;
         furnace->cook_ticks = 0;
         furnace->process_recipe = false;
         return false;
@@ -103,6 +117,7 @@ static bool handleFuelConsumption(FurnaceBlock* furnace) {
     assert(item->stack_size > 0);
     item->stack_size--;
     furnace->fuel_burn_ticks = item_burnable_ticks;
+    furnace->fuel_burn_ticks_start = item_burnable_ticks;
     if (item->stack_size == 0) {
         VCALL(*iitem, destroy);
         slot->data.item = NULL;
@@ -110,13 +125,19 @@ static bool handleFuelConsumption(FurnaceBlock* furnace) {
     if (furnace->fuel_burn_ticks == 0) {
         furnace->process_recipe = false;
         furnace->cook_ticks = 0;
+        return false;
     }
-    return furnace->fuel_burn_ticks > 0;
+    furnace->process_recipe = true;
+    return true;
 }
 
 static void handleSmelting(FurnaceBlock* furnace) {
+    DEBUG_LOG("Process recipe: %s Cook: %d\n", stringFromBool(furnace->process_recipe), furnace->cook_ticks);
     if (!furnace->process_recipe) return;
-    const u16 previous_cook_ticks = furnace->cook_ticks--;
+    const u16 previous_cook_ticks = furnace->cook_ticks;
+    if (furnace->cook_ticks > 0) {
+        furnace->cook_ticks--;
+    }
     if (previous_cook_ticks != 1 || furnace->recipe.result_count == 0) {
         return;
     }
@@ -138,19 +159,26 @@ static void handleSmelting(FurnaceBlock* furnace) {
 BlockUpdateResultBitmap furnaceBlockUpdate(VSelf) ALIAS("FurnaceBlock_update");
 BlockUpdateResultBitmap FurnaceBlock_update(VSelf) {
     VSELF(FurnaceBlock);
+    // DEBUG_LOG("Update furnace block\n");
     const bool burning_fuel = handleFuelConsumption(self);
     handleSmelting(self);
     BlockUpdateResultBitmap bitmap = 0;
     bitmapSetBit(bitmap, BLOCK_UPDATE_RESULT_PERSIST);
     const u8 current_metadata_id = self->block.metadata_id;
+    // Block metadata is ordered by direction, left, right,
+    // back and front. Each metadata entry has a  burning
+    // and non-burning variant, which is indicated by the
+    // least-signficant bit of the metadata id.
     self->block.metadata_id = (self->block.orientation - FACE_DIR_LEFT) * 2;
     if (burning_fuel) {
-        self->block.metadata_id &= 0b1;
+        self->block.metadata_id |= 0b1;
     } else {
         self->block.metadata_id &= ~0b1;
     }
-    DEBUG_LOG("Current: " INT8_BIN_PATTERN " New: " INT8_BIN_PATTERN "\n", INT8_BIN_LAYOUT(current_metadata_id), INT8_BIN_LAYOUT(self->block.metadata_id));
     if (current_metadata_id != self->block.metadata_id) {
+        // When the metadata id has changed, we are using a different
+        // texture on the block face. So let's trigger a chunk remesh
+        // to render that.
         bitmapSetBit(bitmap, BLOCK_UPDATE_RESULT_REMESH_CHUNK);
     }
     return bitmap;
@@ -160,7 +188,7 @@ static void processFurnaceRecipe(FurnaceBlock* furnace) {
     if (!furnace->recipe_changed) {
         return;
     }
-    memset(ingredient_consume_sizes, '\0', sizeof(u8) * slotGroupSize(FURNACE_INPUT));
+    ingredient_consume_sizes[0] = 0;
     const Slot* input_slot = &furnace->slots[slotGroupIndexOffset(FURNACE_INPUT)];
     const IItem* iitem = input_slot->data.item;
     if (iitem != NULL) {
@@ -171,7 +199,7 @@ static void processFurnaceRecipe(FurnaceBlock* furnace) {
         };
     } else {
         pattern[0] = (RecipePatternEntry) {
-            .id = RECIPE_COMPOSITE_ID(0, ITEMID_AIR),
+            .id = RECIPE_COMPOSITE_ID(ITEMID_AIR, 0),
             .stack_size = 0,
         };
     }
@@ -198,7 +226,7 @@ static void processFurnaceRecipe(FurnaceBlock* furnace) {
             const Item* recipe_result = VCAST_PTR(Item*, furnace->recipe.results[0]);
             furnace->process_recipe = itemEquals(item, recipe_result)
                 && item->stack_size < itemGetMaxStackSize(item->id);
-            DEBUG_LOG("Recipe found, processing: \n", furnace->process_recipe ? "true" : "false");
+            DEBUG_LOG("Recipe found, processing: \n", stringFromBool(furnace->process_recipe));
             break;
         case RECIPE_NOT_FOUND:
             DEBUG_LOG("Recipe not found\n");
@@ -437,7 +465,56 @@ void furnaceBlockRenderUI(RenderContext* ctx, Transforms* transforms) {
         item->position.vy = slotGroupScreenPosition(FURNACE_OUTPUT, Y, 0);
         VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
     }
-    // TODO: Render the burn time left with fire texture and smelting progress
+    if (furnace->fuel_burn_ticks > 0) {
+        fixedi32 fire_tex_height = ((fixedi32) furnace->fuel_burn_ticks) * FURNACE_FIRE_TEXTURE_HEIGHT;
+        fire_tex_height /= (fixedi32) furnace->fuel_burn_ticks_start;
+        POLY_FT4* pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
+        setPolyFT4(pol4);
+        setXYWH(
+            pol4,
+            FURNACE_FIRE_TEXTURE_POS_X,
+            FURNACE_FIRE_TEXTURE_POS_Y + (FURNACE_FIRE_TEXTURE_HEIGHT - fire_tex_height),
+            FURNACE_FIRE_TEXTURE_WIDTH,
+            fire_tex_height
+        );
+        setUVWH(
+            pol4,
+            FURNACE_FIRE_TEXTURE_SRC_X,
+            FURNACE_FIRE_TEXTURE_SRC_Y + (FURNACE_FIRE_TEXTURE_HEIGHT - fire_tex_height),
+            FURNACE_FIRE_TEXTURE_WIDTH,
+            fire_tex_height
+        );
+        setRGB0(pol4, 0x80, 0x80, 0x80);
+        pol4->tpage = furnace_texture.tpage;
+        pol4->clut = furnace_texture.clut;
+        const u32* ot_object = allocateOrderingTable(ctx, 1);
+        addPrim(ot_object, pol4);
+    }
+    if (furnace->cook_ticks) {
+        fixedi32 arrow_tex_width = ((fixedi32) furnace->cook_ticks) * FURNACE_ARROW_TEXTURE_WIDTH;
+        arrow_tex_width /= (fixedi32) furnace->recipe.processing_ticks;
+        POLY_FT4* pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
+        setPolyFT4(pol4);
+        setXYWH(
+            pol4,
+            FURNACE_ARROW_TEXTURE_POS_X,
+            FURNACE_ARROW_TEXTURE_POS_Y,
+            arrow_tex_width,
+            FURNACE_ARROW_TEXTURE_HEIGHT
+        );
+        setUVWH(
+            pol4,
+            FURNACE_ARROW_TEXTURE_SRC_X,
+            FURNACE_ARROW_TEXTURE_SRC_Y,
+            arrow_tex_width,
+            FURNACE_ARROW_TEXTURE_HEIGHT
+        );
+        setRGB0(pol4, 0x80, 0x80, 0x80);
+        pol4->tpage = furnace_texture.tpage;
+        pol4->clut = furnace_texture.clut;
+        const u32* ot_object = allocateOrderingTable(ctx, 1);
+        addPrim(ot_object, pol4);
+    }
     uiBackgroundRender(
         &block_render_ui_context.background,
         ctx,

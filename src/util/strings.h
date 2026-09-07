@@ -16,4 +16,6 @@ void stringToReadable(const char* src,
                       char* dst,
                       const size_t dst_len);
 
+#define stringFromBool(bool_value) ((bool_value) ? "true" : "false")
+
 #endif // _UTIL__STRINGS_H_
