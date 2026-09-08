@@ -71,7 +71,7 @@ DEFN_BLOCK_STATEFUL(FurnaceBlock, FURNACE,
     bool recipe_changed: 1;
     bool process_recipe: 1;
     u16 _pad: 14;
-    RecipeQueryResult recipe;
+    RecipeSearchResult recipe;
     Slot slots[
         slotGroupSize(FURNACE_INPUT)
         + slotGroupSize(FURNACE_FUEL)

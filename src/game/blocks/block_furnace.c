@@ -59,15 +59,15 @@ void FurnaceBlock_init(VSelf) {
     self->cook_ticks = 0;
     self->fuel_burn_ticks = 0;
     self->fuel_burn_ticks_start = 0;
-    self->recipe = (RecipeQueryResult) {
-        .result_count = 0,
-        .results = NULL
+    self->recipe = (RecipeSearchResult) {
+        .results = (RecipeResults) {0},
+        .processing_ticks = 0
     };
     self->recipe_changed = false;
     self->process_recipe = false;
-    self->slots[0] = createSlotInline(FURNACE_INPUT, 0, 0);
-    self->slots[1] = createSlotInline(FURNACE_FUEL, 0, 0);
-    self->slots[2] = createSlotInline(FURNACE_OUTPUT, 0, 0);
+    self->slots[slotGroupIndexOffset(FURNACE_INPUT)] = createSlotInline(FURNACE_INPUT, 0, 0);
+    self->slots[slotGroupIndexOffset(FURNACE_FUEL)] = createSlotInline(FURNACE_FUEL, 0, 0);
+    self->slots[slotGroupIndexOffset(FURNACE_OUTPUT)] = createSlotInline(FURNACE_OUTPUT, 0, 0);
 }
 
 IItem* furnaceBlockDestroy(VSelf, bool drop_item) ALIAS("FurnaceBlock_destroy");
@@ -138,20 +138,31 @@ static void handleSmelting(FurnaceBlock* furnace) {
     if (furnace->cook_ticks > 0) {
         furnace->cook_ticks--;
     }
-    if (previous_cook_ticks != 1 || furnace->recipe.result_count == 0) {
+    if (previous_cook_ticks != 1 || furnace->recipe.results.result_count == 0) {
         return;
     }
     Slot* slot = &furnace->slots[slotGroupIndexOffset(FURNACE_OUTPUT)];
-    // Ignore output as we are guaranteed to be in a valid state
-    // for this to succeed
-    recipeProcess(
+    const RecipeProcessResult result = recipeProcess(
         &furnace->recipe,
         &slot,
         1,
         true
     );
+    switch (result) {
+        case RECIPE_PROCESSING_NONE_MATCHING:
+        case RECIPE_PROCESSING_INSUFFICIENT_SPACE:
+            furnace->process_recipe = false;
+            return;
+        case RECIPE_PROCESSING_SUCCEEDED:
+            furnace->process_recipe = true;
+            break;
+    }
+    slot = &furnace->slots[slotGroupIndexOffset(FURNACE_INPUT)];
     const Item* item = VCAST_PTR(Item*, slot->data.item);
-    if (item->stack_size >= itemGetMaxStackSize(item->id)) {
+    if (item != NULL && item->stack_size > 0) {
+        furnace->cook_ticks = furnace->recipe.processing_ticks;
+        furnace->process_recipe = true;
+    } else {
         furnace->process_recipe = false;
     }
 }
@@ -190,9 +201,8 @@ static void processFurnaceRecipe(FurnaceBlock* furnace) {
     }
     ingredient_consume_sizes[0] = 0;
     const Slot* input_slot = &furnace->slots[slotGroupIndexOffset(FURNACE_INPUT)];
-    const IItem* iitem = input_slot->data.item;
-    if (iitem != NULL) {
-        const Item* item = VCAST_PTR(Item*, iitem);
+    if (input_slot->data.item != NULL) {
+        const Item* item = VCAST_PTR(Item*, input_slot->data.item);
         pattern[0] = (RecipePatternEntry) {
             .id = RECIPE_COMPOSITE_ID(item->id, item->metadata_id),
             .stack_size = item->stack_size,
@@ -211,8 +221,7 @@ static void processFurnaceRecipe(FurnaceBlock* furnace) {
             .height = slotGroupDim(FURNACE_INPUT, Y)
         },
         &furnace->recipe,
-        ingredient_consume_sizes,
-        false
+        ingredient_consume_sizes
     );
     switch (result) {
         case RECIPE_FOUND:
@@ -223,15 +232,17 @@ static void processFurnaceRecipe(FurnaceBlock* furnace) {
                 break;
             }
             const Item* item = VCAST_PTR(Item*, output_slot->data.item);
-            const Item* recipe_result = VCAST_PTR(Item*, furnace->recipe.results[0]);
-            furnace->process_recipe = itemEquals(item, recipe_result)
-                && item->stack_size < itemGetMaxStackSize(item->id);
+            const CompositeID recipe_item_id = furnace->recipe.results.results[0]->item;
+            const u8 recipe_stack_size = furnace->recipe.results.results[0]->stack_size;
+            furnace->process_recipe = itemIdEqualsExplicit(item->id, item->metadata_id, recipe_item_id.separated.id, recipe_item_id.separated.metadata)
+                && item->stack_size + recipe_stack_size < itemGetMaxStackSize(item->id);
             DEBUG_LOG("Recipe found, processing: \n", stringFromBool(furnace->process_recipe));
             break;
         case RECIPE_NOT_FOUND:
             DEBUG_LOG("Recipe not found\n");
-            furnace->recipe.result_count = 0;
-            furnace->recipe.results = NULL;
+            furnace->recipe.results.result_count = 0;
+            furnace->recipe.results.results = NULL;
+            furnace->recipe.processing_ticks = 0;
             furnace->process_recipe = true;
             break;
     }
@@ -289,7 +300,6 @@ void cursorHandler(FurnaceBlock* furnace,
                 slotDirectItemSetter
             );
         }
-        furnace->recipe_changed = false;
     } else if (slotGroupIntersect(FURNACE_OUTPUT, &cursor.component.position) && !split_or_store_one) {
         // NOTE: Don't bother with splitting stacks
         //       since it's a pain the for output slot.

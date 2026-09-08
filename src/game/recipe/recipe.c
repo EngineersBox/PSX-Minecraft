@@ -40,16 +40,15 @@ RecipeNode* recipeNodeGetNext(const RecipeNode* node, const RecipePatternEntry* 
     return NULL;
 }
 
-static void assembleResult(const RecipeResults* results,
-                           const u16 processing_ticks,
+static void assembleResult(const RecipeSearchResult* search_result,
                            RecipeQueryResult* query_result) {
     // Ensure that we have enough space to saturate the result
-    assert(query_result->result_count == results->result_count);
-    query_result->result_count = results->result_count;
-    query_result->processing_ticks = processing_ticks;
-    for (u32 i = 0; i < results->result_count; i++) {
+    assert(query_result->result_count == search_result->results.result_count);
+    query_result->result_count = search_result->results.result_count;
+    query_result->processing_ticks = search_result->processing_ticks;
+    for (u32 i = 0; i < search_result->results.result_count; i++) {
         const IItem* existing_iitem = query_result->results[i];
-        const RecipeResult* result = results->results[i];
+        const RecipeResult* result = search_result->results.results[i];
         if (existing_iitem == NULL) {
             goto assemble_new_item;
         }
@@ -76,19 +75,15 @@ assemble_new_item:;
 
 RecipeQueryState recipeNodeGetRecipeResult(const RecipeNode* node,
                                            const Dimension* dimension,
-                                           RecipeQueryResult* query_result,
-                                           bool create_result_item) {
+                                           RecipeSearchResult* search_result) {
     if (node->results == NULL || node->result_count == 0) {
         return RECIPE_NOT_FOUND; 
     }
     for (u32 i = 0; i < node->result_count; i++) {
         RecipeResults* result = node->results[i];
-        if (dimensionEquals(dimension, &result->dimension)) {
-            if (create_result_item) assembleResult(
-                result,
-                node->processing_ticks,
-                query_result
-            );
+       if (dimensionEquals(dimension, &result->dimension)) {
+            search_result->results = *result;
+            search_result->processing_ticks = node->processing_ticks;
             return RECIPE_FOUND;
         }
     }
@@ -98,9 +93,8 @@ RecipeQueryState recipeNodeGetRecipeResult(const RecipeNode* node,
 RecipeQueryState recipeSearch(const RecipeNode* root,
                               const RecipePattern pattern,
                               Dimension pattern_dimension,
-                              RecipeQueryResult* query_result,
-                              u8* ingredient_consume_sizes,
-                              bool create_result_item) {
+                              RecipeSearchResult* search_result,
+                              u8* ingredient_consume_sizes) {
     u8 right = 0;
     u8 bottom = 0;
     u8 top = pattern_dimension.height;
@@ -141,8 +135,7 @@ RecipeQueryState recipeSearch(const RecipeNode* root,
     return recipeNodeGetRecipeResult(
         current,
         &dimension,
-        query_result,
-        create_result_item
+        search_result
     );
 }
 
@@ -166,6 +159,30 @@ RecipeProcessResult recipeSearchAndProcess(const RecipeNode* root,
                                            u8 output_slot_count,
                                            u8* ingredient_consume_sizes,
                                            bool merge_output) {
+    RecipeSearchResult search_result= {0};
+    RecipeQueryResult query_result = {0};
+    if (recipeSearch(
+        root,
+        pattern,
+        pattern_dimension,
+        &search_result,
+        ingredient_consume_sizes
+    ) == RECIPE_NOT_FOUND) {
+        // No matching recipe
+        return RECIPE_PROCESSING_NONE_MATCHING;
+    }
+    return recipeProcess(
+        &search_result,
+        output_slots,
+        output_slot_count,
+        merge_output
+    );
+}
+
+RecipeProcessResult recipeProcess(RecipeSearchResult* search_result,
+                                  Slot** output_slots,
+                                  u8 output_slot_count,
+                                  bool merge_output) {
     RecipeQueryResult query_result = {0};
     IItem* item_results[output_slot_count];
     memset(item_results, 0, output_slot_count * sizeof(IItem*));
@@ -178,68 +195,42 @@ RecipeProcessResult recipeSearchAndProcess(const RecipeNode* root,
     for (u8 i = 0; i < output_slot_count; i++) {
         query_result.results[i] = output_slots[i]->data.item;
     }
-    if (recipeSearch(
-        root,
-        pattern,
-        pattern_dimension,
-        &query_result,
-        ingredient_consume_sizes,
-        true
-    ) == RECIPE_NOT_FOUND) {
-        // No matching recipe
-        return RECIPE_PROCESSING_NONE_MATCHING;
-    }
-    return recipeProcess(
-        &query_result,
-        output_slots,
-        output_slot_count,
-        merge_output
-    );
-}
-
-RecipeProcessResult recipeProcess(RecipeQueryResult* query_result,
-                                  Slot** output_slots,
-                                  u8 output_slot_count,
-                                  bool merge_output) {
+    assembleResult(search_result, &query_result);
     if (!merge_output && !sufficientSpaceInOutputSlots(
-        query_result,
+        &query_result,
         output_slots,
         output_slot_count
     )) {
         for (u8 i = 0; i < output_slot_count; i++) {
-            free(query_result->results[i]);
+            VCALL(*query_result.results[i], destroy);
         }
         return RECIPE_PROCESSING_INSUFFICIENT_SPACE;
     }
-    DEBUG_LOG("Move item to output slot\n");
     for (u8 i = 0; i < output_slot_count; i++) {
         Slot* output_slot = output_slots[i];
         if (output_slot->data.item == NULL) {
             // Output slot was empty, just move the result
             // into it
-            DEBUG_LOG("Empty output slot\n");
             goto move_item_to_output;
         }
         Item* output_item = VCAST_PTR(Item*, output_slot->data.item);
-        const Item* result_item = VCAST_PTR(Item*, query_result->results[i]);
+        const Item* result_item = VCAST_PTR(Item*, query_result.results[i]);
         if (itemEquals(output_item, result_item)) {
             if (merge_output) {
                 // Items were the same, stack size was adjusted
                 // we have nothing left to do
                 output_item->stack_size += result_item->stack_size;
             }
-            free(query_result->results[i]);
+            VCALL(*query_result.results[i], destroy);
             continue;
         }
         // IDs between existing output slot item
         // and new result were different, 
         VCALL((IItem) *output_slot->data.item, destroy);
     move_item_to_output:;
-        output_slot->data.item = query_result->results[i];
-        query_result->results[i] = NULL;
-        DEBUG_LOG("Moved item\n");
+        output_slot->data.item = query_result.results[i];
+        query_result.results[i] = NULL;
     }
-    DEBUG_LOG("Recipe processing finished\n");
     return RECIPE_PROCESSING_SUCCEEDED;
 }
 

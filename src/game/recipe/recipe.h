@@ -51,6 +51,11 @@ typedef struct RecipeResults {
     RecipeResult** results;
 } RecipeResults;
 
+typedef struct RecipeSearchResult {
+    RecipeResults results;
+    u16 processing_ticks;
+} RecipeSearchResult;
+
 /**
  * @brief Represents a recipe item ingredient or a result based on
  *        the items in the tree until this point. A result for this
@@ -135,8 +140,7 @@ RecipeNode* recipeNodeGetNext(const RecipeNode* node, const RecipePatternEntry* 
 // debug build.
 RecipeQueryState recipeNodeGetRecipeResult(const RecipeNode* node,
                                            const Dimension* dimension,
-                                           RecipeQueryResult* query_result,
-                                           bool create_item_result);
+                                           RecipeSearchResult* search_result);
 // Query result should be initialised with a results
 // array within it and the count variable set to the
 // size of the array. This is used to verify enough
@@ -145,9 +149,8 @@ RecipeQueryState recipeNodeGetRecipeResult(const RecipeNode* node,
 RecipeQueryState recipeSearch(const RecipeNode* root,
                               const RecipePattern pattern,
                               Dimension pattern_dimension,
-                              RecipeQueryResult* query_result,
-                              u8* ingredient_consume_sizes,
-                              bool create_item_result);
+                              RecipeSearchResult* search_result,
+                              u8* ingredient_consume_sizes);
 
 typedef enum RecipeProcessResult {
     RECIPE_PROCESSING_NONE_MATCHING,
@@ -170,7 +173,7 @@ RecipeProcessResult recipeSearchAndProcess(const RecipeNode* root,
                                            u8* ingredient_consume_sizes,
                                            bool merge_output);
 
-RecipeProcessResult recipeProcess(RecipeQueryResult* query_result,
+RecipeProcessResult recipeProcess(RecipeSearchResult* search_result,
                                   Slot** output_slots,
                                   u8 output_slot_count,
                                   bool merge_output);
