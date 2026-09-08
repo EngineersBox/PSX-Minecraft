@@ -247,9 +247,7 @@ static void processFurnaceRecipe(FurnaceBlock* furnace) {
             break;
         case RECIPE_NOT_FOUND:
             DEBUG_LOG("Recipe not found\n");
-            furnace->recipe.results.result_count = 0;
-            furnace->recipe.results.results = NULL;
-            furnace->recipe.processing_ticks = 0;
+            furnace->recipe = (RecipeSearchResult) {0};
             furnace->process_recipe = true;
             break;
     }
@@ -269,7 +267,7 @@ void cursorHandler(FurnaceBlock* furnace,
         worldDropItemStack(
             world,
             (IItem*) cursor.held_data,
-            0
+            0 // Implies all in stack
         );
         uiCursorSetHeldData(&cursor, NULL);
         return;
@@ -404,30 +402,21 @@ bool FurnaceBlock_useAction(VSelf) {
 
 void furnaceRenderTooltip(const FurnaceBlock* furnace, RenderContext* ctx) {
     if (slotGroupIntersect(FURNACE_INPUT, &cursor.component.position)) {
-        const Slot* slot = &furnace->slots[slotGroupCursorSlot(
-            FURNACE_INPUT,
-            &cursor.component.position
-        )];
+        const Slot* slot = &furnace->slots[slotGroupIndexOffset(FURNACE_INPUT)];
         if (slot->data.item != NULL) {
             const Item* item = VCAST_PTR(Item*, slot->data.item);
             toolTipRender(ctx, itemGetName(item->id));
         }
     }
     if (slotGroupIntersect(FURNACE_FUEL, &cursor.component.position)) {
-        const Slot* slot = &furnace->slots[slotGroupCursorSlot(
-            FURNACE_FUEL,
-            &cursor.component.position
-        )];
+        const Slot* slot = &furnace->slots[slotGroupIndexOffset(FURNACE_FUEL)];
         if (slot->data.item != NULL) {
             const Item* item = VCAST_PTR(Item*, slot->data.item);
             toolTipRender(ctx, itemGetName(item->id));
         }
     }
     if (slotGroupIntersect(FURNACE_OUTPUT, &cursor.component.position)) {
-        const Slot* slot = &furnace->slots[slotGroupCursorSlot(
-            FURNACE_OUTPUT,
-            &cursor.component.position
-        )];
+        const Slot* slot = &furnace->slots[slotGroupIndexOffset(FURNACE_OUTPUT)];
         if (slot->data.item != NULL) {
             const Item* item = VCAST_PTR(Item*, slot->data.item);
             toolTipRender(ctx, itemGetName(item->id));
