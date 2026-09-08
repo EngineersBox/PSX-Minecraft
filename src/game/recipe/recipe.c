@@ -160,7 +160,6 @@ RecipeProcessResult recipeSearchAndProcess(const RecipeNode* root,
                                            u8* ingredient_consume_sizes,
                                            bool merge_output) {
     RecipeSearchResult search_result= {0};
-    RecipeQueryResult query_result = {0};
     if (recipeSearch(
         root,
         pattern,

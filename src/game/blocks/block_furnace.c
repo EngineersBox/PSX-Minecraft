@@ -21,6 +21,7 @@
 #include "../../util/strings.h"
 
 static Texture furnace_texture = {0};
+Timestamp furnace_debounce = 0;
 
 FWD_DECL Chunk* worldGetChunk(const World* world, const VECTOR* position);
 FWD_DECL void worldDropItemStack(World* world, IItem* item, const u8 count);
@@ -90,7 +91,7 @@ IItem* FurnaceBlock_provideItem(VSelf) {
 }
 
 static bool handleFuelConsumption(FurnaceBlock* furnace) {
-    DEBUG_LOG("Burn: %d\n", furnace->fuel_burn_ticks);
+    // DEBUG_LOG("Burn: %d\n", furnace->fuel_burn_ticks);
     if (furnace->fuel_burn_ticks > 0) {
         furnace->process_recipe = true;
         furnace->fuel_burn_ticks--;
@@ -98,7 +99,7 @@ static bool handleFuelConsumption(FurnaceBlock* furnace) {
     if (furnace->fuel_burn_ticks > 0) return true;
     Slot* slot = &furnace->slots[slotGroupIndexOffset(FURNACE_FUEL)];
     IItem* iitem = slot->data.item;
-    DEBUG_LOG("Fuel slot item: %p\n", iitem);
+    // DEBUG_LOG("Fuel slot item: %p\n", iitem);
     if (iitem == NULL) {
         furnace->fuel_burn_ticks = 0;
         furnace->fuel_burn_ticks_start = 0;
@@ -108,7 +109,7 @@ static bool handleFuelConsumption(FurnaceBlock* furnace) {
     }
     Item* item = VCAST_PTR(Item*, iitem);
     const u16 item_burnable_ticks = itemGetBurnableTicks(item->id);
-    DEBUG_LOG("Item: %d Burnable ticks: %d\n", item->id, item_burnable_ticks);
+    // DEBUG_LOG("Item: %d Burnable ticks: %d\n", item->id, item_burnable_ticks);
     if (item_burnable_ticks == 0) {
         furnace->fuel_burn_ticks = 0;
         furnace->fuel_burn_ticks_start = 0;
@@ -134,7 +135,7 @@ static bool handleFuelConsumption(FurnaceBlock* furnace) {
 }
 
 static void handleSmelting(FurnaceBlock* furnace) {
-    DEBUG_LOG("Process recipe: %s Cook: %d\n", stringFromBool(furnace->process_recipe), furnace->cook_ticks);
+    // DEBUG_LOG("Process recipe: %s Cook: %d\n", stringFromBool(furnace->process_recipe), furnace->cook_ticks);
     if (!furnace->process_recipe) return;
     const u16 previous_cook_ticks = furnace->cook_ticks;
     if (furnace->cook_ticks > 0) {
@@ -178,6 +179,9 @@ static void handleSmelting(FurnaceBlock* furnace) {
 BlockUpdateResultBitmap furnaceBlockUpdate(VSelf) ALIAS("FurnaceBlock_update");
 BlockUpdateResultBitmap FurnaceBlock_update(VSelf) {
     VSELF(FurnaceBlock);
+    DEBUG_LOG("Update furnace ptr: %p\n", self);
+    Slot* slot = &self->slots[slotGroupIndexOffset(FURNACE_FUEL)];
+    DEBUG_LOG("Output slot at update: %p id: %d\n", slot->data.item, VCAST_PTR(Item*, slot->data.item)->id);
     // DEBUG_LOG("Update furnace block\n");
     const bool burning_fuel = handleFuelConsumption(self);
     handleSmelting(self);
@@ -257,6 +261,9 @@ static void processFurnaceRecipe(FurnaceBlock* furnace) {
 
 void cursorHandler(FurnaceBlock* furnace,
                    const bool split_or_store_one) {
+    if (!debounce(&furnace_debounce, FURNACE_DEBOUNCE_MS)) {
+        return;
+    }
     if (!quadIntersectLiteral(
         &cursor.component.position,
         CENTRE_X - (FURNACE_TEXTURE_WIDTH >> 1),
@@ -292,6 +299,7 @@ void cursorHandler(FurnaceBlock* furnace,
         furnace->cook_ticks = 0;
     } else if (slotGroupIntersect(FURNACE_FUEL, &cursor.component.position)) {
         slot = &furnace->slots[slotGroupIndexOffset(FURNACE_FUEL)];
+        DEBUG_LOG("Output slot before: %p id: %d\n", slot->data.item, VCAST_PTR(Item*, slot->data.item)->id);
         if (split_or_store_one) {
             cursorSplitOrStoreOne(
                 slot,
@@ -305,6 +313,7 @@ void cursorHandler(FurnaceBlock* furnace,
                 slotDirectItemSetter
             );
         }
+        DEBUG_LOG("Output slot set: %p id: %d\n", slot->data.item, VCAST_PTR(Item*, slot->data.item)->id);
     } else if (slotGroupIntersect(FURNACE_OUTPUT, &cursor.component.position) && !split_or_store_one) {
         // NOTE: Don't bother with splitting stacks
         //       since it's a pain the for output slot.
@@ -338,7 +347,8 @@ void cursorHandler(FurnaceBlock* furnace,
 }
 
 InputHandlerState furnaceBlockInputHandler(const Input* input, UNUSED void* ctx) {
-    FurnaceBlock* furnace = VCAST_PTR(FurnaceBlock*, block_input_handler_context.block);
+    FurnaceBlock* furnace = (FurnaceBlock*) block_input_handler_context.block;
+    DEBUG_LOG("Input furnace ptr: %p\n", furnace);
     processFurnaceRecipe(furnace);
     inventoryCursorHandler(
         VCAST_PTR(Inventory*, block_input_handler_context.inventory),
@@ -369,11 +379,11 @@ InputHandlerState furnaceBlockInputHandler(const Input* input, UNUSED void* ctx)
 
 bool furnaceBlockUseAction(VSelf) ALIAS("FurnaceBlock_useAction");
 bool FurnaceBlock_useAction(VSelf) {
-    VSELF(IBlock);
-    block_input_handler_context.block = self;
+    VSELF(FurnaceBlock);
+    block_input_handler_context.block = (Block*) self;
     inputSetFocusedHandler(&input, &furnaceBlockInputHandlerVTable);
     block_render_ui_context.function = furnaceBlockRenderUI;
-    block_render_ui_context.block = self;
+    block_render_ui_context.block = (Block*) self;
     assetLoadTextureDirect(
         ASSET_BUNDLE__GUI,
         ASSET_TEXTURE__GUI__FURNACE,
@@ -425,7 +435,7 @@ void furnaceRenderTooltip(const FurnaceBlock* furnace, RenderContext* ctx) {
 }
 
 void furnaceBlockRenderUI(RenderContext* ctx, Transforms* transforms) {
-    FurnaceBlock* furnace = VCAST_PTR(FurnaceBlock*, block_render_ui_context.block);
+    FurnaceBlock* furnace = (FurnaceBlock*) block_render_ui_context.block;
     uiCursorRender(&cursor, ctx, transforms);
     if (quadIntersectLiteral(
         &cursor.component.position,

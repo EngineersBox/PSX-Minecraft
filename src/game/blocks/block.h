@@ -185,7 +185,7 @@ typedef IBlock* (*BlockConstructor)(IItem* from_item, MAYBE_UNUSED u8 metadata_i
 // a handler when a player interacts with it in some way
 typedef struct BlockInputHandlerContext {
     IUI* inventory;
-    IBlock* block;
+    Block* block;
 } BlockInputHandlerContext;
 
 extern BlockInputHandlerContext block_input_handler_context;
@@ -193,7 +193,7 @@ extern BlockInputHandlerContext block_input_handler_context;
 typedef void (*BlockRenderUIHandler)(RenderContext* ctx, Transforms* transforms);
 typedef struct BlockRenderUIContext {
     BlockRenderUIHandler function;
-    IBlock* block;
+    Block* block;
     UIBackground background;
 } BlockRenderUIContext;
 

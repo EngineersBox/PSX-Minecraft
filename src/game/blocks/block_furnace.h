@@ -9,6 +9,10 @@
 #include "../gui/slot.h"
 #include "../recipe/recipe.h"
 
+#define FURNACE_DEBOUNCE_MS 100
+
+extern Timestamp furnace_debounce;
+
 #define FURNACE_TEXTURE_WIDTH 176
 #define FURNACE_TEXTURE_HEIGHT 166
 

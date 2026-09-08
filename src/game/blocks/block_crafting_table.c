@@ -233,10 +233,11 @@ InputHandlerState craftingTableBlockInputHandler(const Input* input, UNUSED void
 
 bool craftingTableBlockUseAction(VSelf) ALIAS("CraftingTableBlock_useAction");
 bool CraftingTableBlock_useAction(VSelf) {
-    VSELF(IBlock);
+    VSELF(CraftingTableBlock);
+    block_input_handler_context.block = (Block*) self;
     inputSetFocusedHandler(&input, &craftingTableBlockInputHandlerVTable);
     block_render_ui_context.function = craftingTableBlockRenderUI;
-    block_render_ui_context.block = self;
+    block_render_ui_context.block = (Block*) self;
     assetLoadTextureDirect(
         ASSET_BUNDLE__GUI,
         ASSET_TEXTURE__GUI__CRAFTING,
