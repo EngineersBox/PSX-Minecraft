@@ -32,7 +32,6 @@ static InputHandlerVTable furnaceBlockInputHandlerVTable = {
     .input_handler_destroy = NULL
 };
 
-static u8 ingredient_consume_sizes[slotGroupSize(FURNACE_INPUT)] = {0};
 static RECIPE_PATTERN(pattern, slotGroupSize(FURNACE_INPUT)) = {0};
 
 DEFN_BLOCK_CONSTRUCTOR_IMPL_STATEFUL(furnace) {
@@ -68,6 +67,9 @@ void FurnaceBlock_init(VSelf) {
     self->slots[slotGroupIndexOffset(FURNACE_INPUT)] = createSlotInline(FURNACE_INPUT, 0, 0);
     self->slots[slotGroupIndexOffset(FURNACE_FUEL)] = createSlotInline(FURNACE_FUEL, 0, 0);
     self->slots[slotGroupIndexOffset(FURNACE_OUTPUT)] = createSlotInline(FURNACE_OUTPUT, 0, 0);
+    self->ingredient_consume_sizes[0] = 0;
+    self->ingredient_consume_sizes[1] = 0;
+    self->ingredient_consume_sizes[2] = 0;
 }
 
 IItem* furnaceBlockDestroy(VSelf, bool drop_item) ALIAS("FurnaceBlock_destroy");
@@ -157,6 +159,12 @@ static void handleSmelting(FurnaceBlock* furnace) {
             furnace->process_recipe = true;
             break;
     }
+    recipeConsumeIngredients(
+        furnace->slots,
+        furnace->ingredient_consume_sizes,
+        slotGroupIndexOffset(FURNACE_INPUT),
+        slotGroupIndexOffset(FURNACE_FUEL)
+    );
     slot = &furnace->slots[slotGroupIndexOffset(FURNACE_INPUT)];
     const Item* item = VCAST_PTR(Item*, slot->data.item);
     if (item != NULL && item->stack_size > 0) {
@@ -199,7 +207,6 @@ static void processFurnaceRecipe(FurnaceBlock* furnace) {
     if (!furnace->recipe_changed) {
         return;
     }
-    ingredient_consume_sizes[0] = 0;
     const Slot* input_slot = &furnace->slots[slotGroupIndexOffset(FURNACE_INPUT)];
     if (input_slot->data.item != NULL) {
         const Item* item = VCAST_PTR(Item*, input_slot->data.item);
@@ -221,7 +228,7 @@ static void processFurnaceRecipe(FurnaceBlock* furnace) {
             .height = slotGroupDim(FURNACE_INPUT, Y)
         },
         &furnace->recipe,
-        ingredient_consume_sizes
+        furnace->ingredient_consume_sizes
     );
     switch (result) {
         case RECIPE_FOUND:
@@ -311,12 +318,6 @@ void cursorHandler(FurnaceBlock* furnace,
         Item* result_item = VCAST_PTR(Item*, result_iitem);
         IItem* held_iitem = (IItem*) cursor.held_data;
         if (held_iitem == NULL) {
-            recipeConsumeIngredients(
-                furnace->slots,
-                ingredient_consume_sizes,
-                slotGroupIndexOffset(FURNACE_INPUT),
-                slotGroupIndexOffset(FURNACE_FUEL)
-            );
             uiCursorSetHeldData(&cursor, result_iitem);
             slot->data.item = NULL;
             furnace->recipe_changed = true;
@@ -330,12 +331,6 @@ void cursorHandler(FurnaceBlock* furnace,
         held_item->stack_size += result_item->stack_size;
         VCALL(*result_iitem, destroy);
         slot->data.item = NULL;
-        recipeConsumeIngredients(
-            furnace->slots,
-            ingredient_consume_sizes,
-            slotGroupIndexOffset(FURNACE_INPUT),
-            slotGroupIndexOffset(FURNACE_FUEL)
-        );
         furnace->recipe_changed = true;
     }
 }

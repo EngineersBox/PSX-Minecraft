@@ -77,6 +77,11 @@ DEFN_BLOCK_STATEFUL(FurnaceBlock, FURNACE,
         + slotGroupSize(FURNACE_FUEL)
         + slotGroupSize(FURNACE_OUTPUT)
     ];
+    u8 ingredient_consume_sizes[
+        slotGroupSize(FURNACE_INPUT)
+        + slotGroupSize(FURNACE_FUEL)
+        + slotGroupSize(FURNACE_OUTPUT)
+    ];
 );
 
 DEFN_BLOCK_CONSTRUCTOR(furnace);
