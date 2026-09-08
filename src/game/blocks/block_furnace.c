@@ -328,9 +328,13 @@ void cursorHandler(FurnaceBlock* furnace,
             // Held and result item ids mismatch
             return;
         }
-        held_item->stack_size += result_item->stack_size;
-        VCALL(*result_iitem, destroy);
-        slot->data.item = NULL;
+        const u8 remove_from_stack = min(itemGetMaxStackSize(held_item->id) - held_item->stack_size, result_item->stack_size);
+        result_item->stack_size -= remove_from_stack;
+        held_item->stack_size += remove_from_stack;
+        if (result_item->stack_size == 0) {
+            VCALL(*result_iitem, destroy);
+            slot->data.item = NULL;
+        }
         furnace->recipe_changed = true;
     }
 }
