@@ -11,7 +11,7 @@
 DEFN_ITEM_BLOCK(CraftingTableItemBlock);
 
 #define craftingTableItemBlockAttributes() declareItemAttributes("crafting_table", \
-    .burnable_ticks = 300 \
+    .burn_ticks = 300 \
 )
 
 void craftingTableItemBlockRenderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms);

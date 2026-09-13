@@ -11,7 +11,7 @@
 DEFN_ITEM_BLOCK(PlankItemBlock);
 
 #define plankItemBlockAttributes() declareItemAttributes("plank", \
-    .burnable_ticks = 300 \
+    .burn_ticks = 300 \
 )
 
 void plankItemBlockRenderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms);

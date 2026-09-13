@@ -66,7 +66,7 @@ typedef struct ItemAttributes {
     ArmourType armour_type: ARMOUR_TYPE_COUNT_BITS;
     ItemMaterial material: ITEM_MATERIAL_COUNT_BITS;
     u16 _pad: 5;
-    u16 burnable_ticks;
+    u16 burn_ticks;
     char* name;
 } ItemAttributes;
 
@@ -78,7 +78,7 @@ typedef struct ItemAttributes {
     .armour_type = ARMOURTYPE_NONE, \
     .material = ITEMMATERIAL_NONE, \
     ._pad = 0, \
-    .burnable_ticks = 0, \
+    .burn_ticks = 0, \
     .name = (_name), \
     __VA_ARGS__ \
 }

@@ -48,14 +48,26 @@ typedef struct Chunk {
     bool lightmap_updated: 1;
     bool mesh_updated: 1;
     u16 solid_block_count: 10;
+    /**
+     * True if block_updates.a is active,
+     * False is block_updates.b is active
+     */
+    bool active_updates_map: 1;
     u16 _pad: 3;
     ChunkVisibility visibility;
     VECTOR position;
     ChunkMesh mesh;
     IBlock* blocks[CHUNK_DATA_SIZE];
     LightMap lightmap;
-    HashMap* block_updates;
+    struct {
+        HashMap* a;
+        HashMap* b;
+    } block_updates;
     cvector(DroppedIItem) dropped_items;
 } Chunk;
+
+#define chunkGetCurrentBlockUpdatesMap(chunk) ((chunk)->active_updates_map ? (chunk)->block_updates.a : (chunk)->block_updates.b)
+#define chunkGetNextBlockUpdatesMap(chunk) ((chunk)->active_updates_map ? (chunk)->block_updates.b : (chunk)->block_updates.a)
+#define chunkSwapCurrentNextUpdatesMap(chunk) ((chunk)->active_updates_map = !(chunk)->active_updates_map)
 
 #endif // _PSXMC__GAME_WORLD_CHUNK__CHUNK_STRUCTURE_H_

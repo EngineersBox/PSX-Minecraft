@@ -83,7 +83,17 @@ void chunkInit(Chunk* chunk) {
     chunk->solid_block_count = 0;
     chunk->dropped_items = NULL;
     cvector_init(chunk->dropped_items, 0, chunkDestroyDroppedItem);
-    chunk->block_updates = hashmap_new(
+    chunk->block_updates.a = hashmap_new(
+        sizeof(BlockUpdate),
+        1,
+        0,
+        0,
+        blockUpdateHash,
+        blockUpdateCompare,
+        NULL,
+        NULL
+    );
+    chunk->block_updates.b = hashmap_new(
         sizeof(BlockUpdate),
         1,
         0,
@@ -105,7 +115,8 @@ void chunkInit(Chunk* chunk) {
 void chunkDestroy(const Chunk* chunk) {
     chunkMeshDestroy(&chunk->mesh);
     cvector_free(chunk->dropped_items);
-    hashmap_free(chunk->block_updates);
+    hashmap_free(chunkGetCurrentBlockUpdatesMap(chunk));
+    hashmap_free(chunkGetNextBlockUpdatesMap(chunk));
 }
 
 void chunkGenerate3DHeightMap(Chunk* chunk, const VECTOR* position) {
@@ -462,8 +473,9 @@ static int modifyVoxel0(Chunk* chunk,
     BlockUpdate block_update = (BlockUpdate) {0};
     block_update.position.chunk = chunk->position;
     block_update.position.block = *position;
+    HashMap* current_updates = chunkGetCurrentBlockUpdatesMap(chunk);
     const BlockUpdate* existing_updates = hashmap_get(
-        chunk->block_updates,
+        current_updates,
         &block_update
     );
     if (existing_updates != NULL) {
@@ -482,8 +494,8 @@ static int modifyVoxel0(Chunk* chunk,
         );
     }
     DEBUG_LOG("New bitmap: " INT8_BIN_PATTERN "\n", INT8_BIN_LAYOUT(block_update.type_bitmap));
-    hashmap_set(chunk->block_updates, &block_update);
-    if (hashmap_oom(chunk->block_updates)) {
+    hashmap_set(current_updates, &block_update);
+    if (hashmap_oom(current_updates)) {
         errorAbort("[CHUNK] Failed to enqueue block update, hashmap OOM\n");
     }
     DEBUG_LOG("Enqueued block update\n");
@@ -785,7 +797,8 @@ void chunkSetLightValue(Chunk* chunk,
         .old_block_light_value = 0,
         .old_skylight_value = 0
     };
-    const BlockUpdate* current_block_update = hashmap_get(chunk->block_updates, &block_update);
+    HashMap* current_updates = chunkGetCurrentBlockUpdatesMap(chunk);
+    const BlockUpdate* current_block_update = hashmap_get(current_updates, &block_update);
     if (current_block_update != NULL) {
         block_update.type_bitmap = current_block_update->type_bitmap;
         block_update.old_block_light_value = current_block_update->old_block_light_value;
@@ -806,8 +819,8 @@ void chunkSetLightValue(Chunk* chunk,
             bitmapSetBit(block_update.type_bitmap, BLOCK_UPDATE_TYPE_ADD_SKYLIGHT);
             break;
     }
-    hashmap_set(chunk->block_updates, &block_update);
-    if (hashmap_oom(chunk->block_updates)) {
+    hashmap_set(current_updates, &block_update);
+    if (hashmap_oom(current_updates)) {
         errorAbort("[CHUNK] Failed to enqueue light update, hashmap OOM\n");
     }
 }
@@ -831,7 +844,8 @@ void chunkRemoveLightValue(Chunk* chunk,
         .old_block_light_value = 0,
         .old_skylight_value = 0
     };
-    const BlockUpdate* current_block_update = hashmap_get(chunk->block_updates, &block_update);
+    HashMap* current_updates = chunkGetCurrentBlockUpdatesMap(chunk);
+    const BlockUpdate* current_block_update = hashmap_get(current_updates, &block_update);
     if (current_block_update != NULL) {
         block_update.type_bitmap = current_block_update->type_bitmap;
         block_update.old_block_light_value = current_block_update->old_block_light_value;
@@ -847,8 +861,8 @@ void chunkRemoveLightValue(Chunk* chunk,
             block_update.old_skylight_value = light_value;
             break;
     }
-    hashmap_set(chunk->block_updates, &block_update);
-    if (hashmap_oom(chunk->block_updates)) {
+    hashmap_set(current_updates, &block_update);
+    if (hashmap_oom(current_updates)) {
         errorAbort("[CHUNK] Failed to enqueue light update, hashmap OOM\n");
     }
     lightMapSetValue(
@@ -871,6 +885,10 @@ void chunkUpdateBlockState(Chunk* chunk,
     // }
     // DEBUG_LOG("Updating block\n");
     const BlockUpdateResultBitmap result = VCALL(*block, update);
+    if (bitmapGetBit(result, BLOCK_UPDATE_RESULT_REMESH_CHUNK) == 1) {
+        DEBUG_LOG("Update trigger remesh\n");
+        chunk->mesh_updated = true;
+    }
     if (bitmapGetBit(result, BLOCK_UPDATE_RESULT_PERSIST) == 1) {
         BlockUpdate new_block_update = (BlockUpdate) {
             .position = update->position,
@@ -885,15 +903,12 @@ void chunkUpdateBlockState(Chunk* chunk,
         //       does that, we should retrieve the update from the map first,
         //       updating if it exists, otherwise creating a new entry if it
         //       does not.
-        hashmap_set(chunk->block_updates, &new_block_update);
-        if (hashmap_oom(chunk->block_updates)) {
+        HashMap* next_updates = chunkGetNextBlockUpdatesMap(chunk);
+        hashmap_set(next_updates, &new_block_update);
+        if (hashmap_oom(next_updates)) {
             errorAbort("[CHUNK] Failed to enqueue block update, hashmap OOM\n");
         }
         // DEBUG_LOG("Persisted block update\n");
-    }
-    if (bitmapGetBit(result, BLOCK_UPDATE_RESULT_REMESH_CHUNK) == 1) {
-        DEBUG_LOG("Update trigger remesh\n");
-        chunk->mesh_updated = true;
     }
 }
 
@@ -1216,11 +1231,12 @@ void chunkProcessBlockUpdates(Chunk* chunk,
     bool lightmap_updated = false;
     i16 processed_updates = 0;
     size_t iter = 0;
-    void* item;
+    void* elem;
+    HashMap* next_updates = chunkGetCurrentBlockUpdatesMap(chunk);
     while (processed_updates < update_limits
-            && hashmap_iter(chunk->block_updates, &iter, &item)) {
-        BlockUpdate update = *((BlockUpdate*) item);
-        hashmap_delete(chunk->block_updates, item);
+            && hashmap_iter(next_updates, &iter, &elem)) {
+        BlockUpdate update = *((BlockUpdate*) elem);
+        hashmap_delete(next_updates, elem);
         // DEBUG_LOG("Bitmap: " INT8_BIN_PATTERN "\n", INT8_BIN_LAYOUT(update.type_bitmap));
         if (bitmapGetBit(update.type_bitmap, BLOCK_UPDATE_TYPE_ADD_SKYLIGHT)) {
             chunkUpdateAddSkylight(chunk, &update);
@@ -1255,5 +1271,7 @@ void chunkProcessBlockUpdates(Chunk* chunk,
         processed_updates++;
     }
     chunk->lightmap_updated = lightmap_updated;
+    hashmap_clear(next_updates, true);
+    chunkSwapCurrentNextUpdatesMap(chunk);
 }
 

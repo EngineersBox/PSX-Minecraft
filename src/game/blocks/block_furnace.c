@@ -103,31 +103,31 @@ static bool handleFuelConsumption(FurnaceBlock* furnace) {
     if (iitem == NULL) {
         furnace->fuel_burn_ticks = 0;
         furnace->fuel_burn_ticks_start = 0;
-        furnace->cook_ticks = 0;
+        furnace->cook_ticks = furnace->recipe.processing_ticks;
         furnace->process_recipe = false;
         return false;
     }
     Item* item = VCAST_PTR(Item*, iitem);
-    const u16 item_burnable_ticks = itemGetBurnableTicks(item->id);
-    // DEBUG_LOG("Item: %d Burnable ticks: %d\n", item->id, item_burnable_ticks);
-    if (item_burnable_ticks == 0) {
+    const u16 item_burn_ticks = itemGetBurnTicks(item->id);
+    // DEBUG_LOG("Item: %d Burnable ticks: %d\n", item->id, item_burn_ticks);
+    if (item_burn_ticks == 0) {
         furnace->fuel_burn_ticks = 0;
         furnace->fuel_burn_ticks_start = 0;
-        furnace->cook_ticks = 0;
+        furnace->cook_ticks = furnace->recipe.processing_ticks;
         furnace->process_recipe = false;
         return false;
     }
     assert(item->stack_size > 0);
     item->stack_size--;
-    furnace->fuel_burn_ticks = item_burnable_ticks;
-    furnace->fuel_burn_ticks_start = item_burnable_ticks;
+    furnace->fuel_burn_ticks = item_burn_ticks;
+    furnace->fuel_burn_ticks_start = item_burn_ticks;
     if (item->stack_size == 0) {
         VCALL(*iitem, destroy);
         slot->data.item = NULL;
     }
     if (furnace->fuel_burn_ticks == 0) {
         furnace->process_recipe = false;
-        furnace->cook_ticks = 0;
+        furnace->cook_ticks = furnace->recipe.processing_ticks;
         return false;
     }
     furnace->process_recipe = true;
@@ -138,6 +138,7 @@ static void handleSmelting(FurnaceBlock* furnace) {
     // DEBUG_LOG("Process recipe: %s Cook: %d\n", stringFromBool(furnace->process_recipe), furnace->cook_ticks);
     if (!furnace->process_recipe) return;
     const u16 previous_cook_ticks = furnace->cook_ticks;
+    DEBUG_LOG("Handle cooking ticks: %d\n", furnace->cook_ticks);
     if (furnace->cook_ticks > 0) {
         furnace->cook_ticks--;
     }
@@ -179,9 +180,6 @@ static void handleSmelting(FurnaceBlock* furnace) {
 BlockUpdateResultBitmap furnaceBlockUpdate(VSelf) ALIAS("FurnaceBlock_update");
 BlockUpdateResultBitmap FurnaceBlock_update(VSelf) {
     VSELF(FurnaceBlock);
-    DEBUG_LOG("Update furnace ptr: %p\n", self);
-    Slot* slot = &self->slots[slotGroupIndexOffset(FURNACE_FUEL)];
-    DEBUG_LOG("Output slot at update: %p id: %d\n", slot->data.item, VCAST_PTR(Item*, slot->data.item)->id);
     // DEBUG_LOG("Update furnace block\n");
     const bool burning_fuel = handleFuelConsumption(self);
     handleSmelting(self);
@@ -209,21 +207,19 @@ BlockUpdateResultBitmap FurnaceBlock_update(VSelf) {
 
 static void processFurnaceRecipe(FurnaceBlock* furnace) {
     if (!furnace->recipe_changed) {
+        DEBUG_LOG("Recipe unchanged\n");
         return;
     }
+    DEBUG_LOG("Recipe changed\n");
     const Slot* input_slot = &furnace->slots[slotGroupIndexOffset(FURNACE_INPUT)];
-    if (input_slot->data.item != NULL) {
-        const Item* item = VCAST_PTR(Item*, input_slot->data.item);
-        pattern[0] = (RecipePatternEntry) {
-            .id = RECIPE_COMPOSITE_ID(item->id, item->metadata_id),
-            .stack_size = item->stack_size,
-        };
-    } else {
-        pattern[0] = (RecipePatternEntry) {
-            .id = RECIPE_COMPOSITE_ID(ITEMID_AIR, 0),
-            .stack_size = 0,
-        };
+    if (input_slot->data.item == NULL) {
+        return;
     }
+    const Item* item = VCAST_PTR(Item*, input_slot->data.item);
+    pattern[0] = (RecipePatternEntry) {
+        .id = RECIPE_COMPOSITE_ID(item->id, item->metadata_id),
+        .stack_size = item->stack_size,
+    };
     const RecipeQueryState result = recipeSearch(
         furnace_recipes,
         pattern,
@@ -235,27 +231,28 @@ static void processFurnaceRecipe(FurnaceBlock* furnace) {
         furnace->ingredient_consume_sizes
     );
     switch (result) {
+        case RECIPE_NOT_FOUND:
+            furnace->recipe = (RecipeSearchResult) {0};
+            furnace->process_recipe = true;
+            furnace->cook_ticks = 0;
+            break;
         case RECIPE_FOUND:
             Slot* output_slot = &furnace->slots[slotGroupIndexOffset(FURNACE_OUTPUT)];
+            furnace->cook_ticks = furnace->recipe.processing_ticks;
+            DEBUG_LOG("Cooking ticks: %d\n", furnace->recipe.processing_ticks);
             if (output_slot->data.item == NULL) {
-                DEBUG_LOG("Recipe found, output slot empty\n");
                 furnace->process_recipe = true;
                 break;
             }
             const Item* item = VCAST_PTR(Item*, output_slot->data.item);
             const CompositeID recipe_item_id = furnace->recipe.results.results[0]->item;
             const u8 recipe_stack_size = furnace->recipe.results.results[0]->stack_size;
-            furnace->process_recipe = itemIdEqualsExplicit(item->id, item->metadata_id, recipe_item_id.separated.id, recipe_item_id.separated.metadata)
-                && item->stack_size + recipe_stack_size < itemGetMaxStackSize(item->id);
-            DEBUG_LOG("Recipe found, processing: \n", stringFromBool(furnace->process_recipe));
-            break;
-        case RECIPE_NOT_FOUND:
-            DEBUG_LOG("Recipe not found\n");
-            furnace->recipe = (RecipeSearchResult) {0};
-            furnace->process_recipe = true;
+            furnace->process_recipe = itemIdEqualsExplicit(
+                    item->id, item->metadata_id,
+                    recipe_item_id.separated.id, recipe_item_id.separated.metadata
+                ) && ((u16) item->stack_size + recipe_stack_size) < (u16) itemGetMaxStackSize(item->id);
             break;
     }
-    furnace->cook_ticks = 0;
     furnace->recipe_changed = false;
 }
 
@@ -296,10 +293,9 @@ void cursorHandler(FurnaceBlock* furnace,
             );
         }
         furnace->recipe_changed = true;
-        furnace->cook_ticks = 0;
+        DEBUG_LOG("Set recipe_changed to true\n");
     } else if (slotGroupIntersect(FURNACE_FUEL, &cursor.component.position)) {
         slot = &furnace->slots[slotGroupIndexOffset(FURNACE_FUEL)];
-        DEBUG_LOG("Output slot before: %p id: %d\n", slot->data.item, VCAST_PTR(Item*, slot->data.item)->id);
         if (split_or_store_one) {
             cursorSplitOrStoreOne(
                 slot,
@@ -313,7 +309,6 @@ void cursorHandler(FurnaceBlock* furnace,
                 slotDirectItemSetter
             );
         }
-        DEBUG_LOG("Output slot set: %p id: %d\n", slot->data.item, VCAST_PTR(Item*, slot->data.item)->id);
     } else if (slotGroupIntersect(FURNACE_OUTPUT, &cursor.component.position) && !split_or_store_one) {
         // NOTE: Don't bother with splitting stacks
         //       since it's a pain the for output slot.
@@ -348,8 +343,6 @@ void cursorHandler(FurnaceBlock* furnace,
 
 InputHandlerState furnaceBlockInputHandler(const Input* input, UNUSED void* ctx) {
     FurnaceBlock* furnace = (FurnaceBlock*) block_input_handler_context.block;
-    DEBUG_LOG("Input furnace ptr: %p\n", furnace);
-    processFurnaceRecipe(furnace);
     inventoryCursorHandler(
         VCAST_PTR(Inventory*, block_input_handler_context.inventory),
         INVENTORY_SLOT_GROUP_MAIN | INVENTORY_SLOT_GROUP_HOTBAR,
@@ -358,17 +351,18 @@ InputHandlerState furnaceBlockInputHandler(const Input* input, UNUSED void* ctx)
     const PADTYPE* pad = input->pad;
     if (isPressed(pad, BINDING_CURSOR_CLICK)) {
         cursorHandler(furnace, false);
-        return INPUT_HANDLER_RETAIN;
-    } else if (isPressed(pad, BINDING_DROP_ITEM) && cursor.held_data != NULL) {
+    } else if (isPressed(pad, BINDING_SPLIT_OR_STORE_ONE)) {
+        cursorHandler(furnace, true);
+    }
+    if (isPressed(pad, BINDING_DROP_ITEM) && cursor.held_data != NULL) {
         worldDropItemStack(
             world,
             (IItem*) cursor.held_data,
             0
         );
         uiCursorSetHeldData(&cursor, NULL);
-    } else if (isPressed(pad, BINDING_SPLIT_OR_STORE_ONE)) {
-        cursorHandler(furnace, true);
     }
+    processFurnaceRecipe(furnace);
     if (isPressed(pad, BINDING_OPEN_INVENTORY)) {
         resetBlockRenderUIContext();
         // Leave item in the furnace slots
