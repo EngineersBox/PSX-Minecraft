@@ -28,7 +28,6 @@
 #include "chunk_structure.h"
 #include "heightmap.h"
 #include "meshing/binary_greedy_mesher.h"
-#include "stdlib.h"
 
 i16 chunk_update_limit = 20;
 

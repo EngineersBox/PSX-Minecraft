@@ -1,7 +1,7 @@
 #include "item_block_furnace.h"
 
-#include <stdlib.h>
 #include <interface99_extensions.h>
+#include "../../../core/std/stdlib.h"
 
 #include "../item_id.h"
 #include "../../../util/preprocessor.h"
