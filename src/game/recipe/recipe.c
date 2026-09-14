@@ -200,7 +200,7 @@ RecipeProcessResult recipeProcess(RecipeSearchResult* search_result,
         query_result.results[i] = output_slots[i]->data.item;
     }
     assembleResult(search_result, &query_result);
-    if (!merge_output && !sufficientSpaceInOutputSlots(
+    if (merge_output && !sufficientSpaceInOutputSlots(
         &query_result,
         output_slots,
         output_slot_count
