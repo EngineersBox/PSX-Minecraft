@@ -20,15 +20,12 @@ RecipeNode* recipeNodeGetNext(const RecipeNode* node, const RecipePatternEntry* 
     i32 upper = node->node_count - 1;
     while (lower <= upper) {
         mid = (lower + upper) >> 1;
-        DEBUG_LOG("Lower: %d Upper: %d Mid: %d\n", lower, upper, mid);
         RecipeNode* next_node = node->nodes[mid];
         if (next_node->ignore_metadata
             ? next_node->item.separated.id == pattern->id.separated.id
             : next_node->item.data == pattern->id.data) {
-            DEBUG_LOG("Id matches\n");
             if (next_node->stack_size > pattern->stack_size) {
                 // Number of items in the slot is insufficient
-                DEBUG_LOG("Stack size too small\n");
                 return NULL;
             }
             return next_node;
