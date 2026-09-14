@@ -14,11 +14,9 @@
 #include "../recipe/furnace.h"
 #include "../world/world_structure.h"
 #include "../../core/input/input.h"
-#include "../../logging/logging.h"
 #include "../../ui/components/cursor.h"
 #include "../../util/bits.h"
 #include "../../util/interface99_extensions.h"
-#include "../../util/strings.h"
 
 static Texture furnace_texture = {0};
 Timestamp furnace_debounce = 0;
