@@ -291,6 +291,7 @@ void cursorHandler(FurnaceBlock* furnace,
     Slot* slot = NULL;
     if (slotGroupIntersect(FURNACE_INPUT, &cursor.component.position)) {
         slot = &furnace->slots[slotGroupIndexOffset(FURNACE_INPUT)];
+        const Item* item_before = slot->data.item == NULL ? NULL : VCAST_PTR(Item*, slot->data.item);
         if (split_or_store_one) {
             cursorSplitOrStoreOne(
                 slot,
@@ -304,7 +305,12 @@ void cursorHandler(FurnaceBlock* furnace,
                 slotDirectItemSetter
             );
         }
-        furnace->recipe_changed = true;
+        const Item* item_after = slot->data.item == NULL ? NULL : VCAST_PTR(Item*, slot->data.item);
+        if (item_before != NULL && item_after != NULL) {
+            furnace->recipe_changed = !itemEquals(item_before, item_after);
+        } else {
+            furnace->recipe_changed = true;
+        }
         DEBUG_LOG("Set recipe_changed to true\n");
     } else if (slotGroupIntersect(FURNACE_FUEL, &cursor.component.position)) {
         slot = &furnace->slots[slotGroupIndexOffset(FURNACE_FUEL)];
