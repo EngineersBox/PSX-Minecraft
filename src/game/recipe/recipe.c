@@ -1,9 +1,10 @@
 #include "recipe.h"
 
+#include <psxapi.h>
 #include "../../core/std/stdlib.h"
-#include "../../util/interface99_extensions.h"
+
 #include "../items/items.h"
-#include "psxapi.h"
+#include "../../util/interface99_extensions.h"
 
 INLINE bool dimensionEquals(const Dimension* a, const Dimension* b) {
     return a->width == b->width && a->height == b->height; 

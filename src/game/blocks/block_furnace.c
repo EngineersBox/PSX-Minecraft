@@ -2,7 +2,7 @@
 
 #include <psxgpu.h>
 #include <psxgte.h>
-#include <stdlib.h>
+#include "../../core/std/stdlib.h"
 
 #include "block.h"
 #include "block_id.h"
