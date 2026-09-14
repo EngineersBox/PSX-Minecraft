@@ -150,10 +150,13 @@ static void handleSmelting(FurnaceBlock* furnace) {
     if (previous_cook_ticks != 1 || furnace->recipe.results.result_count == 0) {
         return;
     }
-    Slot* slot = &furnace->slots[slotGroupIndexOffset(FURNACE_OUTPUT)];
+    Slot* output_slot = &furnace->slots[slotGroupIndexOffset(FURNACE_OUTPUT)];
+    // Processing will check if there is sufficient space,
+    // and the output slot items are valid if the merge_output
+    // parameter is true
     const RecipeProcessResult result = recipeProcess(
         &furnace->recipe,
-        &slot,
+        &output_slot,
         1,
         true
     );
@@ -172,14 +175,14 @@ static void handleSmelting(FurnaceBlock* furnace) {
         slotGroupIndexOffset(FURNACE_INPUT),
         slotGroupIndexOffset(FURNACE_FUEL)
     );
-    slot = &furnace->slots[slotGroupIndexOffset(FURNACE_INPUT)];
-    const Item* item = VCAST_PTR(Item*, slot->data.item);
-    if (item != NULL && item->stack_size > 0) {
-        furnace->cook_ticks = furnace->recipe.processing_ticks;
-        furnace->process_recipe = true;
-    } else {
+    const Slot* input_slot = &furnace->slots[slotGroupIndexOffset(FURNACE_INPUT)];
+    const Item* item = VCAST_PTR(Item*, input_slot->data.item);
+    if (item == NULL || item->stack_size == 0) {
         furnace->process_recipe = false;
+        return;
     }
+    furnace->cook_ticks = furnace->recipe.processing_ticks;
+    furnace->process_recipe = true;
 }
 
 BlockUpdateResultBitmap furnaceBlockUpdate(VSelf) ALIAS("FurnaceBlock_update");
@@ -331,7 +334,6 @@ void cursorHandler(FurnaceBlock* furnace,
         if (held_iitem == NULL) {
             uiCursorSetHeldData(&cursor, result_iitem);
             slot->data.item = NULL;
-            furnace->recipe_changed = true;
             return;
         } 
         Item* held_item = VCAST_PTR(Item*, held_iitem);
@@ -346,7 +348,6 @@ void cursorHandler(FurnaceBlock* furnace,
             VCALL(*result_iitem, destroy);
             slot->data.item = NULL;
         }
-        furnace->recipe_changed = true;
     }
 }
 
@@ -502,7 +503,8 @@ void furnaceBlockRenderUI(RenderContext* ctx, Transforms* transforms) {
         addPrim(ot_object, pol4);
     }
     if (furnace->cook_ticks) {
-        fixedi32 arrow_tex_width = ((fixedi32) furnace->cook_ticks) * FURNACE_ARROW_TEXTURE_WIDTH;
+        const fixedi32 cook_progress = furnace->recipe.processing_ticks - furnace->cook_ticks;
+        fixedi32 arrow_tex_width = cook_progress * FURNACE_ARROW_TEXTURE_WIDTH;
         arrow_tex_width /= (fixedi32) furnace->recipe.processing_ticks;
         POLY_FT4* pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
         setPolyFT4(pol4);

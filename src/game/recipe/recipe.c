@@ -3,6 +3,7 @@
 #include "../../core/std/stdlib.h"
 #include "../../util/interface99_extensions.h"
 #include "../items/items.h"
+#include "psxapi.h"
 
 INLINE bool dimensionEquals(const Dimension* a, const Dimension* b) {
     return a->width == b->width && a->height == b->height; 
@@ -144,8 +145,12 @@ bool sufficientSpaceInOutputSlots(const RecipeQueryResult* query_result,
                                   const u8 output_slot_count) {
     for (u8 i = 0; i < output_slot_count; i++) {
         const Item* output_item = VCAST_PTR(Item*, output_slots[i]->data.item);
+        if (output_item == NULL) {
+            continue;
+        }
         const Item* result_item = VCAST_PTR(Item*, query_result->results[i]);
-        if (output_item != NULL && itemGetMaxStackSize(output_item->id) - output_item->stack_size < result_item->stack_size) {
+        if (!itemEquals(output_item, result_item)
+            || itemGetMaxStackSize(output_item->id) - output_item->stack_size < result_item->stack_size) {
             return false;
         }
     }
