@@ -91,7 +91,6 @@ IItem* FurnaceBlock_provideItem(VSelf) {
 }
 
 static bool handleFuelConsumption(FurnaceBlock* furnace) {
-    // DEBUG_LOG("Burn: %d\n", furnace->fuel_burn_ticks);
     if (furnace->fuel_burn_ticks > 0) {
         furnace->process_recipe = true;
         furnace->fuel_burn_ticks--;
@@ -101,7 +100,6 @@ static bool handleFuelConsumption(FurnaceBlock* furnace) {
     }
     Slot* slot = &furnace->slots[slotGroupIndexOffset(FURNACE_FUEL)];
     IItem* iitem = slot->data.item;
-    DEBUG_LOG("Fuel slot item: %p\n", iitem);
     if (iitem == NULL) {
         furnace->fuel_burn_ticks = 0;
         furnace->fuel_burn_ticks_start = 0;
@@ -111,7 +109,6 @@ static bool handleFuelConsumption(FurnaceBlock* furnace) {
     }
     Item* item = VCAST_PTR(Item*, iitem);
     const u16 item_burn_ticks = itemGetBurnTicks(item->id);
-    DEBUG_LOG("Item: %d Burnable ticks: %d\n", item->id, item_burn_ticks);
     if (item_burn_ticks == 0) {
         furnace->fuel_burn_ticks = 0;
         furnace->fuel_burn_ticks_start = 0;
@@ -132,18 +129,15 @@ static bool handleFuelConsumption(FurnaceBlock* furnace) {
         furnace->cook_ticks = furnace->recipe.processing_ticks;
         return false;
     }
-    DEBUG_LOG("Marked process_recipe = true\n");
     furnace->process_recipe = true;
     return true;
 }
 
 static void handleSmelting(FurnaceBlock* furnace) {
-    // DEBUG_LOG("Process recipe: %s Cook: %d\n", stringFromBool(furnace->process_recipe), furnace->cook_ticks);
     if (!furnace->process_recipe) {
         return;
     }
     const u16 previous_cook_ticks = furnace->cook_ticks;
-    DEBUG_LOG("Handle cooking ticks: %d\n", furnace->cook_ticks);
     if (furnace->cook_ticks > 0) {
         furnace->cook_ticks--;
     }
@@ -188,7 +182,6 @@ static void handleSmelting(FurnaceBlock* furnace) {
 BlockUpdateResultBitmap furnaceBlockUpdate(VSelf) ALIAS("FurnaceBlock_update");
 BlockUpdateResultBitmap FurnaceBlock_update(VSelf) {
     VSELF(FurnaceBlock);
-    // DEBUG_LOG("Update furnace block\n");
     const bool burning_fuel = handleFuelConsumption(self);
     handleSmelting(self);
     BlockUpdateResultBitmap bitmap = 0;
@@ -215,13 +208,10 @@ BlockUpdateResultBitmap FurnaceBlock_update(VSelf) {
 
 static void processFurnaceRecipe(FurnaceBlock* furnace) {
     if (!furnace->recipe_changed) {
-        DEBUG_LOG("Recipe unchanged\n");
         return;
     }
-    DEBUG_LOG("Recipe changed\n");
     const Slot* input_slot = &furnace->slots[slotGroupIndexOffset(FURNACE_INPUT)];
     if (input_slot->data.item == NULL) {
-        DEBUG_LOG("No item in input slot\n");
         return;
     }
     const Item* item = VCAST_PTR(Item*, input_slot->data.item);
@@ -241,7 +231,6 @@ static void processFurnaceRecipe(FurnaceBlock* furnace) {
     );
     switch (result) {
         case RECIPE_NOT_FOUND:
-            DEBUG_LOG("Recipe not found\n");
             furnace->recipe = (RecipeSearchResult) {0};
             furnace->process_recipe = false;
             furnace->cook_ticks = 0;
@@ -249,10 +238,8 @@ static void processFurnaceRecipe(FurnaceBlock* furnace) {
         case RECIPE_FOUND:
             Slot* output_slot = &furnace->slots[slotGroupIndexOffset(FURNACE_OUTPUT)];
             furnace->cook_ticks = furnace->recipe.processing_ticks;
-            DEBUG_LOG("Cooking ticks: %d\n", furnace->recipe.processing_ticks);
             if (output_slot->data.item == NULL) {
                 furnace->process_recipe = true;
-                DEBUG_LOG("Output slot null\n");
                 break;
             }
             const Item* item = VCAST_PTR(Item*, output_slot->data.item);
@@ -262,7 +249,6 @@ static void processFurnaceRecipe(FurnaceBlock* furnace) {
                     item->id, item->metadata_id,
                     recipe_item_id.separated.id, recipe_item_id.separated.metadata
                 ) && ((u16) item->stack_size + recipe_stack_size) < (u16) itemGetMaxStackSize(item->id);
-            DEBUG_LOG("Output slot non-null. Process recipe: %s\n", stringFromBool(furnace->process_recipe));
             break;
     }
     furnace->recipe_changed = false;
@@ -311,7 +297,6 @@ void cursorHandler(FurnaceBlock* furnace,
         } else {
             furnace->recipe_changed = true;
         }
-        DEBUG_LOG("Set recipe_changed to true\n");
     } else if (slotGroupIntersect(FURNACE_FUEL, &cursor.component.position)) {
         slot = &furnace->slots[slotGroupIndexOffset(FURNACE_FUEL)];
         if (split_or_store_one) {
