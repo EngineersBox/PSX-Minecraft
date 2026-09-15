@@ -29,6 +29,7 @@ Remake of Minecraft for PS1 with PSn00bSDK
       * [Multiple Source Block Light](#multiple-source-block-light)
       * [Weather Raining](#weather-raining)
       * [Crafting with Cursor](#crafting-with-cursor)
+      * [Smelting in Furnace](#smelting-in-furnace)
       * [Hotbar Attributes](#hotbar-attributes)
       * [Sun](#sun)
       * [Moon](#moon)
@@ -152,6 +153,13 @@ Remake of Minecraft for PS1 with PSn00bSDK
 <summary><h4>Crafting with Cursor</h4></summary>
 
 ![Crafting with Cursor](./docs/crafting_inv_cursor.png)
+
+</details>
+
+<details>
+<summary><h4>Smelting in Furnace</h4></summary>
+
+![Crafting with Cursor](./docs/furnace.png)
 
 </details>
 
