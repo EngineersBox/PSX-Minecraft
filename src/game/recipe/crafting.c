@@ -80,7 +80,7 @@ const RecipeNode* crafting_recipes = RECIPE_ITEM {
                     .result_count = 1,
                     .results = RECIPE_RESULT_LIST {
                         RECIPE_RESULT_ITEM {
-                            .item = RECIPE_COMPOSITE_ID(ITEMID_GRASS, 0),
+                            .item = RECIPE_COMPOSITE_ID(ITEMID_PLANK, 0),
                             .stack_size = 4,
                         }
                     }

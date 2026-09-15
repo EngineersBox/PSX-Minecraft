@@ -143,11 +143,15 @@ RecipeQueryState recipeSearch(const RecipeNode* root,
 
 bool sufficientSpaceInOutputSlots(const RecipeQueryResult* query_result,
                                   Slot** output_slots,
-                                  const u8 output_slot_count) {
+                                  const u8 output_slot_count,
+                                  const bool merge_output) {
     for (u8 i = 0; i < output_slot_count; i++) {
         const Item* output_item = VCAST_PTR(Item*, output_slots[i]->data.item);
         if (output_item == NULL) {
             continue;
+        }
+        if (!merge_output) {
+            return false;
         }
         const Item* result_item = VCAST_PTR(Item*, query_result->results[i]);
         if (!itemEquals(output_item, result_item)
@@ -201,14 +205,12 @@ RecipeProcessResult recipeProcess(RecipeSearchResult* search_result,
         query_result.results[i] = output_slots[i]->data.item;
     }
     assembleResult(search_result, &query_result);
-    if (merge_output && !sufficientSpaceInOutputSlots(
+    if (!sufficientSpaceInOutputSlots(
         &query_result,
         output_slots,
-        output_slot_count
+        output_slot_count,
+        merge_output
     )) {
-        for (u8 i = 0; i < output_slot_count; i++) {
-            VCALL(*query_result.results[i], destroy);
-        }
         return RECIPE_PROCESSING_INSUFFICIENT_SPACE;
     }
     for (u8 i = 0; i < output_slot_count; i++) {

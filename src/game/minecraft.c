@@ -50,8 +50,7 @@
 /*    }*/
 /*};*/
 
-void renderLoadingScreen(RenderContext* ctx) {
-    swapBuffers(ctx);
+static void renderLoadingScreen(RenderContext* ctx) {
     // Draw logo
     POLY_FT4* poly_ft4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
     setXYWH(
@@ -61,7 +60,7 @@ void renderLoadingScreen(RenderContext* ctx) {
         128,
         128
     );
-    setRGB0(poly_ft4, 0x7F, 0x7F, 0x7F);
+    setRGB0(poly_ft4, 0x80, 0x80, 0x80);
     setUVWH(poly_ft4, 0, 0, 128, 128);
     Texture mojang_logo = {0};
     assetLoadTextureDirect(
@@ -77,6 +76,7 @@ void renderLoadingScreen(RenderContext* ctx) {
     setWH(fill, SCREEN_XRES, SCREEN_YRES);
     setRGB0(fill, 0xFF, 0xFF, 0xFF);
     fillRender(fill, 1, ctx);
+    swapBuffers(ctx);
     swapBuffers(ctx);
 }
 
@@ -262,49 +262,6 @@ void Minecraft_update(VSelf, UNUSED const Stats* stats) {
     // DEBUG_LOG("Update finished\n");
 }
 
-// UNUSED static void frustumRenderNormals(const Frustum* frustum, RenderContext* ctx) {
-//     // Object and light matrix for object
-//     MATRIX omtx, olmtx;
-//     // Set object rotation and position
-//     RotMatrix((SVECTOR*) &VEC3_I16_ZERO, &omtx);
-//     TransMatrix(&omtx, (VECTOR*) &VEC3_I32_ZERO);
-//     // Multiply light matrix to object matrix
-//     MulMatrix0(&ctx->camera->transforms->lighting_mtx, &omtx, &olmtx);
-//     // Set result to GTE light matrix
-//     gte_SetLightMatrix(&olmtx);
-//     CompMatrixLV(&ctx->camera->transforms->frustum_mtx, &omtx, &omtx);
-//     // Save matrix
-//     PushMatrix();
-//     // Set matrices
-//     gte_SetRotMatrix(&omtx);
-//     gte_SetTransMatrix(&omtx);
-//     for (int i = 0; i < 6; i++) {
-//         const Plane* plane = &frustum->planes[i];
-//         LINE_F2* line = (LINE_F2*) allocatePrimitive(ctx, sizeof(LINE_F2));
-//         setLineF2(line);
-//         SVECTOR p0 = vec3_i16(
-//             plane->point.vx,
-//             plane->point.vy,
-//             plane->point.vx
-//         );
-//         SVECTOR p1 = vec3_add(
-//             p0,
-//             vec3_i16(
-//                 plane->normal.vx * 2,
-//                 plane->normal.vy * 2,
-//                 plane->normal.vz * 2
-//             )
-//         );
-//         gte_ldv01(&p0, &p1);
-//         gte_rtpt();
-//         gte_stsxy0(&line->x0);
-//         gte_stsxy1(&line->x1);
-//         setRGB0(line, 0xFF, 0x00, 0x00);
-//         lineF2Render(line, 1, ctx);
-//     }
-//     renderCtxUnbindMatrix();
-// }
-
 DEFN_DURATION_COMPONENT(render);
 
 void minecraftRender(VSelf, const Stats* stats) ALIAS("Minecraft_render");
@@ -327,15 +284,12 @@ void Minecraft_render(VSelf, const Stats* stats) {
     // Update breaking state textures
     breakingStateUpdateRenderTarget(&player->breaking, &self->ctx);
     // Draw the world
-    // frustumTransform(&self->ctx.camera->frustum, &self->transforms);
     worldRender(
         world,
         player,
         &self->ctx,
         &self->transforms
     );
-    // frustumRenderNormals(&self->ctx.camera->frustum, &self->ctx);
-    // frustumRestore(&self->ctx.camera->frustum);
     if (world->weather.raining || world->weather.storming) {
         weatherRender(
             world,

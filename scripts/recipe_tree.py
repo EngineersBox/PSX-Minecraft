@@ -89,7 +89,6 @@ def constructTree(recipes) -> RecipeNode:
                 )
         results = []
         output = recipe["output"]
-        print(output)
         for result in output["results"]:
             results.append(RecipeResult(
                 result["item"],
@@ -102,7 +101,6 @@ def constructTree(recipes) -> RecipeNode:
             result_count,
             results
         ))
-        print(output.get("processing_ticks") or 1)
         if (result_count > 0):
             current.output.processing_ticks = output.get("processing_ticks", 1)
         else:

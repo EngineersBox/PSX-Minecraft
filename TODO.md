@@ -186,3 +186,4 @@
 * [X] Migrate chunk block update logic to use two maps for current/next updates to avoid multiple-update per-tick issue.
 * [ ] Support other resolutions that aren't 320x240
 * [ ] Refactor the `chunkRemoveLightType` call into the `chunkSetLightType` when the light value is `0` and update the necessary logic changes to accomodate this (seems to cause infinite lighting update loops if this is done at the moment)
+* [ ] Avoid use of two maps in chunk current/next update queuing. Can this be centralised in a single data structure to minimise allocations?
