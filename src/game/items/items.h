@@ -22,7 +22,7 @@ extern ItemAttributes item_attributes[ITEM_COUNT];
 
 #define itemIdEqualsExplicit(_id0, _metadata_id0, _id1, _metadata_id1) ((_id0) == (_id1) && (_metadata_id0) == (_metadata_id1))
 #define itemIdEquals(item, _id, _metadata_id) itemIdEqualsExplicit((item)->id, (item)->metadata_id, _id, _metadata_id)
-#define itemEquals(i0, i1) itemIdEquals(i0, (i1)->id, (i1)->metadata_id)
+#define itemEquals(i0, i1) ((i0)->joined_id == (i1)->joined_id) 
 #if defined(DEBUG_ITEM_ID_CHECK) && DEBUG_ITEM_ID_CHECK == 1
 #include "../../logging/logging.h"
 #define itemGetAttribute(id, attr) ({ \
