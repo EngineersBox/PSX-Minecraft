@@ -5,7 +5,8 @@
 #include "../items/items.h"
 
 const RecipeNode* crafting_recipes = RECIPE_ITEM {
-    .item = RECIPE_COMPOSITE_ID(ITEMID_AIR, 0),
+    .id = ITEMID_AIR,
+    .metadata_id = 0,
     .stack_size = 1,
     .ignore_metadata = false,
     .node_count = 2,
@@ -14,7 +15,8 @@ const RecipeNode* crafting_recipes = RECIPE_ITEM {
     .results = NULL,
     .nodes = RECIPE_LIST {
         RECIPE_ITEM {
-            .item = RECIPE_COMPOSITE_ID(ITEMID_COBBLESTONE, 0),
+            .id = ITEMID_COBBLESTONE,
+            .metadata_id = 0,
             .stack_size = 1,
             .ignore_metadata = false,
             .node_count = 1,
@@ -23,7 +25,8 @@ const RecipeNode* crafting_recipes = RECIPE_ITEM {
             .results = NULL,
             .nodes = RECIPE_LIST {
                 RECIPE_ITEM {
-                    .item = RECIPE_COMPOSITE_ID(ITEMID_COBBLESTONE, 0),
+                    .id = ITEMID_COBBLESTONE,
+                    .metadata_id = 0,
                     .stack_size = 1,
                     .ignore_metadata = false,
                     .node_count = 1,
@@ -32,7 +35,8 @@ const RecipeNode* crafting_recipes = RECIPE_ITEM {
                     .results = NULL,
                     .nodes = RECIPE_LIST {
                         RECIPE_ITEM {
-                            .item = RECIPE_COMPOSITE_ID(ITEMID_COBBLESTONE, 0),
+                            .id = ITEMID_COBBLESTONE,
+                            .metadata_id = 0,
                             .stack_size = 1,
                             .ignore_metadata = false,
                             .node_count = 1,
@@ -41,7 +45,8 @@ const RecipeNode* crafting_recipes = RECIPE_ITEM {
                             .results = NULL,
                             .nodes = RECIPE_LIST {
                                 RECIPE_ITEM {
-                                    .item = RECIPE_COMPOSITE_ID(ITEMID_COBBLESTONE, 0),
+                                    .id = ITEMID_COBBLESTONE,
+                                    .metadata_id = 0,
                                     .stack_size = 1,
                                     .ignore_metadata = false,
                                     .node_count = 0,
@@ -53,7 +58,8 @@ const RecipeNode* crafting_recipes = RECIPE_ITEM {
                                             .result_count = 1,
                                             .results = RECIPE_RESULT_LIST {
                                                 RECIPE_RESULT_ITEM {
-                                                    .item = RECIPE_COMPOSITE_ID(ITEMID_CRAFTING_TABLE, 0),
+                                                    .id = ITEMID_CRAFTING_TABLE,
+                                                    .metadata_id = 0,
                                                     .stack_size = 4,
                                                 }
                                             }
@@ -68,7 +74,8 @@ const RecipeNode* crafting_recipes = RECIPE_ITEM {
             }
         },
         RECIPE_ITEM {
-            .item = RECIPE_COMPOSITE_ID(ITEMID_LOG, 0),
+            .id = ITEMID_LOG,
+            .metadata_id = 0,
             .stack_size = 1,
             .ignore_metadata = true,
             .node_count = 0,
@@ -80,7 +87,8 @@ const RecipeNode* crafting_recipes = RECIPE_ITEM {
                     .result_count = 1,
                     .results = RECIPE_RESULT_LIST {
                         RECIPE_RESULT_ITEM {
-                            .item = RECIPE_COMPOSITE_ID(ITEMID_PLANK, 0),
+                            .id = ITEMID_PLANK,
+                            .metadata_id = 0,
                             .stack_size = 4,
                         }
                     }

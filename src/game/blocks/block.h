@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include <interface99.h>
 
+#include "../id.h"
 #include "../items/item.h"
 #include "../world/position.h"
 #include "../../lighting/lightmap.h"
@@ -86,8 +87,7 @@ typedef struct BlockAttributes {
 } BlockAttributes;
 
 typedef struct Block {
-    BlockID id;
-    u8 metadata_id;
+    CompositeID(BlockID, u8, u16);
     u8 light_level: 4;
     FaceDirection orientation: FACE_DIRECTION_COUNT_BITS;
     u16 _pad: 9;

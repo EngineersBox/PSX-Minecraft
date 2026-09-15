@@ -24,16 +24,16 @@ RecipeNode* recipeNodeGetNext(const RecipeNode* node, const RecipePatternEntry* 
         mid = (lower + upper) >> 1;
         RecipeNode* next_node = node->nodes[mid];
         if (next_node->ignore_metadata
-            ? next_node->item.separated.id == pattern->id.separated.id
-            : next_node->item.data == pattern->id.data) {
+            ? next_node->id == pattern->id
+            : next_node->joined_id == pattern->joined_id) {
             if (next_node->stack_size > pattern->stack_size) {
                 // Number of items in the slot is insufficient
                 return NULL;
             }
             return next_node;
         } else if (next_node->ignore_metadata
-            ? next_node->item.separated.id > pattern->id.separated.id
-            : next_node->item.data > pattern->id.data) {
+            ? next_node->id > pattern->id
+            : next_node->joined_id > pattern->id) {
             upper = mid - 1;
         } else {
             lower = mid + 1;
@@ -55,23 +55,21 @@ static void assembleResult(const RecipeSearchResult* search_result,
             goto assemble_new_item;
         }
         Item* existing_item = VCAST_PTR(Item*, existing_iitem);
-        if (itemIdEquals(existing_item, result->item.separated.id, result->item.separated.metadata)) {
+        if (itemIdEquals(existing_item, result->id, result->metadata_id)) {
             // Resize stack
             existing_item->stack_size = result->stack_size;
             continue;
         }
         // Replace item in result with new one
 assemble_new_item:;
-        IItem* iitem = itemGetConstructor(result->item.separated.id)(result->item.separated.metadata);
+        IItem* iitem = itemGetConstructor(result->id)(result->metadata_id);
         assert(iitem != NULL);
         Item* item = VCAST_PTR(Item*, iitem);
-        DEBUG_LOG("Item: %d:%d\n", item->id, item->metadata_id);
         itemSetWorldState(item, false);
         VCALL_SUPER(*iitem, Renderable, applyInventoryRenderAttributes);
         item->bob_offset = 1;
         item->stack_size = result->stack_size;
         query_result->results[i] = iitem;
-        DEBUG_LOG("Finished assembling result\n");
     }
 }
 
@@ -106,7 +104,7 @@ RecipeQueryState recipeSearch(const RecipeNode* root,
     // pattern that is used to walk the tree.
     for (u8 y = 0; y < pattern_dimension.height; y++) {
         for (u8 x = 0; x < pattern_dimension.width; x++) {
-            if (pattern[(y * pattern_dimension.width) + x].id.separated.id != ITEMID_AIR) {
+            if (pattern[(y * pattern_dimension.width) + x].id != ITEMID_AIR) {
                 left = min(left, x);
                 top = min(top, y);
                 right = max(right, x);
@@ -151,6 +149,11 @@ bool sufficientSpaceInOutputSlots(const RecipeQueryResult* query_result,
             continue;
         }
         if (!merge_output) {
+            // If we are not merging recipe results with
+            // existing contents of output slots, then
+            // the presence of any item in the output
+            // slot immediately invalidates the recipe
+            // from being processed.
             return false;
         }
         const Item* result_item = VCAST_PTR(Item*, query_result->results[i]);
@@ -169,7 +172,7 @@ RecipeProcessResult recipeSearchAndProcess(const RecipeNode* root,
                                            u8 output_slot_count,
                                            u8* ingredient_consume_sizes,
                                            bool merge_output) {
-    RecipeSearchResult search_result= {0};
+    RecipeSearchResult search_result = {0};
     if (recipeSearch(
         root,
         pattern,

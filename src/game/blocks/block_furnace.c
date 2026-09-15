@@ -214,7 +214,7 @@ static void processFurnaceRecipe(FurnaceBlock* furnace) {
     }
     const Item* item = VCAST_PTR(Item*, input_slot->data.item);
     pattern[0] = (RecipePatternEntry) {
-        .id = RECIPE_COMPOSITE_ID(item->id, item->metadata_id),
+        .joined_id = item->joined_id,
         .stack_size = item->stack_size,
     };
     const RecipeQueryState result = recipeSearch(
@@ -241,11 +241,11 @@ static void processFurnaceRecipe(FurnaceBlock* furnace) {
                 break;
             }
             const Item* item = VCAST_PTR(Item*, output_slot->data.item);
-            const CompositeID recipe_item_id = furnace->recipe.results.results[0]->item;
+            const RecipeResult* recipe_result = furnace->recipe.results.results[0];
             const u8 recipe_stack_size = furnace->recipe.results.results[0]->stack_size;
             furnace->process_recipe = itemIdEqualsExplicit(
                     item->id, item->metadata_id,
-                    recipe_item_id.separated.id, recipe_item_id.separated.metadata
+                    recipe_result->id, recipe_result->metadata_id
                 ) && ((u16) item->stack_size + recipe_stack_size) < (u16) itemGetMaxStackSize(item->id);
             break;
     }

@@ -5,7 +5,8 @@
 #include "../items/items.h"
 
 const RecipeNode* furnace_recipes = RECIPE_ITEM {
-    .item = RECIPE_COMPOSITE_ID(ITEMID_AIR, 0),
+    .id = ITEMID_AIR,
+    .metadata_id = 0,
     .stack_size = 1,
     .ignore_metadata = false,
     .node_count = 1,
@@ -14,7 +15,8 @@ const RecipeNode* furnace_recipes = RECIPE_ITEM {
     .results = NULL,
     .nodes = RECIPE_LIST {
         RECIPE_ITEM {
-            .item = RECIPE_COMPOSITE_ID(ITEMID_COBBLESTONE, 0),
+            .id = ITEMID_COBBLESTONE,
+            .metadata_id = 0,
             .stack_size = 1,
             .ignore_metadata = false,
             .node_count = 0,
@@ -26,7 +28,8 @@ const RecipeNode* furnace_recipes = RECIPE_ITEM {
                     .result_count = 1,
                     .results = RECIPE_RESULT_LIST {
                         RECIPE_RESULT_ITEM {
-                            .item = RECIPE_COMPOSITE_ID(ITEMID_STONE, 0),
+                            .id = ITEMID_STONE,
+                            .metadata_id = 0,
                             .stack_size = 1,
                         }
                     }

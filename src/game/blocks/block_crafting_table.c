@@ -9,7 +9,6 @@
 #include "../gui/utils.h"
 #include "../recipe/crafting.h"
 #include "../world/world_structure.h"
-#include "../../logging/logging.h"
 #include "../../ui/components/cursor.h"
 #include "../../util/interface99_extensions.h"
 
@@ -72,12 +71,13 @@ static void processCraftingRecipe() {
         if (iitem != NULL) {
             const Item* item = VCAST_PTR(Item*, iitem);
             pattern[i] = (RecipePatternEntry) {
-                .id = RECIPE_COMPOSITE_ID(item->id, item->metadata_id),
+                .joined_id = item->joined_id,
                 .stack_size = item->stack_size,
             };
         } else {
             pattern[i] = (RecipePatternEntry) {
-                .id = RECIPE_COMPOSITE_ID(0, ITEMID_AIR),
+                .id = ITEMID_AIR,
+                .metadata_id = 0,
                 .stack_size = 0,
             };
         }

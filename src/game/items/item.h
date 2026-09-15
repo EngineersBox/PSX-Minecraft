@@ -9,13 +9,13 @@
 #include <stdbool.h>
 #include <psxapi.h>
 
-#include "../../render/renderable.h"
-#include "../../math/math_utils.h"
-#include "../../math/vector.h"
-#include "../../util/preprocessor.h"
 #include "tools/tool_type.h"
+#include "../id.h"
 #include "../../entity/entity.h"
+#include "../../math/vector.h"
 #include "../../physics/physics_object.h"
+#include "../../render/renderable.h"
+#include "../../util/preprocessor.h"
 
 #define PICKUP_DISTANCE 130
 #define PICKUP_DISTANCE_SQUARED (PICKUP_DISTANCE * PICKUP_DISTANCE)
@@ -97,8 +97,7 @@ extern const PhysicsObjectConfig item_physics_object_config;
 extern const PhysicsObjectUpdateHandlers item_physics_object_update_handlers;
 
 typedef struct Item {
-    ItemID id;
-    u8 metadata_id;
+    CompositeID(ItemID, u8, u16);
     u32 durability;
     u8 stack_size;
     u8 bob_offset;

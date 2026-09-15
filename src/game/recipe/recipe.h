@@ -5,11 +5,11 @@
 
 #include <stdbool.h>
 
+#include "../id.h"
 #include "../items/item.h"
 #include "../items/item_id.h"
 #include "../gui/slot.h"
 #include "../../util/inttypes.h"
-#include "../../math/math_utils.h"
 
 typedef struct Dimension {
     u8 width;
@@ -18,22 +18,12 @@ typedef struct Dimension {
 
 bool dimensionEquals(const Dimension* a, const Dimension* b);
 
-typedef union CompositeID {
-    struct {
-        // Lower bits
-        u8 metadata;
-        // Higher bits
-        EItemID id;
-    } separated;
-    u16 data;
-} CompositeID;
-
 typedef struct RecipeResult {
     /**
      * @brief Recipe item ingredient for this position.
      *        marked by id and metadata id
      */
-    CompositeID item;
+    CompositeID(ItemID, u8, u16);
     u8 stack_size;
     u8 _pad;
 } RecipeResult;
@@ -74,7 +64,7 @@ typedef struct RecipeNode {
      * @brief Recipe item ingredient for this position.
      *        marked by id and metadata id
      */
-    CompositeID item;
+    CompositeID(ItemID, u8, u16);
     u8 stack_size;
     bool ignore_metadata: 1;
     u8 _pad: 7;
@@ -124,7 +114,7 @@ typedef enum ResultQueryState {
 } RecipeQueryState;
 
 typedef struct RecipePatternEntry {
-    CompositeID id;
+    CompositeID(ItemID, u8, u16);
     u8 stack_size;
     u8 _pad;
 } RecipePatternEntry;
@@ -191,10 +181,5 @@ void recipeConsumeIngredients(Slot* slots,
 
 #define RECIPE_RESULT_LIST (RecipeResult*[])
 #define RECIPE_RESULT_ITEM &(RecipeResult)
-
-#define RECIPE_COMPOSITE_ID(_id, _metadata) { \
-    .separated.metadata = _metadata, \
-    .separated.id = _id \
-}
 
 #endif // _PSXMC__GAME_RECIPE__RECIPE_H_

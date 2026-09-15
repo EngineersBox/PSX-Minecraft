@@ -126,7 +126,8 @@ def serialiseTree(node: RecipeNode, indent = 0) -> str:
             j = 0
             for _result in result.results:
                 results += pad(indent + 4) + "RECIPE_RESULT_ITEM {\n"
-                results += pad(indent + 5) + f".item = RECIPE_COMPOSITE_ID({itemToEnumName(_result.item)}, {node.metadata}),\n"
+                results += pad(indent + 5) + f".id = {itemToEnumName(_result.item)},\n"
+                results += pad(indent + 5) + f".metadata_id = {node.metadata},\n"
                 results += pad(indent + 5) + f".stack_size = {_result.stack_size},\n"
                 results += pad(indent + 4) + "}"
                 if j < len(result.results) - 1:
@@ -155,7 +156,8 @@ def serialiseTree(node: RecipeNode, indent = 0) -> str:
     else:
         nodes = "NULL"
     output = pad(indent) + "RECIPE_ITEM {\n"
-    output += pad(indent + 1) + f".item = RECIPE_COMPOSITE_ID({itemToEnumName(node.item)}, {node.metadata}),\n"
+    output += pad(indent + 1) + f".id = {itemToEnumName(node.item)},\n"
+    output += pad(indent + 1) + f".metadata_id = {node.metadata},\n"
     output += pad(indent + 1) + f".stack_size = {node.stack_size},\n"
     output += pad(indent + 1) + f".ignore_metadata = {"true" if node.ignore_metadata else "false"},\n"
     output += pad(indent + 1) + f".node_count = {len(node.nodes)},\n"
