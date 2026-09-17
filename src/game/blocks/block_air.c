@@ -13,8 +13,12 @@ void AirBlock_init(VSelf) {
     self->block = declareBlock(BLOCKID_AIR);
 }
 
-IItem* airBlockDestroy(VSelf, bool drop_item) ALIAS("AirBlock_destroy");
-IItem* AirBlock_destroy(VSelf, UNUSED const bool drop_item) {
+IItem* airBlockDestroy(VSelf,
+                       UNUSED bool drop_item,
+                       UNUSED const VECTOR block_world_pos) ALIAS("AirBlock_destroy");
+IItem* AirBlock_destroy(VSelf,
+                        UNUSED const bool drop_item,
+                        UNUSED const VECTOR block_world_pos) {
     VSELF(AirBlock);
     return airBlockProvideItem(self);
 }

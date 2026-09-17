@@ -26,8 +26,8 @@ void {{ name_capital }}Block_init(VSelf) {
     );
 }
 
-IItem* {{ name_lower }}BlockDestroy(VSelf, bool drop_item) ALIAS("{{ name_capital }}Block_destroy");
-IItem* {{ name_capital }}Block_destroy(VSelf, bool drop_item) {
+IItem* {{ name_lower }}BlockDestroy(VSelf, bool drop_item, const VECTOR block_world_pos) ALIAS("{{ name_capital }}Block_destroy");
+IItem* {{ name_capital }}Block_destroy(VSelf, bool drop_item, const VECTOR block_world_pos) {
     VSELF({{ name_capital }}Block);
     return drop_item ? {{ name_lower }}BlockProvideItem(self) : NULL;
 }

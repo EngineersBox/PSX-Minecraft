@@ -114,7 +114,7 @@ typedef enum BlockUpdateResult {
 
 #define IBlock_IFACE \
     vfunc(void, init, VSelf) \
-    vfunc(IItem*, destroy, VSelf, bool drop_item) \
+    vfunc(IItem*, destroy, VSelf, bool drop_item, const VECTOR block_world_pos) \
     /* Updates from world events like redstone */ \
     vfuncDefault(BlockUpdateResultBitmap, update, VSelf) \
     /* Player right clicking. True = action consumed, False = action not consumed */ \

@@ -341,7 +341,7 @@ INLINE static void playerInputHandlerUse(const PlayerInputHandlerContext* ctx) {
             const VECTOR place_position = vec3_add(result.pos, result.face);
             if (!VCALL(*iblock, canPlace, ctx->world, &place_position, &physics_object->aabb)) {
                 item->stack_size++;
-                VCALL(*iblock, destroy, false);
+                VCALL(*iblock, destroy, false, place_position);
                 return;
             }
             const bool modify_result = worldModifyVoxel(
@@ -352,7 +352,7 @@ INLINE static void playerInputHandlerUse(const PlayerInputHandlerContext* ctx) {
                 NULL
             );
             if (!modify_result) {
-                VCALL(*iblock, destroy, false);
+                VCALL(*iblock, destroy, false, place_position);
                 break;
             }
             Block* block = VCAST_PTR(Block*, iblock);

@@ -13,8 +13,12 @@ void GrassBlock_init(VSelf) {
     self->block = declareBlock(BLOCKID_GRASS);
 }
 
-IItem* grassBlockDestroy(VSelf, bool drop_item) ALIAS("GrassBlock_destroy");
-IItem* GrassBlock_destroy(VSelf, const bool drop_item) {
+IItem* grassBlockDestroy(VSelf,
+                         bool drop_item,
+                         UNUSED const VECTOR block_world_pos) ALIAS("GrassBlock_destroy");
+IItem* GrassBlock_destroy(VSelf,
+                          const bool drop_item,
+                          UNUSED const VECTOR block_world_pos) {
     VSELF(GrassBlock);
     return drop_item ? grassBlockProvideItem(self) : NULL;
 }

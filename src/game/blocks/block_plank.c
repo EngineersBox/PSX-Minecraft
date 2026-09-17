@@ -12,8 +12,12 @@ void PlankBlock_init(VSelf) {
     self->block = declareBlock(BLOCKID_PLANK);
 }
 
-IItem* plankBlockDestroy(VSelf, bool drop_item) ALIAS("PlankBlock_destroy");
-IItem* PlankBlock_destroy(VSelf, bool drop_item) {
+IItem* plankBlockDestroy(VSelf,
+                         bool drop_item,
+                         UNUSED const VECTOR block_world_pos) ALIAS("PlankBlock_destroy");
+IItem* PlankBlock_destroy(VSelf,
+                          bool drop_item,
+                          UNUSED const VECTOR block_world_pos) {
     VSELF(PlankBlock);
     return drop_item ? plankBlockProvideItem(self) : NULL;
 }

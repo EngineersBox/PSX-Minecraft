@@ -29,8 +29,8 @@ DEFN_BLOCK_CONSTRUCTOR(cobblestone);
 void cobblestoneBlockInit(VSelf);
 void CobblestoneBlock_init(VSelf);
 
-ALLOC_CALL(itemDestroy, 1) IItem* cobblestoneBlockDestroy(VSelf, bool drop_item);
-ALLOC_CALL(itemDestroy, 1) IItem* CobblestoneBlock_destroy(VSelf, bool drop_item);
+ALLOC_CALL(itemDestroy, 1) IItem* cobblestoneBlockDestroy(VSelf, bool drop_item, const VECTOR block_world_pos);
+ALLOC_CALL(itemDestroy, 1) IItem* CobblestoneBlock_destroy(VSelf, bool drop_item, const VECTOR block_world_pos);
 
 ALLOC_CALL(itemDestroy, 1) IItem* cobblestoneBlockProvideItem(VSelf);
 ALLOC_CALL(itemDestroy, 1) IItem* CobblestoneBlock_provideItem(VSelf);

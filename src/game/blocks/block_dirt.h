@@ -31,8 +31,8 @@ DEFN_BLOCK_CONSTRUCTOR(dirt);
 void dirtBlockInit(VSelf);
 void DirtBlock_init(VSelf);
 
-ALLOC_CALL(itemDestroy, 1) IItem* dirtBlockDestroy(VSelf, bool drop_item);
-ALLOC_CALL(itemDestroy, 1) IItem* DirtBlock_destroy(VSelf, bool drop_item);
+ALLOC_CALL(itemDestroy, 1) IItem* dirtBlockDestroy(VSelf, bool drop_item, const VECTOR block_world_pos);
+ALLOC_CALL(itemDestroy, 1) IItem* DirtBlock_destroy(VSelf, bool drop_item, const VECTOR block_world_pos);
 
 ALLOC_CALL(itemDestroy, 1) IItem* dirtBlockProvideItem(VSelf);
 ALLOC_CALL(itemDestroy, 1) IItem* DirtBlock_provideItem(VSelf);

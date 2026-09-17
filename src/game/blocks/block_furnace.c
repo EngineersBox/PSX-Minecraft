@@ -71,9 +71,27 @@ void FurnaceBlock_init(VSelf) {
     self->ingredient_consume_sizes[2] = 0;
 }
 
-IItem* furnaceBlockDestroy(VSelf, bool drop_item) ALIAS("FurnaceBlock_destroy");
-IItem* FurnaceBlock_destroy(VSelf, bool drop_item) {
+IItem* furnaceBlockDestroy(VSelf,
+                           bool drop_item,
+                           const VECTOR block_world_pos) ALIAS("FurnaceBlock_destroy");
+IItem* FurnaceBlock_destroy(VSelf,
+                            bool drop_item,
+                            const VECTOR block_world_pos) {
     VSELF(FurnaceBlock);
+    for (int i = 0; i < 3; i++) {
+        IItem* iitem = self->slots[i].data.item;
+        if (iitem == NULL) {
+            continue;
+        }
+        worldDropItemStack(world, iitem, 0);
+        Item* item = VCAST_PTR(Item*, iitem);
+        item->world_entity->physics_object.position = vec3_const_mul(vec3_i32(
+            block_world_pos.vx,
+            -block_world_pos.vy,
+            block_world_pos.vz
+        ), ONE_BLOCK);
+        self->slots[i].data.item = NULL;
+    }
     return drop_item ? furnaceBlockProvideItem(self) : NULL;
 }
 

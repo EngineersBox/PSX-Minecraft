@@ -31,8 +31,8 @@ defaultFaceAttributes(4) \
 void plankBlockInit(VSelf);
 void PlankBlock_init(VSelf);
 
-ALLOC_CALL(itemDestroy, 1) IItem* plankBlockDestroy(VSelf, bool drop_item);
-ALLOC_CALL(itemDestroy, 1) IItem* PlankBlock_destroy(VSelf, bool drop_item);
+ALLOC_CALL(itemDestroy, 1) IItem* plankBlockDestroy(VSelf, bool drop_item, const VECTOR block_world_pos);
+ALLOC_CALL(itemDestroy, 1) IItem* PlankBlock_destroy(VSelf, bool drop_item, const VECTOR block_world_pos);
 
 ALLOC_CALL(itemDestroy, 1) IItem* plankBlockProvideItem(VSelf);
 ALLOC_CALL(itemDestroy, 1) IItem* PlankBlock_provideItem(VSelf);

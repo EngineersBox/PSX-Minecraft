@@ -37,8 +37,8 @@ DEFN_BLOCK_CONSTRUCTOR(grass);
 void grassBlockInit(VSelf);
 void GrassBlock_init(VSelf);
 
-ALLOC_CALL(itemDestroy, 1) IItem* grassBlockDestroy(VSelf, bool drop_item);
-ALLOC_CALL(itemDestroy, 1) IItem* GrassBlock_destroy(VSelf, bool drop_item);
+ALLOC_CALL(itemDestroy, 1) IItem* grassBlockDestroy(VSelf, bool drop_item, const VECTOR block_world_pos);
+ALLOC_CALL(itemDestroy, 1) IItem* GrassBlock_destroy(VSelf, bool drop_item, const VECTOR block_world_pos);
 
 ALLOC_CALL(itemDestroy, 1) IItem* grassBlockProvideItem(VSelf);
 ALLOC_CALL(itemDestroy, 1) IItem* GrassBlock_provideItem(VSelf);

@@ -9,13 +9,16 @@ DEFN_BLOCK_CONSTRUCTOR_IMPL_STATELESS(stone, STONE)
 
 void stoneBlockInit(VSelf) ALIAS("StoneBlock_init");
 void StoneBlock_init(VSelf) {
-    // TODO: Can make this VSELF(Block) since StoneBlock composes Block as the first struct element
     VSELF(StoneBlock);
     self->block = declareBlock(BLOCKID_STONE);
 }
 
-IItem* stoneBlockDestroy(VSelf, bool drop_item) ALIAS("StoneBlock_destroy");
-IItem* StoneBlock_destroy(VSelf, const bool drop_item) {
+IItem* stoneBlockDestroy(VSelf,
+                         bool drop_item,
+                         UNUSED const VECTOR block_world_pos) ALIAS("StoneBlock_destroy");
+IItem* StoneBlock_destroy(VSelf,
+                          const bool drop_item,
+                          UNUSED const VECTOR block_world_pos) {
     VSELF(StoneBlock);
     return drop_item ? stoneBlockProvideItem(self) : NULL;
 }

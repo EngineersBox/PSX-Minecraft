@@ -1599,7 +1599,7 @@ void worldDropItemStack(World* world,
     VECTOR player_block_pos = vec3_const_div(
         vec3_i32(
             player->entity.physics_object.position.vx,
-            -player->entity.physics_object.position.vx,
+            -player->entity.physics_object.position.vy,
             player->entity.physics_object.position.vz
         ),
         ONE_BLOCK

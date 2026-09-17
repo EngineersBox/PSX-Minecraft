@@ -43,9 +43,27 @@ void CraftingTableBlock_init(VSelf) {
     self->block = declareBlock(BLOCKID_CRAFTING_TABLE);
 }
 
-IItem* craftingTableBlockDestroy(VSelf, bool drop_item) ALIAS("CraftingTableBlock_destroy");
-IItem* CraftingTableBlock_destroy(VSelf, bool drop_item) {
+IItem* craftingTableBlockDestroy(VSelf,
+                                 bool drop_item,
+                                 const VECTOR block_world_pos) ALIAS("CraftingTableBlock_destroy");
+IItem* CraftingTableBlock_destroy(VSelf,
+                                  bool drop_item,
+                                  const VECTOR block_world_pos) {
     VSELF(CraftingTableBlock);
+    for (int i = 0; i < slotGroupSize(CRAFTING_TABLE); i++) {
+        IItem* iitem = crafting_table_slots[i].data.item;
+        if (iitem == NULL) {
+            continue;
+        }
+        worldDropItemStack(world, iitem, 0);
+        Item* item = VCAST_PTR(Item*, iitem);
+        item->world_entity->physics_object.position = vec3_const_mul(vec3_i32(
+            block_world_pos.vx,
+            -block_world_pos.vy,
+            block_world_pos.vz
+        ), ONE_BLOCK);
+        crafting_table_slots[i].data.item = NULL;
+    }
     return drop_item ? craftingTableBlockProvideItem(self) : NULL;
 }
 

@@ -9,13 +9,16 @@ DEFN_BLOCK_CONSTRUCTOR_IMPL_STATELESS(dirt, DIRT)
 
 void dirtBlockInit(VSelf) ALIAS("DirtBlock_init");
 void DirtBlock_init(VSelf) {
-    // TODO: Can make this VSELF(Block) since DirtBlock composes Block as the first struct element
     VSELF(DirtBlock);
     self->block = declareBlock(BLOCKID_DIRT);
 }
 
-IItem* dirtBlockDestroy(VSelf, bool drop_item) ALIAS("DirtBlock_destroy");
-IItem* DirtBlock_destroy(VSelf, const bool drop_item) {
+IItem* dirtBlockDestroy(VSelf,
+                        bool drop_item,
+                        UNUSED const VECTOR block_world_pos) ALIAS("DirtBlock_destroy");
+IItem* DirtBlock_destroy(VSelf,
+                         const bool drop_item,
+                         UNUSED const VECTOR block_world_pos) {
     VSELF(DirtBlock);
     return drop_item ? dirtBlockProvideItem(self) : NULL;
 }

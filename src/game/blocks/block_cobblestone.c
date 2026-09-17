@@ -13,8 +13,12 @@ void CobblestoneBlock_init(VSelf) {
     self->block = declareBlock(BLOCKID_COBBLESTONE);
 }
 
-IItem* cobblestoneBlockDestroy(VSelf, bool drop_item) ALIAS("CobblestoneBlock_destroy");
-IItem* CobblestoneBlock_destroy(VSelf, const bool drop_item) {
+IItem* cobblestoneBlockDestroy(VSelf,
+                               bool drop_item,
+                               UNUSED const VECTOR block_world_pos) ALIAS("CobblestoneBlock_destroy");
+IItem* CobblestoneBlock_destroy(VSelf,
+                                const bool drop_item,
+                                UNUSED const VECTOR block_world_pos) {
     VSELF(CobblestoneBlock);
     return drop_item ? cobblestoneBlockProvideItem(self) : NULL;
 }

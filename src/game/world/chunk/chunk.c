@@ -481,7 +481,6 @@ static int modifyVoxel0(Chunk* chunk,
         block_update = *existing_updates;
     }
     if (blockHasCustomUpdateFunction(new_iblock)) {
-        DEBUG_LOG("Has custom update function %p != %p\n", new_iblock->vptr->update, IBlock_update);
         bitmapSetBit(
             block_update.type_bitmap,
             BLOCK_UPDATE_TYPE_STATE
@@ -492,13 +491,20 @@ static int modifyVoxel0(Chunk* chunk,
             BLOCK_UPDATE_TYPE_STATE
         );
     }
-    DEBUG_LOG("New bitmap: " INT8_BIN_PATTERN "\n", INT8_BIN_LAYOUT(block_update.type_bitmap));
     hashmap_set(current_updates, &block_update);
     if (hashmap_oom(current_updates)) {
         errorAbort("[CHUNK] Failed to enqueue block update, hashmap OOM\n");
     }
-    DEBUG_LOG("Enqueued block update\n");
-    IItem* iitem = VCALL(*old_iblock, destroy, drop_item);
+    const VECTOR block_world_pos = chunkBlockToWorldPosition(
+        &block_update.position,
+        CHUNK_SIZE
+    );
+    IItem* iitem = VCALL(
+        *old_iblock,
+        destroy,
+        drop_item,
+        block_world_pos
+    );
     if (iitem != NULL && iitem->self != NULL) {
         cvector_push_back(
             chunk->dropped_items,
@@ -581,7 +587,20 @@ IBlock* chunkModifyVoxelConstructed(Chunk* chunk,
         item_result
     );
     if (result == 2) {
-        VCALL(*iblock, destroy, true);
+        const ChunkBlockPosition cb_pos = (ChunkBlockPosition) {
+            .chunk = chunk->position,
+            .block = *position
+        };
+        const VECTOR world_pos = chunkBlockToWorldPosition(
+            &cb_pos,
+            CHUNK_SIZE
+        );
+        VCALL(
+            *iblock,
+            destroy,
+            true,
+            world_pos
+        );
         return NULL;
     }
     IBlock* return_block = chunk->blocks[chunkBlockIndex(

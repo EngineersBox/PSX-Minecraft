@@ -30,8 +30,8 @@ DEFN_BLOCK_CONSTRUCTOR(air);
 void airBlockInit(VSelf);
 void AirBlock_init(VSelf);
 
-IItem* airBlockDestroy(VSelf, bool drop_item);
-IItem* AirBlock_destroy(VSelf, bool drop_item);
+IItem* airBlockDestroy(VSelf, bool drop_item, const VECTOR block_world_pos);
+IItem* AirBlock_destroy(VSelf, bool drop_item, const VECTOR block_world_pos);
 
 IItem* airBlockProvideItem(VSelf);
 IItem* AirBlock_provideItem(VSelf);

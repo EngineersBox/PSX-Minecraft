@@ -62,8 +62,8 @@ extern Slot crafting_table_slots[slotGroupSize(CRAFTING_TABLE) + slotGroupSize(C
 void craftingTableBlockInit(VSelf);
 void CraftingTableBlock_init(VSelf);
 
-ALLOC_CALL(itemDestroy, 1) IItem* craftingTableBlockDestroy(VSelf, bool drop_item);
-ALLOC_CALL(itemDestroy, 1) IItem* CraftingTableBlock_destroy(VSelf, bool drop_item);
+ALLOC_CALL(itemDestroy, 1) IItem* craftingTableBlockDestroy(VSelf, bool drop_item, const VECTOR block_world_pos);
+ALLOC_CALL(itemDestroy, 1) IItem* CraftingTableBlock_destroy(VSelf, bool drop_item, const VECTOR block_world_pos);
 
 ALLOC_CALL(itemDestroy, 1) IItem* craftingTableBlockProvideItem(VSelf);
 ALLOC_CALL(itemDestroy, 1) IItem* CraftingTableBlock_provideItem(VSelf);
