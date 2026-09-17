@@ -422,6 +422,13 @@ static u32 findClosestBlockBelow(Chunk* chunk,
     }
 }
 
+/**
+ * @brief Modifies a voxel/block at a given position.
+ *
+ * @return 2 if out of bounds,
+ *         1 if existing block destroyed,
+ *         0 if no existing block destroyed
+ */
 static int modifyVoxel0(Chunk* chunk,
                         const VECTOR* position,
                         const IBlock* new_iblock,
