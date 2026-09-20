@@ -184,6 +184,6 @@
 * [X] Instead of just filling in a single direction (line) which can cause blocks to be missed in certain configs (i.e. perpendicular direction was already traversed, stopping the current traversal early and leaving blocks behind the intersection untouched), we can just flood fill the solid part and move on. This ends up being more efficient anyway
 * [X] Merge sun and moon textures into single file and adjust rendering to reference single asset
 * [X] Migrate chunk block update logic to use two maps for current/next updates to avoid multiple-update per-tick issue.
-* [ ] Support other resolutions that aren't 320x240
 * [X] ~~Refactor the `chunkRemoveLightType` call into the `chunkSetLightType` when the light value is `0` and update the necessary logic changes to accomodate this (seems to cause infinite lighting update loops if this is done at the moment)~~ (Not doing this since it makes sense to differentiate removing light versus setting it to 0 when it comes to update propagation)
+* [ ] Support other resolutions that aren't 320x240
 * [ ] Avoid use of two maps in chunk current/next update queuing. Can this be centralised in a single data structure to minimise allocations?
