@@ -129,8 +129,8 @@ ALLOC_CALL(itemDestroy, 1) IItem* furnaceBlockProvideItem(VSelf);
 ALLOC_CALL(itemDestroy, 1) IItem* FurnaceBlock_provideItem(VSelf);
 
 #define FurnaceBlock_update_CUSTOM ()
-BlockUpdateResultBitmap furnaceBlockUpdate(VSelf);
-BlockUpdateResultBitmap FurnaceBlock_update(VSelf);
+BlockUpdateResultBitmap furnaceBlockUpdate(VSelf, const VECTOR block_world_pos);
+BlockUpdateResultBitmap FurnaceBlock_update(VSelf, const VECTOR block_world_pos);
 
 #define FurnaceBlock_useAction_CUSTOM ()
 bool furnaceBlockUseAction(VSelf);

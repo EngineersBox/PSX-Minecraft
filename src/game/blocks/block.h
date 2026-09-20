@@ -16,6 +16,7 @@
 #include "../../ui/components/background.h"
 #include "../../util/inttypes.h"
 #include "../../util/preprocessor.h"
+#include "psxgte.h"
 
 // ==== BLOCK STRUCTURE ====
 
@@ -116,22 +117,22 @@ typedef enum BlockUpdateResult {
     vfunc(void, init, VSelf) \
     vfunc(IItem*, destroy, VSelf, bool drop_item, const VECTOR block_world_pos) \
     /* Updates from world events like redstone */ \
-    vfuncDefault(BlockUpdateResultBitmap, update, VSelf) \
+    vfuncDefault(BlockUpdateResultBitmap, update, VSelf, const VECTOR block_world_pos) \
     /* Player right clicking. True = action consumed, False = action not consumed */ \
     vfuncDefault(bool, useAction, VSelf) \
     /* Can block be placed */ \
-    vfuncDefault(bool, canPlace, VSelf, const World* world, const VECTOR* position, const AABB* player_aabb) \
+    vfuncDefault(bool, canPlace, VSelf, const VECTOR block_world_pos, const AABB* player_aabb) \
     /* Provide an item instance corresponding to this block */ \
     vfunc(IItem*, provideItem, VSelf)
 
-BlockUpdateResultBitmap iblockUpdate(VSelf);
-BlockUpdateResultBitmap IBlock_update(VSelf);
+BlockUpdateResultBitmap iblockUpdate(VSelf, const VECTOR block_world_pos);
+BlockUpdateResultBitmap IBlock_update(VSelf, const VECTOR block_world_pos);
 
 bool iBlockUseAction(VSelf);
 bool IBlock_useAction(VSelf);
 
-bool iBlockCanPlace(VSelf, const World* world, const VECTOR* position, const AABB* player_aabb);
-bool IBlock_canPlace(VSelf, const World* world, const VECTOR* position, const AABB* player_aabb);
+bool iBlockCanPlace(VSelf, const VECTOR block_world_pos, const AABB* player_aabb);
+bool IBlock_canPlace(VSelf, const VECTOR block_world_pos, const AABB* player_aabb);
 
 interface(IBlock);
 

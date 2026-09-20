@@ -2,6 +2,10 @@
 
 #include <psxgte.h>
 
+#include "plane_meshing_data.h"
+#include "../chunk_structure.h"
+#include "../../position.h"
+#include "../../../blocks/blocks.h"
 #include "../../../../logging/logging.h"
 #include "../../../../lighting/lightmap.h"
 #include "../../../../util/interface99_extensions.h"
@@ -12,10 +16,6 @@
 #include "../../../../resources/asset_indices.h"
 #include "../../../../structure/primitive/primitive.h"
 #include "../../../../resources/assets.h"
-#include "../../../blocks/blocks.h"
-#include "../../position.h"
-#include "../chunk_structure.h"
-#include "plane_meshing_data.h"
 
 // Forward declarations
 FWD_DECL typedef struct World World;

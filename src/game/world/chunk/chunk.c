@@ -29,7 +29,7 @@
 #include "heightmap.h"
 #include "meshing/binary_greedy_mesher.h"
 
-i16 chunk_update_limit = 20;
+i16 chunk_update_limit = 30;
 
 // Forward declaration
 FWD_DECL IBlock* worldGetBlock(const World* world, const VECTOR* position);
@@ -900,7 +900,8 @@ void chunkRemoveLightValue(Chunk* chunk,
 
 void chunkUpdateBlockState(Chunk* chunk,
                            const BlockUpdate* update) {
-    const IBlock* block = worldGetChunkBlock(chunk->world, &update->position);
+    const VECTOR world_pos = chunkBlockToWorldPosition(&update->position, CHUNK_SIZE);
+    const IBlock* block = worldGetBlock(chunk->world, &world_pos);
     assert(block != NULL);
     // if (block == NULL) {
     //     // Block has been removed or something.
@@ -909,7 +910,7 @@ void chunkUpdateBlockState(Chunk* chunk,
     //     return;
     // }
     // DEBUG_LOG("Updating block\n");
-    const BlockUpdateResultBitmap result = VCALL(*block, update);
+    const BlockUpdateResultBitmap result = VCALL(*block, update, world_pos);
     if (bitmapGetBit(result, BLOCK_UPDATE_RESULT_REMESH_CHUNK) == 1) {
         DEBUG_LOG("Update trigger remesh\n");
         chunk->mesh_updated = true;
@@ -928,7 +929,7 @@ void chunkUpdateBlockState(Chunk* chunk,
         //       does that, we should retrieve the update from the map first,
         //       updating if it exists, otherwise creating a new entry if it
         //       does not.
-        HashMap* next_updates = chunkGetNextBlockUpdatesMap(chunk);
+        HashMap* next_updates = chunkGetCurrentBlockUpdatesMap(chunk);
         hashmap_set(next_updates, &new_block_update);
         if (hashmap_oom(next_updates)) {
             errorAbort("[CHUNK] Failed to enqueue block update, hashmap OOM\n");
@@ -1258,6 +1259,9 @@ void chunkProcessBlockUpdates(Chunk* chunk,
     size_t iter = 0;
     void* elem;
     HashMap* next_updates = chunkGetCurrentBlockUpdatesMap(chunk);
+    // Swap maps at the start so that any enqueued updates from
+    // the below handlers goes into the next tick
+    chunkSwapCurrentNextUpdatesMap(chunk);
     while (processed_updates < update_limits
             && hashmap_iter(next_updates, &iter, &elem)) {
         BlockUpdate update = *((BlockUpdate*) elem);
@@ -1296,7 +1300,12 @@ void chunkProcessBlockUpdates(Chunk* chunk,
         processed_updates++;
     }
     chunk->lightmap_updated = lightmap_updated;
-    hashmap_clear(next_updates, true);
-    chunkSwapCurrentNextUpdatesMap(chunk);
+    // It's possible we didn't get all the updates in this tick. If
+    // that's the case, we will handle them in future ticks.
+    if (hashmap_count(next_updates) == 0) {
+        // We want to reduce the allocated buffers that back the map
+        // when its empty to save memory.
+        hashmap_clear(next_updates, true);
+    }
 }
 

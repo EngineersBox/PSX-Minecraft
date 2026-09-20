@@ -23,6 +23,8 @@ Timestamp furnace_debounce = 0;
 
 FWD_DECL Chunk* worldGetChunk(const World* world, const VECTOR* position);
 FWD_DECL void worldDropItemStack(World* world, IItem* item, const u8 count);
+FWD_DECL void worldSetLightValue(const World *world, const VECTOR *position, const LightLevel light_value, const LightType light_type);
+FWD_DECL void worldRemoveLightType(const World *world, const VECTOR *position, const LightType light_type);
 
 InputHandlerState furnaceBlockInputHandler(const Input* input, void* ctx);
 static InputHandlerVTable furnaceBlockInputHandlerVTable = {
@@ -195,8 +197,8 @@ static void handleSmelting(FurnaceBlock* furnace) {
     furnace->process_recipe = true;
 }
 
-BlockUpdateResultBitmap furnaceBlockUpdate(VSelf) ALIAS("FurnaceBlock_update");
-BlockUpdateResultBitmap FurnaceBlock_update(VSelf) {
+BlockUpdateResultBitmap furnaceBlockUpdate(VSelf, const VECTOR block_world_pos) ALIAS("FurnaceBlock_update");
+BlockUpdateResultBitmap FurnaceBlock_update(VSelf, const VECTOR block_world_pos) {
     VSELF(FurnaceBlock);
     const bool burning_fuel = handleFuelConsumption(self);
     handleSmelting(self);
@@ -210,8 +212,10 @@ BlockUpdateResultBitmap FurnaceBlock_update(VSelf) {
     self->block.metadata_id = (self->block.orientation - FACE_DIR_LEFT) * 2;
     if (burning_fuel) {
         self->block.metadata_id |= 0b1;
+        worldSetLightValue(world, &block_world_pos, 13, LIGHT_TYPE_BLOCK);
     } else {
         self->block.metadata_id &= ~0b1;
+        worldRemoveLightType(world, &block_world_pos, LIGHT_TYPE_BLOCK);
     }
     if (current_metadata_id != self->block.metadata_id) {
         // When the metadata id has changed, we are using a different

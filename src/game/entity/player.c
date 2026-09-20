@@ -339,7 +339,7 @@ INLINE static void playerInputHandlerUse(const PlayerInputHandlerContext* ctx) {
             }
             IBlock* iblock = block_constructor(iitem, 0);
             const VECTOR place_position = vec3_add(result.pos, result.face);
-            if (!VCALL(*iblock, canPlace, ctx->world, &place_position, &physics_object->aabb)) {
+            if (!VCALL(*iblock, canPlace, place_position, &physics_object->aabb)) {
                 item->stack_size++;
                 VCALL(*iblock, destroy, false, place_position);
                 return;

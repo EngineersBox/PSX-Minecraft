@@ -14,8 +14,8 @@ BlockRenderUIContext block_render_ui_context = {
     .block = NULL
 };
 
-BlockUpdateResultBitmap iblockUpdate(VSelf) ALIAS("IBlock_update");
-BlockUpdateResultBitmap IBlock_update(UNUSED VSelf) {
+BlockUpdateResultBitmap iblockUpdate(VSelf, const VECTOR block_world_pos) ALIAS("IBlock_update");
+BlockUpdateResultBitmap IBlock_update(UNUSED VSelf, UNUSED const VECTOR block_world_pos) {
     return BLOCK_UPDATE_RESULT_RELEASE;
 }
 
@@ -26,17 +26,15 @@ bool IBlock_useAction(UNUSED VSelf) {
 }
 
 bool iBlockCanPlace(VSelf,
-                    const World* world,
-                    const VECTOR* position,
+                    const VECTOR block_world_pos,
                     const AABB* player_aabb) ALIAS("IBlock_canPlace");
 bool IBlock_canPlace(UNUSED VSelf,
-                     UNUSED const World* world,
-                     const VECTOR* position,
+                     const VECTOR block_world_pos,
                      const AABB* player_aabb) {
     const AABB aabb = (AABB) {
-        .min = vec3_const_mul(*position, ONE_BLOCK),
+        .min = vec3_const_mul(block_world_pos, ONE_BLOCK),
         .max = vec3_const_mul(
-            vec3_const_add(*position, 1),
+            vec3_const_add(block_world_pos, 1),
             ONE_BLOCK
         )
     };

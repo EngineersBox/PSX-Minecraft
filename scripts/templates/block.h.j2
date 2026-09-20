@@ -52,8 +52,8 @@ ALLOC_CALL(itemDestroy, 1) IItem* {{ name_lower }}BlockProvideItem(VSelf);
 ALLOC_CALL(itemDestroy, 1) IItem* {{ name_capital }}Block_provideItem(VSelf);
 
 {%- if has_update %}
-BlockUpdateResultBitmap {{ name_lower }}BlockUpdate(VSelf);
-BlockUpdateResultBitmap {{ name_capital }}Block_update(VSelf);
+BlockUpdateResultBitmap {{ name_lower }}BlockUpdate(VSelf, const VECTOR block_world_pos);
+BlockUpdateResultBitmap {{ name_capital }}Block_update(VSelf, const VECTOR block_world_pos);
 {% endif -%}
 {%- if has_use_action %}
 #define {{ name_capital }}Block_useAction_CUSTOM ()
@@ -62,8 +62,8 @@ bool {{ name_capital }}Block_useAction(VSelf);
 {% endif -%}
 {%- if has_can_place %}
 #define {{ name_capital }}Block_canPlace_CUSTOM ()
-bool {{ name_lower }}BlockCanPlace(VSelf, const World* world, const VECTOR* position, const AABB* player_aabb);
-bool {{ name_capital }}Block_canPlace(VSelf, const World* world, const VECTOR* position, const AABB* player_aabb);
+bool {{ name_lower }}BlockCanPlace(VSelf, const VECTOR block_world_pos, const AABB* player_aabb);
+bool {{ name_capital }}Block_canPlace(VSelf, const VECTOR block_world_pos, const AABB* player_aabb);
 {% endif %}
 
 impl(IBlock, {{ name_capital }}Block);
