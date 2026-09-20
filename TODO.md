@@ -124,13 +124,13 @@
 * [X] Depth-first search culling through chunks
 * [X] Generalised chunk block updates, including skylight, blocklight and block state updates
 * [X] Add stack sizes to recipe ingredients in schema and support field generation in script
+* [X] Retrieve face attributes based on block orientation during meshing
 * [ ] World management menu
 * [ ] Create world menu
 * [ ] Options menu
 * [ ] Camera far plane cutoff with fog relative to chunk render distance
 * [ ] Thread scheduler using hardware timers for IRQ interleaved execution (Might be enough to do yield-based context switching and well-designed decomposible operations)
 * [ ] TooManyItems-like overlay in inventory GUI
-* [X] Retrieve face attributes based on block orientation during meshing
 * [ ] Sub-block intersection tests for raycast to handling interacting with blocks like doors and piston heads
 * [ ] If we are breaking a block on the boundary of chunks, we should pass the breaking context to both the target and neighbouring chunk in order for the mesh generation to account for the missing faces on the chunk boundary.
 * [ ] Add support in chunk provider for providing a list of named stages for chunk loading (e.g. gen terrain, prop lighting, construct mesh), then use these for dynamically loading chunks as well as normal world initialisation.
