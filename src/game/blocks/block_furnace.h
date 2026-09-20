@@ -109,10 +109,10 @@ DEFN_BLOCK_CONSTRUCTOR(furnace);
     declareFaceAttributes(62,62,61,45,45,45), /* Left lit */ \
     declareFaceAttributes(62,62,45,44,45,45), /* Right unlit */ \
     declareFaceAttributes(62,62,45,61,45,45), /* Right lit */ \
-    declareFaceAttributes(62,62,45,45,44,45), /* Back unlit */ \
-    declareFaceAttributes(62,62,45,45,61,45), /* Back lit */ \
-    declareFaceAttributes(62,62,45,45,45,44), /* Front unlit */ \
-    declareFaceAttributes(62,62,45,45,45,61)  /* Front lit */ \
+    declareFaceAttributes(62,62,45,45,45,44), /* Back unlit */ \
+    declareFaceAttributes(62,62,45,45,45,61), /* Back lit */ \
+    declareFaceAttributes(62,62,45,45,44,45), /* Front unlit */ \
+    declareFaceAttributes(62,62,45,45,61,45)  /* Front lit */ \
 })
 
 void furnaceBlockInit(VSelf);

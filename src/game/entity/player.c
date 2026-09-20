@@ -361,9 +361,9 @@ INLINE static void playerInputHandlerUse(const PlayerInputHandlerContext* ctx) {
             // no blocks can be placed upwards or downwards in orientation.
             // i.e. no buttons on the ceiling or anything like that.
             block->orientation = faceDirectionClosestNormal(vec3_i32(
-                player->camera->position.vx,
+                player->camera->direction.vx,
                 0, /* No Y axis since block orientation is always horizontal */
-                player->camera->position.vz
+                player->camera->direction.vz
             ));
             // Compute the opposing direction to the camera dominant normal
             // which gives us the orientation the block should face in the

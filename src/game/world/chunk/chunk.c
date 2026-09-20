@@ -1,6 +1,5 @@
 #include "chunk.h"
 
-#include <cube.h>
 #include <inline_c.h>
 #include <stdbool.h>
 #include <string.h>
@@ -1266,7 +1265,6 @@ void chunkProcessBlockUpdates(Chunk* chunk,
             && hashmap_iter(next_updates, &iter, &elem)) {
         BlockUpdate update = *((BlockUpdate*) elem);
         hashmap_delete(next_updates, elem);
-        // DEBUG_LOG("Bitmap: " INT8_BIN_PATTERN "\n", INT8_BIN_LAYOUT(update.type_bitmap));
         if (bitmapGetBit(update.type_bitmap, BLOCK_UPDATE_TYPE_ADD_SKYLIGHT)) {
             chunkUpdateAddSkylight(chunk, &update);
             lightmap_updated = true;
@@ -1288,7 +1286,6 @@ void chunkProcessBlockUpdates(Chunk* chunk,
             bitmapUnsetBit(update.type_bitmap, BLOCK_UPDATE_TYPE_REMOVE_BLOCKLIGHT);
         }
         if (bitmapGetBit(update.type_bitmap, BLOCK_UPDATE_TYPE_STATE)) {
-            // DEBUG_LOG("State update\n");
             chunkUpdateBlockState(chunk, &update);
             bitmapUnsetBit(update.type_bitmap, BLOCK_UPDATE_TYPE_STATE);
         }
