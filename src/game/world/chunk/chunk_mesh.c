@@ -142,7 +142,7 @@ static void renderQuad(const Mesh* mesh,
     //       not uniform (degrades in level each block further away
     //       from source) or are more likely to not be in sunlight
     //       anyway (save for cave entraces or around builds for
-    //       instance) are are more lightly to be affected by chunk
+    //       instance) are more likely to be affected by chunk
     //       boundaries on light maps anyway. So the fact we do the
     //       adjustment of sunlight at each rendered frame is fine
     //       and we really don't gain much from the cost of remeshing
@@ -174,6 +174,10 @@ static void renderQuad(const Mesh* mesh,
     gte_strgb(&pol4->r0);
     gte_avsz4();
     gte_stotz(&p);
+    if (p <= 0 || p >= ORDERING_TABLE_LENGTH) {
+        freePrimitive(ctx, sizeof(POLY_FT4));
+        return;
+    }
     // Set texture coords and dimensions
     setUVWH(
         pol4,

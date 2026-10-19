@@ -7,6 +7,7 @@
 #include <psxgte.h>
 
 #include "../util/inttypes.h"
+#include "../util/preprocessor.h"
 #include "fixed_point.h"
 
 /**
@@ -116,11 +117,12 @@
     _v * sign(_v); \
 })
 
-#define positiveModulo(i, n) ({ \
-    __typeof__(n) _n = (n); \
-    i32 m = (i) % _n; \
-    m + ((m >> 31) & _n); \
-})
+INLINE u32 positiveModulo(const i32 value, const u32 m) {
+    i32 mod = value % (i32) m;
+    if (mod < 0) mod += m;
+    return mod;
+}
+
 
 #define _isPowerOf2(x) (((_x) & ((_x) - 1)) == 0)
 #define isPowerOf2(x) ({ \

@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef PSXMC_TEXTURE_H
-#define PSXMC_TEXTURE_H
+#ifndef PSXMC__RESOURCES__TEXTURE_H
+#define PSXMC__RESOURCES__TEXTURE_H
 
 #include <psxgte.h>
 #include <psxgpu.h>
@@ -75,7 +75,7 @@ tilePrimOffsetX = tpOffsetX>>3
 tilePrimOffsetY = tpOffsetY>>3
 tilePrim = (0xE20<<20) + (tilePrimOffsetY<<15) + (tilePrimOffsetX<<10) + (tilePrimY<<5) + (tilePrimX)
  */
-typedef RECT TextureWindow ;
+typedef RECT TextureWindow;
 
 #define textureWindowOffset(coord) (((coord) >> 3) & 0b11111)
 
@@ -100,4 +100,4 @@ typedef RECT TextureWindow ;
     v \
 )
 
-#endif // PSXMC_TEXTURE_H
+#endif // PSXMC__RESOURCES__TEXTURE_H

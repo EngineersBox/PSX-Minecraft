@@ -711,6 +711,7 @@ static MeshPrimitive* createPrimitive(ChunkMesh* mesh,
     primitive->tv0 = attributes->v;
     primitive->tu1 = BLOCK_TEXTURE_SIZE * width;
     primitive->tv1 = BLOCK_TEXTURE_SIZE * height;
+    // NOTE: cd field is used as a marker to determine if a custom tint exists or not
     const CVECTOR tint = attributes->tint.cd
         ? attributes->tint
         : vec3_rgb(0xFF, 0xFF, 0xFF);

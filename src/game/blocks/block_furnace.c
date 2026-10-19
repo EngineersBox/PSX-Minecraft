@@ -50,12 +50,7 @@ DEFN_BLOCK_CONSTRUCTOR_IMPL_STATEFUL(furnace) {
 void furnaceBlockInit(VSelf) ALIAS("FurnaceBlock_init");
 void FurnaceBlock_init(VSelf) {
     VSELF(FurnaceBlock);
-    self->block = declareBlock(
-        BLOCKID_FURNACE,
-        .light_level = 0,
-        .orientation = FACE_DIR_FRONT,
-        ._pad = 0
-    );
+    self->block = declareBlock(BLOCKID_FURNACE);
     self->cook_ticks = 0;
     self->fuel_burn_ticks = 0;
     self->fuel_burn_ticks_start = 0;
