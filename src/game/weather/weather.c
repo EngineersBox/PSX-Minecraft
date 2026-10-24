@@ -124,12 +124,14 @@ void weatherRender(const World* world,
             //       UV offsets randomised for each block position, but still
             //       consistent across then entire world.
             srand(x * x * 3121 + x * 45238971 + z * z * 418711 + z * 13761);
-            const u32 shift = positiveModulo(render_ticks + 1 + rand(), WEATHER_TEXTURE_HEIGHT);
-            u32 u_rand_offset = positiveModulo(rand(), 48) + (64 * (shift >= (WEATHER_TEXTURE_HEIGHT >> 1)));
+            const u32 shift = positiveModulo(render_ticks + rand(), WEATHER_TEXTURE_HEIGHT);
+            u32 u = positiveModulo(rand(), (WEATHER_TEXTURE_HALF_WIDTH - (BLOCK_TEXTURE_SIZE * 2)))
+                + ((WEATHER_TEXTURE_HALF_WIDTH >> 1) * (shift >= (WEATHER_TEXTURE_HEIGHT >> 1)));
             if (current_is_snow) {
-                u_rand_offset += WEATHER_TEXTURE_HALF_WIDTH;
+                u += WEATHER_TEXTURE_HALF_WIDTH;
             }
-            const u32 v_rand_offset = WEATHER_TEXTURE_HEIGHT - (y_top - y_bottom) - (shift % (WEATHER_TEXTURE_HEIGHT >> 1));
+            const u32 h = (y_top - y_bottom) * BLOCK_TEXTURE_SIZE;
+            const u32 v = WEATHER_TEXTURE_HEIGHT - h - (shift % (WEATHER_TEXTURE_HEIGHT >> 1));
             // DEBUG_LOG("x:%d,z:%d v_rand_offset:%d\n", x, z, v_rand_offset);
             const bool x_dir = x >= player_pos.vx;
             SVECTOR vertices[4];
@@ -163,10 +165,10 @@ void weatherRender(const World* world,
             if (pol4 != NULL) {
                 setUVWH(
                     pol4,
-                    u_rand_offset,
-                    v_rand_offset,
-                    BLOCK_TEXTURE_SIZE,
-                    BLOCK_TEXTURE_SIZE * (y_top - y_bottom)
+                    u,
+                    v,
+                    BLOCK_TEXTURE_SIZE * 2,
+                    h
                 );
                 // Bind texture page and colour look-up-table
                 pol4->tpage = texture->tpage;
@@ -218,10 +220,10 @@ void weatherRender(const World* world,
             if (pol4 != NULL) {
                 setUVWH(
                     pol4,
-                    u_rand_offset,
-                    v_rand_offset,
-                    BLOCK_TEXTURE_SIZE,
-                    BLOCK_TEXTURE_SIZE * (y_top - y_bottom)
+                    u,
+                    v,
+                    BLOCK_TEXTURE_SIZE * 2,
+                    h
                 );
                 // Bind texture page and colour look-up-table
                 pol4->tpage = texture->tpage;
@@ -244,7 +246,7 @@ void weatherRender(const World* world,
             }
         }
     }
-    render_ticks = (render_ticks + 4) % WEATHER_TEXTURE_HEIGHT;
+    render_ticks = (render_ticks + WEATHER_TICK_RATE) % WEATHER_TEXTURE_HEIGHT;
     renderCtxUnbindMatrix();
 }
 
