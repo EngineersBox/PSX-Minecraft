@@ -102,6 +102,7 @@ void weatherRender(const World* world,
         &VEC3_I16_ZERO,
         &VEC3_I32_ZERO
     );
+    const u32 w = BLOCK_TEXTURE_SIZE * 2;
     for (i32 x = player_pos.vx - WEATHER_RENDER_RADIUS; x <= player_pos.vx + WEATHER_RENDER_RADIUS; x++) {
         for (i32 z = player_pos.vz - WEATHER_RENDER_RADIUS; z <= player_pos.vz + WEATHER_RENDER_RADIUS; z++) {
             const VECTOR pos = vec3_i32(x, 0, z);
@@ -123,14 +124,14 @@ void weatherRender(const World* world,
             // NOTE: Magic numbers:                                   
             //       UV offsets randomised for each block position, but still
             //       consistent across then entire world.
+            const u32 h = (y_top - y_bottom) * BLOCK_TEXTURE_SIZE;
             srand(x * x * 3121 + x * 45238971 + z * z * 418711 + z * 13761);
             const u32 shift = positiveModulo(render_ticks + rand(), WEATHER_TEXTURE_HEIGHT);
-            u32 u = positiveModulo(rand(), (WEATHER_TEXTURE_HALF_WIDTH - (BLOCK_TEXTURE_SIZE * 2)))
+            u32 u = positiveModulo(rand(), (WEATHER_TEXTURE_HALF_WIDTH - w))
                 + ((WEATHER_TEXTURE_HALF_WIDTH >> 1) * (shift >= (WEATHER_TEXTURE_HEIGHT >> 1)));
             if (current_is_snow) {
                 u += WEATHER_TEXTURE_HALF_WIDTH;
             }
-            const u32 h = (y_top - y_bottom) * BLOCK_TEXTURE_SIZE;
             const u32 v = WEATHER_TEXTURE_HEIGHT - h - (shift % (WEATHER_TEXTURE_HEIGHT >> 1));
             // DEBUG_LOG("x:%d,z:%d v_rand_offset:%d\n", x, z, v_rand_offset);
             const bool x_dir = x >= player_pos.vx;
@@ -167,7 +168,7 @@ void weatherRender(const World* world,
                     pol4,
                     u,
                     v,
-                    BLOCK_TEXTURE_SIZE * 2,
+                    w,
                     h
                 );
                 // Bind texture page and colour look-up-table
@@ -222,7 +223,7 @@ void weatherRender(const World* world,
                     pol4,
                     u,
                     v,
-                    BLOCK_TEXTURE_SIZE * 2,
+                    w,
                     h
                 );
                 // Bind texture page and colour look-up-table
