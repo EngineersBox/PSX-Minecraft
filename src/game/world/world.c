@@ -121,22 +121,10 @@ void worldInit(World* world, RenderContext* ctx) {
         .storm_strength = 0,
         .rain_time_ticks = 0,
         .storm_time_ticks = 0,
-        .raining = true,
+        .raining = false,
         .storming = false,
     };
     cvector_init(render_queue, 0, NULL);
-    // FIXME: Seems like the PSn00bSDK/libpsn00b/libc/memset.s
-    //        implementation reads uninitialised memory because
-    //        of it's use of the swr instruction variant with no
-    //        constant source or address values:
-    //        swr   $a1, 0($a0)
-    //        which PCSX-Redux implements this by first reading
-    //        from the aligned address $0, mutate the 1-4 bytes in
-    //        the low (right) end of the value, then write it back.
-    //        As such it invokes call(read32Wrapper) which ends up
-    //        hitting PCSX::Memory::read32, then msanGetStatus and
-    //        thus the error message + breakpoint.
-    //        PCSX-Redux GitHub issue: https://github.com/grumpycoders/pcsx-redux/issues/1928
     memset(
         world->heightmap,
         '\0',
