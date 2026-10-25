@@ -14,6 +14,7 @@
 #define createLightLevel(block, sky) ((((block) << 4) & LIGHT_BLOCK_MASK) | ((sky) & LIGHT_SKY_MASK))
 // ((4096 << 12) / (16 << 12))
 #define SCALE_PER_LIGHT_LEVEL 256
+#define LIGHT_LEVEL_MAX 15
 
 typedef u8 LightLevel;
 typedef LightLevel LightMap[CHUNK_DATA_SIZE];
