@@ -187,3 +187,4 @@
 * [X] ~~Refactor the `chunkRemoveLightType` call into the `chunkSetLightType` when the light value is `0` and update the necessary logic changes to accomodate this (seems to cause infinite lighting update loops if this is done at the moment)~~ (Not doing this since it makes sense to differentiate removing light versus setting it to 0 when it comes to update propagation)
 * [ ] Support other resolutions that aren't 320x240
 * [ ] Avoid use of two maps in chunk current/next update queuing. Can this be centralised in a single data structure to minimise allocations?
+* [ ] Rework meshing and lighting updates to be more efficient. Lots of overhead currently that causes a lag spike on each block place/break. Placing seems more expensive, so it might be the lighting system that needs work.
