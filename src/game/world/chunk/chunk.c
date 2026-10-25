@@ -28,8 +28,6 @@
 #include "heightmap.h"
 #include "meshing/binary_greedy_mesher.h"
 
-i16 chunk_update_limit = 30;
-
 // Forward declaration
 FWD_DECL IBlock* worldGetBlock(const World* world, const VECTOR* position);
 IBlock* worldGetChunkBlock(const World* world, const ChunkBlockPosition* position);
@@ -140,7 +138,6 @@ void chunkClearMesh(Chunk* chunk) {
 
 INLINE static void chunkGenerateMeshWithBreakingState(Chunk* chunk, const BreakingState* breaking_state) {
     binaryGreedyMesherBuildMesh(chunk, breaking_state);
-    chunk->mesh_updated = true;
 }
 
 void chunkGenerateMesh(Chunk* chunk) {
@@ -761,27 +758,24 @@ void chunkUpdate(Chunk* chunk, const Player* player, BreakingState* breaking_sta
         updateItemChunkOwnership(chunk, dropped, i);
         i++;
     }
-    chunkProcessBlockUpdates(chunk, chunk_update_limit);
+    chunkProcessBlockUpdates(chunk, CHUNK_UPDATES_PER_TICK);
     if (breaking_state != NULL) {
         if (breaking_state->chunk_remesh_trigger) {
             // (In meshing) if the block matches the breaking state ensure it has unique mesh primitives
             // with correct tpage and texture window into the render target
-            chunkClearMesh(chunk);
             chunkGenerateMeshWithBreakingState(chunk, breaking_state);
             breaking_state->chunk_remesh_trigger = false;
-            chunk->mesh_updated = false;
-            chunk->lightmap_updated = false;
+            chunk->mesh_updated = true;
         }
         if (breaking_state->reset_trigger) {
-            chunkClearMesh(chunk);
-            chunkGenerateMesh(chunk);
             breakingStateReset(*breaking_state);
-            chunk->mesh_updated = false;
-            chunk->lightmap_updated = false;
+            breaking_state = NULL;
+            chunk->mesh_updated = true;
         }
-    } else if (chunk->mesh_updated || chunk->lightmap_updated) {
+    }
+    if (chunk->mesh_updated || chunk->lightmap_updated) {
         chunkClearMesh(chunk);
-        chunkGenerateMesh(chunk);
+        chunkGenerateMeshWithBreakingState(chunk, breaking_state);
         chunk->mesh_updated = false;
         chunk->lightmap_updated = false;
     }
@@ -1251,8 +1245,7 @@ void chunkUpdateRemoveSkylight(Chunk* chunk,
     }
 }
 
-void chunkProcessBlockUpdates(Chunk* chunk,
-                              const i16 update_limits) {
+void chunkProcessBlockUpdates(Chunk* chunk, const i16 update_limits) {
     bool lightmap_updated = false;
     i16 processed_updates = 0;
     size_t iter = 0;
@@ -1261,35 +1254,39 @@ void chunkProcessBlockUpdates(Chunk* chunk,
     // Swap maps at the start so that any enqueued updates from
     // the below handlers goes into the next tick
     chunkSwapCurrentNextUpdatesMap(chunk);
-    while (processed_updates < update_limits
+    while (processed_updates < update_limits 
             && hashmap_iter(next_updates, &iter, &elem)) {
         BlockUpdate update = *((BlockUpdate*) elem);
         hashmap_delete(next_updates, elem);
-        if (bitmapGetBit(update.type_bitmap, BLOCK_UPDATE_TYPE_ADD_SKYLIGHT)) {
-            chunkUpdateAddSkylight(chunk, &update);
-            lightmap_updated = true;
-            bitmapUnsetBit(update.type_bitmap, BLOCK_UPDATE_TYPE_ADD_SKYLIGHT);
-        }
-        if (bitmapGetBit(update.type_bitmap, BLOCK_UPDATE_TYPE_REMOVE_SKYLIGHT)) {
-            chunkUpdateRemoveSkylight(chunk, &update);
-            lightmap_updated = true;
-            bitmapUnsetBit(update.type_bitmap, BLOCK_UPDATE_TYPE_REMOVE_SKYLIGHT);
-        }
-        if (bitmapGetBit(update.type_bitmap, BLOCK_UPDATE_TYPE_ADD_BLOCKLIGHT)) {
-            chunkUpdateAddBlockLight(chunk, &update);
-            lightmap_updated = true;
-            bitmapUnsetBit(update.type_bitmap, BLOCK_UPDATE_TYPE_ADD_BLOCKLIGHT);
-        }
-        if (bitmapGetBit(update.type_bitmap, BLOCK_UPDATE_TYPE_REMOVE_BLOCKLIGHT)) {
-            chunkUpdateRemoveBlockLight(chunk, &update);
-            lightmap_updated = true;
-            bitmapUnsetBit(update.type_bitmap, BLOCK_UPDATE_TYPE_REMOVE_BLOCKLIGHT);
-        }
-        if (bitmapGetBit(update.type_bitmap, BLOCK_UPDATE_TYPE_STATE)) {
-            chunkUpdateBlockState(chunk, &update);
-            bitmapUnsetBit(update.type_bitmap, BLOCK_UPDATE_TYPE_STATE);
-        }
-        assert(update.type_bitmap == 0);
+        BlockUpdateType block_update_type = BLOCK_UPDATE_TYPE_ADD_SKYLIGHT;
+        do {
+            if ((update.type_bitmap & 0b1) == 0) {
+                block_update_type++;
+                continue;
+            }
+            switch (block_update_type) {
+                case BLOCK_UPDATE_TYPE_ADD_SKYLIGHT:
+                    chunkUpdateAddSkylight(chunk, &update);
+                    lightmap_updated = true;
+                    break;
+                case BLOCK_UPDATE_TYPE_REMOVE_SKYLIGHT:
+                    chunkUpdateRemoveSkylight(chunk, &update);
+                    lightmap_updated = true;
+                    break;
+                case BLOCK_UPDATE_TYPE_ADD_BLOCKLIGHT:
+                    chunkUpdateAddBlockLight(chunk, &update);
+                    lightmap_updated = true;
+                    break;
+                case BLOCK_UPDATE_TYPE_REMOVE_BLOCKLIGHT:
+                    chunkUpdateRemoveBlockLight(chunk, &update);
+                    lightmap_updated = true;
+                    break;
+                case BLOCK_UPDATE_TYPE_STATE:
+                    chunkUpdateBlockState(chunk, &update);
+                    break;
+            }
+            block_update_type++;
+        } while ((update.type_bitmap >>= 1) != 0);
         // Need to reset cursor as mandated by hashmap_iter docstring.
         // Doesn't impact this loop since removing and element doesn't
         // Change the rest of the items we need to process

@@ -11,9 +11,6 @@
 #include "../../blocks/block.h"
 #include "../../../lighting/lightmap.h"
 
-// Number of updates each tick, -1 == unlimited
-extern i16 chunk_update_limit;
-
 #define chunkBlockIndex(x, y, z) ((z) + ((y) * CHUNK_SIZE) + ((x) * CHUNK_SIZE * CHUNK_SIZE))
 #define chunkBlockIndexOOB(x, y, z) ((x) >= CHUNK_SIZE || (x) < 0 \
 	|| (y) >= CHUNK_SIZE || (y) < 0 \
