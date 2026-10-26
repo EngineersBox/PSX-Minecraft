@@ -177,7 +177,7 @@ void worldInit(World* world, RenderContext* ctx) {
     for (i32 x = x_start; x <= x_end; x++) {
         for (i32 z = z_start; z <= z_end; z++) {
             for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
-                DEBUG_LOG("Generating Lightmap\n", x, 0, z);
+                DEBUG_LOG("[%d,%d,%d] Generating Lightmap\n", x, 0, z);
                 const u16 array_x = arrayCoord(world, vx, x);
                 const u16 array_z = arrayCoord(world, vz, z);
                 Chunk* chunk = world->chunks[array_z][array_x][y];
@@ -190,7 +190,7 @@ void worldInit(World* world, RenderContext* ctx) {
     for (i32 x = x_start; x <= x_end; x++) {
         for (i32 z = z_start; z <= z_end; z++) {
             for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
-                DEBUG_LOG("Propagating Light\n", x, 0, z);
+                DEBUG_LOG("[%d,%d,%d] Propagating Light\n", x, 0, z);
                 const u16 array_x = arrayCoord(world, vx, x);
                 const u16 array_z = arrayCoord(world, vz, z);
                 Chunk* chunk = world->chunks[array_z][array_x][y];
@@ -203,10 +203,10 @@ void worldInit(World* world, RenderContext* ctx) {
     for (i32 x = x_start; x <= x_end; x++) {
         for (i32 z = z_start; z <= z_end; z++) {
             for (i32 y = 0; y < WORLD_CHUNKS_HEIGHT; y++) {
-                DEBUG_LOG("Processing Block/Light Updates\n", x, 0, z);
-           Chunk* chunk = world->chunks[arrayCoord(world, vz, z)]
-                                       [arrayCoord(world, vx, x)]
-                                       [y];
+                DEBUG_LOG("[%d,%d,%d] Processing Block/Light Updates\n", x, 0, z);
+                Chunk* chunk = world->chunks[arrayCoord(world, vz, z)]
+                                            [arrayCoord(world, vx, x)]
+                                            [y];
                 chunkProcessBlockUpdates(chunk, -1);
                 displayProgress(ctx, &bar, x, y, z, "Processing Block/Light Updates");
             }
@@ -567,8 +567,8 @@ INLINE bool worldIsOutsideBounds(const World* world, const ChunkBlockPosition* p
 /**
  * TODO: Explain this with doc:
  *       1. Two opposing verts cover visible range to direction vector quadrant
- *       2. Naievly encoded as array of vertex offsets from chunk base coord
- *       3. Compressed into u8 for each set of offets per-quadrant
+ *       2. Naievly encoded as array of vertex offsets from chunk coord
+ *       3. Compressed into u8 for each set of offsets per-quadrant
  *       4. Compressed into single u16, shifted with quadrant index
  */
 //                                       +Q3++Q2++Q1++Q0+
@@ -1184,8 +1184,8 @@ void worldUpdateWeather(Weather* weather) {
             weather->raining = !weather->raining;
         }
     }
-    const fixedi16 rain_strength = weather->rain_strength
-        + (weather->raining ? WEATHER_STRENGTH_INCREMENT : -WEATHER_STRENGTH_INCREMENT);
+    const fixedi16 rain_strength = weather->rain_strength +
+        (weather->raining ? WEATHER_STRENGTH_INCREMENT : -WEATHER_STRENGTH_INCREMENT);
     weather->rain_strength = clamp(rain_strength, 0, ONE);
 }
 
@@ -1569,14 +1569,6 @@ INLINE Heightmap* worldGetHeightmap(World* world) {
     return &world->heightmap;
 }
 
-#define capYPosToWorldHeightSpan(y) max( \
-    0, \
-    min( \
-        WORLD_HEIGHT - 1, \
-        y \
-    ) \
-)
-
 void worldDropItemStack(World* world,
                           IItem* iitem,
                           const u8 count) {
@@ -1592,8 +1584,8 @@ void worldDropItemStack(World* world,
         ),
         ONE_BLOCK
     );
-    player_block_pos.vy = capYPosToWorldHeightSpan(player_block_pos.vy);
-#undef capYPosToWorldHeightSpan
+    // Cap pos to world height bounds
+    player_block_pos.vy = max(0, min(WORLD_HEIGHT - 1, player_block_pos.vy));
     Chunk* chunk = worldGetChunk(world, &player_block_pos);
     assert(chunk != NULL);
     Item* item = VCAST_PTR(Item*, iitem);

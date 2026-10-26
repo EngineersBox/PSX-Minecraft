@@ -179,6 +179,7 @@ typedef IBlock* (*BlockConstructor)(IItem* from_item, MAYBE_UNUSED u8 metadata_i
     .metadata_id = 0, \
     .light_level = 0, \
     .orientation = (FaceDirection) FACE_DIR_RIGHT, \
+    ._pad = 0, \
     __VA_ARGS__ \
 })
 

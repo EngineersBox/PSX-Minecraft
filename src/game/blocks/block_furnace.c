@@ -17,6 +17,7 @@
 #include "../../ui/components/cursor.h"
 #include "../../util/bits.h"
 #include "../../util/interface99_extensions.h"
+#include "../../util/memory.h"
 
 static Texture furnace_texture = {0};
 Timestamp furnace_debounce = 0;
@@ -42,6 +43,7 @@ DEFN_BLOCK_CONSTRUCTOR_IMPL_STATEFUL(furnace) {
     }
     IBlock* iblock = iblockCreate();
     FurnaceBlock* furnace_block = malloc(sizeof(FurnaceBlock));
+    zeroed(furnace_block);
     DYN_PTR(iblock, FurnaceBlock, IBlock, furnace_block);
     VCALL(*iblock, init);
     return iblock;
@@ -51,15 +53,16 @@ void furnaceBlockInit(VSelf) ALIAS("FurnaceBlock_init");
 void FurnaceBlock_init(VSelf) {
     VSELF(FurnaceBlock);
     self->block = declareBlock(BLOCKID_FURNACE);
-    self->cook_ticks = 0;
     self->fuel_burn_ticks = 0;
     self->fuel_burn_ticks_start = 0;
+    self->cook_ticks = 0;
+    self->recipe_changed = false;
+    self->_pad = 0;
+    self->process_recipe = false;
     self->recipe = (RecipeSearchResult) {
         .results = (RecipeResults) {0},
         .processing_ticks = 0
     };
-    self->recipe_changed = false;
-    self->process_recipe = false;
     self->slots[slotGroupIndexOffset(FURNACE_INPUT)] = createSlotInline(FURNACE_INPUT, 0, 0);
     self->slots[slotGroupIndexOffset(FURNACE_FUEL)] = createSlotInline(FURNACE_FUEL, 0, 0);
     self->slots[slotGroupIndexOffset(FURNACE_OUTPUT)] = createSlotInline(FURNACE_OUTPUT, 0, 0);
