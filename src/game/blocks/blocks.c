@@ -3,6 +3,7 @@
 #include "../../util/interface99_extensions.h"
 #include "../../logging/logging.h"
 #include "block.h"
+#include "block_chest.h"
 #include "block_furnace.h"
 #include "block_plank.h"
 
@@ -107,6 +108,7 @@ DECL_BLOCK(CobblestoneBlock, COBBLESTONE, 1, cobblestoneBlockFaceAttrbutes());
 DECL_BLOCK(PlankBlock, PLANK, 1, plankBlockFaceAttributes());
 DECL_BLOCK(CraftingTableBlock, CRAFTING_TABLE, 1, craftingTableBlockFaceAttributes());
 DECL_BLOCK(FurnaceBlock, FURNACE, 8, furnaceBlockFaceAttributes());
+DECL_BLOCK(ChestBlock, CHEST, 12, chestBlockFaceAttributes());
 
 void blocksInitialiseBuiltin() {
     initBlockSingleton(
@@ -138,6 +140,7 @@ void blocksInitialiseBuiltin() {
         craftingTableBlockCreateAttributes(), craftingTableBlockCreate
     );
     initBlockStateful(FURNACE, furnaceBlockCreateAttributes(), furnaceBlockCreate);
+    initBlockStateful(CHEST, chestBlockCreateAttributes(), chestBlockCreate);
 }
 
 bool blockCanHarvest(const ToolType block_tool_type,

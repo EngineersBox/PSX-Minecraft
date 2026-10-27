@@ -14,6 +14,7 @@
 #include "blocks/item_block_plank.h"
 #include "blocks/item_block_crafting_table.h"
 #include "blocks/item_block_furnace.h"
+#include "blocks/item_block_chest.h"
 
 #define DEBUG_ITEM_ID_CHECK 1
 

@@ -1,5 +1,6 @@
 #include "items.h"
 
+#include "blocks/item_block_chest.h"
 #include "blocks/item_block_cobblestone.h"
 #include "blocks/item_block_crafting_table.h"
 #include "blocks/item_block_dirt.h"
@@ -25,6 +26,7 @@ ItemConstructor item_constructors[ITEM_COUNT] = {
     [ITEMID_PLANK]=itemConstructor(plank),
     [ITEMID_CRAFTING_TABLE]=itemConstructor(craftingTable),
     [ITEMID_FURNACE]=itemConstructor(furnace),
+    [ITEMID_CHEST]=itemConstructor(chest),
 };
 ItemAttributes item_attributes[ITEM_COUNT] = {
     [ITEMID_AIR]={0},
@@ -35,6 +37,7 @@ ItemAttributes item_attributes[ITEM_COUNT] = {
     [ITEMID_PLANK]=plankItemBlockAttributes(),
     [ITEMID_CRAFTING_TABLE]=craftingTableItemBlockAttributes(),
     [ITEMID_FURNACE]=furnaceItemBlockAttributes(),
+    [ITEMID_CHEST]=chestItemBlockAttributes(),
 };
 
 // #define initItem(id, constructor, attributes) ({
