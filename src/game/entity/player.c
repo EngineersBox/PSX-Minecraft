@@ -308,7 +308,7 @@ INLINE static void playerInputHandlerUse(const PlayerInputHandlerContext* ctx) {
     Hotbar* hotbar = VCAST_PTR(Hotbar*, &player->hotbar);
     Slot* slot = &hotbarGetSelectSlot(hotbar);
     IItem* iitem = slot->data.item;
-    if (result.block != NULL && !crouching && VCALL(*result.block, useAction)) {
+    if (result.block != NULL && !crouching && VCALL(*result.block, useAction, result.pos)) {
         return;
     }
     if (iitem == NULL) {
@@ -401,7 +401,7 @@ block_update:
     if (crouching) {
         // Event is consumed so we don't try to invoke the tool usage
         // on this block
-        VCALL(*result.block, useAction);
+        VCALL(*result.block, useAction, result.pos);
     }
 }
 

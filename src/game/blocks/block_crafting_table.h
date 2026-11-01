@@ -69,8 +69,8 @@ ALLOC_CALL(itemDestroy, 1) IItem* craftingTableBlockProvideItem(VSelf);
 ALLOC_CALL(itemDestroy, 1) IItem* CraftingTableBlock_provideItem(VSelf);
 
 #define CraftingTableBlock_useAction_CUSTOM ()
-bool craftingTableBlockUseAction(VSelf);
-bool CraftingTableBlock_useAction(VSelf);
+bool craftingTableBlockUseAction(VSelf, const VECTOR block_world_pos);
+bool CraftingTableBlock_useAction(VSelf, const VECTOR block_world_pos);
 
 void craftingTableBlockRenderUI(RenderContext* ctx, Transforms* transforms);
 

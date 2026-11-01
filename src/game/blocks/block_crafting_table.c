@@ -249,8 +249,8 @@ InputHandlerState craftingTableBlockInputHandler(const Input* input, UNUSED void
     return INPUT_HANDLER_RETAIN;
 }
 
-bool craftingTableBlockUseAction(VSelf) ALIAS("CraftingTableBlock_useAction");
-bool CraftingTableBlock_useAction(VSelf) {
+bool craftingTableBlockUseAction(VSelf, const VECTOR block_world_pos) ALIAS("CraftingTableBlock_useAction");
+bool CraftingTableBlock_useAction(VSelf, const VECTOR block_world_pos) {
     VSELF(CraftingTableBlock);
     block_input_handler_context.block = (Block*) self;
     inputSetFocusedHandler(&input, &craftingTableBlockInputHandlerVTable);

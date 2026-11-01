@@ -133,8 +133,8 @@ BlockUpdateResultBitmap furnaceBlockUpdate(VSelf, const VECTOR block_world_pos);
 BlockUpdateResultBitmap FurnaceBlock_update(VSelf, const VECTOR block_world_pos);
 
 #define FurnaceBlock_useAction_CUSTOM ()
-bool furnaceBlockUseAction(VSelf);
-bool FurnaceBlock_useAction(VSelf);
+bool furnaceBlockUseAction(VSelf, const VECTOR block_world_pos);
+bool FurnaceBlock_useAction(VSelf, const VECTOR block_world_pos);
 
 void furnaceBlockRenderUI(RenderContext* ctx, Transforms* transforms);
 

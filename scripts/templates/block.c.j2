@@ -51,8 +51,8 @@ BlockUpdateResultBitmap {{ name_capital }}Block_update(VSelf, const VECTOR block
 {% endif %}
 {%- if has_use_action %}
 
-bool {{ name_lower }}BlockUseAction(VSelf) ALIAS("{{ name_capital }}Block_useAction");
-bool {{ name_capital }}Block_useAction(VSelf) {
+bool {{ name_lower }}BlockUseAction(VSelf, const VECTOR block_world_pos) ALIAS("{{ name_capital }}Block_useAction");
+bool {{ name_capital }}Block_useAction(VSelf, const VECTOR block_world_pos) {
     UNIMPLEMENTED();
     return false;
 }

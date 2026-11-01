@@ -119,7 +119,7 @@ typedef enum BlockUpdateResult {
     /* Updates from world events like redstone */ \
     vfuncDefault(BlockUpdateResultBitmap, update, VSelf, const VECTOR block_world_pos) \
     /* Player right clicking. True = action consumed, False = action not consumed */ \
-    vfuncDefault(bool, useAction, VSelf) \
+    vfuncDefault(bool, useAction, VSelf, const VECTOR block_world_pos) \
     /* Can block be placed */ \
     vfuncDefault(bool, canPlace, VSelf, const VECTOR block_world_pos, const AABB* player_aabb) \
     /* Provide an item instance corresponding to this block */ \
@@ -128,8 +128,8 @@ typedef enum BlockUpdateResult {
 BlockUpdateResultBitmap iblockUpdate(VSelf, const VECTOR block_world_pos);
 BlockUpdateResultBitmap IBlock_update(VSelf, const VECTOR block_world_pos);
 
-bool iBlockUseAction(VSelf);
-bool IBlock_useAction(VSelf);
+bool iBlockUseAction(VSelf, const VECTOR block_world_pos);
+bool IBlock_useAction(VSelf, const VECTOR block_world_pos);
 
 bool iBlockCanPlace(VSelf, const VECTOR block_world_pos, const AABB* player_aabb);
 bool IBlock_canPlace(VSelf, const VECTOR block_world_pos, const AABB* player_aabb);

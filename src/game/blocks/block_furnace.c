@@ -19,13 +19,13 @@
 #include "../../util/interface99_extensions.h"
 #include "../../util/memory.h"
 
-static Texture furnace_texture = {0};
-Timestamp furnace_debounce = 0;
-
 FWD_DECL Chunk* worldGetChunk(const World* world, const VECTOR* position);
 FWD_DECL void worldDropItemStack(World* world, IItem* item, const u8 count);
 FWD_DECL void worldSetLightValue(const World *world, const VECTOR *position, const LightLevel light_value, const LightType light_type);
 FWD_DECL void worldRemoveLightType(const World *world, const VECTOR *position, const LightType light_type);
+
+static Texture furnace_texture = {0};
+Timestamp furnace_debounce = 0;
 
 InputHandlerState furnaceBlockInputHandler(const Input* input, void* ctx);
 static InputHandlerVTable furnaceBlockInputHandlerVTable = {
@@ -390,8 +390,8 @@ InputHandlerState furnaceBlockInputHandler(const Input* input, UNUSED void* ctx)
     return INPUT_HANDLER_RETAIN;
 }
 
-bool furnaceBlockUseAction(VSelf) ALIAS("FurnaceBlock_useAction");
-bool FurnaceBlock_useAction(VSelf) {
+bool furnaceBlockUseAction(VSelf, const VECTOR block_world_pos) ALIAS("FurnaceBlock_useAction");
+bool FurnaceBlock_useAction(VSelf, UNUSED const VECTOR block_world_pos) {
     VSELF(FurnaceBlock);
     block_input_handler_context.block = (Block*) self;
     inputSetFocusedHandler(&input, &furnaceBlockInputHandlerVTable);

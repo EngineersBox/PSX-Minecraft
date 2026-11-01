@@ -19,8 +19,8 @@ BlockUpdateResultBitmap IBlock_update(UNUSED VSelf, UNUSED const VECTOR block_wo
     return BLOCK_UPDATE_RESULT_RELEASE;
 }
 
-bool iBlockUseAction(VSelf) ALIAS("IBlock_useAction");
-bool IBlock_useAction(UNUSED VSelf) {
+bool iBlockUseAction(VSelf, const VECTOR block_world_pos) ALIAS("IBlock_useAction");
+bool IBlock_useAction(UNUSED VSelf, UNUSED const VECTOR block_world_pos) {
     // By default blocks don't react to being interacted with
     return BLOCK_USE_ACTION_NOT_CONSUMED;
 }
