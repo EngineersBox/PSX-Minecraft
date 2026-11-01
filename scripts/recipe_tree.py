@@ -108,7 +108,7 @@ def constructTree(recipes) -> RecipeNode:
         current = root
     return root
 
-def pad(indent) -> str:
+def pad(indent: int) -> str:
     return "    " * indent
 
 def itemToEnumName(item: str) -> str:
