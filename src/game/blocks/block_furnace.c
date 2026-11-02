@@ -60,7 +60,14 @@ void FurnaceBlock_init(VSelf) {
     self->_pad = 0;
     self->process_recipe = false;
     self->recipe = (RecipeSearchResult) {
-        .results = (RecipeResults) {0},
+        .results = (RecipeResults) {
+            .dimension = (Dimension) {
+                .width = 0,
+                .height = 0
+            },
+            .result_count = 0,
+            .results = NULL
+        },
         .processing_ticks = 0
     };
     self->slots[slotGroupIndexOffset(FURNACE_INPUT)] = createSlotInline(FURNACE_INPUT, 0, 0);
