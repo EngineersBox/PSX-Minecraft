@@ -101,8 +101,8 @@ IItem* ChestBlock_provideItem(VSelf) {
     return item;
 }
 
-void cursorHandler(ChestBlock* chest,
-                   const bool split_or_store_one) {
+static void cursorHandler(ChestBlock* chest,
+                          const bool split_or_store_one) {
     if (!debounce(&chest_debounce, CHEST_DEBOUNCE_MS)) {
         return;
     }
@@ -121,7 +121,89 @@ void cursorHandler(ChestBlock* chest,
         uiCursorSetHeldData(&cursor, NULL);
         return;
     }
-    TODO("Finish this");
+    Slot* slot = NULL;
+    IBlock* iblock = NULL;
+    ChestBlock* other_chest = NULL;
+    switch (chest->type) {
+        case CHEST_TYPE_SINGLE:
+            if (!slotGroupIntersect(
+                CHEST_SINGLE,
+                &cursor.component.position
+            )) {
+                break;
+            }
+            slot = &chest->slots[slotGroupCursorSlot(
+                CHEST_SINGLE,
+                &cursor.component.position
+            )];
+            break;
+        case CHEST_TYPE_DOUBLE_LEFT:
+            if (slotGroupIntersect(
+                CHEST_DOUBLE_LEFT,
+                &cursor.component.position
+            )) {
+                slot = &chest->slots[slotGroupCursorSlot(
+                    CHEST_DOUBLE_LEFT,
+                    &cursor.component.position
+                )];
+                break;
+            }
+            iblock = worldGetBlock(world, vec3_add(
+                chest_world_pos,
+                FACE_DIRECTION_RELATIVE_LEFT[chest->block.orientation]
+            ));
+            other_chest = VCAST_PTR(ChestBlock*, iblock);
+            if (slotGroupIntersect(
+                CHEST_DOUBLE_RIGHT,
+                &cursor.component.position
+            )) {
+                slot = &other_chest->slots[slotGroupCursorSlot(
+                    CHEST_DOUBLE_RIGHT,
+                    &cursor.component.position
+                )];
+            }
+            break;
+        case CHEST_TYPE_DOUBLE_RIGHT:
+            if (slotGroupIntersect(
+                CHEST_DOUBLE_RIGHT,
+                &cursor.component.position
+            )) {
+                slot = &chest->slots[slotGroupCursorSlot(
+                    CHEST_DOUBLE_RIGHT,
+                    &cursor.component.position
+                )];
+                break;
+            }
+            iblock = worldGetBlock(world, vec3_add(
+                chest_world_pos,
+                FACE_DIRECTION_RELATIVE_LEFT[chest->block.orientation]
+            ));
+            other_chest = VCAST_PTR(ChestBlock*, iblock);
+            if (slotGroupIntersect(
+                CHEST_DOUBLE_LEFT,
+                &cursor.component.position
+            )) {
+                slot = &other_chest->slots[slotGroupCursorSlot(
+                    CHEST_DOUBLE_LEFT,
+                    &cursor.component.position
+                )];
+            }
+            break;
+    }
+    if (slot == NULL) return;
+    if (split_or_store_one) {
+        cursorSplitOrStoreOne(
+            slot,
+            slotDirectItemGetter,
+            slotDirectItemSetter
+        );
+    } else {
+        cursorInteractSlot(
+            slot,
+            slotDirectItemGetter,
+            slotDirectItemSetter
+        );
+    }
 }
 
 InputHandlerState chestBlockInputHandler(const Input* input, UNUSED void* ctx) {
@@ -153,21 +235,30 @@ InputHandlerState chestBlockInputHandler(const Input* input, UNUSED void* ctx) {
     return INPUT_HANDLER_RETAIN;
 }
 
-void chestRenderTooltip(const ChestBlock* chest, RenderContext* ctx) {
-    TODO("Finish this");
-}
-
 INLINE static void chestSingleRenderUI(const ChestBlock* chest,
                                        RenderContext* ctx,
                                        Transforms* transforms) {
     for (int y = 0; y < slotGroupDim(CHEST_SINGLE, Y); y++) {
         for (int x = 0; x < slotGroupDim(CHEST_SINGLE, X); x++) {
-            const Slot* slot = &chest->slots[slotGroupIndexOffset(CHEST_SINGLE) + (y * slotGroupDim(CHEST_SINGLE, X)) + x];
+            const Slot* slot = &chest->slots[
+                slotGroupIndexOffset(CHEST_SINGLE)
+                + (y * slotGroupDim(CHEST_SINGLE, X)) + x
+            ];
             if (slot->data.item == NULL) continue;
             Item* item = VCAST_PTR(Item*, slot->data.item);
             item->position.vx = slotGroupScreenPosition(CHEST_SINGLE, X, x);
             item->position.vy = slotGroupScreenPosition(CHEST_SINGLE, Y, y);
             VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
+        }
+    }
+    if (slotGroupIntersect(CHEST_SINGLE, &cursor.component.position)) {
+        const Slot* slot = &chest->slots[slotGroupCursorSlot(
+            CHEST_SINGLE,
+            &cursor.component.position
+        )];
+        if (slot->data.item != NULL) {
+            const Item* item = VCAST_PTR(Item*, slot->data.item);
+            toolTipRender(ctx, itemGetName(item->id));
         }
     }
 }
@@ -177,12 +268,25 @@ INLINE static void chestDoubleLeftRenderUI(const ChestBlock* chest,
                                            Transforms* transforms) {
     for (int y = 0; y < slotGroupDim(CHEST_DOUBLE_LEFT, Y); y++) {
         for (int x = 0; x < slotGroupDim(CHEST_DOUBLE_LEFT, X); x++) {
-            const Slot* slot = &chest->slots[slotGroupIndexOffset(CHEST_DOUBLE_LEFT) + (y * slotGroupDim(CHEST_DOUBLE_LEFT, X)) + x];
+            const Slot* slot = &chest->slots[
+                slotGroupIndexOffset(CHEST_DOUBLE_LEFT)
+                + (y * slotGroupDim(CHEST_DOUBLE_LEFT, X)) + x
+            ];
             if (slot->data.item == NULL) continue;
             Item* item = VCAST_PTR(Item*, slot->data.item);
             item->position.vx = slotGroupScreenPosition(CHEST_DOUBLE_LEFT, X, x);
             item->position.vy = slotGroupScreenPosition(CHEST_DOUBLE_LEFT, Y, y);
             VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
+        }
+    }
+    if (slotGroupIntersect(CHEST_DOUBLE_LEFT, &cursor.component.position)) {
+        const Slot* slot = &chest->slots[slotGroupCursorSlot(
+            CHEST_DOUBLE_LEFT,
+            &cursor.component.position
+        )];
+        if (slot->data.item != NULL) {
+            const Item* item = VCAST_PTR(Item*, slot->data.item);
+            toolTipRender(ctx, itemGetName(item->id));
         }
     }
 }
@@ -192,7 +296,10 @@ INLINE static void chestDoubleRightRenderUI(const ChestBlock* chest,
                                             Transforms* transforms) {
     for (int y = 0; y < slotGroupDim(CHEST_DOUBLE_RIGHT, Y); y++) {
         for (int x = 0; x < slotGroupDim(CHEST_DOUBLE_RIGHT, X); x++) {
-            const Slot* slot = &chest->slots[slotGroupIndexOffset(CHEST_DOUBLE_RIGHT) + (y * slotGroupDim(CHEST_DOUBLE_RIGHT, X)) + x];
+            const Slot* slot = &chest->slots[
+                slotGroupIndexOffset(CHEST_DOUBLE_RIGHT)
+                + (y * slotGroupDim(CHEST_DOUBLE_RIGHT, X)) + x 
+            ];
             if (slot->data.item == NULL) continue;
             Item* item = VCAST_PTR(Item*, slot->data.item);
             item->position.vx = slotGroupScreenPosition(CHEST_DOUBLE_RIGHT, X, x);
@@ -200,20 +307,21 @@ INLINE static void chestDoubleRightRenderUI(const ChestBlock* chest,
             VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
         }
     }
+    if (slotGroupIntersect(CHEST_DOUBLE_RIGHT, &cursor.component.position)) {
+        const Slot* slot = &chest->slots[slotGroupCursorSlot(
+            CHEST_DOUBLE_RIGHT,
+            &cursor.component.position
+        )];
+        if (slot->data.item != NULL) {
+            const Item* item = VCAST_PTR(Item*, slot->data.item);
+            toolTipRender(ctx, itemGetName(item->id));
+        }
+    }
 }
 
 void chestBlockRenderUI(RenderContext* ctx, Transforms* transforms) {
     const ChestBlock* chest = (ChestBlock*) block_render_ui_context.block;
     uiCursorRender(&cursor, ctx, transforms);
-    if (quadIntersectLiteral(
-        &cursor.component.position,
-        CENTRE_X - (FURNACE_TEXTURE_WIDTH >> 1),
-        CENTRE_Y - (FURNACE_TEXTURE_HEIGHT >> 1),
-        FURNACE_TEXTURE_WIDTH,
-        FURNACE_TEXTURE_HEIGHT
-    )) {
-        chestRenderTooltip(chest, ctx);
-    }
     inventoryRenderSlots(
         VCAST_PTR(const Inventory*, block_input_handler_context.inventory),
         INVENTORY_SLOT_GROUP_MAIN | INVENTORY_SLOT_GROUP_HOTBAR,
