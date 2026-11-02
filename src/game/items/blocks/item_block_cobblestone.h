@@ -12,19 +12,12 @@ DEFN_ITEM_BLOCK(CobblestoneItemBlock);
 
 #define cobblestoneItemBlockAttributes() declareItemAttributes("cobblestone")
 
-void cobblestoneItemBlockRenderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms);
-void CobblestoneItemBlock_renderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms);
-
-void cobblestoneItemBlockRenderInventory(VSelf, RenderContext* ctx, Transforms* transforms);
-void CobblestoneItemBlock_renderInventory(VSelf, RenderContext* ctx, Transforms* transforms);
-
-void cobblestoneItemBlockRenderHand(VSelf, RenderContext* ctx, Transforms* transforms);
-void CobblestoneItemBlock_renderHand(VSelf, RenderContext* ctx, Transforms* transforms);
+void CobblestoneItemBlock_renderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms) ASM_ALIAS("itemBlockRenderWorldV");
+void CobblestoneItemBlock_renderInventory(VSelf, RenderContext* ctx, Transforms* transforms) ASM_ALIAS("itemBlockRenderInventoryV");
+void CobblestoneItemBlock_renderHand(VSelf, RenderContext* ctx, Transforms* transforms) ASM_ALIAS("itemBlockRenderHandV");
 
 void CobblestoneItemBlock_applyWorldRenderAttributes(VSelf) ASM_ALIAS("itemBlockApplyWorldRenderAttributes");
-
 void CobblestoneItemBlock_applyInventoryRenderAttributes(VSelf) ASM_ALIAS("itemBlockApplyInventoryRenderAttributes");
-
 void CobblestoneItemBlock_applyHandRenderAttributes(VSelf) ASM_ALIAS("itemBlockApplyHandRenderAttributes");
 
 impl(Renderable, CobblestoneItemBlock);

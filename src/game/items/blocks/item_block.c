@@ -487,6 +487,22 @@ void itemBlockRenderHand(UNUSED ItemBlock* item,
     UNIMPLEMENTED();
 }
 
+void itemBlockRenderWorldV(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms) {
+    VSELF(ItemBlock);
+    itemBlockRenderWorld(self, chunk, ctx, transforms);
+}
+
+void itemBlockRenderInventoryV(VSelf, RenderContext* ctx, Transforms* transforms) {
+    VSELF(ItemBlock);
+    self->item.position.vz = ITEM_BLOCK_INVENTORY_SCALING;
+    itemBlockRenderInventory(self, ctx, transforms);
+}
+
+void itemBlockRenderHandV(VSelf, RenderContext* ctx, Transforms* transforms) {
+    VSELF(ItemBlock);
+    itemBlockRenderHand(self, ctx, transforms);
+}
+
 void itemBlockApplyInventoryRenderAttributes(VSelf) {
     VSELF(ItemBlock);
     self->item.position = ITEM_BLOCK_INVENTORY_POSITION_RENDER_ATTRIBUTE;

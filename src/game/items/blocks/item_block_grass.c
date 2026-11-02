@@ -29,30 +29,6 @@ void GrassItemBlock_destroy(VSelf) {
     free(self);
 }
 
-void grassItemBlockRenderWorld(VSelf,
-                               const Chunk* chunk,
-                               RenderContext* ctx,
-                               Transforms* transforms) ALIAS("GrassItemBlock_renderWorld");
-void GrassItemBlock_renderWorld(VSelf,
-                                const Chunk* chunk,
-                                RenderContext* ctx,
-                                Transforms* transforms) {
-    VSELF(GrassItemBlock);
-    itemBlockRenderWorld(&self->item_block, chunk, ctx, transforms);
-}
-
-void grassItemBlockRenderInventory(VSelf, RenderContext* ctx, Transforms* transforms) ALIAS("GrassItemBlock_renderInventory");
-void GrassItemBlock_renderInventory(VSelf, RenderContext* ctx, Transforms* transforms) {
-    VSELF(GrassItemBlock);
-    itemBlockRenderInventory(&self->item_block, ctx, transforms);
-}
-
-void grassItemBlockRenderHand(VSelf, RenderContext* ctx, Transforms* transforms) ALIAS("GrassItemBlock_renderHand");
-void GrassItemBlock_renderHand(VSelf, RenderContext* ctx, Transforms* transforms) {
-    VSELF(GrassItemBlock);
-    itemBlockRenderHand(&self->item_block, ctx, transforms);
-}
-
 void grassItemBlockInit(VSelf) ALIAS("GrassItemBlock_init");
 void GrassItemBlock_init(VSelf) {
     VSELF(GrassItemBlock);

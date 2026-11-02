@@ -81,6 +81,10 @@ void itemBlockRenderWorld(ItemBlock* item,
 void itemBlockRenderInventory(ItemBlock* item, RenderContext* ctx, Transforms* transforms);
 void itemBlockRenderHand(ItemBlock* item, RenderContext* ctx, Transforms* transforms);
 
+void itemBlockRenderWorldV(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms);
+void itemBlockRenderInventoryV(VSelf, RenderContext* ctx, Transforms* transforms);
+void itemBlockRenderHandV(VSelf, RenderContext* ctx, Transforms* transforms);
+
 void itemBlockApplyInventoryRenderAttributes(VSelf);
 void itemBlockApplyWorldRenderAttributes(VSelf);
 void itemBlockApplyHandRenderAttributes(VSelf);

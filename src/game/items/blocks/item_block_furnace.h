@@ -12,14 +12,9 @@ DEFN_ITEM_BLOCK(FurnaceItemBlock);
 
 #define furnaceItemBlockAttributes() declareItemAttributes("furnace")
 
-void furnaceItemBlockRenderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms);
-void FurnaceItemBlock_renderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms);
-
-void furnaceItemBlockRenderInventory(VSelf, RenderContext* ctx, Transforms* transforms);
-void FurnaceItemBlock_renderInventory(VSelf, RenderContext* ctx, Transforms* transforms);
-
-void furnaceItemBlockRenderHand(VSelf, RenderContext* ctx, Transforms* transforms);
-void FurnaceItemBlock_renderHand(VSelf, RenderContext* ctx, Transforms* transforms);
+void FurnaceItemBlock_renderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms) ASM_ALIAS("itemBlockRenderWorldV");
+void FurnaceItemBlock_renderInventory(VSelf, RenderContext* ctx, Transforms* transforms) ASM_ALIAS("itemBlockRenderInventoryV");
+void FurnaceItemBlock_renderHand(VSelf, RenderContext* ctx, Transforms* transforms) ASM_ALIAS("itemBlockRenderHandV");
 
 void FurnaceItemBlock_applyWorldRenderAttributes(VSelf) ASM_ALIAS("itemBlockApplyWorldRenderAttributes");
 void FurnaceItemBlock_applyInventoryRenderAttributes(VSelf) ASM_ALIAS("itemBlockApplyInventoryRenderAttributes");

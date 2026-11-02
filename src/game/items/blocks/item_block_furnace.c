@@ -28,38 +28,11 @@ void FurnaceItemBlock_destroy(VSelf) {
     free(self);
 }
 
-void furnaceItemBlockRenderWorld(VSelf, const Chunk* chunk,  RenderContext* ctx, Transforms* transforms) ALIAS("FurnaceItemBlock_renderWorld");
-void FurnaceItemBlock_renderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms) {
-    VSELF(FurnaceItemBlock);
-    itemBlockRenderWorld(&self->item_block, chunk, ctx, transforms);
-}
-
-void furnaceItemBlockRenderInventory(VSelf, RenderContext* ctx, Transforms* transforms) ALIAS("FurnaceItemBlock_renderInventory");
-void FurnaceItemBlock_renderInventory(VSelf, RenderContext* ctx, Transforms* transforms) {
-    VSELF(FurnaceItemBlock);
-    self->item_block.item.position.vz = ITEM_BLOCK_INVENTORY_SCALING;
-    itemBlockRenderInventory(&self->item_block, ctx, transforms);
-}
-
-void furnaceItemBlockRenderHand(VSelf, RenderContext* ctx, Transforms* transforms) ALIAS("FurnaceItemBlock_renderHand");
-void FurnaceItemBlock_renderHand(VSelf, RenderContext* ctx, Transforms* transforms) {
-    VSELF(FurnaceItemBlock);
-    itemBlockRenderHand(&self->item_block, ctx, transforms);
-}
-
 void furnaceItemBlockInit(VSelf) ALIAS("FurnaceItemBlock_init");
 void FurnaceItemBlock_init(VSelf) {
     VSELF(FurnaceItemBlock);
     self->item_block = (ItemBlock) {
         .item = declareItem(ITEMID_FURNACE),
-        .face_attributes = { declareTintedFaceAttributes(
-            62, NO_TINT,
-            62, NO_TINT,
-            45, NO_TINT,
-            45, NO_TINT,
-            44, NO_TINT,
-            45, NO_TINT
-        ) },
-
+        .face_attributes = { declareFaceAttributes(62,62,45,45,44,45) },
     };
 }

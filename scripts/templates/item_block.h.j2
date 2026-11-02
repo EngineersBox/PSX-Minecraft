@@ -20,23 +20,13 @@ DEFN_ITEM_BLOCK({{ name_capital }}ItemBlock);
     .name = "{{ name_snake_lower }}" \
 })
 
-void {{ name_lower}}ItemBlockRenderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms);
-void {{ name_capital }}ItemBlock_renderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms);
+void {{ name_capital }}ItemBlock_renderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms) ASM_ALIAS("itemBlockRenderWorldV");
+void {{ name_capital }}ItemBlock_renderInventory(VSelf, RenderContext* ctx, Transforms* transforms) ASM_ALIAS("itemBlockRenderInventoryV");
+void {{ name_capital }}ItemBlock_renderHand(VSelf, RenderContext* ctx, Transforms* transforms) ASM_ALIAS("itemBlockRenderHandV");
 
-void {{ name_lower}}ItemBlockRenderInventory(VSelf, RenderContext* ctx, Transforms* transforms);
-void {{ name_capital }}ItemBlock_renderInventory(VSelf, RenderContext* ctx, Transforms* transforms);
-
-void {{ name_lower}}ItemBlockRenderHand(VSelf, RenderContext* ctx, Transforms* transforms);
-void {{ name_capital }}ItemBlock_renderHand(VSelf, RenderContext* ctx, Transforms* transforms);
-
-void {{ name_lower}}ItemBlockApplyWorldRenderAttributes(VSelf);
-void {{ name_capital }}ItemBlock_applyWorldRenderAttributes(VSelf);
-
-void {{ name_lower}}ItemBlockApplyInventoryRenderAttributes(VSelf);
-void {{ name_capital }}ItemBlock_applyInventoryRenderAttributes(VSelf);
-
-void {{ name_lower}}ItemBlockApplyHandRenderAttributes(VSelf);
-void {{ name_capital }}ItemBlock_applyHandRenderAttributes(VSelf);
+void {{ name_capital }}ItemBlock_applyWorldRenderAttributes(VSelf) ASM_ALIAS("itemBlockApplyWorldRenderAttributes");
+void {{ name_capital }}ItemBlock_applyInventoryRenderAttributes(VSelf) ASM_ALIAS("itemBlockApplyInventoryRenderAttributes");
+void {{ name_capital }}ItemBlock_applyHandRenderAttributes(VSelf) ASM_ALIAS("itemBlockApplyHandRenderAttributes");
 
 impl(Renderable, {{ name_capital }}ItemBlock);
 

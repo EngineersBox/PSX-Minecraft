@@ -64,12 +64,18 @@ IItem* ChestBlock_destroy(VSelf,
         case CHEST_TYPE_SINGLE:
             break;
         case CHEST_TYPE_DOUBLE_LEFT:
-            iblock = worldGetBlock(world, vec3_add(block_world_pos, FACE_DIRECTION_RELATIVE_LEFT[self->block.orientation]));
+            iblock = worldGetBlock(world, vec3_add(
+                block_world_pos,
+                FACE_DIRECTION_RELATIVE_LEFT[self->block.orientation]
+            ));
             other_chest_half = VCAST_PTR(ChestBlock*, iblock);
             other_chest_half->type = CHEST_TYPE_SINGLE;
             break;
         case CHEST_TYPE_DOUBLE_RIGHT:
-            iblock = worldGetBlock(world, vec3_add(block_world_pos, FACE_DIRECTION_RELATIVE_RIGHT[self->block.orientation]));
+            iblock = worldGetBlock(world, vec3_add(
+                block_world_pos,
+                FACE_DIRECTION_RELATIVE_RIGHT[self->block.orientation]
+            ));
             other_chest_half = VCAST_PTR(ChestBlock*, iblock);
             other_chest_half->type = CHEST_TYPE_SINGLE;
             break;

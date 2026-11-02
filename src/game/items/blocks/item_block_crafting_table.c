@@ -29,25 +29,6 @@ void CraftingTableItemBlock_destroy(VSelf) {
     free(self);
 }
 
-void craftingTableItemBlockRenderWorld(VSelf, const Chunk* chunk,  RenderContext* ctx, Transforms* transforms) ALIAS("CraftingTableItemBlock_renderWorld");
-void CraftingTableItemBlock_renderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms) {
-    VSELF(CraftingTableItemBlock);
-    itemBlockRenderWorld(&self->item_block, chunk, ctx, transforms);
-}
-
-void craftingTableItemBlockRenderInventory(VSelf, RenderContext* ctx, Transforms* transforms) ALIAS("CraftingTableItemBlock_renderInventory");
-void CraftingTableItemBlock_renderInventory(VSelf, RenderContext* ctx, Transforms* transforms) {
-    VSELF(CraftingTableItemBlock);
-    self->item_block.item.position.vz = ITEM_BLOCK_INVENTORY_SCALING;
-    itemBlockRenderInventory(&self->item_block, ctx, transforms);
-}
-
-void craftingTableItemBlockRenderHand(VSelf, RenderContext* ctx, Transforms* transforms) ALIAS("CraftingTableItemBlock_renderHand");
-void CraftingTableItemBlock_renderHand(VSelf, RenderContext* ctx, Transforms* transforms) {
-    VSELF(CraftingTableItemBlock);
-    itemBlockRenderHand(&self->item_block, ctx, transforms);
-}
-
 void craftingTableItemBlockInit(VSelf) ALIAS("CraftingTableItemBlock_init");
 void CraftingTableItemBlock_init(VSelf) {
     VSELF(CraftingTableItemBlock);

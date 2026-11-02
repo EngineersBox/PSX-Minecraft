@@ -14,14 +14,9 @@ DEFN_ITEM_BLOCK(CraftingTableItemBlock);
     .burn_ticks = 300 \
 )
 
-void craftingTableItemBlockRenderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms);
-void CraftingTableItemBlock_renderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms);
-
-void craftingTableItemBlockRenderInventory(VSelf, RenderContext* ctx, Transforms* transforms);
-void CraftingTableItemBlock_renderInventory(VSelf, RenderContext* ctx, Transforms* transforms);
-
-void craftingTableItemBlockRenderHand(VSelf, RenderContext* ctx, Transforms* transforms);
-void CraftingTableItemBlock_renderHand(VSelf, RenderContext* ctx, Transforms* transforms);
+void CraftingTableItemBlock_renderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms) ASM_ALIAS("itemBlockRenderWorldV");
+void CraftingTableItemBlock_renderInventory(VSelf, RenderContext* ctx, Transforms* transforms) ASM_ALIAS("itemBlockRenderInventoryV");
+void CraftingTableItemBlock_renderHand(VSelf, RenderContext* ctx, Transforms* transforms) ASM_ALIAS("itemBlockRenderHandV");
 
 void CraftingTableItemBlock_applyWorldRenderAttributes(VSelf) ASM_ALIAS("itemBlockApplyWorldRenderAttributes");
 void CraftingTableItemBlock_applyInventoryRenderAttributes(VSelf) ASM_ALIAS("itemBlockApplyInventoryRenderAttributes");

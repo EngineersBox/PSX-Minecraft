@@ -20,23 +20,13 @@ DEFN_ITEM_BLOCK(ChestItemBlock);
     .name = "chest" \
 })
 
-void chestItemBlockRenderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms);
-void ChestItemBlock_renderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms);
+void ChestItemBlock_renderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms) ASM_ALIAS("itemBlockRenderWorldV");
+void ChestItemBlock_renderInventory(VSelf, RenderContext* ctx, Transforms* transforms) ASM_ALIAS("itemBlockRenderInventoryV");
+void ChestItemBlock_renderHand(VSelf, RenderContext* ctx, Transforms* transforms) ASM_ALIAS("itemBlockRenderHandV");
 
-void chestItemBlockRenderInventory(VSelf, RenderContext* ctx, Transforms* transforms);
-void ChestItemBlock_renderInventory(VSelf, RenderContext* ctx, Transforms* transforms);
-
-void chestItemBlockRenderHand(VSelf, RenderContext* ctx, Transforms* transforms);
-void ChestItemBlock_renderHand(VSelf, RenderContext* ctx, Transforms* transforms);
-
-void chestItemBlockApplyWorldRenderAttributes(VSelf);
-void ChestItemBlock_applyWorldRenderAttributes(VSelf);
-
-void chestItemBlockApplyInventoryRenderAttributes(VSelf);
-void ChestItemBlock_applyInventoryRenderAttributes(VSelf);
-
-void chestItemBlockApplyHandRenderAttributes(VSelf);
-void ChestItemBlock_applyHandRenderAttributes(VSelf);
+void ChestItemBlock_applyWorldRenderAttributes(VSelf) ASM_ALIAS("itemBlockApplyWorldRenderAttributes");
+void ChestItemBlock_applyInventoryRenderAttributes(VSelf) ASM_ALIAS("itemBlockApplyInventoryRenderAttributes");
+void ChestItemBlock_applyHandRenderAttributes(VSelf) ASM_ALIAS("itemBlockApplyHandRenderAttributes");
 
 impl(Renderable, ChestItemBlock);
 

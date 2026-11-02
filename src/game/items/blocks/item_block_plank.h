@@ -14,23 +14,13 @@ DEFN_ITEM_BLOCK(PlankItemBlock);
     .burn_ticks = 300 \
 )
 
-void plankItemBlockRenderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms);
-void PlankItemBlock_renderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms);
+void PlankItemBlock_renderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms) ASM_ALIAS("itemBlockRenderWorldV");
+void PlankItemBlock_renderInventory(VSelf, RenderContext* ctx, Transforms* transforms) ASM_ALIAS("itemBlockRenderInventoryV");
+void PlankItemBlock_renderHand(VSelf, RenderContext* ctx, Transforms* transforms) ASM_ALIAS("itemBlockRenderHandV");
 
-void plankItemBlockRenderInventory(VSelf, RenderContext* ctx, Transforms* transforms);
-void PlankItemBlock_renderInventory(VSelf, RenderContext* ctx, Transforms* transforms);
-
-void plankItemBlockRenderHand(VSelf, RenderContext* ctx, Transforms* transforms);
-void PlankItemBlock_renderHand(VSelf, RenderContext* ctx, Transforms* transforms);
-
-void plankItemBlockApplyWorldRenderAttributes(VSelf);
-void PlankItemBlock_applyWorldRenderAttributes(VSelf);
-
-void plankItemBlockApplyInventoryRenderAttributes(VSelf);
-void PlankItemBlock_applyInventoryRenderAttributes(VSelf);
-
-void plankItemBlockApplyHandRenderAttributes(VSelf);
-void PlankItemBlock_applyHandRenderAttributes(VSelf);
+void PlankItemBlock_applyWorldRenderAttributes(VSelf) ASM_ALIAS("itemBlockApplyWorldRenderAttributes");
+void PlankItemBlock_applyInventoryRenderAttributes(VSelf) ASM_ALIAS("itemBlockApplyInventoryRenderAttributes");
+void PlankItemBlock_applyHandRenderAttributes(VSelf) ASM_ALIAS("itemBlockApplyHandRenderAttributes");
 
 impl(Renderable, PlankItemBlock);
 

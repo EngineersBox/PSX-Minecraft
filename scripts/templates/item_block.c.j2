@@ -30,41 +30,6 @@ void {{ name_capital }}ItemBlock_destroy(VSelf) {
     free(self);
 }
 
-void {{ name_lower }}ItemBlockRenderWorld(VSelf, const Chunk* chunk,  RenderContext* ctx, Transforms* transforms) ALIAS("{{ name_capital }}ItemBlock_renderWorld");
-void {{ name_capital }}ItemBlock_renderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms) {
-    VSELF({{ name_capital }}ItemBlock);
-    itemBlockRenderWorld(&self->item_block, chunk, ctx, transforms);
-}
-
-void {{ name_lower }}ItemBlockRenderInventory(VSelf, RenderContext* ctx, Transforms* transforms) ALIAS("{{ name_capital }}ItemBlock_renderInventory");
-void {{ name_capital }}ItemBlock_renderInventory(VSelf, RenderContext* ctx, Transforms* transforms) {
-    VSELF({{ name_capital }}ItemBlock);
-    self->item_block.item.position.vz = ITEM_BLOCK_INVENTORY_SCALING;
-    itemBlockRenderInventory(&self->item_block, ctx, transforms);
-}
-
-void {{ name_lower }}ItemBlockRenderHand(VSelf, RenderContext* ctx, Transforms* transforms) ALIAS("{{ name_capital }}ItemBlock_renderHand");
-void {{ name_capital }}ItemBlock_renderHand(VSelf, RenderContext* ctx, Transforms* transforms) {
-    VSELF({{ name_capital }}ItemBlock);
-    itemBlockRenderHand(&self->item_block, ctx, transforms);
-}
-
-void {{ name_lower }}ItemBlockApplyWorldRenderAttributes(VSelf) ALIAS("{{ name_capital }}ItemBlock_applyWorldRenderAttributes");
-void {{ name_capital }}ItemBlock_applyWorldRenderAttributes(VSelf) {
-    UNIMPLEMENTED();
-}
-
-void {{ name_lower }}ItemBlockApplyInventoryRenderAttributes(VSelf) ALIAS("{{ name_capital }}ItemBlock_applyInventoryRenderAttributes");
-void {{ name_capital }}ItemBlock_applyInventoryRenderAttributes(VSelf) {
-    VSELF({{ name_capital }}ItemBlock);
-    itemBlockApplyInventoryRenderAttributes(&self->item_block);
-}
-
-void {{ name_lower }}ItemBlockApplyHandRenderAttributes(VSelf) ALIAS("{{ name_capital }}ItemBlock_applyHandRenderAttributes");
-void {{ name_capital }}ItemBlock_applyHandRenderAttributes(VSelf) {
-    UNIMPLEMENTED();
-}
-
 void {{ name_lower }}ItemBlockInit(VSelf) ALIAS("{{ name_capital }}ItemBlock_init");
 void {{ name_capital }}ItemBlock_init(VSelf) {
     VSELF({{ name_capital }}ItemBlock);

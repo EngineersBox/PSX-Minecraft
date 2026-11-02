@@ -29,31 +29,6 @@ void DirtItemBlock_destroy(VSelf) {
     free(self);
 }
 
-void dirtItemBlockRenderWorld(VSelf,
-                              const Chunk* chunk,
-                              RenderContext* ctx,
-                              Transforms* transforms) ALIAS("DirtItemBlock_renderWorld");
-void DirtItemBlock_renderWorld(VSelf,
-                               const Chunk* chunk,
-                               RenderContext* ctx,
-                               Transforms* transforms) {
-    VSELF(DirtItemBlock);
-    itemBlockRenderWorld(&self->item_block, chunk, ctx, transforms);
-}
-
-void dirtItemBlockRenderInventory(VSelf, RenderContext* ctx, Transforms* transforms) ALIAS("DirtItemBlock_renderInventory");
-void DirtItemBlock_renderInventory(VSelf, RenderContext* ctx, Transforms* transforms) {
-    VSELF(DirtItemBlock);
-    self->item_block.item.position.vz = ITEM_BLOCK_INVENTORY_SCALING;
-    itemBlockRenderInventory(&self->item_block, ctx, transforms);
-}
-
-void dirtItemBlockRenderHand(VSelf, RenderContext* ctx, Transforms* transforms) ALIAS("DirtItemBlock_renderHand");
-void DirtItemBlock_renderHand(VSelf, RenderContext* ctx, Transforms* transforms) {
-    VSELF(DirtItemBlock);
-    itemBlockRenderHand(&self->item_block, ctx, transforms);
-}
-
 void dirtItemBlockInit(VSelf) ALIAS("DirtItemBlock_init");
 void DirtItemBlock_init(VSelf) {
     VSELF(DirtItemBlock);

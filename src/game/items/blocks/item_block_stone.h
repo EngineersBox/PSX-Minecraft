@@ -12,19 +12,12 @@ DEFN_ITEM_BLOCK(StoneItemBlock);
 
 #define stoneItemBlockAttributes() declareItemAttributes("stone")
 
-void stoneItemBlockRenderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms);
-void StoneItemBlock_renderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms);
-
-void stoneItemBlockRenderInventory(VSelf, RenderContext* ctx, Transforms* transforms);
-void StoneItemBlock_renderInventory(VSelf, RenderContext* ctx, Transforms* transforms);
-
-void stoneItemBlockRenderHand(VSelf, RenderContext* ctx, Transforms* transforms);
-void StoneItemBlock_renderHand(VSelf, RenderContext* ctx, Transforms* transforms);
+void StoneItemBlock_renderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms) ASM_ALIAS("itemBlockRenderWorldV");
+void StoneItemBlock_renderInventory(VSelf, RenderContext* ctx, Transforms* transforms) ASM_ALIAS("itemBlockRenderInventoryV");
+void StoneItemBlock_renderHand(VSelf, RenderContext* ctx, Transforms* transforms) ASM_ALIAS("itemBlockRenderHandV");
 
 void StoneItemBlock_applyWorldRenderAttributes(VSelf) ASM_ALIAS("itemBlockApplyWorldRenderAttributes");
-
 void StoneItemBlock_applyInventoryRenderAttributes(VSelf) ASM_ALIAS("itemBlockApplyInventoryRenderAttributes");
-
 void StoneItemBlock_applyHandRenderAttributes(VSelf) ASM_ALIAS("itemBlockApplyHandRenderAttributes");
 
 impl(Renderable, StoneItemBlock);

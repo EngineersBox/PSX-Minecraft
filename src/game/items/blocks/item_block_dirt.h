@@ -12,19 +12,12 @@ DEFN_ITEM_BLOCK(DirtItemBlock);
 
 #define dirtItemBlockAttributes() declareItemAttributes("dirt")
 
-void dirtItemBlockRenderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms);
-void DirtItemBlock_renderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms);
-
-void dirtItemBlockRenderInventory(VSelf, RenderContext* ctx, Transforms* transforms);
-void DirtItemBlock_renderInventory(VSelf, RenderContext* ctx, Transforms* transforms);
-
-void dirtItemBlockRenderHand(VSelf, RenderContext* ctx, Transforms* transforms);
-void DirtItemBlock_renderHand(VSelf, RenderContext* ctx, Transforms* transforms);
+void DirtItemBlock_renderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms) ASM_ALIAS("itemBlockRenderWorldV");
+void DirtItemBlock_renderInventory(VSelf, RenderContext* ctx, Transforms* transforms) ASM_ALIAS("itemBlockRenderInventoryV");
+void DirtItemBlock_renderHand(VSelf, RenderContext* ctx, Transforms* transforms) ASM_ALIAS("itemBlockRenderHandV");
 
 void DirtItemBlock_applyWorldRenderAttributes(VSelf) ASM_ALIAS("itemBlockApplyWorldRenderAttributes");
-
 void DirtItemBlock_applyInventoryRenderAttributes(VSelf) ASM_ALIAS("itemBlockApplyInventoryRenderAttributes");
-
 void DirtItemBlock_applyHandRenderAttributes(VSelf) ASM_ALIAS("itemBlockApplyHandRenderAttributes");
 
 impl(Renderable, DirtItemBlock);

@@ -11,19 +11,12 @@ DEFN_ITEM_BLOCK(GrassItemBlock);
 
 #define grassItemBlockAttributes() declareItemAttributes("grass")
 
-void grassItemBlockRenderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms);
-void GrassItemBlock_renderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms);
-
-void grassItemBlockRenderInventory(VSelf, RenderContext* ctx, Transforms* transforms);
-void GrassItemBlock_renderInventory(VSelf, RenderContext* ctx, Transforms* transforms);
-
-void grassItemBlockRenderHand(VSelf, RenderContext* ctx, Transforms* transforms);
-void GrassItemBlock_renderHand(VSelf, RenderContext* ctx, Transforms* transforms);
+void GrassItemBlock_renderWorld(VSelf, const Chunk* chunk, RenderContext* ctx, Transforms* transforms) ASM_ALIAS("itemBlockRenderWorldV");
+void GrassItemBlock_renderInventory(VSelf, RenderContext* ctx, Transforms* transforms) ASM_ALIAS("itemBlockRenderInventoryV");
+void GrassItemBlock_renderHand(VSelf, RenderContext* ctx, Transforms* transforms) ASM_ALIAS("itemBlockRenderHandV");
 
 void GrassItemBlock_applyWorldRenderAttributes(VSelf) ASM_ALIAS("itemBlockApplyWorldRenderAttributes");
-
 void GrassItemBlock_applyInventoryRenderAttributes(VSelf) ASM_ALIAS("itemBlockApplyInventoryRenderAttributes");
-
 void GrassItemBlock_applyHandRenderAttributes(VSelf) ASM_ALIAS("itemBlockApplyHandRenderAttributes");
 
 impl(Renderable, GrassItemBlock);
