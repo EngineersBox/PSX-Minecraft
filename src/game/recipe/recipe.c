@@ -23,6 +23,7 @@ RecipeNode* recipeNodeGetNext(const RecipeNode* node, const RecipePatternEntry* 
     while (lower <= upper) {
         mid = (lower + upper) >> 1;
         RecipeNode* next_node = node->nodes[mid];
+        DEBUG_LOG("Node: %d (Stack: %d) Pattern: %d (Stack: %d)\n", next_node->id, next_node->stack_size, pattern->id, pattern->stack_size);
         if (next_node->ignore_metadata
             ? next_node->id == pattern->id
             : next_node->joined_id == pattern->joined_id) {
@@ -112,6 +113,7 @@ RecipeQueryState recipeSearch(const RecipeNode* root,
             }
         }
     }
+    DEBUG_LOG("R: %d B: %d T: %d L: %d\n", right, bottom, top, left);
     // Walk the tree
     RecipeNode const* current = root;
     for (u8 y = top; y <= bottom; y++) {

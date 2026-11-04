@@ -123,7 +123,7 @@ static bool handleFuelConsumption(FurnaceBlock* furnace) {
     }
     Slot* slot = &furnace->slots[slotGroupIndexOffset(FURNACE_FUEL)];
     IItem* iitem = slot->data.item;
-    if (iitem == NULL) {
+    if (iitem == NULL || !furnace->process_recipe) {
         furnace->fuel_burn_ticks = 0;
         furnace->fuel_burn_ticks_start = 0;
         furnace->cook_ticks = furnace->recipe.processing_ticks;
@@ -240,6 +240,7 @@ static void processFurnaceRecipe(FurnaceBlock* furnace) {
         return;
     }
     const Item* item = VCAST_PTR(Item*, input_slot->data.item);
+    DEBUG_LOG("Item: %d\n", item->id);
     pattern[0] = (RecipePatternEntry) {
         .joined_id = item->joined_id,
         .stack_size = item->stack_size,
@@ -254,6 +255,7 @@ static void processFurnaceRecipe(FurnaceBlock* furnace) {
         &furnace->recipe,
         furnace->ingredient_consume_sizes
     );
+    DEBUG_LOG("Result: %d\n", result);
     switch (result) {
         case RECIPE_NOT_FOUND:
             furnace->recipe = (RecipeSearchResult) {0};

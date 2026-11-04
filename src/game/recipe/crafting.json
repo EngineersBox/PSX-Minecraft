@@ -16,15 +16,47 @@
     },
     {
         "pattern": [
-            [ { "item": "cobblestone", "metadata": 0 }, { "item": "cobblestone", "metadata": 0 } ],
-            [ { "item": "cobblestone", "metadata": 0 }, { "item": "cobblestone", "metadata": 0 } ]
+            [ { "item": "plank", "ignore_metadata": true }, { "item": "plank", "ignore_metadata": true } ],
+            [ { "item": "plank", "ignore_metadata": true }, { "item": "plank", "ignore_metadata": true } ]
         ],
         "output": {
             "results": [
                 {
                     "item": "crafting_table",
                     "metadata": 0,
-                    "stack_size": 4
+                    "stack_size": 1
+                }
+            ]
+        }
+    },
+    {
+        "pattern": [
+            [ { "item": "plank", "ignore_metadata": true }, { "item": "plank", "ignore_metadata": true }, { "item": "plank", "ignore_metadata": true } ],
+            [ { "item": "plank", "ignore_metadata": true }, { "item": "air" }, { "item": "plank", "ignore_metadata": true } ],
+            [ { "item": "plank", "ignore_metadata": true }, { "item": "plank", "ignore_metadata": true }, { "item": "plank", "ignore_metadata": true } ]
+        ],
+        "output": {
+            "results": [
+                {
+                    "item": "chest",
+                    "metadata": 0,
+                    "stack_size": 1
+                }
+            ]
+        }
+    },
+    {
+        "pattern": [
+            [ { "item": "cobblestone", "metadata": 0 }, { "item": "cobblestone", "metadata": 0 }, { "item": "cobblestone", "metadata": 0 } ],
+            [ { "item": "cobblestone", "metadata": 0 }, { "item": "air" }, { "item": "cobblestone", "metadata": 0 } ],
+            [ { "item": "cobblestone", "metadata": 0 }, { "item": "cobblestone", "metadata": 0 }, { "item": "cobblestone", "metadata": 0 } ]
+        ],
+        "output": {
+            "results": [
+                {
+                    "item": "furnace",
+                    "metadata": 0,
+                    "stack_size": 1
                 }
             ]
         }

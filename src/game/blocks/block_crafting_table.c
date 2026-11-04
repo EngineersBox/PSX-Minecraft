@@ -88,6 +88,7 @@ static void processCraftingRecipe() {
         const IItem* iitem = slot->data.item;
         if (iitem != NULL) {
             const Item* item = VCAST_PTR(Item*, iitem);
+            DEBUG_LOG("Pattern item at %d: %d\n", i, item->id);
             pattern[i] = (RecipePatternEntry) {
                 .joined_id = item->joined_id,
                 .stack_size = item->stack_size,
