@@ -49,6 +49,27 @@ extern const SVECTOR FACE_DIRECTION_RELATIVE_RIGHT[FACE_DIRECTION_COUNT];
  */
 #define faceDirectionOpposing(face_dir) ((FaceDirection) (((u8) (face_dir)) ^ 0b001))
 
+/**
+ * @brief Determines if two directions are facing along the same axis.
+ * @note Using bitwise AND here, allows us to remove the least significant
+ *       bit in the number. If we think of the face directions as opposing
+ *       sequential pairs then apply AND on the bitwise representations,
+ *       we see the desired outcome as equivance of pairs:
+ *       @code
+ *       Name  | Index | AND'd Index
+ *       ------|-------|----------------------
+ *       DOWN  | 0b000 | 0b000 & 0b001 = 0b000
+ *       UP    | 0b001 | 0b001 & 0b001 = 0b000
+ *       LEFT  | 0b010 | 0b010 & 0b001 = 0b010
+ *       RIGHT | 0b011 | 0b011 & 0b001 = 0b010
+ *       BACK  | 0b100 | 0b100 & 0b001 = 0b100
+ *       FRONT | 0b101 | 0b101 & 0b001 = 0b100
+ *       @endcode
+ *
+ * @param face_dir_a First @code FaceDirection@endcode
+ * @param face_dir_b Second @code FaceDirection@endcode
+ * @return @code true@endcode is facing along same axis, @code false@endcode otherwise
+ */
 #define faceDirectionIsSameAxis(face_dir_a, face_dir_b) ((((u8) (face_dir_a)) & 0b110) == (((u8) (face_dir_b)) & 0b110))
 
 // [-1,1] => [0,1]
