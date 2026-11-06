@@ -58,12 +58,12 @@ extern const SVECTOR FACE_DIRECTION_RELATIVE_RIGHT[FACE_DIRECTION_COUNT];
  *       @code
  *       Name  | Index | AND'd Index
  *       ------|-------|----------------------
- *       DOWN  | 0b000 | 0b000 & 0b001 = 0b000
- *       UP    | 0b001 | 0b001 & 0b001 = 0b000
- *       LEFT  | 0b010 | 0b010 & 0b001 = 0b010
- *       RIGHT | 0b011 | 0b011 & 0b001 = 0b010
- *       BACK  | 0b100 | 0b100 & 0b001 = 0b100
- *       FRONT | 0b101 | 0b101 & 0b001 = 0b100
+ *       DOWN  | 0b000 | 0b000 & 0b110 = 0b000
+ *       UP    | 0b001 | 0b001 & 0b110 = 0b000
+ *       LEFT  | 0b010 | 0b010 & 0b110 = 0b010
+ *       RIGHT | 0b011 | 0b011 & 0b110 = 0b010
+ *       BACK  | 0b100 | 0b100 & 0b110 = 0b100
+ *       FRONT | 0b101 | 0b101 & 0b110 = 0b100
  *       @endcode
  *
  * @param face_dir_a First @code FaceDirection@endcode
