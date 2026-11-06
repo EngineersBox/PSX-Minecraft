@@ -88,6 +88,13 @@ BlockUpdateResultBitmap ChestBlock_update(VSelf, const VECTOR block_world_pos) {
     } else {
         other->block.orientation = self->block.orientation;
     }
+    if (vec3_equal(other_relative_pos, FACE_DIRECTION_RELATIVE_RIGHT[self->block.orientation])) {
+        self->type = CHEST_TYPE_DOUBLE_LEFT;
+        other->type = CHEST_TYPE_DOUBLE_RIGHT;
+    } else {
+        self->type = CHEST_TYPE_DOUBLE_RIGHT;
+        other->type = CHEST_TYPE_DOUBLE_LEFT;
+    }
     // FIXME: If the chest is between chunks, this won't trigger a remesh
     //        in the other chunk
     BlockUpdateResultBitmap result = 0;
