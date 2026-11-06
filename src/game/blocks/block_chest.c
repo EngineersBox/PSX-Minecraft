@@ -76,6 +76,7 @@ BlockUpdateResultBitmap ChestBlock_update(VSelf, const VECTOR block_world_pos) {
         other_relative_dir = dir;
     }
     if (other == NULL) {
+        self->type = CHEST_TYPE_SINGLE;
         return 0;
     }
     if (faceDirectionIsSameAxis(self->block.orientation, other->block.orientation)
