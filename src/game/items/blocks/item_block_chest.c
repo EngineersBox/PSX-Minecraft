@@ -33,6 +33,6 @@ void ChestItemBlock_init(VSelf) {
     VSELF(ChestItemBlock);
     self->item_block = (ItemBlock) {
         .item = declareItem(ITEMID_CHEST),
-        .face_attributes = { declareFaceAttributes(26,26,28,27,27,27) },
+        .face_attributes = { declareFaceAttributes(25,25,26,27,26,26) },
     };
 }

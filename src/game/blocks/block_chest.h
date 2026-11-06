@@ -89,18 +89,18 @@ DEFN_BLOCK_CONSTRUCTOR(chest);
 })
 
 #define chestBlockFaceAttributes() P99_PROTECT({\
-    declareFaceAttributes(26,26,28,27,27,27), /* Single left */\
-    declareFaceAttributes(26,26,27,28,27,27), /* Single right */\
-    declareFaceAttributes(26,26,27,27,28,27), /* Single back */\
-    declareFaceAttributes(26,26,27,27,27,28), /* Single front */\
-    declareFaceAttributes(26,26,41,58,27,27), /* Double left left */\
-    declareFaceAttributes(26,26,58,41,27,27), /* Double left right */\
-    declareFaceAttributes(26,26,27,27,41,58), /* Double left back */\
-    declareFaceAttributes(26,26,27,27,58,41), /* Double left front */\
-    declareFaceAttributes(26,26,42,57,27,27), /* Double right left */\
-    declareFaceAttributes(26,26,57,42,27,27), /* Double right right */\
-    declareFaceAttributes(26,26,27,27,42,57), /* Double right back */\
-    declareFaceAttributes(26,26,27,27,57,42) /* Double right front */\
+    declareFaceAttributes(25,25,27,26,26,26), /* Single left */\
+    declareFaceAttributes(25,25,26,27,26,26), /* Single right */\
+    declareFaceAttributes(25,25,26,26,27,26), /* Single back */\
+    declareFaceAttributes(25,25,26,26,26,27), /* Single front */\
+    declareFaceAttributes(25,25,41,58,26,26), /* Double left left */\
+    declareFaceAttributes(25,25,58,41,26,26), /* Double left right */\
+    declareFaceAttributes(25,25,26,26,41,58), /* Double left back */\
+    declareFaceAttributes(25,25,26,26,58,41), /* Double left front */\
+    declareFaceAttributes(25,25,42,57,26,26), /* Double right left */\
+    declareFaceAttributes(25,25,57,42,26,26), /* Double right right */\
+    declareFaceAttributes(25,25,26,26,42,57), /* Double right back */\
+    declareFaceAttributes(25,25,26,26,57,42) /* Double right front */\
 })
 
 void chestBlockInit(VSelf);
@@ -115,6 +115,10 @@ ALLOC_CALL(itemDestroy, 1) IItem* ChestBlock_provideItem(VSelf);
 #define ChestBlock_useAction_CUSTOM ()
 bool chestBlockUseAction(VSelf, const VECTOR block_world_pos);
 bool ChestBlock_useAction(VSelf, const VECTOR block_world_pos);
+
+#define ChestBlock_update_CUSTOM ()
+BlockUpdateResultBitmap chestBlockUpdate(VSelf, const VECTOR block_world_pos);
+BlockUpdateResultBitmap ChestBlock_update(VSelf, const VECTOR block_world_pos);
 
 impl(IBlock, ChestBlock);
 

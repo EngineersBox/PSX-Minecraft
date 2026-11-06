@@ -10,8 +10,10 @@
 #include "../world/world_structure.h"
 #include "../../core/input/input.h"
 #include "../../ui/components/cursor.h"
+#include "../../util/bits.h"
 #include "../../util/interface99_extensions.h"
 #include "../../util/memory.h"
+#include "psxgte.h"
 
 FWD_DECL void worldDropItemStack(World* world, IItem* item, const u8 count);
 FWD_DECL IBlock* worldGetBlock(const World* world, const VECTOR position);
@@ -49,6 +51,48 @@ void ChestBlock_init(VSelf) {
             self->slots[(y * slotGroupDim(CHEST_SINGLE, X)) + x] = createSlotInline(CHEST_SINGLE, x, y);
         }
     }
+}
+
+BlockUpdateResultBitmap chestBlockUpdate(VSelf, const VECTOR block_world_pos) ALIAS("ChestBlock_update");
+BlockUpdateResultBitmap ChestBlock_update(VSelf, const VECTOR block_world_pos) {
+    // NOTE: This is only triggered once when the block is placed after
+    //       initialisation and stuff has completed. Purpose is only to
+    //       update the single/double state and apply necessary changes.
+    VSELF(ChestBlock);
+    ChestBlock* other = NULL;
+    SVECTOR other_relative_pos = vec3_i16(0);
+    FaceDirection other_relative_dir = FACE_DIR_LEFT;
+    for (FaceDirection dir = FACE_DIR_LEFT; dir <= FACE_DIR_FRONT; dir++) {
+        other_relative_pos = WORLD_FACE_DIRECTION_NORMALS[dir];
+        const VECTOR query_pos = vec3_add(
+            block_world_pos,
+            other_relative_pos
+        );
+        const IBlock* iblock = worldGetBlock(world, query_pos);
+        if (iblock == NULL) continue;
+        const Block* block = VCAST_PTR(Block*, iblock);
+        if (block->id != BLOCKID_CHEST) continue;
+        other = VCAST_PTR(ChestBlock*, iblock);
+        other_relative_dir = dir;
+    }
+    if (other == NULL) {
+        return 0;
+    }
+    if (faceDirectionIsSameAxis(self->block.orientation, other->block.orientation)
+        && faceDirectionIsSameAxis(other->block.orientation, other_relative_dir)) {
+        const SVECTOR adjusted_dir= FACE_DIRECTION_RELATIVE_RIGHT[other_relative_dir];
+        self->block.orientation = faceDirectionClosestNormal(vec3_as(VECTOR, adjusted_dir));
+        other->block.orientation = self->block.orientation;
+    } else if (faceDirectionIsSameAxis(self->block.orientation, other_relative_dir)) {
+        self->block.orientation = other->block.orientation;
+    } else {
+        other->block.orientation = self->block.orientation;
+    }
+    // FIXME: If the chest is between chunks, this won't trigger a remesh
+    //        in the other chunk
+    BlockUpdateResultBitmap result = 0;
+    bitmapSetBit(result, BLOCK_UPDATE_RESULT_REMESH_CHUNK);
+    return result;
 }
 
 IItem* chestBlockDestroy(VSelf,
@@ -365,6 +409,11 @@ void chestBlockRenderUI(RenderContext* ctx, Transforms* transforms) {
     }
     chestDoubleLeftRenderUI(left, ctx, transforms);
     chestDoubleRightRenderUI(right, ctx, transforms);
+    uiBackgroundRender(
+        &block_render_ui_context.background,
+        ctx,
+        transforms
+    );
 }
 
 bool chestBlockUseAction(VSelf, const VECTOR block_world_pos) ALIAS("ChestBlock_useAction");

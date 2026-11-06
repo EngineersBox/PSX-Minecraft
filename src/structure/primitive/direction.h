@@ -49,6 +49,8 @@ extern const SVECTOR FACE_DIRECTION_RELATIVE_RIGHT[FACE_DIRECTION_COUNT];
  */
 #define faceDirectionOpposing(face_dir) ((FaceDirection) (((u8) (face_dir)) ^ 0b001))
 
+#define faceDirectionIsSameAxis(face_dir_a, face_dir_b) ((((u8) (face_dir_a)) & 0b110) == (((u8) (face_dir_b)) & 0b110))
+
 // [-1,1] => [0,1]
 #define convertAxis(v,a) (((v).a + 1) >> 1)
 /**
