@@ -71,12 +71,15 @@ BlockUpdateResultBitmap ChestBlock_update(VSelf, const VECTOR block_world_pos) {
         const IBlock* iblock = worldGetBlock(world, query_pos);
         if (iblock == NULL) continue;
         const Block* block = VCAST_PTR(Block*, iblock);
+        DEBUG_LOG("Block id: %d\n", block->id);
         if (block->id != BLOCKID_CHEST) continue;
         other = VCAST_PTR(ChestBlock*, iblock);
         other_relative_dir = dir;
     }
     if (other == NULL) {
         self->type = CHEST_TYPE_SINGLE;
+        self->block.metadata_id = self->block.orientation - FACE_DIR_LEFT;
+        other->block.metadata_id = other->block.orientation - FACE_DIR_LEFT;
         return 0;
     }
     if (faceDirectionIsSameAxis(self->block.orientation, other->block.orientation)
@@ -96,8 +99,8 @@ BlockUpdateResultBitmap ChestBlock_update(VSelf, const VECTOR block_world_pos) {
         self->type = CHEST_TYPE_DOUBLE_RIGHT;
         other->type = CHEST_TYPE_DOUBLE_LEFT;
     }
-    self->block.metadata_id = (self->block.orientation - FACE_DIR_LEFT) * 2;
-    other->block.metadata_id = (other->block.orientation - FACE_DIR_LEFT) * 2;
+    self->block.metadata_id = self->block.orientation - FACE_DIR_LEFT;
+    other->block.metadata_id = other->block.orientation - FACE_DIR_LEFT;
     // FIXME: If the chest is between chunks, this won't trigger a remesh
     //        in the other chunk
     BlockUpdateResultBitmap result = 0;
