@@ -96,6 +96,8 @@ BlockUpdateResultBitmap ChestBlock_update(VSelf, const VECTOR block_world_pos) {
         self->type = CHEST_TYPE_DOUBLE_RIGHT;
         other->type = CHEST_TYPE_DOUBLE_LEFT;
     }
+    self->block.metadata_id = (self->block.orientation - FACE_DIR_LEFT) * 2;
+    other->block.metadata_id = (other->block.orientation - FACE_DIR_LEFT) * 2;
     // FIXME: If the chest is between chunks, this won't trigger a remesh
     //        in the other chunk
     BlockUpdateResultBitmap result = 0;
