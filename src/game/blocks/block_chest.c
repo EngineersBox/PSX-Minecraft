@@ -16,7 +16,7 @@
 #include "psxgte.h"
 
 FWD_DECL void worldDropItemStack(World* world, IItem* item, const u8 count);
-FWD_DECL IBlock* worldGetBlock(const World* world, const VECTOR position);
+FWD_DECL IBlock* worldGetBlock(const World* world, const VECTOR* position);
 FWD_DECL Chunk* worldGetChunk(const World* world, const VECTOR* world_block_pos);
 FWD_DECL void chunkMarkForRemesh(Chunk *chunk);
 
@@ -70,7 +70,7 @@ BlockUpdateResultBitmap ChestBlock_update(VSelf, const VECTOR block_world_pos) {
             block_world_pos,
             other_relative_pos
         );
-        const IBlock* iblock = worldGetBlock(world, query_pos);
+        const IBlock* iblock = worldGetBlock(world, &query_pos);
         if (iblock == NULL) continue;
         const Block* block = VCAST_PTR(Block*, iblock);
         DEBUG_LOG("Block id: %d\n", block->id);
@@ -100,8 +100,8 @@ BlockUpdateResultBitmap ChestBlock_update(VSelf, const VECTOR block_world_pos) {
         self->type = CHEST_TYPE_DOUBLE_RIGHT;
         other->type = CHEST_TYPE_DOUBLE_LEFT;
     }
-    self->block.metadata_id = self->block.orientation - FACE_DIR_LEFT;
-    other->block.metadata_id = other->block.orientation - FACE_DIR_LEFT;
+    self->block.metadata_id = (self->type * 4)  + self->block.orientation - FACE_DIR_LEFT;
+    other->block.metadata_id = (other->type * 4) + other->block.orientation - FACE_DIR_LEFT;
     const VECTOR other_pos = vec3_add(block_world_pos, other_relative_pos);
     Chunk* other_chest_chunk = worldGetChunk(world, &other_pos);
     if (other_chest_chunk != NULL) {
@@ -126,18 +126,20 @@ IItem* ChestBlock_destroy(VSelf,
         case CHEST_TYPE_SINGLE:
             break;
         case CHEST_TYPE_DOUBLE_LEFT:
-            iblock = worldGetBlock(world, vec3_add(
+            const VECTOR left_pos = vec3_add(
                 block_world_pos,
                 FACE_DIRECTION_RELATIVE_LEFT[self->block.orientation]
-            ));
+            );
+            iblock = worldGetBlock(world, &left_pos);
             other_chest_half = VCAST_PTR(ChestBlock*, iblock);
             other_chest_half->type = CHEST_TYPE_SINGLE;
             break;
         case CHEST_TYPE_DOUBLE_RIGHT:
-            iblock = worldGetBlock(world, vec3_add(
+            const VECTOR right_pos = vec3_add(
                 block_world_pos,
                 FACE_DIRECTION_RELATIVE_RIGHT[self->block.orientation]
-            ));
+            );
+            iblock = worldGetBlock(world, &right_pos);
             other_chest_half = VCAST_PTR(ChestBlock*, iblock);
             other_chest_half->type = CHEST_TYPE_SINGLE;
             break;
@@ -215,10 +217,11 @@ static void cursorHandler(ChestBlock* chest,
                 )];
                 break;
             }
-            iblock = worldGetBlock(world, vec3_add(
+            const VECTOR left_pos = vec3_add(
                 chest_world_pos,
                 FACE_DIRECTION_RELATIVE_LEFT[chest->block.orientation]
-            ));
+            );
+            iblock = worldGetBlock(world, &left_pos);
             other_chest = VCAST_PTR(ChestBlock*, iblock);
             if (slotGroupIntersect(
                 CHEST_DOUBLE_RIGHT,
@@ -241,10 +244,11 @@ static void cursorHandler(ChestBlock* chest,
                 )];
                 break;
             }
-            iblock = worldGetBlock(world, vec3_add(
+            const VECTOR right_pos = vec3_add(
                 chest_world_pos,
                 FACE_DIRECTION_RELATIVE_LEFT[chest->block.orientation]
-            ));
+            );
+            iblock = worldGetBlock(world, &right_pos);
             other_chest = VCAST_PTR(ChestBlock*, iblock);
             if (slotGroupIntersect(
                 CHEST_DOUBLE_LEFT,
@@ -404,23 +408,19 @@ void chestBlockRenderUI(RenderContext* ctx, Transforms* transforms) {
             return;
         case CHEST_TYPE_DOUBLE_LEFT:
             left = chest;
-            iblock = worldGetBlock(
-                world,
-                vec3_add(
-                    chest_world_pos,
-                    FACE_DIRECTION_RELATIVE_LEFT[chest->block.orientation]
-                )
+            const VECTOR left_pos = vec3_add(
+                chest_world_pos,
+                FACE_DIRECTION_RELATIVE_LEFT[chest->block.orientation]
             );
+            iblock = worldGetBlock(world, &left_pos);
             right = VCAST_PTR(ChestBlock*, iblock);
             break;
         case CHEST_TYPE_DOUBLE_RIGHT:
-            iblock = worldGetBlock(
-                world,
-                vec3_add(
-                    chest_world_pos,
-                    FACE_DIRECTION_RELATIVE_RIGHT[chest->block.orientation]
-                )
+            const VECTOR right_pos = vec3_add(
+                chest_world_pos,
+                FACE_DIRECTION_RELATIVE_RIGHT[chest->block.orientation]
             );
+            iblock = worldGetBlock(world, &right_pos);
             left = VCAST_PTR(ChestBlock*, iblock);
             right = chest;
             break;

@@ -95,12 +95,12 @@ DEFN_BLOCK_CONSTRUCTOR(chest);
     declareFaceAttributes(25,25,26,26,27,26), /* Single front */\
     declareFaceAttributes(25,25,41,58,26,26), /* Double left left */\
     declareFaceAttributes(25,25,58,41,26,26), /* Double left right */\
-    declareFaceAttributes(25,25,26,26,41,58), /* Double left back */\
-    declareFaceAttributes(25,25,26,26,58,41), /* Double left front */\
+    declareFaceAttributes(25,25,26,26,58,41), /* Double left back */\
+    declareFaceAttributes(25,25,26,26,41,58), /* Double left front */\
     declareFaceAttributes(25,25,42,57,26,26), /* Double right left */\
     declareFaceAttributes(25,25,57,42,26,26), /* Double right right */\
-    declareFaceAttributes(25,25,26,26,42,57), /* Double right back */\
-    declareFaceAttributes(25,25,26,26,57,42) /* Double right front */\
+    declareFaceAttributes(25,25,26,26,57,42), /* Double right back */\
+    declareFaceAttributes(25,25,26,26,42,57)  /* Double right front */\
 })
 
 void chestBlockInit(VSelf);
