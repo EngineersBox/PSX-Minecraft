@@ -91,8 +91,8 @@ DEFN_BLOCK_CONSTRUCTOR(chest);
 #define chestBlockFaceAttributes() P99_PROTECT({\
     declareFaceAttributes(25,25,27,26,26,26), /* Single left */\
     declareFaceAttributes(25,25,26,27,26,26), /* Single right */\
-    declareFaceAttributes(25,25,26,26,27,26), /* Single back */\
-    declareFaceAttributes(25,25,26,26,26,27), /* Single front */\
+    declareFaceAttributes(25,25,26,26,26,27), /* Single back */\
+    declareFaceAttributes(25,25,26,26,27,26), /* Single front */\
     declareFaceAttributes(25,25,41,58,26,26), /* Double left left */\
     declareFaceAttributes(25,25,58,41,26,26), /* Double left right */\
     declareFaceAttributes(25,25,26,26,41,58), /* Double left back */\
