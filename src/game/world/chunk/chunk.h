@@ -86,4 +86,6 @@ void chunkRemoveLightValue(Chunk* chunk,
 
 void chunkProcessBlockUpdates(Chunk* chunk, const i16 update_limits);
 
+void chunkMarkForRemesh(Chunk* chunk);
+
 #endif // PSXMC_CHUNK_H

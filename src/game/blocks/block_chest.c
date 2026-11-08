@@ -17,6 +17,8 @@
 
 FWD_DECL void worldDropItemStack(World* world, IItem* item, const u8 count);
 FWD_DECL IBlock* worldGetBlock(const World* world, const VECTOR position);
+FWD_DECL Chunk* worldGetChunk(const World* world, const VECTOR* world_block_pos);
+FWD_DECL void chunkMarkForRemesh(Chunk *chunk);
 
 static Texture chest_texture = {0};
 Timestamp chest_debounce = 0;
@@ -79,8 +81,7 @@ BlockUpdateResultBitmap ChestBlock_update(VSelf, const VECTOR block_world_pos) {
     if (other == NULL) {
         self->type = CHEST_TYPE_SINGLE;
         self->block.metadata_id = self->block.orientation - FACE_DIR_LEFT;
-        other->block.metadata_id = other->block.orientation - FACE_DIR_LEFT;
-        return 0;
+        goto chest_update_return_and_remesh;
     }
     if (faceDirectionIsSameAxis(self->block.orientation, other->block.orientation)
         && faceDirectionIsSameAxis(other->block.orientation, other_relative_dir)) {
@@ -101,8 +102,12 @@ BlockUpdateResultBitmap ChestBlock_update(VSelf, const VECTOR block_world_pos) {
     }
     self->block.metadata_id = self->block.orientation - FACE_DIR_LEFT;
     other->block.metadata_id = other->block.orientation - FACE_DIR_LEFT;
-    // FIXME: If the chest is between chunks, this won't trigger a remesh
-    //        in the other chunk
+    const VECTOR other_pos = vec3_add(block_world_pos, other_relative_pos);
+    Chunk* other_chest_chunk = worldGetChunk(world, &other_pos);
+    if (other_chest_chunk != NULL) {
+        chunkMarkForRemesh(other_chest_chunk);
+    }
+chest_update_return_and_remesh:;
     BlockUpdateResultBitmap result = 0;
     bitmapSetBit(result, BLOCK_UPDATE_RESULT_REMESH_CHUNK);
     return result;

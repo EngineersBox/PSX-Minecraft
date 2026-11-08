@@ -1303,3 +1303,6 @@ void chunkProcessBlockUpdates(Chunk* chunk, const i16 update_limits) {
     }
 }
 
+INLINE void chunkMarkForRemesh(Chunk* chunk) {
+    chunk->mesh_updated = true;
+}

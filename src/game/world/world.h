@@ -36,7 +36,7 @@ void worldLoadChunks(World* world, const VECTOR* player_chunk_pos);
 void worldUpdate(World* world, Player* player, BreakingState* breaking_state, RenderContext* ctx);
 
 Chunk* worldGetChunkFromChunkBlock(const World* world, const ChunkBlockPosition* position);
-Chunk* worldGetChunk(const World* world, const VECTOR* position);
+Chunk* worldGetChunk(const World* world, const VECTOR* world_block_pos);
 
 IBlock* worldGetChunkBlock(const World* world, const ChunkBlockPosition* position);
 IBlock* worldGetBlock(const World* world, const VECTOR* position);

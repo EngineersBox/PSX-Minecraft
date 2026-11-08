@@ -1286,12 +1286,12 @@ INLINE Chunk* worldGetChunkFromChunkBlock(const World* world, const ChunkBlockPo
                         [position->chunk.vy];
 }
 
-INLINE Chunk* worldGetChunk(const World* world, const VECTOR* position) {
+INLINE Chunk* worldGetChunk(const World* world, const VECTOR* world_block_pos) {
     // World is void below 0 and above world-height on y-axis
-    if (position->vy < 0 || position->vy >= WORLD_CHUNKS_HEIGHT) {
+    if (world_block_pos->vy < 0 || world_block_pos->vy >= WORLD_CHUNKS_HEIGHT) {
         return NULL;
     }
-    const ChunkBlockPosition chunk_block_position = worldToChunkBlockPosition(position, CHUNK_SIZE);
+    const ChunkBlockPosition chunk_block_position = worldToChunkBlockPosition(world_block_pos, CHUNK_SIZE);
     return worldGetChunkFromChunkBlock(world, &chunk_block_position);
 }
 
