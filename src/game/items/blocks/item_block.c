@@ -11,7 +11,7 @@
 #include "../../../resources/assets.h"
 #include "../../../logging/logging.h"
 #include "../../gui/slot.h"
-#include "../../../lighting/lightmap.h"
+#include "../../lighting/lightmap.h"
 
 FWD_DECL typedef struct World World;
 FWD_DECL LightLevel worldGetInternalLightLevel(const World* world);

@@ -9,7 +9,7 @@
 #include "chunk_defines.h"
 #include "chunk_visibility.h"
 #include "../../blocks/block.h"
-#include "../../../lighting/lightmap.h"
+#include "../../lighting/lightmap.h"
 
 #define chunkBlockIndex(x, y, z) ((z) + ((y) * CHUNK_SIZE) + ((x) * CHUNK_SIZE * CHUNK_SIZE))
 #define chunkBlockIndexOOB(x, y, z) ((x) >= CHUNK_SIZE || (x) < 0 \

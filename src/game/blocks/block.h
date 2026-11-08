@@ -8,7 +8,7 @@
 #include "../id.h"
 #include "../items/item.h"
 #include "../world/position.h"
-#include "../../lighting/lightmap.h"
+#include "../lighting/lightmap.h"
 #include "../../physics/aabb.h"
 #include "../../resources/texture.h"
 #include "../../structure/primitive/direction.h"

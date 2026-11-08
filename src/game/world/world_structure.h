@@ -7,7 +7,7 @@
 #include <psxgte.h>
 
 #include "generation/chunk_provider.h"
-#include "../../lighting/lightmap.h"
+#include "../lighting/lightmap.h"
 #include "../../util/inttypes.h"
 #include "world_defines.h"
 #include "chunk/heightmap.h"

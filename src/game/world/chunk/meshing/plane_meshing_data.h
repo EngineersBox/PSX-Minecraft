@@ -4,7 +4,7 @@
 #define _PSXMC__GAME_WORLD_CHUNK_MESHING__PLANE_MESHING_DATA_H_
 
 #include "../chunk_structure.h"
-#include "../../../../lighting/lightmap.h"
+#include "../../../lighting/lightmap.h"
 #include "../../../../util/inttypes.h"
 
 #if defined(CHUNK_SIZE) && CHUNK_SIZE > 0 && CHUNK_SIZE <= 32 && _isPowerOf2(CHUNK_SIZE)

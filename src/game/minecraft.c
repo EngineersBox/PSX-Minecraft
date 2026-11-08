@@ -9,32 +9,31 @@
 /*#include <sys/fcntl.h>*/
 /*#include <psxsio.h>*/
 
-#include "../ui/axis.h"
-#include "../render/debug.h"
-#include "../math/vector.h"
-#include "../ui/ui.h"
-#include "entity/player.h"
-#include "../resources/assets.h"
-#include "../render/duration_tree.h"
-#include "../render/font.h"
-#include "../util/interface99_extensions.h"
-#include "../logging/logging.h"
-#include "../util/preprocessor.h"
 #include "blocks/block.h"
+#include "entity/player.h"
 #include "gui/inventory.h"
 #include "gui/slot.h"
 #include "items/blocks/item_block.h"
 #include "items/item_id.h"
 #include "items/items.h"
 #include "menu/menu.h"
-#include "menu/menu_id.h"
+#include "overlay/debug.h"
 #include "world/level/overworld_flatland.h"
 #include "world/level/overworld_perlin.h"
 #include "weather/weather.h"
 // #include "../core/console.h"
 #include "../debug/debug_defines.h"
+#include "../logging/logging.h"
+#include "../math/vector.h"
+#include "../ui/axis.h"
+#include "../render/duration_tree.h"
+#include "../render/font.h"
+#include "../render/debug.h"
+#include "../resources/assets.h"
 #include "../structure/primitive/primitive.h"
-#include "menu/menu.h"
+#include "../util/interface99_extensions.h"
+#include "../util/preprocessor.h"
+#include "../ui/ui.h"
 
 /*int helpHandler(const Console* console, char* tokens[CONSOLE_MAX_TOKENS]) {*/
 /*    DEBUG_LOG("[CONSOLE] Invoked help handler: %s\n", tokens[0]);*/
@@ -323,7 +322,7 @@ void Minecraft_render(VSelf, const Stats* stats) {
         );
     }
     renderClearConstraints(&self->ctx);
-    drawDebugText(stats, &self->camera, world);
+    debugOverlayDraw(stats, &self->camera, world);
 #if isDebugEnabled()
     debugDrawPacketBufferUsageGraph(
         &self->ctx,

@@ -8,7 +8,7 @@
 #include "../../../render/render_context.h"
 #include "../../../render/transforms.h"
 #include "../../../structure/primitive/direction.h"
-#include "../../../lighting/lightmap.h"
+#include "../../lighting/lightmap.h"
 #include "../../../physics/aabb.h"
 
 // TODO: Move this to global defines file

@@ -7,7 +7,7 @@
 #include "../../position.h"
 #include "../../../blocks/blocks.h"
 #include "../../../../logging/logging.h"
-#include "../../../../lighting/lightmap.h"
+#include "../../../lighting/lightmap.h"
 #include "../../../../util/interface99_extensions.h"
 #include "../../../../util/bits.h"
 #include "../../../../util/preprocessor.h"

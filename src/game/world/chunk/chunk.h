@@ -10,7 +10,7 @@
 #include "../../../render/render_context.h"
 #include "../../../render/transforms.h"
 #include "../../entity/player.h"
-#include "../../../lighting/lightmap.h"
+#include "../../lighting/lightmap.h"
 #include "../../items/item.h"
 #include "../../blocks/breaking_state.h"
 
