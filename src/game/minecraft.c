@@ -285,7 +285,7 @@ void Minecraft_render(VSelf, const Stats* stats) {
     if (menuIsOpen()) {
         menuRender(&self->ctx, &self->transforms);
         renderClearConstraints(&self->ctx);
-        goto minecraftRenderFinalise;
+        goto minecraft_render_finalise;
     }
     // Update breaking state textures
     breakingStateUpdateRenderTarget(&player->breaking, &self->ctx);
@@ -331,7 +331,7 @@ void Minecraft_render(VSelf, const Stats* stats) {
     );
 #endif
     FntPrint(0, PSXMC_VERSION_STRING "\n");
-minecraftRenderFinalise:;
+minecraft_render_finalise:;
     // Flush font to screen
     FntFlush(0);
     // Swap buffers and draw the primitives
