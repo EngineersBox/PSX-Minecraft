@@ -282,10 +282,14 @@ void worldDestroy(World* world) {
 }
 
 static const VECTOR SUN_MOON_VERTICES[4] = {
-    [0]=vec3_i32( SUN_RADIUS,  SUN_RADIUS, 0),
+    // [0]=vec3_i32( SUN_RADIUS,  SUN_RADIUS, 0),
+    // [1]=vec3_i32( SUN_RADIUS, -SUN_RADIUS, 0),
+    // [2]=vec3_i32(-SUN_RADIUS,  SUN_RADIUS, 0),
+    // [3]=vec3_i32(-SUN_RADIUS, -SUN_RADIUS, 0)
+    [0]=vec3_i32(-SUN_RADIUS, -SUN_RADIUS, 0),
     [1]=vec3_i32( SUN_RADIUS, -SUN_RADIUS, 0),
     [2]=vec3_i32(-SUN_RADIUS,  SUN_RADIUS, 0),
-    [3]=vec3_i32(-SUN_RADIUS, -SUN_RADIUS, 0)
+    [3]=vec3_i32( SUN_RADIUS,  SUN_RADIUS, 0)
 };
 
 static const DVECTOR UNIT_ANGLE_POS_LUT[90] = {
@@ -386,9 +390,9 @@ void worldRenderSkybox(const World* world,
                        Transforms* transforms) {
     const fixedi32 angle = fixedFixedDiv(world->time_ticks, WORLD_TIME_CYCLE);
     SVECTOR rotation = vec3_i16(
-        positiveModulo(-angle - FIXED_1_4, ONE),
         0,
-        0
+        0,
+        positiveModulo(-angle - FIXED_1_4, ONE)
     );
     i32 z = 0;
     i32 y = 0;
@@ -417,7 +421,7 @@ void worldRenderSkybox(const World* world,
             y = fixedMul(pos->vy, SUN_DISTANCE);
             break;
     }
-    VECTOR position = vec3_i32(0, y, z);
+    VECTOR position = vec3_i32(z, y, 0);
     // DEBUG_LOG("Pos: " VEC_PATTERN "\n", VEC_LAYOUT(position));
     // Object and light matrix for object
     MATRIX omtx = {0};
@@ -479,9 +483,9 @@ void worldRenderSkybox(const World* world,
     renderCtxUnbindMatrix();
     return;
 render_moon:;
-    rotation.vx = positiveModulo(rotation.vx + FIXED_1_2, ONE);
+    position.vx *= -1;
     position.vy *= -1;
-    position.vz *= -1;
+    rotation.vz = positiveModulo(rotation.vz + FIXED_1_2, ONE);
     omtx = (MATRIX) {0};
     // Set object rotation and position
     RotMatrix(&rotation, &omtx);

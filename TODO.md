@@ -50,6 +50,7 @@
 * [X] Chunks with negative relative position to player are culled below player sometimes
 * [X] Crafting table recipe causes exception only when placing items in table in a certain order. I.e. Bottom right four squares, placed in order of top-left, top-right, bottom-left and bottom-right, exception on last placement. This isn't the only case that triggers it, there are other cases where it will work and then putting another item in the table will cause an exception. Very likely an out-of-bounds write with a value rather than an address, considering that it causes a BIOS reload most times.
 * [X] Weather texture does not scroll correctly, some planes are static and only in some places does it work correctly. Potentially an issue with texture windowing and UV positions.
+* [X] Aligned sun and moon position with east/west
 * [ ] Cull faces on chunk edges that face outward on the render limit
 * [ ] Mesh vertices z-depth is inconsistent leading to faces drawn in wrong order and thus culling fails
 * [ ] Vertices are distorted (in their location) when very close to the camera

@@ -82,6 +82,9 @@ BlockUpdateResultBitmap ChestBlock_update(VSelf, const VECTOR block_world_pos) {
         self->block.metadata_id = self->block.orientation - FACE_DIR_LEFT;
         goto chest_update_return_and_remesh;
     }
+    DEBUG_LOG("Self orientation: " INT8_BIN_PATTERN "\n", INT8_BIN_LAYOUT(self->block.orientation));
+    DEBUG_LOG("Other orientation: " INT8_BIN_PATTERN "\n", INT8_BIN_LAYOUT(other->block.orientation));
+    DEBUG_LOG("Other relative dir: " INT8_BIN_PATTERN "\n", INT8_BIN_LAYOUT(other_relative_dir));
     if (faceDirectionIsSameAxis(self->block.orientation, other->block.orientation)
         && faceDirectionIsSameAxis(other->block.orientation, other_relative_dir)) {
         const SVECTOR adjusted_dir = FACE_DIRECTION_RELATIVE_RIGHT[other_relative_dir];
@@ -92,6 +95,13 @@ BlockUpdateResultBitmap ChestBlock_update(VSelf, const VECTOR block_world_pos) {
     } else {
         other->block.orientation = self->block.orientation;
     }
+    const SVECTOR relative_right = FACE_DIRECTION_RELATIVE_RIGHT[self->block.orientation];
+    DEBUG_LOG(
+        "Relative right: " INT8_BIN_PATTERN ", " INT8_BIN_PATTERN ", " INT8_BIN_PATTERN "\n",
+        INT8_BIN_LAYOUT(relative_right.vx),
+        INT8_BIN_LAYOUT(relative_right.vy),
+        INT8_BIN_LAYOUT(relative_right.vz)
+    );
     if (vec3_equal(other_relative_pos, FACE_DIRECTION_RELATIVE_RIGHT[self->block.orientation])) {
         self->type = CHEST_TYPE_DOUBLE_LEFT;
         other->type = CHEST_TYPE_DOUBLE_RIGHT;
@@ -467,7 +477,7 @@ bool ChestBlock_useAction(VSelf, const VECTOR block_world_pos) {
     block_render_ui_context.background.component = (UIComponent) {
         .position = vec2_i16(
             CENTRE_X - (w >> 1),
-            CENTRE_Y - (h >> 1) - y_offset
+            CENTRE_Y - (h >> 1)// - y_offset
         ),
         .dimensions = vec2_i16(w, h)
     };
