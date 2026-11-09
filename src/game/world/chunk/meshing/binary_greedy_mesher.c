@@ -563,7 +563,7 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk, const BreakingState* breaking_sta
                 // Remove left most padding value, always invalid
                 col &= ~(1 << CHUNK_SIZE);
                 while (col != 0) {
-                    const u8 y = trailing_zeros(col);
+                    const u8 y = trailingZeros(col);
                     // Clear least significant bit set
                     col &= col - 1;
                     ChunkBlockPosition chunk_block_position = {
@@ -859,12 +859,12 @@ void binaryGreedyMesherConstructPlane(Chunk* chunk,
     for (u32 row = 0; row < CHUNK_SIZE; row++) {
         u32 y = 0;
         while (y < lod_size) {
-            y += trailing_zeros(data->plane[row] >> y);
+            y += trailingZeros(data->plane[row] >> y);
             if (y >= lod_size) {
                 // At top
                 continue;
             }
-            const u32 h = trailing_ones(data->plane[row] >> y);
+            const u32 h = trailingOnes(data->plane[row] >> y);
             // 1 = 0b1, 2 = 0b11, 4 = 0b1111
             const u32 h_as_mask = h < 32
                 ? ((u32) 1 << h) - 1

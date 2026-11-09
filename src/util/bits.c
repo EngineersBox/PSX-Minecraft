@@ -1,6 +1,6 @@
 #include "bits.h"
 
-u8 trailing_zeros(u32 value) {
+u8 trailingZeros(u32 value) {
     // Ripped from: https://graphics.stanford.edu/~seander/bithacks.html#ZerosOnRightParallel
     // If value is 1101000 (base 2), then c will be 3
     // NOTE: if value == 0, then c = 31.
@@ -28,7 +28,7 @@ u8 trailing_zeros(u32 value) {
     return c - (value & 0x1);
 }
 
-u8 trailing_ones(u32 value) {
+u8 trailingOnes(u32 value) {
     // Ripped from: https://graphics.stanford.edu/~seander/bithacks.html#ZerosOnRightParallel
     // If value is 0010111(base 2), then c will be 3
     // NOTE: if value == 0xffffffff, then c = 31.
@@ -58,10 +58,10 @@ u8 trailing_ones(u32 value) {
 
 // These functions (defined as macros in gcc/include/longlong.h are
 // used as the definition for __ctzSI2 in gcc/libgcc/libgcc2.c.
-// Specifically count_trailing_zeros. They seem to be the above
+// Specifically count_trailingZeros. They seem to be the above
 // implementation in a more succinct form though unsure as to whether
 // the performance is better or not. If it is then we can replace
-// the use of trailing_zeros with __builtin_ctz.
+// the use of trailingZeros with __builtin_ctz.
 // Godbolt comparison: https://godbolt.org/z/ffqvYWsrr
 //
 // int count_leading_zeros(int x) {
@@ -79,7 +79,7 @@ u8 trailing_ones(u32 value) {
 //     return W_TYPE_SIZE - (__clz_tab[__xr >> __a] + __a);
 // }
 //
-// int count_trailing_zeros(int x) {
+// int count_trailingZeros(int x) {
 //     UWtype __ctz_x = (x);
 //     UWtype __ctz_c;
 //     count_leading_zeros (__ctz_c, __ctz_x & -__ctz_x);

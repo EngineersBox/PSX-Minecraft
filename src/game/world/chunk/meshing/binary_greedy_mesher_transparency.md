@@ -28,7 +28,7 @@ The last ops ensure that only the bits on the outer faces of a sequence of 1's i
 | 01111     | 01000          | 00001           |
 
 
-Great, this then gets used to build the plane data by creating hashmap entries for the voxel data for each set bit by retrieving the y (axial-specific) value by invoking u64::trailing_zeros() and combining with the x,z iterator values we are traversing through.
+Great, this then gets used to build the plane data by creating hashmap entries for the voxel data for each set bit by retrieving the y (axial-specific) value by invoking u64::trailingZeros() and combining with the x,z iterator values we are traversing through.
 
 ## The Problem
 
@@ -56,7 +56,7 @@ Given that we have transparent voxels, we need a way to generate the following m
 | 01100          | 00110           |
 | 01100          | 00001           |
 
-Take a minute to see why the bits that are set as they are, we need anything solid followed by a transparent voxel in the direction of the face to be included. This begs the question... why do we want this? It is because the meshing plane construction for each face considers each bit of the column independently (assuming only one bit surrounded by zeros) by invoking `u64::trailing_zeros`. However the nature of the implementation means that if there are two *successive* 1 bits then it will consider each distinctly in mesh creation, which allows us to do this transparent-solid handling in any situation.
+Take a minute to see why the bits that are set as they are, we need anything solid followed by a transparent voxel in the direction of the face to be included. This begs the question... why do we want this? It is because the meshing plane construction for each face considers each bit of the column independently (assuming only one bit surrounded by zeros) by invoking `u64::trailingZeros`. However the nature of the implementation means that if there are two *successive* 1 bits then it will consider each distinctly in mesh creation, which allows us to do this transparent-solid handling in any situation.
 
 ## Solution
 
@@ -187,7 +187,7 @@ col >>= 1;
 // removes the left most padding value, because it's invalid
 col &= !(1 << CHUNK_SIZE as u64);
 while col != 0 {
-    let y = col.trailing_zeros();
+    let y = col.trailingZeros();
     // clear least significant set bit
     col &= col - 1;
     // get the voxel position based on axis

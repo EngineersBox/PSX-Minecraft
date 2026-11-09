@@ -255,7 +255,7 @@ typedef struct _DVECTOR {
 
 #define GLUE(x,y) x##y
 
-u8 trailing_zeros(u32 value) {
+u8 trailingZeros(u32 value) {
     // Ripped from: https://graphics.stanford.edu/~seander/bithacks.html#ZerosOnRightParallel
     // If value is 1101000 (base 2), then c will be 3
     // NOTE: if value == 0, then c = 31.
@@ -283,7 +283,7 @@ u8 trailing_zeros(u32 value) {
     return c - (value & 0x1);
 }
 
-u8 trailing_ones(u32 value) {
+u8 trailingOnes(u32 value) {
     // Ripped from: https://graphics.stanford.edu/~seander/bithacks.html#ZerosOnRightParallel
     // If value is 0010111(base 2), then c will be 3
     // NOTE: if value == 0xffffffff, then c = 31.
@@ -473,12 +473,12 @@ void binaryGreedyMesherConstructPlane(Chunk* chunk,
     for (u32 row = 0; row < CHUNK_SIZE; row++) {
         u32 y = 0;
         while (y < lod_size) {
-            y += trailing_zeros(data->plane[row] >> y);
+            y += trailingZeros(data->plane[row] >> y);
             if (y >= lod_size) {
                 // At top
                 continue;
             }
-            const u32 h = trailing_ones(data->plane[row] >> y);
+            const u32 h = trailingOnes(data->plane[row] >> y);
             // 1 = 0b1, 2 = 0b11, 4 = 0b1111
             const u32 h_as_mask = h < 32
                 ? ((u32) 1 << h) - 1
@@ -1054,7 +1054,7 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk) {
                 // Remove left most padding value, always invalid
                 col &= ~(1 << CHUNK_SIZE);
                 while (col != 0) {
-                    const u8 y = trailing_zeros(col);
+                    const u8 y = trailingZeros(col);
                     // Clear least significant bit set
                     col &= col - 1;
                     VECTOR world_block_position = vec3_i32_all(0);
