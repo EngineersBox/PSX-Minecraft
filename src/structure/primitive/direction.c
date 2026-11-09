@@ -47,7 +47,7 @@ FaceDirection faceDirectionClosestNormal(const VECTOR vec) {
     } else if (yn > xn && yn >= zn) {
         return vec.vy > 0 ? FACE_DIR_UP : FACE_DIR_DOWN;
     } else if (zn > xn && zn > yn) {
-        return vec.vz > 0 ? FACE_DIR_BACK : FACE_DIR_FRONT;
+        return vec.vz > 0 ? FACE_DIR_FRONT : FACE_DIR_BACK;
     }
     return FACE_DIR_RIGHT;
 }

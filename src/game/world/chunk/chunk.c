@@ -293,13 +293,6 @@ void chunkRender(Chunk* chunk,
         .min = vec3_const_mul(chunk->position, CHUNK_BLOCK_SIZE),
         .max = vec3_const_mul(vec3_const_add(chunk->position, 1), CHUNK_BLOCK_SIZE)
     };
-    /*if (frustumContainsAABB(&ctx->camera->frustum, &aabb) == FRUSTUM_OUTSIDE) {*/
-        /*DEBUG_LOG("Not visible\n", VEC_LAYOUT(chunk->position));*/
-    /*    durationComponentEnd();*/
-    /*    return;*/
-    /*} else {*/
-        /*DEBUG_LOG("Visible\n", VEC_LAYOUT(chunk->position));*/
-    /*}*/
     renderCtxBindMatrix(
         ctx,
         transforms,

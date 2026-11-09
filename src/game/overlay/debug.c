@@ -58,8 +58,8 @@ void drawLeftDebugText(const Stats* stats, const Camera* camera, MAYBE_UNUSED co
         case FACE_DIR_UP: setFacing('D', '-', 'Y'); break;
         case FACE_DIR_LEFT: setFacing('L', '-', 'X'); break;
         case FACE_DIR_RIGHT: setFacing('R', '+', 'X'); break;
-        case FACE_DIR_BACK: setFacing('B', '+', 'Z'); break;
-        case FACE_DIR_FRONT: setFacing('F', '-', 'Z'); break;
+        case FACE_DIR_BACK: setFacing('B', '-', 'Z'); break;
+        case FACE_DIR_FRONT: setFacing('F', '+', 'Z'); break;
         default: errorAbort("Unhandled facing direction"); return;
     }
     FntPrint(

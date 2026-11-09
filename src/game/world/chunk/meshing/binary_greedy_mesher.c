@@ -371,9 +371,9 @@ static void chunkVisibilityDfsWalkScan(Chunk* chunk,
             // Right
             _visitBlock(pos.vx == CHUNK_SIZE - 1, FACE_DIR_RIGHT);
             // Front
-            _visitBlock(pos.vz == 0, FACE_DIR_FRONT);
+            _visitBlock(pos.vz == CHUNK_SIZE - 1, FACE_DIR_FRONT);
             // Back
-            _visitBlock(pos.vz == CHUNK_SIZE - 1, FACE_DIR_BACK);
+            _visitBlock(pos.vz == 0, FACE_DIR_BACK);
             // Down
             _visitBlock(pos.vy == 0, FACE_DIR_DOWN);
             // Up
@@ -917,8 +917,8 @@ void binaryGreedyMesherConstructBreakingOverlay(Chunk* chunk, const BreakingStat
         // will never be used in the current loop.
         FaceDirection current_face_dir;
         switch (face_dir) {
-            case FACE_DIR_FRONT: current_face_dir = FACE_DIR_BACK; break;
-            case FACE_DIR_BACK: current_face_dir = FACE_DIR_FRONT; break;
+            // case FACE_DIR_FRONT: current_face_dir = FACE_DIR_BACK; break;
+            // case FACE_DIR_BACK: current_face_dir = FACE_DIR_FRONT; break;
             default: current_face_dir = face_dir; break;
         }
         TextureAttributes* attributes = &texture_attributes[current_face_dir];
