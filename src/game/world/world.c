@@ -721,7 +721,7 @@ void worldRender(const World* world,
             }
             chunkVisibilityClearBit(&chunk_render_state->visibility, face_dir, visit.visited_from);
             // DEBUG_LOG("Visible from face %d to %d\n", visit.visited_from, face_dir);
-            const SVECTOR face_dir_normal = WORLD_FACE_DIRECTION_NORMALS[face_dir];
+            const SVECTOR face_dir_normal = FACE_DIRECTION_NORMALS_WORLD[face_dir];
             const VECTOR next_chunk = vec3_add(visit.position, face_dir_normal);
             // DEBUG_LOG("Next chunk: " VEC_PATTERN "\n", VEC_LAYOUT(next_chunk));
             // Check if traversal direction is back towards camera. Skip if so.

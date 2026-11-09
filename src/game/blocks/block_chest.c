@@ -65,7 +65,7 @@ BlockUpdateResultBitmap ChestBlock_update(VSelf, const VECTOR block_world_pos) {
     SVECTOR other_relative_pos = vec3_i16(0);
     FaceDirection other_relative_dir = FACE_DIR_LEFT;
     for (FaceDirection dir = FACE_DIR_LEFT; dir <= FACE_DIR_FRONT; dir++) {
-        other_relative_pos = WORLD_FACE_DIRECTION_NORMALS[dir];
+        other_relative_pos = FACE_DIRECTION_NORMALS_WORLD[dir];
         const VECTOR query_pos = vec3_add(
             block_world_pos,
             other_relative_pos

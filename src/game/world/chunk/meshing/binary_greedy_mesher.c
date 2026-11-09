@@ -228,9 +228,9 @@ static u16 chunkBitmapFillSolid(ChunkBitmap bitmap,
         const Block* block = VCAST_PTR(Block*, iblock);
         for (FaceDirection face_direction = FACE_DIR_DOWN; face_direction <= FACE_DIR_FRONT; face_direction++) {
             const VECTOR normal = vec3_i32(
-                WORLD_FACE_DIRECTION_NORMALS[face_direction].vx,
-                WORLD_FACE_DIRECTION_NORMALS[face_direction].vy,
-                WORLD_FACE_DIRECTION_NORMALS[face_direction].vz
+                FACE_DIRECTION_NORMALS_WORLD[face_direction].vx,
+                FACE_DIRECTION_NORMALS_WORLD[face_direction].vy,
+                FACE_DIRECTION_NORMALS_WORLD[face_direction].vz
             );
             const VECTOR next_pos = vec3_add(pos, normal);
             if (chunkBlockIndexOOB(next_pos.vx, next_pos.vy, next_pos.vz)
@@ -361,7 +361,7 @@ static void chunkVisibilityDfsWalkScan(Chunk* chunk,
                     chunk, \
                     block, \
                     pos, \
-                    vec3_as(VECTOR, WORLD_FACE_DIRECTION_NORMALS[(direction)]), \
+                    vec3_as(VECTOR, FACE_DIRECTION_NORMALS_WORLD[(direction)]), \
                     &queue, \
                     faces_cols, \
                     faces_cols_opaque \

@@ -200,7 +200,7 @@ void chunkPropagateLightmap(Chunk* chunk, ChunkGenerationContext* gen_ctx) {
                 for (FaceDirection face_dir = FACE_DIR_LEFT; face_dir <= FACE_DIR_FRONT; face_dir++) {
                     const VECTOR face_position = vec3_add(
                         vec3_i32(x, y, z),
-                        WORLD_FACE_DIRECTION_NORMALS[face_dir]
+                        FACE_DIRECTION_NORMALS_WORLD[face_dir]
                     );
                     ChunkBlockPosition cb_pos = (ChunkBlockPosition) {
                         .chunk = chunk->position,
@@ -379,7 +379,7 @@ static LightLevel inferSunlightValueFromNeighbours(const Chunk* chunk,
     for (FaceDirection face_dir = FACE_DIR_DOWN; face_dir <= FACE_DIR_FRONT; face_dir++) {
         cb_pos.block = vec3_add(
             *position,
-            WORLD_FACE_DIRECTION_NORMALS[face_dir]
+            FACE_DIRECTION_NORMALS_WORLD[face_dir]
         );
         const VECTOR world_pos = chunkBlockToWorldPosition(&cb_pos, CHUNK_SIZE);
         const LightLevel neighbour_light_level = worldGetLightType(
@@ -956,7 +956,7 @@ void chunkUpdateAddBlockLight(Chunk* chunk,
     for (FaceDirection face_dir = FACE_DIR_DOWN; face_dir <= FACE_DIR_FRONT; face_dir++) {
         const VECTOR query_pos = vec3_add(
             world_pos,
-            WORLD_FACE_DIRECTION_NORMALS[face_dir]
+            FACE_DIRECTION_NORMALS_WORLD[face_dir]
         );
         const IBlock* iblock = worldGetBlock(
             current_chunk->world,
@@ -1009,7 +1009,7 @@ void chunkUpdateAddSkylight(Chunk* chunk, const BlockUpdate* update) {
     for (FaceDirection face_dir = FACE_DIR_DOWN; face_dir <= FACE_DIR_UP; face_dir++) {
         const VECTOR query_pos = vec3_add(
             world_pos,
-            WORLD_FACE_DIRECTION_NORMALS[face_dir]
+            FACE_DIRECTION_NORMALS_WORLD[face_dir]
         );
         const IBlock* iblock = worldGetBlock(
             current_chunk->world,
@@ -1049,7 +1049,7 @@ void chunkUpdateAddSkylight(Chunk* chunk, const BlockUpdate* update) {
     for (FaceDirection face_dir = FACE_DIR_LEFT; face_dir <= FACE_DIR_FRONT; face_dir++) {
         const VECTOR query_pos = vec3_add(
             world_pos,
-            WORLD_FACE_DIRECTION_NORMALS[face_dir]
+            FACE_DIRECTION_NORMALS_WORLD[face_dir]
         );
         const IBlock* iblock = worldGetBlock(
             current_chunk->world,
@@ -1100,7 +1100,7 @@ void chunkUpdateRemoveBlockLight(Chunk* chunk,
     for (FaceDirection face_dir = FACE_DIR_DOWN; face_dir <= FACE_DIR_FRONT; face_dir++) {
         const VECTOR query_pos = vec3_add(
             world_pos,
-            WORLD_FACE_DIRECTION_NORMALS[face_dir]
+            FACE_DIRECTION_NORMALS_WORLD[face_dir]
         );
         const IBlock* iblock = worldGetBlock(
             current_chunk->world,
@@ -1167,7 +1167,7 @@ void chunkUpdateRemoveSkylight(Chunk* chunk,
         }
         const VECTOR query_pos = vec3_add(
             world_pos,
-            WORLD_FACE_DIRECTION_NORMALS[face_dir]
+            FACE_DIRECTION_NORMALS_WORLD[face_dir]
         );
         const IBlock* iblock = worldGetBlock(
             current_chunk->world,
@@ -1207,7 +1207,7 @@ void chunkUpdateRemoveSkylight(Chunk* chunk,
     for (FaceDirection face_dir = FACE_DIR_LEFT; face_dir <= FACE_DIR_FRONT; face_dir++) {
         const VECTOR query_pos = vec3_add(
             world_pos,
-            WORLD_FACE_DIRECTION_NORMALS[face_dir]
+            FACE_DIRECTION_NORMALS_WORLD[face_dir]
         );
         const IBlock* iblock = worldGetBlock(
             current_chunk->world,
