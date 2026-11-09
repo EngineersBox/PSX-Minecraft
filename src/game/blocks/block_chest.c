@@ -477,7 +477,7 @@ bool ChestBlock_useAction(VSelf, const VECTOR block_world_pos) {
     block_render_ui_context.background.component = (UIComponent) {
         .position = vec2_i16(
             CENTRE_X - (w >> 1),
-            CENTRE_Y - (h >> 1)// - y_offset
+            CENTRE_Y - (h >> 1) - y_offset
         ),
         .dimensions = vec2_i16(w, h)
     };

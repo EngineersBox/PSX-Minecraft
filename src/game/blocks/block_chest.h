@@ -18,7 +18,7 @@ extern Timestamp chest_debounce;
 #define CHEST_DOUBLE_TEXTURE_WIDTH 176
 #define CHEST_DOUBLE_TEXTURE_HEIGHT 222
 
-#define CHEST_DOUBLE_TEXTURE_OFFSET_Y 54
+#define CHEST_DOUBLE_TEXTURE_OFFSET_Y (54 >> 1)
 
 // Single chest slots
 #define CHEST_SINGLE_SLOT_GROUP_DIMENSIONS_X 9
@@ -91,16 +91,16 @@ DEFN_BLOCK_CONSTRUCTOR(chest);
 #define chestBlockFaceAttributes() P99_PROTECT({\
     declareFaceAttributes(25,25,27,26,26,26), /* Single left */\
     declareFaceAttributes(25,25,26,27,26,26), /* Single right */\
-    declareFaceAttributes(25,25,26,26,26,27), /* Single back */\
-    declareFaceAttributes(25,25,26,26,27,26), /* Single front */\
+    declareFaceAttributes(25,25,26,26,27,26), /* Single back */\
+    declareFaceAttributes(25,25,26,26,26,27), /* Single front */\
     declareFaceAttributes(25,25,41,58,26,26), /* Double left left */\
     declareFaceAttributes(25,25,58,41,26,26), /* Double left right */\
-    declareFaceAttributes(25,25,26,26,58,41), /* Double left back */\
-    declareFaceAttributes(25,25,26,26,41,58), /* Double left front */\
+    declareFaceAttributes(25,25,26,26,41,58), /* Double left back */\
+    declareFaceAttributes(25,25,26,26,58,41), /* Double left front */\
     declareFaceAttributes(25,25,42,57,26,26), /* Double right left */\
     declareFaceAttributes(25,25,57,42,26,26), /* Double right right */\
-    declareFaceAttributes(25,25,26,26,57,42), /* Double right back */\
-    declareFaceAttributes(25,25,26,26,42,57)  /* Double right front */\
+    declareFaceAttributes(25,25,26,26,42,57), /* Double right back */\
+    declareFaceAttributes(25,25,26,26,57,42)  /* Double right front */\
 })
 
 void chestBlockInit(VSelf);
