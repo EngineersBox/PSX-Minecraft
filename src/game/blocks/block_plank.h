@@ -25,7 +25,7 @@ DEFN_BLOCK_CONSTRUCTOR(plank);
 })
 
 #define plankBlockFaceAttributes() P99_PROTECT({\
-defaultFaceAttributes(4) \
+    defaultFaceAttributes(4) \
 })
 
 void plankBlockInit(VSelf);

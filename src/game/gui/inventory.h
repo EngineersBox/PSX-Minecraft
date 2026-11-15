@@ -154,6 +154,7 @@ void inventoryInit(Inventory* inventory, Hotbar* hotbar);
 // groups in the InventorySlotGroup enum
 void inventoryRenderSlots(const Inventory* inventory,
                           InventorySlotGroups groups,
+                          i16 y_offset_items,
                           RenderContext* ctx,
                           Transforms* transforms);
 
@@ -179,6 +180,7 @@ void Inventory_registerInputHandler(VSelf, Input* input, void* ctx);
 
 void inventoryCursorHandler(Inventory* inventory,
                             InventorySlotGroups groups,
+                            i16 y_offset,
                             const Input* input);
 
 

@@ -135,7 +135,7 @@ void playerRender(const Player* player, RenderContext* ctx, Transforms* transfor
             transforms
         );
     }
-    inventoryRenderSlots(inventory, groups, ctx, transforms);
+    inventoryRenderSlots(inventory, groups, 0, ctx, transforms);
     uiRender(&inventory->ui, ctx, transforms);
 }
 

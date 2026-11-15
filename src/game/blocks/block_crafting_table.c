@@ -200,6 +200,7 @@ InputHandlerState craftingTableBlockInputHandler(const Input* input, UNUSED void
     inventoryCursorHandler(
         VCAST_PTR(Inventory*, block_input_handler_context.inventory),
         INVENTORY_SLOT_GROUP_MAIN | INVENTORY_SLOT_GROUP_HOTBAR,
+        0,
         input
     );
     // DEBUG_LOG("After cusor handler\n");
@@ -319,6 +320,7 @@ void craftingTableBlockRenderUI(RenderContext* ctx, Transforms* transforms) {
     inventoryRenderSlots(
         VCAST_PTR(const Inventory*, block_input_handler_context.inventory),
         INVENTORY_SLOT_GROUP_MAIN | INVENTORY_SLOT_GROUP_HOTBAR,
+        0,
         ctx,
         transforms
     );

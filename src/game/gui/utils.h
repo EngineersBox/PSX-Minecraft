@@ -5,11 +5,11 @@
 
 #include "slot.h"
 
-void cursorSplitOrStoreOne(Slot* slot,
+bool cursorSplitOrStoreOne(Slot* slot,
                            SlotItemGetter getter,
                            SlotItemSetter setter);
 
-void cursorInteractSlot(Slot* slot,
+bool cursorInteractSlot(Slot* slot,
                         SlotItemGetter getter,
                         SlotItemSetter setter);
 

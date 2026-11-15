@@ -18,7 +18,7 @@ extern Timestamp chest_debounce;
 #define CHEST_DOUBLE_TEXTURE_WIDTH 176
 #define CHEST_DOUBLE_TEXTURE_HEIGHT 222
 
-#define CHEST_DOUBLE_TEXTURE_OFFSET_Y (54 >> 1)
+#define CHEST_DOUBLE_TEXTURE_OFFSET_Y 27
 
 // Single chest slots
 #define CHEST_SINGLE_SLOT_GROUP_DIMENSIONS_X 9
@@ -39,8 +39,8 @@ slotGroupCheck(CHEST_SINGLE);
 #define CHEST_DOUBLE_LEFT_SLOT_GROUP_SLOT_DIMENSIONS_Y SLOT_HEIGHT_DEFAULT
 #define CHEST_DOUBLE_LEFT_SLOT_GROUP_SLOT_SPACING_X SLOT_SPACING_X_DEFAULT
 #define CHEST_DOUBLE_LEFT_SLOT_GROUP_SLOT_SPACING_Y SLOT_SPACING_Y_DEFAULT
-#define CHEST_DOUBLE_LEFT_SLOT_GROUP_ORIGIN_X (CENTRE_X - (CHEST_SINGLE_TEXTURE_WIDTH >> 1) + 8)
-#define CHEST_DOUBLE_LEFT_SLOT_GROUP_ORIGIN_Y (CENTRE_Y - (CHEST_SINGLE_TEXTURE_HEIGHT >> 1) + 18 - CHEST_DOUBLE_TEXTURE_OFFSET_Y)
+#define CHEST_DOUBLE_LEFT_SLOT_GROUP_ORIGIN_X (CENTRE_X - (CHEST_DOUBLE_TEXTURE_WIDTH >> 1) + 8)
+#define CHEST_DOUBLE_LEFT_SLOT_GROUP_ORIGIN_Y (CENTRE_Y - (CHEST_DOUBLE_TEXTURE_HEIGHT >> 1) + 18)
 #define CHEST_DOUBLE_LEFT_SLOT_GROUP_INDEX_OFFSET 0
 slotGroupCheck(CHEST_DOUBLE_LEFT);
 
@@ -51,8 +51,14 @@ slotGroupCheck(CHEST_DOUBLE_LEFT);
 #define CHEST_DOUBLE_RIGHT_SLOT_GROUP_SLOT_DIMENSIONS_Y SLOT_HEIGHT_DEFAULT
 #define CHEST_DOUBLE_RIGHT_SLOT_GROUP_SLOT_SPACING_X SLOT_SPACING_X_DEFAULT
 #define CHEST_DOUBLE_RIGHT_SLOT_GROUP_SLOT_SPACING_Y SLOT_SPACING_Y_DEFAULT
-#define CHEST_DOUBLE_RIGHT_SLOT_GROUP_ORIGIN_X ((slotGroupSlotDim(CHEST_DOUBLE_LEFT, X) + slotGroupSlotSpacing(CHEST_DOUBLE_LEFT, X)) * slotGroupDim(CHEST_DOUBLE_LEFT, X))
-#define CHEST_DOUBLE_RIGHT_SLOT_GROUP_ORIGIN_Y ((slotGroupSlotDim(CHEST_DOUBLE_LEFT, Y) + slotGroupSlotSpacing(CHEST_DOUBLE_LEFT, Y)) * slotGroupDim(CHEST_DOUBLE_LEFT, Y))
+#define CHEST_DOUBLE_RIGHT_SLOT_GROUP_ORIGIN_X CHEST_DOUBLE_LEFT_SLOT_GROUP_ORIGIN_X
+#define CHEST_DOUBLE_RIGHT_SLOT_GROUP_ORIGIN_Y (\
+    CHEST_DOUBLE_LEFT_SLOT_GROUP_ORIGIN_Y \
+    + ( \
+        slotGroupDim(CHEST_DOUBLE_LEFT, Y) \
+        * (slotGroupSlotDim(CHEST_DOUBLE_LEFT, Y) + slotGroupSlotSpacing(CHEST_DOUBLE_LEFT, Y)) \
+    ) \
+)
 #define CHEST_DOUBLE_RIGHT_SLOT_GROUP_INDEX_OFFSET 0
 slotGroupCheck(CHEST_DOUBLE_RIGHT);
 
@@ -67,8 +73,8 @@ typedef enum ChestType {
 } ChestType;
 
 DEFN_BLOCK_STATEFUL(ChestBlock, CHEST,
-    ChestType type;
-    u8 _pad;
+    ChestType type: 2;
+    u8 _pad: 6;
     Slot slots[slotGroupSize(CHEST_SINGLE)];
 );
 
@@ -93,14 +99,16 @@ DEFN_BLOCK_CONSTRUCTOR(chest);
     declareFaceAttributes(25,25,26,27,26,26), /* Single right */\
     declareFaceAttributes(25,25,26,26,27,26), /* Single back */\
     declareFaceAttributes(25,25,26,26,26,27), /* Single front */\
-    declareFaceAttributes(25,25,41,58,26,26), /* Double left left */\
-    declareFaceAttributes(25,25,58,41,26,26), /* Double left right */\
-    declareFaceAttributes(25,25,26,26,41,58), /* Double left back */\
-    declareFaceAttributes(25,25,26,26,58,41), /* Double left front */\
-    declareFaceAttributes(25,25,42,57,26,26), /* Double right left */\
-    declareFaceAttributes(25,25,57,42,26,26), /* Double right right */\
-    declareFaceAttributes(25,25,26,26,42,57), /* Double right back */\
-    declareFaceAttributes(25,25,26,26,57,42)  /* Double right front */\
+    \
+    declareFaceAttributes(25,25,42,58,26,26), /* Double left left */\
+    declareFaceAttributes(25,25,58,42,26,26), /* Double left right */\
+    declareFaceAttributes(25,25,26,26,42,58), /* Double left back */\
+    declareFaceAttributes(25,25,26,26,58,42), /* Double left front */\
+    \
+    declareFaceAttributes(25,25,41,57,26,26), /* Double right left */\
+    declareFaceAttributes(25,25,57,41,26,26), /* Double right right */\
+    declareFaceAttributes(25,25,26,26,41,57), /* Double right back */\
+    declareFaceAttributes(25,25,26,26,57,41)  /* Double right front */\
 })
 
 void chestBlockInit(VSelf);
@@ -111,6 +119,10 @@ ALLOC_CALL(itemDestroy, 1) IItem* ChestBlock_destroy(VSelf, bool drop_item, cons
 
 ALLOC_CALL(itemDestroy, 1) IItem* chestBlockProvideItem(VSelf);
 ALLOC_CALL(itemDestroy, 1) IItem* ChestBlock_provideItem(VSelf);
+
+#define ChestBlock_canPlace_CUSTOM ()
+bool chestBlockCanPlace(VSelf, const VECTOR block_world_pos, const AABB* player_aabb);
+bool ChestBlock_canPlace(VSelf, const VECTOR block_world_pos, const AABB* player_aabb);
 
 #define ChestBlock_useAction_CUSTOM ()
 bool chestBlockUseAction(VSelf, const VECTOR block_world_pos);

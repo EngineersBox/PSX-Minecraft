@@ -5,11 +5,11 @@
 #include "../../ui/components/cursor.h"
 #include "slot.h"
 
-void cursorSplitOrStoreOne(Slot* slot,
+bool cursorSplitOrStoreOne(Slot* slot,
                            SlotItemGetter getter,
                            SlotItemSetter setter) {
     if (cursor.state != CURSOR_PRESSED) {
-        return;
+        return false;
     }
     IItem* held_iitem = (IItem*) cursor.held_data;
     IItem* slot_iitem = getter(slot);
@@ -17,7 +17,7 @@ void cursorSplitOrStoreOne(Slot* slot,
         // Split targetted slot stack
         if (slot_iitem == NULL) {
             // Nothing to store
-            return;
+            return false;
         }
         Item* item = VCAST_PTR(Item*, slot_iitem);
         if (item->stack_size == 1) {
@@ -26,7 +26,7 @@ void cursorSplitOrStoreOne(Slot* slot,
             // item data then deleting the held item
             uiCursorSetHeldData(&cursor, slot_iitem);
             setter(slot, NULL);
-            return;
+            return true;
         }
         // Do the normal splitting of stacks between the
         // existing slot stack and a new stack
@@ -40,7 +40,7 @@ void cursorSplitOrStoreOne(Slot* slot,
         VCALL_SUPER(*split_stack, Renderable, applyInventoryRenderAttributes);
         uiCursorSetHeldData(&cursor, split_stack);
         item->stack_size -= split_stack_item->stack_size;
-        return;
+        return true;
     }
     Item* slot_item = VCAST_PTR(Item*, slot_iitem);
     Item* held_item = VCAST_PTR(Item*, held_iitem);
@@ -52,7 +52,7 @@ void cursorSplitOrStoreOne(Slot* slot,
             // item data then deleting the held item
             setter(slot, held_iitem);
             uiCursorSetHeldData(&cursor, NULL);
-            return;
+            return true;
         }
         // Create a new item with a stack size of 1
         IItem* new_slot_iitem = itemGetConstructor(held_item->id)(held_item->metadata_id);
@@ -65,13 +65,13 @@ void cursorSplitOrStoreOne(Slot* slot,
         new_slot_item->stack_size = 1;
         setter(slot, new_slot_iitem);
         held_item->stack_size--;
-        return;
+        return true;
     } else if (!itemEquals(held_item, slot_item)
                 || slot_item->stack_size == itemGetMaxStackSize(slot_item->id)) {
         // Can't override an existing item in the slot
         // that doesn't match or we cant add an item to
         // an already full stack
-        return;
+        return false;
     }
     slot_item->stack_size++;
     held_item->stack_size--;
@@ -79,13 +79,14 @@ void cursorSplitOrStoreOne(Slot* slot,
         VCALL(*held_iitem, destroy);
         uiCursorSetHeldData(&cursor, NULL);
     }
+    return true;
 }
 
-void cursorInteractSlot(Slot* slot,
+bool cursorInteractSlot(Slot* slot,
                         SlotItemGetter getter,
                         SlotItemSetter setter) {
     if (cursor.state != CURSOR_PRESSED) {
-        return;
+        return false;
     }
     IItem* held_iitem = (IItem*) cursor.held_data;
     IItem* slot_iitem = getter(slot);
@@ -96,13 +97,13 @@ void cursorInteractSlot(Slot* slot,
         //       3. Cursor null, slot gets null cursor item and cursor gets non-null slot item
         setter(slot, held_iitem);
         uiCursorSetHeldData(&cursor, slot_iitem);
-        return;
+        return true;
     }
     Item* slot_item = VCAST_PTR(Item*, slot_iitem);
     Item* held_item = VCAST_PTR(Item*, held_iitem);
     const u8 stack_left = itemGetMaxStackSize(slot_item->id) - slot_item->stack_size;
     if (!itemEquals(held_item, slot_item) || stack_left == 0) {
-        return;
+        return false;
     }
     const u8 held_assignable = min(stack_left, held_item->stack_size);
     slot_item->stack_size += held_assignable;
@@ -110,4 +111,5 @@ void cursorInteractSlot(Slot* slot,
         VCALL(*held_iitem, destroy);
         uiCursorSetHeldData(&cursor, NULL);
     }
+    return true;
 }

@@ -374,6 +374,7 @@ InputHandlerState furnaceBlockInputHandler(const Input* input, UNUSED void* ctx)
     inventoryCursorHandler(
         VCAST_PTR(Inventory*, block_input_handler_context.inventory),
         INVENTORY_SLOT_GROUP_MAIN | INVENTORY_SLOT_GROUP_HOTBAR,
+        0,
         input
     );
     const PADTYPE* pad = input->pad;
@@ -471,6 +472,7 @@ void furnaceBlockRenderUI(RenderContext* ctx, Transforms* transforms) {
     inventoryRenderSlots(
         VCAST_PTR(const Inventory*, block_input_handler_context.inventory),
         INVENTORY_SLOT_GROUP_MAIN | INVENTORY_SLOT_GROUP_HOTBAR,
+        0,
         ctx,
         transforms
     );

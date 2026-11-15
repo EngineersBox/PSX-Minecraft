@@ -13,7 +13,6 @@
 #include "../../util/bits.h"
 #include "../../util/interface99_extensions.h"
 #include "../../util/memory.h"
-#include "psxgte.h"
 
 FWD_DECL void worldDropItemStack(World* world, IItem* item, const u8 count);
 FWD_DECL IBlock* worldGetBlock(const World* world, const VECTOR* position);
@@ -55,6 +54,28 @@ void ChestBlock_init(VSelf) {
     }
 }
 
+bool chestBlockCanPlace(UNUSED VSelf, const VECTOR block_world_pos, UNUSED const AABB* player_aabb) ALIAS("ChestBlock_canPlace");
+bool ChestBlock_canPlace(UNUSED VSelf, const VECTOR block_world_pos, UNUSED const AABB* player_aabb) {
+    // NOTE: Cannot place block if any other chest is next to it
+    //       which is not of type CHEST_TYPE_SINGLE.
+    for (FaceDirection dir = FACE_DIR_LEFT; dir <= FACE_DIR_FRONT; dir++) {
+        SVECTOR other_relative_pos = FACE_DIRECTION_NORMALS_WORLD[dir];
+        const VECTOR query_pos = vec3_add(
+            block_world_pos,
+            other_relative_pos
+        );
+        const IBlock* iblock = worldGetBlock(world, &query_pos);
+        if (iblock == NULL) continue;
+        const Block* block = VCAST_PTR(Block*, iblock);
+        if (block->id != BLOCKID_CHEST) continue;
+        const ChestBlock* other = VCAST_PTR(ChestBlock*, iblock);
+        if (other->type != CHEST_TYPE_SINGLE) {
+            return false;
+        }
+    }
+    return true;
+}
+
 BlockUpdateResultBitmap chestBlockUpdate(VSelf, const VECTOR block_world_pos) ALIAS("ChestBlock_update");
 BlockUpdateResultBitmap ChestBlock_update(VSelf, const VECTOR block_world_pos) {
     // NOTE: This is only triggered once when the block is placed after
@@ -75,16 +96,19 @@ BlockUpdateResultBitmap ChestBlock_update(VSelf, const VECTOR block_world_pos) {
         const Block* block = VCAST_PTR(Block*, iblock);
         if (block->id != BLOCKID_CHEST) continue;
         other = VCAST_PTR(ChestBlock*, iblock);
-        other_relative_dir = dir;
+        if (other->type != CHEST_TYPE_SINGLE) {
+            // Found a double chest, placement is invalid
+            other = NULL;
+        } else {
+            other_relative_dir = dir;
+        }
+        break;
     }
     if (other == NULL) {
         self->type = CHEST_TYPE_SINGLE;
         self->block.metadata_id = self->block.orientation - FACE_DIR_LEFT;
         goto chest_update_return_and_remesh;
     }
-    DEBUG_LOG("Self orientation: " INT8_BIN_PATTERN "\n", INT8_BIN_LAYOUT(self->block.orientation));
-    DEBUG_LOG("Other orientation: " INT8_BIN_PATTERN "\n", INT8_BIN_LAYOUT(other->block.orientation));
-    DEBUG_LOG("Other relative dir: " INT8_BIN_PATTERN "\n", INT8_BIN_LAYOUT(other_relative_dir));
     if (faceDirectionIsSameAxis(self->block.orientation, other->block.orientation)
         && faceDirectionIsSameAxis(other->block.orientation, other_relative_dir)) {
         const SVECTOR adjusted_dir = FACE_DIRECTION_RELATIVE_RIGHT[other_relative_dir];
@@ -95,13 +119,6 @@ BlockUpdateResultBitmap ChestBlock_update(VSelf, const VECTOR block_world_pos) {
     } else {
         other->block.orientation = self->block.orientation;
     }
-    const SVECTOR relative_right = FACE_DIRECTION_RELATIVE_RIGHT[self->block.orientation];
-    DEBUG_LOG(
-        "Relative right: " INT8_BIN_PATTERN ", " INT8_BIN_PATTERN ", " INT8_BIN_PATTERN "\n",
-        INT8_BIN_LAYOUT(relative_right.vx),
-        INT8_BIN_LAYOUT(relative_right.vy),
-        INT8_BIN_LAYOUT(relative_right.vz)
-    );
     if (vec3_equal(other_relative_pos, FACE_DIRECTION_RELATIVE_RIGHT[self->block.orientation])) {
         self->type = CHEST_TYPE_DOUBLE_LEFT;
         other->type = CHEST_TYPE_DOUBLE_RIGHT;
@@ -109,12 +126,17 @@ BlockUpdateResultBitmap ChestBlock_update(VSelf, const VECTOR block_world_pos) {
         self->type = CHEST_TYPE_DOUBLE_RIGHT;
         other->type = CHEST_TYPE_DOUBLE_LEFT;
     }
-    self->block.metadata_id = (self->type * 4)  + self->block.orientation - FACE_DIR_LEFT;
+    self->block.metadata_id = (self->type * 4) + self->block.orientation - FACE_DIR_LEFT;
     other->block.metadata_id = (other->type * 4) + other->block.orientation - FACE_DIR_LEFT;
     const VECTOR other_pos = vec3_add(block_world_pos, other_relative_pos);
-    Chunk* other_chest_chunk = worldGetChunk(world, &other_pos);
-    if (other_chest_chunk != NULL) {
-        chunkMarkForRemesh(other_chest_chunk);
+    if (!vec3_equal(
+        vec3_const_div(block_world_pos, CHUNK_SIZE),
+        vec3_const_div(other_pos, CHUNK_SIZE)
+    )) {
+        // Chunks differ between each side of chest.
+        // Remesh the other chunk too.
+        Chunk* other_chest_chunk = worldGetChunk(world, &other_pos);
+        if (other_chest_chunk != NULL) chunkMarkForRemesh(other_chest_chunk);
     }
 chest_update_return_and_remesh:;
     BlockUpdateResultBitmap result = 0;
@@ -130,6 +152,7 @@ IItem* ChestBlock_destroy(VSelf,
                           const VECTOR block_world_pos) {
     VSELF(ChestBlock);
     IBlock* iblock = NULL;
+    Block* block = NULL;
     ChestBlock* other_chest_half = NULL;
     switch (self->type) {
         case CHEST_TYPE_SINGLE:
@@ -140,6 +163,8 @@ IItem* ChestBlock_destroy(VSelf,
                 FACE_DIRECTION_RELATIVE_RIGHT[self->block.orientation]
             );
             iblock = worldGetBlock(world, &right_pos);
+            block = VCAST_PTR(Block*, iblock);
+            if (block->id != BLOCKID_CHEST) break;
             other_chest_half = VCAST_PTR(ChestBlock*, iblock);
             other_chest_half->type = CHEST_TYPE_SINGLE;
             break;
@@ -149,6 +174,8 @@ IItem* ChestBlock_destroy(VSelf,
                 FACE_DIRECTION_RELATIVE_LEFT[self->block.orientation]
             );
             iblock = worldGetBlock(world, &left_pos);
+            block = VCAST_PTR(Block*, iblock);
+            if (block->id != BLOCKID_CHEST) break;
             other_chest_half = VCAST_PTR(ChestBlock*, iblock);
             other_chest_half->type = CHEST_TYPE_SINGLE;
             break;
@@ -179,17 +206,26 @@ IItem* ChestBlock_provideItem(VSelf) {
     return item;
 }
 
-static void cursorHandler(ChestBlock* chest,
+static bool cursorHandler(ChestBlock* chest,
                           const bool split_or_store_one) {
     if (!debounce(&chest_debounce, CHEST_DEBOUNCE_MS)) {
-        return;
+        return false;
+    }
+    i16 texture_width;
+    i16 texture_height;
+    if (chest->type == CHEST_TYPE_SINGLE) {
+        texture_width = CHEST_SINGLE_TEXTURE_WIDTH;
+        texture_height = CHEST_SINGLE_TEXTURE_HEIGHT;
+    } else {
+        texture_width = CHEST_DOUBLE_TEXTURE_WIDTH;
+        texture_height = CHEST_DOUBLE_TEXTURE_HEIGHT;
     }
     if (!quadIntersectLiteral(
         &cursor.component.position,
-        CENTRE_X - (FURNACE_TEXTURE_WIDTH >> 1),
-        CENTRE_Y - (FURNACE_TEXTURE_HEIGHT >> 1),
-        FURNACE_TEXTURE_WIDTH,
-        FURNACE_TEXTURE_HEIGHT
+        CENTRE_X - (texture_width >> 1),
+        CENTRE_Y - (texture_height >> 1),
+        texture_width,
+        texture_height 
     )) {
         worldDropItemStack(
             world,
@@ -197,7 +233,7 @@ static void cursorHandler(ChestBlock* chest,
             0 // Implies all in stack
         );
         uiCursorSetHeldData(&cursor, NULL);
-        return;
+        return true;
     }
     Slot* slot = NULL;
     IBlock* iblock = NULL;
@@ -231,7 +267,12 @@ static void cursorHandler(ChestBlock* chest,
                 FACE_DIRECTION_RELATIVE_RIGHT[chest->block.orientation]
             );
             iblock = worldGetBlock(world, &right_pos);
+            if (iblock == NULL) {
+                // Chunk not loaded
+                break;
+            }
             other_chest = VCAST_PTR(ChestBlock*, iblock);
+            assert(other_chest->block.id == BLOCKID_CHEST);
             if (slotGroupIntersect(
                 CHEST_DOUBLE_RIGHT,
                 &cursor.component.position
@@ -240,7 +281,7 @@ static void cursorHandler(ChestBlock* chest,
                     CHEST_DOUBLE_RIGHT,
                     &cursor.component.position
                 )];
-            }
+            } 
             break;
         case CHEST_TYPE_DOUBLE_RIGHT:
             if (slotGroupIntersect(
@@ -258,7 +299,12 @@ static void cursorHandler(ChestBlock* chest,
                 FACE_DIRECTION_RELATIVE_LEFT[chest->block.orientation]
             );
             iblock = worldGetBlock(world, &left_pos);
+            if (iblock == NULL) {
+                // Chunk not loaded
+                break;
+            }
             other_chest = VCAST_PTR(ChestBlock*, iblock);
+            assert(other_chest->block.id == BLOCKID_CHEST);
             if (slotGroupIntersect(
                 CHEST_DOUBLE_LEFT,
                 &cursor.component.position
@@ -270,34 +316,29 @@ static void cursorHandler(ChestBlock* chest,
             }
             break;
     }
-    if (slot == NULL) return;
+    if (slot == NULL) return false;
     if (split_or_store_one) {
-        cursorSplitOrStoreOne(
-            slot,
-            slotDirectItemGetter,
-            slotDirectItemSetter
-        );
-    } else {
-        cursorInteractSlot(
+        return cursorSplitOrStoreOne(
             slot,
             slotDirectItemGetter,
             slotDirectItemSetter
         );
     }
+    return cursorInteractSlot(
+        slot,
+        slotDirectItemGetter,
+        slotDirectItemSetter
+    );
 }
 
 InputHandlerState chestBlockInputHandler(const Input* input, UNUSED void* ctx) {
     ChestBlock* chest = (ChestBlock*) block_input_handler_context.block;
-    inventoryCursorHandler(
-        VCAST_PTR(Inventory*, block_input_handler_context.inventory),
-        INVENTORY_SLOT_GROUP_MAIN | INVENTORY_SLOT_GROUP_HOTBAR,
-        input
-    );
     const PADTYPE* pad = input->pad;
+    bool event_consumed = false;
     if (isPressed(pad, BINDING_CURSOR_CLICK)) {
-        cursorHandler(chest, false);
+        event_consumed = cursorHandler(chest, false);
     } else if (isPressed(pad, BINDING_SPLIT_OR_STORE_ONE)) {
-        cursorHandler(chest, true);
+        event_consumed = cursorHandler(chest, true);
     }
     if (isPressed(pad, BINDING_DROP_ITEM) && cursor.held_data != NULL) {
         worldDropItemStack(
@@ -307,9 +348,17 @@ InputHandlerState chestBlockInputHandler(const Input* input, UNUSED void* ctx) {
         );
         uiCursorSetHeldData(&cursor, NULL);
     }
+    if (!event_consumed) {
+        inventoryCursorHandler(
+            VCAST_PTR(Inventory*, block_input_handler_context.inventory),
+            INVENTORY_SLOT_GROUP_MAIN | INVENTORY_SLOT_GROUP_HOTBAR,
+            chest->type == CHEST_TYPE_SINGLE ? 0 : -CHEST_DOUBLE_TEXTURE_OFFSET_Y,
+            input
+        );
+    }
     if (isPressed(pad, BINDING_OPEN_INVENTORY)) {
         resetBlockRenderUIContext();
-        // Leave item in the furnace slots
+        // Leave items in the chest slots
         return INPUT_HANDLER_RELEASE;
     }
     return INPUT_HANDLER_RETAIN;
@@ -405,6 +454,7 @@ void chestBlockRenderUI(RenderContext* ctx, Transforms* transforms) {
     inventoryRenderSlots(
         VCAST_PTR(const Inventory*, block_input_handler_context.inventory),
         INVENTORY_SLOT_GROUP_MAIN | INVENTORY_SLOT_GROUP_HOTBAR,
+        chest->type == CHEST_TYPE_SINGLE ? 0 : CHEST_DOUBLE_TEXTURE_OFFSET_Y,
         ctx,
         transforms
     );
@@ -453,17 +503,14 @@ bool ChestBlock_useAction(VSelf, const VECTOR block_world_pos) {
     block_render_ui_context.block = (Block*) self;
     i16 w;
     i16 h;
-    i16 y_offset;
     int file_index;
     if (self->type == CHEST_TYPE_SINGLE) {
         w = CHEST_SINGLE_TEXTURE_WIDTH;
         h = CHEST_SINGLE_TEXTURE_HEIGHT;
-        y_offset = 0;
         file_index = ASSET_TEXTURE__GUI__CHEST;
     } else {
         w = CHEST_DOUBLE_TEXTURE_WIDTH;
         h = CHEST_DOUBLE_TEXTURE_HEIGHT;
-        y_offset = CHEST_DOUBLE_TEXTURE_OFFSET_Y;
         file_index = ASSET_TEXTURE__GUI__DOUBLE_CHEST;
     }
     assetLoadTextureDirect(
@@ -477,7 +524,7 @@ bool ChestBlock_useAction(VSelf, const VECTOR block_world_pos) {
     block_render_ui_context.background.component = (UIComponent) {
         .position = vec2_i16(
             CENTRE_X - (w >> 1),
-            CENTRE_Y - (h >> 1) - y_offset
+            CENTRE_Y - (h >> 1)
         ),
         .dimensions = vec2_i16(w, h)
     };

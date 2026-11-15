@@ -82,13 +82,16 @@ void inventoryInit(Inventory* inventory, Hotbar* hotbar) {
 
 static void inventoryRenderTooltip(const Inventory* inventory,
                                    InventorySlotGroups groups,
+                                   i16 y_offset,
                                    RenderContext* ctx) {
+    DVECTOR cursor_pos = cursor.component.position;
+    cursor_pos.vy -= y_offset;
     if (groups & INVENTORY_SLOT_GROUP_ARMOUR) {
         const Slot* slot = NULL;
-        if (slotGroupIntersect(INVENTORY_ARMOUR, &cursor.component.position)) {
+        if (slotGroupIntersect(INVENTORY_ARMOUR, &cursor_pos)) {
             slot = &inventory->slots[slotGroupCursorSlot(
                 INVENTORY_ARMOUR,
-                &cursor.component.position
+                &cursor_pos
             )];
         } 
         if (slot != NULL && slot->data.item != NULL) {
@@ -99,10 +102,10 @@ static void inventoryRenderTooltip(const Inventory* inventory,
     }
     if (groups & INVENTORY_SLOT_GROUP_CRAFTING) {
         const Slot* slot = NULL;
-        if (slotGroupIntersect(INVENTORY_CRAFTING, &cursor.component.position)) {
+        if (slotGroupIntersect(INVENTORY_CRAFTING, &cursor_pos)) {
             slot = &inventory->slots[slotGroupCursorSlot(
                 INVENTORY_CRAFTING,
-                &cursor.component.position
+                &cursor_pos
             )];
         } 
         if (slot != NULL && slot->data.item != NULL) {
@@ -113,7 +116,7 @@ static void inventoryRenderTooltip(const Inventory* inventory,
     }
     if (groups & INVENTORY_SLOT_GROUP_CRAFTING_RESULT) {
         const Slot* slot = NULL;
-        if (slotGroupIntersect(INVENTORY_CRAFTING_RESULT, &cursor.component.position)) {
+        if (slotGroupIntersect(INVENTORY_CRAFTING_RESULT, &cursor_pos)) {
             slot = &inventory->slots[slotGroupIndexOffset(INVENTORY_CRAFTING_RESULT)];
         } 
         if (slot != NULL && slot->data.item != NULL) {
@@ -124,10 +127,10 @@ static void inventoryRenderTooltip(const Inventory* inventory,
     }
     if (groups & INVENTORY_SLOT_GROUP_MAIN) {
         const Slot* slot = NULL;
-        if (slotGroupIntersect(INVENTORY_MAIN, &cursor.component.position)) {
+        if (slotGroupIntersect(INVENTORY_MAIN, &cursor_pos)) {
             slot = &inventory->slots[slotGroupCursorSlot(
                 INVENTORY_MAIN,
-                &cursor.component.position
+                &cursor_pos
             )];
         } 
         if (slot != NULL && slot->data.item != NULL) {
@@ -138,10 +141,10 @@ static void inventoryRenderTooltip(const Inventory* inventory,
     }
     if (groups & INVENTORY_SLOT_GROUP_HOTBAR) {
         const Slot* slot = NULL;
-        if (slotGroupIntersect(INVENTORY_HOTBAR, &cursor.component.position)) {
+        if (slotGroupIntersect(INVENTORY_HOTBAR, &cursor_pos)) {
             slot = &inventory->slots[slotGroupCursorSlot(
                 INVENTORY_HOTBAR,
-                &cursor.component.position
+                &cursor_pos
             )];
         } 
         if (slot != NULL
@@ -155,6 +158,7 @@ static void inventoryRenderTooltip(const Inventory* inventory,
 
 void inventoryRenderSlots(const Inventory* inventory,
                           InventorySlotGroups groups,
+                          i16 y_offset_items,
                           RenderContext* ctx,
                           Transforms* transforms) {
     if (groups == INVENTORY_SLOT_GROUP_NONE) {
@@ -167,7 +171,7 @@ void inventoryRenderSlots(const Inventory* inventory,
         INVENTORY_WIDTH,
         INVENTORY_HEIGHT
     )) {
-        inventoryRenderTooltip(inventory, groups, ctx);
+        inventoryRenderTooltip(inventory, groups, y_offset_items, ctx);
     }
     // Render inventory contents
     if (groups & INVENTORY_SLOT_GROUP_ARMOUR) {
@@ -181,7 +185,7 @@ void inventoryRenderSlots(const Inventory* inventory,
                 }
                 Item* item = VCAST_PTR(Item*, slot->data.item);
                 item->position.vx = slotGroupScreenPosition(INVENTORY_ARMOUR, X, x);
-                item->position.vy = slotGroupScreenPosition(INVENTORY_ARMOUR, Y, y);
+                item->position.vy = slotGroupScreenPosition(INVENTORY_ARMOUR, Y, y) + y_offset_items;
                 VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
             }
         }
@@ -197,7 +201,7 @@ void inventoryRenderSlots(const Inventory* inventory,
                 }
                 Item* item = VCAST_PTR(Item*,slot->data.item);
                 item->position.vx = slotGroupScreenPosition(INVENTORY_CRAFTING, X, x);
-                item->position.vy = slotGroupScreenPosition(INVENTORY_CRAFTING, Y, y);
+                item->position.vy = slotGroupScreenPosition(INVENTORY_CRAFTING, Y, y) + y_offset_items;
                 VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
             }
         }
@@ -208,7 +212,7 @@ void inventoryRenderSlots(const Inventory* inventory,
         if (slot->data.item != NULL) {
             Item* item = VCAST_PTR(Item*, slot->data.item);
             item->position.vx = slotGroupScreenPosition(INVENTORY_CRAFTING_RESULT, X, 0);
-            item->position.vy = slotGroupScreenPosition(INVENTORY_CRAFTING_RESULT, Y, 0);
+            item->position.vy = slotGroupScreenPosition(INVENTORY_CRAFTING_RESULT, Y, 0) + y_offset_items;
             VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
         }
     }
@@ -223,7 +227,7 @@ void inventoryRenderSlots(const Inventory* inventory,
                 }
                 Item* item = VCAST_PTR(Item*,slot->data.item);
                 item->position.vx = slotGroupScreenPosition(INVENTORY_MAIN, X, x);
-                item->position.vy = slotGroupScreenPosition(INVENTORY_MAIN, Y, y);
+                item->position.vy = slotGroupScreenPosition(INVENTORY_MAIN, Y, y) + y_offset_items;
                 VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
             }
         }
@@ -240,7 +244,7 @@ void inventoryRenderSlots(const Inventory* inventory,
                 Item* item = VCAST_PTR(Item*, slot->data.ref->data.item);
                 VECTOR prev_position = item->position;
                 item->position.vx = slotGroupScreenPosition(INVENTORY_HOTBAR, X, x);
-                item->position.vy = slotGroupScreenPosition(INVENTORY_HOTBAR, Y, y);
+                item->position.vy = slotGroupScreenPosition(INVENTORY_HOTBAR, Y, y) + y_offset_items;
                 VCALL_SUPER(*slot->data.ref->data.item, Renderable, renderInventory, ctx, transforms);
                 item->position = prev_position;
             }
@@ -424,6 +428,7 @@ InputHandlerState inventoryInputHandler(const Input* input, void* ctx) {
         inventoryCursorHandler(
             inventory,
             INVENTORY_SLOT_GROUP_ALL,
+            0,
             input
         );
     }
@@ -493,8 +498,9 @@ static void processCraftingRecipe(Inventory* inventory) {
 
 static void cursorHandler(Inventory* inventory,
                           InventorySlotGroups groups,
+                          i16 y_offset,
                           bool split_or_store_one) {
-    if (!quadIntersectLiteral(
+    if (y_offset == 0 && !quadIntersectLiteral(
         &cursor.component.position,
         CENTRE_X - (INVENTORY_WIDTH >> 1),
         CENTRE_Y - (INVENTORY_HEIGHT >> 1),
@@ -509,15 +515,17 @@ static void cursorHandler(Inventory* inventory,
         uiCursorSetHeldData(&cursor, NULL);
         return;
     }
+    DVECTOR cursor_pos = cursor.component.position;
+    cursor_pos.vy += y_offset;
     if (!split_or_store_one
         && (groups & INVENTORY_SLOT_GROUP_CRAFTING_RESULT)
         && slotGroupIntersect(
         INVENTORY_CRAFTING_RESULT,
-        &cursor.component.position
+        &cursor_pos
     )) {
         Slot* result_slot = &inventory->slots[slotGroupCursorSlot(
             INVENTORY_CRAFTING_RESULT,
-            &cursor.component.position
+            &cursor_pos
         )];
         // NOTE: Don't bother with splitting stacks
         //       since it's a pain for the output slot.
@@ -559,39 +567,39 @@ static void cursorHandler(Inventory* inventory,
     Slot* slot = NULL;
     if ((groups & INVENTORY_SLOT_GROUP_ARMOUR) && slotGroupIntersect(
         INVENTORY_ARMOUR,
-        &cursor.component.position
+        &cursor_pos
     )) {
         slot = &inventory->slots[slotGroupCursorSlot(
             INVENTORY_ARMOUR,
-            &cursor.component.position
+            &cursor_pos
         )];
     } 
     if ((groups & INVENTORY_SLOT_GROUP_CRAFTING) && slotGroupIntersect(
         INVENTORY_CRAFTING,
-        &cursor.component.position
+        &cursor_pos
     )) {
         slot = &inventory->slots[slotGroupCursorSlot(
             INVENTORY_CRAFTING,
-            &cursor.component.position
+            &cursor_pos
         )];
         recipe_has_changed = true;
     }
     if ((groups & INVENTORY_SLOT_GROUP_MAIN) && slotGroupIntersect(
         INVENTORY_MAIN,
-        &cursor.component.position
+        &cursor_pos
     )) {
         slot = &inventory->slots[slotGroupCursorSlot(
             INVENTORY_MAIN,
-            &cursor.component.position
+            &cursor_pos
         )];
     }
     if (groups & INVENTORY_SLOT_GROUP_HOTBAR && slotGroupIntersect(
         INVENTORY_HOTBAR,
-        &cursor.component.position
+        &cursor_pos
     )) {
         slot = &inventory->slots[slotGroupCursorSlot(
             INVENTORY_HOTBAR,
-            &cursor.component.position
+            &cursor_pos
         )];
     }
     if (slot == NULL) {
@@ -614,6 +622,7 @@ static void cursorHandler(Inventory* inventory,
 
 void inventoryCursorHandler(Inventory* inventory,
                             InventorySlotGroups groups,
+                            i16 y_offset,
                             const Input* input) {
     processCraftingRecipe(inventory);
     VCALL(cursor_component, update);
@@ -623,7 +632,9 @@ void inventoryCursorHandler(Inventory* inventory,
     }
 
     if (isPressed(pad, BINDING_CURSOR_CLICK)) {
-        cursorHandler(inventory, groups, false);
+        cursorHandler(inventory, groups, y_offset, false);
+    } else if (isPressed(pad, BINDING_SPLIT_OR_STORE_ONE)) {
+        cursorHandler(inventory, groups, y_offset, true);
     } else if (isPressed(pad, BINDING_DROP_ITEM) && cursor.held_data != NULL) {
         worldDropItemStack(
             world,
@@ -631,8 +642,6 @@ void inventoryCursorHandler(Inventory* inventory,
             0
         );
         uiCursorSetHeldData(&cursor, NULL);
-    } else if (isPressed(pad, BINDING_SPLIT_OR_STORE_ONE)) {
-        cursorHandler(inventory, groups, true);
     }
 }
 
