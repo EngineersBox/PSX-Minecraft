@@ -324,26 +324,8 @@ void craftingTableBlockRenderUI(RenderContext* ctx, Transforms* transforms) {
         ctx,
         transforms
     );
-    for (u8 y = 0; y < slotGroupDim(CRAFTING_TABLE, Y); y++) {
-        for (u8 x = 0; x < slotGroupDim(CRAFTING_TABLE, X); x++) {
-            const u8 i = slotGroupIndexOffset(CRAFTING_TABLE) + (slotGroupDim(CRAFTING_TABLE, X) * y) + x;
-            const Slot* slot = &crafting_table_slots[i];
-            if (slot->data.item == NULL) {
-                continue;
-            }
-            Item* item = VCAST_PTR(Item*, slot->data.item);
-            item->position.vx = slotGroupScreenPosition(CRAFTING_TABLE, X, x);
-            item->position.vy = slotGroupScreenPosition(CRAFTING_TABLE, Y, y);
-            VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
-        }
-    }
-    const Slot* slot = &crafting_table_slots[slotGroupIndexOffset(CRAFTING_TABLE_RESULT)];
-    if (slot->data.item != NULL) {
-        Item* item = VCAST_PTR(Item*, slot->data.item);
-        item->position.vx = slotGroupScreenPosition(CRAFTING_TABLE_RESULT, X, 0);
-        item->position.vy = slotGroupScreenPosition(CRAFTING_TABLE_RESULT, Y, 0);
-        VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
-    }
+    slotGroupRender(ctx, transforms, crafting_table_slots, CRAFTING_TABLE);
+    slotGroupRender(ctx, transforms, crafting_table_slots, CRAFTING_TABLE_RESULT);
     uiBackgroundRender(
         &block_render_ui_context.background,
         ctx,

@@ -179,80 +179,29 @@ void inventoryRenderSlots(const Inventory* inventory,
     }
     // Render inventory contents
     if (groups & INVENTORY_SLOT_GROUP_ARMOUR) {
-        for (u8 y = 0; y < slotGroupDim(INVENTORY_ARMOUR, Y); y++) {
-            const u8 y_offset = slotGroupDim(INVENTORY_ARMOUR, X) * y;
-            for (u8 x = 0; x < slotGroupDim(INVENTORY_ARMOUR, X); x++) {
-                const u8 i = slotGroupIndexOffset(INVENTORY_ARMOUR) + y_offset + x;
-                const Slot* slot = &inventory->slots[i];
-                if (slot->data.item == NULL) {
-                    continue;
-                }
-                Item* item = VCAST_PTR(Item*, slot->data.item);
-                item->position.vx = slotGroupScreenPosition(INVENTORY_ARMOUR, X, x);
-                item->position.vy = slotGroupScreenPosition(INVENTORY_ARMOUR, Y, y) + y_offset_items;
-                VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
-            }
-        }
+        DEBUG_LOG("Armour\n");
+        slotGroupRenderOffset(ctx, transforms, inventory->slots, INVENTORY_ARMOUR, y_offset_items);
+        DEBUG_LOG("After armour\n");
     }
     if (groups & INVENTORY_SLOT_GROUP_CRAFTING) {
-        for (u8 y = 0; y < slotGroupDim(INVENTORY_CRAFTING, Y); y++) {
-            const u8 y_offset = slotGroupDim(INVENTORY_CRAFTING, X) * y;
-            for (u8 x = 0; x < slotGroupDim(INVENTORY_CRAFTING, X); x++) {
-                const u8 i = slotGroupIndexOffset(INVENTORY_CRAFTING) + y_offset + x;
-                const Slot* slot = &inventory->slots[i];
-                if (slot->data.item == NULL) {
-                    continue;
-                }
-                Item* item = VCAST_PTR(Item*,slot->data.item);
-                item->position.vx = slotGroupScreenPosition(INVENTORY_CRAFTING, X, x);
-                item->position.vy = slotGroupScreenPosition(INVENTORY_CRAFTING, Y, y) + y_offset_items;
-                VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
-            }
-        }
+        DEBUG_LOG("Crafting\n");
+        slotGroupRenderOffset(ctx, transforms, inventory->slots, INVENTORY_CRAFTING, y_offset_items);
+        DEBUG_LOG("After crafting\n");
     }
     if (groups & INVENTORY_SLOT_GROUP_CRAFTING_RESULT) {
-        const u8 i = slotGroupIndexOffset(INVENTORY_CRAFTING_RESULT);
-        const Slot* slot = &inventory->slots[i];
-        if (slot->data.item != NULL) {
-            Item* item = VCAST_PTR(Item*, slot->data.item);
-            item->position.vx = slotGroupScreenPosition(INVENTORY_CRAFTING_RESULT, X, 0);
-            item->position.vy = slotGroupScreenPosition(INVENTORY_CRAFTING_RESULT, Y, 0) + y_offset_items;
-            VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
-        }
+        DEBUG_LOG("Crafting result\n");
+        slotGroupRenderOffset(ctx, transforms, inventory->slots, INVENTORY_CRAFTING_RESULT, y_offset_items);
+        DEBUG_LOG("After crafting result\n");
     }
     if (groups & INVENTORY_SLOT_GROUP_MAIN) {
-        for (u8 y = 0; y < slotGroupDim(INVENTORY_MAIN, Y); y++) {
-            const u8 y_offset = slotGroupDim(INVENTORY_MAIN, X) * y;
-            for (u8 x = 0; x < slotGroupDim(INVENTORY_MAIN, X); x++) {
-                const u8 i = slotGroupIndexOffset(INVENTORY_MAIN) + y_offset + x;
-                const Slot* slot = &inventory->slots[i];
-                if (slot->data.item == NULL) {
-                    continue;
-                }
-                Item* item = VCAST_PTR(Item*,slot->data.item);
-                item->position.vx = slotGroupScreenPosition(INVENTORY_MAIN, X, x);
-                item->position.vy = slotGroupScreenPosition(INVENTORY_MAIN, Y, y) + y_offset_items;
-                VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
-            }
-        }
+        DEBUG_LOG("Main\n");
+        slotGroupRenderOffset(ctx, transforms, inventory->slots, INVENTORY_MAIN, y_offset_items);
+        DEBUG_LOG("After main\n");
     }
     if (groups & INVENTORY_SLOT_GROUP_HOTBAR) {
-        for (u8 y = 0; y < slotGroupDim(INVENTORY_HOTBAR, Y); y++) {
-            const u8 y_offset = slotGroupDim(INVENTORY_HOTBAR, X) * y;
-            for (u8 x = 0; x < slotGroupDim(INVENTORY_HOTBAR, X); x++) {
-                const u8 i = slotGroupIndexOffset(INVENTORY_HOTBAR) + y_offset + x;
-                const Slot* slot = &inventory->slots[i];
-                if (slot->data.ref == NULL || slot->data.ref->data.item == NULL) {
-                    continue;
-                }
-                Item* item = VCAST_PTR(Item*, slot->data.ref->data.item);
-                VECTOR prev_position = item->position;
-                item->position.vx = slotGroupScreenPosition(INVENTORY_HOTBAR, X, x);
-                item->position.vy = slotGroupScreenPosition(INVENTORY_HOTBAR, Y, y) + y_offset_items;
-                VCALL_SUPER(*slot->data.ref->data.item, Renderable, renderInventory, ctx, transforms);
-                item->position = prev_position;
-            }
-        }
+        DEBUG_LOG("Hotbar\n");
+        slotGroupRenderRefOffset(ctx, transforms, inventory->slots, INVENTORY_HOTBAR, y_offset_items);
+        DEBUG_LOG("After hotbar\n");
     }
 }
 

@@ -48,19 +48,7 @@ void hotbarInit(Hotbar* hotbar) {
 }
 
 void hotbarRenderSlots(const Hotbar* hotbar,  RenderContext* ctx, Transforms* transforms) {
-    for (u8 y = 0; y < slotGroupDim(HOTBAR, Y); y++) {
-        for (u8 x = 0; x < slotGroupDim(HOTBAR, X); x++) {
-            const u8 i = slotGroupIndexOffset(HOTBAR) + (slotGroupDim(HOTBAR, X) * y) + x;
-            const Slot* slot = &hotbar->slots[i];
-            if (slot->data.item == NULL) {
-                continue;
-            }
-            Item* item = VCAST_PTR(Item*,slot->data.item);
-            item->position.vx = slotGroupScreenPosition(HOTBAR, X, x);
-            item->position.vy = slotGroupScreenPosition(HOTBAR, Y, y);
-            VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
-        }
-    }
+    slotGroupRender(ctx, transforms, hotbar->slots, HOTBAR);
     POLY_FT4* pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
     setXYWH(
         pol4,

@@ -369,19 +369,7 @@ InputHandlerState chestBlockInputHandler(const Input* input, UNUSED void* ctx) {
 INLINE static void chestSingleRenderUI(const ChestBlock* chest,
                                        RenderContext* ctx,
                                        Transforms* transforms) {
-    for (int y = 0; y < slotGroupDim(CHEST_SINGLE, Y); y++) {
-        for (int x = 0; x < slotGroupDim(CHEST_SINGLE, X); x++) {
-            const Slot* slot = &chest->slots[
-                slotGroupIndexOffset(CHEST_SINGLE)
-                + (y * slotGroupDim(CHEST_SINGLE, X)) + x
-            ];
-            if (slot->data.item == NULL) continue;
-            Item* item = VCAST_PTR(Item*, slot->data.item);
-            item->position.vx = slotGroupScreenPosition(CHEST_SINGLE, X, x);
-            item->position.vy = slotGroupScreenPosition(CHEST_SINGLE, Y, y);
-            VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
-        }
-    }
+    slotGroupRender(ctx, transforms, chest->slots, CHEST_SINGLE);
     if (slotGroupIntersect(CHEST_SINGLE, &cursor.component.position)) {
         const Slot* slot = &chest->slots[slotGroupCursorSlot(
             CHEST_SINGLE,
@@ -397,19 +385,7 @@ INLINE static void chestSingleRenderUI(const ChestBlock* chest,
 INLINE static void chestDoubleLeftRenderUI(const ChestBlock* chest,
                                            RenderContext* ctx,
                                            Transforms* transforms) {
-    for (int y = 0; y < slotGroupDim(CHEST_DOUBLE_LEFT, Y); y++) {
-        for (int x = 0; x < slotGroupDim(CHEST_DOUBLE_LEFT, X); x++) {
-            const Slot* slot = &chest->slots[
-                slotGroupIndexOffset(CHEST_DOUBLE_LEFT)
-                + (y * slotGroupDim(CHEST_DOUBLE_LEFT, X)) + x
-            ];
-            if (slot->data.item == NULL) continue;
-            Item* item = VCAST_PTR(Item*, slot->data.item);
-            item->position.vx = slotGroupScreenPosition(CHEST_DOUBLE_LEFT, X, x);
-            item->position.vy = slotGroupScreenPosition(CHEST_DOUBLE_LEFT, Y, y);
-            VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
-        }
-    }
+    slotGroupRender(ctx, transforms, chest->slots, CHEST_DOUBLE_LEFT);
     if (slotGroupIntersect(CHEST_DOUBLE_LEFT, &cursor.component.position)) {
         const Slot* slot = &chest->slots[slotGroupCursorSlot(
             CHEST_DOUBLE_LEFT,
@@ -425,19 +401,7 @@ INLINE static void chestDoubleLeftRenderUI(const ChestBlock* chest,
 INLINE static void chestDoubleRightRenderUI(const ChestBlock* chest,
                                             RenderContext* ctx,
                                             Transforms* transforms) {
-    for (int y = 0; y < slotGroupDim(CHEST_DOUBLE_RIGHT, Y); y++) {
-        for (int x = 0; x < slotGroupDim(CHEST_DOUBLE_RIGHT, X); x++) {
-            const Slot* slot = &chest->slots[
-                slotGroupIndexOffset(CHEST_DOUBLE_RIGHT)
-                + (y * slotGroupDim(CHEST_DOUBLE_RIGHT, X)) + x 
-            ];
-            if (slot->data.item == NULL) continue;
-            Item* item = VCAST_PTR(Item*, slot->data.item);
-            item->position.vx = slotGroupScreenPosition(CHEST_DOUBLE_RIGHT, X, x);
-            item->position.vy = slotGroupScreenPosition(CHEST_DOUBLE_RIGHT, Y, y);
-            VCALL_SUPER(*slot->data.item, Renderable, renderInventory, ctx, transforms);
-        }
-    }
+    slotGroupRender(ctx, transforms, chest->slots, CHEST_DOUBLE_RIGHT);
     if (slotGroupIntersect(CHEST_DOUBLE_RIGHT, &cursor.component.position)) {
         const Slot* slot = &chest->slots[slotGroupCursorSlot(
             CHEST_DOUBLE_RIGHT,

@@ -9,8 +9,9 @@
 #include <stdint.h>
 
 #include "../items/item.h"
-#include "../../util/preprocessor.h"
 #include "../../math/math_utils.h"
+#include "../../render/render_context.h"
+#include "../../util/preprocessor.h"
 
 typedef struct Slot {
     union {
@@ -46,6 +47,7 @@ typedef Slot SlotGroup;
 
 typedef IItem* (*SlotItemGetter)(Slot* slot);
 typedef void (*SlotItemSetter)(Slot* slot, IItem* item);
+typedef bool (*SlotHasItemTester)(const Slot* slot);
 
 // Utility accessors for slot group definitions
 #define slotGroupDim(name, dim) name##_SLOT_GROUP_DIMENSIONS_##dim
@@ -124,6 +126,14 @@ typedef void (*SlotItemSetter)(Slot* slot, IItem* item);
 #define SLOT_DELTA_X (SLOT_WIDTH_DEFAULT + SLOT_SPACING_X_DEFAULT)
 #define SLOT_DELTA_Y (SLOT_HEIGHT_DEFAULT + SLOT_SPACING_Y_DEFAULT)
 
+bool slotDirectHasItem(const Slot* slot);
+IItem* slotDirectItemGetter(Slot* slot);
+void slotDirectItemSetter(Slot* slot, IItem* item);
+
+bool slotRefHasItem(const Slot* slot);
+IItem* slotRefItemGetter(Slot* slot);
+void slotRefItemSetter(Slot* slot, IItem* item);
+
 Slot* slotFromScreenPosition0(const SVECTOR* screen_position,
                               Slot* group_slots,
                               const u16 group_origin_x,
@@ -149,10 +159,75 @@ Slot* slotFromScreenPosition0(const SVECTOR* screen_position,
     slotGroupSlotSpacing(name, Y) \
 )
 
-IItem* slotDirectItemGetter(Slot* slot);
-void slotDirectItemSetter(Slot* slot, IItem* item);
+void slotGroupRender0(RenderContext* ctx,
+                      Transforms* transforms,
+                      Slot* group_slots,
+                      const u16 group_origin_x,
+                      const u16 group_origin_y,
+                      const u8 group_dim_x,
+                      const u8 group_dim_y,
+                      const u8 slot_dim_x,
+                      const u8 slot_dim_y,
+                      const u8 slot_spacing_x,
+                      const u8 slot_spacing_y,
+                      const u8 y_offset,
+                      const u16 group_index_offset,
+                      SlotHasItemTester slotHasItem,
+                      SlotItemGetter slotItemGetter);
 
-IItem* slotRefItemGetter(Slot* slot);
-void slotRefItemSetter(Slot* slot, IItem* item);
+#define _slotGroupRender(ctx, transforms, slots, name, y_offset, slotHasItem, slotItemGetter) slotGroupRender0( \
+    (ctx), \
+    (transforms), \
+    (Slot*) (slots), \
+    slotGroupOrigin(name, X), \
+    slotGroupOrigin(name, Y), \
+    slotGroupDim(name, X), \
+    slotGroupDim(name, Y), \
+    slotGroupSlotDim(name, X), \
+    slotGroupSlotDim(name, Y), \
+    slotGroupSlotSpacing(name, X), \
+    slotGroupSlotSpacing(name, Y), \
+    (y_offset), \
+    slotGroupIndexOffset(name), \
+    (slotHasItem), \
+    (slotItemGetter) \
+)
+
+#define slotGroupRender(ctx, transforms, slots, name) _slotGroupRender( \
+    ctx, \
+    transforms, \
+    slots, \
+    name, \
+    0, \
+    slotDirectHasItem, \
+    slotDirectItemGetter \
+)
+#define slotGroupRenderOffset(ctx, transforms, slots, name, y_offset) _slotGroupRender( \
+    ctx, \
+    transforms, \
+    slots, \
+    name, \
+    y_offset, \
+    slotDirectHasItem, \
+    slotDirectItemGetter \
+)
+#define slotGroupRenderRef(ctx, transforms, slots, name) _slotGroupRender( \
+    ctx, \
+    transforms, \
+    slots, \
+    name, \
+    0, \
+    slotRefHasItem, \
+    slotRefItemGetter \
+)
+#define slotGroupRenderRefOffset(ctx, transforms, slots, name, y_offset) _slotGroupRender( \
+    ctx, \
+    transforms, \
+    slots, \
+    name, \
+    y_offset, \
+    slotRefHasItem, \
+    slotRefItemGetter \
+)
 
 #endif // _PSXMC__GAME_GUI__SLOT_H_
