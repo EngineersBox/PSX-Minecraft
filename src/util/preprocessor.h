@@ -160,11 +160,10 @@ static inline void __do_cleanup(__cleanup_block* b) { (*b)(); }
 #define defer __DEFER(__COUNTER__)
 #elif defined(__GNUC__)
 // Source: https://gustedt.wordpress.com/2025/01/06/simple-defer-ready-to-use/
-#define __block
-#define __DEFER__(F, V) \
-    auto void F(int*); \
+#define __DEFER__(F, V)      \
+    auto inline __attribute__((always_inline)) void F(int*);         \
     __attribute__((cleanup(F))) int V; \
-    auto void F(int*)
+    inline __attribute__((always_inline)) void F(int*)
 #define __DEFER_(N) __DEFER__(__DEFER_FUNCTION_ ## N, __DEFER_VARIABLE_ ## N)
 #define __DEFER(N) __DEFER_(N)
 #define defer __DEFER(__COUNTER__)
