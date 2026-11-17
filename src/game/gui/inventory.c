@@ -18,6 +18,10 @@
 #include "../../util/memory.h"
 
 static Texture inventory_bg = {0};
+static Debounce inventory_debounce = debounceInit(
+    INVENTORY_DEBOUNCE_MS,
+    INVENTORY_DEBOUNCE_NO_MATCH_MS
+);
 
 FWD_DECL void worldDropItemStack(World* world, IItem* item, const u8 count);
 
@@ -417,7 +421,7 @@ void Inventory_close(VSelf) {
 InputHandlerState inventoryInputHandler(const Input* input, void* ctx) {
     Inventory* inventory = (Inventory*) ctx;
     if (isPressed(input->pad, BINDING_OPEN_INVENTORY)
-        && debounce(&inventory->debounce, INVENTORY_DEBOUNCE_MS)) {
+        && debounceApply(&inventory_debounce, input->pad->btn)) {
         if (inventory->ui.active) {
             inventoryClose(inventory);
             return INPUT_HANDLER_RELEASE;
@@ -627,15 +631,15 @@ void inventoryCursorHandler(Inventory* inventory,
     processCraftingRecipe(inventory);
     VCALL(cursor_component, update);
     const PADTYPE* pad = input->pad;
-    if (!debounce(&inventory->debounce, INVENTORY_DEBOUNCE_MS)) {
-        return;
-    }
-
-    if (isPressed(pad, BINDING_CURSOR_CLICK)) {
+    if (isPressed(pad, BINDING_CURSOR_CLICK)
+        && debounceApply(&inventory_debounce, BINDING_CURSOR_CLICK)) {
         cursorHandler(inventory, groups, y_offset, false);
-    } else if (isPressed(pad, BINDING_SPLIT_OR_STORE_ONE)) {
+    } else if (isPressed(pad, BINDING_SPLIT_OR_STORE_ONE)
+        && debounceApply(&inventory_debounce, BINDING_SPLIT_OR_STORE_ONE)) {
         cursorHandler(inventory, groups, y_offset, true);
-    } else if (isPressed(pad, BINDING_DROP_ITEM) && cursor.held_data != NULL) {
+    } else if (isPressed(pad, BINDING_DROP_ITEM)
+        && debounceApply(&inventory_debounce, BINDING_DROP_ITEM)
+        && cursor.held_data != NULL) {
         worldDropItemStack(
             world,
             (IItem*) cursor.held_data,

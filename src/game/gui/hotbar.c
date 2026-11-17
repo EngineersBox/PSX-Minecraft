@@ -9,6 +9,11 @@
 #include "../../structure/primitive/primitive.h"
 #include "slot.h"
 
+static Debounce hotbar_debounce = debounceInit(
+    HOTBAR_DEBOUNCE_MS,
+    HOTBAR_DEBOUNCE_NO_MATCH_MS
+);
+
 INLINE Hotbar* hotbarNew() {
     Hotbar* hotbar = malloc(sizeof(Hotbar));
     assert(hotbar != NULL);
@@ -282,10 +287,10 @@ InputHandlerState hotbarInputHandler(const Input* input, void* ctx) {
     }
     Hotbar* hotbar = (Hotbar*) ctx;
     if (isPressed(pad, BINDING_PREVIOUS)
-        && debounce(&hotbar->debounce, HOTBAR_DEBOUNCE_MS)) {
+        && debounceApply(&hotbar_debounce, pad->btn)) {
         hotbar->selected_slot = positiveModulo(((i8) hotbar->selected_slot) - 1, 9);
     } else if (isPressed(pad, BINDING_NEXT)
-        && debounce(&hotbar->debounce, HOTBAR_DEBOUNCE_MS)) {
+        && debounceApply(&hotbar_debounce, pad->btn)) {
         hotbar->selected_slot = positiveModulo(((i8) hotbar->selected_slot) + 1, 9);
     }
     return INPUT_HANDLER_RELEASE_NO_DEBOUNCE;

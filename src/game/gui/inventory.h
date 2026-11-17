@@ -112,6 +112,7 @@ slotGroupCheck(INVENTORY_MAIN);
 slotGroupCheck(INVENTORY_HOTBAR);
 
 #define INVENTORY_DEBOUNCE_MS 100
+#define INVENTORY_DEBOUNCE_NO_MATCH_MS 20
 
 // * 0-3: armour
 // * 4-7: crafting input

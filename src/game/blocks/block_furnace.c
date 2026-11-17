@@ -25,7 +25,10 @@ FWD_DECL void worldSetLightValue(const World *world, const VECTOR *position, con
 FWD_DECL void worldRemoveLightType(const World *world, const VECTOR *position, const LightType light_type);
 
 static Texture furnace_texture = {0};
-Timestamp furnace_debounce = 0;
+static Debounce furnace_debounce = debounceInit(
+    FURNACE_DEBOUNCE_MS,
+    FURNACE_DEBOUNCE_NO_MATCH_MS
+);
 
 InputHandlerState furnaceBlockInputHandler(const Input* input, void* ctx);
 static InputHandlerVTable furnaceBlockInputHandlerVTable = {
@@ -283,9 +286,6 @@ static void processFurnaceRecipe(FurnaceBlock* furnace) {
 
 void cursorHandler(FurnaceBlock* furnace,
                    const bool split_or_store_one) {
-    if (!debounce(&furnace_debounce, FURNACE_DEBOUNCE_MS)) {
-        return;
-    }
     if (!quadIntersectLiteral(
         &cursor.component.position,
         CENTRE_X - (FURNACE_TEXTURE_WIDTH >> 1),
@@ -378,12 +378,16 @@ InputHandlerState furnaceBlockInputHandler(const Input* input, UNUSED void* ctx)
         input
     );
     const PADTYPE* pad = input->pad;
-    if (isPressed(pad, BINDING_CURSOR_CLICK)) {
+    if (isPressed(pad, BINDING_CURSOR_CLICK)
+        && debounceApply(&furnace_debounce, BINDING_CURSOR_CLICK)) {
         cursorHandler(furnace, false);
-    } else if (isPressed(pad, BINDING_SPLIT_OR_STORE_ONE)) {
+    } else if (isPressed(pad, BINDING_SPLIT_OR_STORE_ONE)
+        && debounceApply(&furnace_debounce, BINDING_SPLIT_OR_STORE_ONE)) {
         cursorHandler(furnace, true);
     }
-    if (isPressed(pad, BINDING_DROP_ITEM) && cursor.held_data != NULL) {
+    if (isPressed(pad, BINDING_DROP_ITEM)
+        && debounceApply(&furnace_debounce, BINDING_DROP_ITEM)
+        && cursor.held_data != NULL) {
         worldDropItemStack(
             world,
             (IItem*) cursor.held_data,

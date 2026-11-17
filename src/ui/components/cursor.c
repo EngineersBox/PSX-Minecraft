@@ -11,7 +11,10 @@
 #include "../../util/interface99_extensions.h"
 #include "../../logging/logging.h"
 
-Timestamp cursor_debounce = 0;
+Debounce cursor_debounce = debounceInit(
+    CURSOR_DEBOUNCE_MS,
+    CURSOR_DEBOUNCE_NO_MATCH_MS
+);
 
 UICursor cursor = {
     .component = {
@@ -32,6 +35,9 @@ IUIComponent cursor_component = DYN(UICursor, IUIComponent, &cursor);
 void uiCursorUpdate(VSelf) ALIAS("UICursor_update");
 void UICursor_update(VSelf) {
     VSELF(UICursor);
+    if (!debounceApply(&cursor_debounce, input.pad->btn)) {
+        return;
+    }
     i16 delta_x = 0;
     if (isPressed(input.pad, BINDING_MOVE_LEFT)) {
         delta_x = -CURSOR_MOVE_PIXELS_DELTA;
@@ -66,10 +72,8 @@ void UICursor_update(VSelf) {
             self->state = CURSOR_RELEASED;
             break;
     }
-    if (!debounce(&cursor_debounce, CURSOR_DEBOUNCE_MS)) {
-        return;
-    } else if (isPressed(input.pad, BINDING_CURSOR_CLICK)
-            || isPressed(input.pad, BINDING_SPLIT_OR_STORE_ONE)) {
+    if (isPressed(input.pad, BINDING_CURSOR_CLICK)
+        || isPressed(input.pad, BINDING_SPLIT_OR_STORE_ONE)) {
         self->state = CURSOR_PRESSED;
     }
 }

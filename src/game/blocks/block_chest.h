@@ -9,8 +9,7 @@
 #include "../gui/slot.h"
 
 #define CHEST_DEBOUNCE_MS 100
-
-extern Timestamp chest_debounce;
+#define CHEST_DEBOUNCE_NO_MATCH_MS 20
 
 #define CHEST_SINGLE_TEXTURE_WIDTH 176
 #define CHEST_SINGLE_TEXTURE_HEIGHT 168

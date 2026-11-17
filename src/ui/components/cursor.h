@@ -14,8 +14,8 @@
 #define CURSOR_SPRITE_POS_X 182
 #define CURSOR_SPRITE_POS_Y 106
 
-#define CURSOR_DEBOUNCE_MS 200
-extern Timestamp cursor_debounce;
+#define CURSOR_DEBOUNCE_MS 20
+#define CURSOR_DEBOUNCE_NO_MATCH_MS 20
 
 typedef enum CursorState {
     CURSOR_NONE = 0,

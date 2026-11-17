@@ -20,7 +20,10 @@ FWD_DECL Chunk* worldGetChunk(const World* world, const VECTOR* world_block_pos)
 FWD_DECL void chunkMarkForRemesh(Chunk *chunk);
 
 static Texture chest_texture = {0};
-Timestamp chest_debounce = 0;
+static Debounce chest_debounce = debounceInit(
+    CHEST_DEBOUNCE_MS,
+    CHEST_DEBOUNCE_NO_MATCH_MS
+);
 
 InputHandlerState chestBlockInputHandler(const Input* input, void* ctx);
 static VECTOR chest_world_pos = vec3_i32(0);
@@ -208,9 +211,6 @@ IItem* ChestBlock_provideItem(VSelf) {
 
 static bool cursorHandler(ChestBlock* chest,
                           const bool split_or_store_one) {
-    if (!debounce(&chest_debounce, CHEST_DEBOUNCE_MS)) {
-        return false;
-    }
     i16 texture_width;
     i16 texture_height;
     if (chest->type == CHEST_TYPE_SINGLE) {
@@ -336,9 +336,11 @@ InputHandlerState chestBlockInputHandler(const Input* input, UNUSED void* ctx) {
     const PADTYPE* pad = input->pad;
     bool event_consumed = false;
     if (isPressed(pad, BINDING_CURSOR_CLICK)) {
-        event_consumed = cursorHandler(chest, false);
+        event_consumed = debounceApply(&chest_debounce, pad->btn)
+            && cursorHandler(chest, false);
     } else if (isPressed(pad, BINDING_SPLIT_OR_STORE_ONE)) {
-        event_consumed = cursorHandler(chest, true);
+        event_consumed = debounceApply(&chest_debounce, pad->btn)
+            && cursorHandler(chest, true);
     }
     if (isPressed(pad, BINDING_DROP_ITEM) && cursor.held_data != NULL) {
         worldDropItemStack(
