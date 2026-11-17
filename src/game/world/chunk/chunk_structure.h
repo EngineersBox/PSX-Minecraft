@@ -50,7 +50,7 @@ typedef struct Chunk {
      * False is block_updates.b is active
      */
     bool active_updates_map: 1;
-    u16 _pad: 3;
+    u16 _pad: 2;
     ChunkVisibility visibility;
     VECTOR position;
     ChunkMesh mesh;
