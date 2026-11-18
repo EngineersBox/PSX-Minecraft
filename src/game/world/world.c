@@ -784,6 +784,9 @@ void worldRender(const World* world,
             const ChunkVisit next_visit = (ChunkVisit) {
                 .position = next_chunk,
                 .visited_from = faceDirectionOpposing(face_dir),
+                // TODO: Penalise chunks based on:
+                //       - Being fully dark (+3)
+                //       - Going down when below sea level (+2)
                 .traversal_depth = visit.traversal_depth + 1
             };
             cvector_push_back(render_queue, next_visit);

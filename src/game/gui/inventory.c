@@ -179,29 +179,19 @@ void inventoryRenderSlots(const Inventory* inventory,
     }
     // Render inventory contents
     if (groups & INVENTORY_SLOT_GROUP_ARMOUR) {
-        DEBUG_LOG("Armour\n");
         slotGroupRenderOffset(ctx, transforms, inventory->slots, INVENTORY_ARMOUR, y_offset_items);
-        DEBUG_LOG("After armour\n");
     }
     if (groups & INVENTORY_SLOT_GROUP_CRAFTING) {
-        DEBUG_LOG("Crafting\n");
         slotGroupRenderOffset(ctx, transforms, inventory->slots, INVENTORY_CRAFTING, y_offset_items);
-        DEBUG_LOG("After crafting\n");
     }
     if (groups & INVENTORY_SLOT_GROUP_CRAFTING_RESULT) {
-        DEBUG_LOG("Crafting result\n");
         slotGroupRenderOffset(ctx, transforms, inventory->slots, INVENTORY_CRAFTING_RESULT, y_offset_items);
-        DEBUG_LOG("After crafting result\n");
     }
     if (groups & INVENTORY_SLOT_GROUP_MAIN) {
-        DEBUG_LOG("Main\n");
         slotGroupRenderOffset(ctx, transforms, inventory->slots, INVENTORY_MAIN, y_offset_items);
-        DEBUG_LOG("After main\n");
     }
     if (groups & INVENTORY_SLOT_GROUP_HOTBAR) {
-        DEBUG_LOG("Hotbar\n");
         slotGroupRenderRefOffset(ctx, transforms, inventory->slots, INVENTORY_HOTBAR, y_offset_items);
-        DEBUG_LOG("After hotbar\n");
     }
 }
 

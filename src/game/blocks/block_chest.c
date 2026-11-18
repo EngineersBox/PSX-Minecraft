@@ -430,7 +430,7 @@ void chestBlockRenderUI(RenderContext* ctx, Transforms* transforms) {
     switch (chest->type) {
         case CHEST_TYPE_SINGLE:
             chestSingleRenderUI(chest, ctx, transforms);
-            return;
+            goto chest_render_background;
         case CHEST_TYPE_DOUBLE_LEFT:
             left = chest;
             const VECTOR right_pos = vec3_add(
@@ -452,6 +452,7 @@ void chestBlockRenderUI(RenderContext* ctx, Transforms* transforms) {
     }
     chestDoubleLeftRenderUI(left, ctx, transforms);
     chestDoubleRightRenderUI(right, ctx, transforms);
+chest_render_background:;
     uiBackgroundRender(
         &block_render_ui_context.background,
         ctx,
