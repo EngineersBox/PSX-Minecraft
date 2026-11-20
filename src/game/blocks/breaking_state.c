@@ -6,7 +6,6 @@
 #include "../../math/fixed_point.h"
 #include "../../math/math_utils.h"
 #include "../../util/interface99_extensions.h"
-#include "../../structure/primitive/cube.h"
 #include "../../resources/assets.h"
 #include "../../resources/asset_indices.h"
 #include "../items/items.h"
@@ -17,7 +16,7 @@
 FWD_DECL IBlock* worldGetBlock(const World* world, const VECTOR* position);
 
 const RECT breaking_texture_offscreen = (RECT) {
-    .x = 832,
+    .x = 768,
     .y = 0,
     .w = (16 * FACE_DIRECTION_COUNT),
     .h = 16
@@ -86,11 +85,10 @@ void breakingStateCalculateVisibility(BreakingState* state, const World* world) 
     if (state->block == NULL) {
         return;
     }
-    for (FaceDirection face_dir = 0; face_dir < FACE_DIRECTION_COUNT; face_dir++) {
-        const VECTOR vis_check_position = vec3_i32(
-            state->position.vx + CUBE_NORMS_UNIT[face_dir].vx,
-            state->position.vy - CUBE_NORMS_UNIT[face_dir].vy, // Normal up direction is negative in world space and we use positive for arrays
-            state->position.vz + CUBE_NORMS_UNIT[face_dir].vz
+    for (FaceDirection face_dir = FACE_DIR_DOWN; face_dir <= FACE_DIR_FRONT; face_dir++) {
+        const VECTOR vis_check_position = vec3_add(
+            state->position,
+            FACE_DIRECTION_NORMALS_WORLD_UNIT[face_dir]
         );
         const IBlock* iblock = worldGetBlock(world, &vis_check_position);
         if (iblock == NULL) {
@@ -191,7 +189,7 @@ void breakingStateUpdateRenderTarget(BreakingState* state,
     //    updated correctly in time
     const Block* block = VCAST_PTR(Block*, state->block);
     const TextureAttributes* attributes = blockGetFaceAttributes(block->id, block->metadata_id);
-    for (FaceDirection face_dir = 0; face_dir < FACE_DIRECTION_COUNT; face_dir++) {
+    for (FaceDirection face_dir = FACE_DIR_DOWN; face_dir <= FACE_DIR_FRONT; face_dir++) {
         if (((state->visible_sides_bitset >> face_dir) & 0b1) == 0) {
             continue;
         }

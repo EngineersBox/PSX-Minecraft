@@ -5,6 +5,7 @@
 
 #include <psxgte.h>
 
+#include "primitive.h"
 #include "../../util/inttypes.h"
 
 #define FACE_DIRECTION_COUNT 6
@@ -20,10 +21,14 @@ typedef enum FaceDirection {
 
 // Negative Y up
 extern const SVECTOR FACE_DIRECTION_NORMALS[FACE_DIRECTION_COUNT];
+extern const SVECTOR FACE_DIRECTION_NORMALS_UNIT[FACE_DIRECTION_COUNT];
 // Positive Y up
 extern const SVECTOR FACE_DIRECTION_NORMALS_WORLD[FACE_DIRECTION_COUNT];
+extern const SVECTOR FACE_DIRECTION_NORMALS_WORLD_UNIT[FACE_DIRECTION_COUNT];
 extern const SVECTOR FACE_DIRECTION_RELATIVE_LEFT[FACE_DIRECTION_COUNT];
 extern const SVECTOR FACE_DIRECTION_RELATIVE_RIGHT[FACE_DIRECTION_COUNT];
+
+extern const INDEX FACE_DIRECTION_INDICES[FACE_DIRECTION_COUNT];
 
 /**
  * @brief Computes the direction opposing the given one. I.e returns

@@ -12,6 +12,14 @@ const SVECTOR FACE_DIRECTION_NORMALS[FACE_DIRECTION_COUNT] = {
     [FACE_DIR_BACK] = vec3_i16(0, 0, -1),
     [FACE_DIR_FRONT] = vec3_i16(0, 0, 1)
 };
+const SVECTOR FACE_DIRECTION_NORMALS_UNIT[FACE_DIRECTION_COUNT] = {
+    [FACE_DIR_DOWN] = vec3_i16(0, ONE, 0),
+    [FACE_DIR_UP] = vec3_i16(0, -ONE, 0),
+    [FACE_DIR_LEFT] = vec3_i16(-ONE, 0, 0),
+    [FACE_DIR_RIGHT] = vec3_i16(ONE, 0, 0),
+    [FACE_DIR_BACK] = vec3_i16(0, 0, -ONE),
+    [FACE_DIR_FRONT] = vec3_i16(0, 0, ONE)
+};
 const SVECTOR FACE_DIRECTION_NORMALS_WORLD[FACE_DIRECTION_COUNT] = {
     [FACE_DIR_DOWN] = vec3_i16(0, -1, 0),
     [FACE_DIR_UP] = vec3_i16(0, 1, 0),
@@ -19,6 +27,14 @@ const SVECTOR FACE_DIRECTION_NORMALS_WORLD[FACE_DIRECTION_COUNT] = {
     [FACE_DIR_RIGHT] = vec3_i16(1, 0, 0),
     [FACE_DIR_BACK] = vec3_i16(0, 0, -1),
     [FACE_DIR_FRONT] = vec3_i16(0, 0, 1)
+};
+const SVECTOR FACE_DIRECTION_NORMALS_WORLD_UNIT[FACE_DIRECTION_COUNT] = {
+    [FACE_DIR_DOWN] = vec3_i16(0, -ONE, 0),
+    [FACE_DIR_UP] = vec3_i16(0, ONE, 0),
+    [FACE_DIR_LEFT] = vec3_i16(-ONE, 0, 0),
+    [FACE_DIR_RIGHT] = vec3_i16(ONE, 0, 0),
+    [FACE_DIR_BACK] = vec3_i16(0, 0, -ONE),
+    [FACE_DIR_FRONT] = vec3_i16(0, 0, ONE)
 };
 const SVECTOR FACE_DIRECTION_RELATIVE_LEFT[FACE_DIRECTION_COUNT] = {
     [FACE_DIR_DOWN] = vec3_i16(0),
@@ -35,6 +51,15 @@ const SVECTOR FACE_DIRECTION_RELATIVE_RIGHT[FACE_DIRECTION_COUNT] = {
     [FACE_DIR_RIGHT] = vec3_i16(0, 0, -1),
     [FACE_DIR_BACK] = vec3_i16(-1, 0, 0),
     [FACE_DIR_FRONT] = vec3_i16(1, 0, 0)
+};
+
+const INDEX FACE_DIRECTION_INDICES[FACE_DIRECTION_COUNT] = {
+    [FACE_DIR_DOWN] = {2, 3, 6, 7},
+    [FACE_DIR_UP] = {4, 5, 0, 1},
+    [FACE_DIR_LEFT] = {4, 0, 6, 2},
+    [FACE_DIR_RIGHT] = {1, 5, 3, 7},
+    [FACE_DIR_BACK] = {5, 4, 7, 6},
+    [FACE_DIR_FRONT] = {0, 1, 2, 3}
 };
 
 FaceDirection faceDirectionClosestNormal(const VECTOR vec) {

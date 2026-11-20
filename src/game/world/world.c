@@ -121,7 +121,7 @@ void worldInit(World* world, RenderContext* ctx) {
         .storm_strength = 0,
         .rain_time_ticks = 0,
         .storm_time_ticks = 0,
-        .raining = false,
+        .raining = true,
         .storming = false,
     };
     cvector_init(render_queue, 0, NULL);

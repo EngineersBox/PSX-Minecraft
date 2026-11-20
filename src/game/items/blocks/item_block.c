@@ -6,7 +6,7 @@
 #include <inline_c.h>
 
 #include "../../../structure/primitive/clip.h"
-#include "../../../structure/primitive/cube.h"
+#include "../../../structure/primitive/direction.h"
 #include "../../../resources/asset_indices.h"
 #include "../../../resources/assets.h"
 #include "../../../logging/logging.h"
@@ -100,9 +100,9 @@ void renderItemBlock(ItemBlock* item,
         face_attribute = &item->face_attributes[i];
         POLY_FT4* pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
         #define createVert(_v) vec3_i16( \
-            convertToVertex(CUBE_INDICES[i]._v, 0, ITEM_BLOCK_SIZE) + position_offset->vx, \
-            convertToVertex(CUBE_INDICES[i]._v, 1, ITEM_BLOCK_SIZE) - position_offset->vy, \
-            convertToVertex(CUBE_INDICES[i]._v, 2, ITEM_BLOCK_SIZE) + position_offset->vz \
+            convertToVertex(FACE_DIRECTION_INDICES[i]._v, 0, ITEM_BLOCK_SIZE) + position_offset->vx, \
+            convertToVertex(FACE_DIRECTION_INDICES[i]._v, 1, ITEM_BLOCK_SIZE) - position_offset->vy, \
+            convertToVertex(FACE_DIRECTION_INDICES[i]._v, 2, ITEM_BLOCK_SIZE) + position_offset->vz \
         )
         SVECTOR current_verts[4] = {
             createVert(v0),
@@ -320,9 +320,9 @@ void renderItemBlockInventory(ItemBlock* item,
         face_attribute = &item->face_attributes[i];
         POLY_FT4* pol4 = (POLY_FT4*) allocatePrimitive(ctx, sizeof(POLY_FT4));
         #define createVert(_v) vec3_i16( \
-            convertToVertex(CUBE_INDICES[i]._v, 0, size), \
-            convertToVertex(CUBE_INDICES[i]._v, 1, size), \
-            convertToVertex(CUBE_INDICES[i]._v, 2, size) \
+            convertToVertex(FACE_DIRECTION_INDICES[i]._v, 0, size), \
+            convertToVertex(FACE_DIRECTION_INDICES[i]._v, 1, size), \
+            convertToVertex(FACE_DIRECTION_INDICES[i]._v, 2, size) \
         )
         SVECTOR current_verts[4] = {
             createVert(v0),
@@ -372,7 +372,7 @@ void renderItemBlockInventory(ItemBlock* item,
         }
         gte_ldrgb(&pol4->r0);
         // Load the face normal
-        gte_ldv0(&CUBE_NORMS[i]);
+        gte_ldv0(&FACE_DIRECTION_NORMALS_WORLD_UNIT[i]);
         // Apply RGB tinting to lighting calculation result on the basis
         // that it is enabled.
         if (face_attribute->tint.cd) {
