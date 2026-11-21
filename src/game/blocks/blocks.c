@@ -110,6 +110,8 @@ DECL_BLOCK(CraftingTableBlock, CRAFTING_TABLE, 1, craftingTableBlockFaceAttribut
 DECL_BLOCK(FurnaceBlock, FURNACE, 8, furnaceBlockFaceAttributes());
 DECL_BLOCK(ChestBlock, CHEST, 12, chestBlockFaceAttributes());
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Woverride-init"
 void blocksInitialiseBuiltin() {
     initBlockSingleton(
         AirBlock, AIR,
@@ -142,6 +144,7 @@ void blocksInitialiseBuiltin() {
     initBlockStateful(FURNACE, furnaceBlockCreateAttributes(), furnaceBlockCreate);
     initBlockStateful(CHEST, chestBlockCreateAttributes(), chestBlockCreate);
 }
+#pragma GCC diagnostic pop
 
 bool blockCanHarvest(const ToolType block_tool_type,
                      const ItemMaterial block_tool_material,

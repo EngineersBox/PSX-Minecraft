@@ -28,6 +28,8 @@ ItemConstructor item_constructors[ITEM_COUNT] = {
     [ITEMID_FURNACE]=itemConstructor(furnace),
     [ITEMID_CHEST]=itemConstructor(chest),
 };
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Woverride-init"
 ItemAttributes item_attributes[ITEM_COUNT] = {
     [ITEMID_AIR]={0},
     [ITEMID_STONE]=stoneItemBlockAttributes(),
@@ -39,6 +41,7 @@ ItemAttributes item_attributes[ITEM_COUNT] = {
     [ITEMID_FURNACE]=furnaceItemBlockAttributes(),
     [ITEMID_CHEST]=chestItemBlockAttributes(),
 };
+#pragma GCC diagnostic pop
 
 // #define initItem(id, constructor, attributes) ({
 //     item_constructors[(id)] = constructor;

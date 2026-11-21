@@ -13,19 +13,15 @@ DEFN_BLOCK_CONSTRUCTOR(stone);
 
 // ONE * 1.5 = 6144
 // ONE * 10 = 40960
-#define stoneBlockCreateAttributes() ((BlockAttributes) { \
-    .slipperiness = BLOCK_DEFAULT_SLIPPERINESS, \
+#define stoneBlockCreateAttributes() declareBlockAttributes(\
     .hardness = 6144, \
     .resistance = 40960, \
-    .type = BLOCKTYPE_SOLID, \
     .tool_type = TOOLTYPE_PICKAXE, \
     .tool_material = ITEMMATERIAL_WOOD, \
     .can_harvest = toolTypeBitset(0,1,0,0,0,0), \
-    .propagates_sunlight = false, \
-    .propagates_blocklight = false, \
     .face_attributes = STONE_FACE_ATTRIBUTES, \
     .name = "stone" \
-})
+)
 #define stoneBlockFaceAttributes() { defaultFaceAttributes(1) }
 
 void stoneBlockInit(VSelf);

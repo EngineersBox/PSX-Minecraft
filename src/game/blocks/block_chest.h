@@ -79,19 +79,13 @@ DEFN_BLOCK_STATEFUL(ChestBlock, CHEST,
 
 DEFN_BLOCK_CONSTRUCTOR(chest);
 
-#define chestBlockCreateAttributes() ((BlockAttributes) { \
-    .slipperiness = BLOCK_DEFAULT_SLIPPERINESS, \
-    .hardness = BLOCK_DEFAULT_HARDNESS, \
-    .resistance = BLOCK_DEFAULT_RESISTANCE, \
-    .type = BLOCKTYPE_SOLID, \
-    .tool_type = TOOLTYPE_AXE, \
+#define chestBlockCreateAttributes() declareBlockAttributes(\
+    .tool_Type = TOOLK_TYPE_AXE, \
     .tool_material = ITEMMATERIAL_WOOD, \
     .can_harvest = toolTypeBitset(0,0,1,0,0,0), \
-    .propagates_sunlight = false, \
-    .propagates_blocklight = false, \
     .face_attributes = CHEST_FACE_ATTRIBUTES, \
     .name = "chest" \
-})
+)
 
 #define chestBlockFaceAttributes() P99_PROTECT({\
     declareFaceAttributes(25,25,27,26,26,26), /* Single left */\

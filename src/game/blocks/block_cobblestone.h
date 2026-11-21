@@ -11,19 +11,13 @@ DEFN_BLOCK_STATELESS(CobblestoneBlock, COBBLESTONE);
 
 DEFN_BLOCK_CONSTRUCTOR(cobblestone);
 
-#define cobblestoneBlockCreateAttributes() ((BlockAttributes) { \
-    .slipperiness = BLOCK_DEFAULT_SLIPPERINESS, \
-    .hardness = BLOCK_DEFAULT_HARDNESS, \
-    .resistance = BLOCK_DEFAULT_RESISTANCE, \
-    .type = BLOCKTYPE_SOLID, \
+#define cobblestoneBlockCreateAttributes() declareBlockAttributes(\
     .tool_type = TOOLTYPE_PICKAXE, \
     .tool_material = ITEMMATERIAL_WOOD, \
     .can_harvest = toolTypeBitset(0,1,0,0,0,0), \
-    .propagates_sunlight = false, \
-    .propagates_blocklight = false, \
     .face_attributes = COBBLESTONE_FACE_ATTRIBUTES, \
     .name = "cobblestone" \
-})
+)
 #define cobblestoneBlockFaceAttrbutes() P99_PROTECT({ defaultFaceAttributes(16) })
 
 void cobblestoneBlockInit(VSelf);

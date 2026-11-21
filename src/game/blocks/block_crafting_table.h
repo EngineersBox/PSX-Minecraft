@@ -12,19 +12,13 @@ DEFN_BLOCK_STATELESS(CraftingTableBlock, CRAFTING_TABLE);
 
 DEFN_BLOCK_CONSTRUCTOR(craftingTable);
 
-#define craftingTableBlockCreateAttributes() ((BlockAttributes) { \
-    .slipperiness = BLOCK_DEFAULT_SLIPPERINESS, \
-    .hardness = BLOCK_DEFAULT_HARDNESS, \
-    .resistance = BLOCK_DEFAULT_RESISTANCE, \
-    .type = BLOCKTYPE_SOLID, \
+#define craftingTableBlockCreateAttributes() declareBlockAttributes(\
     .tool_type = TOOLTYPE_AXE, \
     .tool_material = ITEMMATERIAL_WOOD, \
     .can_harvest = toolTypeBitset(1,1,1,1,1,1), \
-    .propagates_sunlight =  false , \
-    .propagates_blocklight =  false , \
     .face_attributes = CRAFTING_TABLE_FACE_ATTRIBUTES, \
     .name = "crafting_table" \
-})
+)
 
 #define craftingTableBlockFaceAttributes() P99_PROTECT({\
     declareFaceAttributes(4,43,59,59,60,60) \

@@ -10,19 +10,13 @@ DEFN_BLOCK_STATELESS(PlankBlock, PLANK);
 
 DEFN_BLOCK_CONSTRUCTOR(plank);
 
-#define plankBlockCreateAttributes() ((BlockAttributes) { \
-    .slipperiness = BLOCK_DEFAULT_SLIPPERINESS, \
-    .hardness = BLOCK_DEFAULT_HARDNESS, \
-    .resistance = BLOCK_DEFAULT_RESISTANCE, \
-    .type = BLOCKTYPE_SOLID, \
+#define plankBlockCreateAttributes() declareBlockAttributes(\
     .tool_type = TOOLTYPE_AXE, \
     .tool_material = ITEMMATERIAL_WOOD, \
     .can_harvest = toolTypeBitset(1,1,1,1,1,1), \
-    .propagates_sunlight = false, \
-    .propagates_blocklight = false, \
     .face_attributes = PLANK_FACE_ATTRIBUTES, \
     .name = "plank" \
-})
+)
 
 #define plankBlockFaceAttributes() P99_PROTECT({\
     defaultFaceAttributes(4) \

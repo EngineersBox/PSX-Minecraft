@@ -12,19 +12,15 @@ DEFN_BLOCK_STATELESS(GrassBlock, GRASS);
 DEFN_BLOCK_CONSTRUCTOR(grass);
 
 // ONE * 0.6 = 2457
-#define grassBlockCreateAttributes() ((BlockAttributes) { \
-    .slipperiness = BLOCK_DEFAULT_SLIPPERINESS, \
+#define grassBlockCreateAttributes() declareBlockAttributes(\
     .hardness = 2457, \
     .resistance = 12288, \
-    .type = BLOCKTYPE_SOLID, \
     .tool_type = TOOLTYPE_SHOVEL, \
     .tool_material = ITEMMATERIAL_WOOD, \
     .can_harvest = toolTypeBitset(1,1,1,1,1,1), \
-    .propagates_sunlight = false, \
-    .propagates_blocklight = false, \
     .face_attributes = GRASS_FACE_ATTRIBUTES, \
     .name = "grass" \
-})
+)
 #define grassBlockFaceAttributes() P99_PROTECT({ declareTintedFaceAttributes( \
     2 /*49*/, NO_TINT, \
     0 /*49*/, /*NO_TINT,*/ faceTint(91, 139, 50, 1), \

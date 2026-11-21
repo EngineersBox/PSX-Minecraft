@@ -89,19 +89,13 @@ DEFN_BLOCK_STATEFUL(FurnaceBlock, FURNACE,
 
 DEFN_BLOCK_CONSTRUCTOR(furnace);
 
-#define furnaceBlockCreateAttributes() ((BlockAttributes) { \
-    .slipperiness = BLOCK_DEFAULT_SLIPPERINESS, \
-    .hardness = BLOCK_DEFAULT_HARDNESS, \
-    .resistance = BLOCK_DEFAULT_RESISTANCE, \
-    .type = BLOCKTYPE_SOLID, \
+#define furnaceBlockCreateAttributes() declareBlockAttributes(\
     .tool_type = TOOLTYPE_PICKAXE, \
     .tool_material = ITEMMATERIAL_WOOD, \
     .can_harvest = toolTypeBitset(0,1,0,0,0,0), \
-    .propagates_sunlight = false, \
-    .propagates_blocklight = false, \
     .face_attributes = FURNACE_FACE_ATTRIBUTES, \
     .name = "furnace" \
-})
+)
 
 #define furnaceBlockFaceAttributes() P99_PROTECT({\
     declareFaceAttributes(62,62,44,45,45,45), /* Left unlit */ \

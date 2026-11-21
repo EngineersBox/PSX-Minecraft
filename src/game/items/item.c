@@ -3,7 +3,6 @@
 #include "../../core/std/stdlib.h"
 #include <stdbool.h>
 
-#include "../../logging/logging.h"
 #include "items.h"
 #include "../../util/memory.h"
 

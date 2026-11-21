@@ -78,7 +78,8 @@ typedef struct BlockAttributes {
     u8 can_harvest: TOOL_TYPE_COUNT;
     bool propagates_sunlight: 1;
     bool propagates_blocklight: 1;
-    u16 _pad: 13;
+    bool unbreakable: 1;
+    u32 _pad: 12;
     // This is a variable length array with length
     // a multiple of 6, where each 6 entries will
     // correspond to a metadata_id grouping of
@@ -86,6 +87,20 @@ typedef struct BlockAttributes {
     TextureAttributes* face_attributes;
     char* name;
 } BlockAttributes;
+
+#define declareBlockAttributes(_name, _face_attriutes, ...) ((BlockAttributes) { \
+    .slipperiness = BLOCK_DEFAULT_SLIPPERINESS, \
+    .hardness = BLOCK_DEFAULT_RESISTANCE, \
+    .resistance = BLOCK_DEFAULT_RESISTANCE, \
+    .type = BLOCKTYPE_SOLID, \
+    .tool_type = TOOLTYPE_NONE, \
+    .tool_material = ITEMMATERIAL_NONE, \
+    .can_harvest = 0, \
+    .propagates_sunlight = false, \
+    .propagates_blocklight = false, \
+    .unbreakable = false, \
+    __VA_ARGS__ \
+})
 
 typedef struct Block {
     CompositeID(BlockID, u8, u16);
