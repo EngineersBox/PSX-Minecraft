@@ -38,27 +38,27 @@ typedef u8 BlockID;
 #define BLOCK_TYPE_COUNT 11
 #define BLOCK_TYPE_COUNT_BITS 4
 typedef enum BlockType {
-    BLOCKTYPE_EMPTY = 0,
+    BLOCK_TYPE_EMPTY = 0,
     // Regular block
-    BLOCKTYPE_SOLID,
+    BLOCK_TYPE_SOLID,
     // Stairs
-    BLOCKTYPE_STAIR,
+    BLOCK_TYPE_STAIR,
     // Slabs, bed, cake
-    BLOCKTYPE_SLAB,
+    BLOCK_TYPE_SLAB,
     // Fences
-    BLOCKTYPE_FENCE,
+    BLOCK_TYPE_FENCE,
     // Spalings, flowers, reeds
-    BLOCKTYPE_CROSS,
+    BLOCK_TYPE_CROSS,
     // Wheat
-    BLOCKTYPE_HASH,
+    BLOCK_TYPE_HASH,
     // Redstone, rails, pressure plates
-    BLOCKTYPE_PLATE,
+    BLOCK_TYPE_PLATE,
     // Door, trapdoor
-    BLOCKTYPE_DOOR,
+    BLOCK_TYPE_DOOR,
     // Torches
-    BLOCKTYPE_ROD,
+    BLOCK_TYPE_ROD,
     // Water, lava
-    BLOCKTYPE_LIQUID
+    BLOCK_TYPE_LIQUID
 } BlockType;
 
 typedef struct BlockAttributes {
@@ -92,8 +92,8 @@ typedef struct BlockAttributes {
     .slipperiness = BLOCK_DEFAULT_SLIPPERINESS, \
     .hardness = BLOCK_DEFAULT_RESISTANCE, \
     .resistance = BLOCK_DEFAULT_RESISTANCE, \
-    .type = BLOCKTYPE_SOLID, \
-    .tool_type = TOOLTYPE_NONE, \
+    .type = BLOCK_TYPE_SOLID, \
+    .tool_type = TOOL_TYPE_NONE, \
     .tool_material = ITEMMATERIAL_NONE, \
     .can_harvest = 0, \
     .propagates_sunlight = false, \

@@ -16,8 +16,8 @@ DEFN_BLOCK_CONSTRUCTOR(air);
     .slipperiness = 0, \
     .hardness = 0, \
     .resistance = 0, \
-    .type = BLOCKTYPE_EMPTY, \
-    .tool_type = TOOLTYPE_NONE, \
+    .type = BLOCK_TYPE_EMPTY, \
+    .tool_type = TOOL_TYPE_NONE, \
     .tool_material = ITEMMATERIAL_NONE, \
     .can_harvest = toolTypeBitset(0,0,0,0,0,0), \
     .propagates_sunlight = true, \

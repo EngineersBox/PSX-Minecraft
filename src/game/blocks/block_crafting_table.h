@@ -13,7 +13,7 @@ DEFN_BLOCK_STATELESS(CraftingTableBlock, CRAFTING_TABLE);
 DEFN_BLOCK_CONSTRUCTOR(craftingTable);
 
 #define craftingTableBlockCreateAttributes() declareBlockAttributes(\
-    .tool_type = TOOLTYPE_AXE, \
+    .tool_type = TOOL_TYPE_AXE, \
     .tool_material = ITEMMATERIAL_WOOD, \
     .can_harvest = toolTypeBitset(1,1,1,1,1,1), \
     .face_attributes = CRAFTING_TABLE_FACE_ATTRIBUTES, \

@@ -17,12 +17,12 @@ Write your code in this editor and press "Run" button to compile and execute it.
 typedef uint8_t BlockID;
 
 typedef enum {
-    BLOCKTYPE_EMPTY = 0,
-    BLOCKTYPE_SOLID,
-    BLOCKTYPE_STAIR,
-    BLOCKTYPE_SLAB,
-    BLOCKTYPE_CROSS,
-    BLOCKTYPE_HASH
+    BLOCK_TYPE_EMPTY = 0,
+    BLOCK_TYPE_SOLID,
+    BLOCK_TYPE_STAIR,
+    BLOCK_TYPE_SLAB,
+    BLOCK_TYPE_CROSS,
+    BLOCK_TYPE_HASH
 } BlockType;
 
 typedef enum {
@@ -52,7 +52,7 @@ int main() {
     Stone stone = (Stone) {
         .block = (Block) {
             .id = 1,
-            .type = BLOCKTYPE_SOLID,
+            .type = BLOCK_TYPE_SOLID,
             .orientation = ORIENTATION_POS_X,
             .face_attributes = { 1, 2, 3, 4, 5, 6  },
             .name = "stone"

@@ -13,8 +13,8 @@ DEFN_ITEM_BLOCK({{ name_capital }}ItemBlock);
 #define {{ name_lower }}ItemBlockAttributes() ((ItemAttributes) { \
     .max_stack_size = {{ max_stack_size }}, \
     .max_durability = {{ max_durability }}, \
-    .type = ITEMTYPE_BLOCK, \
-    .tool_type = TOOLTYPE_NONE, \
+    .type = ITEM_TYPE_BLOCK, \
+    .tool_type = TOOL_TYPE_NONE, \
     .armour_type = ARMOURTYPE_NONE, \
     .material = ITEMMATERIAL_NONE, \
     .name = "{{ name_snake_lower }}" \

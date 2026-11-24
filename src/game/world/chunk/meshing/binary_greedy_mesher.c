@@ -59,7 +59,7 @@ INLINE static void addVoxelToFaceColumns(FacesColumns axis_cols,
         return;
     }
     const Block* block = VCAST_PTR(Block*, iblock);
-    if (blockGetType(block->id) == BLOCKTYPE_EMPTY) {
+    if (blockGetType(block->id) == BLOCK_TYPE_EMPTY) {
         return;
     }
     axis_cols[FACE_DIR_DOWN][z][x] |= 1 << y;
@@ -181,7 +181,7 @@ static bool chunkBitmapFindRoot(ChunkBitmap bitmap,
                 const VECTOR pos = vec3_i32(x, y, z);
                 const IBlock* iblock = chunkGetBlockVec(chunk, &pos);
                 const Block* block = VCAST_PTR(Block*, iblock);
-                if (blockGetType(block->id) != BLOCKTYPE_SOLID) {
+                if (blockGetType(block->id) != BLOCK_TYPE_SOLID) {
                     *out_pos = pos;
                     return true;
                 }
@@ -250,7 +250,7 @@ static u16 chunkBitmapFillSolid(ChunkBitmap bitmap,
             const bool opposing_opaque = blockIsFaceOpaque(opposing_block, opposing_face_direction);
             const BlockType opposing_block_type = blockGetType(opposing_block->id);
             // TODO: Do we need the blocktype check, or are the dual opaque faces sufficient?
-            if (facing_opaque && opposing_opaque && opposing_block_type == BLOCKTYPE_SOLID) {
+            if (facing_opaque && opposing_opaque && opposing_block_type == BLOCK_TYPE_SOLID) {
                 cvector_push_back(queue, next_pos);
                 chunkBitmapSetBit(bitmap, &next_pos);
             }
@@ -286,7 +286,7 @@ static u16 visitBlock(ChunkBitmap bitmap,
     const FaceDirection opposing_face_direction = faceDirectionFromNormal(opposing_normal);
     const bool opposing_opaque = blockIsFaceOpaque(opposing_block, opposing_face_direction);
     const BlockType opposing_block_type = blockGetType(opposing_block->id);
-    if (opposing_opaque && opposing_block_type == BLOCKTYPE_SOLID) {
+    if (opposing_opaque && opposing_block_type == BLOCK_TYPE_SOLID) {
         // Solid opaque, light cannot pass through to the next
         // block from this direction
         return chunkBitmapFillSolid(
@@ -553,7 +553,7 @@ void binaryGreedyMesherBuildMesh(Chunk* chunk, const BreakingState* breaking_sta
         NULL
     );
     // Find faces and build binary planes based on block types
-    for (u32 face = 0; face < FACE_DIRECTION_COUNT; face++) {
+    for (FaceDirection face = FACE_DIR_DOWN; face <= FACE_DIR_FRONT; face++) {
         for (u32 z = 0; z < CHUNK_SIZE; z++) {
             for (u32 x = 0; x < CHUNK_SIZE; x++) {
                 // Skip padding
@@ -626,7 +626,7 @@ face,
                         return;
                     }
                     const Block* block = VCAST_PTR(Block*, current_block);
-                    if (blockGetType(block->id) == BLOCKTYPE_EMPTY) {
+                    if (blockGetType(block->id) == BLOCK_TYPE_EMPTY) {
                         errorAbort(
                             "[BINARY GREEDY MESHER] Empty block encountered while constructing mask [Face: %d] [Chunk: " VEC_PATTERN "] [Block: " VEC_PATTERN "]\n",
                             face,
@@ -649,11 +649,17 @@ face,
                         &light_query_pos
                     );
                     const PlaneMeshingData query = (PlaneMeshingData) {
+                        // NOTE: This key determines how the mesher joins faces.
+                        //       If there are several of the same block in a row,
+                        //       with the same key, they get merged into one set
+                        //       of faces. If the key differs, each is rendered
+                        //       separately.
                         .key = (PlaneMeshingDataKey) {
-                            face,
-                            y,
-                            light_level,
-                            block
+                            .face=face,
+                            .axis=y,
+                            ._pad = 0,
+                            .light_level=light_level,
+                            .block=block
                         },
                         .plane = {0},
                     };
@@ -742,8 +748,11 @@ static SVECTOR createVertex(const i32 chunk_origin_x,
                             const i32 chunk_origin_z,
                             const FaceDirection face_dir,
                             const i32 axis,
+                            const fixedi32 axis_offset, // [0, BLOCK_SIZE)
                             const i32 x,
                             const i32 y) {
+    assert(axis_offset >= 0);
+    assert(axis_offset < BLOCK_SIZE);
     SVECTOR vertex = {0};
 #define pos(_x, _y, _z) vec3_i16( \
     (chunk_origin_x + (_x)) * BLOCK_SIZE, \
@@ -751,12 +760,12 @@ static SVECTOR createVertex(const i32 chunk_origin_x,
     (chunk_origin_z + (_z)) * BLOCK_SIZE \
 )
     switch (face_dir) {
-        case FACE_DIR_DOWN: vertex = pos(x, axis, y); break;
-        case FACE_DIR_UP: vertex = pos(x, axis + 1, y); break;
-        case FACE_DIR_LEFT: vertex = pos(axis, y, x); break;
-        case FACE_DIR_RIGHT: vertex = pos(axis + 1, y, x); break;
-        case FACE_DIR_BACK: vertex = pos(x, y, axis); break;
-        case FACE_DIR_FRONT: vertex = pos(x, y, axis + 1); break;
+        case FACE_DIR_DOWN: vertex = pos(x, axis, y); vertex.vy += axis_offset; break;
+        case FACE_DIR_UP: vertex = pos(x, axis + 1, y); vertex.vy -= axis_offset; break;
+        case FACE_DIR_LEFT: vertex = pos(axis, y, x); vertex.vx += axis_offset; break;
+        case FACE_DIR_RIGHT: vertex = pos(axis + 1, y, x); vertex.vx -= axis_offset; break;
+        case FACE_DIR_BACK: vertex = pos(x, y, axis); vertex.vz += axis_offset; break;
+        case FACE_DIR_FRONT: vertex = pos(x, y, axis + 1); vertex.vz -= axis_offset; break;
     }
 #undef pos
     return vertex;
@@ -766,14 +775,11 @@ static void createVertices(Chunk* chunk,
                            MeshPrimitive* primitive,
                            const FaceDirection face_dir,
                            const i32 axis,
+                           const fixedi32 axis_offset,
                            const i32 x,
                            const i32 y,
                            const i32 w,
                            const i32 h) {
-    // TODO: This should create sets of vertices based on the
-    //       block type (implying the model). It will need to
-    //       be able to create more than 4 vertices for some
-    //       such as stairs.
     Mesh* const mesh = &chunk->mesh.face_meshes[face_dir];
     // Construct vertices relative to chunk mesh bottom left origin
     const i32 chunk_origin_x = chunk->position.vx * CHUNK_SIZE;
@@ -785,6 +791,7 @@ static void createVertices(Chunk* chunk,
     chunk_origin_z, \
     face_dir, \
     axis, \
+    axis_offset, \
     (_x), \
     (_y) \
 )
@@ -806,6 +813,7 @@ static void createVertices(Chunk* chunk,
 
 static void createNormal(ChunkMesh* mesh,
                          MeshPrimitive* primitive,
+                         const Block* block,
                          const FaceDirection face_dir) {
     // TODO: When supporting general block models based on the type
     //       this will need to generate potentially multiple normals
@@ -813,21 +821,18 @@ static void createNormal(ChunkMesh* mesh,
     //       also need to address models that are not axially aligned
     //       such as sugar cane.
     SVECTOR* norm = nextRenderAttribute(&mesh->face_meshes[face_dir], p_norms, n0, n_norms);
-#undef nextRenderAttribute
-    *norm = vec3_const_mul(
-        FACE_DIRECTION_NORMALS[face_dir],
-        ONE
-    );
+    *norm = FACE_DIRECTION_NORMALS_UNIT[face_dir];
 }
+#undef nextRenderAttribute
 
-static void createMesh(Chunk* chunk,
-                       const PlaneMeshingDataKey* data,
-                       const Texture* texture_override,
-                       const TextureAttributes* texture_attributes_override,
-                       const u32 x,
-                       const u32 y,
-                       const u32 w,
-                       const u32 h) {
+static void meshBlockTypeSolid(Chunk* chunk,
+                               const PlaneMeshingDataKey* data,
+                               const Texture* texture_override,
+                               const TextureAttributes* texture_attributes_override,
+                               const u32 x,
+                               const u32 y,
+                               const u32 w,
+                               const u32 h) {
     MeshPrimitive* primitive = createPrimitive(
         &chunk->mesh,
         data,
@@ -841,6 +846,7 @@ static void createMesh(Chunk* chunk,
         primitive,
         data->face,
         data->axis,
+        0,
         x,
         y,
         w,
@@ -849,9 +855,45 @@ static void createMesh(Chunk* chunk,
     createNormal(
         &chunk->mesh,
         primitive,
+        data->block,
         data->face
     );
 }
+
+static void meshBlockTypeStair(Chunk* chunk,
+                               const PlaneMeshingDataKey* data,
+                               const Texture* texture_override,
+                               const TextureAttributes* texture_attributes_override,
+                               const u32 x,
+                               const u32 y,
+                               const u32 w,
+                               const u32 h) {
+    UNIMPLEMENTED();
+}
+
+typedef void (*MeshingFn)(Chunk* chunk,
+                          const PlaneMeshingDataKey* data,
+                          const Texture* texture_override,
+                          const TextureAttributes* texture_attributes_override,
+                          const u32 x,
+                          const u32 y,
+                          const u32 w,
+                          const u32 h);
+
+static MeshingFn meshing_functions[BLOCK_TYPE_COUNT] = {
+    [BLOCK_TYPE_EMPTY]=NULL,
+    [BLOCK_TYPE_SOLID]=meshBlockTypeSolid,
+    // TODO: Implement these
+    [BLOCK_TYPE_STAIR]=meshBlockTypeStair,
+    [BLOCK_TYPE_SLAB]=NULL,
+    [BLOCK_TYPE_FENCE]=NULL,
+    [BLOCK_TYPE_CROSS]=NULL,
+    [BLOCK_TYPE_HASH]=NULL,
+    [BLOCK_TYPE_PLATE]=NULL,
+    [BLOCK_TYPE_DOOR]=NULL,
+    [BLOCK_TYPE_ROD]=NULL,
+    [BLOCK_TYPE_LIQUID]=NULL,
+};
 
 void binaryGreedyMesherConstructPlane(Chunk* chunk,
                                       PlaneMeshingData* data,
@@ -883,7 +925,9 @@ void binaryGreedyMesherConstructPlane(Chunk* chunk,
                 data->plane[row + w] &= ~mask;
                 w++;
             }
-            createMesh(
+            const MeshingFn meshing_fn = meshing_functions[blockGetType(data->key.block->id)];
+            assert(meshing_fn != NULL && "Meshing function unimplemented");
+            meshing_fn(
                 chunk,
                 &data->key,
                 NULL,
@@ -987,7 +1031,9 @@ void binaryGreedyMesherConstructBreakingOverlay(Chunk* chunk, const BreakingStat
             .light_level= worldGetLightValue(chunk->world, &light_query_pos),
             .block = block
         };
-        createMesh(
+        const MeshingFn meshing_fn = meshing_functions[blockGetType(key.block->id)];
+        assert(meshing_fn != NULL && "Meshing function unimplemented");
+        meshing_fn(
             chunk,
             &key,
             &texture,

@@ -13,8 +13,8 @@ DEFN_ITEM_BLOCK(ChestItemBlock);
 #define chestItemBlockAttributes() ((ItemAttributes) { \
     .max_stack_size = 64, \
     .max_durability = 0, \
-    .type = ITEMTYPE_BLOCK, \
-    .tool_type = TOOLTYPE_NONE, \
+    .type = ITEM_TYPE_BLOCK, \
+    .tool_type = TOOL_TYPE_NONE, \
     .armour_type = ARMOURTYPE_NONE, \
     .material = ITEMMATERIAL_NONE, \
     .name = "chest" \

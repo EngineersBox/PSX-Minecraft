@@ -28,10 +28,10 @@ typedef u8 ItemID;
 #define ITEM_TYPE_COUNT 4
 #define ITEM_TYPE_COUNT_BITS 2
 typedef enum ItemType {
-    ITEMTYPE_BLOCK,
-    ITEMTYPE_RESOURCE,
-    ITEMTYPE_TOOL,
-    ITEMTYPE_ARMOUR
+    ITEM_TYPE_BLOCK,
+    ITEM_TYPE_RESOURCE,
+    ITEM_TYPE_TOOL,
+    ITEM_TYPE_ARMOUR
 } ItemType;
 
 #define ARMOUR_TYPE_COUNT 5
@@ -73,8 +73,8 @@ typedef struct ItemAttributes {
 #define declareItemAttributes(_name, ...) (ItemAttributes) { \
     .max_stack_size = 64, \
     .max_durability = 0, \
-    .type = ITEMTYPE_BLOCK, \
-    .tool_type = TOOLTYPE_NONE, \
+    .type = ITEM_TYPE_BLOCK, \
+    .tool_type = TOOL_TYPE_NONE, \
     .armour_type = ARMOURTYPE_NONE, \
     .material = ITEMMATERIAL_NONE, \
     ._pad = 0, \

@@ -15,7 +15,7 @@ DEFN_BLOCK_CONSTRUCTOR(dirt);
 // ONE * 0.5 = 2048
 #define dirtBlockCreateAttributes() declareBlockAttributes( \
     .hardness = 2048, \
-    .tool_type = TOOLTYPE_SHOVEL, \
+    .tool_type = TOOL_TYPE_SHOVEL, \
     .tool_material = ITEMMATERIAL_WOOD, \
     .can_harvest = toolTypeBitset(1,1,1,1,1,1), \
     .face_attributes = DIRT_FACE_ATTRIBUTES, \

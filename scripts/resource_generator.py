@@ -152,17 +152,17 @@ def main():
     parser_block.add_argument(
         "--type",
         type=str,
-        default="BLOCKTYPE_SOLID",
+        default="BLOCK_TYPE_SOLID",
         choices=[
-            "BLOCKTYPE_EMPTY",
-            "BLOCKTYPE_SOLID",
-            "BLOCKTYPE_STAIR",
-            "BLOCKTYPE_SLAB",
-            "BLOCKTYPE_CROSS",
-            "BLOCKTYPE_HASH",
-            "BLOCKTYPE_PLATE",
-            "BLOCKTYPE_ROD",
-            "BLOCKTYPE_LIQUID"
+            "BLOCK_TYPE_EMPTY",
+            "BLOCK_TYPE_SOLID",
+            "BLOCK_TYPE_STAIR",
+            "BLOCK_TYPE_SLAB",
+            "BLOCK_TYPE_CROSS",
+            "BLOCK_TYPE_HASH",
+            "BLOCK_TYPE_PLATE",
+            "BLOCK_TYPE_ROD",
+            "BLOCK_TYPE_LIQUID"
         ],
         help="Block type to determine mesh and characteristics"
     )
@@ -175,14 +175,14 @@ def main():
     parser_block.add_argument(
         "--tool_type",
         type=str,
-        default="TOOLTYPE_NONE",
+        default="TOOL_TYPE_NONE",
         choices=[
-            "TOOLTYPE_PICKAXE",
-            "TOOLTYPE_AXE",
-            "TOOLTYPE_SWORD",
-            "TOOLTYPE_SHOVEL",
-            "TOOLTYPE_HOE",
-            "TOOLTYPE_NONE"
+            "TOOL_TYPE_PICKAXE",
+            "TOOL_TYPE_AXE",
+            "TOOL_TYPE_SWORD",
+            "TOOL_TYPE_SHOVEL",
+            "TOOL_TYPE_HOE",
+            "TOOL_TYPE_NONE"
         ],
         help="Type of tool that is used to mine the block"
     )

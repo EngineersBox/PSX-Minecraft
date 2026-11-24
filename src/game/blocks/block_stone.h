@@ -16,7 +16,7 @@ DEFN_BLOCK_CONSTRUCTOR(stone);
 #define stoneBlockCreateAttributes() declareBlockAttributes(\
     .hardness = 6144, \
     .resistance = 40960, \
-    .tool_type = TOOLTYPE_PICKAXE, \
+    .tool_type = TOOL_TYPE_PICKAXE, \
     .tool_material = ITEMMATERIAL_WOOD, \
     .can_harvest = toolTypeBitset(0,1,0,0,0,0), \
     .face_attributes = STONE_FACE_ATTRIBUTES, \

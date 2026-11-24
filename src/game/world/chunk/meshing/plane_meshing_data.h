@@ -3,8 +3,9 @@
 #ifndef _PSXMC__GAME_WORLD_CHUNK_MESHING__PLANE_MESHING_DATA_H_
 #define _PSXMC__GAME_WORLD_CHUNK_MESHING__PLANE_MESHING_DATA_H_
 
-#include "../chunk_structure.h"
+#include "../../../blocks/block.h"
 #include "../../../lighting/lightmap.h"
+#include "../../../../structure/primitive/direction.h"
 #include "../../../../util/inttypes.h"
 
 #if defined(CHUNK_SIZE) && CHUNK_SIZE > 0 && CHUNK_SIZE <= 32 && _isPowerOf2(CHUNK_SIZE)
@@ -16,8 +17,9 @@
 #endif
 
 typedef struct {
-    const u8 face;
-    const u8 axis;
+    const FaceDirection face: 3;
+    const FaceDirection axis: 3;
+    const u8 _pad: 2;
     const LightLevel light_level;
     const Block* block;
 } PlaneMeshingDataKey;

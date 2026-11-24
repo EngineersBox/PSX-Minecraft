@@ -90,7 +90,7 @@ DEFN_BLOCK_STATEFUL(FurnaceBlock, FURNACE,
 DEFN_BLOCK_CONSTRUCTOR(furnace);
 
 #define furnaceBlockCreateAttributes() declareBlockAttributes(\
-    .tool_type = TOOLTYPE_PICKAXE, \
+    .tool_type = TOOL_TYPE_PICKAXE, \
     .tool_material = ITEMMATERIAL_WOOD, \
     .can_harvest = toolTypeBitset(0,1,0,0,0,0), \
     .face_attributes = FURNACE_FACE_ATTRIBUTES, \

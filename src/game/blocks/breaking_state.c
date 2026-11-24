@@ -32,12 +32,12 @@ void breakingStateCalculateTicks(BreakingState* state,
     const Block* block = VCAST_PTR(Block*, state->block);
     const ToolType block_tool_type = blockGetToolType(block->id);
     const ItemMaterial block_tool_material = blockGetToolMaterial(block->id);
-    ToolType item_tool_type = TOOLTYPE_NONE;
+    ToolType item_tool_type = TOOL_TYPE_NONE;
     ItemMaterial item_tool_material = ITEMMATERIAL_NONE;
     if (held_item != NULL) {
         const Item* item = VCAST_PTR(Item*, held_item);
         const ItemID item_id = item->id;
-        if (itemGetType(item_id) == ITEMTYPE_TOOL) {
+        if (itemGetType(item_id) == ITEM_TYPE_TOOL) {
             item_tool_type = itemGetToolType(item_id);
             item_tool_material = itemGetMaterial(item_id);
         }

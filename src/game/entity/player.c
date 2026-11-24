@@ -186,7 +186,7 @@ void updateBreakingState(Player* player, const RayCastResult* result, const Worl
     const BlockID block_id = block->id;
     const ToolType block_tool_type = blockGetToolType(block_id);
     const ItemMaterial block_tool_material = blockGetToolMaterial(block_id);
-    ToolType item_tool_type = TOOLTYPE_NONE;
+    ToolType item_tool_type = TOOL_TYPE_NONE;
     ItemMaterial item_tool_material = ITEMMATERIAL_NONE;
     if (iitem == NULL) {
         // No item in the player's hand
@@ -194,7 +194,7 @@ void updateBreakingState(Player* player, const RayCastResult* result, const Worl
     }
     Item* item = VCAST_PTR(Item*, iitem);
     const ItemID item_id = item->id;
-    if (itemGetType(item_id) != ITEMTYPE_TOOL) {
+    if (itemGetType(item_id) != ITEM_TYPE_TOOL) {
         // Not a tool, so no durability decrement or tool breaking to handle
         goto remove_world_block;
     }
@@ -316,7 +316,7 @@ INLINE static void playerInputHandlerUse(const PlayerInputHandlerContext* ctx) {
     }
     Item* item = VCAST_PTR(Item*, iitem);
     switch (itemGetType(item->id)) {
-        case ITEMTYPE_BLOCK:
+        case ITEM_TYPE_BLOCK:
             if (result.block == NULL) {
                 break;
             }
@@ -380,7 +380,7 @@ INLINE static void playerInputHandlerUse(const PlayerInputHandlerContext* ctx) {
                 return;
             }
             break;
-        case ITEMTYPE_TOOL:;
+        case ITEM_TYPE_TOOL:;
             const ItemActionState action_state = VCALL(*iitem, useAction);
             switch (action_state) {
                 case ITEM_ACTION_STATE_DESTROY:
@@ -393,8 +393,8 @@ INLINE static void playerInputHandlerUse(const PlayerInputHandlerContext* ctx) {
                     break;
             }
             break;
-        case ITEMTYPE_RESOURCE:
-        case ITEMTYPE_ARMOUR:
+        case ITEM_TYPE_RESOURCE:
+        case ITEM_TYPE_ARMOUR:
             break;
     }
 block_update:

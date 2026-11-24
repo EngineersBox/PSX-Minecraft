@@ -11,7 +11,7 @@ DEFN_BLOCK_STATELESS(PlankBlock, PLANK);
 DEFN_BLOCK_CONSTRUCTOR(plank);
 
 #define plankBlockCreateAttributes() declareBlockAttributes(\
-    .tool_type = TOOLTYPE_AXE, \
+    .tool_type = TOOL_TYPE_AXE, \
     .tool_material = ITEMMATERIAL_WOOD, \
     .can_harvest = toolTypeBitset(1,1,1,1,1,1), \
     .face_attributes = PLANK_FACE_ATTRIBUTES, \

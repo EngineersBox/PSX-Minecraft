@@ -21,7 +21,7 @@
 * [X] Chunks with a negative component in position don't generate meshes correctly (incorrect faces and textures)
 * [X] Texture attributes on block item rendering in world and picked up items in inventory
 * [X] Resource generation script does not contain new attributes for `ItemBlock` instances
-* [X] Propagating light should be considered for blocks that are not solid, not just whether they are `BLOCKTYPE_EMPTY`
+* [X] Propagating light should be considered for blocks that are not solid, not just whether they are `BLOCK_TYPE_EMPTY`
 * [X] Item world position is incorrect causing rendering issues and physics seems to cause items to rise into the air despite no collision
 * [X] Block item base position currently uses `AABB->max`, however we should use `AABB->min` and fix the render offsets + bobbing since it intersects with the block below
 * [X] Dropped items don't have world lighting correctly applied to them. We should also query the lightmap to determine how lit the item should be scaled by world lighting the same way that terrain is lit.

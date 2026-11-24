@@ -136,7 +136,7 @@ RayCastResult worldRayCastIntersection(const World* world,
         }
         const Block* block = VCAST_PTR(Block*, iblock);
         // TODO: Handle sub-block intersection test for blocks like doors and piston heads
-        if (blockGetType(block->id) != BLOCKTYPE_EMPTY) {
+        if (blockGetType(block->id) != BLOCK_TYPE_EMPTY) {
             return (RayCastResult) {
                 .pos = vec3_i32(position.vx, position.vy, position.vz),
                 .block = iblock,
