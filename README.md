@@ -77,10 +77,7 @@ Remake of Minecraft for PS1 with PSn00bSDK
 
 ### Current Goals 
 
- * Finishing touches on chunk culling
- * Polygon subdivision in chunk rendering
- * Implement furnace and chest
- * Design block update system for blocks, liquids and redstone components
+* Meshing support for non-solid blocks (i.e. stairs, slabs, doors, etc)
 
 ### Screenshots
 
